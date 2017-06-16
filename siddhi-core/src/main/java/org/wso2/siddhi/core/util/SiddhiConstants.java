@@ -76,7 +76,7 @@ public final class SiddhiConstants {
     public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
     public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
-    public static final String METRIC_INFIX_EXECUTION_PLANS = "ExecutionPlans";
+    public static final String METRIC_INFIX_EXECUTION_PLANS = "SiddhiApps";
     public static final String METRIC_INFIX_STREAMS = "Streams";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";

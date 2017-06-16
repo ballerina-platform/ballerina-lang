@@ -18,10 +18,10 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -35,29 +35,29 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
 
     private static final Logger log = Logger.getLogger(FunctionExecutor.class);
     protected ExpressionExecutor[] attributeExpressionExecutors;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     protected String elementId;
     protected String functionId;
     protected String queryName;
     private ConfigReader configReader;
     private int attributeSize;
 
-    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
-            executionPlanContext, String queryName, ConfigReader configReader) {
+    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, SiddhiAppContext
+            siddhiAppContext, String queryName, ConfigReader configReader) {
         this.configReader = configReader;
         try {
-            this.executionPlanContext = executionPlanContext;
+            this.siddhiAppContext = siddhiAppContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             attributeSize = attributeExpressionExecutors.length;
             this.queryName = queryName;
-            executionPlanContext.addEternalReferencedHolder(this);
+            siddhiAppContext.addEternalReferencedHolder(this);
             if (elementId == null) {
-                elementId = "FunctionExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
+                elementId = "FunctionExecutor-" + siddhiAppContext.getElementIdGenerator().createNewId();
             }
-            executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
-            init(attributeExpressionExecutors, configReader, executionPlanContext);
+            siddhiAppContext.getSnapshotService().addSnapshotable(queryName, this);
+            init(attributeExpressionExecutors, configReader, siddhiAppContext);
         } catch (Throwable t) {
-            throw new ExecutionPlanCreationException(t);
+            throw new SiddhiAppCreationException(t);
         }
     }
 
@@ -71,11 +71,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
             }
             functionExecutor.elementId = elementId + "-" + key;
             functionExecutor.functionId = functionId;
-            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName, configReader);
+            functionExecutor.initExecutor(innerExpressionExecutors, siddhiAppContext, queryName, configReader);
             functionExecutor.start();
             return functionExecutor;
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+            throw new SiddhiAppRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
         }
     }
 
@@ -83,11 +83,11 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
      * The initialization method for FunctionExecutor, this method will be called before the other methods
      *  @param attributeExpressionExecutors are the executors of each function parameters
      * @param configReader This hold the {@link FunctionExecutor} extensions configuration reader.
-     * @param executionPlanContext         the context of the execution plan
+     * @param siddhiAppContext         the context of the siddhi app
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                 ExecutionPlanContext
-                                         executionPlanContext);
+                                 SiddhiAppContext
+                                         siddhiAppContext);
 
 
     /**
@@ -112,7 +112,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                     return execute(data);
             }
         } catch (Exception e) {
-            log.error("Exception on execution plan '" + executionPlanContext.getName() + "' on class '" + this
+            log.error("Exception on siddhi app '" + siddhiAppContext.getName() + "' on class '" + this
                     .getClass().getName() + "', " + e.getMessage(), e);
             return null;
         }

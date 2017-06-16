@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -35,13 +35,13 @@ import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.table.test.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
@@ -96,18 +96,18 @@ public class DefineTableTestCase {
                         .element("type", "hazelcast"))
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT);
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
             List<String> hciNames = new ArrayList<String>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
             Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -127,14 +127,14 @@ public class DefineTableTestCase {
         Query query = Query.query();
         query.from(InputStream.stream("StockStream"));
         query.insertInto("StockTable");
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.addQuery(query);
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.addQuery(query);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f});
             stockStream.send(new Object[]{"IBM", 75.6f});
 
@@ -143,12 +143,12 @@ public class DefineTableTestCase {
                 instanceMap.put(hci.getName(), hci);
             }
             Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
             HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName());
+                    siddhiAppRuntime.getName());
             List<StreamEvent> streamEvents = instance.getList(
                     HazelcastTableConstants.HAZELCAST_COLLECTION_PREFIX +
-                            executionPlanRuntime.getName() + '.' + tableDefinition.getId());
+                            siddhiAppRuntime.getName() + '.' + tableDefinition.getId());
 
             SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
             List<Object[]> expected = Arrays.asList(new Object[]{"WSO2", 55.6f}, new Object[]{"IBM", 75.6f});
@@ -159,7 +159,7 @@ public class DefineTableTestCase {
             Assert.assertEquals(2, streamEvents.size());
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual, expected));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -171,16 +171,16 @@ public class DefineTableTestCase {
         String tables = "" +
                 "@store(type = 'hazelcast')" +
                 "define table Table(symbol string, price int, volume float) ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
         try {
             List<String> hciNames = new ArrayList<String>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
             Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -194,8 +194,8 @@ public class DefineTableTestCase {
                 "define table TestTable(symbol string, price int, volume float); " +
                 "@store(type = 'hazelcast')" +
                 "define table TestTable(symbols string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -208,8 +208,8 @@ public class DefineTableTestCase {
                 "define table TestTable(symbol string, volume float); " +
                 "@store(type = 'hazelcast')" +
                 "define table TestTable(symbols string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -222,16 +222,16 @@ public class DefineTableTestCase {
                 "define table TestTable(symbol string, price int, volume float); " +
                 "@store(type = 'hazelcast')" +
                 "define table TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
         try {
             List<String> hciNames = new ArrayList<String>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 hciNames.add(hci.getName());
             }
             Assert.assertTrue(hciNames.contains(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -244,8 +244,8 @@ public class DefineTableTestCase {
                 "define stream TestTable(symbol string, price int, volume float); " +
                 "@store(type = 'hazelcast')" +
                 "define table TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -257,8 +257,8 @@ public class DefineTableTestCase {
                 "@store(type = 'hazelcast')" +
                 "define table TestTable(symbol string, price int, volume float); " +
                 "define stream TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -266,7 +266,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition9 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "" +
                 "from StockStream " +
@@ -275,8 +275,8 @@ public class DefineTableTestCase {
                 "" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -285,7 +285,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition10 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long); " +
@@ -293,8 +293,8 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select symbol, price, volume " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -302,7 +302,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition11 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float); " +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price float, volume long);" +
@@ -310,8 +310,8 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select symbol, price " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -319,7 +319,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition12 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
@@ -327,8 +327,8 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select symbol, price, volume " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -336,7 +336,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition13 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
@@ -344,8 +344,8 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -353,7 +353,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition14 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float, time long); " +
@@ -361,8 +361,8 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -370,7 +370,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition15 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume int); " +
@@ -378,16 +378,16 @@ public class DefineTableTestCase {
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testQuery16() throws InterruptedException {
         log.info("testTableDefinition16 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "@store(type = 'hazelcast')" +
                 "define table OutputStream (symbol string, price int, volume float); " +
@@ -395,8 +395,8 @@ public class DefineTableTestCase {
                 "from OutputStream " +
                 "select symbol, price, volume " +
                 "insert into StockStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -408,20 +408,20 @@ public class DefineTableTestCase {
         String tables = "" +
                 "@store(type = 'hazelcast', cluster.name = '" + clusterName + "')" +
                 "define table Table(symbol string, price int, volume float) ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
         try {
             Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 instanceMap.put(hci.getName(), hci);
             }
             Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
 
             HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName());
+                    siddhiAppRuntime.getName());
             Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -436,21 +436,21 @@ public class DefineTableTestCase {
                 "@store(type = 'hazelcast', cluster.name = '" + clusterName +
                 "', cluster.password = '" + clusterPassword + "')" +
                 "define table Table(symbol string, price int, volume float) ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
         try {
             Map<String, HazelcastInstance> instanceMap = new HashMap<String, HazelcastInstance>();
             for (HazelcastInstance hci : Hazelcast.getAllHazelcastInstances()) {
                 instanceMap.put(hci.getName(), hci);
             }
             Assert.assertTrue(instanceMap.containsKey(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName()));
+                    siddhiAppRuntime.getName()));
 
             HazelcastInstance instance = instanceMap.get(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                    executionPlanRuntime.getName());
+                    siddhiAppRuntime.getName());
             Assert.assertEquals(clusterName, instance.getConfig().getGroupConfig().getName());
             Assert.assertEquals(clusterPassword, instance.getConfig().getGroupConfig().getPassword());
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -469,7 +469,7 @@ public class DefineTableTestCase {
                 "@info(name = 'query1') " +
                 "from StockStream " +
                 "insert into StockTable ;";
-        ExecutionPlanRuntime executionPlanRuntime1 = siddhiManager1.createExecutionPlanRuntime(ep1);
+        SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(ep1);
 
         SiddhiManager siddhiManager2 = new SiddhiManager();
         String ep2 = "" +
@@ -481,10 +481,10 @@ public class DefineTableTestCase {
                 "@info(name = 'query1') " +
                 "from StockCheckStream[StockTable.symbol==StockCheckStream.symbol in StockTable] " +
                 "insert into OutStream ;";
-        ExecutionPlanRuntime executionPlanRuntime2 = siddhiManager2.createExecutionPlanRuntime(ep2);
+        SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(ep2);
 
         try {
-            executionPlanRuntime2.addCallback("query1", new QueryCallback() {
+            siddhiAppRuntime2.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -502,10 +502,10 @@ public class DefineTableTestCase {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime1.getInputHandler("StockStream");
-            InputHandler stockCheckStream = executionPlanRuntime2.getInputHandler("StockCheckStream");
-            executionPlanRuntime1.start();
-            executionPlanRuntime2.start();
+            InputHandler stockStream = siddhiAppRuntime1.getInputHandler("StockStream");
+            InputHandler stockCheckStream = siddhiAppRuntime2.getInputHandler("StockCheckStream");
+            siddhiAppRuntime1.start();
+            siddhiAppRuntime2.start();
 
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 55.6f, 100l});
@@ -521,8 +521,8 @@ public class DefineTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
-            executionPlanRuntime1.shutdown();
-            executionPlanRuntime2.shutdown();
+            siddhiAppRuntime1.shutdown();
+            siddhiAppRuntime2.shutdown();
         }
     }
 
@@ -574,14 +574,14 @@ public class DefineTableTestCase {
         Query query = Query.query();
         query.from(InputStream.stream("StockStream"));
         query.insertInto("StockTable");
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.addQuery(query);
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.addQuery(query);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f});
             stockStream.send(new Object[]{"IBM", 75.6f});
 
@@ -603,7 +603,7 @@ public class DefineTableTestCase {
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual_1, expected));
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual_2, expected));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -625,14 +625,14 @@ public class DefineTableTestCase {
         Query query = Query.query();
         query.from(InputStream.stream("StockStream"));
         query.insertInto("StockTable");
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.addQuery(query);
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.addQuery(query);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f});
             stockStream.send(new Object[]{"IBM", 75.6f});
 
@@ -641,7 +641,7 @@ public class DefineTableTestCase {
             HazelcastInstance hci = Hazelcast.getOrCreateHazelcastInstance(cfg);
             List<StreamEvent> streamEvents = hci.getList(
                     HazelcastTableConstants.HAZELCAST_COLLECTION_PREFIX +
-                            executionPlanRuntime.getName() + '.' + tableDefinition.getId());
+                            siddhiAppRuntime.getName() + '.' + tableDefinition.getId());
 
             SiddhiTestHelper.waitForEvents(100, 2, streamEvents, 60000);
             List<Object[]> expected = Arrays.asList(new Object[]{"WSO2", 55.6f}, new Object[]{"IBM", 75.6f});
@@ -652,7 +652,7 @@ public class DefineTableTestCase {
             Assert.assertEquals(2, streamEvents.size());
             Assert.assertEquals("In events matched", true, SiddhiTestHelper.isEventsMatch(actual, expected));
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -689,14 +689,14 @@ public class DefineTableTestCase {
         Query query = Query.query();
         query.from(InputStream.stream("StockStream"));
         query.insertInto("StockTable");
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.addQuery(query);
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.addQuery(query);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            executionPlanRuntime.start();
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f});
             stockStream.send(new Object[]{"IBM", 75.6f});
             Thread.sleep(RESULT_WAIT * 4);
@@ -707,7 +707,7 @@ public class DefineTableTestCase {
             instance_1.getLifecycleService().terminate();
             Thread.sleep(10000);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 }

@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -56,9 +56,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfLong(timestamp) as valid, timestamp " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -75,14 +75,14 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{1990, false, 602, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -101,9 +101,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfBoolean(isPowerSaverEnabled) as valid, isPowerSaverEnabled " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -120,15 +120,15 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, "notAvailable", 602, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -147,9 +147,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfInteger(sensorId) as valid, sensorId " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -166,15 +166,15 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 60232434.657, "temperature", 90.34344, 20.44345, 2.3f,
                 20.44345});
         Thread.sleep(100);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -193,9 +193,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfString(sensorName) as valid " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -212,14 +212,14 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, 90.34344, 90.34344, 20.44345, 2.3f, 20.44345});
         Thread.sleep(1000);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -238,9 +238,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfDouble(longitude) as valid, longitude " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -257,14 +257,14 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", "90.3434", 20.44345, 2.3f, 20.44345});
         Thread.sleep(100);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -283,9 +283,9 @@ public class InstanceOfFunctionTestCase {
                 "select sensorName ,instanceOfFloat(humidity) as valid, longitude " +
                 "insert into outputStream;");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(sensorEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(sensorEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -302,14 +302,14 @@ public class InstanceOfFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("sensorEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("sensorEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{19900813115534L, false, 601, "temperature", 90.34344, 20.44345, 2.3f, 20.44345});
         inputHandler.send(new Object[]{19900813115534L, true, 602, "temperature", 90.34344, 20.44345, 2.3, 20.44345});
         Thread.sleep(100);
         org.junit.Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 }

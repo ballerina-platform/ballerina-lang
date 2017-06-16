@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class MinForeverAggregatorExtensionTestCase {
     private static final Logger log = Logger.getLogger(MinForeverAggregatorExtensionTestCase.class);
@@ -51,10 +51,10 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -87,8 +87,8 @@ public class MinForeverAggregatorExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36d, 36.75, 35.75});
         inputHandler.send(new Object[]{37.88d, 38.12, 37.62});
@@ -100,7 +100,7 @@ public class MinForeverAggregatorExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -113,10 +113,10 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -140,8 +140,8 @@ public class MinForeverAggregatorExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36, 38, 74});
         inputHandler.send(new Object[]{78, 38, 37});
@@ -150,7 +150,7 @@ public class MinForeverAggregatorExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -164,10 +164,10 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -200,8 +200,8 @@ public class MinForeverAggregatorExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36f, 36.75, 35.75});
         inputHandler.send(new Object[]{37.88f, 38.12, 37.62});
@@ -213,7 +213,7 @@ public class MinForeverAggregatorExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -226,10 +226,10 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1) as minForever " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -253,8 +253,8 @@ public class MinForeverAggregatorExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36L, 38, 74});
         inputHandler.send(new Object[]{78L, 38, 37});
@@ -263,12 +263,12 @@ public class MinForeverAggregatorExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testMinForeverAggregatorExtension5() throws InterruptedException {
         log.info("minForeverAggregator TestCase 5");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -277,7 +277,7 @@ public class MinForeverAggregatorExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minForever(price1, price2, price3) as minForeverValue " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
     }
 

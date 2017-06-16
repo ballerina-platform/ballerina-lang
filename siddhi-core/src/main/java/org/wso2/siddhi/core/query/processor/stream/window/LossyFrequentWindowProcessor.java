@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -113,7 +113,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         support = Double.parseDouble(String.valueOf(((ConstantExpressionExecutor) attributeExpressionExecutors[0])
                 .getValue()));
         if (attributeExpressionExecutors.length > 1) {
@@ -140,7 +140,7 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
                            StreamEventCloner streamEventCloner) {
 
         synchronized (this) {
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
 
             StreamEvent streamEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
@@ -247,11 +247,11 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+                siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
     /**

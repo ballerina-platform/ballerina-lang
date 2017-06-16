@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -48,7 +48,7 @@ public class UUIDFunctionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String planName = "@plan:name('UUIDFunction') ";
+        String planName = "@app:name('UUIDFunction') ";
         String cseEventStream = "define stream cseEventStream (symbol string, price double, volume long , quantity " +
                 "int);";
         String query = "@info(name = 'query1') " +
@@ -56,10 +56,10 @@ public class UUIDFunctionTestCase {
                 "select symbol, price as price, quantity, UUID() as uniqueValue " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(planName +
                 cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -70,11 +70,11 @@ public class UUIDFunctionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 1.56d, 60L, 6});
         Thread.sleep(200);
         org.junit.Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

@@ -20,9 +20,9 @@ package org.wso2.siddhi.core.query.window.external;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
@@ -39,9 +39,9 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) length(1); ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
         assertTrue(true);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -52,9 +52,9 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) length(1) output all events; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
         assertTrue(true);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -65,9 +65,9 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) length(1) output expired events; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
         assertTrue(true);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -78,9 +78,9 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) length(1) output current events; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
         assertTrue(true);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -91,11 +91,11 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) length(1) output; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testEventWindow6() throws InterruptedException {
         log.info("WindowDefinitionTestCase Test6");
 
@@ -103,8 +103,8 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string, val int) sum(val); ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -115,8 +115,8 @@ public class WindowDefinitionTestCase {
 
         String streams = "define window CheckStockWindow(symbol string) output; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -140,7 +140,7 @@ public class WindowDefinitionTestCase {
                 "select meta_tenantId, eventId\n" +
                 "insert into countWindow;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(query);
+        siddhiAppRuntime.shutdown();
     }
 }

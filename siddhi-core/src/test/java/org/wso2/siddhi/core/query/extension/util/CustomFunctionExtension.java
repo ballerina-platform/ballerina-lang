@@ -22,8 +22,8 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -57,14 +57,14 @@ public class CustomFunctionExtension extends FunctionExecutor {
     @Override
     public void init(ExpressionExecutor[] attributeExpressionExecutors,
                      ConfigReader configReader,
-                     ExecutionPlanContext executionPlanContext) {
+                     SiddhiAppContext siddhiAppContext) {
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             Attribute.Type attributeType = expressionExecutor.getReturnType();
             if (attributeType == Attribute.Type.DOUBLE) {
                 returnType = attributeType;
 
             } else if ((attributeType == Attribute.Type.STRING) || (attributeType == Attribute.Type.BOOL)) {
-                throw new ExecutionPlanCreationException("Plus cannot have parameters with types String or Bool");
+                throw new SiddhiAppCreationException("Plus cannot have parameters with types String or Bool");
             } else {
                 returnType = Attribute.Type.LONG;
             }

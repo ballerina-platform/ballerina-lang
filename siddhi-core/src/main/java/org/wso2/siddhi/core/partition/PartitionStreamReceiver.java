@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.partition;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
@@ -47,14 +47,14 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     private String streamId;
     private MetaStreamEvent metaStreamEvent;
     private StreamDefinition streamDefinition;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private PartitionRuntime partitionRuntime;
     private List<PartitionExecutor> partitionExecutors;
     private Map<String, StreamJunction> cachedStreamJunctionMap = new ConcurrentHashMap<String, StreamJunction>();
     private ComplexEventChunk<ComplexEvent> streamEventChunk;
 
 
-    public PartitionStreamReceiver(ExecutionPlanContext executionPlanContext, MetaStreamEvent metaStreamEvent,
+    public PartitionStreamReceiver(SiddhiAppContext siddhiAppContext, MetaStreamEvent metaStreamEvent,
                                    StreamDefinition streamDefinition,
                                    List<PartitionExecutor> partitionExecutors,
                                    PartitionRuntime partitionRuntime) {
@@ -62,7 +62,7 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
         this.streamDefinition = streamDefinition;
         this.partitionRuntime = partitionRuntime;
         this.partitionExecutors = partitionExecutors;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         streamId = streamDefinition.getId();
         this.eventPool = new StreamEventPool(metaStreamEvent, 5);
         this.streamEventChunk = new ComplexEventChunk<ComplexEvent>(false);
@@ -278,8 +278,8 @@ public class PartitionStreamReceiver implements StreamJunction.Receiver {
     }
 
     private StreamJunction createStreamJunction() {
-        return new StreamJunction(streamDefinition, executionPlanContext.getExecutorService(),
-                                  executionPlanContext.getBufferSize(), executionPlanContext);
+        return new StreamJunction(streamDefinition, siddhiAppContext.getExecutorService(),
+                                  siddhiAppContext.getBufferSize(), siddhiAppContext);
     }
 
 }

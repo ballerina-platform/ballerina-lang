@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
@@ -84,7 +84,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -96,10 +96,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.645f, 100L});
         stockStream.send(new Object[]{"IBM", 75f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -118,7 +118,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<price>57.6</price><volume>100</volume></event></events>", onMessageList.get(2).toString());
         Assert.assertEquals("Incorrect mapping!", "<events><event><symbol>IBM</symbol>" +
                 "<price>57.6</price><volume xsi:nil=\"true\"/></event></events>", onMessageList.get(3).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -149,7 +149,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberCompany);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='company', @map(type='xml')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -161,10 +161,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         Event wso2Event = new Event(System.currentTimeMillis(), new Object[]{"WSO2#@$", 55.6f, 100L});
         Event ibmEvent = new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Event[]{wso2Event, ibmEvent});
@@ -179,7 +179,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<volume>100</volume></event></events>", onMessageList.get(0).toString());
         Assert.assertEquals("Incorrect mapping!", "<events><event><symbol xsi:nil=\"true\"/>" +
                 "<price xsi:nil=\"true\"/><volume>100</volume></event></events>", onMessageList.get(1).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberCompany);
@@ -222,7 +222,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -234,10 +234,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, null});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -253,7 +253,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<price>75.6</price><volume>100</volume></event></events>", onMessageList.get(1).toString());
         Assert.assertEquals("Incorrect mapping!", "<events><event><symbol>WSO2</symbol>" +
                 "<price>57.6</price><volume>100</volume></event></events>", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -301,7 +301,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
                 "\"<StockData><Symbol>{{symbol}}</Symbol><Price>{{price}}</Price></StockData>\"))) " +
@@ -313,10 +313,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -332,7 +332,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<Price>75.6</Price></StockData>", onMessageList.get(1).toString());
         Assert.assertEquals("Incorrect mapping!", "<StockData><Symbol>WSO2</Symbol>" +
                 "<Price>57.6</Price></StockData>", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -376,7 +376,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', " +
                 "@map(type='xml', enclosing.element=\"<portfolio xmlns:dt='urn:schemas-microsoft-com:datatypes'>\", " +
@@ -390,10 +390,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -412,7 +412,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         Assert.assertEquals("Incorrect mapping!", "<portfolio xmlns:dt='urn:schemas-microsoft-com:datatypes'>" +
                         "<dt:StockData><Symbol>WSO2</Symbol><Price>57.6</Price></dt:StockData></portfolio>",
                 onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -456,7 +456,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (id int, symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
                 "\"<StockData><Symbol id=''{{id}}'' value=''{{price}}''>{{symbol}}</Symbol>"
@@ -469,10 +469,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{1, "WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{2, "IBM", 75.6f, 100L});
         stockStream.send(new Object[]{3, "WSO2", 57.6f, 100L});
@@ -488,7 +488,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<Price company='IBM'>75.6</Price></StockData>", onMessageList.get(1).toString());
         Assert.assertEquals("Incorrect mapping!", "<StockData><Symbol id='3' value='57.6'>WSO2</Symbol>" +
                 "<Price company='WSO2'>57.6</Price></StockData>", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -532,7 +532,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', " +
                 "@map(type='xml', enclosing.element='<portfolio>')) " +
@@ -545,10 +545,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         Thread.sleep(100);
@@ -561,7 +561,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "</price><volume>100</volume></event></portfolio>", onMessageList.get(0).toString());
         Assert.assertEquals("Incorrect mapping!", "<portfolio><event><symbol>IBM</symbol><price>75.6" +
                 "</price><volume>100</volume></event></portfolio>", onMessageList.get(1).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -592,7 +592,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberCompany);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='company', @map(type='xml', enclosing.element='<portfolio>', " +
                 "@payload(\"<StockData><symbol>{{symbol}}</symbol><price>{{price}}</price><volume>{{volume}}</volume>" +
@@ -606,10 +606,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{null, 56, 100L});
         stockStream.send(new Object[]{"WSO2", null, 100L});
         stockStream.send(new Object[]{"WSO2", 56, null});
@@ -624,7 +624,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<price>null</price><volume>100</volume></StockData></portfolio>", onMessageList.get(1).toString());
         Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><symbol>WSO2</symbol>" +
                 "<price>56</price><volume>null</volume></StockData></portfolio>", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberCompany);
@@ -667,7 +667,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', enclosing.element='<portfolio>', " +
                 " validate.xml='true', @payload(" +
@@ -681,10 +681,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -700,7 +700,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
                 "<Price>75.6</Price></StockData></portfolio>", onMessageList.get(1).toString());
         Assert.assertEquals("Incorrect mapping!", "<portfolio><StockData><Symbol>WSO2</Symbol>" +
                 "<Price>57.6</Price></StockData></portfolio>", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -741,7 +741,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', enclosing.element='<portfolio>', " +
                 "validate.xml='true', @payload(" +
@@ -755,10 +755,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -767,7 +767,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 0, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 0, ibmCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -807,7 +807,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', enclosing.element='<portfolio>', " +
                 "validate.xml='false', @payload(" +
@@ -821,10 +821,10 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -833,7 +833,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -850,7 +850,7 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
         log.info("Test for non existing attribute in xml mapping with SiddhiQL - expects NoSuchAttributeException");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='xml', @payload(" +
                 "\"<StockData><Symbol>{{non-exist}}</Symbol><Price>{{price}}</Price></StockData>\"))) " +
@@ -863,15 +863,15 @@ public class XMLSinkMapperWithSiddhiQLTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(100);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 }

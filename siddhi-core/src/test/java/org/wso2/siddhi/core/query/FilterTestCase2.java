@@ -21,17 +21,17 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -67,12 +67,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -80,14 +80,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -108,12 +108,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -121,14 +121,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -149,12 +149,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -162,14 +162,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -190,12 +190,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -203,14 +203,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 20L, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300L, 4});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -229,12 +229,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -242,14 +242,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -269,12 +269,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -282,14 +282,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -309,12 +309,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -322,14 +322,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -349,12 +349,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -362,14 +362,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -389,12 +389,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -402,14 +402,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -429,12 +429,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -442,14 +442,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40L, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -469,12 +469,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -482,14 +482,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40L, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -512,12 +512,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -525,14 +525,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -551,12 +551,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -564,14 +564,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -590,12 +590,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -603,14 +603,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50d, 60d});
         inputHandler.send(new Object[]{"WSO2", 70d, 40d});
         inputHandler.send(new Object[]{"WSO2", 44d, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -632,12 +632,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -645,14 +645,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 60f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -673,12 +673,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -686,14 +686,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -714,12 +714,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -727,14 +727,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 60d, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300d, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -755,12 +755,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -768,14 +768,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 500f, 50L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 20L, 2});
         inputHandler.send(new Object[]{"WSO2", 50f, 300L, 4});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -795,12 +795,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -808,14 +808,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -834,12 +834,12 @@ public class FilterTestCase2 {
                 .variable("price")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -847,14 +847,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -874,12 +874,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -887,14 +887,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -915,12 +915,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -928,14 +928,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(2, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -955,12 +955,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -968,14 +968,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60d, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40d, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200d, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -996,12 +996,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1009,14 +1009,14 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40L, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1036,12 +1036,12 @@ public class FilterTestCase2 {
                 .variable("price")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1049,18 +1049,18 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60L, 6});
         inputHandler.send(new Object[]{"WSO2", 70f, 40L, 10});
         inputHandler.send(new Object[]{"WSO2", 44f, 200L, 56});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testFilterQuery108() throws InterruptedException {
         log.info("Filter test108");
 
@@ -1085,10 +1085,10 @@ public class FilterTestCase2 {
         );
         query.insertInto("StockQuote");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
     }
 
@@ -1116,12 +1116,12 @@ public class FilterTestCase2 {
         );
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1134,12 +1134,12 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 10L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     //*****************************************************************************************************************
@@ -1173,12 +1173,12 @@ public class FilterTestCase2 {
         query.insertInto("OutputStream");
 
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
 
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -1191,12 +1191,12 @@ public class FilterTestCase2 {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 10L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1229,12 +1229,12 @@ public class FilterTestCase2 {
         query.insertInto("OutputStream");
 
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
 
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -1248,12 +1248,12 @@ public class FilterTestCase2 {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 60f, 100d, 100, 70L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1288,12 +1288,12 @@ public class FilterTestCase2 {
         query.insertInto("OutputStream");
 
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
 
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -1306,12 +1306,12 @@ public class FilterTestCase2 {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 100d, 5, 3L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1343,12 +1343,12 @@ public class FilterTestCase2 {
         query.insertInto("OutputStream");
 
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
 
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
@@ -1361,12 +1361,12 @@ public class FilterTestCase2 {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.5f, 101d, 5, 7L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -1388,12 +1388,12 @@ public class FilterTestCase2 {
                 .variable("price1")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1404,12 +1404,12 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1428,12 +1428,12 @@ public class FilterTestCase2 {
                 .variable("price1")).select("quantity", Expression.variable("quantity")));
         query.insertInto("outputStream");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(cseEventStream);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(cseEventStream);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1443,11 +1443,11 @@ public class FilterTestCase2 {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60L, 6});
         Thread.sleep(100);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1458,9 +1458,9 @@ public class FilterTestCase2 {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,price+5 as price insert into " +
                 "outputStream ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1470,8 +1470,8 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -1479,7 +1479,7 @@ public class FilterTestCase2 {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1491,9 +1491,9 @@ public class FilterTestCase2 {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500) select symbol,sum(price)+5 " +
                 "as price insert into outputStream ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1506,8 +1506,8 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -1515,7 +1515,7 @@ public class FilterTestCase2 {
         Thread.sleep(1000);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1527,9 +1527,9 @@ public class FilterTestCase2 {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeBatch(500)  select volume, sum(price) " +
                 "as price group by volume insert into outputStream ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1539,8 +1539,8 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -1548,7 +1548,7 @@ public class FilterTestCase2 {
         Thread.sleep(1000);
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1560,9 +1560,9 @@ public class FilterTestCase2 {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price)+10 as price group by " +
                 "symbol having price > 880 insert into outputStream ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1572,8 +1572,8 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -1581,7 +1581,7 @@ public class FilterTestCase2 {
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1593,9 +1593,9 @@ public class FilterTestCase2 {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = "@info(name = 'query1') from cseEventStream select symbol,sum(price) as sumprice group by " +
                 "symbol having sumprice > 880 insert into outputStream ;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1605,8 +1605,8 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -1614,7 +1614,7 @@ public class FilterTestCase2 {
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 //    @Test
@@ -1648,8 +1648,8 @@ public class FilterTestCase2 {
 //                "\t\tINSERT INTO ThrottleStream;  ";
 //
 //
-//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
-//        executionPlanRuntime.addCallback("ThrottleStream", new StreamCallback() {
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+//        siddhiAppRuntime.addCallback("ThrottleStream", new StreamCallback() {
 //                    public int eventCount = 0;
 //                    public int timeSpent = 0;
 //                    long startTime = System.currentTimeMillis();
@@ -1673,8 +1673,8 @@ public class FilterTestCase2 {
 //
 //        );
 //
-//        InputHandler inputHandler = executionPlanRuntime.getInputHandler("RequestStream");
-//        executionPlanRuntime.start();
+//        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("RequestStream");
+//        siddhiAppRuntime.start();
 //
 //
 //        for (int i = 0; i <= 100; i++) {
@@ -1682,7 +1682,7 @@ public class FilterTestCase2 {
 //            eventPublisher.run();
 //        }
 //
-//        //executionPlanRuntime.shutdown();
+//        //siddhiAppRuntime.shutdown();
 //
 //    }
 //
@@ -1729,8 +1729,8 @@ public class FilterTestCase2 {
                 "select symbol,price , symbol as sym1 " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -1741,16 +1741,16 @@ public class FilterTestCase2 {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

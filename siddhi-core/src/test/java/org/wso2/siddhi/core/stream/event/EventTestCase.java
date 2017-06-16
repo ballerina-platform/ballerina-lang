@@ -19,7 +19,7 @@ package org.wso2.siddhi.core.stream.event;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.SiddhiEventFactory;
@@ -291,7 +291,7 @@ public class EventTestCase {
         streamDefinitionMap.put("cseEventStream", streamDefinition);
         streamDefinitionMap.put("outputStream", outStreamDefinition);
         SiddhiContext siddhicontext = new SiddhiContext();
-        ExecutionPlanContext context = new ExecutionPlanContext();
+        SiddhiAppContext context = new SiddhiAppContext();
         context.setSiddhiContext(siddhicontext);
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));

@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class MinimumFunctionExtensionTestCase {
     private static final Logger log = Logger.getLogger(MinimumFunctionExtensionTestCase.class);
@@ -50,10 +50,10 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -86,8 +86,8 @@ public class MinimumFunctionExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36, 36.75, 35.75});
         inputHandler.send(new Object[]{37.88, 38.12, 37.62});
@@ -99,11 +99,11 @@ public class MinimumFunctionExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testMinFunctionExtension2() throws InterruptedException {
         log.info("MinimumFunctionExecutor TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -112,9 +112,9 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -127,10 +127,10 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -154,8 +154,8 @@ public class MinimumFunctionExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36, 38, 74});
         inputHandler.send(new Object[]{78, 38, 37});
@@ -164,7 +164,7 @@ public class MinimumFunctionExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -177,10 +177,10 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -213,8 +213,8 @@ public class MinimumFunctionExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36, 36.75, 35.75});
         inputHandler.send(new Object[]{37.88, 38.12, 37.62});
@@ -226,7 +226,7 @@ public class MinimumFunctionExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -239,10 +239,10 @@ public class MinimumFunctionExtensionTestCase {
         String query = ("@info(name = 'query1') from inputStream " +
                 "select minimum(price1, price2, price3) as min " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -266,8 +266,8 @@ public class MinimumFunctionExtensionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36, 38, 74});
         inputHandler.send(new Object[]{78, 38, 37});
@@ -276,7 +276,7 @@ public class MinimumFunctionExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 }

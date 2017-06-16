@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util.transport;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
@@ -61,7 +61,7 @@ public class MultiClientDistributedSink extends DistributedTransport {
 
     @Override
     public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
-            sinkAnnotation, ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
+            sinkAnnotation, ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
         String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
         Extension sinkExtension = DefinitionParserHelper.constructExtension
                 (streamDefinition, SiddhiConstants.ANNOTATION_SINK, transportType, sinkAnnotation, SiddhiConstants
@@ -69,9 +69,9 @@ public class MultiClientDistributedSink extends DistributedTransport {
 
         destinationOptionHolders.forEach(destinationOption -> {
             Sink sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
-                    sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
+                    sinkExtension, SinkExecutorExtensionHolder.getInstance(siddhiAppContext));
             destinationOption.merge(sinkOptionHolder);
-            sink.initOnlyTransport(streamDefinition, destinationOption, sinkConfigReader, executionPlanContext);
+            sink.initOnlyTransport(streamDefinition, destinationOption, sinkConfigReader, siddhiAppContext);
             transports.add(sink);
         });
     }

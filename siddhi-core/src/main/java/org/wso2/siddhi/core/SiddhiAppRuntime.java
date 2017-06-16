@@ -21,7 +21,7 @@ package org.wso2.siddhi.core;
 import com.lmax.disruptor.ExceptionHandler;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.exception.QueryNotExistException;
@@ -62,11 +62,11 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an executionPlan
+ * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an siddhiApp
  * and streamJunctions and inputHandlers used
  */
-public class ExecutionPlanRuntime {
-    private static final Logger log = Logger.getLogger(ExecutionPlanRuntime.class);
+public class SiddhiAppRuntime {
+    private static final Logger log = Logger.getLogger(SiddhiAppRuntime.class);
     private final Map<String, List<Source>> eventSourceMap;
     private final Map<String, List<Sink>> eventSinkMap;
     private Map<String, AbstractDefinition> streamDefinitionMap =
@@ -83,12 +83,12 @@ public class ExecutionPlanRuntime {
     private Map<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); // Contains event tables.
     private Map<String, PartitionRuntime> partitionMap =
             new ConcurrentHashMap<String, PartitionRuntime>(); // Contains partitions.
-    private ExecutionPlanContext executionPlanContext;
-    private Map<String, ExecutionPlanRuntime> executionPlanRuntimeMap;
+    private SiddhiAppContext siddhiAppContext;
+    private Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap;
     private MemoryUsageTracker memoryUsageTracker;
     private SiddhiDebugger siddhiDebugger;
 
-    public ExecutionPlanRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
+    public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
                                 Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
                                 Map<String, QueryRuntime> queryProcessorMap,
                                 Map<String, StreamJunction> streamJunctionMap,
@@ -96,8 +96,8 @@ public class ExecutionPlanRuntime {
                                 Map<String, List<Source>> eventSourceMap,
                                 Map<String, List<Sink>> eventSinkMap,
                                 Map<String, PartitionRuntime> partitionMap,
-                                ExecutionPlanContext executionPlanContext,
-                                Map<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
+                                SiddhiAppContext siddhiAppContext,
+                                Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
         this.inputManager = inputManager;
@@ -107,14 +107,14 @@ public class ExecutionPlanRuntime {
         this.eventSourceMap = eventSourceMap;
         this.eventSinkMap = eventSinkMap;
         this.partitionMap = partitionMap;
-        this.executionPlanContext = executionPlanContext;
-        this.executionPlanRuntimeMap = executionPlanRuntimeMap;
-        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
-            memoryUsageTracker = executionPlanContext
+        this.siddhiAppContext = siddhiAppContext;
+        this.siddhiAppRuntimeMap = siddhiAppRuntimeMap;
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            memoryUsageTracker = siddhiAppContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
-                    .createMemoryUsageTracker(executionPlanContext.getStatisticsManager());
+                    .createMemoryUsageTracker(siddhiAppContext.getStatisticsManager());
             monitorQueryMemoryUsage();
         }
 
@@ -126,13 +126,13 @@ public class ExecutionPlanRuntime {
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, executionPlanContext));
+                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, siddhiAppContext));
             }
         }
     }
 
     public String getName() {
-        return executionPlanContext.getName();
+        return siddhiAppContext.getName();
     }
 
     /**
@@ -183,12 +183,12 @@ public class ExecutionPlanRuntime {
             throw new DefinitionNotExistException("No stream found with name: " + streamId);
         }
         streamCallback.setStreamDefinition(streamDefinitionMap.get(streamId));
-        streamCallback.setContext(executionPlanContext);
+        streamCallback.setContext(siddhiAppContext);
         streamJunction.subscribe(streamCallback);
     }
 
     public void addCallback(String queryName, QueryCallback callback) {
-        callback.setContext(executionPlanContext);
+        callback.setContext(siddhiAppContext);
         QueryRuntime queryRuntime = queryProcessorMap.get(queryName);
         if (queryRuntime == null) {
             throw new QueryNotExistException("No query found with name: " + queryName);
@@ -218,11 +218,11 @@ public class ExecutionPlanRuntime {
             }
         }
 
-        for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
+        for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
             try {
                 eternalReferencedHolder.stop();
             } catch (Throwable t) {
-                log.error("Error in shutting down Execution Plan '" + executionPlanContext.getName() +
+                log.error("Error in shutting down Siddhi app '" + siddhiAppContext.getName() +
                         "', " + t.getMessage(), t);
             }
         }
@@ -244,32 +244,32 @@ public class ExecutionPlanRuntime {
                 } catch (InterruptedException e) {
 
                 }
-                executionPlanContext.getScheduledExecutorService().shutdownNow();
-                executionPlanContext.getExecutorService().shutdownNow();
+                siddhiAppContext.getScheduledExecutorService().shutdownNow();
+                siddhiAppContext.getExecutorService().shutdownNow();
 
             }
-        }, "Siddhi-ExecutionPlan-" + executionPlanContext.getName() + "-Shutdown-Cleaner");
+        }, "Siddhi-SiddhiApp-" + siddhiAppContext.getName() + "-Shutdown-Cleaner");
         thread.start();
 
-        if (executionPlanRuntimeMap != null) {
-            executionPlanRuntimeMap.remove(executionPlanContext.getName());
+        if (siddhiAppRuntimeMap != null) {
+            siddhiAppRuntimeMap.remove(siddhiAppContext.getName());
         }
-        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
-            executionPlanContext.getStatisticsManager().stopReporting();
-            executionPlanContext.getStatisticsManager().cleanup();
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            siddhiAppContext.getStatisticsManager().stopReporting();
+            siddhiAppContext.getStatisticsManager().cleanup();
         }
     }
 
     public synchronized void start() {
-        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
-            executionPlanContext.getStatisticsManager().startReporting();
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            siddhiAppContext.getStatisticsManager().startReporting();
         }
-        for (EternalReferencedHolder eternalReferencedHolder : executionPlanContext.getEternalReferencedHolders()) {
+        for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
             eternalReferencedHolder.start();
         }
         for (List<Sink> sinks : eventSinkMap.values()) {
             for (Sink sink : sinks) {
-                sink.connectWithRetry(executionPlanContext.getExecutorService());
+                sink.connectWithRetry(siddhiAppContext.getExecutorService());
             }
         }
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
@@ -277,13 +277,13 @@ public class ExecutionPlanRuntime {
         }
         for (List<Source> sources : eventSourceMap.values()) {
             for (Source source : sources) {
-                source.connectWithRetry(executionPlanContext.getExecutorService());
+                source.connectWithRetry(siddhiAppContext.getExecutorService());
             }
         }
     }
 
     public synchronized SiddhiDebugger debug() {
-        siddhiDebugger = new SiddhiDebugger(executionPlanContext);
+        siddhiDebugger = new SiddhiDebugger(siddhiAppContext);
         List<StreamRuntime> streamRuntime = new ArrayList<StreamRuntime>();
         List<InsertIntoStreamCallback> streamCallbacks = new ArrayList<InsertIntoStreamCallback>();
         for (QueryRuntime queryRuntime : queryProcessorMap.values()) {
@@ -308,10 +308,10 @@ public class ExecutionPlanRuntime {
             // first, pause all the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // take snapshots of execution units
-            byte[] snapshots = executionPlanContext.getSnapshotService().snapshot();
+            byte[] snapshots = siddhiAppContext.getSnapshotService().snapshot();
             // start the snapshot persisting task asynchronously
-            return executionPlanContext.getExecutorService().submit(new AsyncSnapshotPersistor(snapshots,
-                    executionPlanContext.getSiddhiContext().getPersistenceStore(), executionPlanContext.getName()));
+            return siddhiAppContext.getExecutorService().submit(new AsyncSnapshotPersistor(snapshots,
+                    siddhiAppContext.getSiddhiContext().getPersistenceStore(), siddhiAppContext.getName()));
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
@@ -323,7 +323,7 @@ public class ExecutionPlanRuntime {
             // first, pause all the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // take snapshots of execution units
-            return executionPlanContext.getSnapshotService().snapshot();
+            return siddhiAppContext.getSnapshotService().snapshot();
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
@@ -335,7 +335,7 @@ public class ExecutionPlanRuntime {
             // first, pause all the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // start the restoring process
-            executionPlanContext.getPersistenceService().restoreRevision(revision);
+            siddhiAppContext.getPersistenceService().restoreRevision(revision);
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
@@ -347,7 +347,7 @@ public class ExecutionPlanRuntime {
             // first, pause all the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // start the restoring process
-            executionPlanContext.getPersistenceService().restoreLastRevision();
+            siddhiAppContext.getPersistenceService().restoreLastRevision();
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
@@ -357,7 +357,7 @@ public class ExecutionPlanRuntime {
     private void monitorQueryMemoryUsage() {
         for (Map.Entry entry : queryProcessorMap.entrySet()) {
             memoryUsageTracker.registerObject(entry.getValue(),
-                    executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                             SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                             SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -369,7 +369,7 @@ public class ExecutionPlanRuntime {
                     .getMetaQueryRuntimeMap();
             for (Map.Entry query : queryRuntime.entrySet()) {
                 memoryUsageTracker.registerObject(entry.getValue(),
-                        executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                        siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                                 SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
                                 SiddhiConstants.METRIC_DELIMITER + getName() + SiddhiConstants.METRIC_DELIMITER +
                                 SiddhiConstants.METRIC_INFIX_SIDDHI + SiddhiConstants.METRIC_DELIMITER +
@@ -380,6 +380,6 @@ public class ExecutionPlanRuntime {
     }
 
     public void handleExceptionWith(ExceptionHandler<Object> exceptionHandler) {
-        executionPlanContext.setDisruptorExceptionHandler(exceptionHandler);
+        siddhiAppContext.setDisruptorExceptionHandler(exceptionHandler);
     }
 }

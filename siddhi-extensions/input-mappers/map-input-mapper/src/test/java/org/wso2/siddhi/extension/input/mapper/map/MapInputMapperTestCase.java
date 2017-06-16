@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.mapper.map;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.source.InMemoryInputTransport;
@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.input.source.InMemorySource;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.Subscription;
@@ -59,28 +59,28 @@ public class MapSourcemapperTestCase {
         subscription.map(Mapping.format("map"));
         subscription.insertInto("FooStream");
 
-        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-        executionPlan.defineStream(StreamDefinition.id("FooStream")
+        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
+        siddhiApp.defineStream(StreamDefinition.id("FooStream")
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.FLOAT)
                 .attribute("volume", Attribute.Type.INT));
-        executionPlan.addSubscription(subscription);
+        siddhiApp.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", hashMap);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -91,28 +91,28 @@ public class MapSourcemapperTestCase {
         subscription.map(Mapping.format("map").map("symbol").map("price").map("volume"));
         subscription.insertInto("FooStream");
 
-        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-        executionPlan.defineStream(StreamDefinition.id("FooStream")
+        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
+        siddhiApp.defineStream(StreamDefinition.id("FooStream")
                 .attribute("output_symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.FLOAT)
                 .attribute("volume", Attribute.Type.INT));
-        executionPlan.addSubscription(subscription);
+        siddhiApp.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", hashMap);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -124,27 +124,27 @@ public class MapSourcemapperTestCase {
                 ("output_volume", "volume"));
         subscription.insertInto("FooStream");
 
-        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-        executionPlan.defineStream(StreamDefinition.id("FooStream")
+        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
+        siddhiApp.defineStream(StreamDefinition.id("FooStream")
                 .attribute("output_volume", Attribute.Type.INT)
                 .attribute("output_symbol", Attribute.Type.STRING)
                 .attribute("output_price", Attribute.Type.FLOAT));
-        executionPlan.addSubscription(subscription);
+        siddhiApp.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", hashMap);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

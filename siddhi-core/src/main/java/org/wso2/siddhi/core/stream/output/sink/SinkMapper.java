@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -51,15 +51,15 @@ public abstract class SinkMapper implements Snapshotable {
                            String type,
                            OptionHolder mapOptionHolder,
                            String unmappedPayload,
-                           ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext) {
+                           ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         this.optionHolder = mapOptionHolder;
         this.type = type;
         if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader);
-        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
+        siddhiAppContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
                                                                   this);
     }
 

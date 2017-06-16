@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -62,9 +62,9 @@ public class JoinTableTestCase {
                 "select symbol1, symbol2, volume2  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -92,10 +92,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -107,7 +107,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -133,9 +133,9 @@ public class JoinTableTestCase {
                 "volume  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -160,10 +160,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -175,7 +175,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -200,9 +200,9 @@ public class JoinTableTestCase {
                 "select CheckStockStream.symbol as checkSymbol, t.symbol as symbol, t.volume as volume  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -227,10 +227,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -242,7 +242,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -268,9 +268,9 @@ public class JoinTableTestCase {
                 "volume  " +
                 "insert all events into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -303,10 +303,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 200L});
@@ -318,7 +318,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 1, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -343,9 +343,9 @@ public class JoinTableTestCase {
                 "volume  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -373,10 +373,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -388,7 +388,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -429,9 +429,9 @@ public class JoinTableTestCase {
                 "TimeTable.elapsedTime) as elapsedTime, destination " +
                 "insert into intermediateResultStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -439,10 +439,10 @@ public class JoinTableTestCase {
             }
         });
 
-        InputHandler timeTableStream = executionPlanRuntime.getInputHandler("TimeTableStream");
-        InputHandler requestStream = executionPlanRuntime.getInputHandler("RequestStream");
+        InputHandler timeTableStream = siddhiAppRuntime.getInputHandler("TimeTableStream");
+        InputHandler requestStream = siddhiAppRuntime.getInputHandler("RequestStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         timeTableStream.send(new Object[]{"A", "B", 25, "1.27PM"});
         timeTableStream.send(new Object[]{"B", "C", 10, "1.52PM"});
@@ -453,7 +453,7 @@ public class JoinTableTestCase {
 
         Thread.sleep(1000);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         Assert.assertTrue("Events arrived", eventArrived);
 
     }
@@ -479,9 +479,9 @@ public class JoinTableTestCase {
                 "select symbol1, symbol2, volume2  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -506,10 +506,10 @@ public class JoinTableTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -521,7 +521,7 @@ public class JoinTableTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

@@ -23,14 +23,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.tcp.transport.TCPNettyServer;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
@@ -63,7 +63,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -108,8 +108,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -119,7 +119,7 @@ public class TCPSinkTestCase {
 
         Thread.sleep(300);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -129,7 +129,7 @@ public class TCPSinkTestCase {
 
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testTcpSink2() throws InterruptedException {
         log.info("tcpSource TestCase 2");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -142,11 +142,11 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         Thread.sleep(300);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -210,8 +210,8 @@ public class TCPSinkTestCase {
         serverConfig.setHost("127.0.0.1");
         tcpNettyServer.bootServer(serverConfig);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -223,7 +223,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -242,7 +242,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -290,8 +290,8 @@ public class TCPSinkTestCase {
         serverConfig.setHost("127.0.0.1");
         tcpNettyServer.bootServer(serverConfig);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -303,7 +303,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -322,7 +322,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -370,8 +370,8 @@ public class TCPSinkTestCase {
         serverConfig.setHost("127.0.0.1");
         tcpNettyServer.bootServer(serverConfig);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -383,13 +383,13 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testTcpSink6() throws InterruptedException {
         log.info("tcpSource TestCase 6");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -402,14 +402,14 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-            executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
 
         }
@@ -428,7 +428,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -473,8 +473,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -486,7 +486,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -505,7 +505,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -547,8 +547,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
 
@@ -563,7 +563,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(2, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -582,7 +582,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -613,8 +613,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -625,7 +625,7 @@ public class TCPSinkTestCase {
         Thread.sleep(300);
 
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -646,11 +646,11 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -661,11 +661,11 @@ public class TCPSinkTestCase {
         Thread.sleep(300);
 
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testTcpSink11() throws InterruptedException {
         log.info("tcpSource TestCase 11");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -678,20 +678,20 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-            executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
 
         }
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testTcpSink12() throws InterruptedException {
         log.info("tcpSource TestCase 12");
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -704,14 +704,14 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-            executionPlanRuntime.getInputHandler("inputStream");
-            executionPlanRuntime.start();
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.getInputHandler("inputStream");
+            siddhiAppRuntime.start();
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
 
         }
@@ -738,7 +738,7 @@ public class TCPSinkTestCase {
                 "select *  " +
                 "insert into outputStream2; " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -795,8 +795,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -808,7 +808,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer.shutdownGracefully();
 
@@ -830,7 +830,7 @@ public class TCPSinkTestCase {
                 "select *  " +
                 "insert into outputStream; " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition1 = StreamDefinition.id("foo1").attribute("a", Attribute.Type.STRING)
@@ -917,8 +917,8 @@ public class TCPSinkTestCase {
         tcpNettyServer1.bootServer(serverConfig);
         tcpNettyServer2.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -931,7 +931,7 @@ public class TCPSinkTestCase {
         Assert.assertEquals(3, count);
         Assert.assertEquals(3, count1);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer1.shutdownGracefully();
         tcpNettyServer2.shutdownGracefully();
@@ -944,7 +944,7 @@ public class TCPSinkTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo') " +
+                "@app:name('foo') " +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
                 "@sink(type='tcp', context='foo/inputStream1') " +
                 "define stream outputStream(a string, b int, c float, d long, e double, f bool);";
@@ -955,7 +955,7 @@ public class TCPSinkTestCase {
                 "insert into outputStream;" +
                 " " +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition1 = StreamDefinition.id("foo/inputStream1").attribute("a", Attribute.Type
@@ -1001,8 +1001,8 @@ public class TCPSinkTestCase {
 
         tcpNettyServer1.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -1014,7 +1014,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         tcpNettyServer1.shutdownGracefully();
 
@@ -1033,7 +1033,7 @@ public class TCPSinkTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
         StreamDefinition streamDefinition = StreamDefinition.id("foo").attribute("a", Attribute.Type.STRING)
@@ -1077,11 +1077,11 @@ public class TCPSinkTestCase {
         });
 
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         Thread.sleep(2000);
         tcpNettyServer.bootServer(new ServerConfig());
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
 
         ArrayList<Event> arrayList = new ArrayList<Event>();
         arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
@@ -1093,7 +1093,7 @@ public class TCPSinkTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         tcpNettyServer.shutdownGracefully();
 
     }

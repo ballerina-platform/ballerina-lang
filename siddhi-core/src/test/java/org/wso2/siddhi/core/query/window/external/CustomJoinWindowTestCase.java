@@ -22,14 +22,14 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -78,9 +78,9 @@ public class CustomJoinWindowTestCase {
                 "volume  " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -105,10 +105,10 @@ public class CustomJoinWindowTestCase {
 
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 10L});
@@ -120,7 +120,7 @@ public class CustomJoinWindowTestCase {
         assertEquals("Number of remove events", 0, removeEventCount);
         assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -151,9 +151,9 @@ public class CustomJoinWindowTestCase {
                 "select TempWindow.roomNo, RegulatorWindow.deviceID, 'start' as action " +
                 "insert into RegulatorActionStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("RegulatorActionStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("RegulatorActionStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -161,10 +161,10 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        InputHandler tempStream = executionPlanRuntime.getInputHandler("TempStream");
-        InputHandler regulatorStream = executionPlanRuntime.getInputHandler("RegulatorStream");
+        InputHandler tempStream = siddhiAppRuntime.getInputHandler("TempStream");
+        InputHandler regulatorStream = siddhiAppRuntime.getInputHandler("RegulatorStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         tempStream.send(new Object[]{100L, 1, 20.0});
         tempStream.send(new Object[]{100L, 2, 25.0});
@@ -180,7 +180,7 @@ public class CustomJoinWindowTestCase {
 
         Thread.sleep(500);
         assertEquals("Number of success events", 2, inEventCount);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -206,9 +206,9 @@ public class CustomJoinWindowTestCase {
                 "select TempWindow.roomNo, R.deviceID, 'start' as action " +
                 "insert into RegulatorActionStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("RegulatorActionStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("RegulatorActionStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -216,10 +216,10 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        InputHandler tempStream = executionPlanRuntime.getInputHandler("TempStream");
-        InputHandler regulatorStream = executionPlanRuntime.getInputHandler("RegulatorStream");
+        InputHandler tempStream = siddhiAppRuntime.getInputHandler("TempStream");
+        InputHandler regulatorStream = siddhiAppRuntime.getInputHandler("RegulatorStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         tempStream.send(new Object[]{100L, 1, 20.0});
         tempStream.send(new Object[]{100L, 2, 25.0});
@@ -235,7 +235,7 @@ public class CustomJoinWindowTestCase {
 
         Thread.sleep(500);
         assertEquals("Number of success events", 2, inEventCount);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -273,8 +273,8 @@ public class CustomJoinWindowTestCase {
                 "select symbol, sum(price) as totalPrice, sum(volume) as volumes " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -283,14 +283,14 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         for (int i = 1; i <= 6; i++) {
-            executionPlanRuntime.getInputHandler("Stream" + i).send(new Object[]{"WSO2", (i * 10.0f), 1L});
+            siddhiAppRuntime.getInputHandler("Stream" + i).send(new Object[]{"WSO2", (i * 10.0f), 1L});
         }
         Thread.sleep(500);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -322,9 +322,9 @@ public class CustomJoinWindowTestCase {
                 "select StockWindow.symbol, StockWindow.price, StockWindow.volume as volume " +
                 "insert into VolumeGreaterThanOutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("SummaryOfCompanyOutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("SummaryOfCompanyOutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -337,7 +337,7 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        executionPlanRuntime.addCallback("VolumeGreaterThanOutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("VolumeGreaterThanOutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -345,12 +345,12 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
-        InputHandler stockInputStreamInputHandler = executionPlanRuntime.getInputHandler("StockInputStream");
-        InputHandler summaryOfCompanyTriggerStreamInputHandler = executionPlanRuntime.getInputHandler
+        InputHandler stockInputStreamInputHandler = siddhiAppRuntime.getInputHandler("StockInputStream");
+        InputHandler summaryOfCompanyTriggerStreamInputHandler = siddhiAppRuntime.getInputHandler
                 ("SummaryOfCompanyTriggerStream");
-        InputHandler volumeGreaterThanTriggerStreamInputHandler = executionPlanRuntime.getInputHandler
+        InputHandler volumeGreaterThanTriggerStreamInputHandler = siddhiAppRuntime.getInputHandler
                 ("VolumeGreaterThanTriggerStream");
 
         // 10 inputs
@@ -377,10 +377,10 @@ public class CustomJoinWindowTestCase {
         volumeGreaterThanTriggerStreamInputHandler.send(new Object[]{5L});
         Thread.sleep(500);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testWindowAfterWindow() throws InterruptedException {
         log.info("Test traditional window for a stream out of window");
 
@@ -399,10 +399,10 @@ public class CustomJoinWindowTestCase {
                 "from StockWindow#window.lengthBatch(2) " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -412,7 +412,7 @@ public class CustomJoinWindowTestCase {
         stockStream.send(new Object[]{"WSO2", 50.0f, 100L});
         Thread.sleep(1500);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -441,23 +441,23 @@ public class CustomJoinWindowTestCase {
                 "select cseEventWindow.symbol as symbol, twitterWindow.tweet, cseEventWindow.price " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("cseEventWindow", new StreamCallback() {
+            siddhiAppRuntime.addCallback("cseEventWindow", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     System.out.print("cseEventWindow: ");
                     EventPrinter.print(events);
                 }
             });
-            executionPlanRuntime.addCallback("twitterWindow", new StreamCallback() {
+            siddhiAppRuntime.addCallback("twitterWindow", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     System.out.print("twitterWindow: ");
                     EventPrinter.print(events);
                 }
             });
-            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -470,9 +470,9 @@ public class CustomJoinWindowTestCase {
                     eventArrived = true;
                 }
             });
-            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-            InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-            executionPlanRuntime.start();
+            InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+            siddhiAppRuntime.start();
             cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
             cseEventStreamHandler.send(new Object[]{"IBM", 59.6f, 100});
             twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
@@ -485,7 +485,7 @@ public class CustomJoinWindowTestCase {
             Assert.assertEquals(0, removeEventCount);
             Assert.assertTrue(eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -522,32 +522,32 @@ public class CustomJoinWindowTestCase {
                 "group by name " +
                 "insert into OverallAverageSensorReadingStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("MaxSensorReadingPerRoomStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("MaxSensorReadingPerRoomStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 System.out.print("MaxSensorReadingPerRoomStream: ");
                 EventPrinter.print(events);
             }
         });
-        executionPlanRuntime.addCallback("OverallMaxSensorReadingStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OverallMaxSensorReadingStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 System.out.print("OverallMaxSensorReadingStream: ");
                 EventPrinter.print(events);
             }
         });
-        executionPlanRuntime.addCallback("OverallAverageSensorReadingStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OverallAverageSensorReadingStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 System.out.print("OverallAverageSensorReadingStream: ");
                 EventPrinter.print(events);
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
-        InputHandler sensorStreamInputHandler = executionPlanRuntime.getInputHandler("SensorStream");
+        InputHandler sensorStreamInputHandler = siddhiAppRuntime.getInputHandler("SensorStream");
 
         sensorStreamInputHandler.send(new Object[]{"Temperature", 23.0f, 1, "T001A"});
         sensorStreamInputHandler.send(new Object[]{"Pressure", 20.0f, 1, "P001"});
@@ -562,7 +562,7 @@ public class CustomJoinWindowTestCase {
 
         Thread.sleep(500);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     /**
@@ -606,9 +606,9 @@ public class CustomJoinWindowTestCase {
                 "select RegulatorActionWindow.deviceID as deviceID, TempWindow.roomNo as roomNo, true as isOn " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -616,10 +616,10 @@ public class CustomJoinWindowTestCase {
             }
         });
 
-        InputHandler tempStream = executionPlanRuntime.getInputHandler("TempStream");
-        InputHandler regulatorStream = executionPlanRuntime.getInputHandler("RegulatorStream");
+        InputHandler tempStream = siddhiAppRuntime.getInputHandler("TempStream");
+        InputHandler regulatorStream = siddhiAppRuntime.getInputHandler("RegulatorStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         tempStream.send(new Object[]{100L, 1, 20.0});
         tempStream.send(new Object[]{100L, 2, 25.0});
@@ -635,7 +635,7 @@ public class CustomJoinWindowTestCase {
 
         Thread.sleep(1500);
         assertEquals("Number of success events", 2, inEventCount);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     /**
@@ -671,9 +671,9 @@ public class CustomJoinWindowTestCase {
                 "select a.symbol as symbol, a.price as priceA, b.price as priceB " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -687,8 +687,8 @@ public class CustomJoinWindowTestCase {
                 }
             });
 
-            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-            executionPlanRuntime.start();
+            InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            siddhiAppRuntime.start();
             cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});    // Match with itself
             cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});   // Match with itself
             // When the next event enters, the expired {"IBM", 75.6f, 100} will come out and joined
@@ -700,7 +700,7 @@ public class CustomJoinWindowTestCase {
             Assert.assertEquals(1, removeEventCount);
             Assert.assertTrue(eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
     

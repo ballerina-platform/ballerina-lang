@@ -29,7 +29,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
@@ -38,7 +38,7 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,7 +169,7 @@ public class XmlSourceMapper extends SourceMapper {
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
             if (streamDefinition.getAttributeList().size() < attributeMappingList.size()) {
-                throw new ExecutionPlanValidationException("Stream: '" + streamDefinition.getId() + "' has "
+                throw new SiddhiAppValidationException("Stream: '" + streamDefinition.getId() + "' has "
                         + streamDefinition.getAttributeList().size() + " attributes, but " + attributeMappingList.size()
                         + " attribute mappings found. Each attribute should have one and only one mapping.");
             }
@@ -185,7 +185,7 @@ public class XmlSourceMapper extends SourceMapper {
                     try {
                         axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
                     } catch (JaxenException e) {
-                        throw new ExecutionPlanValidationException("Error occurred when building XPath from: " +
+                        throw new SiddhiAppValidationException("Error occurred when building XPath from: " +
                                 attributeMapping.getMapping() + ", mapped to attribute: " +
                                 attributeMapping.getRename());
                     }
@@ -193,15 +193,15 @@ public class XmlSourceMapper extends SourceMapper {
                         try {
                             axiomxPath.addNamespace(entry.getKey(), entry.getValue());
                         } catch (JaxenException e) {
-                            throw new ExecutionPlanValidationException(
+                            throw new SiddhiAppValidationException(
                                     "Error occurred when adding namespace: " + entry.getKey()
                                     + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
                         }
                     }
                     xPathMap.put(attributeMapping.getRename(), axiomxPath);
                 } else {
-                    throw new ExecutionPlanValidationException("No attribute with name " + attributeMapping.getRename()
-                            + " available in stream. Hence halting Execution plan deployment");
+                    throw new SiddhiAppValidationException("No attribute with name " + attributeMapping.getRename()
+                            + " available in stream. Hence halting Siddhi app deployment");
                 }
             }
             enclosingElementSelectorXPath = optionHolder.validateAndGetStaticValue(PARENT_SELECTOR_XPATH, null);
@@ -212,13 +212,13 @@ public class XmlSourceMapper extends SourceMapper {
                         try {
                             enclosingElementSelectorPath.addNamespace(entry.getKey(), entry.getValue());
                         } catch (JaxenException e) {
-                            throw new ExecutionPlanValidationException(
+                            throw new SiddhiAppValidationException(
                                     "Error occurred when adding namespace: " + entry.getKey() + ":" + entry.getValue
                                             () + " to XPath element:" + enclosingElementSelectorXPath);
                         }
                     }
                 } catch (JaxenException e) {
-                    throw new ExecutionPlanRuntimeException("Could not get XPath from expression: " +
+                    throw new SiddhiAppRuntimeException("Could not get XPath from expression: " +
                             enclosingElementSelectorXPath, e);
                 }
             }
@@ -284,7 +284,7 @@ public class XmlSourceMapper extends SourceMapper {
                         return new Event[0];
                     }
                 } catch (JaxenException e) {
-                    throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: "
+                    throw new SiddhiAppRuntimeException("Error occurred when selecting nodes from XPath: "
                             + enclosingElementSelectorPath.toString(), e);
                 }
                 for (Object enclosingNode : enclosingNodeList) {
@@ -321,7 +321,7 @@ public class XmlSourceMapper extends SourceMapper {
                             try {
                                 data[attributePositionMap.get(attributeName)] = attributeConverter.getPropertyValue(
                                         attrOMElement.getText(), type);
-                            } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                            } catch (SiddhiAppRuntimeException | NumberFormatException e) {
                                 log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
                                         ". Hence dropping the event: " + eventOMElement.toString());
                                 isMalformedEvent = true;
@@ -401,7 +401,7 @@ public class XmlSourceMapper extends SourceMapper {
                         String attributeValue = element.getText();
                         try {
                             data[i] = attributeConverter.getPropertyValue(attributeValue, attribute.getType());
-                        } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                        } catch (SiddhiAppRuntimeException | NumberFormatException e) {
                             if (failOnUnknownAttribute) {
                                 log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
                                         ". Hence dropping the event: " + eventOMElement.toString());
@@ -414,7 +414,7 @@ public class XmlSourceMapper extends SourceMapper {
                     try {
                         data[i] = attributeConverter.getPropertyValue(omAttribute.getAttributeValue(),
                                                                       attribute.getType());
-                    } catch (ExecutionPlanRuntimeException | NumberFormatException e) {
+                    } catch (SiddhiAppRuntimeException | NumberFormatException e) {
                         log.warn("Error occurred when extracting attribute value. Cause: " + e.getMessage() +
                                 ". Hence dropping the event: " + eventOMElement.toString());
                         return null;

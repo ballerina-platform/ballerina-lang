@@ -50,14 +50,14 @@ public class TestDebuggerClient {
     public void testDebugger1() throws InterruptedException {
         log.info("Siddi Debugger Test 1: Test next traversal in a simple query");
 
-        String executionPlanPath = getClass().getClassLoader().getResource("debugger_executionplan.siddhiql").getPath();
+        String siddhiAppPath = getClass().getClassLoader().getResource("debugger_siddhiApp.siddhiql").getPath();
         String inputPath = getClass().getClassLoader().getResource("debugger_input.txt").getPath();
 
         ByteArrayInputStream in = new ByteArrayInputStream(("add breakpoint " +
                 "query1:in\nstart\nnext\nnext\nnext\nnext\nstop\n").getBytes());
         System.setIn(in);
 
-        SiddhiDebuggerClient.main(new String[]{executionPlanPath, inputPath});
+        SiddhiDebuggerClient.main(new String[]{siddhiAppPath, inputPath});
 
         Thread.sleep(100);
 

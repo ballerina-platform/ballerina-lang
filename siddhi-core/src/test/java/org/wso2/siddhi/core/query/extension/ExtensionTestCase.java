@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.extension.util.CustomFunctionExtension;
@@ -52,9 +52,9 @@ public class ExtensionTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , custom:getAll(symbol) as toConcat " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -67,8 +67,8 @@ public class ExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -77,7 +77,7 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -91,9 +91,9 @@ public class ExtensionTestCase {
         String query = ("@info(name = 'query1') from cseEventStream select symbol , custom:plus(price,volume) as " +
                 "totalCount " +
                 "insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -112,15 +112,15 @@ public class ExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700L, 100L});
         inputHandler.send(new Object[]{"WSO2", 605L, 200L});
         inputHandler.send(new Object[]{"ABC", 60L, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -139,9 +139,9 @@ public class ExtensionTestCase {
                 "select price , email:getAllNew(symbol,'') as toConcat " +
                 "group by volume " +
                 "insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -154,8 +154,8 @@ public class ExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -164,7 +164,7 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -178,9 +178,9 @@ public class ExtensionTestCase {
         String cseEventStream = "define stream cseEventStream (price long, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select  custom:plus(*) as totalCount " +
                 "insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -199,15 +199,15 @@ public class ExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{700L, 100L});
         inputHandler.send(new Object[]{605L, 200L});
         inputHandler.send(new Object[]{60L, 200L});
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -229,9 +229,9 @@ public class ExtensionTestCase {
                 "select price , email:getAllNew(symbol,'') as toConcat " +
                 "group by volume " +
                 "insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -244,8 +244,8 @@ public class ExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         Thread.sleep(100);
         inputHandler.send(new Object[]{"WSO2", 60.5f, 200L});
@@ -254,6 +254,6 @@ public class ExtensionTestCase {
         Thread.sleep(100);
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

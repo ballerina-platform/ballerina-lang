@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
@@ -52,14 +52,14 @@ public interface FindableProcessor {
      *
      * @param expression                  the matching expression
      * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
-     * @param executionPlanContext        current execution plan context
+     * @param siddhiAppContext        current siddhi app context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
      * @param tableMap               map of event tables
      * @param queryName                   query name of findable processor belongs to.
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
     CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                       ExecutionPlanContext executionPlanContext,
+                                       SiddhiAppContext siddhiAppContext,
                                        List<VariableExpressionExecutor> variableExpressionExecutors,
                                        Map<String, Table> tableMap, String queryName);
 }

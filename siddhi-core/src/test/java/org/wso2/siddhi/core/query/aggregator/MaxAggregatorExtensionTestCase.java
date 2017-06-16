@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -51,10 +51,10 @@ public class MaxAggregatorExtensionTestCase {
                 "from inputStream#window.time(1 sec) " +
                 "select max(price1) as maxForeverValue " +
                 "insert all events into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -82,8 +82,8 @@ public class MaxAggregatorExtensionTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{36d, 36.75, 35.75});
         inputHandler.send(new Object[]{37.88d, 38.12, 37.62});
@@ -92,7 +92,7 @@ public class MaxAggregatorExtensionTestCase {
         Thread.sleep(300);
         Assert.assertEquals(4, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

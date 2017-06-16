@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.stream.input;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 
@@ -40,10 +40,10 @@ public class InputEventHandler implements Snapshotable {
      */
     private Long lastEventId = null;
 
-    public InputEventHandler(InputHandler inputHandler, ExecutionPlanContext executionPlanContext) {
+    public InputEventHandler(InputHandler inputHandler, SiddhiAppContext siddhiAppContext) {
         this.inputHandler = inputHandler;
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        executionPlanContext.getSnapshotService().addSnapshotable(inputHandler.hashCode() + "inputeventhandler", this);
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        siddhiAppContext.getSnapshotService().addSnapshotable(inputHandler.hashCode() + "inputeventhandler", this);
     }
 
     public void sendEvent(Event event) throws InterruptedException {

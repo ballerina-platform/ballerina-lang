@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.performance;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -30,7 +30,7 @@ public class PartitionPerformance {
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
                 "partition with (symbol of cseEventStream) " +
@@ -41,8 +41,8 @@ public class PartitionPerformance {
                 "   insert into outputStream ;" +
                 "end;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -51,8 +51,8 @@ public class PartitionPerformance {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         while (true) {
             count++;

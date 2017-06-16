@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -94,7 +94,7 @@ public class HazelcastTable implements Table {
     private static final Logger logger = Logger.getLogger(HazelcastTable.class);
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
     private TableDefinition tableDefinition;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private StreamEventCloner tableStreamEventCloner;
     private String elementId;
     private EventHolder eventHolder = null;
@@ -106,15 +106,15 @@ public class HazelcastTable implements Table {
      * @param storeEventPool
      * @param storeEventCloner
      * @param configReader
-     * @param executionPlanContext ExecutionPlan related meta information.
+     * @param siddhiAppContext SiddhiApp related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition,
                      StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         String clusterName;
         String clusterPassword;
         String hosts;
@@ -144,7 +144,7 @@ public class HazelcastTable implements Table {
                 SiddhiConstants.ANNOTATION_INDEX_BY, tableDefinition.getAnnotations());
         if (collectionName == null || collectionName.isEmpty()) {
             collectionName = HazelcastTableConstants.HAZELCAST_COLLECTION_PREFIX +
-                    executionPlanContext.getName() + '.' + tableDefinition.getId();
+                    siddhiAppContext.getName() + '.' + tableDefinition.getId();
         }
         MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
         metaStreamEvent.addInputDefinition(tableDefinition);
@@ -168,7 +168,7 @@ public class HazelcastTable implements Table {
                     eventConverter);
         }
         if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         }
     }
 
@@ -189,7 +189,7 @@ public class HazelcastTable implements Table {
                 Config config = new Config();
                 config.setProperty("hazelcast.logging.type", "log4j");
                 config.setInstanceName(HazelcastTableConstants.HAZELCAST_INSTANCE_PREFIX +
-                        executionPlanContext.getName());
+                        siddhiAppContext.getName());
                 if (groupName != null && !groupName.isEmpty()) {
                     config.getGroupConfig().setName(groupName);
                 }
@@ -267,11 +267,11 @@ public class HazelcastTable implements Table {
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
+                siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
 
 }

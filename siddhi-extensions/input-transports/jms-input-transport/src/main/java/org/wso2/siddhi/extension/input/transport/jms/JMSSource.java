@@ -24,7 +24,7 @@ import org.wso2.carbon.transport.jms.exception.JMSConnectorException;
 import org.wso2.carbon.transport.jms.receiver.JMSServerConnector;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
@@ -56,7 +56,7 @@ public class JMSSource extends Source {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         // todo: thread pool size should be read from the configuration file, since it's not available at the time of

@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util.extension.holder;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributionStrategy;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,16 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DistributionStrategyExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = DistributionStrategy.class;
 
-    private DistributionStrategyExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(clazz, executionPlanContext);
+    private DistributionStrategyExtensionHolder(SiddhiAppContext siddhiAppContext) {
+        super(clazz, siddhiAppContext);
     }
 
-    public static DistributionStrategyExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
+    public static DistributionStrategyExtensionHolder getInstance(SiddhiAppContext siddhiAppContext) {
         ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap
-                = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
+                = siddhiAppContext.getSiddhiContext().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder = new DistributionStrategyExtensionHolder(executionPlanContext);
+            abstractExtensionHolder = new DistributionStrategyExtensionHolder(siddhiAppContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
         return (DistributionStrategyExtensionHolder) extensionHolderMap.get(clazz);

@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -57,9 +57,9 @@ public class SortWindowTestCase {
                 "select volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -75,8 +75,8 @@ public class SortWindowTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 55.6f, 100L});
         inputHandler.send(new Object[]{"IBM", 75.6f, 300L});
         inputHandler.send(new Object[]{"WSO2", 57.6f, 200L});
@@ -86,7 +86,7 @@ public class SortWindowTestCase {
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(3, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -95,7 +95,7 @@ public class SortWindowTestCase {
         log.info("sortWindow test2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String planName = "@plan:name('sortWindow2') ";
+        String planName = "@app:name('sortWindow2') ";
         String cseEventStream = "" +
                 "define stream cseEventStream (symbol string, price int, volume long);";
         String query = "" +
@@ -104,10 +104,10 @@ public class SortWindowTestCase {
                 "select price, volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(planName +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(planName +
                 cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -123,8 +123,8 @@ public class SortWindowTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50, 100L});
         inputHandler.send(new Object[]{"IBM", 20, 100L});
         inputHandler.send(new Object[]{"WSO2", 40, 50L});
@@ -134,7 +134,7 @@ public class SortWindowTestCase {
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(3, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 }

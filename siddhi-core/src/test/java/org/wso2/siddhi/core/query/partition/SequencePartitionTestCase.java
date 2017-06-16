@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -59,10 +59,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -87,10 +87,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
@@ -105,7 +105,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -125,10 +125,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -145,10 +145,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
@@ -167,7 +167,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -188,10 +188,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -222,10 +222,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 55.6f, 100});
         Thread.sleep(100);
@@ -240,7 +240,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -260,10 +260,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -289,10 +289,10 @@ public class SequencePartitionTestCase {
         });
 
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -315,7 +315,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -335,10 +335,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -363,10 +363,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -387,7 +387,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -406,10 +406,10 @@ public class SequencePartitionTestCase {
                 "select e1[0].price as price1, e2.price as price3 " +
                 "insert into OutputStream ;";
         String partitionEnd = "end";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -425,10 +425,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -443,7 +443,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", false, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -463,10 +463,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -497,10 +497,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -523,7 +523,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -543,10 +543,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -577,10 +577,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -603,7 +603,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -623,10 +623,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -654,10 +654,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -676,7 +676,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -696,10 +696,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -721,10 +721,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 59.6f, 100});
         Thread.sleep(100);
@@ -741,7 +741,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -764,10 +764,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -792,10 +792,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 29.6f, 100});
         Thread.sleep(100);
@@ -818,7 +818,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -838,10 +838,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -863,10 +863,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler twitterStream = executionPlanRuntime.getInputHandler("TwitterStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler twitterStream = siddhiAppRuntime.getInputHandler("TwitterStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"IBM", 75.6f, 105, "user"});
         stockStream.send(new Object[]{"GOOG", 51f, 101, "user"});
@@ -883,7 +883,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -905,10 +905,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -934,10 +934,10 @@ public class SequencePartitionTestCase {
         });
 
 
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-        InputHandler twitterStream = executionPlanRuntime.getInputHandler("TwitterStream");
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+        InputHandler twitterStream = siddhiAppRuntime.getInputHandler("TwitterStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"IBM", 75.6f, 105, "user"});
         Thread.sleep(100);
@@ -954,7 +954,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -975,10 +975,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -1015,10 +1015,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stockStream1 = executionPlanRuntime.getInputHandler("StockStream1");
-        InputHandler stockStream2 = executionPlanRuntime.getInputHandler("StockStream2");
+        InputHandler stockStream1 = siddhiAppRuntime.getInputHandler("StockStream1");
+        InputHandler stockStream2 = siddhiAppRuntime.getInputHandler("StockStream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105, 2});
         Thread.sleep(100);
@@ -1052,7 +1052,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1073,10 +1073,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -1107,10 +1107,10 @@ public class SequencePartitionTestCase {
             }
         });
 
-        InputHandler stockStream1 = executionPlanRuntime.getInputHandler("StockStream1");
-        InputHandler stockStream2 = executionPlanRuntime.getInputHandler("StockStream2");
+        InputHandler stockStream1 = siddhiAppRuntime.getInputHandler("StockStream1");
+        InputHandler stockStream2 = siddhiAppRuntime.getInputHandler("StockStream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105, 10});
         Thread.sleep(100);
@@ -1144,7 +1144,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1164,10 +1164,10 @@ public class SequencePartitionTestCase {
                 "insert into OutputStream ;";
         String partitionEnd = "end";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + partitionStart
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + partitionStart
                 + query + partitionEnd);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -1205,10 +1205,10 @@ public class SequencePartitionTestCase {
         });
 
 
-        InputHandler stockStream1 = executionPlanRuntime.getInputHandler("StockStream1");
-        InputHandler stockStream2 = executionPlanRuntime.getInputHandler("StockStream2");
+        InputHandler stockStream1 = siddhiAppRuntime.getInputHandler("StockStream1");
+        InputHandler stockStream2 = siddhiAppRuntime.getInputHandler("StockStream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream1.send(new Object[]{"IBM", 75.6f, 105, 5});
         Thread.sleep(100);
@@ -1259,7 +1259,7 @@ public class SequencePartitionTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }
 

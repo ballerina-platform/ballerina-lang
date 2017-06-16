@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
@@ -45,22 +45,22 @@ public abstract class Sink implements SinkListener, Snapshotable {
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
                      OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
-                     ExecutionPlanContext executionPlanContext) {
+                     SiddhiAppContext siddhiAppContext) {
         this.type = type;
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        init(streamDefinition, transportOptionHolder, sinkConfigReader, executionPlanContext);
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
-                            executionPlanContext);
+                            siddhiAppContext);
             this.mapper = sinkMapper;
         }
 
     }
 
     public void initOnlyTransport(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
-                                  ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        init(streamDefinition, transportOptionHolder, sinkConfigReader, executionPlanContext);
+                                  ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
     }
 
     /**
@@ -76,10 +76,10 @@ public abstract class Sink implements SinkListener, Snapshotable {
      * @param outputStreamDefinition containing stream definition bind to the {@link Sink}
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
      * @param sinkConfigReader  this hold the {@link Sink} extensions configuration reader.
-     * @param executionPlanContext {@link ExecutionPlanContext} of the parent execution plan.
+     * @param siddhiAppContext {@link SiddhiAppContext} of the parent siddhi app.
      */
     protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
-                                 ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext);
+                                 ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext);
 
     /**
      * Will be called to connect to the backend before events are published

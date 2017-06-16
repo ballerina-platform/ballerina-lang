@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -61,11 +61,11 @@ public class StringConcatAggregatorString extends AttributeAggregator {
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader this hold the {@link StringConcatAggregatorString} configuration reader.
-     * @param executionPlanContext         SiddhiContext
+     * @param siddhiAppContext         SiddhiContext
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
+                        SiddhiAppContext siddhiAppContext) {
         appendAbc = Boolean.parseBoolean(configReader.readConfig("append.abc", "false"));
 
     }

@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -40,7 +40,7 @@ public class SinkCallback extends StreamCallback {
         this.outputStreamDefinition = outputStreamDefinition;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext) {
+    public void init(SiddhiAppContext siddhiAppContext) {
         // there's nothing to be done, since we moved the
         // type validation mechanism to the transport itself.
     }

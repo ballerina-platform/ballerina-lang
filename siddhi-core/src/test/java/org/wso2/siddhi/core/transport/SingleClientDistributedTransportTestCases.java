@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
@@ -73,7 +73,7 @@ public class SingleClientDistributedTransportTestCases {
         InMemoryBroker.subscribe(subscriptionIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='roundRobin', " +
@@ -87,10 +87,10 @@ public class SingleClientDistributedTransportTestCases {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -102,7 +102,7 @@ public class SingleClientDistributedTransportTestCases {
         //assert event count
         Assert.assertEquals("Number of WSO2 events", 3, topic1Count.get());
         Assert.assertEquals("Number of IBM events", 2, topic2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriptionWSO2);
@@ -143,7 +143,7 @@ public class SingleClientDistributedTransportTestCases {
         InMemoryBroker.subscribe(subscriptionIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='partitioned', partitionKey='symbol'," +
@@ -157,10 +157,10 @@ public class SingleClientDistributedTransportTestCases {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -173,7 +173,7 @@ public class SingleClientDistributedTransportTestCases {
         //assert event count
         Assert.assertEquals("Number of topic 1 events", 2, topic1Count.get());
         Assert.assertEquals("Number of topic 2 events", 4, topic2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriptionWSO2);
@@ -214,7 +214,7 @@ public class SingleClientDistributedTransportTestCases {
         InMemoryBroker.subscribe(subscriptionIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', @map(type='passThrough'), " +
                 "   @distribution(strategy='broadcast'," +
@@ -228,10 +228,10 @@ public class SingleClientDistributedTransportTestCases {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -244,7 +244,7 @@ public class SingleClientDistributedTransportTestCases {
         //assert event count
         Assert.assertEquals("Number of topic 1 events", 6, topic1Count.get());
         Assert.assertEquals("Number of topic 2 events", 6, topic2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriptionWSO2);
