@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.xdebugger.XDebugSession;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -52,24 +51,36 @@ public class BallerinaWebSocketConnector {
         createConnection();
     }
 
-    private void createConnection() {
+    public void createConnection() {
+        System.out.println("Connecting ...");
         try {
             myWebSocket = webSocketFactory.createSocket(getUri());
             myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
-            ApplicationManager.getApplication().invokeAndWait(() -> {
-                        try {
-                            Thread.sleep(1500);
-                        } catch (InterruptedException e) {
-
-                        }
-                        myWebSocket.connectAsynchronously();
-                    }
-            );
-        } catch (IOException e) {
+            myWebSocket.connect();
+            System.out.println("Connection successful");
+            //                    }
+            //            );
+        } catch (IOException | WebSocketException e) {
             myConnectionState = ConnectionState.ERROR;
+            System.out.println("Connection failed: " + e);
         }
 
     }
+
+//    public void reConnect() {
+//        System.out.println("Reconnecting ...");
+//        try {
+//            myWebSocket = webSocketFactory.createSocket(getUri());
+//            myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
+//            myWebSocket.connect();
+//            System.out.println("Reconnection success.");
+//        } catch (WebSocketException e) {
+//            System.out.println("Reconnection failed: " + e);
+//        } catch (IOException e) {
+//            System.out.println("Reconnection failed: " + e);
+//        }
+//    }
+
 
     @NotNull
     private String getUri() {

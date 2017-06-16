@@ -23,6 +23,7 @@ import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.AccessToken;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -68,12 +69,13 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
     private final BallerinaDebuggerEditorsProvider myEditorsProvider;
-
-
-    BallerinaWebSocketConnector myConnector;
+    private final BallerinaBreakpointHandler myBreakPointHandler;
+    private final BallerinaWebSocketConnector myConnector;
 
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
     private final AtomicBoolean connectedListenerAdded = new AtomicBoolean();
+
+    private final int MAX_RETRIES = 10;
 
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
                                  @NotNull ExecutionResult executionResult) {
@@ -84,7 +86,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         myProcessHandler = executionResult.getProcessHandler();
         myExecutionConsole = executionResult.getExecutionConsole();
         myEditorsProvider = new BallerinaDebuggerEditorsProvider();
-
+        myBreakPointHandler = new BallerinaBreakpointHandler();
         // Todo - add session
         //        myDebuggerSession = XsltDebuggerSession.getInstance(myProcessHandler);
 
@@ -105,7 +107,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @NotNull
     @Override
     public XBreakpointHandler<?>[] getBreakpointHandlers() {
-        return new XBreakpointHandler[]{new MyBreakpointHandler()};
+        return new XBreakpointHandler[]{myBreakPointHandler};
     }
 
     @NotNull
@@ -116,50 +118,83 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void sessionInitialized() {
-        // To debug the debugger, add a breakpoint here. When it is hit, connect to the ballerina runtime using a
-        // remote connection. then continue from here.
+        System.out.println("Init called");
+        ApplicationManager.getApplication().invokeLater(() -> {
+            for (int retries = 0; retries < MAX_RETRIES; retries++) {
+                System.out.println("Retry: " + retries);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
 
-//        myConnector.addListener(
-//                new BallerinaWebSocketAdaptor() {
-//
-//                    @Override
-//                    public void onTextFrame(WebSocket websocket, WebSocketFrame frame)
-//                            throws Exception {
-//
-//                        String json = frame.getPayloadText();
-//
-//                        ObjectMapper mapper = new ObjectMapper();
-//                        Message message = null;
-//                        try {
-//                            message = mapper.readValue(json, Message.class);
-//                        } catch (IOException e) {
-//
-//                        }
-//
-//                        if (message == null) {
-//                            System.out.println(json);
-//                            return;
-//                        }
-//
-//                        if (Response.DEBUG_HIT.name().equals(message.getCode())) {
-//                            XBreakpoint<BallerinaBreakpointProperties> breakpoint
-//                                    = findBreakPoint(message.getLocation());
-//                            BallerinaSuspendContext context =
-//                                    new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
-//                            XDebugSession session = getSession();
-//                            if (breakpoint == null) {
-//                                session.positionReached(context);
-//                            } else {
-//                                session.breakpointReached(breakpoint, null, context);
-//                            }
-//                        }
-//                    }
-//                }
-//        );
-//
-//        ApplicationManager.getApplication().invokeLater(
-//                () -> myConnector.sendCommand(Command.START)
-//        );
+                }
+                System.out.println("IsConnected: " + myConnector.isConnected());
+                if (!myConnector.isConnected()) {
+                    myConnector.createConnection();
+                    System.out.println("reconnect called");
+                    if (myConnector.isConnected()) {
+                        addDebugHitListener();
+                        System.out.println("Is connected now.");
+                        System.out.println("sending breakpoints");
+                        initBreakpointHandlersAndSetBreakpoints(true);
+                        myBreakPointHandler.sendBreakpoints();
+                        System.out.println("sending start command");
+                        myConnector.sendCommand(Command.START);
+                        break;
+                    }
+                } else {
+                    System.out.println("reconnect success");
+                    break;
+                }
+            }
+        });
+    }
+
+    private void addDebugHitListener() {
+        myConnector.addListener(
+                new BallerinaWebSocketAdaptor() {
+
+                    @Override
+                    public void onConnected(WebSocket websocket, Map<String, List<String>> headers)
+                            throws Exception {
+                        initBreakpointHandlersAndSetBreakpoints(true);
+                        myConnector.sendCommand(Command.START);
+                    }
+
+
+                    @Override
+                    public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws
+                            Exception {
+
+                        String json = frame.getPayloadText();
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        Message message = null;
+                        try {
+                            message = mapper.readValue(json, Message.class);
+                        } catch (IOException e) {
+
+                        }
+
+                        if (message == null) {
+                            System.out.println(json);
+                            return;
+                        }
+
+                        if (Response.DEBUG_HIT.name().equals(message.getCode())) {
+                            XBreakpoint<BallerinaBreakpointProperties> breakpoint
+                                    = findBreakPoint(message.getLocation());
+                            BallerinaSuspendContext context =
+                                    new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+                            XDebugSession session = getSession();
+                            if (breakpoint == null) {
+                                session.positionReached(context);
+                            } else {
+                                session.breakpointReached(breakpoint, null, context);
+                            }
+                        }
+                    }
+                }
+        );
     }
 
     @Override
@@ -223,49 +258,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
 
         if (connectedListenerAdded.compareAndSet(false, true)) {
-            myConnector.addListener(
-                    new BallerinaWebSocketAdaptor() {
-
-                        @Override
-                        public void onConnected(WebSocket websocket, Map<String, List<String>> headers)
-                                throws Exception {
-                            initBreakpointHandlersAndSetBreakpoints(true);
-                            myConnector.sendCommand(Command.START);
-                        }
-
-                        @Override
-                        public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-
-                            String json = frame.getPayloadText();
-
-                            ObjectMapper mapper = new ObjectMapper();
-                            Message message = null;
-                            try {
-                                message = mapper.readValue(json, Message.class);
-                            } catch (IOException e) {
-
-                            }
-
-                            if (message == null) {
-                                System.out.println(json);
-                                return;
-                            }
-
-                            if (Response.DEBUG_HIT.name().equals(message.getCode())) {
-                                XBreakpoint<BallerinaBreakpointProperties> breakpoint
-                                        = findBreakPoint(message.getLocation());
-                                BallerinaSuspendContext context =
-                                        new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
-                                XDebugSession session = getSession();
-                                if (breakpoint == null) {
-                                    session.positionReached(context);
-                                } else {
-                                    session.breakpointReached(breakpoint, null, context);
-                                }
-                            }
-                        }
-                    }
-            );
+            addDebugHitListener();
         }
         return false;
     }
@@ -361,9 +354,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
     //    private static final Key<Integer> ID = Key.create("DLV_BP_ID");
     private final List<XBreakpoint<BallerinaBreakpointProperties>> breakpoints = ContainerUtil.createConcurrentList();
 
-    private class MyBreakpointHandler extends XBreakpointHandler<XLineBreakpoint<BallerinaBreakpointProperties>> {
+    private class BallerinaBreakpointHandler extends
+            XBreakpointHandler<XLineBreakpoint<BallerinaBreakpointProperties>> {
 
-        public MyBreakpointHandler() {
+        public BallerinaBreakpointHandler() {
             super(BallerinaBreakPointType.class);
         }
 
@@ -418,7 +412,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
             sendBreakpoints();
         }
 
-        private void sendBreakpoints() {
+        public void sendBreakpoints() {
             StringBuilder stringBuilder = new StringBuilder("{\"command\":\"").append(Command.SET_POINTS)
                     .append("\", \"points\": [");
             if (!getSession().areBreakpointsMuted()) {
@@ -514,7 +508,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 //    @NotNull
 //    @Override
 //    protected XBreakpointHandler<?>[] createBreakpointHandlers() {
-//        return new XBreakpointHandler[]{new MyBreakpointHandler()};
+//        return new XBreakpointHandler[]{new BallerinaBreakpointHandler()};
 //    }
 //
 //    @NotNull
@@ -639,9 +633,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
 //    private final Map<Integer, XBreakpoint<BallerinaBreakpointProperties>> breakpoints =
 //            ContainerUtil.newConcurrentMap();
 //
-//    private class MyBreakpointHandler extends XBreakpointHandler<XLineBreakpoint<BallerinaBreakpointProperties>> {
+//    private class BallerinaBreakpointHandler extends
+// XBreakpointHandler<XLineBreakpoint<BallerinaBreakpointProperties>> {
 //
-//        public MyBreakpointHandler() {
+//        public BallerinaBreakpointHandler() {
 //            super(BallerinaBreakPointType.class);
 //        }
 //
