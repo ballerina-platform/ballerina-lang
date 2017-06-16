@@ -17,65 +17,106 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import './import-declaration.css';
 import ImageUtil from './image-util';
-import { util as SizingUtils } from '../visitors/sizing-utils';
 
-export default class importDeclaration extends React.Component {
+const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
+    const {
+        headerHeight = 35,
+        leftPadding = 10,
+        iconSize = 20,
+        importNoFontSize = 13,
+        noOfImportsLeftPadding = 12,
+        iconLeftPadding = 12,
+        noOfImportsBGHeight = 18,
+        noOfImportsBGWidth = 18,
+        importLabelWidth = 48,
+        noOfImportsTextWidth = 100,
+        badgeWidth = 150,
+    } = viewState;
 
-    render() {
-        const bBox = this.props.bBox;
-        const headerHeight = 35;
-        const leftPadding = 10;
-        const iconSize = 20;
-        const importNoFontSize = 13;
-        const noOfImportsLeftPadding = 12;
-        const iconLeftPadding = 12;
-        const noOfImportsBGHeight = 18;
-        const importLabelWidth = 48.37;
+    const labelBbox = {
+        x: bBox.x + leftPadding,
+        y: bBox.y + (headerHeight / 2),
+    };
 
-        const noOfImports = this.props.imports.length;
+    const numberBbox = {
+        x: labelBbox.x + importLabelWidth + noOfImportsLeftPadding,
+        y: labelBbox.y,
+    };
 
-        const noOfImportsTextWidth = SizingUtils.getOnlyTextWidth(noOfImports, { fontSize: importNoFontSize });
-        const noOfImportsBGWidth = Math.max(noOfImportsTextWidth + 6, noOfImportsBGHeight);
+    const iconBbox = {
+        x: numberBbox.x + noOfImportsTextWidth + iconLeftPadding,
+        y: numberBbox.y - (iconSize / 2),
+    };
 
-        const badgeWidth = leftPadding + importLabelWidth + noOfImportsLeftPadding + noOfImportsTextWidth +
-                           iconLeftPadding + iconSize + leftPadding;
+    return (
+        <g className="package-definition-head" onClick={onClick}>
+            <rect
+                x={bBox.x}
+                y={bBox.y}
+                width={badgeWidth}
+                height={headerHeight}
+                rx="0"
+                ry="0"
+                className="package-definition-header"
+            />
+            <rect x={bBox.x} y={bBox.y} height={headerHeight} className="import-definition-decorator" />
+            <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
+                Imports
+            </text>
+            <rect
+                x={numberBbox.x - ((noOfImportsBGWidth - noOfImportsTextWidth) / 2)}
+                y={numberBbox.y - (noOfImportsBGHeight / 2)}
+                width={noOfImportsBGWidth}
+                height={noOfImportsBGHeight}
+                rx={noOfImportsBGHeight / 2}
+                ry={noOfImportsBGHeight / 2}
+                className="import-badge"
+            />
+            <text
+                x={numberBbox.x}
+                y={numberBbox.y}
+                rx="0"
+                ry="0"
+                style={{ fontSize: importNoFontSize }}
+                className="import-badge-text"
+            >
+                {noOfImports}
+            </text>
+            <image
+                width={iconSize}
+                height={iconSize}
+                className="property-pane-action-button-delete"
+                xlinkHref={ImageUtil.getSVGIconString('view')}
+                x={iconBbox.x}
+                y={iconBbox.y}
+            />
+        </g>
+    );
+};
 
-        const labelBbox = {
-            x: bBox.x + leftPadding,
-            y: bBox.y + headerHeight / 2,
-        };
+ImportDeclaration.propTypes = {
+    bBox: PropTypes.shape({
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+    }).isRequired,
+    viewState: PropTypes.shape({
+        headerHeight: PropTypes.number,
+        leftPadding: PropTypes.number,
+        iconSize: PropTypes.number,
+        importNoFontSize: PropTypes.number,
+        noOfImportsLeftPadding: PropTypes.number,
+        iconLeftPadding: PropTypes.number,
+        noOfImportsBGHeight: PropTypes.number,
+        importLabelWidth: PropTypes.number,
+        noOfImportsTextWidth: PropTypes.number,
+        noOfImportsBGWidth: PropTypes.number,
+        badgeWidth: PropTypes.number,
+    }).isRequired,
+    noOfImports: PropTypes.number.isRequired,
+    onClick: PropTypes.func.isRequired,
+};
 
-        const numberBbox = {
-            x: labelBbox.x + importLabelWidth + noOfImportsLeftPadding,
-            y: labelBbox.y,
-        };
-
-        const iconBbox = {
-            x: numberBbox.x + noOfImportsTextWidth + iconLeftPadding,
-            y: numberBbox.y - iconSize / 2,
-        };
-
-        return (
-            <g className="package-definition-head" onClick={(e) => { this.props.onClick(e); }}>
-                <rect x={bBox.x} y={bBox.y} width={badgeWidth} height={headerHeight} rx="0" ry="0" className="package-definition-header" />
-                <rect x={bBox.x} y={bBox.y} height={headerHeight} className="import-definition-decorator" />
-                <text x={labelBbox.x} y={labelBbox.y} rx="0" ry="0">
-                    Imports
-                </text>
-                <rect
-                    x={numberBbox.x - (noOfImportsBGWidth - noOfImportsTextWidth) / 2} y={numberBbox.y - noOfImportsBGHeight / 2} width={noOfImportsBGWidth} height={noOfImportsBGHeight}
-                    rx={noOfImportsBGHeight / 2} ry={noOfImportsBGHeight / 2} className="import-badge"
-                />
-                <text x={numberBbox.x} y={numberBbox.y} rx="0" ry="0" style={{ fontSize: importNoFontSize }} className="import-badge-text">
-                    {noOfImports}
-                </text>
-                <image
-                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-                    xlinkHref={ImageUtil.getSVGIconString('view')} x={iconBbox.x} y={iconBbox.y}
-                />
-            </g>
-        );
-    }
-}
+export default ImportDeclaration;

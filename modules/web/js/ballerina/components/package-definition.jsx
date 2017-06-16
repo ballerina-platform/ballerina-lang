@@ -18,10 +18,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Renderer from './renderer';
 import { packageDefinition } from '../configs/designer-defaults';
 import './package-definition.css';
-import { getCanvasOverlay } from '../configs/app-context';
 import ImportDeclaration from './import-declaration';
 import ImportDeclarationExpanded from './import-declaration-expanded';
 import GlobalDefinitions from './global-definitions';
@@ -29,7 +27,7 @@ import GlobalExpanded from './globals-expanded';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
-import BallerinaEnvironment from '../env/package-scoped-environment';
+import PackageDefinitionModel from '../ast/package-definition';
 
 class PackageDefinition extends React.Component {
 
@@ -54,6 +52,29 @@ class PackageDefinition extends React.Component {
 
     onPackageClick() {
         this.setState({ packageNameEditing: true });
+    }
+
+    onPackageInputBlur() {
+        if (!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0) {
+            this.setState({
+                packageDefExpanded: false,
+                packageNameEditing: false,
+            });
+        }
+        this.props.model.setPackageName(this.state.packageDefValue);
+        this.setState({ packageNameEditing: false });
+    }
+
+    onPackageInputChange(e) {
+        this.setState({ packageDefValue: e.target.value });
+    }
+
+    handleImportsBadgeClick() {
+        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
+    }
+
+    handleGlobalsBadgeClick() {
+        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
     }
 
     onPackageInputBlur() {
@@ -112,22 +133,23 @@ class PackageDefinition extends React.Component {
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
-        const packageName = model.getPackageName();
         const headerHeight = packageDefinition.header.height;
-        const headerPadding = packageDefinition.header.padding;
         const importsExpanded = this.props.model.viewState.importsExpanded;
         const globalsExpanded = this.props.model.viewState.globalsExpanded;
         const packageDefTextWidth = 275;
-        const gutterSize = 10;
+        const yGutterSize = 10;
+        const xGutterSize = 15;
         const iconSize = 20;
+        const importDecViewState = this.props.model.viewState.components.importDeclaration;
+        const importsExpandedViewState = this.props.model.viewState.components.importsExpanded;
 
         const importsBbox = {
-            x: bBox.x + headerHeight + 15,
+            x: bBox.x + headerHeight + xGutterSize,
             y: bBox.y,
         };
 
         const globalsBbox = {
-            x: bBox.x + headerHeight + 150,
+            x: importsBbox.x + importDecViewState.badgeWidth + xGutterSize,
             y: bBox.y,
         };
 
@@ -138,7 +160,7 @@ class PackageDefinition extends React.Component {
 
         const expandedGlobalsBbox = {
             x: bBox.x,
-            y: bBox.y + headerHeight + gutterSize,
+            y: bBox.y + headerHeight + yGutterSize,
         };
 
         const astRoot = this.props.model.parent;
@@ -146,7 +168,7 @@ class PackageDefinition extends React.Component {
         const globals = astRoot.children.filter(c => c.constructor.name === 'ConstantDefinition');
 
         const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
-            .filter(p => !imports.map(p => (p.getPackageName())).includes(p.getName()))
+            .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
             .map(p => ({ name: p.getName() }));
 
         const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue;
@@ -157,24 +179,37 @@ class PackageDefinition extends React.Component {
         }
 
         if (importsExpanded) {
-            expandedGlobalsBbox.y += imports.length * 30 + 77;
-            globalsBbox.x -= 135;
+            const {
+                topBarHeight,
+                importDeclarationHeight,
+                importInputHeight,
+            } = importsExpandedViewState;
+
+            expandedGlobalsBbox.y += (imports.length * importDeclarationHeight) + topBarHeight +
+                importInputHeight + yGutterSize;
+            globalsBbox.x -= (importDecViewState.badgeWidth + xGutterSize);
         }
 
         return (
             <g>
                 <g className="package-definition-head">
                     <rect
-                        x={bBox.x} y={bBox.y} width={headerHeight} height={headerHeight}
+                        x={bBox.x}
+                        y={bBox.y}
+                        width={headerHeight}
+                        height={headerHeight}
                         onClick={this.handlePackageIconClick}
-                        rx={headerHeight / 2} ry={headerHeight / 2}
+                        rx={headerHeight / 2}
+                        ry={headerHeight / 2}
                         className="package-definition-header"
                     />
                     {
                         packageDefExpanded && (
                         <g>
                             <rect
-                                x={bBox.x} y={bBox.y} width={packageDefTextWidth + headerHeight}
+                                x={bBox.x}
+                                y={bBox.y}
+                                width={packageDefTextWidth + headerHeight}
                                 height={headerHeight}
                                 onClick={() => {
                                     this.onPackageClick();
@@ -182,7 +217,8 @@ class PackageDefinition extends React.Component {
                                 className="package-definition-header"
                             />
                             <EditableText
-                                x={bBox.x + headerHeight} y={bBox.y + headerHeight / 2}
+                                x={bBox.x + headerHeight}
+                                y={bBox.y + (headerHeight / 2)}
                                 width={packageDefTextWidth - 5}
                                 onBlur={() => {
                                     this.onPackageInputBlur();
@@ -201,37 +237,58 @@ class PackageDefinition extends React.Component {
                         )
                     }(
                     <image
-                        width={iconSize} height={iconSize} xlinkHref={ImageUtil.getSVGIconString('package')}
-                        onClick={this.handlePackageIconClick} x={bBox.x + (headerHeight - iconSize) / 2}
-                        y={bBox.y + (headerHeight - iconSize) / 2}
+                        width={iconSize}
+                        height={iconSize}
+                        xlinkHref={ImageUtil.getSVGIconString('package')}
+                        onClick={this.handlePackageIconClick}
+                        x={bBox.x + ((headerHeight - iconSize) / 2)}
+                        y={bBox.y + ((headerHeight - iconSize) / 2)}
                     />
                 </g>
                 {
                     importsExpanded ?
                         <ImportDeclarationExpanded
-                            bBox={expandedImportsBbox} imports={imports} packageSuggestions={packageSuggestions}
-                            onCollapse={this.handleImportsBadgeClick} onAddImport={this.handleAddImport}
+                            bBox={expandedImportsBbox}
+                            imports={imports}
+                            packageSuggestions={packageSuggestions}
+                            onCollapse={this.handleImportsBadgeClick}
+                            onAddImport={this.handleAddImport}
                             onDeleteImport={this.handleDeleteImport}
                         /> :
-                        <ImportDeclaration bBox={importsBbox} imports={imports} onClick={this.handleImportsBadgeClick} />
+                        <ImportDeclaration
+                            bBox={importsBbox}
+                            noOfImports={imports.length}
+                            onClick={this.handleImportsBadgeClick}
+                            viewState={importDecViewState}
+                        />
                 }
                 {
                     globalsExpanded ?
                         <GlobalExpanded
-                            bBox={expandedGlobalsBbox} globals={globals} onCollapse={this.handleGlobalsBadgeClick}
-                            title={'Globals'} addText={'+ Add Global'} onAddNewValue={this.handleAddGlobal}
+                            bBox={expandedGlobalsBbox}
+                            globals={globals}
+                            onCollapse={this.handleGlobalsBadgeClick}
+                            title={'Globals'}
+                            addText={'+ Add Global'}
+                            onAddNewValue={this.handleAddGlobal}
                             onDeleteClick={this.handleDeleteGlobal}
                             getValue={g => (g.getConstantDefinitionAsString())}
                         /> :
                         <GlobalDefinitions
-                            bBox={globalsBbox} numberOfItems={globals.length}
-                            title={'Globals'} onExpand={this.handleGlobalsBadgeClick}
+                            bBox={globalsBbox}
+                            numberOfItems={globals.length}
+                            title={'Globals'}
+                            onExpand={this.handleGlobalsBadgeClick}
                         />
                 }
             </g>
         );
     }
 }
+
+PackageDefinition.propTypes = {
+    model: PropTypes.instanceOf(PackageDefinitionModel).isRequired,
+};
 
 PackageDefinition.contextTypes = {
     renderingContext: PropTypes.instanceOf(Object).isRequired,
