@@ -15,26 +15,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Aborted statement.
+ *
+ * @class AbortedStatementPositionCalcVisitor
+ * */
 class AbortedStatementPositionCalcVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AbortedStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit AbortedStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Aborted statement node.
+     *
+     * @memberOf AbortedStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit AbortedStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AbortedStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit AbortedStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf AbortedStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit AbortedStatementPositionCalcVisitor');
     }
 }

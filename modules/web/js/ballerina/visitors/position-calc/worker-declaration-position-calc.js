@@ -22,13 +22,32 @@ import ASTFactory from './../../ast/ballerina-ast-factory';
 import WorkerDeclaration from './../../ast/worker-declaration';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
+/**
+ * Position visitor class for Worker Declaration.
+ *
+ * @class WorkerDeclarationPositionCalcVisitor
+ * */
 class WorkerDeclarationPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf WorkerDeclarationPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit WorkerDeclarationPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Worker Declaration node.
+     *
+     * @memberOf WorkerDeclarationPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit WorkerDeclarationPositionCalcVisitor');
         const viewState = node.getViewState();
@@ -39,7 +58,6 @@ class WorkerDeclarationPositionCalcVisitor {
         const workers = _.filter(parent.getChildren(), child => child instanceof WorkerDeclaration);
         const workerIndex = _.findIndex(workers, node);
         let x;
-        let y;
 
         if (workerIndex === 0) {
             /**
@@ -56,7 +74,7 @@ class WorkerDeclarationPositionCalcVisitor {
                     parentViewState.components.statementContainer.w + DesignerDefaults.lifeLine.gutter.h;
             } else if (isInFork) {
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.fork.lifeLineGutterH +
-                        (parentViewState.bBox.w - parentViewState.components.workers.w) / 2;
+                    ((parentViewState.bBox.w - parentViewState.components.workers.w) / 2);
             } else {
                 x = parentViewState.components.body.getLeft() + DesignerDefaults.lifeLine.gutter.h;
             }
@@ -66,9 +84,12 @@ class WorkerDeclarationPositionCalcVisitor {
             x = previousStatementContainer.getRight() +
                 (isInFork ? DesignerDefaults.fork.lifeLineGutterH : DesignerDefaults.lifeLine.gutter.h);
         } else {
-            throw 'Invalid index found for Worker Declaration';
+            const exception = {
+                message: 'Invalid index found for Worker Declaration',
+            };
+            throw exception;
         }
-        y = parentViewState.components.body.getTop() +
+        const y = parentViewState.components.body.getTop() +
             (isInFork ? DesignerDefaults.fork.padding.top : DesignerDefaults.innerPanel.body.padding.top);
 
         bBox.x = x;
@@ -77,11 +98,21 @@ class WorkerDeclarationPositionCalcVisitor {
         viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf WorkerDeclarationPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit WorkerDeclarationPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf WorkerDeclarationPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit WorkerDeclarationPositionCalcVisitor');
     }
 }

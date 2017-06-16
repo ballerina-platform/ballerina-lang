@@ -18,12 +18,31 @@
 import log from 'log';
 import { panel } from './../../configs/designer-defaults';
 
+/**
+ * Position visitor class for Ballerina AST Root.
+ *
+ * @class BallerinaASTRootPositionCalcVisitor
+ * */
 class BallerinaASTRootPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf BallerinaASTRootPositionCalcVisitor
+     * */
+    canVisit() {
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Ballerina AST Root node.
+     *
+     * @memberOf BallerinaASTRootPositionCalcVisitor
+     * */
     beginVisit(node) {
         // here we need to re adjust panel width to match the screen.
         const children = node.getChildren();
@@ -48,11 +67,21 @@ class BallerinaASTRootPositionCalcVisitor {
         }
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf BallerinaASTRootPositionCalcVisitor
+     * */
+    visit() {
         log.debug('Visit BallerinaASTRoot');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf BallerinaASTRootPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('End Visit BallerinaASTRoot');
     }
 }

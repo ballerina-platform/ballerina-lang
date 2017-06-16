@@ -21,12 +21,32 @@ import _ from 'lodash';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Position visitor class for Annotation Attribute.
+ *
+ * @class AnnotationAttributePositionCalcVisitor
+ * */
 class AnnotationAttributePositionCalcVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AnnotationAttributePositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit AnnotationAttributePositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Annotation attribute definition node.
+     *
+     * @memberOf AnnotationAttributePositionCalcVisitor
+     * */
     beginVisit(node) {
         const parent = node.getParent();
         const viewState = node.getViewState();
@@ -59,10 +79,20 @@ class AnnotationAttributePositionCalcVisitor {
         bBox.y = y;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AnnotationAttributePositionCalcVisitor
+     * */
+    visit() {
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf AnnotationAttributePositionCalcVisitor
+     * */
+    endVisit() {
     }
 }
 

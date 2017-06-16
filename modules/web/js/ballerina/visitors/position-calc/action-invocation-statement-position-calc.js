@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Action Invocation Statement.
+ *
+ * @class ActionInvocationStatementPositionCalcVisitor
+ * */
 class ActionInvocationStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ActionInvocationStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ActionInvocationStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Action Invocation Statement node.
+     *
+     * @memberOf ActionInvocationStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit ActionInvocationStatementPositionCalcVisitor');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ActionInvocationStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ActionInvocationStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ActionInvocationStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ActionInvocationStatementPositionCalcVisitor');
     }
 }

@@ -19,28 +19,43 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
+/**
+ * Position visitor class for If Statement.
+ *
+ * @class IfStatementPositionCalcVisitor
+ * */
 class IfStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf IfStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit IfStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - If Statement node.
+     *
+     * @memberOf IfStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit IfStatementPositionCalcVisitor');
         const parentViewState = node.getParent().getViewState();
         const parentBBox = parentViewState.bBox;
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
-        let x;
-        let y;
-        let statementContainerX;
-        let statementContainerY;
 
-        x = parentBBox.x;
-        y = parentBBox.y + parentViewState.components['drop-zone'].h;
-        statementContainerX = x;
-        statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+        const x = parentBBox.x;
+        const y = parentBBox.y + parentViewState.components['drop-zone'].h;
+        const statementContainerX = x;
+        const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
 
         bBox.x = x;
         bBox.y = y;
@@ -48,11 +63,21 @@ class IfStatementPositionCalcVisitor {
         viewState.components.statementContainer.y = statementContainerY;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf IfStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit IfStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf IfStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit IfStatementPositionCalcVisitor');
     }
 }

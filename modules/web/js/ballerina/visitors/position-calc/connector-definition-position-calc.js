@@ -17,15 +17,34 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Connector Definition.
+ *
+ * @class ConnectorDefinitionPositionCalcVisitor
+ * */
 class ConnectorDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ConnectorDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit ConnectorDefinitionPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Connector Definition node.
+     *
+     * @memberOf ConnectorDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit ConnectorDefinitionPositionCalcVisitor');
         // populate outer panel BBox positions.
@@ -34,11 +53,21 @@ class ConnectorDefinitionPositionCalcVisitor {
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositioningForParameter);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ConnectorDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ConnectorDefinitionPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ConnectorDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ConnectorDefinitionPositionCalcVisitor');
     }
 
@@ -48,9 +77,9 @@ class ConnectorDefinitionPositionCalcVisitor {
      * @param {object} parameter - The parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
-     * @returns The x position of the next parameter node.
+     * @return {number} The x position of the next parameter node.
      *
-     * @memberof ConnectorDefinitionPositionCalcVisitor
+     * @memberOf ConnectorDefinitionPositionCalcVisitor
      */
     createPositioningForParameter(parameter, x, y) {
         const viewState = parameter.getViewState();

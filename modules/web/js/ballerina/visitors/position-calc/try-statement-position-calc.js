@@ -19,28 +19,43 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
+/**
+ * Position visitor class for Try Statement.
+ *
+ * @class TryStatementPositionCalcVisitor
+ * */
 class TryStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TryStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit TryStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Try statement node.
+     *
+     * @memberOf TryStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit TryStatementPositionCalcVisitor');
         const parentViewState = node.getParent().getViewState();
         const parentBBox = parentViewState.bBox;
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
-        let x;
-        let y;
-        let statementContainerX;
-        let statementContainerY;
 
-        x = parentBBox.x;
-        y = parentBBox.y + parentViewState.components['drop-zone'].h;
-        statementContainerX = x;
-        statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+        const x = parentBBox.x;
+        const y = parentBBox.y + parentViewState.components['drop-zone'].h;
+        const statementContainerX = x;
+        const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
 
         bBox.x = x;
         bBox.y = y;
@@ -48,11 +63,21 @@ class TryStatementPositionCalcVisitor {
         viewState.components.statementContainer.y = statementContainerY;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TryStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit TryStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf TryStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit TryStatementPositionCalcVisitor');
     }
 }

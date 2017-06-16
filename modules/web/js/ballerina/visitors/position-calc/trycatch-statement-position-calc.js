@@ -15,25 +15,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import log from 'log';
+import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 
+/**
+ * Position visitor class for Try Catch Statement.
+ *
+ * @class TryCatchStatementPositionCalcVisitor
+ * */
 class TryCatchStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TryCatchStatementPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit TryCatchStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Try Catch Statement node.
+     *
+     * @memberOf TryCatchStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
+        log.debug('begin visit TryCatchStatementPositionCalcVisitor');
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const parentStatementContainer = parentViewState.components.statementContainer;
-        const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
+        const parentStatements = parent.filterChildren(child =>
+        ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
         const currentIndex = _.findIndex(parentStatements, node);
-        let x;
         let y;
 
         /**
@@ -41,26 +62,44 @@ class TryCatchStatementPositionCalcVisitor {
          * Always the statement container's width should be greater than the statements/expressions
          */
         if (parentStatementContainer.w < bBox.w) {
-            throw 'Invalid statement container width found, statement width should be greater than or equal to ' +
-            'statement/ statement width ';
+            const exception = {
+                message: 'Invalid statement container width found, statement width should be ' +
+                'greater than or equal to statement/ statement width ',
+            };
+            throw exception;
         }
-        x = parentStatementContainer.x + (parentStatementContainer.w - bBox.w) / 2;
+        const x = parentStatementContainer.x + ((parentStatementContainer.w - bBox.w) / 2);
         if (currentIndex === 0) {
             y = parentStatementContainer.y;
         } else if (currentIndex > 0) {
             y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
         } else {
-            throw `Invalid Index found for ${node.getType()}`;
+            const exception = {
+                message: `Invalid Index found for ${node.getType()}`,
+            };
+            throw exception;
         }
 
         bBox.x = x;
         bBox.y = y;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TryCatchStatementPositionCalcVisitor
+     * */
+    visit() {
+        log.debug('visit TryCatchStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf TryCatchStatementPositionCalcVisitor
+     * */
+    endVisit() {
+        log.debug('end visit TryCatchStatementPositionCalcVisitor');
     }
 }
 

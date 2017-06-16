@@ -20,13 +20,32 @@ import log from 'log';
 import { blockStatement } from '../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * Position visitor class for Join Statement.
+ *
+ * @class JoinStatementPositionCalcVisitor
+ * */
 class JoinStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf JoinStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit JoinStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Join Statement node.
+     *
+     * @memberOf JoinStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit JoinStatementPositionCalcVisitor');
         const viewState = node.getViewState();
@@ -40,17 +59,27 @@ class JoinStatementPositionCalcVisitor {
         components.statementContainer.x = bBox.x;
         components.statementContainer.y = bBox.y + blockStatement.heading.height;
 
-        const title_w = blockStatement.heading.width;
+        const titleW = blockStatement.heading.width;
         const typeWidth = util.getTextWidth(node.getJoinConditionString(), 3);
-        components.param.x = bBox.x + title_w + blockStatement.heading.paramSeparatorOffsetX + typeWidth.w;
+        components.param.x = bBox.x + titleW + blockStatement.heading.paramSeparatorOffsetX + typeWidth.w;
         components.param.y = bBox.y;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf JoinStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit JoinStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf JoinStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit JoinStatementPositionCalcVisitor');
     }
 }

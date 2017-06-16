@@ -17,28 +17,53 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
-import * as DesignerDefaults from './../../configs/designer-defaults';
-import ASTFactory from './../../ast/ballerina-ast-factory';
-import { panel } from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Service Definition.
+ *
+ * @class ServiceDefinitionPositionCalcVisitor
+ * */
 class ServiceDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ServiceDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ServiceDefinitionPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Service Definition node.
+     *
+     * @memberOf ServiceDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ServiceDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ServiceDefinitionPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ServiceDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ServiceDefinitionPositionCalc');
     }
 }

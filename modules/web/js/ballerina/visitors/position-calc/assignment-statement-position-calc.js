@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Assignment Statement.
+ *
+ * @class AssignmentStatementPositionCalcVisitor
+ * */
 class AssignmentStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AssignmentStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit AssignmentStatementPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Assignment Statement node.
+     *
+     * @memberOf AssignmentStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit AssignmentStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AssignmentStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit AssignmentStatementPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf AssignmentStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit AssignmentStatementPositionCalc');
     }
 }

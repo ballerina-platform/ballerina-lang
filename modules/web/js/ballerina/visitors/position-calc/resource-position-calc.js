@@ -17,17 +17,34 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
-import { util } from './../sizing-utils';
 
+/**
+ * Position visitor class for Resource Definition.
+ *
+ * @class ResourceDefinitionPositionCalcVisitor
+ * */
 class ResourceDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ResourceDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ResourceDefinitionPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Resource Definition node.
+     *
+     * @memberOf ResourceDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit ResourceDefinitionPositionCalc');
         // populate inner panel BBox position.
@@ -36,11 +53,21 @@ class ResourceDefinitionPositionCalcVisitor {
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositioningForParameter);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ResourceDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ResourceDefinitionPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ResourceDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ResourceDefinitionPositionCalc');
     }
 
@@ -50,9 +77,9 @@ class ResourceDefinitionPositionCalcVisitor {
      * @param {object} parameter - The resource parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
-     * @returns The x position of the next parameter node.
+     * @return {number} The x position of the next parameter node.
      *
-     * @memberof ResourceDefinitionPositionCalcVisitor
+     * @memberOf ResourceDefinitionPositionCalcVisitor
      */
     createPositioningForParameter(parameter, x, y) {
         const viewState = parameter.getViewState();

@@ -19,23 +19,52 @@
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Else If Statement.
+ *
+ * @class ElseIfStatementPositionCalcVisitor
+ * */
 class ElseIfStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ElseIfStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ElseIfStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Else If Statement node.
+     *
+     * @memberOf ElseIfStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit ElseIfStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ElseIfStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ElseIfStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ElseIfStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ElseIfStatementPositionCalcVisitor');
     }
 }

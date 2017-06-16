@@ -18,27 +18,43 @@
 import log from 'log';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 
+/**
+ * Position visitor class for Transaction Statement.
+ *
+ * @class TransactionStatementPositionCalcVisitor
+ * */
 class TransactionStatementPositionCalcVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TransactionStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit TransactionStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Transaction Statement node.
+     *
+     * @memberOf TransactionStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit TransactionStatementPositionCalcVisitor');
         const parentViewState = node.getParent().getViewState();
         const parentBBox = parentViewState.bBox;
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
-        let x;
-        let y;
-        let statementContainerX;
-        let statementContainerY;
 
-        x = parentBBox.x;
-        y = parentBBox.y + parentViewState.components['drop-zone'].h;
-        statementContainerX = x;
-        statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+        const x = parentBBox.x;
+        const y = parentBBox.y + parentViewState.components['drop-zone'].h;
+        const statementContainerX = x;
+        const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
 
         bBox.x = x;
         bBox.y = y;
@@ -46,11 +62,21 @@ class TransactionStatementPositionCalcVisitor {
         viewState.components.statementContainer.y = statementContainerY;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TransactionStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit TransactionStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf TransactionStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit TransactionStatementPositionCalcVisitor');
     }
 }

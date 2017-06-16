@@ -21,17 +21,32 @@ import * as DesignerDefaults from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Annotation Definition.
+ *
+ * @class AnnotationDefinitionPositionCalcVisitor
+ * */
 class AnnotationDefinitionPositionCalcVisitor {
+
     /**
-     * Check whether annotation definition position calc visitor can be visited.
-     * @param {object} node.
-     * @return {boolean}
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf AnnotationDefinitionPositionCalcVisitor
      * */
-    canVisit(node) {
+    canVisit() {
         log.debug('can visit AnnotationPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Annotation Definition node.
+     *
+     * @memberOf AnnotationDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit AnnotationPositionCalc');
 
@@ -42,11 +57,21 @@ class AnnotationDefinitionPositionCalcVisitor {
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf AnnotationDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit AnnotationPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf AbortedStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit AnnotationPositionCalc');
     }
 
@@ -56,9 +81,9 @@ class AnnotationDefinitionPositionCalcVisitor {
      * @param {object} attachment - attachment point value.
      * @param {number} x  - The x position
      * @param {number} y  - The y position
-     * @returns The x position of the next parameter node.
+     * @return {number} The x position of the next parameter node.
      *
-     * @memberof AnnotationDefinitionPositionCalc
+     * @memberOf AnnotationDefinitionPositionCalc
      */
     createPositionForTitleNode(attachment, x, y) {
         const viewState = attachment.model.getViewState();

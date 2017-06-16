@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Aborted statement.
+ *
+ * @class BreakStatementPositionCalcVisitor
+ * */
 class BreakStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf BreakStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit BreakStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Break Statement node.
+     *
+     * @memberOf BreakStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit BreakStatementPositionCalcVisitor');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf BreakStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit BreakStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf BreakStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit BreakStatementPositionCalcVisitor');
     }
 }

@@ -17,15 +17,33 @@
  */
 
 import log from 'log';
-import * as Utils from './utils';
 
+/**
+ * Position visitor class for Package Definition.
+ *
+ * @class PackageDefinitionPositionCalcVisitor
+ * */
 class PackageDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf PackageDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit FunctionInvocationStatementPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Package Definition node.
+     *
+     * @memberOf PackageDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit FunctionInvocationStatementPositionCalc');
         const viewSate = node.getViewState();
@@ -35,11 +53,21 @@ class PackageDefinitionPositionCalcVisitor {
         bBox.y = 20;
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf PackageDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit FunctionInvocationStatementPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf PackageDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit FunctionInvocationStatementPositionCalc');
     }
 }

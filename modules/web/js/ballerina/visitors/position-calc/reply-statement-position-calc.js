@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Reply statement.
+ *
+ * @class ReplyStatementPositionCalcVisitor
+ * */
 class ReplyStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ReplyStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ReplyStatementPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Reply statement node.
+     *
+     * @memberOf ReplyStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit ReplyStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ReplyStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ReplyStatementPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ReplyStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ReplyStatementPositionCalc');
     }
 }

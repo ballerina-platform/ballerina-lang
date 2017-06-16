@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Variable Definition Statement.
+ *
+ * @class VariableDefinitionStatementPositionCalcVisitor
+ * */
 class VariableDefinitionStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf VariableDefinitionStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit VariableDefinitionStatementPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Variable Definition Statement node.
+     *
+     * @memberOf VariableDefinitionStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit VariableDefinitionStatementPositionCalc');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf VariableDefinitionStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit VariableDefinitionStatementPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf VariableDefinitionStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit VariableDefinitionStatementPositionCalc');
     }
 }
