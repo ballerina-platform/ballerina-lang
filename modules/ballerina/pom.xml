@@ -86,6 +86,10 @@
             <artifactId>org.wso2.carbon.secvault</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault.ciphertool</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon.utils</groupId>
             <artifactId>carbon-utils</artifactId>
         </dependency>
