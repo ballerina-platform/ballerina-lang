@@ -37,6 +37,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     protected ExpressionExecutor[] attributeExpressionExecutors;
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
+    protected String functionId;
     protected String queryName;
     private ConfigReader configReader;
     private int attributeSize;
@@ -69,6 +70,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
             functionExecutor.elementId = elementId + "-" + key;
+            functionExecutor.functionId = functionId;
             functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName, configReader);
             functionExecutor.start();
             return functionExecutor;

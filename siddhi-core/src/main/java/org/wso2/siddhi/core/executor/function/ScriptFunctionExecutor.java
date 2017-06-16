@@ -35,7 +35,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     static final Logger LOG = Logger.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
     Script script;
-    private String functionId;
+
+    public ScriptFunctionExecutor() { }
 
     public ScriptFunctionExecutor(String name) {
         this.functionId = name;
