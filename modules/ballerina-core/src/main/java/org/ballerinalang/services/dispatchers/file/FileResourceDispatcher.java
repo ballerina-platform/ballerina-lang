@@ -39,18 +39,8 @@ public class FileResourceDispatcher implements ResourceDispatcher {
     @Override
     @Deprecated
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
-            Context balContext) throws BallerinaException {
-        if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the file service " + service.getSymbolName().toString() + " to "
-                    + "deliver the message");
-        }
-        Resource[] resources = service.getResources();
-        if (resources.length != 1) {
-            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
-                    + "' has to have only one resource associated to itself. " + "Found " + resources.length
-                    + " resources in Service: " + service.getSymbolName().getName());
-        }
-        return resources[0];
+                                           Context balContext) throws BallerinaException {
+        return null;
     }
 
     @Override
@@ -60,17 +50,26 @@ public class FileResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the file service " + service.getName() + " to "
                     + "deliver the message");
         }
-        ResourceInfo[] resourceInfoList = service.getResourceInfoList();
-        if (resourceInfoList.length != 1) {
-            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
-                    + "' has to have only one resource associated to itself. " + "Found " + resourceInfoList.length
-                    + " resources in Service: " + service.getName());
+        if (cMsg.getProperty(Constants.FILE_TRANSPORT_EVENT_NAME).equals(Constants.FILE_UPDATE)) {
+            return getResource(service, Constants.ANNOTATION_NAME_ON_UPDATE);
+        } else if (cMsg.getProperty(Constants.FILE_TRANSPORT_EVENT_NAME).equals(Constants.FILE_ROTATE)) {
+            return getResource(service, Constants.ANNOTATION_NAME_ON_ROTATE);
+        } else {
+            throw new BallerinaException("no matching resource found");
         }
-        return resourceInfoList[0];
     }
 
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_FILE;
+    }
+
+    private ResourceInfo getResource(ServiceInfo service, String annotationName) {
+        for (ResourceInfo resource : service.getResourceInfoList()) {
+            if (resource.getAnnotationAttachmentInfo(Constants.FILE_PACKAGE_NAME, annotationName) != null) {
+                return resource;
+            }
+        }
+        return null;
     }
 }
