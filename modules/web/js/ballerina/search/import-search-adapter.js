@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import BallerinaEnvironment from './../env/environment';
 
 class ImportSearchAdapter {
@@ -31,9 +32,8 @@ class ImportSearchAdapter {
     }
 
     setExcludes(excludes) {
-        const self = this;
         _.forEach(excludes, (exclude) => {
-            self._excludes.push(exclude.getName());
+            this._excludes.push(exclude.getName());
         });
     }
 }
