@@ -52,6 +52,7 @@ public interface BLangVMInterceptors {
                                                                 BMessage bMessage) {
 
         Context context = new Context(resourceInterceptor.getProgramFile());
+        context.initFunction = true;
         PackageInfo packageInfo = resourceInterceptor.getPackageInfo();
         FunctionInfo functionInfo = resourceInterceptor.getInterceptorFunction();
 
