@@ -16,11 +16,9 @@
 
 package org.ballerinalang.plugins.idea.codeInspection;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInsight.daemon.JavaErrorMessages;
-import com.intellij.codeInspection.BaseJavaBatchLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
-import com.intellij.codeInspection.InspectionsBundle;
+import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
@@ -39,7 +37,6 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,7 +45,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WrongPackageStatementInspection extends BaseJavaBatchLocalInspectionTool {
+public class WrongPackageStatementInspection extends LocalInspectionTool {
 
     @Override
     @Nullable
@@ -70,25 +67,31 @@ public class WrongPackageStatementInspection extends BaseJavaBatchLocalInspectio
             return new ProblemDescriptor[0];
         }
 
+        List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
+
         String packageName = BallerinaUtil.suggestPackageNameForDirectory(directory);
         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(file, PackageDeclarationNode.class);
-        DefinitionNode definitionNode = PsiTreeUtil.findChildOfType(file, DefinitionNode.class);
-        if (definitionNode == null) {
-            return new ProblemDescriptor[0];
-        }
-        PsiElement firstChild = definitionNode.getFirstChild();
-        if (firstChild == null || !(firstChild instanceof IdentifierDefSubtree)) {
-            return new ProblemDescriptor[0];
-        }
+        Collection<DefinitionNode> definitionNodes = PsiTreeUtil.findChildrenOfType(file, DefinitionNode.class);
+        for (DefinitionNode definitionNode : definitionNodes) {
+            PsiElement firstChild = definitionNode.getFirstChild();
+            if (firstChild == null || !(firstChild instanceof IdentifierDefSubtree)) {
+                return new ProblemDescriptor[0];
+            }
 
-        PsiElement nameIdentifier = ((IdentifierDefSubtree) firstChild).getNameIdentifier();
-        if (nameIdentifier == null) {
-            return new ProblemDescriptor[0];
+            PsiElement nameIdentifier = ((IdentifierDefSubtree) firstChild).getNameIdentifier();
+            if (nameIdentifier == null) {
+                return new ProblemDescriptor[0];
+            }
+            if (!Comparing.strEqual(packageName, "", true) && packageDeclarationNode == null) {
+                String description = JavaErrorMessages.message("missing.package.statement", packageName);
+                ProblemDescriptor problemDescriptor = manager.createProblemDescriptor(nameIdentifier, description,
+                        new AdjustPackageNameFix(nameIdentifier, packageName),
+                        ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly);
+                problemDescriptors.add(problemDescriptor);
+            }
         }
-        if (!Comparing.strEqual(packageName, "", true) && packageDeclarationNode == null) {
-            String description = JavaErrorMessages.message("missing.package.statement", packageName);
-            return new ProblemDescriptor[]{manager.createProblemDescriptor(nameIdentifier, description,
-                    new AdjustPackageNameFix(packageName), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly)};
+        if (!problemDescriptors.isEmpty()) {
+            return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
         }
 
         if (packageDeclarationNode == null) {
@@ -112,34 +115,28 @@ public class WrongPackageStatementInspection extends BaseJavaBatchLocalInspectio
             return new ProblemDescriptor[0];
         }
         List<LocalQuickFix> availableFixes = new ArrayList<>();
+        availableFixes.add(new AdjustPackageNameFix(packagePathNode, packageName));
         PsiElement packageNameIdentifier = lastElement.getNameIdentifier();
         if (packageNameIdentifier == null) {
-            availableFixes.add(new AdjustPackageNameFix(packageName));
             return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
                     lastElement);
         }
-
         PsiReference reference = packageNameIdentifier.getReference();
         if (reference == null) {
-            availableFixes.add(new AdjustPackageNameFix(packageName));
             return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
                     lastElement);
         }
-
         PsiElement resolvedElement = reference.resolve();
         if (!(resolvedElement instanceof PsiDirectory)) {
-            availableFixes.add(new AdjustPackageNameFix(packageName));
             return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
                     lastElement);
         }
         String containingDirectoryPackageName =
                 BallerinaUtil.suggestPackageNameForDirectory(((PsiDirectory) resolvedElement));
-
         if (!Comparing.equal(packageName, containingDirectoryPackageName, true)) {
-            availableFixes.add(new AdjustPackageNameFix(packageName));
             if (!availableFixes.isEmpty()) {
-                return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes,
-                        packagePathNode, lastElement);
+                return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+                        lastElement);
             }
         }
         return new ProblemDescriptor[0];
@@ -155,35 +152,5 @@ public class WrongPackageStatementInspection extends BaseJavaBatchLocalInspectio
         ProblemDescriptor descriptor = manager.createProblemDescriptor(packagePathNode, description, isOnTheFly,
                 fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
         return new ProblemDescriptor[]{descriptor};
-    }
-
-    @Override
-    @NotNull
-    public String getGroupDisplayName() {
-        return "";
-    }
-
-    @Override
-    @NotNull
-    public HighlightDisplayLevel getDefaultLevel() {
-        return HighlightDisplayLevel.ERROR;
-    }
-
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return InspectionsBundle.message("wrong.package.statement");
-    }
-
-    @Override
-    @NotNull
-    @NonNls
-    public String getShortName() {
-        return "WrongPackageStatement";
-    }
-
-    @Override
-    public boolean isEnabledByDefault() {
-        return true;
     }
 }
