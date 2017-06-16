@@ -19,7 +19,7 @@ package org.wso2.siddhi.query.compiler.internal;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -100,7 +100,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitParse(@NotNull SiddhiQLParser.ParseContext ctx) {
-        return visit(ctx.execution_plan());
+        return visit(ctx.siddhi_app());
     }
 
     /**
@@ -111,39 +111,39 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public ExecutionPlan visitExecution_plan(@NotNull SiddhiQLParser.Execution_planContext ctx) {
-        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-        for (SiddhiQLParser.Plan_annotationContext annotationContext : ctx.plan_annotation()) {
-            executionPlan.annotation((Annotation) visit(annotationContext));
+    public SiddhiApp visitSiddhi_app(@NotNull SiddhiQLParser.Siddhi_appContext ctx) {
+        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
+        for (SiddhiQLParser.App_annotationContext annotationContext : ctx.app_annotation()) {
+            siddhiApp.annotation((Annotation) visit(annotationContext));
         }
         for (SiddhiQLParser.Definition_streamContext streamContext : ctx.definition_stream()) {
-            executionPlan.defineStream((StreamDefinition) visit(streamContext));
+            siddhiApp.defineStream((StreamDefinition) visit(streamContext));
         }
         for (SiddhiQLParser.Definition_tableContext tableContext : ctx.definition_table()) {
-            executionPlan.defineTable((TableDefinition) visit(tableContext));
+            siddhiApp.defineTable((TableDefinition) visit(tableContext));
         }
         for (SiddhiQLParser.Definition_functionContext functionContext : ctx.definition_function()) {
-            executionPlan.defineFunction((FunctionDefinition) visit(functionContext));
+            siddhiApp.defineFunction((FunctionDefinition) visit(functionContext));
         }
         for (SiddhiQLParser.Definition_windowContext windowContext : ctx.definition_window()) {
-            executionPlan.defineWindow((WindowDefinition) visit(windowContext));
+            siddhiApp.defineWindow((WindowDefinition) visit(windowContext));
         }
         for (SiddhiQLParser.Execution_elementContext executionElementContext : ctx.execution_element()) {
             ExecutionElement executionElement = (ExecutionElement) visit(executionElementContext);
             if (executionElement instanceof Partition) {
-                executionPlan.addPartition((Partition) executionElement);
+                siddhiApp.addPartition((Partition) executionElement);
 
             } else if (executionElement instanceof Query) {
-                executionPlan.addQuery((Query) executionElement);
+                siddhiApp.addQuery((Query) executionElement);
 
             } else {
                 throw newSiddhiParserException(ctx);
             }
         }
         for (SiddhiQLParser.Definition_triggerContext triggerContext : ctx.definition_trigger()) {
-            executionPlan.defineTrigger((TriggerDefinition) visit(triggerContext));
+            siddhiApp.defineTrigger((TriggerDefinition) visit(triggerContext));
         }
-        return executionPlan;
+        return siddhiApp;
     }
 
     /**
@@ -520,7 +520,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      * @param ctx
      */
     @Override
-    public Annotation visitPlan_annotation(@NotNull SiddhiQLParser.Plan_annotationContext ctx) {
+    public Annotation visitApp_annotation(@NotNull SiddhiQLParser.App_annotationContext ctx) {
         Annotation annotation = new Annotation((String) visit(ctx.name()));
 
         for (SiddhiQLParser.Annotation_elementContext elementContext : ctx.annotation_element()) {

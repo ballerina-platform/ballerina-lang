@@ -22,15 +22,15 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public class TriggerTestCase {
@@ -55,13 +55,13 @@ public class TriggerTestCase {
         TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec
                 (500));
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineTrigger(triggerDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineTrigger(triggerDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testQuery2() throws InterruptedException {
         log.info("testTrigger2 - OUT 0");
 
@@ -70,11 +70,11 @@ public class TriggerTestCase {
         TriggerDefinition triggerDefinition = TriggerDefinition.id("cseEventStream").atEvery(Expression.Time.milliSec
                 (500)).at("start");
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineTrigger(triggerDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineTrigger(triggerDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -87,10 +87,10 @@ public class TriggerTestCase {
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define trigger StockStream at 'start' ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
 
-        executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -103,10 +103,10 @@ public class TriggerTestCase {
                 "define stream StockStream (triggered_time long); " +
                 "define trigger StockStream at 'start' ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams);
 
-        executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -120,9 +120,9 @@ public class TriggerTestCase {
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "define trigger triggerStream at 'start';";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(plan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(plan);
 
-        executionPlanRuntime.addCallback("triggerStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("triggerStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -132,12 +132,12 @@ public class TriggerTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         Assert.assertEquals(1, count);
         Assert.assertEquals(true, eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -151,9 +151,9 @@ public class TriggerTestCase {
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "define trigger triggerStream at every 500 milliseconds ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(plan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(plan);
 
-        executionPlanRuntime.addCallback("triggerStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("triggerStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -163,12 +163,12 @@ public class TriggerTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         Assert.assertEquals(2, count);
         Assert.assertEquals(true, eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -182,9 +182,9 @@ public class TriggerTestCase {
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "define trigger triggerStream at '*/1 * * * * ?' ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(plan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(plan);
 
-        executionPlanRuntime.addCallback("triggerStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("triggerStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -202,10 +202,10 @@ public class TriggerTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         Assert.assertEquals(true, eventArrived);
 
     }

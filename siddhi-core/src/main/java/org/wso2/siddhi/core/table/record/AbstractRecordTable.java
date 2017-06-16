@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.table.record;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -52,8 +52,8 @@ public abstract class AbstractRecordTable implements Table {
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-                     StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext
-                             executionPlanContext) {
+                     StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext
+                             siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.storeEventPool = storeEventPool;
         init(tableDefinition, configReader);
@@ -267,11 +267,11 @@ public abstract class AbstractRecordTable implements Table {
     @Override
     public CompiledCondition compileCondition(Expression expression,
                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         ConditionBuilder conditionBuilder = new ConditionBuilder(expression, matchingMetaInfoHolder,
-                                                                 executionPlanContext, variableExpressionExecutors,
+                                                                 siddhiAppContext, variableExpressionExecutors,
                                                                  tableMap, queryName);
         CompiledCondition compiledCondition = compileCondition(conditionBuilder);
         Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();

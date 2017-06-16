@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.input.transport.tcp;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -46,11 +46,11 @@ public class TCPSource extends Source {
     private StreamDefinition streamDefinition;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, ExecutionPlanContext
-            executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, SiddhiAppContext
+            siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
-                executionPlanContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
+                siddhiAppContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
         streamDefinition = StreamDefinition.id(context);
         streamDefinition.getAttributeList().addAll(sourceEventListener.getStreamDefinition().getAttributeList());
     }

@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -57,9 +57,9 @@ public class FrequentWindowTestCase {
                 "select cardNo, price " +
                 "insert all events into PotentialFraud ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -74,8 +74,8 @@ public class FrequentWindowTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("purchase");
+        siddhiAppRuntime.start();
 
         for (int i = 0; i < 2; i++) {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
@@ -88,7 +88,7 @@ public class FrequentWindowTestCase {
         Assert.assertEquals("In Event count", 8, inEventCount);
         Assert.assertEquals("Out Event count", 6, removeEventCount);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -106,9 +106,9 @@ public class FrequentWindowTestCase {
                 "select cardNo, price " +
                 "insert all events into PotentialFraud ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -123,8 +123,8 @@ public class FrequentWindowTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("purchase");
+        siddhiAppRuntime.start();
 
         for (int i = 0; i < 2; i++) {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
@@ -138,7 +138,7 @@ public class FrequentWindowTestCase {
         Assert.assertEquals("In Event count", 8, inEventCount);
         Assert.assertEquals("Out Event count", 0, removeEventCount);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

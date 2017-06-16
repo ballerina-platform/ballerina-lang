@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.trigger;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
@@ -31,16 +31,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class PeriodicEventTrigger implements EventTrigger {
     private TriggerDefinition triggerDefinition;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private StreamJunction streamJunction;
     private ScheduledFuture scheduledFuture;
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+    public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
             streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.streamJunction = streamJunction;
     }
 
@@ -62,10 +62,10 @@ public class PeriodicEventTrigger implements EventTrigger {
      */
     @Override
     public void start() {
-        scheduledFuture = executionPlanContext.getScheduledExecutorService().scheduleAtFixedRate(new Runnable() {
+        scheduledFuture = siddhiAppContext.getScheduledExecutorService().scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+                long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
                 streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
             }
         }, triggerDefinition.getAtEvery(), triggerDefinition.getAtEvery(), TimeUnit.MILLISECONDS);

@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -50,13 +50,13 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
+        String siddhiApp = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
                 ".length(2)  select symbol,sum(price) as price,volume insert expired events into OutStockStream ;  " +
                 "end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -97,13 +97,13 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
+        String siddhiApp = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
                 ".lengthBatch(2)  select symbol,sum(price) as price,volume insert all events into OutStockStream ;  " +
                 "end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -142,7 +142,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test3");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price float,volume int);" +
                 "" +
                 "partition with (symbol of cseEventStream) " +
@@ -155,7 +155,7 @@ public class WindowPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -221,12 +221,12 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test4");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, price float,volume int);"
+        String siddhiApp = "define stream cseEventStream (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream) begin @info(name = 'query1') from cseEventStream#window" +
                 ".length(2)  select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -285,7 +285,7 @@ public class WindowPartitionTestCase {
         log.info("Window Partition test5");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price double,volume int);"
                 + "" +
                 "partition with (symbol of cseEventStream) " +
@@ -297,7 +297,7 @@ public class WindowPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {

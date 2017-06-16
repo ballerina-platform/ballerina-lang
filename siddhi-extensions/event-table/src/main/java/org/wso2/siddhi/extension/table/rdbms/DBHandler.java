@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.extension.table.cache.CachingTable;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -74,7 +74,7 @@ public class DBHandler {
             initializeConnection();
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while initialising the connection, " + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error while initialising the connection, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(null, con);
         }
@@ -139,7 +139,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error while adding events to event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -182,7 +182,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while deleting events from database," + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error while deleting events from database," + e.getMessage(), e);
         } finally {
             cleanUpConnections(deletionPreparedStatement, con);
             cleanUpConnections(selectionPreparedStatement, con);
@@ -222,7 +222,7 @@ public class DBHandler {
                 log.debug(updatedRows.length + " updated in table " + tableName);
             }
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while updating events in database," + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Error while updating events in database," + e.getMessage(), e);
         } finally {
             cleanUpConnections(updatePreparedStatement, con);
             cleanUpConnections(selectionPreparedStatement, con);
@@ -303,7 +303,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while insertOrOverwriting events from database," + e
+            throw new SiddhiAppRuntimeException("Error while insertOrOverwriting events from database," + e
                     .getMessage(), e);
         } finally {
             cleanUpConnections(updatePreparedStatement, con);
@@ -357,7 +357,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table, " + e.getMessage
+            throw new SiddhiAppRuntimeException("Error while retrieving events from event table, " + e.getMessage
                     (), e);
         } finally {
             cleanUpConnections(stmt, con);
@@ -381,7 +381,7 @@ public class DBHandler {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while retrieving events from event table, " + e.getMessage
+            throw new SiddhiAppRuntimeException("Error while retrieving events from event table, " + e.getMessage
                     (), e);
         } finally {
             cleanUpConnections(stmt, con);
@@ -426,7 +426,7 @@ public class DBHandler {
                     log.debug("Table " + tableName + " Creation Failed. Transaction rollback error ", ex);
                 }
             }
-            throw new ExecutionPlanRuntimeException("Exception while creating the event table, " + e.getMessage(), e);
+            throw new SiddhiAppRuntimeException("Exception while creating the event table, " + e.getMessage(), e);
         } finally {
             cleanUpConnections(stmt, con);
         }
@@ -464,12 +464,12 @@ public class DBHandler {
                             break;
                     }
                 } else {
-                    throw new ExecutionPlanRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
+                    throw new SiddhiAppRuntimeException("Cannot Execute Insert/Update. Null value detected for " +
                             "attribute '" + attribute.getName() + "'");
                 }
             }
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Cannot set value to attribute name " + attribute.getName() + ". " +
+            throw new SiddhiAppRuntimeException("Cannot set value to attribute name " + attribute.getName() + ". " +
                     "Hence dropping the event. " + e.getMessage(), e);
         }
     }
@@ -509,7 +509,7 @@ public class DBHandler {
             }
             results.close();
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while populating event list from db result set," + e
+            throw new SiddhiAppRuntimeException("Error while populating event list from db result set," + e
                     .getMessage(), e);
         }
         return selectedEventList;
@@ -594,7 +594,7 @@ public class DBHandler {
             executionInfo.setPreparedTableExistenceCheckStatement(isTableExistQuery);
 
         } catch (SQLException e) {
-            throw new ExecutionPlanRuntimeException("Error while accessing through datasource connection, " + e
+            throw new SiddhiAppRuntimeException("Error while accessing through datasource connection, " + e
                     .getMessage(), e);
         } finally {
             cleanUpConnections(null, con);
@@ -651,7 +651,7 @@ public class DBHandler {
             try {
                 stmt.close();
             } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("unable to release statement, " + e.getMessage(), e);
+                throw new SiddhiAppRuntimeException("unable to release statement, " + e.getMessage(), e);
             }
         }
 
@@ -659,7 +659,7 @@ public class DBHandler {
             try {
                 con.close();
             } catch (SQLException e) {
-                throw new ExecutionPlanRuntimeException("unable to release connection, " + e.getMessage(), e);
+                throw new SiddhiAppRuntimeException("unable to release connection, " + e.getMessage(), e);
             }
         }
     }
@@ -681,7 +681,7 @@ public class DBHandler {
             ResultSet results = stmt.executeQuery(selectTableRowQuery);
             bloomFilterImpl.buildBloomFilters(results);
         } catch (SQLException ex) {
-            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex
+            throw new SiddhiAppRuntimeException("Error while initiating blooms filter with db data, " + ex
                     .getMessage(), ex);
         } finally {
             cleanUpConnections(stmt, con);
@@ -741,7 +741,7 @@ public class DBHandler {
             resultSet.close();
 
         } catch (SQLException ex) {
-            throw new ExecutionPlanRuntimeException("Error while loading cache with db data, " + ex.getMessage(), ex);
+            throw new SiddhiAppRuntimeException("Error while loading cache with db data, " + ex.getMessage(), ex);
         } finally {
             cleanUpConnections(stmt, con);
         }

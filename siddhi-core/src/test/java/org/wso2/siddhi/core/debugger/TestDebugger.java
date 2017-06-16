@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
@@ -69,17 +69,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query 1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -119,7 +119,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -135,17 +135,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -187,7 +187,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 6, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -202,17 +202,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -253,7 +253,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -269,18 +269,18 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
                 Assert.assertEquals("Cannot emit all three in one time", 1, events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -313,7 +313,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -329,17 +329,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -374,7 +374,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 2, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -391,17 +391,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -440,7 +440,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -455,17 +455,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -505,7 +505,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -521,17 +521,17 @@ public class TestDebugger {
                 "select symbol, price, volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -564,7 +564,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 3, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 3, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -580,17 +580,17 @@ public class TestDebugger {
                 "select symbol, price, sum(volume) as volume " +
                 "insert into OutputStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -629,7 +629,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -650,17 +650,17 @@ public class TestDebugger {
                 "select * " +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -702,7 +702,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 8, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -723,17 +723,17 @@ public class TestDebugger {
                 "select * " +
                 "insert into OutputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
 
         siddhiDebugger.setDebuggerCallback(new SiddhiDebuggerCallback() {
@@ -771,7 +771,7 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 1, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -792,24 +792,24 @@ public class TestDebugger {
                 "select * " +
                 "insert into OutputStream2;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("OutputStream1", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream1", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        executionPlanRuntime.addCallback("OutputStream2", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutputStream2", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 inEventCount.addAndGet(events.length);
             }
         });
-        final InputHandler cseEventStreamInputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        final InputHandler stockEventStreamInputHandler = executionPlanRuntime.getInputHandler("stockEventStream");
+        final InputHandler cseEventStreamInputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        final InputHandler stockEventStreamInputHandler = siddhiAppRuntime.getInputHandler("stockEventStream");
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
         siddhiDebugger.acquireBreakPoint("query1", SiddhiDebugger.QueryTerminal.IN);
         siddhiDebugger.acquireBreakPoint("query2", SiddhiDebugger.QueryTerminal.IN);
 
@@ -869,6 +869,6 @@ public class TestDebugger {
         Assert.assertEquals("Invalid number of output events", 2, inEventCount.get());
         Assert.assertEquals("Invalid number of debug events", 4, debugEventCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

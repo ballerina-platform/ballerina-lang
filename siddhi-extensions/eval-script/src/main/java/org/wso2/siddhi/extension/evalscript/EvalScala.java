@@ -19,8 +19,8 @@
 package org.wso2.siddhi.extension.script;
 
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import scala.Function1;
@@ -43,13 +43,13 @@ public class EvalScala implements Script {
     public void init(String name, String body) {
         this.functionName = name;
         if (returnType == null) {
-            throw new ExecutionPlanCreationException("Cannot find the return type of the function " + functionName);
+            throw new SiddhiAppCreationException("Cannot find the return type of the function " + functionName);
         }
         ScalaEvaluationEngine scalaEvaluationEngine = new ScalaEvaluationEngine();
         try {
             scalaFunction = scalaEvaluationEngine.eval("data: (Array[Any]) =>  {\n" + body + "\n}");
         } catch (Exception e) {
-            throw new ExecutionPlanCreationException("Compilation Failure of the Scala Function " + name, e);
+            throw new SiddhiAppCreationException("Compilation Failure of the Scala Function " + name, e);
         }
     }
 
@@ -58,7 +58,7 @@ public class EvalScala implements Script {
         try {
             return scalaFunction.apply(arg);
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Error while evaluating function " + name, e);
+            throw new SiddhiAppRuntimeException("Error while evaluating function " + name, e);
         }
     }
 

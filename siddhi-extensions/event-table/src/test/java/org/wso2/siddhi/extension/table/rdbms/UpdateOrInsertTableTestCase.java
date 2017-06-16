@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -76,12 +76,12 @@ public class UpdateOrInsertTableTestCase {
                         "update or insert into StockTable " +
                         "   on StockTable.symbol=='IBM' ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
@@ -89,7 +89,7 @@ public class UpdateOrInsertTableTestCase {
                 updateStockStream.send(new Object[]{"GOOG", 10.6f, 100l});
 
                 Thread.sleep(500);
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -119,11 +119,11 @@ public class UpdateOrInsertTableTestCase {
                         "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
@@ -131,7 +131,7 @@ public class UpdateOrInsertTableTestCase {
                 stockStream.send(new Object[]{"WSO2", 10f, 100l});
 
                 Thread.sleep(500);
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -172,9 +172,9 @@ public class UpdateOrInsertTableTestCase {
                         "StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -205,11 +205,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 55.6f, 100l});
@@ -226,7 +226,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -263,9 +263,9 @@ public class UpdateOrInsertTableTestCase {
                         "StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -296,10 +296,10 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 55.6f, 100l});
@@ -316,7 +316,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
 
             }
         } catch (SQLException e) {
@@ -356,9 +356,9 @@ public class UpdateOrInsertTableTestCase {
                         "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -369,11 +369,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 55.6f, 100l});
@@ -389,7 +389,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", false, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -433,9 +433,9 @@ public class UpdateOrInsertTableTestCase {
                         "StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -466,11 +466,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 55.6f, 100l});
@@ -487,7 +487,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -531,9 +531,9 @@ public class UpdateOrInsertTableTestCase {
                         "StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -561,11 +561,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 155.6f, 100l});
@@ -581,7 +581,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -620,9 +620,9 @@ public class UpdateOrInsertTableTestCase {
                         "StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -650,10 +650,10 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 155.6f, 100l});
@@ -669,7 +669,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -714,9 +714,9 @@ public class UpdateOrInsertTableTestCase {
                         ".volume==StockTable.volume and CheckStockStream.price < StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -744,11 +744,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 155.6f, 100l});
@@ -764,7 +764,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
 
             }
         } catch (SQLException e) {
@@ -809,9 +809,9 @@ public class UpdateOrInsertTableTestCase {
                         " StockTable.price) in StockTable] " +
                         "insert into OutStream;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query3", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                     @Override
                     public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -839,11 +839,11 @@ public class UpdateOrInsertTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
@@ -859,7 +859,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -893,12 +893,12 @@ public class UpdateOrInsertTableTestCase {
                         "update or insert into StockTable " +
                         "   on StockTable.volume==volume ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
@@ -908,7 +908,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Update failed", 3, totalRowsInTable);
 
                 Thread.sleep(500);
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -942,12 +942,12 @@ public class UpdateOrInsertTableTestCase {
                         "update or insert into StockTable " +
                         "   on StockTable.volume == volume ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
@@ -957,7 +957,7 @@ public class UpdateOrInsertTableTestCase {
                 Assert.assertEquals("Update failed", 4, totalRowsInTable);
 
                 Thread.sleep(500);
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");

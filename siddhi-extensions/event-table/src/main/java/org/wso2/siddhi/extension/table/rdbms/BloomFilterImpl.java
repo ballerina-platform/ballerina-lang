@@ -23,7 +23,7 @@ import org.apache.hadoop.util.bloom.CountingBloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import org.apache.hadoop.util.hash.Hash;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.sql.ResultSet;
@@ -81,7 +81,7 @@ public class BloomFilterImpl {
             results.close();
             this.bloomFilters = bloomFilters;
         } catch (SQLException ex) {
-            throw new ExecutionPlanRuntimeException("Error while initiating blooms filter with db data, " + ex
+            throw new SiddhiAppRuntimeException("Error while initiating blooms filter with db data, " + ex
                     .getMessage(), ex);
         }
     }

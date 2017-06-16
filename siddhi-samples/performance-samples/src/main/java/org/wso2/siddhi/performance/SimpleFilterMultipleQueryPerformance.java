@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.performance;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -28,7 +28,7 @@ public class SimpleFilterMultipleQueryPerformance {
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price float, volume int, timestamp long);" +
                 "" +
                 "@info(name = 'query1') " +
@@ -41,9 +41,9 @@ public class SimpleFilterMultipleQueryPerformance {
                 "select * " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             public int eventCount = 0;
             public int timeSpent = 0;
             long startTime = System.currentTimeMillis();
@@ -66,15 +66,15 @@ public class SimpleFilterMultipleQueryPerformance {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
 
         for (int i = 0; i <= 100; i++) {
             EventPublisher eventPublisher = new EventPublisher(inputHandler);
             eventPublisher.run();
         }
-        //executionPlanRuntime.shutdown();
+        //siddhiAppRuntime.shutdown();
     }
 
 

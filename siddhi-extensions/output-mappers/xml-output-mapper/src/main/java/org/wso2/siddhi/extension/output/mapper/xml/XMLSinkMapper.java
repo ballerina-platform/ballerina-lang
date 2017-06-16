@@ -24,7 +24,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -150,7 +150,7 @@ public class XMLSinkMapper extends SinkMapper {
                 try {
                     builder = factory.newDocumentBuilder();
                 } catch (ParserConfigurationException e) {
-                    throw new ExecutionPlanCreationException("Error occurred when initializing XML validator", e);
+                    throw new SiddhiAppCreationException("Error occurred when initializing XML validator", e);
                 }
             }
         }

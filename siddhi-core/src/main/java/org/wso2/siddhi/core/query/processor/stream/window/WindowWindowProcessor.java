@@ -16,12 +16,12 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -59,7 +59,7 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         // nothing to be done
         this.configReader = configReader;
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
@@ -80,10 +80,10 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        return window.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext,
+        return window.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, queryName);
     }
 
@@ -111,13 +111,13 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
             streamProcessor.attributeExpressionLength = attributeExpressionLength;
             streamProcessor.additionalAttributes = additionalAttributes;
             streamProcessor.complexEventPopulater = complexEventPopulater;
-            streamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext,
+            streamProcessor.init(inputDefinition, attributeExpressionExecutors, configReader, siddhiAppContext,
                     outputExpectsExpiredEvents);
             streamProcessor.start();
             return streamProcessor;
 
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+            throw new SiddhiAppRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
         }
     }
 

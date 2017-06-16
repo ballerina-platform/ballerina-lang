@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
@@ -47,7 +47,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class QueryRuntime {
 
-    private final ExecutionPlanContext executionPlanContext;
+    private final SiddhiAppContext siddhiAppContext;
     private StreamRuntime streamRuntime;
     private OutputRateLimiter outputRateLimiter;
     private String queryId;
@@ -59,12 +59,12 @@ public class QueryRuntime {
     private QuerySelector selector;
     private MetaComplexEvent metaComplexEvent;
 
-    public QueryRuntime(Query query, ExecutionPlanContext executionPlanContext, StreamRuntime streamRuntime,
+    public QueryRuntime(Query query, SiddhiAppContext siddhiAppContext, StreamRuntime streamRuntime,
                         QuerySelector selector,
                         OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent
                                 metaComplexEvent, boolean synchronised) {
         this.query = query;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
         this.outputCallback = outputCallback;
@@ -148,9 +148,9 @@ public class QueryRuntime {
         StreamRuntime clonedStreamRuntime = this.streamRuntime.clone(key);
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
-        clonedOutputRateLimiter.init(executionPlanContext, lockWrapper, queryId);
+        clonedOutputRateLimiter.init(siddhiAppContext, lockWrapper, queryId);
 
-        QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
+        QueryRuntime queryRuntime = new QueryRuntime(query, siddhiAppContext, clonedStreamRuntime, clonedSelector,
                                                      clonedOutputRateLimiter, outputCallback, this.metaComplexEvent,
                                                      synchronised);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper, queryId);
@@ -166,7 +166,7 @@ public class QueryRuntime {
                                                                                             key,
                                                                                             localStreamJunctionMap,
                                                                                             outputStreamDefinition,
-                                                                                            executionPlanContext,
+                                                                                            siddhiAppContext,
                                                                                             queryId);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;

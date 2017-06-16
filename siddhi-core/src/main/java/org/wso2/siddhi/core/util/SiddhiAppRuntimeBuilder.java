@@ -18,8 +18,8 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.ProcessStreamReceiver;
@@ -52,9 +52,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * For building ExecutionPlanRuntime
+ * For building SiddhiAppRuntime
  */
-public class ExecutionPlanRuntimeBuilder {
+public class SiddhiAppRuntimeBuilder {
     private ConcurrentMap<String, AbstractDefinition> streamDefinitionMap =
             new ConcurrentHashMap<String, AbstractDefinition>(); //contains stream definition
     private ConcurrentMap<String, AbstractDefinition> tableDefinitionMap =
@@ -78,14 +78,14 @@ public class ExecutionPlanRuntimeBuilder {
             new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
     private ConcurrentMap<String, PartitionRuntime> partitionMap =
             new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
-    private ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap = null;
-    private ExecutionPlanContext executionPlanContext;
+    private ConcurrentMap<String, SiddhiAppRuntime> siddhiAppRuntimeMap = null;
+    private SiddhiAppContext siddhiAppContext;
     private InputManager inputManager;
     private LockSynchronizer lockSynchronizer = new LockSynchronizer();
 
-    public ExecutionPlanRuntimeBuilder(ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
-        this.inputManager = new InputManager(this.executionPlanContext, streamDefinitionMap, streamJunctionMap);
+    public SiddhiAppRuntimeBuilder(SiddhiAppContext siddhiAppContext) {
+        this.siddhiAppContext = siddhiAppContext;
+        this.inputManager = new InputManager(this.siddhiAppContext, streamDefinitionMap, streamJunctionMap);
     }
 
     public void defineStream(StreamDefinition streamDefinition) {
@@ -96,9 +96,9 @@ public class ExecutionPlanRuntimeBuilder {
         if (currentDefinition != null) {
             streamDefinition = (StreamDefinition) currentDefinition;
         }
-        DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, executionPlanContext);
-        DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, executionPlanContext);
-        DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, executionPlanContext);
+        DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, siddhiAppContext);
+        DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, siddhiAppContext);
+        DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, siddhiAppContext);
     }
 
     public void defineTable(TableDefinition tableDefinition) {
@@ -108,21 +108,21 @@ public class ExecutionPlanRuntimeBuilder {
         if (currentDefinition != null) {
             tableDefinition = (TableDefinition) currentDefinition;
         }
-        DefinitionParserHelper.addTable(tableDefinition, tableMap, executionPlanContext);
+        DefinitionParserHelper.addTable(tableDefinition, tableMap, siddhiAppContext);
     }
 
     public void defineWindow(WindowDefinition windowDefinition) {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap);
-        DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
+        DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
         AbstractDefinition currentDefinition = windowDefinitionMap
                 .putIfAbsent(windowDefinition.getId(), windowDefinition);
         if (currentDefinition != null) {
             windowDefinition = (WindowDefinition) currentDefinition;
         }
-        DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, executionPlanContext);
+        DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, siddhiAppContext);
         // defineStream(windowDefinition);
-        // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, executionPlanContext);
+        // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
     }
 
     public void defineTrigger(TriggerDefinition triggerDefinition) {
@@ -133,7 +133,7 @@ public class ExecutionPlanRuntimeBuilder {
             triggerDefinition = currentDefinition;
         }
         DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap,
-                executionPlanContext);
+                siddhiAppContext);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -163,8 +163,8 @@ public class ExecutionPlanRuntimeBuilder {
 
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
+                        siddhiAppContext.getExecutorService(),
+                        siddhiAppContext.getBufferSize(), siddhiAppContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
             insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition()
@@ -179,8 +179,8 @@ public class ExecutionPlanRuntimeBuilder {
 
             if (outputStreamJunction == null) {
                 outputStreamJunction = new StreamJunction(streamDefinition,
-                        executionPlanContext.getExecutorService(),
-                        executionPlanContext.getBufferSize(), executionPlanContext);
+                        siddhiAppContext.getExecutorService(),
+                        siddhiAppContext.getBufferSize(), siddhiAppContext);
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
             insertIntoWindowCallback.getWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback
@@ -191,11 +191,11 @@ public class ExecutionPlanRuntimeBuilder {
     }
 
     public void defineFunction(FunctionDefinition functionDefinition) {
-        DefinitionParserHelper.addFunction(executionPlanContext, functionDefinition);
+        DefinitionParserHelper.addFunction(siddhiAppContext, functionDefinition);
     }
 
-    public void setExecutionPlanRuntimeMap(ConcurrentMap<String, ExecutionPlanRuntime> executionPlanRuntimeMap) {
-        this.executionPlanRuntimeMap = executionPlanRuntimeMap;
+    public void setSiddhiAppRuntimeMap(ConcurrentMap<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
+        this.siddhiAppRuntimeMap = siddhiAppRuntimeMap;
     }
 
     public ConcurrentMap<String, StreamJunction> getStreamJunctions() {
@@ -234,10 +234,10 @@ public class ExecutionPlanRuntimeBuilder {
         return lockSynchronizer;
     }
 
-    public ExecutionPlanRuntime build() {
-        return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
-                streamJunctionMap, tableMap, eventSourceMap, eventSinkMap, partitionMap, executionPlanContext,
-                executionPlanRuntimeMap);
+    public SiddhiAppRuntime build() {
+        return new SiddhiAppRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
+                streamJunctionMap, tableMap, eventSourceMap, eventSinkMap, partitionMap, siddhiAppContext,
+                siddhiAppRuntimeMap);
     }
 
 }

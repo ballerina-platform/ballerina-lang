@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -59,9 +59,9 @@ public class CountPatternTestCase {
                 "   e1[3].price as price1_3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -77,10 +77,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -99,7 +99,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -118,9 +118,9 @@ public class CountPatternTestCase {
                 "   e1[3].price as price1_3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -136,10 +136,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -158,7 +158,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -177,9 +177,9 @@ public class CountPatternTestCase {
                 "   e1[3].price as price1_3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -195,10 +195,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -213,7 +213,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -232,9 +232,9 @@ public class CountPatternTestCase {
                 "   e1[3].price as price1_3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -250,10 +250,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -264,7 +264,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", false, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -283,9 +283,9 @@ public class CountPatternTestCase {
                 "   e1[3].price as price1_3, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -301,10 +301,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -329,7 +329,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -347,9 +347,9 @@ public class CountPatternTestCase {
                 "select e1[0].price as price1_0, e1[1].price as price1_1, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -365,10 +365,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -383,7 +383,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -401,9 +401,9 @@ public class CountPatternTestCase {
                 "select e1[0].price as price1_0, e1[1].price as price1_1, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -419,10 +419,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream2.send(new Object[]{"IBM", 45.7f, 100});
         Thread.sleep(100);
@@ -431,7 +431,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -449,9 +449,9 @@ public class CountPatternTestCase {
                 "select e1[0].price as price1_0, e1[1].price as price1_1, e2.price as price2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -467,10 +467,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -483,7 +483,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -501,9 +501,9 @@ public class CountPatternTestCase {
                 "select e1.symbol as symbol1, e2[0].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -527,9 +527,9 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
         Thread.sleep(100);
@@ -541,7 +541,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -559,9 +559,9 @@ public class CountPatternTestCase {
                 "select e1.symbol as symbol1, e2[0].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -585,9 +585,9 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
         Thread.sleep(100);
@@ -599,7 +599,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -617,9 +617,9 @@ public class CountPatternTestCase {
                 "select e1.symbol as symbol1, e2[last].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -643,9 +643,9 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
         Thread.sleep(100);
@@ -657,7 +657,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -675,9 +675,9 @@ public class CountPatternTestCase {
                 "select e1.symbol as symbol1, e2[last].symbol as symbol2, e3.symbol as symbol3 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -701,9 +701,9 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 105});
         Thread.sleep(100);
@@ -716,7 +716,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -735,9 +735,9 @@ public class CountPatternTestCase {
                 "volume4, e2[3].volume as volume5, e2[4].volume as volume6, e2[5].volume as volume7 " +
                 "insert into StockQuote;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -778,9 +778,9 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler eventStream = executionPlanRuntime.getInputHandler("EventStream");
+        InputHandler eventStream = siddhiAppRuntime.getInputHandler("EventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         eventStream.send(new Object[]{"IBM", 75.6f, 100});
         eventStream.send(new Object[]{"IBM", 75.6f, 200});
@@ -802,7 +802,7 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -824,9 +824,9 @@ public class CountPatternTestCase {
                 "(price1_1) and not instanceOfFloat(price1_2) " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -842,10 +842,10 @@ public class CountPatternTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 25.6f, 100});
         Thread.sleep(100);
@@ -860,6 +860,6 @@ public class CountPatternTestCase {
         Assert.assertEquals("Number of remove events", 0, removeEventCount);
         Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

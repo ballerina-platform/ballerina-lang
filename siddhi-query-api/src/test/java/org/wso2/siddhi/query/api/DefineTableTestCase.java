@@ -29,7 +29,7 @@ public class DefineTableTestCase {
 
     @Test
     public void testCreatingTableDefinition() {
-        ExecutionPlan.executionPlan("test").defineTable(TableDefinition.id("StockStream").attribute("symbol",
+        SiddhiApp.siddhiApp("test").defineTable(TableDefinition.id("StockStream").attribute("symbol",
                 Attribute.Type.STRING).attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type
                 .FLOAT));
     }

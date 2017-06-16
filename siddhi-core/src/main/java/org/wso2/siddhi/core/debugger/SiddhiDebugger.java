@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.debugger;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 
@@ -78,12 +78,12 @@ public class SiddhiDebugger {
     private SnapshotService snapshotService;
 
     /**
-     * Create a new SiddhiDebugger instance for the given {@link ExecutionPlanContext}.
+     * Create a new SiddhiDebugger instance for the given {@link SiddhiAppContext}.
      *
-     * @param executionPlanContext the ExecutionPlanContext
+     * @param siddhiAppContext the SiddhiAppContext
      */
-    public SiddhiDebugger(ExecutionPlanContext executionPlanContext) {
-        this.snapshotService = executionPlanContext.getSnapshotService();
+    public SiddhiDebugger(SiddhiAppContext siddhiAppContext) {
+        this.snapshotService = siddhiAppContext.getSnapshotService();
     }
 
     /**

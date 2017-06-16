@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.util.extension.holder;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,16 +28,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StreamProcessorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = StreamProcessor.class;
 
-    private StreamProcessorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(clazz, executionPlanContext);
+    private StreamProcessorExtensionHolder(SiddhiAppContext siddhiAppContext) {
+        super(clazz, siddhiAppContext);
     }
 
-    public static StreamProcessorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext
+    public static StreamProcessorExtensionHolder getInstance(SiddhiAppContext siddhiAppContext) {
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = siddhiAppContext.getSiddhiContext
                 ().getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder = new StreamProcessorExtensionHolder(executionPlanContext);
+            abstractExtensionHolder = new StreamProcessorExtensionHolder(siddhiAppContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
         return (StreamProcessorExtensionHolder) extensionHolderMap.get(clazz);

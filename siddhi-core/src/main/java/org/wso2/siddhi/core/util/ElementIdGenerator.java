@@ -21,18 +21,18 @@ package org.wso2.siddhi.core.util;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * unique id generator for elements inside a given execution plan
+ * unique id generator for elements inside a given siddhi app
  */
 public class ElementIdGenerator {
 
-    private String executionPlanName;
+    private String siddhiAppName;
     private AtomicLong id = new AtomicLong(0);
 
-    public ElementIdGenerator(String executionPlanName) {
-        this.executionPlanName = executionPlanName;
+    public ElementIdGenerator(String siddhiAppName) {
+        this.siddhiAppName = siddhiAppName;
     }
 
     public String createNewId() {
-        return executionPlanName + "-" + id.incrementAndGet();
+        return siddhiAppName + "-" + id.incrementAndGet();
     }
 }

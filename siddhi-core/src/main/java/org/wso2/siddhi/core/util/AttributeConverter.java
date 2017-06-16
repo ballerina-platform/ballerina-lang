@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.HashMap;
@@ -51,7 +51,7 @@ public class AttributeConverter {
         if (functionMap.containsKey(attributeType)) {
             return functionMap.get(attributeType).apply(propertyValue);
         } else {
-            throw new ExecutionPlanRuntimeException("Attribute type: " + attributeType + " not supported by XML " +
+            throw new SiddhiAppRuntimeException("Attribute type: " + attributeType + " not supported by XML " +
                     "mapping.");
         }
     }

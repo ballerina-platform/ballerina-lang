@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.table;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -38,7 +38,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 public interface Table extends FindableProcessor {
 
     void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-              ConfigReader configReader, ExecutionPlanContext executionPlanContext);
+              ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
     TableDefinition getTableDefinition();
 

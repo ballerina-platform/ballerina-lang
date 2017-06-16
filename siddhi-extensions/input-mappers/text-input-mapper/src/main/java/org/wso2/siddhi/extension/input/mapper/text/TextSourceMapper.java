@@ -22,7 +22,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputEventHandler;
@@ -158,11 +158,11 @@ public class TextSourceMapper extends SourceMapper {
     private Event convertToEvent(Object eventObject) {
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to TextsourceMapper");
+            throw new SiddhiAppRuntimeException("Null object received from the Source to TextsourceMapper");
         }
 
         if (!(eventObject instanceof String)) {
-            throw new ExecutionPlanRuntimeException("Invalid TEXT object received. Expected String, but found " +
+            throw new SiddhiAppRuntimeException("Invalid TEXT object received. Expected String, but found " +
                     eventObject.getClass()
                             .getCanonicalName());
         }

@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -44,7 +44,7 @@ public abstract class Scheduler implements Snapshotable {
     protected final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
     private final ThreadBarrier threadBarrier;
     private final Schedulable singleThreadEntryValve;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     protected String elementId;
     protected String queryName;
     private StreamEventPool streamEventPool;
@@ -53,9 +53,9 @@ public abstract class Scheduler implements Snapshotable {
     private LockWrapper lockWrapper;
 
 
-    public Scheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
-        this.threadBarrier = executionPlanContext.getThreadBarrier();
-        this.executionPlanContext = executionPlanContext;
+    public Scheduler(Schedulable singleThreadEntryValve, SiddhiAppContext siddhiAppContext) {
+        this.threadBarrier = siddhiAppContext.getThreadBarrier();
+        this.siddhiAppContext = siddhiAppContext;
         this.singleThreadEntryValve = singleThreadEntryValve;
     }
 
@@ -82,9 +82,9 @@ public abstract class Scheduler implements Snapshotable {
         this.lockWrapper = lockWrapper;
         this.queryName = queryName;
         if (elementId == null) {
-            elementId = "Scheduler-" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "Scheduler-" + siddhiAppContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
+        siddhiAppContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     @Override
@@ -116,7 +116,7 @@ public abstract class Scheduler implements Snapshotable {
      */
     protected void sendTimerEvents() {
         Long toNotifyTime = toNotifyQueue.peek();
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
         while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
             toNotifyQueue.poll();
 
@@ -147,7 +147,7 @@ public abstract class Scheduler implements Snapshotable {
             streamEventChunk.clear();
 
             toNotifyTime = toNotifyQueue.peek();
-            currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
         }
     }
 }

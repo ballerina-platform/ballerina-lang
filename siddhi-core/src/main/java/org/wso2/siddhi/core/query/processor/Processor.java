@@ -21,7 +21,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 
 /**
  * Parent interface representing Event Processors in Siddhi. Event Processors are the execution unit which will do
- * the actual event processing. Each Execution Plane will map to a chain of there processors. process() will receive
+ * the actual event processing. Each Siddhi appe will map to a chain of there processors. process() will receive
  * {@link ComplexEventChunk} which will be processed by the Processor and then handed over to the next Processor
  * in-line.
  */

@@ -20,7 +20,7 @@ package org.wso2.siddhi.query.api.exception;
 /**
  * Exception thrown when duplicate attributes are defined
  */
-public class DuplicateAttributeException extends ExecutionPlanValidationException {
+public class DuplicateAttributeException extends SiddhiAppValidationException {
 
     public DuplicateAttributeException(String message) {
         super(message);

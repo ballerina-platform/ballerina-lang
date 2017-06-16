@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -40,10 +40,10 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
 
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext,
+            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext,
                                    boolean
                                            outputExpectsExpiredEvents) {
-        init(attributeExpressionExecutors, configReader, outputExpectsExpiredEvents, executionPlanContext);
+        init(attributeExpressionExecutors, configReader, outputExpectsExpiredEvents, siddhiAppContext);
         return new ArrayList<Attribute>(0);
     }
 
@@ -53,11 +53,11 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param configReader                 the config reader of window
      * @param outputExpectsExpiredEvents   is expired event out put or not
-     * @param executionPlanContext         the context of the execution plan
+     * @param siddhiAppContext         the context of the siddhi app
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                 boolean outputExpectsExpiredEvents, ExecutionPlanContext
-                                         executionPlanContext);
+                                 boolean outputExpectsExpiredEvents, SiddhiAppContext
+                                         siddhiAppContext);
 
     @Override
     protected void processEventChunk(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,

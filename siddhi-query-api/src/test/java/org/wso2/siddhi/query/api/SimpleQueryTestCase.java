@@ -64,7 +64,7 @@ public class SimpleQueryTestCase {
         );
         query.insertInto("OutStockStream");
 
-        ExecutionPlan.executionPlan("test").addQuery(query);
+        SiddhiApp.siddhiApp("test").addQuery(query);
 
     }
 

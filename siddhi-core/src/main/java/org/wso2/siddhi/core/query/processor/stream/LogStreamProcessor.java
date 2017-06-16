@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -35,7 +35,7 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,13 +105,13 @@ public class LogStreamProcessor extends StreamProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
-     * @param executionPlanContext         execution plan context
+     * @param siddhiAppContext         siddhi app context
      * @param configReader this hold the {@link LogStreamProcessor} configuration reader.
      * @return the additional output attributes introduced by the function
      */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         int inputExecutorLength = attributeExpressionExecutors.length;
         if (inputExecutorLength == 1) {
             if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.STRING) {
@@ -119,7 +119,7 @@ public class LogStreamProcessor extends StreamProcessor {
             } else if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.BOOL) {
                 isLogEventExpressionExecutor = attributeExpressionExecutors[0];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'isEventLogged (Bool)' " +
+                throw new SiddhiAppValidationException("Input attribute is expected to be 'isEventLogged (Bool)' " +
                         "or 'logMessage (String)' or 'isEventLogged (Bool), logMessage (String)' or 'priority " +
                         "(String), isEventLogged (Bool), logMessage (String)', but its 1st attribute is " +
                         attributeExpressionExecutors[0].getReturnType());
@@ -139,7 +139,7 @@ public class LogStreamProcessor extends StreamProcessor {
                 }
                 logMessageExpressionExecutor = attributeExpressionExecutors[1];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'logMessage (String), " +
+                throw new SiddhiAppValidationException("Input attribute is expected to be 'logMessage (String), " +
                         "isEventLogged (Bool)' or 'priority (String), logMessage (String)', but its returning are '"
                         + attributeExpressionExecutors[0].getReturnType() + ", " + attributeExpressionExecutors[1]
                         .getReturnType() + "'");
@@ -153,29 +153,29 @@ public class LogStreamProcessor extends StreamProcessor {
                     logPriorityExpressionExecutor = attributeExpressionExecutors[0];
                 }
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                throw new SiddhiAppValidationException("Input attribute is expected to be 'priority (String), " +
                         "logMessage (String), isEventLogged (Bool)', but its 1st attribute is returning " +
                         attributeExpressionExecutors[0].getReturnType());
             }
             if (attributeExpressionExecutors[1].getReturnType() == Attribute.Type.STRING) {
                 logMessageExpressionExecutor = attributeExpressionExecutors[1];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                throw new SiddhiAppValidationException("Input attribute is expected to be 'priority (String), " +
                         "logMessage (String), isEventLogged (Bool)', but its 2nd attribute is returning " +
                         attributeExpressionExecutors[1].getReturnType());
             }
             if (attributeExpressionExecutors[2].getReturnType() == Attribute.Type.BOOL) {
                 isLogEventExpressionExecutor = attributeExpressionExecutors[2];
             } else {
-                throw new ExecutionPlanValidationException("Input attribute is expected to be 'priority (String), " +
+                throw new SiddhiAppValidationException("Input attribute is expected to be 'priority (String), " +
                         "logMessage (String), isEventLogged (Bool)', but its 3rd attribute is returning " +
                         attributeExpressionExecutors[2].getReturnType());
             }
         } else if (inputExecutorLength > 3) {
-            throw new ExecutionPlanValidationException("Input parameters for Log can be logMessage (String), " +
+            throw new SiddhiAppValidationException("Input parameters for Log can be logMessage (String), " +
                     "isEventLogged (Bool), but there are " + attributeExpressionExecutors.length + " in the input!");
         }
-        logPrefix = executionPlanContext.getName() + ": ";
+        logPrefix = siddhiAppContext.getName() + ": ";
         return new ArrayList<Attribute>();
     }
 

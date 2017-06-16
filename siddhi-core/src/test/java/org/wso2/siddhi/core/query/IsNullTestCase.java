@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -50,8 +50,8 @@ public class IsNullTestCase {
         log.info("isNull test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('IsNullTest') " +
+        String siddhiApp = "" +
+                "@app:name('IsNullTest') " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
@@ -61,11 +61,11 @@ public class IsNullTestCase {
                 "insert into outputStream;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -77,9 +77,9 @@ public class IsNullTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
         inputHandler.send(new Object[]{null, 60.5f, 200L});
@@ -88,7 +88,7 @@ public class IsNullTestCase {
         Assert.assertEquals(1, count);
         Assert.assertTrue(eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -110,9 +110,9 @@ public class IsNullTestCase {
                 "price3, e2[last].price as price4, e3.price as price5, e2 is null as check2 " +
                 "insert into OutputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -138,10 +138,10 @@ public class IsNullTestCase {
 
         });
 
-        InputHandler stream1 = executionPlanRuntime.getInputHandler("Stream1");
-        InputHandler stream2 = executionPlanRuntime.getInputHandler("Stream2");
+        InputHandler stream1 = siddhiAppRuntime.getInputHandler("Stream1");
+        InputHandler stream2 = siddhiAppRuntime.getInputHandler("Stream2");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stream1.send(new Object[]{"WSO2", 29.6f, 100});
         Thread.sleep(100);
@@ -164,7 +164,7 @@ public class IsNullTestCase {
         org.junit.Assert.assertEquals("Number of remove events", 0, removeEventCount);
         org.junit.Assert.assertEquals("Event arrived", true, eventArrived);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 }

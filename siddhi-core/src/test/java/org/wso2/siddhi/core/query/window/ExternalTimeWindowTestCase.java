@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -56,9 +56,9 @@ public class ExternalTimeWindowTestCase {
                 "select timeStamp, ip  " +
                 "insert all events into uniqueIps ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -74,8 +74,8 @@ public class ExternalTimeWindowTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{1366335804341L, "192.10.1.3"});
         inputHandler.send(new Object[]{1366335804342L, "192.10.1.4"});
@@ -88,7 +88,7 @@ public class ExternalTimeWindowTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("In Events ", 5, inEventCount);
         Assert.assertEquals("Remove Events ", 4, removeEventCount);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
 
     }

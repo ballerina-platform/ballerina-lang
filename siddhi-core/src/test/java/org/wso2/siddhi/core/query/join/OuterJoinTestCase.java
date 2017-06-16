@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class OuterJoinTestCase {
@@ -56,9 +56,9 @@ public class OuterJoinTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -89,9 +89,9 @@ public class OuterJoinTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
@@ -99,7 +99,7 @@ public class OuterJoinTestCase {
         Thread.sleep(500);
         Assert.assertEquals(4, inEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -117,9 +117,9 @@ public class OuterJoinTestCase {
                 ".company as company " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -149,9 +149,9 @@ public class OuterJoinTestCase {
 
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         cseEventStreamHandler.send(new Object[]{"BMW", 57.6f, 100});
         twitterStreamHandler.send(new Object[]{"User2", "Welcome", "IBM"});
@@ -159,7 +159,7 @@ public class OuterJoinTestCase {
         Thread.sleep(500);
         Assert.assertEquals(3, inEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -177,9 +177,9 @@ public class OuterJoinTestCase {
                 ".company as company " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -209,9 +209,9 @@ public class OuterJoinTestCase {
 
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         twitterStreamHandler.send(new Object[]{"User2", "Welcome", "BMW"});
         cseEventStreamHandler.send(new Object[]{"IBM", 47.6f, 200});
@@ -219,7 +219,7 @@ public class OuterJoinTestCase {
         Thread.sleep(500);
         Assert.assertEquals(3, inEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -236,13 +236,13 @@ public class OuterJoinTestCase {
                 "select * " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void joinTest5() throws InterruptedException {
         log.info("Outer Join test5");
 
@@ -256,10 +256,10 @@ public class OuterJoinTestCase {
                 "select * " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -276,9 +276,9 @@ public class OuterJoinTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -287,13 +287,13 @@ public class OuterJoinTestCase {
 
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"IBM", 57.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -310,9 +310,9 @@ public class OuterJoinTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -320,13 +320,13 @@ public class OuterJoinTestCase {
             }
 
         });
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         twitterStreamHandler.send(new Object[]{"User2", "Welcome", "BMW"});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         Thread.sleep(500);
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -343,9 +343,9 @@ public class OuterJoinTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -367,9 +367,9 @@ public class OuterJoinTestCase {
 
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
         twitterStreamHandler.send(new Object[]{"User", "Hello World", "WSO2"});
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
@@ -378,7 +378,7 @@ public class OuterJoinTestCase {
         Thread.sleep(2000);
         Assert.assertEquals(2, inEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -395,9 +395,9 @@ public class OuterJoinTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -405,15 +405,15 @@ public class OuterJoinTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", 55.6f, 100});
         twitterStreamHandler.send(new Object[]{"User", "Hello World", "BMW"});
         cseEventStreamHandler.send(new Object[]{"IBM", 75.6f, 100});
         cseEventStreamHandler.send(new Object[]{"WSO2", 57.6f, 100});
         Thread.sleep(500);
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

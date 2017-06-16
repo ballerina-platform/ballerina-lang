@@ -22,7 +22,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import java.util.List;
 
 /**
- * Execution element of siddhi execution plan
+ * Execution element of siddhi siddhi app
  */
 public interface ExecutionElement {
 

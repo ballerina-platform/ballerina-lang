@@ -19,8 +19,8 @@
 package org.wso2.siddhi.extension.script;
 
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -47,12 +47,12 @@ public class EvalJavaScript implements Script {
     public void init(String name, String body) {
         this.functionName = name;
         if (returnType == null) {
-            throw new ExecutionPlanCreationException("Cannot find the return type of the function " + functionName);
+            throw new SiddhiAppCreationException("Cannot find the return type of the function " + functionName);
         }
         try {
             engine.eval("function " + name + "(data)" + "{" + body + "}");
         } catch (ScriptException e) {
-            throw new ExecutionPlanCreationException("Compilation Failure of the JavaScript Function " + name, e);
+            throw new SiddhiAppCreationException("Compilation Failure of the JavaScript Function " + name, e);
         }
     }
 
@@ -77,7 +77,7 @@ public class EvalJavaScript implements Script {
             engine.eval(jsArray.toString());
             return engine.eval(name + "(data);");
         } catch (ScriptException e) {
-            throw new ExecutionPlanRuntimeException("Error evaluating JavaScript Function " + name, e);
+            throw new SiddhiAppRuntimeException("Error evaluating JavaScript Function " + name, e);
         }
     }
 

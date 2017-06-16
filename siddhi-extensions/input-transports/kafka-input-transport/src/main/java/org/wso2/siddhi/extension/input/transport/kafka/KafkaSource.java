@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
@@ -92,11 +92,11 @@ public class KafkaSource extends Source{
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
-        this.executorService = executionPlanContext.getScheduledExecutorService();
-        executionPlanContext.getSnapshotService().addSnapshotable("kafka-sink", this);
+        this.executorService = siddhiAppContext.getScheduledExecutorService();
+        siddhiAppContext.getSnapshotService().addSnapshotable("kafka-sink", this);
     }
 
     @Override

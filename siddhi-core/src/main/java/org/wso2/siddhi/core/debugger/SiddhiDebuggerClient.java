@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.debugger;
 
 import com.google.gson.Gson;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * SiddhiDebuggerClient is a commandline tool to feed execution plan and input from text files and debug the query at
+ * SiddhiDebuggerClient is a commandline tool to feed siddhi app and input from text files and debug the query at
  * the runtime. It accepts the following commands:
  * - add breakpoint query:TERMINAL - Adding a new breakpoint. Eg:add breakpoint query1:IN
  * - remove breakpoint query:TERMINAL - Adding a new breakpoint. Eg:remove breakpoint query1:IN
@@ -124,24 +124,24 @@ public class SiddhiDebuggerClient {
     /**
      * Main method of the SiddhiDebuggerClient.
      *
-     * @param args two arguments are expected: execution plan path and input file path
+     * @param args two arguments are expected: siddhi app path and input file path
      */
     public static void main(String[] args) {
         // Validate the number of arguments
         if (args.length != 2) {
             error("Expected two arguments but found " + args.length + "\n. Please try again with two arguments: " +
-                    "<execution plan file> <input file path>");
+                    "<siddhi app file> <input file path>");
             return;
         }
 
-        String executionPlanPath = args[0];
+        String siddhiAppPath = args[0];
         String inputPath = args[1];
 
         // Validate file
-        File executionPlanFile = new File(executionPlanPath);
+        File siddhiAppFile = new File(siddhiAppPath);
         File inputFile = new File(inputPath);
-        if (!executionPlanFile.exists() || !executionPlanFile.isFile()) {
-            error("Invalid execution plan file: " + executionPlanPath);
+        if (!siddhiAppFile.exists() || !siddhiAppFile.isFile()) {
+            error("Invalid siddhi app file: " + siddhiAppPath);
         }
         if (!inputFile.exists() || !inputFile.isFile()) {
             error("Invalid input file: " + inputPath);
@@ -151,10 +151,10 @@ public class SiddhiDebuggerClient {
         String query;
         String input;
         try {
-            query = readText(executionPlanPath);
+            query = readText(siddhiAppPath);
             input = readText(inputPath);
         } catch (IOException e) {
-            error("Failed to read " + executionPlanPath);
+            error("Failed to read " + siddhiAppPath);
             return;
         }
         try {
@@ -223,20 +223,20 @@ public class SiddhiDebuggerClient {
     /**
      * Start the {@link SiddhiDebuggerClient} and configure the breakpoints.
      *
-     * @param executionPlan the Siddhi query
+     * @param siddhiApp the Siddhi query
      * @param input         the user input as a whole text
      */
-    public void start(final String executionPlan, String input) {
+    public void start(final String siddhiApp, String input) {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        info("Deploying the execution plan");
-        final ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        info("Deploying the siddhi app");
+        final SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         // Add callbacks for all the streams
-        final Set<String> streamNames = SiddhiCompiler.parse(executionPlan).getStreamDefinitionMap().keySet();
+        final Set<String> streamNames = SiddhiCompiler.parse(siddhiApp).getStreamDefinitionMap().keySet();
         for (String streamName : streamNames) {
             final String stream = streamName;
-            executionPlanRuntime.addCallback(stream, new StreamCallback() {
+            siddhiAppRuntime.addCallback(stream, new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     info("@Receive: Stream: " + stream + ", Event: " + Arrays.deepToString(events));
@@ -244,9 +244,9 @@ public class SiddhiDebuggerClient {
             });
         }
 
-        SiddhiDebugger siddhiDebugger = executionPlanRuntime.debug();
+        SiddhiDebugger siddhiDebugger = siddhiAppRuntime.debug();
 
-        final InputFeeder inputFeeder = new InputFeeder(executionPlanRuntime, input);
+        final InputFeeder inputFeeder = new InputFeeder(siddhiAppRuntime, input);
 
         System.out.println("Configure the breakpoints.\nYou can use the following commands:\n - " +
                 ADD_BREAKPOINT + "<query name>:<IN/OUT>\n - " +
@@ -311,7 +311,7 @@ public class SiddhiDebuggerClient {
 
             } else if (STOP.equals(command)) {
                 inputFeeder.stop();
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
                 break;
             } else if (START.equals(command)) {
                 inputFeeder.start();
@@ -340,7 +340,7 @@ public class SiddhiDebuggerClient {
                         debugger.releaseAllBreakPoints();
                         debugger.play();
                         inputFeeder.stop();
-                        executionPlanRuntime.shutdown();
+                        siddhiAppRuntime.shutdown();
                         break;
                     } else if (NEXT.equals(command)) {
                         debugger.next();
@@ -383,7 +383,7 @@ public class SiddhiDebuggerClient {
                 String command = scanner.nextLine().trim().toLowerCase();
                 if (STOP.equals(command)) {
                     inputFeeder.stop();
-                    executionPlanRuntime.shutdown();
+                    siddhiAppRuntime.shutdown();
                     break;
                 } else {
                     error("Invalid command: " + command);
@@ -408,13 +408,13 @@ public class SiddhiDebuggerClient {
      * A runnable class to feed the input to the Siddhi runtime.
      */
     private static class InputFeeder implements Runnable {
-        private final ExecutionPlanRuntime executionPlanRuntime;
+        private final SiddhiAppRuntime siddhiAppRuntime;
         private String input;
         private volatile AtomicBoolean running = new AtomicBoolean(false);
         private Thread thread;
 
-        private InputFeeder(ExecutionPlanRuntime executionPlanRuntime, String input) {
-            this.executionPlanRuntime = executionPlanRuntime;
+        private InputFeeder(SiddhiAppRuntime siddhiAppRuntime, String input) {
+            this.siddhiAppRuntime = siddhiAppRuntime;
             this.input = input;
         }
 
@@ -444,7 +444,7 @@ public class SiddhiDebuggerClient {
                     Object[] data = gson.fromJson(event, Object[].class);
                     info("@Send: Stream: " + streamName + ", Event: " + event);
                     try {
-                        executionPlanRuntime.getInputHandler(streamName).send(data);
+                        siddhiAppRuntime.getInputHandler(streamName).send(data);
                     } catch (InterruptedException e) {
                         error("Error in sending event " + event + " to Siddhi");
                     }

@@ -34,7 +34,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
@@ -225,7 +225,7 @@ public class JsonSourceMapper extends SourceMapper {
                 try {
                     Event event = processCustomEvent(JsonPath.parse(jsonObj));
                     return event;
-                } catch (ExecutionPlanRuntimeException e) {
+                } catch (SiddhiAppRuntimeException e) {
                     log.error(e.getMessage());
                     return null;
                 }
@@ -253,7 +253,7 @@ public class JsonSourceMapper extends SourceMapper {
         try {
             parser = factory.createParser(eventObject.toString());
         } catch (IOException e) {
-            throw new ExecutionPlanRuntimeException("Initializing a parser failed for the event string."
+            throw new SiddhiAppRuntimeException("Initializing a parser failed for the event string."
                     + eventObject.toString());
         }
         int position;

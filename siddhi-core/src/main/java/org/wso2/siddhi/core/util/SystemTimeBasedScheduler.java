@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,8 +37,8 @@ public class SystemTimeBasedScheduler extends Scheduler {
     private final Semaphore mutex;
 
     public SystemTimeBasedScheduler(ScheduledExecutorService scheduledExecutorService, Schedulable
-            singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
-        super(singleThreadEntryValve, executionPlanContext);
+            singleThreadEntryValve, SiddhiAppContext siddhiAppContext) {
+        super(singleThreadEntryValve, siddhiAppContext);
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventCaller = new EventCaller();
         mutex = new Semaphore(1);
@@ -51,7 +51,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
                 mutex.acquire();
                 if (!running) {
                     running = true;
-                    long timeDiff = time - executionPlanContext.getTimestampGenerator().currentTime();
+                    long timeDiff = time - siddhiAppContext.getTimestampGenerator().currentTime();
                     if (timeDiff > 0) {
                         scheduledExecutorService.schedule(eventCaller, timeDiff, TimeUnit.MILLISECONDS);
                     } else {
@@ -72,7 +72,7 @@ public class SystemTimeBasedScheduler extends Scheduler {
     @Override
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
         Scheduler scheduler = new SystemTimeBasedScheduler(scheduledExecutorService, entryValveProcessor,
-                                                           executionPlanContext);
+                                                           siddhiAppContext);
         scheduler.elementId = elementId + "-" + key;
         return scheduler;
     }
@@ -95,8 +95,8 @@ public class SystemTimeBasedScheduler extends Scheduler {
                 sendTimerEvents();
 
                 Long toNotifyTime = toNotifyQueue.peek();
-                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-                if (!executionPlanContext.isPlayback()) {
+                long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
+                if (!siddhiAppContext.isPlayback()) {
                     if (toNotifyTime != null) {
                         scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit
                                 .MILLISECONDS);

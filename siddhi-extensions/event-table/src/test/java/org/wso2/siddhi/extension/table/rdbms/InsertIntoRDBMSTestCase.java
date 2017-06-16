@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.table.rdbms;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
@@ -54,11 +54,11 @@ public class InsertIntoRDBMSTestCase {
                         "from StockStream   " +
                         "insert into StockTable ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 100l});
@@ -68,7 +68,7 @@ public class InsertIntoRDBMSTestCase {
                 long totalRowsInTable = DBConnectionHelper.getDBConnectionHelperInstance().getRowsInTable(dataSource);
                 Assert.assertEquals("Insertion failed", 3, totalRowsInTable);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");

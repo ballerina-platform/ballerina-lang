@@ -36,8 +36,8 @@ public class InMemoryPersistenceStore implements PersistenceStore {
 
 
     @Override
-    public void save(String executionPlanId, String revision, byte[] data) {
-        Map<String, byte[]> executionPersistenceMap = persistenceMap.get(executionPlanId);
+    public void save(String siddhiAppId, String revision, byte[] data) {
+        Map<String, byte[]> executionPersistenceMap = persistenceMap.get(siddhiAppId);
         if (executionPersistenceMap == null) {
             executionPersistenceMap = new HashMap<String, byte[]>();
         }
@@ -45,36 +45,36 @@ public class InMemoryPersistenceStore implements PersistenceStore {
         executionPersistenceMap.put(revision, data);
 
 
-        List<String> revisionList = revisionMap.get(executionPlanId);
+        List<String> revisionList = revisionMap.get(siddhiAppId);
         if (revisionList == null) {
             revisionList = new ArrayList<String>();
-            revisionMap.put(executionPlanId, revisionList);
+            revisionMap.put(siddhiAppId, revisionList);
         }
         if (revisionList.size() == 0 || (revisionList.size() > 0 && !revision.equals(revisionList.get(
                 revisionList.size() - 1)))) {
             revisionList.add(revision);
-            revisionMap.put(executionPlanId, revisionList);
+            revisionMap.put(siddhiAppId, revisionList);
         }
-        persistenceMap.put(executionPlanId, executionPersistenceMap);
+        persistenceMap.put(siddhiAppId, executionPersistenceMap);
 
 
     }
 
     @Override
-    public byte[] load(String executionPlanId, String revision) {
+    public byte[] load(String siddhiAppId, String revision) {
 
 
-        Map<String, byte[]> executionPersistenceMap = persistenceMap.get(executionPlanId);
+        Map<String, byte[]> executionPersistenceMap = persistenceMap.get(siddhiAppId);
         if (executionPersistenceMap == null) {
-            log.warn("Data not found for the execution plan " + executionPlanId);
+            log.warn("Data not found for the siddhi app " + siddhiAppId);
             return null;
         }
         return executionPersistenceMap.get(revision);
     }
 
     @Override
-    public String getLastRevision(String executionPlanIdentifier) {
-        List<String> revisionList = revisionMap.get(executionPlanIdentifier);
+    public String getLastRevision(String siddhiAppIdentifier) {
+        List<String> revisionList = revisionMap.get(siddhiAppIdentifier);
         if (revisionList == null) {
             return null;
         }

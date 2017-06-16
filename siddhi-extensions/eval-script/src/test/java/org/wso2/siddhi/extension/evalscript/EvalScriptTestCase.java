@@ -22,18 +22,18 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.script.test.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -69,10 +69,10 @@ public class ScriptTestCase {
         String query = ("@info(name = 'query1') from cseEventStream select price , concatS(symbol,' ',price) as " +
                 "concatStr " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc +
                 cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -82,13 +82,13 @@ public class ScriptTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
         Assert.assertEquals(1, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -112,10 +112,10 @@ public class ScriptTestCase {
         String query = ("@info(name = 'query1') from cseEventStream select price , concatJ(symbol,' ',price) as " +
                 "concatStr " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc +
                 cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -125,17 +125,17 @@ public class ScriptTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 60l, 6});
         SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
         Assert.assertEquals(1, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testScalaCompilationFailure() throws InterruptedException {
 
         log.info("testScalaCompilationFailure");
@@ -151,12 +151,12 @@ public class ScriptTestCase {
                 "  concatenatedString\n" +
                 "}";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testJavaScriptCompilationFailure() throws InterruptedException {
 
         log.info("testJavaScriptCompilationFailure");
@@ -173,9 +173,9 @@ public class ScriptTestCase {
                 "  return res;\n" +
                 "};";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -204,8 +204,8 @@ public class ScriptTestCase {
                         "  var res = str1.concat(str2,str3);\n" +
                         "  return res;\n" +
                         "};\n";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1 + concatFunc2);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1 + concatFunc2);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -254,10 +254,10 @@ public class ScriptTestCase {
                 "concatStr insert into mailto3;\n");
         String query4 = ("@info(name = 'query4') from cseEventStream select price , concatS(symbol,' ',price) as " +
                 "concatStr insert into mailto4;\n");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatSFunc +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatSFunc +
                 concatJFunc + toFloatSFunc + toStringJFunc + cseEventStream + query1 + query2 + query3 + query4);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -267,7 +267,7 @@ public class ScriptTestCase {
             }
         });
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -277,7 +277,7 @@ public class ScriptTestCase {
             }
         });
 
-        executionPlanRuntime.addCallback("query3", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query3", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -287,7 +287,7 @@ public class ScriptTestCase {
             }
         });
 
-        executionPlanRuntime.addCallback("query4", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query4", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -297,14 +297,14 @@ public class ScriptTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 6l});
 
         SiddhiTestHelper.waitForEvents(1000, 4, count, 60000);
         Assert.assertEquals(4, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -327,10 +327,10 @@ public class ScriptTestCase {
                 "into mailto1;\n");
         String query2 = ("@info(name = 'query2') from mailto1 select priceF/2 as newPrice insert into mailto2;\n");
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(toFloatSFunc +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(toFloatSFunc +
                 cseEventStream + query1 + query2);
 
-        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query2", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -340,24 +340,24 @@ public class ScriptTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", "50.0", 60f, 60l, 6});
 
         SiddhiTestHelper.waitForEvents(1000, 1, count, 60000);
         Assert.assertEquals(1, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testMissingReturnType() {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("script:javascript", org.wso2.siddhi.extension.script.EvalJavaScript.class);
         siddhiManager.setExtension("script:scala", org.wso2.siddhi.extension.script.EvalScala.class);
 
-        ExecutionPlan.executionPlan("test").defineFunction((new FunctionDefinition().id("concat").language("Scala")
+        SiddhiApp.siddhiApp("test").defineFunction((new FunctionDefinition().id("concat").language("Scala")
                 .body(
                 "var concatenatedString = \"\"\n" +
                         "for(i <- 0 until data.length){\n" +
@@ -366,7 +366,7 @@ public class ScriptTestCase {
                         + "concatenatedString")));
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testUseUndefinedFunction() throws InterruptedException {
         log.info("testUseUndefinedFunction");
 
@@ -378,9 +378,9 @@ public class ScriptTestCase {
         String query = ("@info(name = 'query1') from cseEventStream select price , undefinedFunc(symbol,' ',price) as" +
                 " concatStr " +
                 "group by volume insert into mailOutput;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -390,13 +390,13 @@ public class ScriptTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700f, 100l});
         SiddhiTestHelper.waitForEvents(1000, 1, count, 60000);
         Assert.assertEquals(1, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -415,8 +415,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -435,8 +435,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -455,8 +455,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -475,8 +475,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -495,8 +495,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -515,8 +515,8 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -535,7 +535,7 @@ public class ScriptTestCase {
                         "  }\n" +
                         "  concatenatedString\n" +
                         "};";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(concatFunc1);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(concatFunc1);
+        siddhiAppRuntime.shutdown();
     }
 }

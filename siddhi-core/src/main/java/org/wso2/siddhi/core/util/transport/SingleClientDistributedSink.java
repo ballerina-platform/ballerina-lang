@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util.transport;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.SinkExecutorExtensionHolder;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.HashSet;
@@ -63,7 +63,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
     @Override
     public void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
                               Annotation sinkAnnotation, ConfigReader sinkConfigReader,
-                              ExecutionPlanContext executionPlanContext) {
+                              SiddhiAppContext siddhiAppContext) {
         final String transportType = sinkOptionHolder.validateAndGetStaticValue(SiddhiConstants
                 .ANNOTATION_ELEMENT_TYPE);
         Extension sinkExtension = DefinitionParserHelper.constructExtension
@@ -76,7 +76,7 @@ public class SingleClientDistributedSink extends DistributedTransport {
             allDynamicOptionKeys.forEach(optionKey -> {
                 String optionValue = optionHolder.getOrCreateOption(optionKey, null).getValue();
                 if (optionValue == null || optionValue.isEmpty()) {
-                    throw new ExecutionPlanValidationException("Destination properties can only contain " +
+                    throw new SiddhiAppValidationException("Destination properties can only contain " +
                             "non-empty static values.");
                 }
 
@@ -87,8 +87,8 @@ public class SingleClientDistributedSink extends DistributedTransport {
         });
 
         this.sink = (Sink) SiddhiClassLoader.loadExtensionImplementation(
-                sinkExtension, SinkExecutorExtensionHolder.getInstance(executionPlanContext));
-        this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder, sinkConfigReader, executionPlanContext);
+                sinkExtension, SinkExecutorExtensionHolder.getInstance(siddhiAppContext));
+        this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder, sinkConfigReader, siddhiAppContext);
     }
 
     /**

@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.trigger;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
@@ -29,7 +29,7 @@ import org.wso2.siddhi.query.api.definition.TriggerDefinition;
  */
 public interface EventTrigger extends EternalReferencedHolder {
 
-    void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+    void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
             streamJunction);
 
     TriggerDefinition getTriggerDefinition();

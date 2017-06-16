@@ -15,25 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+package org.wso2.siddhi.query.api.exception;
 
 /**
- * Exception class to be used when runtime error occurs in Siddi execution.
+ * Exception thrown when siddhi app is not valid
  */
-public class ExecutionPlanRuntimeException extends RuntimeException {
-    public ExecutionPlanRuntimeException() {
-        super();
-    }
+public class SiddhiAppValidationException extends RuntimeException {
 
-    public ExecutionPlanRuntimeException(String message) {
+    public SiddhiAppValidationException(String message) {
         super(message);
     }
 
-    public ExecutionPlanRuntimeException(String message, Throwable throwable) {
+    public SiddhiAppValidationException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public ExecutionPlanRuntimeException(Throwable throwable) {
+    public SiddhiAppValidationException(Throwable throwable) {
         super(throwable);
     }
 }

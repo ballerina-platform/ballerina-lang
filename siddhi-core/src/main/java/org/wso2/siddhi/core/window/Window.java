@@ -16,7 +16,7 @@
 
 package org.wso2.siddhi.core.window;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -68,9 +68,9 @@ public class Window implements FindableProcessor, Snapshotable {
     private final WindowDefinition windowDefinition;
 
     /**
-     * ExecutionPlanContext is used to create the elementId  and WindowProcessor.
+     * SiddhiAppContext is used to create the elementId  and WindowProcessor.
      */
-    private final ExecutionPlanContext executionPlanContext;
+    private final SiddhiAppContext siddhiAppContext;
     /**
      * LockWrapper to coordinate asynchronous events.
      */
@@ -103,12 +103,12 @@ public class Window implements FindableProcessor, Snapshotable {
      * Construct a Window object.
      *
      * @param windowDefinition     definition of the window
-     * @param executionPlanContext execution plan context of Siddhi
+     * @param siddhiAppContext siddhi app context of Siddhi
      */
-    public Window(WindowDefinition windowDefinition, ExecutionPlanContext executionPlanContext) {
+    public Window(WindowDefinition windowDefinition, SiddhiAppContext siddhiAppContext) {
         this.windowDefinition = windowDefinition;
-        this.executionPlanContext = executionPlanContext;
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        this.siddhiAppContext = siddhiAppContext;
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.lockWrapper = new LockWrapper(windowDefinition.getId());
         this.lockWrapper.setLock(new ReentrantLock());
     }
@@ -143,15 +143,15 @@ public class Window implements FindableProcessor, Snapshotable {
 
         WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor
                 (windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this
-                        .executionPlanContext, tableMap, false, outputExpectsExpiredEvents, queryName);
+                        .siddhiAppContext, tableMap, false, outputExpectsExpiredEvents, queryName);
         internalWindowProcessor.setStreamEventCloner(streamEventCloner);
         internalWindowProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
 
         EntryValveProcessor entryValveProcessor = null;
         if (internalWindowProcessor instanceof SchedulingProcessor) {
-            entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
-            Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(),
-                    entryValveProcessor, this.executionPlanContext);
+            entryValveProcessor = new EntryValveProcessor(this.siddhiAppContext);
+            Scheduler scheduler = SchedulerParser.parse(this.siddhiAppContext.getScheduledExecutorService(),
+                    entryValveProcessor, this.siddhiAppContext);
             scheduler.init(this.lockWrapper, queryName);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
@@ -232,12 +232,12 @@ public class Window implements FindableProcessor, Snapshotable {
      */
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
             return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression,
-                    matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, tableMap,
+                    matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap,
                     queryName);
         } else {
             throw new OperationNotSupportedException("Cannot construct finder for the window " + this

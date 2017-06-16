@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
@@ -47,18 +47,18 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
     private final boolean windowed;
     private SnapshotOutputRateLimiter outputRateLimiter;
     private String id;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private List<Integer> aggregateAttributePositionList = new ArrayList<Integer>();
 
     public WrappedSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService,
-                                            boolean isGroupBy, boolean isWindowed, ExecutionPlanContext
-                                                    executionPlanContext, String queryName) {
+                                            boolean isGroupBy, boolean isWindowed, SiddhiAppContext
+                                                    siddhiAppContext, String queryName) {
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
         groupBy = isGroupBy;
         windowed = isWindowed;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.queryName = queryName;
     }
 
@@ -67,14 +67,14 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
         WrappedSnapshotOutputRateLimiter instance = new WrappedSnapshotOutputRateLimiter(id + key, value,
                                                                                          scheduledExecutorService,
                                                                                          groupBy, windowed,
-                                                                                         executionPlanContext,
+                                                                                         siddhiAppContext,
                                                                                          queryName);
         instance.outputRateLimiter = this.outputRateLimiter.clone(key, instance);
         return instance;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext, LockWrapper lockWrapper) {
-        super.init(executionPlanContext, lockWrapper, queryName);
+    public void init(SiddhiAppContext siddhiAppContext, LockWrapper lockWrapper) {
+        super.init(siddhiAppContext, lockWrapper, queryName);
         outputRateLimiter.setQueryLock(lockWrapper);
     }
 
@@ -90,39 +90,39 @@ public class WrappedSnapshotOutputRateLimiter extends OutputRateLimiter {
             if (groupBy) {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
                     outputRateLimiter = new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(
-                            id, value, scheduledExecutorService, this, executionPlanContext,
+                            id, value, scheduledExecutorService, this, siddhiAppContext,
                             queryName);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
                     outputRateLimiter = new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(
                             id, value, scheduledExecutorService, aggregateAttributePositionList, this,
-                            executionPlanContext, queryName);
+                            siddhiAppContext, queryName);
                 } else { // No aggregation
                     //GroupBy is same as Non GroupBy
                     outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(
-                            id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                            id, value, scheduledExecutorService, this, siddhiAppContext, queryName);
                 }
             } else {
                 if (outPutAttributeSize == aggregateAttributePositionList.size()) {   //All Aggregation
                     outputRateLimiter = new AllAggregationPerSnapshotOutputRateLimiter(
-                            id, value, scheduledExecutorService, this, executionPlanContext,
+                            id, value, scheduledExecutorService, this, siddhiAppContext,
                             queryName);
                 } else if (aggregateAttributePositionList.size() > 0) {   //Some Aggregation
                     outputRateLimiter = new AggregationWindowedPerSnapshotOutputRateLimiter(
                             id, value, scheduledExecutorService, aggregateAttributePositionList, this,
-                            executionPlanContext, queryName);
+                            siddhiAppContext, queryName);
                 } else { // No aggregation
                     outputRateLimiter = new WindowedPerSnapshotOutputRateLimiter(
-                            id, value, scheduledExecutorService, this, executionPlanContext, queryName);
+                            id, value, scheduledExecutorService, this, siddhiAppContext, queryName);
                 }
             }
 
         } else {
             if (groupBy) {
                 outputRateLimiter = new GroupByPerSnapshotOutputRateLimiter(id, value, scheduledExecutorService,
-                                                                            this, executionPlanContext, queryName);
+                                                                            this, siddhiAppContext, queryName);
             } else {
                 outputRateLimiter = new PerSnapshotOutputRateLimiter(id, value, scheduledExecutorService, this,
-                                                                     executionPlanContext, queryName);
+                                                                     siddhiAppContext, queryName);
             }
         }
 

@@ -21,7 +21,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -40,7 +40,7 @@ import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.HashMap;
@@ -89,7 +89,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     private StreamEvent resetEvent = null;
     private Scheduler scheduler;
     private boolean outputExpectsExpiredEvents;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private boolean isStartTimeEnabled = false;
     private long startTime = 0;
 
@@ -109,9 +109,9 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         if (outputExpectsExpiredEvents) {
             this.expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
@@ -125,12 +125,12 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                     timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
                             .getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
+                    throw new SiddhiAppValidationException("Time window's parameter attribute should be either " +
                                                                        "int or long, but found " +
                                                                        attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
+                throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
                                                                    "found a dynamic attribute " +
                                                                    attributeExpressionExecutors[0].getClass().
                                                                            getCanonicalName());
@@ -145,12 +145,12 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                     timeInMilliSeconds = (Long) ((ConstantExpressionExecutor) attributeExpressionExecutors[0])
                             .getValue();
                 } else {
-                    throw new ExecutionPlanValidationException("Time window's parameter attribute should be either " +
+                    throw new SiddhiAppValidationException("Time window's parameter attribute should be either " +
                                                                        "int or long, but found " +
                                                                        attributeExpressionExecutors[0].getReturnType());
                 }
             } else {
-                throw new ExecutionPlanValidationException("Time window should have constant parameter attribute but " +
+                throw new SiddhiAppValidationException("Time window should have constant parameter attribute but " +
                                                                    "found a dynamic attribute " +
                                                                    attributeExpressionExecutors[0].getClass()
                                                                            .getCanonicalName());
@@ -165,7 +165,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                         attributeExpressionExecutors[1]).getValue()));
             }
         } else {
-            throw new ExecutionPlanValidationException("Time window should only have one or two parameters. " +
+            throw new SiddhiAppValidationException("Time window should only have one or two parameters. " +
                                                                "(<int|long|time> windowTime), but found " +
                                                                attributeExpressionExecutors.length + " input " +
                                                                "attributes");
@@ -178,15 +178,15 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                            StreamEventCloner streamEventCloner) {
         synchronized (this) {
             if (nextEmitTime == -1) {
-                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+                long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
                 if (isStartTimeEnabled) {
                     nextEmitTime = getNextEmitTime(currentTime);
                 } else {
-                    nextEmitTime = executionPlanContext.getTimestampGenerator().currentTime() + timeInMilliSeconds;
+                    nextEmitTime = siddhiAppContext.getTimestampGenerator().currentTime() + timeInMilliSeconds;
                 }
                 scheduler.notifyAt(nextEmitTime);
             }
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
             boolean sendEvents;
 
             if (currentTime >= nextEmitTime) {
@@ -298,14 +298,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
         return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
-                                                executionPlanContext, variableExpressionExecutors, tableMap,
+                                                siddhiAppContext, variableExpressionExecutors, tableMap,
                                                 this.queryName);
     }
 }

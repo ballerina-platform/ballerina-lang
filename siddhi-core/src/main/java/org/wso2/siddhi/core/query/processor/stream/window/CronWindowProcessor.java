@@ -34,7 +34,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
@@ -76,7 +76,7 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
     private final String jobGroup = "CronWindowGroup";
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private Scheduler scheduler;
     private String jobName;
     private String cronString;
@@ -84,8 +84,8 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
+        this.siddhiAppContext = siddhiAppContext;
         if (attributeExpressionExecutors != null) {
             cronString = (String) (((ConstantExpressionExecutor) attributeExpressionExecutors[0]).getValue());
         }
@@ -173,7 +173,7 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
         ComplexEventChunk<StreamEvent> streamEventChunk = new ComplexEventChunk<StreamEvent>(false);
         synchronized (this) {
             if (currentEventChunk.getFirst() != null) {
-                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+                long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
                 while (expiredEventChunk.hasNext()) {
                     StreamEvent expiredEvent = expiredEventChunk.next();
                     expiredEvent.setTimestamp(currentTime);

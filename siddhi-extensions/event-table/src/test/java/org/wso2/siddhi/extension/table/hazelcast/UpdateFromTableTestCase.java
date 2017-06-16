@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -57,7 +57,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
                 "@store(type = 'hazelcast')" +
@@ -72,12 +72,12 @@ public class UpdateFromTableTestCase {
                 "update StockTableT011 " +
                 "   on StockTableT011.symbol=='IBM' ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 75.6f, 100l});
             stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
@@ -85,7 +85,7 @@ public class UpdateFromTableTestCase {
 
             Thread.sleep(RESULT_WAIT);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -95,7 +95,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
                 "@store(type = 'hazelcast')" +
@@ -110,19 +110,19 @@ public class UpdateFromTableTestCase {
                 "update StockTableT021 " +
                 "   on StockTableT021.symbol==symbol ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 75.6f, 100l});
             stockStream.send(new Object[]{"WSO2", 57.6f, 100l});
             updateStockStream.send(new Object[]{"WSO2", 10f, 100l});
             Thread.sleep(RESULT_WAIT);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -132,7 +132,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (symbol string, price float, volume long); " +
@@ -153,9 +153,9 @@ public class UpdateFromTableTestCase {
                 "   and  volume==StockTableT031.volume) in StockTableT031] " +
                 "insert into OutStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -173,11 +173,11 @@ public class UpdateFromTableTestCase {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 55.6f, 100l});
             checkStockStream.send(new Object[]{"IBM", 100l});
@@ -197,7 +197,7 @@ public class UpdateFromTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -207,7 +207,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -229,9 +229,9 @@ public class UpdateFromTableTestCase {
                 "   and  volume==StockTableT041.volume) in StockTableT041] " +
                 "insert into OutStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -250,11 +250,11 @@ public class UpdateFromTableTestCase {
 
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 55.6f, 100l});
             checkStockStream.send(new Object[]{"IBM", 100l});
@@ -274,7 +274,7 @@ public class UpdateFromTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -284,7 +284,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -306,9 +306,9 @@ public class UpdateFromTableTestCase {
                 "and price==StockTableT051.price) in StockTableT051] " +
                 "insert into OutStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -326,11 +326,11 @@ public class UpdateFromTableTestCase {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 155.6f, 100l});
             checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
@@ -349,7 +349,7 @@ public class UpdateFromTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -359,7 +359,7 @@ public class UpdateFromTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:name('UpdateFromTableExecutionPlan')" +
+                "@app:name('UpdateFromTableSiddhiApp')" +
                 "define stream StockStream (symbol string, price float, volume long); " +
                 "define stream CheckStockStream (symbol string, volume long, price float); " +
                 "define stream UpdateStockStream (comp string, vol long); " +
@@ -382,9 +382,9 @@ public class UpdateFromTableTestCase {
                 "and price==StockTableT061.price) in StockTableT061] " +
                 "insert into OutStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query3", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query3", new QueryCallback() {
                 @Override
                 public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -402,11 +402,11 @@ public class UpdateFromTableTestCase {
                 }
             });
 
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-            InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
-            InputHandler updateStockStream = executionPlanRuntime.getInputHandler("UpdateStockStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+            InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
+            InputHandler updateStockStream = siddhiAppRuntime.getInputHandler("UpdateStockStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
             stockStream.send(new Object[]{"IBM", 155.6f, 100l});
             checkStockStream.send(new Object[]{"IBM", 100l, 155.6f});
@@ -425,7 +425,7 @@ public class UpdateFromTableTestCase {
             Assert.assertEquals("Number of remove events", 0, removeEventCount);
             Assert.assertEquals("Event arrived", true, eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 }
