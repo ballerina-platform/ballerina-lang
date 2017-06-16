@@ -26,7 +26,6 @@ import SwaggerView from './swagger-view';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
-import ToolPalette from './../tool-palette/tool-palette';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
 import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
@@ -556,14 +555,6 @@ class BallerinaFileEditor extends EventChannel {
     }
 
     /**
-     * adding current package to the tool palette with functions, connectors,
-     * actions etc. of the current package
-     */
-    addCurrentPackageToToolPalette() {
-        this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
-    }
-
-    /**
      * generate Ballerina source for this editor page
      * @returns {*}
      */
@@ -716,20 +707,6 @@ class BallerinaFileEditor extends EventChannel {
         breakpoints.forEach(lineNumber => {
             DebugManager.addBreakPoint(lineNumber, fileName);
         });
-    }
-
-    /**
-     * Add New imported package to the tool palette
-     * @param {string} packageString
-     */
-    addNewImportPackage(packageString) {
-        const toolPaletteItemProvider = this.toolPalette.getItemProvider();
-        const returnStatus = toolPaletteItemProvider
-            .addImport(toolPaletteItemProvider.getPackageToImport(packageString)[0]);
-
-        if (returnStatus !== -1) {
-            this.toolPalette.render();
-        }
     }
 
     getEnvironment() {
