@@ -34,6 +34,12 @@ public class TerminatorUnix implements Terminator {
     TerminatorUnix(Command command) {
         this.command = command;
     }
+
+    /**
+     *
+     * @param script absolute path of ballerina file running
+     * @return find process command
+     */
     private String[] getFindProcessCommand(String script) {
         String[] cmd = {
                 "/bin/sh",
@@ -43,6 +49,9 @@ public class TerminatorUnix implements Terminator {
         return cmd;
     }
 
+    /**
+     * Terminate running ballerina program
+     */
     public void terminate() {
         String cmd = command.getCommandIdentifier();
         int processID = -1;
@@ -70,6 +79,10 @@ public class TerminatorUnix implements Terminator {
         }
     }
 
+    /**
+     * Terminate running ballerina program
+     * @param pid
+     */
     public void kill(int pid) {
         //todo need to put aditional validation
         if (pid < 0) {

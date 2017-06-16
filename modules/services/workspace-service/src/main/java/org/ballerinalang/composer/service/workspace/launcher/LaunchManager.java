@@ -184,21 +184,40 @@ public class LaunchManager {
         }
     }
 
+    /**
+     * Stop a running ballerina program
+     */
     public void stopProcess() {
         int pid = -1;
         if (this.command != null && this.command.getProgram().isAlive()) {
-
-            String os = getOperatingSystem();
-            Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
-
             //shutdown error streaming to prevent kill message displaying to user.
             this.command.setErrorOutputEnabled(false);
+
+            String os = getOperatingSystem();
+            if (os == null) {
+                logger.error("unsupported operating system");
+                pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
+                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
+                return;
+            }
+            Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
+            if (terminator == null) {
+                logger.error("unsupported operating system");
+                pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
+                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
+                return;
+            }
+
             terminator.terminate();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
     }
 
+    /**
+     * Returns name of the operating system running. null if not a unsupported operating system.
+     * @return operating system
+     */
     private String getOperatingSystem() {
         if (LaunchUtils.isWindows()) {
             return "windows";

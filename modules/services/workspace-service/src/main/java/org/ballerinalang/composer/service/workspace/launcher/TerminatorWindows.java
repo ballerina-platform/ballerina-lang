@@ -26,18 +26,25 @@ public class TerminatorWindows implements Terminator {
 
 
     private Command command;
-    private static final Logger logger = LoggerFactory.getLogger(TerminatorUnix.class);
+    private static final Logger logger = LoggerFactory.getLogger(TerminatorWindows.class);
 
     TerminatorWindows(Command command) {
         this.command = command;
     }
 
+    /**
+     *
+     * @return file process command
+     */
     private String getFindProcessCommand() {
         // escape forward slashes
         String script = this.command.getCommandIdentifier().replace("\\", "\\\\");
         return "cmd /c wmic.exe Process where \"Commandline like '%" + script + "%'\" CALL TERMINATE";
     }
 
+    /**
+     * Terminate running ballerina program
+     */
     public void terminate() {
         String script = command.getScript();
         String findProcessCommand = getFindProcessCommand();
