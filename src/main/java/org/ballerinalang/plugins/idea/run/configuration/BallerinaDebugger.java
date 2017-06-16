@@ -80,41 +80,9 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 @NotNull
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-
-
-                    //                    try {
-                    //                        String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" +
-                    // port;
-                    //                        WebSocketFactory webSocketFactory = new WebSocketFactory();
-                    //                        webSocketFactory.setConnectionTimeout(10000);
-                    //                        mySocket = webSocketFactory.createSocket("ws://" + address + "/debug");
-                    //
-                    //                        ApplicationManager.getApplication().invokeLater(() -> {
-                    //                            int MAX_RETRIES = 5;
-                    //                            for (int retries = 0; retries < MAX_RETRIES; retries++) {
-                    //
-                    //                                try {
-                    //                                    mySocket = mySocket.connect();
-                    //                                    break;
-                    //                                } catch (Exception e) {
-                    //
-                    //                                }
-                    //                            }
-                    //                        });
-                    //
-                    //
-                    //
-                    //
-                    //                        return new BallerinaDebugProcess(session, mySocket, executionResult);
-                    //                    } catch (IOException e) {
-                    //                        throw new ExecutionException("Connection to debugger failed.");
-                    //                    }
                     String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" + port;
-                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(session,
-                            address);
+                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
                     return new BallerinaDebugProcess(session, ballerinaDebugSession, executionResult);
-
-
                 }
             }).getRunContentDescriptor();
         }

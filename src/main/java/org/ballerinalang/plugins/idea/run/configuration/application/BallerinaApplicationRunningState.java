@@ -82,7 +82,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         myHistoryProcessHandler = historyProcessHandler;
     }
 
-    public boolean isDebug() {
+    private boolean isDebug() {
         return DefaultDebugExecutor.EXECUTOR_ID.equals(getEnvironment().getExecutor().getId());
     }
 }

@@ -16,47 +16,43 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFrame;
-import com.neovisionaries.ws.client.WebSocketState;
 
 import java.util.List;
 import java.util.Map;
 
 public class BallerinaWebSocketAdaptor extends WebSocketAdapter {
 
-    @Override
-    public void onTextMessage(WebSocket ws, String message) {
-        // Received a response. Print the received message.
-        System.out.println("Received: " + message);
-    }
+    private static final Logger LOGGER = Logger.getInstance(BallerinaWebSocketAdaptor.class);
 
     @Override
-    public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-        System.out.println("State: " + newState.name());
+    public void onTextMessage(WebSocket ws, String message) {
+        LOGGER.debug("Received: " + message);
     }
 
     @Override
     public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
-        System.out.println("CONNECTED");
+        LOGGER.debug("CONNECTED");
     }
 
     @Override
     public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
         super.onConnectError(websocket, exception);
-        System.out.println("ERROR");
+        LOGGER.debug("ERROR");
     }
 
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame,
                                boolean closedByServer) throws Exception {
-        System.out.println("DISCONNECTED");
+        LOGGER.debug("DISCONNECTED");
     }
 
     @Override
     public void onFrameSent(WebSocket websocket, WebSocketFrame frame) throws Exception {
-        System.out.println("Sent: " + frame.getPayloadText());
+        LOGGER.debug("Sent: " + frame.getPayloadText());
     }
 }

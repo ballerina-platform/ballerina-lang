@@ -32,13 +32,8 @@ public class BallerinaSuspendContext extends XSuspendContext {
     @NotNull
     private final BallerinaExecutionStack myStack;
 
-    public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process
-                                   //            , int threadId,
-                                   //                                   @NotNull List<BallerinaAPI.Location> locations,
-                                   //                                   @NotNull BallerinaCommandProcessor processor
-            , Message message
-    ) {
-        myStack = new BallerinaExecutionStack(process/*, threadId, locations, processor*/, message.getFrames());
+    public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process, @NotNull Message message) {
+        myStack = new BallerinaExecutionStack(process, message.getFrames());
     }
 
     @Nullable
@@ -57,34 +52,15 @@ public class BallerinaSuspendContext extends XSuspendContext {
 
         @NotNull
         private final BallerinaDebugProcess myProcess;
-        //        @NotNull
-        //        private final List<BallerinaAPI.Location> myLocations;
-        //        @NotNull
-        //        private final BallerinaCommandProcessor myProcessor;
         @NotNull
         private final List<BallerinaStackFrame> myStack;
 
-        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process
-                                       //                , int threadId,
-                                       //                                       @NotNull List<BallerinaAPI.Location>
-                                       // locations,
-                                       //                                       @NotNull BallerinaCommandProcessor
-                                       // processor
-
-                , List<Frame> frames
-        ) {
+        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, List<Frame> frames) {
             super("Thread #" + 1);
             myProcess = process;
-            //            myLocations = locations;
-            //            myProcessor = processor;
-            //            myStack = ContainerUtil.newArrayListWithCapacity(locations.size());
-            //            for (int i = 0; i < myLocations.size(); i++) {
-            //                myStack.add(new BallerinaStackFrame(myProcess, myLocations.get(i), myProcessor, i));
-            //            }
-            // Todo -
             myStack = ContainerUtil.newArrayListWithCapacity(frames.size());
             for (Frame frame : frames) {
-                myStack.add(new BallerinaStackFrame(myProcess, /*myLocations.get(i), myProcessor, i*/frame));
+                myStack.add(new BallerinaStackFrame(myProcess, frame));
             }
         }
 
@@ -92,7 +68,6 @@ public class BallerinaSuspendContext extends XSuspendContext {
         @Override
         public XStackFrame getTopFrame() {
             return ContainerUtil.getFirstItem(myStack);
-            //            return null;
         }
 
         @Override

@@ -17,7 +17,6 @@
 package org.ballerinalang.plugins.idea.debugger;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -25,9 +24,7 @@ import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.util.ThreeState;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerUtil;
@@ -41,12 +38,12 @@ import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
-import com.intellij.xdebugger.frame.presentation.XKeywordValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
 import org.ballerinalang.plugins.idea.debugger.dto.Variable;
+import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,26 +54,22 @@ import javax.swing.*;
 
 public class BallerinaXValue extends XNamedValue {
 
+    @NotNull
     private final BallerinaDebugProcess myProcess;
     @NotNull
     private final Variable myVariable;
+    @NotNull
     private final String myFrameName;
+    @Nullable
     private final Icon myIcon;
-    //    private final BallerinaCommandProcessor myProcessor;
-    //    private final int myFrameId;
 
-    public BallerinaXValue(@NotNull BallerinaDebugProcess process,
-                           @NotNull String frameName,
-                           @NotNull Variable variable,
-                           //                           @NotNull BallerinaCommandProcessor processor, int frameId,
-                           @Nullable Icon icon) {
+    public BallerinaXValue(@NotNull BallerinaDebugProcess process, @NotNull String frameName,
+                           @NotNull Variable variable, @Nullable Icon icon) {
         super(variable.getName());
         myProcess = process;
         myFrameName = frameName;
         myVariable = variable;
         myIcon = icon;
-        //        myProcessor = processor;
-        //        myFrameId = frameId;
     }
 
     @Override
@@ -86,8 +79,6 @@ public class BallerinaXValue extends XNamedValue {
         if (myVariable.getValue() == null && myVariable.getChildren() != null) {
             hasChildren = true;
         }
-        //        boolean hasChildren = myVariable.children.length > 0;
-        //        node.setPresentation(myIcon, presentation, hasChildren);
         node.setPresentation(myIcon, presentation, hasChildren);
     }
 
@@ -103,39 +94,12 @@ public class BallerinaXValue extends XNamedValue {
             }
             node.addChildren(list, true);
         }
-
-
-        //        if (children.length == 0) {
-        //            super.computeChildren(node);
-        //        } else {
-        //            XValueChildrenList list = new XValueChildrenList();
-        //            for (BallerinaAPI.Variable child : children) {
-        //                list.add(child.name, new BallerinaXValue(myProcess, child, myProcessor, myFrameId, AllIcons
-        // .Nodes
-        //                        .Field));
-        //            }
-        //            node.addChildren(list, true);
-        //        }
     }
 
     @Nullable
     @Override
     public XValueModifier getModifier() {
-
         return null;
-        //        return new XValueModifier() {
-        //            @Override
-        //            public void setValue(@NotNull String newValue, @NotNull XModificationCallback callback) {
-        //
-        //                myProcessor.send(new BallerinaRequest.SetSymbol(myVariable.getName(), newValue, myFrameId))
-        //                        .processed(o -> {
-        //                            if (o != null) {
-        //                                callback.valueModified();
-        //                            }
-        //                        })
-        //                        .rejected(throwable -> callback.errorOccurred(throwable.getMessage()));
-        //            }
-        //        };
     }
 
     @NotNull
@@ -144,7 +108,6 @@ public class BallerinaXValue extends XNamedValue {
         if (value == null) {
             return new XRegularValuePresentation(myFrameName, "Scope");
         }
-
         if (myVariable.isNumber()) {
             return new XNumericValuePresentation(value);
         }
@@ -152,24 +115,15 @@ public class BallerinaXValue extends XNamedValue {
             return new XStringValuePresentation(value);
         }
         if (myVariable.isBoolean()) {
-            return new XKeywordValuePresentation(value);
+            return new XValuePresentation() {
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderValue(value, BallerinaSyntaxHighlightingColors.KEYWORD);
+                }
+            };
         }
-        //        if (myVariable.isBool()) {
-        //            return new XValuePresentation() {
-        //                @Override
-        //                public void renderValue(@NotNull XValueTextRenderer renderer) {
-        //                    renderer.renderValue(value);
-        //                }
-        //            };
-        //        }
+
         String type = myVariable.getType();
-        //        boolean isSlice = myVariable.isSlice();
-        //        boolean isArray = myVariable.isArray();
-        //        if (isSlice || isArray) {
-        //            return new XRegularValuePresentation("len:" + myVariable.len + (isSlice ? ", cap:" + myVariable
-        // .cap : ""),
-        //                    type.replaceFirst("struct ", ""));
-        //        }
         String prefix = myVariable.getType() + " ";
         return new XRegularValuePresentation(StringUtil.startsWith(value, prefix) ? value.replaceFirst(Pattern.quote
                 (prefix), "") : value, type);
@@ -178,21 +132,7 @@ public class BallerinaXValue extends XNamedValue {
     @Nullable
     private static PsiElement findTargetElement(@NotNull Project project, @NotNull XSourcePosition position,
                                                 @NotNull Editor editor, @NotNull String name) {
-        PsiFile file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
-        if (file == null || !file.getVirtualFile().equals(position.getFile())) {
-            return null;
-        }
-        ASTNode leafElement = file.getNode().findLeafElementAt(position.getOffset());
-        if (leafElement == null) {
-            return null;
-        }
-        //        GoTopLevelDeclaration topLevel = PsiTreeUtil.getTopmostParentOfType(leafElement.getPsi(),
-        //                GoTopLevelDeclaration.class);
-        //        SyntaxTraverser<PsiElement> traverser = SyntaxTraverser.psiTraverser(topLevel)
-        //                .filter(e -> e instanceof GoNamedElement && Comparing.equal(name, ((GoNamedElement) e)
-        // .getName()));
-        //        Iterator<PsiElement> iterator = traverser.iterator();
-        //        return iterator.hasNext() ? iterator.next() : null;
+        // Todo
         return null;
     }
 
@@ -247,44 +187,17 @@ public class BallerinaXValue extends XNamedValue {
 
     @Override
     public boolean canNavigateToSource() {
-        return true; // for the future compatibility
+        return true;
     }
 
     @Override
     public boolean canNavigateToTypeSource() {
-        //        return (myVariable.isStructure() || myVariable.isPtr()) && getProject() != null;
+        // Todo
         return false;
     }
 
     @Override
     public void computeTypeSourcePosition(@NotNull XNavigatable navigatable) {
-        //        readActionInPooledThread(() -> {
-        //            boolean isStructure = myVariable.isStructure();
-        //            boolean isPtr = myVariable.isPtr();
-        //            if (!isStructure && !isPtr) return;
-        //            Project project = getProject();
-        //            if (project == null) return;
-        //            String dlvType = myVariable.type;
-        //            String fqn = dlvType.replaceFirst(isPtr ? "\\*struct " : "struct ", "");
-        //            List<String> split = StringUtil.split(fqn, ".");
-        //            boolean noFqn = split.size() == 1;
-        //            if (split.size() == 2 || noFqn) {
-        //                String name = ContainerUtil.getLastItem(split);
-        //                assert name != null;
-        //                //                Collection<GoTypeSpec> types = GoTypesIndex.find(name, project,
-        // GlobalSearchScope
-        //                // .allScope(project),
-        //                //                        null);
-        //                //                for (GoTypeSpec type : types) {
-        //                //                    if (noFqn || Comparing.equal(fqn, type.getQualifiedName())) {
-        //                //                        navigatable.setSourcePosition(XDebuggerUtil.getInstance()
-        //                // .createPositionByOffset(
-        //                //                                type.getContainingFile().getVirtualFile(), type
-        // .getTextOffset()));
-        //                //                        return;
-        //                //                    }
-        //                //                }
-        //            }
-        //        });
+        // Todo
     }
 }

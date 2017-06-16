@@ -16,13 +16,13 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
-import com.intellij.xdebugger.XDebugSession;
+import com.intellij.openapi.diagnostic.Logger;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
-import com.neovisionaries.ws.client.WebSocketState;
+import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -31,67 +31,43 @@ import java.util.Map;
 
 public class BallerinaWebSocketConnector {
 
-    private XDebugSession myDebugSession;
+    private static final Logger LOGGER = Logger.getInstance(BallerinaWebSocketConnector.class);
+
     private WebSocket myWebSocket;
     private String myAddress;
     private ConnectionState myConnectionState;
-    private boolean startCommandReceived;
     private static WebSocketFactory webSocketFactory = new WebSocketFactory();
-
 
     private static final int TIMEOUT = 10000;
     private static final String DEBUG_PROTOCOL = "ws://";
     private static final String DEBUG_WEB_SOCKET_PATH = "/debug";
 
-    public BallerinaWebSocketConnector(XDebugSession debugSession, String address) {
-        myDebugSession = debugSession;
+    public BallerinaWebSocketConnector(@NotNull String address) {
         myAddress = address;
         myConnectionState = ConnectionState.NOT_CONNECTED;
         webSocketFactory.setConnectionTimeout(TIMEOUT);
         createConnection();
     }
 
-    public void createConnection() {
-        System.out.println("Connecting ...");
+    void createConnection() {
         try {
             myWebSocket = webSocketFactory.createSocket(getUri());
             myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
             myWebSocket.connect();
-            System.out.println("Connection successful");
-            //                    }
-            //            );
         } catch (IOException | WebSocketException e) {
             myConnectionState = ConnectionState.ERROR;
-            System.out.println("Connection failed: " + e);
+            LOGGER.debug(e);
         }
-
     }
-
-//    public void reConnect() {
-//        System.out.println("Reconnecting ...");
-//        try {
-//            myWebSocket = webSocketFactory.createSocket(getUri());
-//            myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
-//            myWebSocket.connect();
-//            System.out.println("Reconnection success.");
-//        } catch (WebSocketException e) {
-//            System.out.println("Reconnection failed: " + e);
-//        } catch (IOException e) {
-//            System.out.println("Reconnection failed: " + e);
-//        }
-//    }
-
 
     @NotNull
     private String getUri() {
         return DEBUG_PROTOCOL + myAddress + DEBUG_WEB_SOCKET_PATH;
     }
 
-    public void sendCommand(Command command) {
+    void sendCommand(Command command) {
         if (isConnected()) {
             myWebSocket.sendText(generateCommandRequest(command));
-        } else if (command == Command.START) {
-            startCommandReceived = true;
         }
     }
 
@@ -99,21 +75,21 @@ public class BallerinaWebSocketConnector {
         return "{\"command\":\"" + command + "\"}";
     }
 
-    public void send(String json) {
+    void send(String json) {
         if (isConnected()) {
             myWebSocket.sendText(json);
         }
     }
 
-    public boolean isConnected() {
+    boolean isConnected() {
         return myWebSocket.isOpen();
     }
 
-    public void addListener(WebSocketAdapter adapter) {
+    void addListener(WebSocketAdapter adapter) {
         myWebSocket.addListener(adapter);
     }
 
-    public String getState() {
+    String getState() {
         if (myConnectionState == ConnectionState.CONNECTED) {
             return "Connected to " + myWebSocket.getURI();
         } else if (myConnectionState == ConnectionState.DISCONNECTED) {
@@ -129,11 +105,6 @@ public class BallerinaWebSocketConnector {
     }
 
     private class BallerinaWebSocketListenerAdapter extends WebSocketAdapter {
-
-        @Override
-        public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-
-        }
 
         @Override
         public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {

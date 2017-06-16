@@ -14,21 +14,20 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.debugger;
+package org.ballerinalang.plugins.idea.debugger.protocol;
 
-public enum Command {
+public enum Response {
 
-    START("START"), STOP("STOP"), SET_POINTS("SET_POINTS"), STEP_OVER("STEP_OVER"), RESUME("RESUME"),
-    STEP_IN("STEP_IN"), STEP_OUT("STEP_OUT");
+    DEBUG_HIT("DEBUG_HIT"), INVALID("INVALID"), ACK("ACK"), COMPLETE("COMPLETE"), EXIT("EXIT");
 
-    private String myCommand;
+    private String myResponseCode;
 
-    Command(String command) {
-        myCommand = command;
+    Response(String responseCode) {
+        myResponseCode = responseCode;
     }
 
     @Override
     public String toString() {
-        return myCommand;
+        return myResponseCode;
     }
 }

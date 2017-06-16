@@ -28,8 +28,8 @@ import org.jetbrains.annotations.Nullable;
 public class BallerinaDebuggerEditorsProvider extends XDebuggerEditorsProviderBase {
 
     @Override
-    protected PsiFile createExpressionCodeFragment(@NotNull Project project, @NotNull String text, @Nullable
-            PsiElement context, boolean isPhysical) {
+    protected PsiFile createExpressionCodeFragment(@NotNull Project project, @NotNull String text,
+                                                   @Nullable PsiElement context, boolean isPhysical) {
         return null;
     }
 

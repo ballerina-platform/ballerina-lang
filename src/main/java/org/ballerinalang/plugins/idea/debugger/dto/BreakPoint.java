@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.debugger.dto;
 
-
 public class BreakPoint {
 
     private String fileName;

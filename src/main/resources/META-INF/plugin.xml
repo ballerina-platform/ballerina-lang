@@ -169,10 +169,9 @@
         <lang.documentationProvider language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider"/>
 
         <!--inspections-->
-        <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement"
-                         bundle="messages.InspectionsBundle" key="wrong.package.statement"
-                         groupKey="group.names.probable.bugs" enabledByDefault="true" level="WARNING"
-                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection"/>
+        <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
 
         <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeinsight.highlighting.HighlightExitPointsHandlerFactory"/>
 
