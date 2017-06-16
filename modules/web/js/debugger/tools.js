@@ -279,7 +279,7 @@ class Tools extends EventChannel {
     }
     /**
      * Handle start debugging application
-     * 
+     *
      * @memberof Tools
      */
     debugApplication() {

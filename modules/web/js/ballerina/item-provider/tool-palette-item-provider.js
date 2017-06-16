@@ -241,7 +241,7 @@ class ToolPaletteItemProvider extends EventChannel {
             const packageName = _.last(_.split(pckg.getName(), '.'));
             const args = {
                 pkgName: packageName,
-                connectorName: connector.getName()
+                connectorName: connector.getName(),
             };
             connector.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
             connector.meta = args;

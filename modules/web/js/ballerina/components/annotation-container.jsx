@@ -16,13 +16,13 @@
  * under the License.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
 import Autosuggest from 'react-autosuggest';
+import _ from 'lodash';
 import BallerinaEnvironment from '../env/environment';
 import ASTFactory from './../ast/ballerina-ast-factory';
-import _ from 'lodash';
+import { getComponentForNodeArray } from './utils';
+import ASTNode from './../ast/node';
 
 /**
  * React component for the annotation container.
@@ -31,6 +31,12 @@ import _ from 'lodash';
  * @extends {React.Component}
  */
 class AnnotationContainer extends React.Component {
+    /**
+     * Creates an instance of AnnotationContainer.
+     * @param {any} props The react properties for the component.
+     *
+     * @memberof AnnotationContainer
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -46,14 +52,18 @@ class AnnotationContainer extends React.Component {
 
         this.onAnnotationPackageNameChange = this.onAnnotationPackageNameChange.bind(this);
         this.onAnnotationPackageNameBlur = this.onAnnotationPackageNameBlur.bind(this);
-        this.onAnnotationPackageNameSuggestionsFetchRequested = this.onAnnotationPackageNameSuggestionsFetchRequested.bind(this);
-        this.onAnnotationPackageNameSuggestionsClearRequested = this.onAnnotationPackageNameSuggestionsClearRequested.bind(this);
+        this.onAnnotationPackageNameSuggestionsFetchRequested =
+                                                    this.onAnnotationPackageNameSuggestionsFetchRequested.bind(this);
+        this.onAnnotationPackageNameSuggestionsClearRequested =
+                                                    this.onAnnotationPackageNameSuggestionsClearRequested.bind(this);
         this.onAnnotationPackageNameSelected = this.onAnnotationPackageNameSelected.bind(this);
 
         this.onAnnotationIdentifierChange = this.onAnnotationIdentifierChange.bind(this);
         this.onAnnotationIdentifierKeyDown = this.onAnnotationIdentifierKeyDown.bind(this);
-        this.onAnnotationIdentifierSuggestionsFetchRequested = this.onAnnotationIdentifierSuggestionsFetchRequested.bind(this);
-        this.onAnnotationIdentifierSuggestionsClearRequested = this.onAnnotationIdentifierSuggestionsClearRequested.bind(this);
+        this.onAnnotationIdentifierSuggestionsFetchRequested =
+                                                        this.onAnnotationIdentifierSuggestionsFetchRequested.bind(this);
+        this.onAnnotationIdentifierSuggestionsClearRequested =
+                                                        this.onAnnotationIdentifierSuggestionsClearRequested.bind(this);
         this.onAnnotationIdentifierSelected = this.onAnnotationIdentifierSelected.bind(this);
 
         this.storeCurrentInputReference = (autosuggest) => {
@@ -63,22 +73,38 @@ class AnnotationContainer extends React.Component {
         };
     }
 
-    // // End of package name autosuggest dropdown funcs.
-
+    /**
+     * {@inheritDoc}
+     *
+     * @memberof AnnotationContainer
+     */
     componentDidUpdate() {
-        this.currentInput && this.currentInput.focus();
+        if (this.currentInput) {
+            this.currentInput.focus();
+        }
     }
 
-    // // End of package name autosuggest dropdown funcs.
-
-    // // Start of identifier autosuggest dropdown funcs.
-
+    /**
+     * Event handler when an identifier is changed from the dropdown.
+     *
+     * @param {Object} event The actual select event.
+     * @param {string} newValue The selected value.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationIdentifierChange(event, { newValue }) {
         this.setState({
             selectedIdentifierValue: newValue,
         });
     }
 
+    /**
+     * On keydown event for annotation identifier.
+     *
+     * @param {Object} e The event of keydown.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationIdentifierKeyDown(e) {
         if (e.keyCode === 8 && this.state.selectedIdentifierValue === '') {
             this.setState({
@@ -89,12 +115,20 @@ class AnnotationContainer extends React.Component {
         }
     }
 
+    /**
+     * Event for selecting an item for identifier.
+     *
+     * @param {Object} event The actual event.
+     * @param {string} suggestionValue The selected value.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationIdentifierSelected(event, { suggestionValue }) {
         // Add annotation to the node(serviceDefinition, resourceDefinition, etc)
         // http://jsbin.com/orokep/edit?html,css,js,output
-        let match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue);
+        const match = /([^.;+_]+)$/.exec(this.state.selectedPackageNameValue);
 
-        let packagePrefix = match && match[1];
+        const packagePrefix = match && match[1];
 
         const newAnnotation = ASTFactory.createAnnotation({
             fullPackageName: this.state.selectedPackageNameValue,
@@ -118,26 +152,49 @@ class AnnotationContainer extends React.Component {
         });
     }
 
+    /**
+     * Event when the text input for annotation identifier is empty.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationIdentifierSuggestionsClearRequested() {
         this.setState({
             shownIdentifierSuggestions: [],
         });
     }
 
+    /**
+     * Event for getting new items for the identifier dropdown.
+     *
+     * @param {any} value The current value of the dropdown.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationIdentifierSuggestionsFetchRequested({ value }) {
         this.setState({
             shownIdentifierSuggestions: this.getAnnotationIdentifierSuggestions(value),
         });
     }
 
+    /**
+     * Focus out event for annotation package textbox.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationPackageNameBlur() {
         this.setState({
             hasPackageNameSelected: false,
         });
     }
 
-    // // Start of package name autosuggest dropdown funcs.
-
+    /**
+     * The event when the value of the package textbox changes.
+     *
+     * @param {Object} event The actual event object.
+     * @param {string} newValue The current value of the packagename in the text box.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationPackageNameChange(event, { newValue }) {
         this.setState({
             selectedPackageNameValue: newValue,
@@ -145,54 +202,103 @@ class AnnotationContainer extends React.Component {
         });
     }
 
+    /**
+     * Event when a package name is selected.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationPackageNameSelected() {
         this.setState({
             hasPackageNameSelected: true,
         });
     }
 
+    /**
+     * Event when the package name textbox is empty.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationPackageNameSuggestionsClearRequested() {
         this.setState({
             shownPackageNameSuggestions: [],
         });
     }
 
+    /**
+     * The event for getting the matching package names for a given value.
+     *
+     * @param {any} value The current value on the textbox.
+     *
+     * @memberof AnnotationContainer
+     */
     onAnnotationPackageNameSuggestionsFetchRequested({ value }) {
         this.setState({
             shownPackageNameSuggestions: this.getAnnotationPackageNameSuggestions(value),
         });
     }
 
+    /**
+     * Get the annotation identifier value from a suggestion object for autosuggest.
+     *
+     * @param {Object} suggestion The suggestion object.
+     * @returns {string} The value of the suggestion.
+     *
+     * @memberof AnnotationContainer
+     */
     getAnnotationIdentifierSuggestionValue(suggestion) {
         return suggestion.name;
     }
 
+    /**
+     * Gets the annotation identifier suggestions.
+     *
+     * @param {string} value The current value of the identifier textbox.
+     * @returns {string[]} Matching annotation names.
+     *
+     * @memberof AnnotationContainer
+     */
     getAnnotationIdentifierSuggestions(value) {
         const escapedValue = this.escapeRegexCharacters(value.trim());
-        const regex = new RegExp(`^${  escapedValue}`, 'i');
+        const regex = new RegExp(`^${escapedValue}`, 'i');
 
-        // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already filtered by attatchment points.
+        // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already
+        // filtered by attatchment points.
         const selectedAnnotations = this.getSupportedAnnotation().filter(
-            annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue,
-        );
+                                    annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue);
 
         // Get an object array of the supported annotations with the name/identifier of an annotation.
-        const annotationNames = selectedAnnotations.map((supportedAnnotation) => ({
-                name: supportedAnnotation.annotationDefinition.getName()
-            }));
+        const annotationNames = selectedAnnotations.map(supportedAnnotation => ({
+            name: supportedAnnotation.annotationDefinition.getName(),
+        }));
 
         // Filtering the annotations with the typed in value.
         return annotationNames.filter(annotationName => regex.test(annotationName.name));
     }
 
+    /**
+     * Get the annotation package value from a suggestion object for autosuggest.
+     *
+     * @param {Object} suggestion The suggestion object.
+     * @returns {string} The value of the suggestion.
+     *
+     * @memberof AnnotationContainer
+     */
     getAnnotationPackageNameSuggestionValue(suggestion) {
         return suggestion.name;
     }
 
+    /**
+     * Gets the annotation package name suggestions.
+     *
+     * @param {any} value The current value of the package name textbox.
+     * @returns {string[]} The matching package names.
+     *
+     * @memberof AnnotationContainer
+     */
     getAnnotationPackageNameSuggestions(value) {
         const escapedValue = this.escapeRegexCharacters(value.trim());
 
-        const regex = new RegExp(`^${  escapedValue}`, 'i');
+        const regex = new RegExp(`^${escapedValue}`, 'i');
         const supportedAnnotations = this.getSupportedAnnotation();
         const packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
 
@@ -202,22 +308,24 @@ class AnnotationContainer extends React.Component {
     /**
      * Gets the list of package names for suggestions
      *
-     * @returns Package names
+     * @param {AnnotationDefinition[]} supportedAnnotations The supported annotations.
+     * @returns {AnnotationDefinition} Package names
      *
      * @memberof AnnotationContainer
      */
     getPackageNameSuggestions(supportedAnnotations) {
-        const tempPackageNameSuggestions = supportedAnnotations.map((supportedAnnotation) => ({
-                name: supportedAnnotation.packageName
-            }));
+        const tempPackageNameSuggestions = supportedAnnotations.map(supportedAnnotation => ({
+            name: supportedAnnotation.packageName,
+        }));
 
-        return tempPackageNameSuggestions.filter((obj, pos, arr) => arr.map(mapObj => mapObj['name']).indexOf(obj['name']) === pos);
+        return tempPackageNameSuggestions.filter(
+                                        (obj, pos, arr) => arr.map(mapObj => mapObj.name).indexOf(obj.name) === pos);
     }
 
     /**
      * Gets the supported annotation depending on the type of node
      *
-     * @returns Supported annotations.
+     * @returns {AnnotationDefinition[]} Supported annotations.
      *
      * @memberof AnnotationContainer
      */
@@ -245,7 +353,8 @@ class AnnotationContainer extends React.Component {
             for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                 if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
                     // Filtering by ignoring already added annotations.
-                    const parentNodeAnnotations = this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
+                    const parentNodeAnnotations =
+                                                this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
                     let annotationAlreadyExists = false;
                     for (const annotation of parentNodeAnnotations) {
                         if (annotation.getFullPackageName() === packageDefintion.getName() &&
@@ -265,43 +374,64 @@ class AnnotationContainer extends React.Component {
         return supportedAnnotations;
     }
 
-    // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions#Using_Special_Characters
+    /**
+     * Escpaes regex characters from string.
+     *
+     * @param {string} str String to escape from.
+     * @returns {string} Escaped string.
+     *
+     * @memberof AnnotationContainer
+     */
     escapeRegexCharacters(str) {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    /**
+     * The view of a dropdown item for identifiers.
+     *
+     * @param {Object} suggestion The suggestion object.
+     * @returns {ReactElement} The view.
+     *
+     * @memberof AnnotationContainer
+     */
     renderAnnotationIdentifierSuggestion(suggestion) {
         return (
-          <span>{suggestion.name}</span>
+            <span>{suggestion.name}</span>
         );
     }
 
+    /**
+     * The view of a dropdown item for package name.
+     *
+     * @param {Object} suggestion The suggestion object.
+     * @returns {ReactElement} The view.
+     */
     renderAnnotationPackageNameSuggestion(suggestion) {
         return (
-          <span>{suggestion.name}</span>
+            <span>{suggestion.name}</span>
         );
     }
 
     /**
      * Rendering the annotation editor view.
      *
-     * @returns annotation editor view jsx
+     * @returns {ReactElement} annotation editor view jsx
      *
      * @memberof AnnotationContainer
      */
     render() {
         // Creating style object for positioning the annotation container.
-        let bBox = this.props.model.bBox;
-        let style = {
+        const bBox = this.props.model.bBox;
+        const style = {
             position: 'absolute',
             top: bBox.y,
             left: bBox.x,
             width: bBox.w,
-            height: bBox.h
+            height: bBox.h,
         };
 
         // Getting the components for the annotation of the current model.
-        let annotations = getComponentForNodeArray(this.props.model.annotations);
+        const annotations = getComponentForNodeArray(this.props.model.annotations);
 
         if (this.state.hasPackageNameSelected) {
             // Input properties for the package name
@@ -312,11 +442,12 @@ class AnnotationContainer extends React.Component {
                 onKeyDown: this.onAnnotationIdentifierKeyDown,
             };
 
-            return <div style={style} className="annotation-container">
+            return (<div style={style} className="annotation-container">
                 {annotations}
-                <div className='annotation-add-wrapper'>
-                    <span className='annotation-add-at-sign'>@</span>
-                    <span className='annotation-package-name'>{this.state.selectedPackageNameValue.split('.').pop()}:</span>
+                <div className="annotation-add-wrapper">
+                    <span className="annotation-add-at-sign">@</span>
+                    <span className="annotation-package-name">
+                        {this.state.selectedPackageNameValue.split('.').pop()}:</span>
                     <Autosuggest
                         suggestions={this.state.shownIdentifierSuggestions}
                         onSuggestionsFetchRequested={this.onAnnotationIdentifierSuggestionsFetchRequested}
@@ -326,36 +457,41 @@ class AnnotationContainer extends React.Component {
                         renderSuggestion={this.renderAnnotationIdentifierSuggestion}
                         ref={this.storeCurrentInputReference}
                         shouldRenderSuggestions={() => true}
-                        inputProps={inputProps} />
+                        inputProps={inputProps}
+                    />
                 </div>
-            </div>;
-        } 
+            </div>);
+        }
             // Input properties for the package name
-            const inputProps = {
-                placeholder: 'Add Annotation',
-                value: this.state.selectedPackageNameValue,
-                onChange: this.onAnnotationPackageNameChange,
-                onBlur: this.onAnnotationPackageNameBlur
-            };
+        const inputProps = {
+            placeholder: 'Add Annotation',
+            value: this.state.selectedPackageNameValue,
+            onChange: this.onAnnotationPackageNameChange,
+            onBlur: this.onAnnotationPackageNameBlur,
+        };
 
-            return <div style={style} className="annotation-container">
-                {annotations}
-                <div className='annotation-add-wrapper'>
-                    <span className='annotation-add-at-sign'>@</span>
-                    <Autosuggest
-                        suggestions={this.state.shownPackageNameSuggestions}
-                        onSuggestionsFetchRequested={this.onAnnotationPackageNameSuggestionsFetchRequested}
-                        onSuggestionsClearRequested={this.onAnnotationPackageNameSuggestionsClearRequested}
-                        onSuggestionSelected={this.onAnnotationPackageNameSelected}
-                        getSuggestionValue={this.getAnnotationPackageNameSuggestionValue}
-                        renderSuggestion={this.renderAnnotationPackageNameSuggestion}
-                        shouldRenderSuggestions={() => true}
-                        inputProps={inputProps} />
-                </div>
-            </div>;
-        
+        return (<div style={style} className="annotation-container">
+            {annotations}
+            <div className="annotation-add-wrapper">
+                <span className="annotation-add-at-sign">@</span>
+                <Autosuggest
+                    suggestions={this.state.shownPackageNameSuggestions}
+                    onSuggestionsFetchRequested={this.onAnnotationPackageNameSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={this.onAnnotationPackageNameSuggestionsClearRequested}
+                    onSuggestionSelected={this.onAnnotationPackageNameSelected}
+                    getSuggestionValue={this.getAnnotationPackageNameSuggestionValue}
+                    renderSuggestion={this.renderAnnotationPackageNameSuggestion}
+                    shouldRenderSuggestions={() => true}
+                    inputProps={inputProps}
+                />
+            </div>
+        </div>);
     }
 }
+
+AnnotationContainer.propTypes = {
+    model: PropTypes.instanceOf(ASTNode).isRequired,
+};
 
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports

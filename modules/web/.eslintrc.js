@@ -47,7 +47,8 @@ module.exports = {
         "jsx-a11y/no-static-element-interactions": "off",
         "jsx-a11y/no-noninteractive-element-interactions": "off",
         "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error", 4]
+        "react/jsx-indent-props": ["error", 4],
+        "no-mixed-operators": ["error", {"allowSamePrecedence": true}]
     },
     "plugins": [
         "react"
