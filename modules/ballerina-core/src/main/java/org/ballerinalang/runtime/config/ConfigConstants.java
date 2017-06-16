@@ -25,7 +25,6 @@ public interface ConfigConstants {
     String DEFAULT_CONF_FILE_NAME = "deployment.yaml";
     String DEFAULT_CONF_DIR_BRE = "bre";
     String DEFAULT_CONF_DIR_CONF = "conf";
-    String DEFAULT_CONF_DIR_INTERCEPTORS = "interceptors";
 
     /* System properties.  */
     String SYS_PROP_BALLERINA_CONF = "ballerina.conf";

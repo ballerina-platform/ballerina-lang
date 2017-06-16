@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.runtime.config.interceptors;
 
-import org.ballerinalang.runtime.config.ConfigConstants;
 import org.wso2.carbon.config.annotation.Configuration;
 import org.wso2.carbon.config.annotation.Element;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +36,8 @@ public class ServiceInterceptorConfig {
     @Element(description = "flag to enable server Connector interception")
     private boolean enable = false;
 
-    @Element(description = "interceptor deployment directory")
-    private String deploymentDirectory = Paths.get(System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME),
-            ConfigConstants.DEFAULT_CONF_DIR_BRE, ConfigConstants.DEFAULT_CONF_DIR_INTERCEPTORS).toString();
+    @Element(description = "interceptor deployment directory", required = true)
+    private String deploymentDirectory;
 
     @Element(description = "request interceptors")
     private ArrayList<InterceptorConfig> request = new ArrayList<>();
