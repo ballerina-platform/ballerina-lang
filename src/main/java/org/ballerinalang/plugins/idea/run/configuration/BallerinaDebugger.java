@@ -24,7 +24,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.GenericProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.util.net.NetUtils;
 import com.intellij.xdebugger.XDebugProcess;
@@ -32,14 +31,13 @@ import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketFactory;
 import org.ballerinalang.plugins.idea.debugger.BallerinaDebugProcess;
+import org.ballerinalang.plugins.idea.debugger.BallerinaWebSocketConnector;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunningState;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 
 public class BallerinaDebugger extends GenericProgramRunner {
@@ -77,39 +75,45 @@ public class BallerinaDebugger extends GenericProgramRunner {
                 throw new ExecutionException("Cannot run debugger");
             }
 
-            try {
-                Thread.sleep(1500);
-            } catch (InterruptedException e1) {
-
-            }
-
             return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
 
                 @NotNull
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-                    try {
-                        String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" + port;
-                        WebSocketFactory webSocketFactory = new WebSocketFactory();
-                        webSocketFactory.setConnectionTimeout(10000);
-                        mySocket = webSocketFactory.createSocket("ws://" + address + "/debug");
 
-                        ApplicationManager.getApplication().invokeLater(() -> {
-                            int MAX_RETRIES = 5;
-                            for (int retries = 0; retries < MAX_RETRIES; retries++) {
 
-                                try {
-                                    mySocket = mySocket.connect();
-                                    break;
-                                } catch (Exception e) {
+                    //                    try {
+                    //                        String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" +
+                    // port;
+                    //                        WebSocketFactory webSocketFactory = new WebSocketFactory();
+                    //                        webSocketFactory.setConnectionTimeout(10000);
+                    //                        mySocket = webSocketFactory.createSocket("ws://" + address + "/debug");
+                    //
+                    //                        ApplicationManager.getApplication().invokeLater(() -> {
+                    //                            int MAX_RETRIES = 5;
+                    //                            for (int retries = 0; retries < MAX_RETRIES; retries++) {
+                    //
+                    //                                try {
+                    //                                    mySocket = mySocket.connect();
+                    //                                    break;
+                    //                                } catch (Exception e) {
+                    //
+                    //                                }
+                    //                            }
+                    //                        });
+                    //
+                    //
+                    //
+                    //
+                    //                        return new BallerinaDebugProcess(session, mySocket, executionResult);
+                    //                    } catch (IOException e) {
+                    //                        throw new ExecutionException("Connection to debugger failed.");
+                    //                    }
+                    String address = NetUtils.getLoopbackAddress().getHostAddress() + ":" + port;
+                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(session,
+                            address);
+                    return new BallerinaDebugProcess(session, ballerinaDebugSession, executionResult);
 
-                                }
-                            }
-                        });
-                        return new BallerinaDebugProcess(session, mySocket, executionResult);
-                    } catch (IOException e) {
-                        throw new ExecutionException("Connection to debugger failed.");
-                    }
 
                 }
             }).getRunContentDescriptor();

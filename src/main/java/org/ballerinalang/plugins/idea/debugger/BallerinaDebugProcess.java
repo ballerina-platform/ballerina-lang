@@ -55,7 +55,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,23 +63,27 @@ import javax.swing.event.HyperlinkListener;
 
 public class BallerinaDebugProcess extends XDebugProcess {
 
-    private WebSocket mySocket;
+    //    private WebSocket mySocket;
     private final ExecutionResult myExecutionResult;
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
     private final BallerinaDebuggerEditorsProvider myEditorsProvider;
 
+
+    BallerinaWebSocketConnector myConnector;
+
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
     private final AtomicBoolean connectedListenerAdded = new AtomicBoolean();
 
-    public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull WebSocket socket,
+    public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
                                  @NotNull ExecutionResult executionResult) {
         super(session);
-        this.mySocket = socket;
-        this.myExecutionResult = executionResult;
-        this.myProcessHandler = executionResult.getProcessHandler();
-        this.myExecutionConsole = executionResult.getExecutionConsole();
-        this.myEditorsProvider = new BallerinaDebuggerEditorsProvider();
+
+        myConnector = connector;
+        myExecutionResult = executionResult;
+        myProcessHandler = executionResult.getProcessHandler();
+        myExecutionConsole = executionResult.getExecutionConsole();
+        myEditorsProvider = new BallerinaDebuggerEditorsProvider();
 
         // Todo - add session
         //        myDebuggerSession = XsltDebuggerSession.getInstance(myProcessHandler);
@@ -115,6 +118,48 @@ public class BallerinaDebugProcess extends XDebugProcess {
     public void sessionInitialized() {
         // To debug the debugger, add a breakpoint here. When it is hit, connect to the ballerina runtime using a
         // remote connection. then continue from here.
+
+//        myConnector.addListener(
+//                new BallerinaWebSocketAdaptor() {
+//
+//                    @Override
+//                    public void onTextFrame(WebSocket websocket, WebSocketFrame frame)
+//                            throws Exception {
+//
+//                        String json = frame.getPayloadText();
+//
+//                        ObjectMapper mapper = new ObjectMapper();
+//                        Message message = null;
+//                        try {
+//                            message = mapper.readValue(json, Message.class);
+//                        } catch (IOException e) {
+//
+//                        }
+//
+//                        if (message == null) {
+//                            System.out.println(json);
+//                            return;
+//                        }
+//
+//                        if (Response.DEBUG_HIT.name().equals(message.getCode())) {
+//                            XBreakpoint<BallerinaBreakpointProperties> breakpoint
+//                                    = findBreakPoint(message.getLocation());
+//                            BallerinaSuspendContext context =
+//                                    new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+//                            XDebugSession session = getSession();
+//                            if (breakpoint == null) {
+//                                session.positionReached(context);
+//                            } else {
+//                                session.breakpointReached(breakpoint, null, context);
+//                            }
+//                        }
+//                    }
+//                }
+//        );
+//
+//        ApplicationManager.getApplication().invokeLater(
+//                () -> myConnector.sendCommand(Command.START)
+//        );
     }
 
     @Override
@@ -124,28 +169,22 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        if (mySocket.isOpen()) {
-            mySocket.sendText("{\"command\":\"STEP_OVER\"}");
-        }
+        myConnector.sendCommand(Command.STEP_OVER);
     }
 
     @Override
     public void startForceStepInto(@Nullable XSuspendContext context) {
-        super.startForceStepInto(context);
+
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        if (mySocket.isOpen()) {
-            mySocket.sendText("{\"command\":\"STEP_IN\"}");
-        }
+        myConnector.sendCommand(Command.STEP_IN);
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        if (mySocket.isOpen()) {
-            mySocket.sendText("{\"command\":\"STEP_OUT\"}");
-        }
+        myConnector.sendCommand(Command.STEP_OUT);
     }
 
     @Nullable
@@ -156,21 +195,17 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void stop() {
-        if (mySocket.isOpen()) {
-            mySocket.sendText("{\"command\":\"STOP\"}");
-        }
+        myConnector.sendCommand(Command.STOP);
     }
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        if (mySocket.isOpen()) {
-            mySocket.sendText("{\"command\":\"RESUME\"}");
-        }
+        myConnector.sendCommand(Command.RESUME);
     }
 
     @Override
     public void runToPosition(@NotNull XSourcePosition position, @Nullable XSuspendContext context) {
-        super.runToPosition(position, context);
+        // Todo - Implement
     }
 
     @Override
@@ -180,21 +215,22 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public boolean checkCanInitBreakpoints() {
-        if (mySocket.isOpen()) {
+
+        if (myConnector.isConnected()) {
             // breakpointsInitiated could be set in another thread and at this point work (init breakpoints) could be
             // not yet performed
-            return initBreakpointHandlersAndSetBreakpoints(false);
+            return initBreakpointHandlersAndSetBreakpoints(true);
         }
 
         if (connectedListenerAdded.compareAndSet(false, true)) {
-            mySocket = mySocket.addListener(
+            myConnector.addListener(
                     new BallerinaWebSocketAdaptor() {
 
                         @Override
                         public void onConnected(WebSocket websocket, Map<String, List<String>> headers)
                                 throws Exception {
                             initBreakpointHandlersAndSetBreakpoints(true);
-                            mySocket.sendText("{\"command\":\"START\"}");
+                            myConnector.sendCommand(Command.START);
                         }
 
                         @Override
@@ -215,7 +251,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                                 return;
                             }
 
-                            if ("DEBUG_HIT".equals(message.getCode())) {
+                            if (Response.DEBUG_HIT.name().equals(message.getCode())) {
                                 XBreakpoint<BallerinaBreakpointProperties> breakpoint
                                         = findBreakPoint(message.getLocation());
                                 BallerinaSuspendContext context =
@@ -291,10 +327,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public String getCurrentStateMessage() {
-        if (mySocket.isOpen()) {
-            return "Connected to " + mySocket.getURI();
-        }
-        return super.getCurrentStateMessage();
+        return myConnector.getState();
     }
 
     @Nullable
@@ -386,7 +419,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
         }
 
         private void sendBreakpoints() {
-            StringBuilder stringBuilder = new StringBuilder("{\"command\":\"SET_POINTS\", \"points\": [");
+            StringBuilder stringBuilder = new StringBuilder("{\"command\":\"").append(Command.SET_POINTS)
+                    .append("\", \"points\": [");
             if (!getSession().areBreakpointsMuted()) {
                 int size = breakpoints.size();
                 for (int i = 0; i < size; i++) {
@@ -398,7 +432,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     int line = breakpointPosition.getLine();
                     Project project = getSession().getProject();
 
-                    String name="";
+                    String name = "";
                     // Only get relative path if a package declaration is present in the file.
                     PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
                     PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
@@ -417,7 +451,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             }
             stringBuilder.append("]}");
-            mySocket.sendText(stringBuilder.toString());
+            myConnector.send(stringBuilder.toString());
         }
     }
 }
