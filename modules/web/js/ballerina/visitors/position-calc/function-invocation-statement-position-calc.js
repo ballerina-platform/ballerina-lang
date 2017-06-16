@@ -19,23 +19,52 @@
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Function Invocation Statement.
+ *
+ * @class FunctionInvocationStatementPositionCalcVisitor
+ * */
 class FunctionInvocationStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FunctionInvocationStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit FunctionInvocationStatementPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Function Invocation Statement node.
+     *
+     * @memberOf FunctionInvocationStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit FunctionInvocationStatementPositionCalc');
         Utils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FunctionInvocationStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit FunctionInvocationStatementPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf FunctionInvocationStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit FunctionInvocationStatementPositionCalc');
     }
 }

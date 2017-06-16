@@ -18,22 +18,52 @@
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Committed Statement.
+ *
+ * @class CommittedStatementPositionCalcVisitor
+ * */
 class CommittedStatementPositionCalcVisitor {
-    canVisit(node) {
+
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf CommittedStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit CommittedStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Committed Statement node.
+     *
+     * @memberOf CommittedStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit CommittedStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf CommittedStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit CommittedStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf CommittedStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end Visit CommittedStatementPositionCalcVisitor');
     }
 }

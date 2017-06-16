@@ -19,23 +19,52 @@
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Catch statement.
+ *
+ * @class CatchStatementPositionCalcVisitor
+ * */
 class CatchStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf CatchStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit CatchStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Catch statement node.
+     *
+     * @memberOf CatchStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit CatchStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf CatchStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit CatchStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf CatchStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit CatchStatementPositionCalcVisitor');
     }
 }

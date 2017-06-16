@@ -19,9 +19,13 @@
 import _ from 'lodash';
 import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
-import { panel } from './../../configs/designer-defaults';
 import { util } from './../sizing-utils';
 
+/**
+ * get simple statement position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
 function getSimpleStatementPosition(node) {
     const viewState = node.getViewState();
     const bBox = viewState.bBox;
@@ -29,9 +33,9 @@ function getSimpleStatementPosition(node) {
     const parentViewState = parent.getViewState();
     const parentStatementContainer = parentViewState.components.statementContainer || {};
 
-    const parentStatements = parent.filterChildren(child => ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
+    const parentStatements = parent.filterChildren(child =>
+    ASTFactory.isStatement(child) || ASTFactory.isExpression(child));
     const currentIndex = _.findIndex(parentStatements, node);
-    let x;
     let y;
 
     /**
@@ -39,22 +43,33 @@ function getSimpleStatementPosition(node) {
      * Always the statement container's width should be greater than the statements/expressions
      */
     if (parentStatementContainer.w < bBox.w) {
-        throw 'Invalid statement container width found, statement width should be greater than or equal to ' +
-        'statement/ statement width ';
+        const exception = {
+            message: 'Invalid statement container width found, statement width should be ' +
+            'greater than or equal to statement/ statement width ',
+        };
+        throw exception;
     }
-    x = parentStatementContainer.x + (parentStatementContainer.w - bBox.w) / 2;
+    const x = parentStatementContainer.x + ((parentStatementContainer.w - bBox.w) / 2);
     if (currentIndex === 0) {
         y = parentStatementContainer.y;
     } else if (currentIndex > 0) {
         y = parentStatements[currentIndex - 1].getViewState().bBox.getBottom();
     } else {
-        throw `Invalid Index found for ${node.getType()}`;
+        const exception = {
+            message: `Invalid Index found for ${node.getType()}`,
+        };
+        throw exception;
     }
 
     bBox.x = x;
     bBox.y = y;
 }
 
+/**
+ * get compound statement child position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
 function getCompoundStatementChildPosition(node) {
     const viewState = node.getViewState();
     const bBox = viewState.bBox;
@@ -63,18 +78,17 @@ function getCompoundStatementChildPosition(node) {
      * Current Index should be greater than 0
      */
     if (currentIndex <= 0) {
-        throw 'Invalid Current Index Found for Block Statement';
+        const exception = {
+            message: 'Invalid Current Index Found for Block Statement',
+        };
+        throw exception;
     }
     const previousStatement = node.getParent().getChildren()[currentIndex - 1];
-    let x;
-    let y;
-    let statementContainerX;
-    let statementContainerY;
 
-    x = previousStatement.getViewState().bBox.x;
-    y = previousStatement.getViewState().bBox.getBottom();
-    statementContainerX = x;
-    statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
+    const x = previousStatement.getViewState().bBox.x;
+    const y = previousStatement.getViewState().bBox.getBottom();
+    const statementContainerX = x;
+    const statementContainerY = y + DesignerDefaults.blockStatement.heading.height;
 
     bBox.x = x;
     bBox.y = y;
@@ -82,7 +96,11 @@ function getCompoundStatementChildPosition(node) {
     viewState.components.statementContainer.y = statementContainerY;
 }
 
-
+/**
+ * populate inner panel decorator bounding box position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
 function populateInnerPanelDecoratorBBoxPosition(node) {
     const parent = node.getParent();
     const viewSate = node.getViewState();
@@ -93,17 +111,12 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     const headerBBox = viewSate.components.heading;
     const bodyBBox = viewSate.components.body;
     const annotation = viewSate.components.annotation;
-    const resources = _.filter(parent.getChildren(), child => ASTFactory.isResourceDefinition(child) ||
-            ASTFactory.isConnectorAction(child));
-    let x;
-    let y;
-    let headerX;
+    const resources = _.filter(parent.getChildren(), child =>
+    ASTFactory.isResourceDefinition(child) || ASTFactory.isConnectorAction(child));
     let headerY;
-    let bodyX;
-    let bodyY;
     const currentResourceIndex = _.findIndex(resources, node);
 
-    headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
+    const headerX = parentBBox.x + DesignerDefaults.panel.body.padding.left;
 
     if (currentResourceIndex === 0) {
         const serviceVariablesHeightGap = node.getParent().getViewState().components.variablesPane.h +
@@ -113,7 +126,8 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
          * If there are service level connectors, then we need to drop the first resource further down,
          * in order to maintain a gap between the connector heading and the resource heading
          */
-        const parentLevelConnectors = node.getParent().filterChildren(child => ASTFactory.isConnectorDeclaration(child));
+        const parentLevelConnectors = node.getParent().filterChildren(child =>
+            ASTFactory.isConnectorDeclaration(child));
         if (parentLevelConnectors.length > 0) {
             headerY = parentViewState.components.body.y + DesignerDefaults.panel.body.padding.top +
                 DesignerDefaults.lifeLine.head.height + DesignerDefaults.panel.wrapper.gutter.v;
@@ -126,13 +140,16 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
         const previousResourceBBox = resources[currentResourceIndex - 1].getViewState().bBox;
         headerY = previousResourceBBox.y + previousResourceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
     } else {
-        throw 'Invalid Index for Resource Definition';
+        const exception = {
+            message: 'Invalid Index for Resource Definition',
+        };
+        throw exception;
     }
 
-    x = headerX;
-    y = headerY;
-    bodyX = headerX;
-    bodyY = headerY + headerBBox.h + annotation.h;
+    const x = headerX;
+    const y = headerY;
+    const bodyX = headerX;
+    const bodyY = headerY + headerBBox.h + annotation.h;
 
     statementContainerBBox.x = bodyX + DesignerDefaults.innerPanel.body.padding.left;
     statementContainerBBox.y = bodyY + DesignerDefaults.innerPanel.body.padding.top +
@@ -146,12 +163,17 @@ function populateInnerPanelDecoratorBBoxPosition(node) {
     bodyBBox.y = bodyY;
 }
 
+/**
+ * populate outer panel decorator bounding box position.
+ *
+ * @param {ASTNode} node - AST node.
+ * */
 function populateOuterPanelDecoratorBBoxPosition(node) {
     const viewSate = node.getViewState();
     const bBox = viewSate.bBox;
     const parent = node.getParent();
     const panelChildren = parent.filterChildren(child => ASTFactory.isFunctionDefinition(child) ||
-            ASTFactory.isServiceDefinition(child) ||
+           ASTFactory.isServiceDefinition(child) ||
             ASTFactory.isConnectorDefinition(child) ||
             ASTFactory.isAnnotationDefinition(child) ||
             ASTFactory.isStructDefinition(child) ||
@@ -160,12 +182,8 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     const body = viewSate.components.body;
     const annotation = viewSate.components.annotation;
     const currentServiceIndex = _.findIndex(panelChildren, node);
-    let x;
-    let y;
     let headerX;
     let headerY;
-    let bodyX;
-    let bodyY;
     if (currentServiceIndex === 0) {
         headerX = DesignerDefaults.panel.wrapper.gutter.h;
         headerY = DesignerDefaults.panel.wrapper.gutter.v;
@@ -174,13 +192,16 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
         headerX = DesignerDefaults.panel.wrapper.gutter.h;
         headerY = previousServiceBBox.y + previousServiceBBox.h + DesignerDefaults.panel.wrapper.gutter.v;
     } else {
-        throw 'Invalid Index for Service Definition';
+        const exception = {
+            message: 'Invalid Index for Service Definition',
+        };
+        throw exception;
     }
 
-    x = headerX;
-    y = headerY;
-    bodyX = headerX;
-    bodyY = headerY + heading.h + annotation.h;
+    const x = headerX;
+    const y = headerY;
+    const bodyX = headerX;
+    const bodyY = headerY + heading.h + annotation.h;
 
     bBox.x = x;
     bBox.y = y;
@@ -193,7 +214,8 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||
             ASTFactory.isConnectorAction(child));
     // make sure you substract the panel padding to calculate the min width of a resource.
-    const minWidth = node.getViewState().bBox.w - (panel.body.padding.left + panel.body.padding.right);
+    const minWidth = node.getViewState().bBox.w -
+        (DesignerDefaults.panel.body.padding.left + DesignerDefaults.panel.body.padding.right);
     let connectorWidthTotal = 0;
     const connectors = node.filterChildren(child => ASTFactory.isConnectorDeclaration(child));
 
@@ -210,6 +232,12 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     }, this);
 }
 
+/**
+ * populate panel heading positioning.
+ *
+ * @param {ASTNode} node - AST node.
+ * @param {func} createPositionForTitleNode - function to create position for title.
+ * */
 function populatePanelHeadingPositioning(node, createPositionForTitleNode) {
     const viewState = node.getViewState();
 

@@ -19,23 +19,52 @@
 import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Else Statement.
+ *
+ * @class ElseStatementPositionCalcVisitor
+ * */
 class ElseStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ElseStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ElseStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Else Statement node.
+     *
+     * @memberOf ElseStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit ElseStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ElseStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ElseStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ElseStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ElseStatementPositionCalcVisitor');
     }
 }

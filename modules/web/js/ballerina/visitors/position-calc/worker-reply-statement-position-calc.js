@@ -15,25 +15,58 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
 import * as PositioningUtils from './utils';
 import { util } from './../sizing-utils';
 
+/**
+ * Position visitor class for Worker Reply Statement.
+ *
+ * @class WorkerReplyStatementPositionCalcVisitor
+ * */
 class WorkerReplyStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf WorkerReplyStatementPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit WorkerReplyStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Worker Reply Statement node.
+     *
+     * @memberOf WorkerReplyStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
+        log.debug('begin visit WorkerReplyStatementPositionCalcVisitor');
         util.syncWorkerReplyDimension(node);
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf WorkerReplyStatementPositionCalcVisitor
+     * */
+    visit() {
+        log.debug('visit WorkerReplyStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf WorkerReplyStatementPositionCalcVisitor
+     * */
+    endVisit() {
+        log.debug('end visit WorkerReplyStatementPositionCalcVisitor');
     }
 }
 

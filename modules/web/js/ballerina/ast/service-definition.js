@@ -57,7 +57,7 @@ class ServiceDefinition extends ASTNode {
 
     getConnectionDeclarations() {
         const connectorDeclaration = [];
-
+        const self = this;
         _.forEach(this.getChildren(), (child) => {
             if (self.getFactory().isConnectorDeclaration(child)) {
                 connectorDeclaration.push(child);

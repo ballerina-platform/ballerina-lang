@@ -16,10 +16,16 @@
  * under the License.
  */
 
-// require all dimension calculator visitors
+/**
+ * require all position calculator visitors
+ *
+ * @param {object} requireContext - require context.
+ *
+ * @return {object} components.
+ * */
 function requireAll(requireContext) {
     const components = {};
-    requireContext.keys().map((item, index) => {
+    requireContext.keys().forEach((item) => {
         const module = requireContext(item);
         if (module.default) {
             components[module.default.name] = module.default;

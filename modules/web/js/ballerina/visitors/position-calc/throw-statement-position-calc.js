@@ -19,23 +19,52 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Throw Statement.
+ *
+ * @class ThrowStatementPositionCalcVisitor
+ * */
 class ThrowStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ThrowStatementPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ThrowStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Throw Statement node.
+     *
+     * @memberOf ThrowStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('visit ThrowStatementPositionCalcVisitor');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ThrowStatementPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ThrowStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ThrowStatementPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ThrowStatementPositionCalcVisitor');
     }
 }

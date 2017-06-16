@@ -15,23 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
 import * as Utils from './utils';
 
+/**
+ * Position visitor class for Finally Statement.
+ *
+ * @class FinallyStatementPositionCalcVisitor
+ * */
 class FinallyStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FinallyStatementPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit FinallyStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Finally Statement node.
+     *
+     * @memberOf FinallyStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
+        log.debug('begin visit FinallyStatementPositionCalcVisitor');
         Utils.getCompoundStatementChildPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FinallyStatementPositionCalcVisitor
+     * */
+    visit() {
+        log.debug('visit FinallyStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf FinallyStatementPositionCalcVisitor
+     * */
+    endVisit() {
+        log.debug('end visit FinallyStatementPositionCalcVisitor');
     }
 }
 

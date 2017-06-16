@@ -19,20 +19,53 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Transform Statement.
+ *
+ * @class TransformStatementPositionCalcVisitor
+ * */
 class TransformStatementPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf TransformStatementPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit TransformStatementPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Transform Statement node.
+     *
+     * @memberOf TransformStatementPositionCalcVisitor
+     * */
     beginVisit(node) {
+        log.debug('begin visit TransformStatementPositionCalcVisitor');
         PositioningUtils.getSimpleStatementPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf TransformStatementPositionCalcVisitor
+     * */
+    visit() {
+        log.debug('visit TransformStatementPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf TransformStatementPositionCalcVisitor
+     * */
+    endVisit() {
+        log.debug('end visit TransformStatementPositionCalcVisitor');
     }
 }
 

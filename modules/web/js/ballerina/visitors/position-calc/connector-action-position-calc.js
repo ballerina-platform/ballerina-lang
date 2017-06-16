@@ -17,16 +17,34 @@
  */
 
 import log from 'log';
-import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Connector Action.
+ *
+ * @class ConnectorActionPositionCalcVisitor
+ * */
 class ConnectorActionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf ConnectorActionPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit ConnectorActionPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Connector Action node.
+     *
+     * @memberOf ConnectorActionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit ConnectorActionPositionCalcVisitor');
         // populate inner panel BBox positions
@@ -35,11 +53,21 @@ class ConnectorActionPositionCalcVisitor {
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf ConnectorActionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit ConnectorActionPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf ConnectorActionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit ConnectorActionPositionCalcVisitor');
     }
 
@@ -49,9 +77,9 @@ class ConnectorActionPositionCalcVisitor {
      * @param {object} parameter - The resource parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
-     * @returns The x position of the next parameter node.
+     * @return {number} The x position of the next parameter node.
      *
-     * @memberof ConnectorActionPositionCalcVisitor
+     * @memberOf ConnectorActionPositionCalcVisitor
      */
     createPositionForTitleNode(parameter, x, y) {
         const viewState = parameter.getViewState();

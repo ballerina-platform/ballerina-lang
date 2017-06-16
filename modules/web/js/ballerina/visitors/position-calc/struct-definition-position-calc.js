@@ -19,20 +19,53 @@
 import log from 'log';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Struct Definition.
+ *
+ * @class StructDefinitionPositionCalcVisitor
+ * */
 class StructDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf StructDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
+        log.debug('can visit StructDefinitionPositionCalcVisitor');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Struct Definition node.
+     *
+     * @memberOf StructDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
+        log.debug('begin visit StructDefinitionPositionCalcVisitor');
         PositioningUtils.populateOuterPanelDecoratorBBoxPosition(node);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf StructDefinitionPositionCalcVisitor
+     * */
+    visit() {
+        log.debug('visit StructDefinitionPositionCalcVisitor');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf StructDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
+        log.debug('end visit StructDefinitionPositionCalcVisitor');
     }
 }
 

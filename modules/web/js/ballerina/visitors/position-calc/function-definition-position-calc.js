@@ -17,18 +17,35 @@
  */
 
 import log from 'log';
-import _ from 'lodash';
-import ASTFactory from './../../ast/ballerina-ast-factory';
 import * as DesignerDefaults from './../../configs/designer-defaults';
 import * as PositioningUtils from './utils';
 
+/**
+ * Position visitor class for Function Definition.
+ *
+ * @class FunctionDefinitionPositionCalcVisitor
+ * */
 class FunctionDefinitionPositionCalcVisitor {
 
-    canVisit(node) {
+    /**
+     * can visit the visitor.
+     *
+     * @return {boolean} true.
+     *
+     * @memberOf FunctionDefinitionPositionCalcVisitor
+     * */
+    canVisit() {
         log.debug('can visit FunctionDefinitionPositionCalc');
         return true;
     }
 
+    /**
+     * begin visiting the visitor.
+     *
+     * @param {ASTNode} node - Function Definition node.
+     *
+     * @memberOf FunctionDefinitionPositionCalcVisitor
+     * */
     beginVisit(node) {
         log.debug('begin visit FunctionDefinitionPositionCalc');
 
@@ -44,11 +61,21 @@ class FunctionDefinitionPositionCalcVisitor {
         PositioningUtils.populatePanelHeadingPositioning(node, this.createPositionForTitleNode);
     }
 
-    visit(node) {
+    /**
+     * visit the visitor.
+     *
+     * @memberOf FunctionDefinitionPositionCalcVisitor
+     * */
+    visit() {
         log.debug('visit FunctionDefinitionPositionCalc');
     }
 
-    endVisit(node) {
+    /**
+     * visit the visitor at the end.
+     *
+     * @memberOf FunctionDefinitionPositionCalcVisitor
+     * */
+    endVisit() {
         log.debug('end visit FunctionDefinitionPositionCalc');
     }
 
@@ -58,9 +85,9 @@ class FunctionDefinitionPositionCalcVisitor {
      * @param {object} parameter - The resource parameter node.
      * @param {number} x - The x position
      * @param {number} y - The y position
-     * @returns The x position of the next parameter node.
+     * @return {number} The x position of the next parameter node.
      *
-     * @memberof FunctionDefinitionPositionCalc
+     * @memberOf FunctionDefinitionPositionCalc
      */
     createPositionForTitleNode(parameter, x, y) {
         const viewState = parameter.getViewState();
