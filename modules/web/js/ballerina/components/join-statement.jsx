@@ -120,6 +120,16 @@ class JoinStatement extends React.Component {
             addTimeoutBtn = null;
         }
 
+        if (model.children.length > 0) {
+            children.push(
+                <line
+                    x1={bBox.getCenterX()}
+                    y1={lifeLineY1}
+                    x2={bBox.getCenterX()}
+                    y2={lifeLineY2}
+                    className="join-lifeline"
+                />);
+        }
         return (
             <CompoundStatementDecorator
                 model={model}
@@ -138,14 +148,6 @@ class JoinStatement extends React.Component {
                     expression={{ text: model.getJoinConditionString() }}
                     editorOptions={this.editorOptions}
                 >
-                    {model.children.length > 0 &&
-                    <line
-                        x1={bBox.getCenterX()}
-                        y1={lifeLineY1}
-                        x2={bBox.getCenterX()}
-                        y2={lifeLineY2}
-                        className="join-lifeline"
-                    /> }
                     {children}
                 </BlockStatementDecorator>
             </CompoundStatementDecorator>);

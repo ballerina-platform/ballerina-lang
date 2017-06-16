@@ -36,7 +36,7 @@ const langTools = ace.acequire('ace/ext/language_tools');
 
 class ExpressionEditor {
 
-    constructor(bBox, container, callback, props, packageScope) {
+    constructor(bBox, callback, props, packageScope) {
         this.props = props;
         const expression = _.isNil(props.getterMethod.call(props.model)) ? '' : props.getterMethod.call(props.model);
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
@@ -51,7 +51,6 @@ class ExpressionEditor {
         this.expressionEditor.css('background', 'white');
         this.expressionEditor.css('position', 'absolute');
         this.expressionEditor.css('min-width', bBox.w + 2);
-        container.append(this.expressionEditor);
 
         const editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
         $(editorContainer).css('height', '22px');
@@ -163,6 +162,10 @@ class ExpressionEditor {
         });
     }
 
+    render(container) {
+        container.append(this.expressionEditor);
+    }
+
     distroy() {
         if (!this.removed) {
             this.removed = true;
@@ -184,22 +187,22 @@ class ExpressionEditor {
     }
 
 
-    getOperatingSystem() {
+    static getOperatingSystem() {
         let operatingSystem = 'Unknown OS';
-        if (navigator.appVersion.indexOf('Win') != -1) {
+        if (navigator.appVersion.indexOf('Win') !== -1) {
             operatingSystem = 'Windows';
-        } else if (navigator.appVersion.indexOf('Mac') != -1) {
+        } else if (navigator.appVersion.indexOf('Mac') !== -1) {
             operatingSystem = 'MacOS';
-        } else if (navigator.appVersion.indexOf('X11') != -1) {
+        } else if (navigator.appVersion.indexOf('X11') !== -1) {
             operatingSystem = 'UNIX';
-        } else if (navigator.appVersion.indexOf('Linux') != -1) {
+        } else if (navigator.appVersion.indexOf('Linux') !== -1) {
             operatingSystem = 'Linux';
         }
         return operatingSystem;
     }
 
     isRunningOnMacOS() {
-        return _.isEqual(this.getOperatingSystem(), 'MacOS');
+        return _.isEqual(ExpressionEditor.getOperatingSystem(), 'MacOS');
     }
 
 }
