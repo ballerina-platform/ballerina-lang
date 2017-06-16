@@ -16,10 +16,25 @@
  * under the License.
  */
 import React from 'react';
-import StatementDecorator from './statement-decorator';
 import PropTypes from 'prop-types';
+import StatementDecorator from './statement-decorator';
+import AbortStatementAST from './../ast/statements/abort-statement';
 
-class AbortStatement extends React.Component {
+/**
+ * React component for an abort statement.
+ *
+ * @class AbortStatement
+ * @extends {React.PureComponent}
+ */
+class AbortStatement extends React.PureComponent {
+
+    /**
+     * Renders the view for an abort statement.
+     *
+     * @returns {ReactElement} The view.
+     *
+     * @memberof AbortStatement
+     */
     render() {
         const model = this.props.model;
         const expression = model.getStatementString();
@@ -28,15 +43,7 @@ class AbortStatement extends React.Component {
 }
 
 AbortStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
-    expression: PropTypes.shape({
-        expression: PropTypes.string,
-    }),
+    model: PropTypes.instanceOf(AbortStatementAST).isRequired,
 };
 
 export default AbortStatement;

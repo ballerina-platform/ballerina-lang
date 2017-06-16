@@ -21,6 +21,7 @@ import _ from 'lodash';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import Annotation from './annotation';
 import AnnoationEntry from './../ast/annotations/annotation-entry';
+import AnnotationAttributeDefinition from '../env/annotation-attribute-definition';
 import AutoSuggestHtml from './utils/autosuggest-html';
 import BallerinaEnvironment from '../env/environment';
 import { util } from './../visitors/sizing-utils';
@@ -168,8 +169,8 @@ class AnnotationAttribute extends React.Component {
     /**
      * Event for when left side value is selected.
      *
-     * @param {any} event The actual event
-     * @param {any} { suggestionValue } The selected value.
+     * @param {Object} event The actual event
+     * @param {string} suggestionValue The selected value.
      *
      * @memberof AnnotationAttribute
      */
@@ -228,7 +229,7 @@ class AnnotationAttribute extends React.Component {
     /**
      * Remove icon click event for removing child from a {@link AnnotationEntryArray}.
      *
-     * @param {object} model
+     * @param {Object} model The model to be moved.
      *
      * @memberof AnnotationAttribute
      */
@@ -240,9 +241,9 @@ class AnnotationAttribute extends React.Component {
     /**
      * Gets an array of annotation attribute definitions.
      *
-     * @param {any} fullPackageName The complete package name.
-     * @param {any} identifier The identifier of the attribute.
-     * @returns An array of {@link AnnotationAttributeDefinition}
+     * @param {string} fullPackageName The complete package name.
+     * @param {string} identifier The identifier of the attribute.
+     * @returns {AnnotationAttributeDefinition[]} The annotation attributes.
      *
      * @memberof AnnotationAttribute
      */
@@ -268,7 +269,7 @@ class AnnotationAttribute extends React.Component {
      *
      * @param {any} annotationAST The annotation AST
      * @param {any} annotationAttributeIdentifier The identifier of the annotation AST.
-     * @returns An array of {@link AnnotationAttributeDefinition}
+     * @returns {AnnotationAttributeDefinition[]} The annotation attributes.
      *
      * @memberof AnnotationAttribute
      */
@@ -296,7 +297,7 @@ class AnnotationAttribute extends React.Component {
     /**
      * Getting the list of values for the left side value(key).
      *
-     * @returns An array of string as suggestions.
+     * @returns {string[]} An array of string as suggestions.
      *
      * @memberof AnnotationAttribute
      */
@@ -360,7 +361,7 @@ class AnnotationAttribute extends React.Component {
     /**
      * Rendering the component.
      *
-     * @returns JSX markup for annotation entry.
+     * @returns {ReactElement} JSX markup for annotation entry.
      *
      * @memberof AnnotationAttribute
      */
@@ -412,7 +413,7 @@ class AnnotationAttribute extends React.Component {
                 for (const annotationEntry of annotationEntries) {
                     const arrayEntryRemoveIcon = (<div
                         className="annotation-array-entry-remove"
-                        onClick={this.onArrayEntryRemoveIcon.bind(this, annotationEntry)}
+                        onClick={() => { this.onArrayEntryRemoveIcon(annotationEntry); }}
                     >
                         <i className="fw fw-cancel" />
                     </div>);
@@ -525,7 +526,11 @@ class AnnotationAttribute extends React.Component {
 
 AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnoationEntry).isRequired,
-    annotationAttributes: PropTypes.array,
+    annotationAttributes: PropTypes.arrayOf(AnnotationAttributeDefinition),
+};
+
+AnnotationAttribute.defaultProps = {
+    annotationAttributes: [],
 };
 
 export default AnnotationAttribute;

@@ -16,17 +16,26 @@
  * under the License.
  */
 import React from 'react';
-import TagController from './utils/tag-component';
-import { getComponentForNodeArray } from './utils';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import ArgumentParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
+import TagController from './utils/tag-component';
+import { getComponentForNodeArray } from './utils';
 
 /**
  * Component class for ArgumentParameterDefinitionHolder.
- * */
+ *
+ * @class ArgumentParameterDefinitionHolder
+ * @extends {React.Component}
+ */
 class ArgumentParameterDefinitionHolder extends React.Component {
 
+    /**
+     * Creates an instance of ArgumentParameterDefinitionHolder.
+     *
+     * @memberof ArgumentParameterDefinitionHolder
+     */
     constructor() {
         super();
         this.addArgumentParameter = this.addArgumentParameter.bind(this);
@@ -34,6 +43,8 @@ class ArgumentParameterDefinitionHolder extends React.Component {
 
     /**
      * Get types of ballerina to which can be applied when declaring variables.
+     *
+     * @returns {Object[]} Dropdown values.
      * */
     getTypeDropdownValues() {
         const { renderingContext } = this.context;
@@ -106,7 +117,7 @@ class ArgumentParameterDefinitionHolder extends React.Component {
 
     /**
      * Validate input from controller and apply condition to tell whether to change the state.
-     * @param {string} input
+     * @param {string} input Input value.
      * @return {boolean} true - change the state, false - don't change the state
      * */
     validateInput(input) {
@@ -115,8 +126,13 @@ class ArgumentParameterDefinitionHolder extends React.Component {
     }
 
     /**
-     * Validate type.
-     * */
+     * Validates the type
+     *
+     * @param {string} bType The ballerina type.
+     * @returns {boolean} true if valid, else false.
+     *
+     * @memberof ArgumentParameterDefinitionHolder
+     */
     validateType(bType) {
         let isValid = false;
         const typeList = this.getTypeDropdownValues();
@@ -127,6 +143,13 @@ class ArgumentParameterDefinitionHolder extends React.Component {
         return isValid;
     }
 
+    /**
+     * Renders the view for argument parameter definition holder.
+     *
+     * @returns {ReactElement} The view.
+     *
+     * @memberof ArgumentParameterDefinitionHolder
+     */
     render() {
         const model = this.props.model;
         const componentData = {
@@ -144,13 +167,21 @@ class ArgumentParameterDefinitionHolder extends React.Component {
         const children = getComponentForNodeArray(model.getChildren());
         return (
             <TagController
-                key={model.getID()} model={model} setter={this.addArgumentParameter}
-                validateInput={this.validateInput} modelComponents={children}
-                componentData={componentData} groupClass="argument-parameter-group"
+                key={model.getID()}
+                model={model}
+                setter={this.addArgumentParameter}
+                validateInput={this.validateInput}
+                modelComponents={children}
+                componentData={componentData}
+                groupClass="argument-parameter-group"
             />
         );
     }
 }
+
+ArgumentParameterDefinitionHolder.propTypes = {
+    model: PropTypes.instanceOf(ArgumentParameterDefinitionHolderAST).isRequired,
+};
 
 ArgumentParameterDefinitionHolder.contextTypes = {
     renderingContext: PropTypes.instanceOf(Object).isRequired,

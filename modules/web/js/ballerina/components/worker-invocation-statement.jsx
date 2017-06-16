@@ -39,8 +39,8 @@ class WorkerInvocationStatement extends React.Component {
     }
 
     render() {
-        let model = this.props.model;
-        let expression = model.viewState.expression;
+        const model = this.props.model;
+        const expression = model.viewState.expression;
         const bBox = model.getViewState().bBox;
         const arrowEnd = {
             x: 0,

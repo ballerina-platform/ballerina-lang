@@ -28,7 +28,7 @@ const Tab = Backbone.View.extend(
     {
         /**
          * Initializes a tab.
-         * 
+         *
          * @param {Object} options The object for creating a tab.
          * @param {string} options.title The title of the tab.
          * @param {HTMLElement} options.template The html element object for the tab.

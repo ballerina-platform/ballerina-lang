@@ -16,11 +16,24 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
+import AbortedStatementAST from './../ast/statements/aborted-statement';
+import BlockStatementDecorator from './block-statement-decorator';
 import { getComponentForNodeArray } from './utils';
 
+/**
+ * React component for Aborted Statement.
+ *
+ * @class AbortedStatement
+ * @extends {React.Component}
+ */
 class AbortedStatement extends React.Component {
+    /**
+     * Creates an instance of AbortedStatement.
+     * @param {Object} props React properties.
+     *
+     * @memberof AbortedStatement
+     */
     constructor(props) {
         super(props);
         this.onAddCommittedClick = this.onAddCommittedClick.bind(this);
@@ -44,8 +57,22 @@ class AbortedStatement extends React.Component {
         const bBox = model.viewState.bBox;
         if (!parent.getCommittedStatement()) {
             return (<g onClick={this.onAddCommittedClick}>
-                <rect x={bBox.x + bBox.w - 10} y={bBox.y + bBox.h - 25} width={20} height={20} rx={10} ry={10} className="add-else-button" />
-                <text x={bBox.x + bBox.w - 4} y={bBox.y + bBox.h - 15} width={20} height={20} className="add-else-button-label">+</text>
+                <rect
+                    x={bBox.x + bBox.w - 10}
+                    y={bBox.y + bBox.h - 25}
+                    width={20}
+                    height={20}
+                    rx={10}
+                    ry={10}
+                    className="add-else-button"
+                />
+                <text
+                    x={bBox.x + bBox.w - 4}
+                    y={bBox.y + bBox.h - 15}
+                    width={20}
+                    height={20}
+                    className="add-else-button-label"
+                >+</text>
             </g>);
         }
         return null;
@@ -53,8 +80,8 @@ class AbortedStatement extends React.Component {
 
     /**
      * Get block statement decorator for aborted statement.
-     * @param {object} utilities
-     * @return {object}
+     * @param {object} utilities utilities for BlockStatementDecorator.
+     * @return {ReactElement} View of a BlockStatementDecorator.
      * */
     getBlockStatementDecorator(utilities) {
         const model = this.props.model;
@@ -63,32 +90,39 @@ class AbortedStatement extends React.Component {
         const children = getComponentForNodeArray(model.getChildren());
         if (utilities) {
             return (<BlockStatementDecorator
-                dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                title={'Aborted'} utilities={utilities}
+                dropTarget={model}
+                bBox={bBox}
+                titleWidth={titleWidth}
+                title={'Aborted'}
+                utilities={utilities}
             >
                 {children}
             </BlockStatementDecorator>);
         }
         return (<BlockStatementDecorator
-            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
+            dropTarget={model}
+            bBox={bBox}
+            titleWidth={titleWidth}
             title={'Aborted'}
         >
             {children}
         </BlockStatementDecorator>);
     }
 
+    /**
+     * Renders the view for a aborted statement.
+     *
+     * @returns {ReactElement} The view.
+     *
+     * @memberof AbortedStatement
+     */
     render() {
         return this.getBlockStatementDecorator(this.getAddCommittedStatementButton());
     }
 }
 
 AbortedStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.instanceOf(AbortedStatementAST).isRequired,
 };
 
 export default AbortedStatement;

@@ -16,15 +16,24 @@
  * under the License.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
+import AnnotationEntryAST from '../ast/annotations/annotation-entry';
 
-class AnnotationEntry extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+/**
+ * React component for an annotation-entry.
+ *
+ * @class AnnotationEntry
+ * @extends {React.PureComponent}
+ */
+class AnnotationEntry extends React.PureComponent {
 
+    /**
+     * Renders view for an annotation entry.
+     *
+     * @returns {ReactElement} The view.
+     *
+     * @memberof AnnotationEntry
+     */
     render() {
         const model = this.props.model;
 
@@ -32,7 +41,7 @@ class AnnotationEntry extends React.Component {
         let rPrint = '';
         if (typeof rValue === 'string') {
             rPrint = rValue;
-        } else if (rValue.constructor.name == 'AnnotationEntryArray') {
+        } else if (rValue.constructor.name === 'AnnotationEntryArray') {
             rPrint = rValue.toString();
         }
 
@@ -42,5 +51,9 @@ class AnnotationEntry extends React.Component {
         </span>);
     }
 }
+
+AnnotationEntry.propTypes = {
+    model: PropTypes.instanceOf(AnnotationEntryAST).isRequired,
+};
 
 export default AnnotationEntry;
