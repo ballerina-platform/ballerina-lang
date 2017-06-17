@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.http;
+package org.ballerinalang.nativeimpl.net.httpsession;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -27,53 +27,55 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.services.dispatchers.Session;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 
 import static org.ballerinalang.nativeimpl.actions.http.Constants.COOKIE_HEADER;
 
 /**
- * Native function to set session attributes to the message.
+ * Native function to get session attribute.
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "setSessionAttribute",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
-                @Argument(name = "attributeKey", type = TypeEnum.STRING),
-                @Argument(name = "attributeValue", type = TypeEnum.STRING)},
+        packageName = "ballerina.net.httpsession",
+        functionName = "getAttribute",
+        args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
+                structPackage = "ballerina.net.httpsession"),
+                @Argument(name = "attributeKey", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets session attributes to the message")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m", value = "A message Object")})
+        value = "Gets the session attribute")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
+        value = "A session struct")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeKey",
         value = "HTTPSession attribute key")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeValue",
-        value = "HTTPSession attribute Value")})
-public class SetSessionAttribute extends AbstractNativeFunction {
-
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any",
+        value = "HTTPSession attribute value") })
+public class GetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-//        try {
+        try {
             CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             String attributeKey = getStringArgument(context, 0);
-            String attributeValue = getStringArgument(context, 1);
-
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
             Session session;
 
             if (cookieHeader != null) {
-                if (context.getSessionManager().getHTTPSession(cookieHeader) != null) {
-                    session = context.getSessionManager().getHTTPSession(cookieHeader);
-                    session.setAttribute(attributeKey, attributeValue);
+                session = context.getSessionManager().getHTTPSession(cookieHeader);
+                if (session != null) {
+                    return getBValues(session.getAttributeValue(attributeKey));
                 } else {
-                    throw new IllegalStateException();
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Session timeout");
                 }
             } else {
+                //not a request with cookie header
                 session = context.getSessionManager().createHTTPSession();
-                session.setAttribute(attributeKey, attributeValue);
                 carbonMessage.setHeader(COOKIE_HEADER, session.getId());
 
                 // Set any intermediate headers set during ballerina execution
@@ -81,11 +83,11 @@ public class SetSessionAttribute extends AbstractNativeFunction {
                     Headers headers = (Headers) carbonMessage.getProperty(Constants.INTERMEDIATE_HEADERS);
                     carbonMessage.setHeaders(headers.getAll());
                 }
+                return VOID_RETURN;
             }
+        } catch (Exception e) {
+            throw new BallerinaException(e);
 
-//        } catch (Exception e) {
-//            throw new BallerinaException("Exception while setting attribute");
-//        }
-        return VOID_RETURN;
+        }
     }
 }

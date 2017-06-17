@@ -18,6 +18,7 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.Session;
 import org.ballerinalang.services.dispatchers.SessionManager;
 
@@ -32,7 +33,7 @@ public class HTTPSession implements Session {
     private String id;
     private Long createTime;
     private Long lastAccessedTime;
-    private Map<String, String> attributeMap = new ConcurrentHashMap<>();
+    private Map<String, BValue> attributeMap = new ConcurrentHashMap<>();
 
     public HTTPSession(String id) {
         this.id = id;
@@ -46,12 +47,12 @@ public class HTTPSession implements Session {
     }
 
     @Override
-    public void setAttribute(String attributeKey, String attributeValue) {
+    public void setAttribute(String attributeKey, BValue attributeValue) {
         attributeMap.put(attributeKey, attributeValue);
     }
 
     @Override
-    public String getAttributeValue(String attributeKey) {
+    public BValue getAttributeValue(String attributeKey) {
         return attributeMap.get(attributeKey);
     }
 
