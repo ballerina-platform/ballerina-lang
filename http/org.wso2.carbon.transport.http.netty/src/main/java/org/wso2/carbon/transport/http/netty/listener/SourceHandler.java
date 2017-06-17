@@ -46,7 +46,6 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -264,21 +263,29 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
-        targetChannelPerHostPool.forEach((k, targetChannel) -> targetChannel.getChannel().close());
+
+        if (connectionManager.getPoolConfiguration().getNumberOfPools() == 0) {
+            targetChannelPool.forEach((k, genericObjectPool) -> {
+                try {
+                    genericObjectPool.close();
+                } catch (Exception e) {
+                    log.error("Couldn't close target channel socket connections", e);
+                }
+            });
+        } else if (connectionManager.getPoolConfiguration().getNumberOfPools() == 2) {
+            targetChannelPerHostPool.forEach((k, targetChannel) -> targetChannel.getChannel().close());
+        }
+
         connectionManager.notifyChannelInactive();
     }
 
-    public void addTargetChannel(HttpRoute route, TargetChannel targetChannel) {
-        channelFutureMap.put(route.toString(), targetChannel);
-    }
-
-    public TargetChannel removeChannelFuture(HttpRoute route) {
-        return channelFutureMap.remove(route.toString());
-    }
-
-    public boolean isChannelFutureExists(HttpRoute route) {
-        return (channelFutureMap.get(route.toString()) != null);
-    }
+//    public TargetChannel removeChannelFuture(HttpRoute route) {
+//        return channelFutureMap.remove(route.toString());
+//    }
+//
+//    public boolean isChannelFutureExists(HttpRoute route) {
+//        return (channelFutureMap.get(route.toString()) != null);
+//    }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return targetChannelPool;
