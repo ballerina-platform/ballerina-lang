@@ -131,6 +131,12 @@ public class BallerinaSdkUtil {
         return null;
     }
 
+
+    @NotNull
+    public static String adjustSdkPath(@NotNull String path) {
+        return path;
+    }
+
     @Nullable
     public static String parseBallerinaVersion(@NotNull String text) {
         Matcher matcher = BALLERINA_VERSION_PATTERN.matcher(text);
@@ -234,8 +240,8 @@ public class BallerinaSdkUtil {
         if (project.isDefault()) {
             return Collections.emptyList();
         }
-        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(),
-                BallerinaSdkService::isBallerinaModule);
+        BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
+        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isBallerinaModule);
     }
 
     @Nullable
