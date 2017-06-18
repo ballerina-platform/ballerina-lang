@@ -34,6 +34,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
@@ -434,7 +435,15 @@ public class NameReference extends BallerinaElementReference {
                 FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(myElement,
                         FunctionInvocationNode.class);
                 if (functionInvocationNode != null) {
-                    return false;
+                    ExpressionListNode expressionListNode = PsiTreeUtil.getParentOfType(myElement,
+                            ExpressionListNode.class);
+                    // Without this check, the parameters in the function invocation in the "assignment + function
+                    // invocation" statements will fail.
+                    // Eg: nameString = jsons:getString(jsonMsg, "$.name");
+                    // In here, selecting the "jsonMsg" will not highlight the definition.
+                    if (expressionListNode == null) {
+                        return false;
+                    }
                 }
                 // Don't check struct field references.
                 boolean isStructField = BallerinaPsiImplUtil.isStructField(myElement);
