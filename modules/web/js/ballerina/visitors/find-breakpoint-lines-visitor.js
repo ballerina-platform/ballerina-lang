@@ -16,23 +16,46 @@
  * under the License.
  */
 
-import ASTVisitor from './ast-visitor';
 import _ from 'lodash';
+import ASTVisitor from './ast-visitor';
 
+/**
+ * Finds line numbers of breakpoints in the model
+ *
+ * @class FindBreakpointLinesVisitor
+ * @extends {ASTVisitor}
+ */
 class FindBreakpointLinesVisitor extends ASTVisitor {
+    /**
+     * Creates an instance of FindBreakpointLinesVisitor.
+     *
+     */
     constructor() {
         super();
         this._breakpoints = [];
     }
+    /**
+     *
+     * Returns the array of breakpoint line numbers
+     * @returns {int[]}
+     *
+     * @memberof FindBreakpointLinesVisitor
+     */
     getBreakpoints() {
         return _.sortedUniq(this._breakpoints);
     }
+    /**
+     * @inheritdoc
+     */
     beginVisit(node) {
         if (node.isBreakpoint) {
             const lineNumber = node.getLineNumber();
             this._breakpoints.push(lineNumber);
         }
     }
+    /**
+     * @inheritdoc
+     */
     canVisit() {
         return true;
     }

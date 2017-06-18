@@ -24,7 +24,10 @@ import alerts from 'alerts';
 import LaunchManager from './launch-manager';
 
 const Launcher = Backbone.View.extend({
-
+    /**
+     * Launcher view
+     * @param {Object} config - Configuration object
+     */
     initialize(config) {
         let errMsg;
         if (!_.has(config, 'container')) {
@@ -33,7 +36,7 @@ const Launcher = Backbone.View.extend({
             throw errMsg;
         }
         const container = $(_.get(config, 'container'));
-            // check whether container element exists in dom
+        // check whether container element exists in dom
         if (!container.length > 0) {
             errMsg = `unable to find container for file browser with selector: ${_.get(config, 'container')}`;
             log.error(errMsg);
@@ -51,9 +54,9 @@ const Launcher = Backbone.View.extend({
         this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
         this._items = [];
 
-            // register command
+        // register command
         this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
-        this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
+        this.application.commandManager.registerHandler(config.command.id, this.toggleLauncher, this);
 
         this.compiled = _.template(`
             <div>
@@ -110,7 +113,10 @@ const Launcher = Backbone.View.extend({
             this.appArgsDialog.modal('show');
         });
     },
-
+    /**
+     * Run Service, Alerts an error to user if file is not saved
+     *
+     */
     runService() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
@@ -120,7 +126,10 @@ const Launcher = Backbone.View.extend({
             alerts.error('Save file before running service');
         }
     },
-
+    /**
+     * Run application, Alerts an error to user if file is not saved
+     *
+     */
     runApplication() {
         const activeTab = this.application.tabController.getActiveTab();
 
@@ -132,7 +141,12 @@ const Launcher = Backbone.View.extend({
             alerts.error('Save file before running application');
         }
     },
-
+    /**
+     * Checks whether file or service in the FileTab is ready to run.
+     *
+     * @param {FileTab} tab - instance of FileTab
+     * @returns Boolean
+     */
     isReadyToRun(tab) {
         if (typeof tab.getFile !== 'function') {
             return false;
@@ -146,11 +160,17 @@ const Launcher = Backbone.View.extend({
 
         return true;
     },
-
+    /**
+     * Stops currently running application or service
+     *
+     */
     stopProgram() {
         LaunchManager.stopProgram();
     },
-
+    /**
+     * Redeploy currently running application or service
+     *
+     */
     reDeployProgram() {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
@@ -163,12 +183,19 @@ const Launcher = Backbone.View.extend({
             alerts.error('Save file before redeploying service');
         }
     },
-
+    /**
+     * Returns true if launcher toolbar is active
+     *
+     * @returns Boolean
+     */
     isActive() {
         return this._activateBtn.parent('li').hasClass('active');
     },
-
-    toggleExplorer() {
+    /**
+     * Toggle launcher view
+     *
+     */
+    toggleLauncher() {
         if (this.isActive()) {
             this._$parent_el.parent().width('0px');
             this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
@@ -185,7 +212,7 @@ const Launcher = Backbone.View.extend({
             this.application.reRender();// to update the diagrams
         }
     },
-
+    /** @inheritdoc */
     render() {
         const activateBtn = $(_.get(this._options, 'activateBtn'));
         this._activateBtn = activateBtn;
@@ -225,12 +252,17 @@ const Launcher = Backbone.View.extend({
         $('.btn-debug-activate').tooltip();
         return this;
     },
-
-
+    /**
+     * Render body of the launcher view
+     *
+     */
     renderBody() {
         this._launcherContainer.html(this.compiled(LaunchManager));
     },
-
+    /**
+     * Opens console output
+     *
+     */
     showConsole() {
         $('#tab-content-wrapper').css('height:70%');
         $('#console-container').css('height:30%');

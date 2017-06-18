@@ -23,8 +23,11 @@ import log from 'log';
 import Tools from './tools';
 import Frames from './frames';
 import './debugger.css';
-
+/**
+ * Debugger view
+ */
 const Debugger = Backbone.View.extend({
+    /** @inheritdoc */
     initialize(config) {
         let errMsg;
         this._breakPoints = {};
@@ -58,9 +61,18 @@ const Debugger = Backbone.View.extend({
         this.application.commandManager.registerCommand(config.command.id, { shortcuts: config.command.shortcuts });
         this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
     },
+    /**
+     * Returns true if debugger toolbar is active
+     *
+     * @returns Boolean
+     */
     isActive() {
         return this._activateBtn.parent('li').hasClass('active');
     },
+    /**
+     * Toggle debugger view
+     *
+     */
     toggleDebugger() {
         if (this.isActive()) {
             this._$parent_el.parent().width('0px');
@@ -78,7 +90,7 @@ const Debugger = Backbone.View.extend({
             this.application.reRender();// to update the diagrams
         }
     },
-
+    /** @inheritdoc */
     render() {
         const activateBtn = $(_.get(this._options, 'activateBtn'));
         this._activateBtn = activateBtn;
@@ -115,7 +127,10 @@ const Debugger = Backbone.View.extend({
 
         return this;
     },
-
+    /**
+     * Render body of the debugger view
+     *
+     */
     renderContent() {
         const debuggerContainer = $(`
             <div>
