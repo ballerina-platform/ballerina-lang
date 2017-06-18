@@ -27,12 +27,11 @@ import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
-import org.ballerinalang.plugins.idea.configuration.GoSdkConfigurable;
+import org.ballerinalang.plugins.idea.configuration.BallerinaSdkConfigurable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,8 +57,8 @@ public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
                             String libraryName = library.getName();
                             if (libraryName != null && libraryName.startsWith(LIBRARY_NAME)) {
                                 for (VirtualFile root : library.getFiles(OrderRootType.CLASSES)) {
-                                    if (isGoSdkLibRoot(root)) {
-                                        //                                        return libraryRootToSdkPath(root);
+                                    if (isBallerinaSdkLibRoot(root)) {
+                                        return libraryRootToSdkPath(root);
                                     }
                                 }
                             }
@@ -90,13 +89,13 @@ public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
 
     @Override
     public void chooseAndSetSdk(@Nullable Module module) {
-        ShowSettingsUtil.getInstance().editConfigurable(myProject, new GoSdkConfigurable(myProject, true));
+        ShowSettingsUtil.getInstance().editConfigurable(myProject, new BallerinaSdkConfigurable(myProject, true));
     }
 
     @Nullable
     @Override
     public Configurable createSdkConfigurable() {
-        return !myProject.isDefault() ? new GoSdkConfigurable(myProject, false) : null;
+        return !myProject.isDefault() ? new BallerinaSdkConfigurable(myProject, false) : null;
     }
 
     @Override
@@ -104,7 +103,7 @@ public class BallerinaSmallIDEsSdkService extends BallerinaSdkService {
         return super.isBallerinaModule(module) && getSdkHomePath(module) != null;
     }
 
-    public static boolean isGoSdkLibRoot(@NotNull VirtualFile root) {
+    public static boolean isBallerinaSdkLibRoot(@NotNull VirtualFile root) {
 
         return false;
         //        return root.isInLocalFileSystem() &&

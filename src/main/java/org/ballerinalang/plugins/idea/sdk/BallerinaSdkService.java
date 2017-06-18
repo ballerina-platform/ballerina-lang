@@ -27,6 +27,9 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.SimpleModificationTracker;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Contract;
@@ -56,6 +59,11 @@ public abstract class BallerinaSdkService extends SimpleModificationTracker {
 
     @Nullable
     public abstract String getSdkHomePath(@Nullable Module module);
+
+    @NotNull
+    public static String libraryRootToSdkPath(@NotNull VirtualFile root) {
+        return VfsUtilCore.urlToPath(StringUtil.trimEnd(StringUtil.trimEnd(StringUtil.trimEnd(root.getUrl(), "src/pkg"), "src"), "/"));
+    }
 
     @Nullable
     public String getSdkVersion(@Nullable Module module) {

@@ -147,6 +147,7 @@
         <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
                         serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaSmallIDEsSdkService"
                         overrides="false"/>
+        <editorNotificationProvider implementation="org.ballerinalang.plugins.idea.inspections.WrongSdkConfigurationNotificationProvider"/>
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>

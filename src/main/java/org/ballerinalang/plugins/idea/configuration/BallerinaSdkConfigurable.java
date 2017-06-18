@@ -63,7 +63,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 
-public class GoSdkConfigurable implements SearchableConfigurable, Configurable.NoScroll {
+public class BallerinaSdkConfigurable implements SearchableConfigurable, Configurable.NoScroll {
 
     private static final String VERSION_GETTING = "VERSION_GETTING_CARD";
     private static final String VERSION_RESULT = "VERSION_RESULT_CARD";
@@ -80,7 +80,7 @@ public class GoSdkConfigurable implements SearchableConfigurable, Configurable.N
     private JBLabel myVersionLabel;
     private Color myDefaultLabelColor;
 
-    public GoSdkConfigurable(@NotNull Project project, boolean dialogMode) {
+    public BallerinaSdkConfigurable(@NotNull Project project, boolean dialogMode) {
         myProject = project;
         if (dialogMode) {
             myComponent.setPreferredSize(new Dimension(400, -1));
@@ -148,7 +148,7 @@ public class GoSdkConfigurable implements SearchableConfigurable, Configurable.N
     @NotNull
     @Override
     public String getId() {
-        return "go.sdk";
+        return "ballerina.sdk";
     }
 
     @Nullable
@@ -160,7 +160,7 @@ public class GoSdkConfigurable implements SearchableConfigurable, Configurable.N
     @Nls
     @Override
     public String getDisplayName() {
-        return "Go SDK";
+        return "Ballerina SDK";
     }
 
     @Nullable
@@ -228,7 +228,7 @@ public class GoSdkConfigurable implements SearchableConfigurable, Configurable.N
 
         myVersionPanel = new JPanel(new JBCardLayout());
         JPanel gettingVersionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        AsyncProcessIcon gettingVersionIcon = new AsyncProcessIcon("Getting Go version");
+        AsyncProcessIcon gettingVersionIcon = new AsyncProcessIcon("Getting Ballerina version");
         gettingVersionPanel.add(gettingVersionIcon);
         gettingVersionPanel.add(new JLabel("Getting..."));
         myVersionPanel.add(gettingVersionPanel, VERSION_GETTING);
@@ -250,8 +250,8 @@ public class GoSdkConfigurable implements SearchableConfigurable, Configurable.N
 
     private class MyBrowseFolderListener extends ComponentWithBrowseButton.BrowseFolderActionListener<JTextField> {
         public MyBrowseFolderListener(@NotNull FileChooserDescriptor descriptor) {
-            super("Select Go SDK Path", "", mySdkPathField, myProject, descriptor, TextComponentAccessor
-                    .TEXT_FIELD_WHOLE_TEXT);
+            super("Select Ballerina SDK Path", "", mySdkPathField, myProject, descriptor,
+                    TextComponentAccessor                    .TEXT_FIELD_WHOLE_TEXT);
         }
 
         @Nullable
