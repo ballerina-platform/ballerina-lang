@@ -40,6 +40,10 @@ class LifeLine extends React.Component {
         this.props.onDelete();
     }
 
+    /**
+     * Navigates to codeline in the source view from the design view node
+     *
+     */
     onJumptoCodeLine() {
         const { renderingContext: { ballerinaFileEditor } } = this.context;
         const container = ballerinaFileEditor._container;

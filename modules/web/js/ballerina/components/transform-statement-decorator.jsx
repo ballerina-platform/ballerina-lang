@@ -74,7 +74,10 @@ class TransformStatementDecorator extends React.Component {
     onDelete() {
         this.props.model.remove();
     }
-
+    /**
+     * Navigates to codeline in the source view from the design view node
+     *
+     */
     onJumptoCodeLine() {
         const { viewState: { fullExpression } } = this.props;
         const { renderingContext: { ballerinaFileEditor } } = this.context;

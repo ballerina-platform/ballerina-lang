@@ -56,7 +56,10 @@ class BlockStatementDecorator extends React.Component {
         const model = this.props.model || this.props.dropTarget;
         model.remove();
     }
-
+    /**
+     * Navigates to codeline in the source view from the design view node
+     *
+     */
     onJumptoCodeLine() {
         const { renderingContext: { ballerinaFileEditor } } = this.context;
 

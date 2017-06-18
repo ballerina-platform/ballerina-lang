@@ -109,7 +109,10 @@ class StatementDecorator extends React.Component {
     }
     }
     }
-
+    /**
+     * Navigates to codeline in the source view from the design view node
+     *
+     */
     onJumptoCodeLine() {
         const { viewState: { fullExpression } } = this.props;
         const { renderingContext: { ballerinaFileEditor } } = this.context;
