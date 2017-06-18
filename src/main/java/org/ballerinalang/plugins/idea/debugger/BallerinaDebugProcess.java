@@ -76,7 +76,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
     private final AtomicBoolean connectedListenerAdded = new AtomicBoolean();
 
-    private static final int MAX_RETRIES = 10;
+    private static final int MAX_RETRIES = 20;
 
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
                                  @NotNull ExecutionResult executionResult) {
@@ -127,20 +127,25 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     myConnector.createConnection();
                     if (myConnector.isConnected()) {
                         LOGGER.debug("Connection created.");
-                        addDebugHitListener();
-                        initBreakpointHandlersAndSetBreakpoints(true);
-                        LOGGER.debug("Sending breakpoints.");
-                        myBreakPointHandler.sendBreakpoints();
-                        LOGGER.debug("Sending start command.");
-                        myConnector.sendCommand(Command.START);
+                        startDebugSession();
                         break;
                     }
                 } else {
                     LOGGER.debug("Connection already created.");
+                    startDebugSession();
                     break;
                 }
             }
         });
+    }
+
+    private void startDebugSession() {
+        addDebugHitListener();
+        initBreakpointHandlersAndSetBreakpoints(true);
+        LOGGER.debug("Sending breakpoints.");
+        myBreakPointHandler.sendBreakpoints();
+        LOGGER.debug("Sending start command.");
+        myConnector.sendCommand(Command.START);
     }
 
     @Override
@@ -181,14 +186,14 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public boolean checkCanInitBreakpoints() {
-        if (myConnector.isConnected()) {
-            // breakpointsInitiated could be set in another thread and at this point work (init breakpoints) could be
-            // not yet performed
-            return initBreakpointHandlersAndSetBreakpoints(true);
-        }
-        if (connectedListenerAdded.compareAndSet(false, true)) {
-            addDebugHitListener();
-        }
+//        if (myConnector.isConnected()) {
+//            // breakpointsInitiated could be set in another thread and at this point work (init breakpoints) could be
+//            // not yet performed
+//            return initBreakpointHandlersAndSetBreakpoints(true);
+//        }
+//        if (connectedListenerAdded.compareAndSet(false, true)) {
+//            addDebugHitListener();
+//        }
         return false;
     }
 
