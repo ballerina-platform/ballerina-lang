@@ -205,8 +205,8 @@ public class ConnectionManager {
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.LOCKLESS_DEFAULT_POOLING) {
             // this is the lock less impl of LOCK_DEFAULT_POOLING. 90% of the
-            // time this should work unless user decide to weird integrations.
-            // just kept it here in case we need extreme level of per numbers.
+            // time this should work unless user decide to do weird integrations.
+            // just kept it here in case we need extreme level of perf numbers.
             try {
                 Map<String, TargetChannel> connPool = sourceHandler.getTargetChannelPerHostPool();
                 TargetChannel targetChannel = connPool.remove(httpRoute.toString());
