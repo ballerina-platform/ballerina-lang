@@ -125,7 +125,7 @@ ActionBox.propTypes = {
     }).isRequired,
     show: PropTypes.string,
     isBreakpoint: PropTypes.bool,
-    onBreakpointClick: PropTypes.func.isRequired,
+    onBreakpointClick: PropTypes.func,
     onDelete: PropTypes.func.isRequired,
     onJumptoCodeLine: PropTypes.func.isRequired,
 };
@@ -133,6 +133,7 @@ ActionBox.propTypes = {
 ActionBox.defaultProps = {
     show: false,
     isBreakpoint: false,
+    onBreakpointClick: () => {},
 };
 
 
