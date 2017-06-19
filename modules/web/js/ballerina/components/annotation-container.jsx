@@ -22,7 +22,7 @@ import _ from 'lodash';
 import BallerinaEnvironment from '../env/environment';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import { getComponentForNodeArray } from './utils';
-import ASTNode from './../ast/node';
+import AnnotationContainerUtil from '../components/utils/annotation-container';
 
 /**
  * React component for the annotation container.
@@ -490,7 +490,7 @@ class AnnotationContainer extends React.Component {
 }
 
 AnnotationContainer.propTypes = {
-    model: PropTypes.instanceOf(ASTNode).isRequired,
+    model: PropTypes.instanceOf(AnnotationContainerUtil).isRequired,
 };
 
 AnnotationContainer.contextTypes = {
