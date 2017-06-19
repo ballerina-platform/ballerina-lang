@@ -108,7 +108,8 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
                             && cursorPosition.getLineNumber() <= token.getLine()) {
                         if (cursorPosition.getLineNumber() == lastNonHiddenToken.getLine()) {
                             isCursorBetween = cursorPosition.getOffset() >=
-                                    (lastNonHiddenToken.getCharPositionInLine() + lastNonHiddenToken.getText().length());
+                                    (lastNonHiddenToken.getCharPositionInLine()
+                                            + lastNonHiddenToken.getText().length());
                         } else if (cursorPosition.getLineNumber() == token.getLine()) {
                             isCursorBetween = cursorPosition.getOffset() <= token.getCharPositionInLine();
                         } else {
