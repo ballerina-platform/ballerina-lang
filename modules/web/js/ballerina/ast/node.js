@@ -476,28 +476,24 @@ class ASTNode extends EventChannel {
     }
     /**
      * Sets isBreakpoint atribute to node
-     *
      */
     addBreakpoint() {
         this.isBreakpoint = true;
     }
     /**
      * Removes isBreakpoint atribute to node
-     *
      */
     removeBreakpoint() {
         this.isBreakpoint = false;
     }
     /**
      * Sets isDebugHit atribute to node
-     *
      */
     addDebugHit() {
         this.setAttribute('isDebugHit', true);
     }
     /**
      * Removes isDebugHit atribute from node
-     *
      */
     removeDebugHit() {
         this.setAttribute('isDebugHit', false);
@@ -506,7 +502,6 @@ class ASTNode extends EventChannel {
      * Set lineNumber atribute to node
      * @param {number} lineNumber
      * @param {object} options
-     *
      */
     setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
@@ -515,7 +510,6 @@ class ASTNode extends EventChannel {
      * Set isLiteral atribute to node
      * @param {boolean} isLiteral
      * @param {object} options
-     *
      */
     setIsIdentifierLiteral(isLiteral, options) {
         this.setAttribute('_is_identifier_literal', isLiteral, options);
@@ -530,7 +524,6 @@ class ASTNode extends EventChannel {
     /**
      * Get line number of the node
      * @returns {number}
-     *
      */
     getLineNumber() {
         return this.getAttribute('_lineNumber');
