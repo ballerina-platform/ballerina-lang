@@ -12,6 +12,21 @@ struct Person {
     boolean alive;
 }
 
+function testIntToVarAssignment() (int) {
+    var age = 81;
+    return age;
+}
+
+function testStringToVarAssignment() (string) {
+    var name = "kevin";
+    return name;
+}
+
+function testBooleanToVarAssignment() (boolean) {
+    var isHappy = true;
+    return isHappy;
+}
+
 function testIncompatibleJsonToStructWithErrors() (Person, errors:TypeConversionError) {
     json j = { name:"Child",
                age:25,

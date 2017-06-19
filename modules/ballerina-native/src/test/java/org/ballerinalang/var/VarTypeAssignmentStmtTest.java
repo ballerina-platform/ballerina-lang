@@ -22,6 +22,7 @@ package org.ballerinalang.var;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -43,6 +44,27 @@ public class VarTypeAssignmentStmtTest {
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.getProgramFile("lang/var/var-type-assign-stmt.bal");
+    }
+
+    @Test
+    public void testIntToVarAssignment() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntToVarAssignment",
+                new BValue[]{});
+        Assert.assertEquals(((BInteger)returns[0]).intValue(), 81);
+    }
+
+    @Test
+    public void testStringToVarAssignment() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStringToVarAssignment",
+                new BValue[]{});
+        Assert.assertEquals(((BString)returns[0]).stringValue(), "kevin");
+    }
+
+    @Test
+    public void testBooleanToVarAssignment() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanToVarAssignment",
+                new BValue[]{});
+        Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), true);
     }
 
     @Test
