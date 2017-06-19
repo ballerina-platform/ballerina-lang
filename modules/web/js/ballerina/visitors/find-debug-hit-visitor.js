@@ -18,14 +18,30 @@
 
 import ASTVisitor from './ast-visitor';
 
+/**
+ * Debug hit visitor class for indicate debug hit
+ * @class FindDebugHitVisitor
+ * @extends {ASTVisitor}
+ */
 class FindDebugHitVisitor extends ASTVisitor {
+    /**
+     * Creates an instance of FindDebugHitVisitor.
+     * @memberof FindDebugHitVisitor
+     */
     constructor() {
         super();
         this._position = {};
     }
+    /**
+     * @param {object} position - object with line number and file name properties
+     * @memberof FindDebugHitVisitor
+     */
     setPosition(position) {
         this._position = position;
     }
+    /**
+     * @inheritdoc
+     */
     beginVisit(node) {
         if (node.getLineNumber() === this._position.lineNumber) {
             node.addDebugHit();
@@ -35,6 +51,9 @@ class FindDebugHitVisitor extends ASTVisitor {
             node.removeDebugHit();
         }
     }
+    /**
+     * @inheritdoc
+     */
     canVisit() {
         return true;
     }
