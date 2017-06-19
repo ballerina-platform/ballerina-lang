@@ -74,7 +74,10 @@ class TransformStatementDecorator extends React.Component {
     onDelete() {
         this.props.model.remove();
     }
-
+    /**
+     * Navigates to codeline in the source view from the design view node
+     *
+     */
     onJumptoCodeLine() {
         const { viewState: { fullExpression } } = this.props;
         const { renderingContext: { ballerinaFileEditor } } = this.context;
@@ -83,7 +86,9 @@ class TransformStatementDecorator extends React.Component {
         $(container).find('.view-source-btn').trigger('click');
         ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
     }
-
+    /**
+     * Renders breakpoint indicator
+     */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
         const pointX = this.statementBox.x + this.statementBox.w - breakpointSize / 2;
@@ -98,7 +103,10 @@ class TransformStatementDecorator extends React.Component {
                 />
         );
     }
-
+    /**
+     * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
+     *
+     */
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
