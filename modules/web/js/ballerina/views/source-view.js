@@ -20,13 +20,18 @@ import _ from 'lodash';
 import $ from 'jquery';
 import alerts from 'alerts';
 import EventChannel from 'event_channel';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
-import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
+import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
+import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
+
 let ace = global.ace;
 let Range = ace.acequire('ace/range').Range;
+
+ // require ballerina mode
+ const langTools = ace.acequire('ace/ext/language_tools');
 
 // require possible themes
 function requireAll(requireContext) {
@@ -60,6 +65,7 @@ class SourceView extends EventChannel {
         this._markers = {};
         this._gutter = 25;
         this._storage = _.get(args, 'storage');
+        this._langserverController = _.get(args, 'langserverClientController');
     }
 
     render() {
@@ -75,6 +81,12 @@ class SourceView extends EventChannel {
             : _.get(this._options, 'font_size');
 
         let editorTheme = ace.acequire(editorThemeName);
+
+        const sourceViewCompleter = SourceViewCompleterFactory.getSourceViewCompleter(this._langserverController);
+        // TODO: Enable the completer after features are completed
+        // if (sourceViewCompleter) {
+        //     langTools.setCompleters(sourceViewCompleter);
+        // }
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);

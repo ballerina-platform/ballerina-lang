@@ -17,15 +17,21 @@
  */
 /* eslint-env es6 */
 
+import _ from 'lodash';
 import EventChannel from 'event_channel';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
-import _ from 'lodash';
-import log from 'log';
-
 
 // ################ Handle the websocket closing and error as well #######################
+/**
+ * Class for language server client controller
+ */
 class LangServerClientController extends EventChannel {
+    /**
+     * Constructor for LangServerClientController
+     * @param {object} options - constructor options
+     * @constructor
+     */
     constructor(options) {
         super();
         this.langserverChannel = undefined;
@@ -35,6 +41,9 @@ class LangServerClientController extends EventChannel {
         this.init();
     }
 
+    /**
+     * Initialize LangServerClientController
+     */
     init() {
         this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
         this.langserverChannel.on('connected', () => {
@@ -64,7 +73,7 @@ class LangServerClientController extends EventChannel {
 
     /**
      * Send the workspace symbol request
-     * @param {string} query
+     * @param {string} query - query parameter for symbol
      * @param {function} callback Callback method for handling the response
      */
     workspaceSymbolRequest(query, callback) {
@@ -89,6 +98,10 @@ class LangServerClientController extends EventChannel {
 
     // Start language server notifications
 
+    /**
+     * Document did open request notification processor
+     * @param {object} options - document did open options
+     */
     documentDidOpenNotification(options) {
         const message = {
             jsonrpc: '2.0',
@@ -101,6 +114,10 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel.sendMessage(message);
     }
 
+    /**
+     * Document did close request notification processor
+     * @param {object} options - document did close options
+     */
     documentDidCloseNotification(options) {
         const message = {
             jsonrpc: '2.0',
@@ -113,6 +130,10 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel.sendMessage(message);
     }
 
+    /**
+     * Document did save request notification processor
+     * @param {object} options - document did save options
+     */
     documentDidSaveNotification(options) {
         const message = {
             jsonrpc: '2.0',
@@ -123,32 +144,64 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel.sendMessage(message);
     }
 
+    /**
+     * Get completions request processor
+     * @param {object} options - get completions' options
+     * @param {function} callback - callback function to set the completions in the editor
+     */
+    getCompletions(options, callback) {
+        const session = new RequestSession();
+        const message = {
+            id: session.getId(),
+            jsonrpc: '2.0',
+            method: 'textDocument/completion',
+            params: {
+                text: options.textDocument,
+                position: options.position,
+            },
+        };
+
+        session.setMessage(message);
+        session.setCallback((responseMsg) => {
+            callback(responseMsg);
+        });
+        this.requestSessions.push(session);
+        this.langserverChannel.sendMessage(message);
+    }
+
     // End language server notifications
 
+    /**
+     * Process the language server message
+     * @param {object} message - response message
+     */
     processMessage(message) {
-        const session = _.find(this.requestSessions, session => session.getId() === message.id);
+        const session = _.find(this.requestSessions, (requestSession) => {
+            return requestSession.getId() === message.id;
+        });
         session.executeCallback(message);
     }
 
     // Start Language server response handlers
 
     /**
-     * Handle initialize response
-     * @param {RequestSession} requestSession
+     * Initialize the response handler
      */
-    initializeResponseHandler(requestSession) {
+    initializeResponseHandler() {
         // initialize response message received
         this.trigger('langserver-initialized');
         this.isInitialized = true;
     }
 
+    /**
+     * Check whether the language server is initialized
+     * @return {boolean} true|false - whether server is initialized or not
+     */
     initialized() {
         return this.isInitialized;
     }
 
     // End language server response handlers
-
-
 }
 
 export default LangServerClientController;

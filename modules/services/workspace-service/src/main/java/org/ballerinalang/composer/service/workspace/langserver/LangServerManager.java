@@ -24,21 +24,25 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParamsDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorDataDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResultDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.MessageDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.PositionDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseErrorDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseMessageDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformationDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifierDTO;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItemDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,6 +131,9 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.WORKSPACE_SYMBOL:
                     this.getWorkspaceSymbol(message);
+                    break;
+                case LangServerConstants.TEXT_DOCUMENT_COMPLETION:
+                    this.getCompletionItems(message);
                     break;
                 default:
                     // Valid Method could not be found
@@ -354,6 +361,38 @@ public class LangServerManager {
      */
     private void exit(MessageDTO message) {
         //Exit the process
+    }
+
+    /**
+     * Get the completion items
+     * @param message - Request Message
+     */
+    private void getCompletionItems(MessageDTO message) {
+        if (message instanceof RequestMessageDTO) {
+            JsonObject params = gson.toJsonTree(((RequestMessageDTO) message).getParams()).getAsJsonObject();
+            TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
+                    TextDocumentPositionParams.class);
+            String textContent = textDocumentPositionParams.getText();
+            PositionDTO position = textDocumentPositionParams.getPosition();
+
+            logger.info(textContent);
+            logger.info(position.toString());
+
+            ArrayList<CompletionItemDTO> completionItems = new ArrayList<>();
+            CompletionItemDTO completionItemDTO1 = new CompletionItemDTO();
+            completionItemDTO1.setLabel("Label1");
+            CompletionItemDTO completionItemDTO2 = new CompletionItemDTO();
+            completionItemDTO2.setLabel("Label2");
+            completionItems.add(completionItemDTO1);
+            completionItems.add(completionItemDTO2);
+
+            ResponseMessageDTO responseMessage = new ResponseMessageDTO();
+            responseMessage.setId(((RequestMessageDTO) message).getId());
+            responseMessage.setResult(completionItems.toArray(new CompletionItemDTO[0]));
+            pushMessageToClient(langServerSession, responseMessage);
+        } else {
+            logger.warn("Invalid Message type found");
+        }
     }
 
     // End Notification Handlers
