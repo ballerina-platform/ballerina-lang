@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
-import CommitedStatementAST from './../ast/statemcommitted-statement';
+import CommitedStatementAST from './../ast/statements/committed-statement';
 
 /**
  * React component for committed statement.
