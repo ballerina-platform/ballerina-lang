@@ -117,8 +117,9 @@ class TransformStatementDecorator extends React.Component {
 
         let sourceContent = $(
                 '<div class="source-view">' +
+                '<p class="type-select-header">Source : </p>'+
                 '<select id="' + sourceId + '" class="type-mapper-combo">' +
-                '<option value="-1">-- Select source --</option>' +
+                '<option value="-1">-- Select --</option>' +
                 '</select>' +
                 ' <span id="btn-add-source" class="btn-add-type fw-stack fw-lg btn btn-add">' +
                 '            <i class="fw fw-add fw-stack-1x"></i>' +
@@ -129,8 +130,9 @@ class TransformStatementDecorator extends React.Component {
 
         let targetContent = $(
                 '<div class="target-view">' +
+                '<p class="type-select-header">Target : </p>'+
                 '<select id="' + targetId + '" class="type-mapper-combo">' +
-                '<option value="-1">-- Select target --</option>' +
+                '<option value="-1">-- Select --</option>' +
                 '</select>' +
                 ' <span id="btn-add-target" class="btn-add-type fw-stack fw-lg btn btn-add">' +
                 '            <i class="fw fw-add fw-stack-1x"></i>' +
