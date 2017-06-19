@@ -41,11 +41,11 @@ class StatementDecorator extends React.Component {
         this.stopDragZones = this.stopDragZones.bind(this);
 
         this.state = {
-		    innerDropZoneActivated: false,
-	        innerDropZoneDropNotAllowed: false,
-	        innerDropZoneExist: false,
-        active: 'hidden',
-    };
+            innerDropZoneActivated: false,
+            innerDropZoneDropNotAllowed: false,
+            innerDropZoneExist: false,
+            active: 'hidden',
+        };
     }
 
     componentDidMount() {
@@ -82,35 +82,35 @@ class StatementDecorator extends React.Component {
         const dropTarget = this.props.model.getParent();
         const model = this.props.model;
         if (dragDropManager.isOnDrag()) {
-        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        return;
-    }
-        dragDropManager.setActivatedDropTarget(dropTarget,
-							nodeBeingDragged =>
-									// IMPORTANT: override node's default validation logic
-									// This drop zone is for statements only.
-									// Statements should only be allowed here.
-									 model.getFactory().isStatement(nodeBeingDragged),
-							() => dropTarget.getIndexOfChild(model),
-					);
-        this.setState({ innerDropZoneActivated: true,
-        innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-    });
-        dragDropManager.once('drop-target-changed', function () {
-        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    }, this);
-    }
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+                nodeBeingDragged =>
+                    // IMPORTANT: override node's default validation logic
+                    // This drop zone is for statements only.
+                    // Statements should only be allowed here.
+                    model.getFactory().isStatement(nodeBeingDragged),
+                () => dropTarget.getIndexOfChild(model));
+            this.setState({
+                innerDropZoneActivated: true,
+                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+            });
+            dragDropManager.once('drop-target-changed', function () {
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }, this);
+        }
     }
 
     onDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         if (dragDropManager.isOnDrag()) {
-        if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-        dragDropManager.clearActivatedDropTarget();
-        this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-    }
-    }
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
     }
     /**
      * Navigates to codeline in the source view from the design view node
@@ -130,21 +130,21 @@ class StatementDecorator extends React.Component {
 
     setActionVisibility(show) {
         if (!this.context.dragDropManager.isOnDrag()) {
-        if (show) {
-        this.context.activeArbiter.readyToActivate(this);
-    } else {
-        this.context.activeArbiter.readyToDeactivate(this);
-    }
-    }
+            if (show) {
+                this.context.activeArbiter.readyToActivate(this);
+            } else {
+                this.context.activeArbiter.readyToDeactivate(this);
+            }
+        }
     }
 
     openExpressionEditor(e) {
         let options = this.props.editorOptions;
         let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (options) {
-        new ExpressionEditor(this.statementBox, this.context.container,
-				text => this.onUpdate(text), options, packageScope);
-    }
+            new ExpressionEditor(this.statementBox, this.context.container,
+                text => this.onUpdate(text), options, packageScope);
+        }
     }
 
     startDropZones() {
@@ -177,20 +177,20 @@ class StatementDecorator extends React.Component {
         let bBox = viewState.bBox;
         let innerZoneHeight = viewState.components['drop-zone'].h;
 
-		// calculate the bBox for the statement
+        // calculate the bBox for the statement
         this.statementBox = {};
         this.statementBox.h = bBox.h - innerZoneHeight;
         this.statementBox.y = bBox.y + innerZoneHeight;
         this.statementBox.w = bBox.w;
         this.statementBox.x = bBox.x;
-		// we need to draw a drop box above and a statement box
+        // we need to draw a drop box above and a statement box
         const text_x = bBox.x + (bBox.w / 2);
         const text_y = this.statementBox.y + (this.statementBox.h / 2);
         const drop_zone_x = bBox.x + (bBox.w - lifeLine.width) / 2;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
@@ -200,39 +200,39 @@ class StatementDecorator extends React.Component {
         actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
         let statementRectClass = 'statement-rect';
         if (model.isDebugHit) {
-        statementRectClass = `${statementRectClass} debug-hit`;
-    }
+            statementRectClass = `${statementRectClass} debug-hit`;
+        }
 
         return (
-      <g
-    className="statement"
-    onMouseOut={this.setActionVisibility.bind(this, false)}
-    onMouseOver={this.setActionVisibility.bind(this, true)}
-  >
-    <rect
-    x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-    className={dropZoneClassName} {...fill}
-    onMouseOver={e => this.onDropZoneActivate(e)}
-    onMouseOut={e => this.onDropZoneDeactivate(e)}
-  />
-    <rect
-    x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-    onClick={e => this.openExpressionEditor(e)}
-  />
-    <g className="statement-body">
-    <text x={text_x} y={text_y} className="statement-text" onClick={e => this.openExpressionEditor(e)}>{expression}</text>
-  </g>
-    <ActionBox
-    bBox={actionBbox}
-    show={this.state.active}
-    isBreakpoint={model.isBreakpoint}
-    onDelete={() => this.onDelete()}
-    onJumptoCodeLine={() => this.onJumptoCodeLine()}
-    onBreakpointClick={() => this.onBreakpointClick()}
-  />
-    { model.isBreakpoint && this.renderBreakpointIndicator() }
-    { this.props.children }
-  </g>);
+            <g
+                className="statement"
+                onMouseOut={this.setActionVisibility.bind(this, false)}
+                onMouseOver={this.setActionVisibility.bind(this, true)}
+            >
+                <rect
+                    x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
+                    className={dropZoneClassName} {...fill}
+                    onMouseOver={e => this.onDropZoneActivate(e)}
+                    onMouseOut={e => this.onDropZoneDeactivate(e)}
+                />
+                <rect
+                    x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
+                    onClick={e => this.openExpressionEditor(e)}
+                />
+                <g className="statement-body">
+                    <text x={text_x} y={text_y} className="statement-text" onClick={e => this.openExpressionEditor(e)}>{expression}</text>
+                </g>
+                <ActionBox
+                    bBox={actionBbox}
+                    show={this.state.active}
+                    isBreakpoint={model.isBreakpoint}
+                    onDelete={() => this.onDelete()}
+                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
+                    onBreakpointClick={() => this.onBreakpointClick()}
+                />
+                {model.isBreakpoint && this.renderBreakpointIndicator()}
+                {this.props.children}
+            </g>);
     }
 
 }
@@ -249,10 +249,10 @@ StatementDecorator.propTypes = {
 };
 
 StatementDecorator.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired,
-	 renderingContext: PropTypes.instanceOf(Object).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+    container: PropTypes.instanceOf(Object).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 

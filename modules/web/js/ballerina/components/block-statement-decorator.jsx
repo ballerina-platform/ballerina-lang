@@ -206,47 +206,47 @@ class BlockStatementDecorator extends React.Component {
             <text x={title_x} y={title_y} className="statement-text">{title}</text>
 
             {(expression) &&
-            <text
-                x={expression_x} y={title_y} className="condition-text"
-                onClick={expressionEditor}
-            >
-                {expression.text}
-            </text>}
+                <text
+                    x={expression_x} y={title_y} className="condition-text"
+                    onClick={expressionEditor}
+                >
+                    {expression.text}
+                </text>}
 
             {parameterText &&
-            <g>
-                <line
-                    x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
-                    x2={paramSeparator_x}
-                    className="parameter-separator"
-                />
-                <text
-                    x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
-                    onClick={paramEditor}
-                >
-                    ( {parameterText} )
+                <g>
+                    <line
+                        x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
+                        x2={paramSeparator_x}
+                        className="parameter-separator"
+                    />
+                    <text
+                        x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
+                        onClick={paramEditor}
+                    >
+                        ( {parameterText} )
                 </text>
-            </g>}
+                </g>}
 
             <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline" />
             <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
                 {this.props.children}
             </StatementContainer>
             {this.props.undeletable ||
-            <ActionBox
-                bBox={actionBoxBbox}
-                show={this.state.active}
-                isBreakpoint={model.isBreakpoint}
-                onDelete={this.onDelete}
-                onJumptoCodeLine={this.onJumptoCodeLine}
-                onBreakpointClick={this.onBreakpointClick}
-            />}
+                <ActionBox
+                    bBox={actionBoxBbox}
+                    show={this.state.active}
+                    isBreakpoint={model.isBreakpoint}
+                    onDelete={this.onDelete}
+                    onJumptoCodeLine={this.onJumptoCodeLine}
+                    onBreakpointClick={this.onBreakpointClick}
+                />}
             {
                 <g className={utilClassName}>
                     {this.props.utilities || null}
                 </g>
             }
-            { model.isBreakpoint && this.renderBreakpointIndicator() }
+            {model.isBreakpoint && this.renderBreakpointIndicator()}
         </g>);
     }
 }

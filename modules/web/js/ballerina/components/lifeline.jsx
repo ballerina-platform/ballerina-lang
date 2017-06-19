@@ -121,19 +121,19 @@ class LifeLine extends React.Component {
                 x={centerX} y={bBox.y + titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
                 dominantBaseline="central" className="life-line-text genericT"
                 onClick={e => this.openExpressionEditor(e)}
-            >{ this.props.title }</text>
+            >{this.props.title}</text>
             <text
                 x={centerX} y={y2 - titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
                 dominantBaseline="central" className="life-line-text genericT unhoverable"
-            >{ this.props.title }</text>
+            >{this.props.title}</text>
             {this.props.onDelete &&
-            <ActionBox
-                show={this.state.active}
-                bBox={actionBbox}
-                onDelete={() => this.props.onDelete()}
-                onJumptoCodeLine={() => this.onJumptoCodeLine()}
-            />
-                        }
+                <ActionBox
+                    show={this.state.active}
+                    bBox={actionBbox}
+                    onDelete={() => this.props.onDelete()}
+                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
+                />
+            }
         </g>);
     }
 }
