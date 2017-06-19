@@ -39,8 +39,6 @@ import org.wso2.carbon.transport.http.netty.sender.TargetHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -57,7 +55,7 @@ public class ConnectionManager {
     private static volatile ConnectionManager connectionManager;
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
-    private final List<Map<String, GenericObjectPool>> poolList;
+    private final Map<String, GenericObjectPool> poolList;
     private AtomicInteger index = new AtomicInteger(1);
     private int poolCount;
 
@@ -79,11 +77,7 @@ public class ConnectionManager {
 //            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
 //        }
 
-        poolList = new ArrayList<>();
-        for (int i = 0; i < poolCount; i++) {
-            Map<String, GenericObjectPool> map = new ConcurrentHashMap<>();
-            poolList.add(map);
-        }
+        poolList = new ConcurrentHashMap<>();
 
         clientEventGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
@@ -338,11 +332,7 @@ public class ConnectionManager {
      * @return Map contains pools for each route
      */
     public Map<String, GenericObjectPool> getTargetChannelPool() {
-        if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
-            int ind = index.getAndIncrement() % poolCount;
-            return poolList.get(ind);
-        }
-        return null;
+        return this.poolList;
     }
 
     public void notifyChannelInactive() {

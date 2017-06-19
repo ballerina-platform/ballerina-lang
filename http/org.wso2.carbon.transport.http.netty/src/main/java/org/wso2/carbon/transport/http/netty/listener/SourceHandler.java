@@ -267,7 +267,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (connectionManager.getPoolConfiguration().getNumberOfPools() == 0) {
             targetChannelPool.forEach((k, genericObjectPool) -> {
                 try {
-                    genericObjectPool.close();
+                    targetChannelPool.remove(k).close();
                 } catch (Exception e) {
                     log.error("Couldn't close target channel socket connections", e);
                 }

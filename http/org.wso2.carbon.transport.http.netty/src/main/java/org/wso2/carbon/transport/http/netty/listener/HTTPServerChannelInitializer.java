@@ -196,4 +196,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         return true;
     }
 
+    public ConnectionManager getConnectionManager() {
+        return connectionManager;
+    }
 }

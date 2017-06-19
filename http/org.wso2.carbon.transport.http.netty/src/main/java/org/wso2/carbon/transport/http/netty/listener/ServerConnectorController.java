@@ -143,6 +143,7 @@ public class ServerConnectorController {
     }
 
     public void stop() {
+        handler.getConnectionManager().getTargetChannelPool().clear();
         shutdownEventLoops();
     }
 
