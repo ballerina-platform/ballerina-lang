@@ -59,15 +59,18 @@ class StatementDecorator extends React.Component {
         dragDropManager.off('drag-start', this.startDropZones);
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
-
+    /**
+     * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
+     *
+     */
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
         if (model.isBreakpoint) {
-        model.removeBreakpoint();
-    } else {
-        model.addBreakpoint();
-    }
+            model.removeBreakpoint();
+        } else {
+            model.addBreakpoint();
+        }
     }
 
     onDelete() {
@@ -151,20 +154,22 @@ class StatementDecorator extends React.Component {
     stopDragZones() {
         this.setState({ innerDropZoneExist: false });
     }
-
+    /**
+     * Renders breakpoint indicator
+     */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
         const pointX = this.statementBox.x + this.statementBox.w - breakpointSize / 2;
         const pointY = this.statementBox.y - breakpointSize / 2;
         return (
-      <Breakpoint
-    x={pointX}
-    y={pointY}
-    size={breakpointSize}
-    isBreakpoint={this.props.model.isBreakpoint}
-    onClick={() => this.onBreakpointClick()}
-  />
-    );
+            <Breakpoint
+                x={pointX}
+                y={pointY}
+                size={breakpointSize}
+                isBreakpoint={this.props.model.isBreakpoint}
+                onClick={() => this.onBreakpointClick()}
+            />
+        );
     }
 
     render() {

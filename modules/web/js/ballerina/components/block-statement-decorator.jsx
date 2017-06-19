@@ -41,7 +41,10 @@ class BlockStatementDecorator extends React.Component {
         this.onBreakpointClick = this.onBreakpointClick.bind(this);
         this.onJumptoCodeLine = this.onJumptoCodeLine.bind(this);
     }
-
+    /**
+     * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
+     *
+     */
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
@@ -120,7 +123,9 @@ class BlockStatementDecorator extends React.Component {
             new ExpressionEditor(this.conditionBox, this.context.container, text => this.onUpdate(text), options, packageScope);
         }
     }
-
+    /**
+     * Renders breakpoint indicator
+     */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
         const { bBox } = this.props;
