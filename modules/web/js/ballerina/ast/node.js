@@ -325,10 +325,10 @@ class ASTNode extends EventChannel {
     /**
      * A generic method to be used for setting node attributes while firing required change events
      *
-     * @param attributeName {String} name of the attribute that needs to be updated
+     * @param attributeName {string} name of the attribute that needs to be updated
      * @param newValue {*} new value
      * @param [options] {Object} options
-     * @param [options.changeTitle=change $attributeName] {String} the title for change
+     * @param [options.changeTitle=change $attributeName] {string} the title for change
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
     setAttribute(attributeName, newValue, options) {
@@ -516,7 +516,7 @@ class ASTNode extends EventChannel {
     }
     /**
      * Get isLiteral
-     * @returns {String}
+     * @returns {string}
      */
     getIdentifierLiteral() {
         return this.getAttribute('_is_identifier_literal');

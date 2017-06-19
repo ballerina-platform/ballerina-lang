@@ -53,7 +53,7 @@ class StructDefinition extends React.Component {
     }
     /**
      * Handle struct type change in input
-     * @param {String} value - Struct type
+     * @param {string} value - Struct type
      */
     onAddStructTypeChange(value) {
         this.validateStructType(value);
@@ -63,8 +63,8 @@ class StructDefinition extends React.Component {
     }
     /**
      * Add new struct variable definition
-     * @param {String} bType - Data type of the new struc
-     * @param {String} identifier - Name of the identifier
+     * @param {string} bType - Data type of the new struc
+     * @param {string} identifier - Name of the identifier
      * @param {any} defaultValue - Default value of the new identifier
      */
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
@@ -150,7 +150,7 @@ class StructDefinition extends React.Component {
 
     /**
      * Validate identifier name
-     * @param {String} identifier - identifier name
+     * @param {string} identifier - identifier name
      */
     validateIdentifierName(identifier) {
         const { model } = this.props;
@@ -177,7 +177,7 @@ class StructDefinition extends React.Component {
     }
     /**
      * Validate struct type
-     * @param {String} structType - struct type
+     * @param {string} structType - struct type
      */
     validateStructType(structType) {
         if (!structType || !structType.length) {

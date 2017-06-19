@@ -25,7 +25,7 @@ import React from 'react';
 class CreateStruct extends React.Component {
     /**
      * Creates an instance of CreateStruct.
-     * @param {Object} props
+     * @param {object} props
      *
      * @memberof CreateStruct
      */
