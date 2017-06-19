@@ -86,6 +86,25 @@ class ConnectorDeclaration extends ASTNode {
         return this._declarationStatement.getChildren()[0].getVariableName();
     }
 
+    setFullPackageName(fullPackageName) {
+        if (this._declarationStatement) {
+            const connectorInit = this._declarationStatement.getChildren()[1];
+            if (connectorInit && this.getFactory().isConnectorInitExpression(connectorInit)) {
+                connectorInit.getConnectorName().setFullPackageName(fullPackageName);
+            }
+        }
+    }
+
+    getFullPackageName() {
+        if (this._declarationStatement) {
+            const connectorInit = this._declarationStatement.getChildren()[1];
+            if (connectorInit && this.getFactory().isConnectorInitExpression(connectorInit)) {
+                return connectorInit.getConnectorName().getFullPackageName();
+            }
+        }
+        return undefined;
+    }
+
     /**
      * Set the connector name variable
      * @param {string} variableName - variable name

@@ -22,7 +22,6 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
-import ImportDeclaration from './import-declaration';
 
 /**
  * Constructs BallerinaASTRoot
@@ -51,11 +50,17 @@ class BallerinaASTRoot extends ASTNode {
 
         const addImportsForTopLevel = function (child, options) {
             if (factory.isAssignmentStatement(child)) {
-                if (child._fullPackageName) {
-                    addImport(child.getFullPackageName(), options);
+                if (child.getRightExpression() !== undefined) {
+                    const expression = child.getRightExpression().getChildren()[0];
+                    if (expression
+                         && (factory.isFunctionInvocationExpression(expression)
+                              || factory.isActionInvocationExpression(expression))
+                         && expression.getFullPackageName()) {
+                        addImport(expression.getFullPackageName(), options);
+                    }
                 }
             } else if (factory.isConnectorDeclaration(child)) {
-                if (child._fullPackageName) {
+                if (child.getFullPackageName()) {
                     addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isServiceDefinition(child)) {
@@ -72,16 +77,10 @@ class BallerinaASTRoot extends ASTNode {
                 _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
                 });
-            } else if (factory.isActionInvocationExpression(child)) {
-                if (child._fullPackageName) {
-                    addImport(child.getFullPackageName(), options);
-                }
             } else if (factory.isFunctionInvocationStatement(child)) {
-                const functionInvocationExpression = _.find(child.children, (child) => {
-                    return factory.isFunctionInvocationExpression(child);
-                });
+                const functionInvocationExpression = child.findChild(factory.isFunctionInvocationExpression);
                 if (functionInvocationExpression &&
-                    functionInvocationExpression._fullPackageName) {
+                    functionInvocationExpression.getFullPackageName()) {
                     addImport(functionInvocationExpression.getFullPackageName(), options);
                 }
             }

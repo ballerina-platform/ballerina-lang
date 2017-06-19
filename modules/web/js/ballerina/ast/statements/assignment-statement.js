@@ -73,6 +73,24 @@ class AssignmentStatement extends Statement {
     }
 
     /**
+     * Get the left expression of the assignment statement.
+     * @returns {Expression} left expression
+     * @memberof AssignmentStatement
+     */
+    getLeftExpression() {
+        return this.getChildren()[0];
+    }
+
+    /**
+     * Get the right expression of the assignment statement.
+     * @returns {Expression} right expression
+     * @memberof AssignmentStatement
+     */
+    getRightExpression() {
+        return this.getChildren()[1];
+    }
+
+    /**
      * Set the statement from the statement string
      * @param {string} stmtString statement string
      * @param {function} callback function
