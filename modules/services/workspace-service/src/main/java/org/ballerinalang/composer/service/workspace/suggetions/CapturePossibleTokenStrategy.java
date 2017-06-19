@@ -19,6 +19,7 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.InputMismatchException;
+import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -43,30 +44,31 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
     }
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
-        ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(e.getOffendingToken(), parser)) {
-            IntervalSet expectedTokens = e.getExpectedTokens();
-            expectedTokens.getIntervals().forEach((interval) -> {
-                int a = interval.a;
-                int b = interval.b;
-                if (a == b) {
-                    possibleTokens.add(new PossibleToken(a, parser.getVocabulary().getDisplayName(a),
-                            currentContext));
-                } else {
-                    for (int i = a; i <= b; ++i) {
-                        possibleTokens.add(new PossibleToken(i, parser.getVocabulary().getDisplayName(i),
-                                currentContext));
-                    }
-                }
-            });
-        }
+        fetchPossibleTokens(parser, e.getOffendingToken(), e.getExpectedTokens());
     }
 
     @Override
     public void reportMissingToken(Parser parser) {
+        fetchPossibleTokens(parser, parser.getCurrentToken(), parser.getExpectedTokens());
+    }
+
+    @Override
+    public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
+        fetchPossibleTokens(parser, e.getOffendingToken(), e.getExpectedTokens());
+    }
+
+    @Override
+    public void reportUnwantedToken(Parser parser) {
+        fetchPossibleTokens(parser, parser.getCurrentToken(), parser.getExpectedTokens());
+    }
+
+    public List<PossibleToken> getPossibleTokens() {
+        return possibleTokens;
+    }
+
+    protected void fetchPossibleTokens(Parser parser, Token currentToken, IntervalSet expectedTokens) {
         ParserRuleContext currentContext = parser.getContext();
-        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(parser.getCurrentToken(), parser)) {
-            IntervalSet expectedTokens = parser.getExpectedTokens();
+        if (isCursorBetweenGivenTokenAndLastNonHiddenToken(currentToken, parser)) {
             expectedTokens.getIntervals().forEach((interval) -> {
                 int a = interval.a;
                 int b = interval.b;
@@ -81,10 +83,7 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
                 }
             });
         }
-    }
 
-    public List<PossibleToken> getPossibleTokens() {
-        return possibleTokens;
     }
 
     /**
@@ -105,12 +104,16 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
                     }
                 }
                 if (lastNonHiddenToken != null) {
-                    if ((cursorPosition.getLineNumber() >= lastNonHiddenToken.getLine()
-                            && cursorPosition.getLineNumber() <= token.getLine())
-                                && (cursorPosition.getOffset() >= (lastNonHiddenToken.getCharPositionInLine()
-                                                                        + lastNonHiddenToken.getText().length())
-                                    && cursorPosition.getOffset() <= token.getCharPositionInLine())) {
-                        return true;
+                    if (cursorPosition.getLineNumber() >= lastNonHiddenToken.getLine()
+                            && cursorPosition.getLineNumber() <= token.getLine()) {
+                        if (cursorPosition.getLineNumber() == lastNonHiddenToken.getLine()) {
+                            isCursorBetween = cursorPosition.getOffset() >=
+                                    (lastNonHiddenToken.getCharPositionInLine() + lastNonHiddenToken.getText().length());
+                        } else if (cursorPosition.getLineNumber() == token.getLine()) {
+                            isCursorBetween = cursorPosition.getOffset() <= token.getCharPositionInLine();
+                        } else {
+                            isCursorBetween = true;
+                        }
                     }
                 }
 
