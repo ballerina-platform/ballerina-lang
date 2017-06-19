@@ -77,6 +77,10 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         return Constants.PROTOCOL_WEBSOCKET;
     }
 
+    @Override
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_WEBSOCKET;
+    }
 
     @Override
     public void serviceRegistered(Service service) {

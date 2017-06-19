@@ -58,6 +58,11 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_HTTP;
+    }
+
+    @Override
     public void serviceRegistered(Service service) {}
 
     @Override
@@ -103,11 +108,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-//    @Override
-//    public String getProtocol() {
-//        return Constants.PROTOCOL_PACKAGE_HTTP;
-//    }
-//
     @Override
     public void serviceRegistered(ServiceInfo service) {
         HTTPServicesRegistry.getInstance().registerService(service);

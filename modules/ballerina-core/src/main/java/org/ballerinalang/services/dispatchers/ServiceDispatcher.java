@@ -50,6 +50,13 @@ public interface ServiceDispatcher {
     String getProtocol();
 
     /**
+     * Get the protocol package of the server connector.
+     *
+     * @return protocolPkg
+     */
+    String getProtocolPackage();
+
+    /**
      * This is getting triggered when a new Service belongs to this protocol added to the Ballerina engine.
      *
      * @deprecated since 0.88

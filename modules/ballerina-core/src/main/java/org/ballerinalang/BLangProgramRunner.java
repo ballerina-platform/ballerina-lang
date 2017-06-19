@@ -78,8 +78,11 @@ public class BLangProgramRunner {
                 }
 
                 // Deploy service
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                        dispatcher.serviceRegistered(serviceInfo));
+//                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
+//                        dispatcher.serviceRegistered(serviceInfo));
+
+                DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkg())
+                        .serviceRegistered(serviceInfo);
                 serviceCount++;
             }
         }

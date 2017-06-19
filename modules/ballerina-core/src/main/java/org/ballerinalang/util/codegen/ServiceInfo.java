@@ -36,13 +36,20 @@ public class ServiceInfo extends StructureTypeInfo {
 
     protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
 
+    private String protocolPkg;
+
     private int intiFuncCPIndex;
 
     private FunctionInfo initFuncInfo;
     private URITemplate uriTemplate;
 
-    public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex) {
+    public ServiceInfo(int pkgPathCPIndex, int connectorNameCPIndex, String protocolPkg) {
         super(pkgPathCPIndex, connectorNameCPIndex);
+        this.protocolPkg = protocolPkg;
+    }
+
+    public String getProtocolPkg() {
+        return protocolPkg;
     }
 
     public ResourceInfo[] getResourceInfoList() {

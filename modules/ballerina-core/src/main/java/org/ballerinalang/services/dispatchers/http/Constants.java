@@ -62,6 +62,14 @@ public class Constants {
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
+    public static final String ANNOTATION_NAME_INTERFACE = "Interface";
+    public static final String ANNOTATION_NAME_HOST = "Host";
+    public static final String ANNOTATION_NAME_PORT = "Port";
+    public static final String ANNOTATION_NAME_SCHEMA = "Schema";
+    public static final String ANNOTATION_NAME_KEY_STORE = "Keystore";
+    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
+    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_PASS = "keyStorePass";
+    public static final String ANNOTATION_ATTRIBUTE_CERT_PASS = "certPass";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -71,6 +79,7 @@ public class Constants {
 
     /* WebSocket Annotations */
     public static final String PROTOCOL_WEBSOCKET = "ws";
+    public static final String PROTOCOL_PACKAGE_WEBSOCKET = "ballerina.net.ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
     public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
     public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";

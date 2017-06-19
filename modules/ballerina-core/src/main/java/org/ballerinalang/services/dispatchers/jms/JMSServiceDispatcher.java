@@ -71,6 +71,11 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public String getProtocol() {
+        return Constants.PROTOCOL_JMS;
+    }
+
+    @Override
+    public String getProtocolPackage() {
         return Constants.PROTOCOL_PACKAGE_JMS;
     }
 
