@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -66,6 +67,25 @@ public class VarTypeAssignmentStmtTest {
                 new BValue[]{});
         Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), true);
     }
+
+    @Test(expectedExceptions = {ParserException.class})
+    public void testVarTypeInVariableDefStatement() {
+        //var type is not not allowed in variable def statements
+        BTestUtils.getProgramFile("lang/var/var-type-variable-def-negative.bal");
+    }
+
+    @Test(expectedExceptions = {ParserException.class})
+    public void testVarTypeInGlobalVariableDefStatement() {
+        //var type is not not allowed in global variable def statements
+        BTestUtils.getProgramFile("lang/var/global-variable-def-var-type-negative.bal");
+    }
+
+    @Test(expectedExceptions = {ParserException.class})
+    public void testVarTypeInServiceLevelVariableDefStatement() {
+        //var type is not not allowed in service level variable def statements
+        BTestUtils.getProgramFile("lang/var/service-level-variable-def-with-var-type-negative.bal");
+    }
+
 
     @Test
     public void testIncompatibleJsonToStructWithErrors() {
