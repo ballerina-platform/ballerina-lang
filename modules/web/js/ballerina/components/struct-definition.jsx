@@ -35,8 +35,6 @@ const columnPadding = 5;
 const panelPadding = 10;
 
 /**
- *
- *
  * @class StructDefinition
  * @extends {React.Component}
  */
@@ -44,7 +42,6 @@ class StructDefinition extends React.Component {
     /**
      * Creates an instance of StructDefinition.
      * @param {any} props
-     *
      */
     constructor(props) {
         super(props);
@@ -55,10 +52,8 @@ class StructDefinition extends React.Component {
         };
     }
     /**
-     *
      * Handle struct type change in input
      * @param {String} value - Struct type
-     *
      */
     onAddStructTypeChange(value) {
         this.validateStructType(value);
@@ -68,11 +63,9 @@ class StructDefinition extends React.Component {
     }
     /**
      * Add new struct variable definition
-     *
      * @param {String} bType - Data type of the new struc
      * @param {String} identifier - Name of the identifier
      * @param {any} defaultValue - Default value of the new identifier
-     *
      */
     addVariableDefinitionStatement(bType, identifier, defaultValue) {
         if (!bType) {
@@ -103,7 +96,6 @@ class StructDefinition extends React.Component {
     }
     /**
      * Handle click event on new struct variable's type field
-     *
      */
     handleAddTypeClick() {
         this.setState({
@@ -112,11 +104,9 @@ class StructDefinition extends React.Component {
     }
     /**
      * Shows a input box on clicking a idetifier
-     *
      * @param {any} textValue - value of the textBox
      * @param {Object} elementBBox - Bounding box to render textbox
      * @param {Object} model - AST node
-     *
      */
     handleIdentifierClick(textValue, elementBBox, model) {
         const bBox = { x: elementBBox.x, y: elementBBox.y, h: elementBBox.height, w: elementBBox.width };
@@ -134,11 +124,9 @@ class StructDefinition extends React.Component {
     }
     /**
      * Handle clicking on a existing struct variable's default value
-     *
      * @param {any} textValue - value of the textBox
      * @param {Object} elementBBox - Bounding box to render textbox
      * @param {Object} model - AST node
-     *
      */
     handleValueClick(textValue, elementBBox, model) {
         const bBox = { x: elementBBox.x, y: elementBBox.y, h: elementBBox.height, w: elementBBox.width };
@@ -155,7 +143,6 @@ class StructDefinition extends React.Component {
     }
     /**
      * Hide new struct definition type dropdown
-     *
      */
     hideAddSuggestions() {
         this.setState({ canShowAddType: false });
@@ -164,7 +151,6 @@ class StructDefinition extends React.Component {
     /**
      * Validate identifier name
      * @param {String} identifier - identifier name
-     *
      */
     validateIdentifierName(identifier) {
         const { model } = this.props;
@@ -192,8 +178,6 @@ class StructDefinition extends React.Component {
     /**
      * Validate struct type
      * @param {String} structType - struct type
-     *
-     * @memberof StructDefinition
      */
     validateStructType(structType) {
         if (!structType || !structType.length) {
@@ -214,8 +198,6 @@ class StructDefinition extends React.Component {
      * @param {Object} { x, y, w, h } - Dimenitions to render
      * @param {Number} columnSize - Width of the column
      * @returns {Object} - React node
-     *
-     * @memberof StructDefinition
      */
     renderContentOperations({ x, y, w, h }, columnSize) {
         const placeHolderPadding = 10;
@@ -297,8 +279,6 @@ class StructDefinition extends React.Component {
      * @param {any} textValue - Initial Value
      * @param {Object} bBox - Bounding box
      * @param {function} callback - Callback function
-     *
-     * @memberof StructDefinition
      */
     renderTextBox(textValue, bBox, callback) {
         this.context.renderer.renderTextBox({

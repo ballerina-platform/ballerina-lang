@@ -17,10 +17,8 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
+
 /**
- *
- *
  * @class CreateStruct
  * @extends {React.Component}
  */

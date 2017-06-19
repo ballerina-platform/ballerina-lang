@@ -20,8 +20,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ImageUtil from './image-util';
 /**
- *
- *
  * @class Breakpoint
  * @extends {React.Component}
  */
@@ -37,10 +35,7 @@ class Breakpoint extends React.Component {
     }
     /**
      * Show icon to remove breakpoint
-     *
-     * @param {Boolean} isMouseOver
-     *
-     * @memberof Breakpoint
+     * @param {boolean} isMouseOver
      */
     showRemoveBreakpointIcon(isMouseOver) {
         let canShowRemove;
