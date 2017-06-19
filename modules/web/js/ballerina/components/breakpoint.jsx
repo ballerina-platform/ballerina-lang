@@ -17,18 +17,26 @@
  */
 
 import React from 'react';
-import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
-
+import ImageUtil from './image-util';
+/**
+ * @class Breakpoint
+ * @extends {React.Component}
+ */
 class Breakpoint extends React.Component {
-
+    /**
+     * Creates an instance of Breakpoint.
+     */
     constructor() {
         super();
         this.state = {
             canShowRemove: false,
         };
     }
-
+    /**
+     * Show icon to remove breakpoint
+     * @param {boolean} isMouseOver
+     */
     showRemoveBreakpointIcon(isMouseOver) {
         let canShowRemove;
         if (this.props.isBreakpoint && isMouseOver) {
@@ -40,6 +48,9 @@ class Breakpoint extends React.Component {
             canShowRemove,
         });
     }
+    /**
+     * @inheritdoc
+     */
     render() {
         let icon;
 
@@ -72,6 +83,11 @@ Breakpoint.propTypes = {
     size: PropTypes.number.isRequired,
     isBreakpoint: PropTypes.bool,
     onClick: PropTypes.func,
+};
+
+Breakpoint.defaultProps = {
+    isBreakpoint: false,
+    onClick: () => {},
 };
 
 export default Breakpoint;
