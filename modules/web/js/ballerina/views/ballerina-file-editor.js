@@ -289,6 +289,8 @@ class BallerinaFileEditor extends EventChannel {
         _.set(sourceViewOpts, 'debugger', this._debugger);
         _.set(sourceViewOpts, 'storage', this._file._storage);
         _.set(sourceViewOpts, 'fileEditor', this);
+        _.set(sourceViewOpts, 'langserverClientController',
+            this.diagramRenderingContext._application.langseverClientController);
         this._sourceView = new SourceView(sourceViewOpts);
 
         this._sourceView.on('modified', (changeEvent) => {
