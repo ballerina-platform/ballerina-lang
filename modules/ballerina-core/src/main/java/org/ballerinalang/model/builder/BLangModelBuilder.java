@@ -234,12 +234,13 @@ public class BLangModelBuilder {
     }
 
     public void addImplicitImportPackages() {
-        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
-            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
-            error.setImplicitImport(true);
-            bFileBuilder.addImportPackage(error);
-            importPkgMap.put(error.getName(), error);
+        if ("ballerina.lang.errors".equals(currentPackagePath) || "ballerina.doc".equals(currentPackagePath)) {
+            return;
         }
+        ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+        error.setImplicitImport(true);
+        bFileBuilder.addImportPackage(error);
+        importPkgMap.put(error.getName(), error);
     }
 
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
