@@ -4,7 +4,6 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 public interface CompositeAggregator {
-    Attribute.Type getType();
 
     Object aggregate(Object... results);
 

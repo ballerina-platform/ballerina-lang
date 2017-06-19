@@ -28,7 +28,7 @@ public class CountIncrementalAttributeAggregator implements CompositeAggregator 
     private Attribute[] incrementalAttributes;
     private Expression[] initialValues;
 
-    public CountIncrementalAttributeAggregator(Attribute attribute) {
+    public CountIncrementalAttributeAggregator(String attributeName, Attribute.Type attributeType) {
         Attribute count;
         Expression countInitialValue;
 
@@ -36,7 +36,7 @@ public class CountIncrementalAttributeAggregator implements CompositeAggregator 
         // However, since count is summed internally (in avg incremental calculation),
         // ensure that either double or long is used here (since return value of sum is long or
         // double. Long is chosen here)
-        count = new Attribute("_COUNT_".concat(attribute.getName()), Attribute.Type.LONG);
+        count = new Attribute("_COUNT_".concat(attributeName), Attribute.Type.LONG);
         countInitialValue = Expression.value(1L);
 
         this.incrementalAttributes = new Attribute[] { count };
@@ -47,15 +47,6 @@ public class CountIncrementalAttributeAggregator implements CompositeAggregator 
             // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
             // For each incremental attribute, an initial value and base incremental aggregator must be defined
         }
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    public Attribute.Type getType() {
-        return Attribute.Type.LONG;
     }
 
     public Object aggregate(Object... results) {

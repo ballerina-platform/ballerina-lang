@@ -29,23 +29,23 @@ public class SumIncrementalAttributeAggregator implements CompositeAggregator {
     private Attribute[] incrementalAttributes;
     private Expression[] initialValues;
 
-    public SumIncrementalAttributeAggregator(Attribute attribute) {
+    public SumIncrementalAttributeAggregator(String attributeName, Attribute.Type attributeType) {
         Attribute sum;
         Expression sumInitialValue;
 
-        if (attribute.getType().equals(Attribute.Type.FLOAT) || attribute.getType().equals(Attribute.Type.DOUBLE)) {
-            sum = new Attribute("_SUM_".concat(attribute.getName()), Attribute.Type.DOUBLE);
-            sumInitialValue = Expression.function("convert", Expression.variable(attribute.getName()),
+        if (attributeType.equals(Attribute.Type.FLOAT) || attributeType.equals(Attribute.Type.DOUBLE)) {
+            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.DOUBLE);
+            sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("double"));
 
-        } else if (attribute.getType().equals(Attribute.Type.INT) || attribute.getType().equals(Attribute.Type.LONG)) {
-            sum = new Attribute("_SUM_".concat(attribute.getName()), Attribute.Type.LONG);
-            sumInitialValue = Expression.function("convert", Expression.variable(attribute.getName()),
+        } else if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG)) {
+            sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.LONG);
+            sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("long"));
 
         } else {
             throw new ExecutionPlanRuntimeException(
-                    "Sum aggregation cannot be executed on " + "attribute type " + attribute.getType().toString());
+                    "Sum aggregation cannot be executed on " + "attribute type " + attributeType.toString());
         }
         this.incrementalAttributes = new Attribute[] { sum };
         this.initialValues = new Expression[] { sumInitialValue }; // Original attribute names
@@ -57,15 +57,6 @@ public class SumIncrementalAttributeAggregator implements CompositeAggregator {
             // For each incremental attribute, an initial value and base incremental aggregator must be defined
         }
     }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone(); // TODO: 6/9/17 do we need this?
-    }
-
-    public Attribute.Type getType() {
-        return Attribute.Type.DOUBLE;
-    } // TODO: 6/9/17 do we need this?
 
     public Object aggregate(Object... results) {
         if (results == null || results.length != 1) {

@@ -88,7 +88,7 @@ public class AggregationParser {
                     "AggregationDefinition's selection is not defined. " + "Hence, can't create the execution plan");
         }
 
-        List<VariableExpressionExecutor> executors = new ArrayList<>();
+        List<VariableExpressionExecutor> executorsOfIncomingStreamMeta = new ArrayList<>();
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
         boolean groupBy = false;
@@ -99,7 +99,7 @@ public class AggregationParser {
 
             InputStream inputStream = definition.getInputStream();
             StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
-                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, executors,
+                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, executorsOfIncomingStreamMeta,
                     latencyTracker, false, aggregatorName);
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
 
@@ -112,20 +112,16 @@ public class AggregationParser {
             // Retrieve the external timestamp. If not given, this would return null.
             Variable timeStampVariable = definition.getAggregateAttribute();
 
-            // List of original attributes.
-            List<Attribute> currentAttributes = streamDefinitionMap.get(((SingleInputStream) inputStream).getStreamId())
-                    .getAttributeList();
+            // Get original meta for later use.
+            MetaStreamEvent incomingStreamMeta = (MetaStreamEvent) streamRuntime.getMetaComplexEvent();
 
-            // Create map from original attributes to retrieve attribute using attribute name
-            Map<String, Attribute> originalAttributes = new HashMap<>();
-            for (Attribute originalAttribute : currentAttributes) {
-                originalAttributes.put(originalAttribute.getName(), originalAttribute);
-            }
+            AbstractDefinition incomingStreamDefinition = incomingStreamMeta.getLastInputDefinition();
 
             // Retrieve attribute functions (e.g. avg, sum, etc.) and corresponding attributes.
             // Each aggregator must take only one attribute as input, at a time.
             List<OutputAttribute> outputAttributes = definition.getSelector().getSelectionList();
-            List<Object[]> attributeList = new ArrayList<>();
+            // Store the composite aggregators
+            List<CompositeAggregator> compositeAggregators = new ArrayList<>();
             AttributeFunction attributeFunction;
             String attributeName;
             for (OutputAttribute outputAttribute : outputAttributes) {
@@ -141,41 +137,36 @@ public class AggregationParser {
                                 + "Found " + attributeFunction.getParameters().length);
                     }
                     if (!(attributeFunction.getParameters()[0] instanceof Variable)) {
-                        throw new ExecutionPlanRuntimeException("Cannot perform aggregation on parameter of type "
-                                + attributeFunction.getParameters()[0].getClass().getTypeName());/// TODO: 6/16/17 it should be a variable
+                        throw new ExecutionPlanRuntimeException("Expected a variable. However a parameter of type "
+                                + attributeFunction.getParameters()[0].getClass().getTypeName()+" was found");
                     }
                     attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
-                    // The 1st element of object array holds the function name (e.g. avg, sum) and 2nd element, the
-                    // corresponding attribute.
-                    attributeList
-                            .add(new Object[]{attributeFunction.getName(), originalAttributes.get(attributeName)});
-                }
-            }
 
-            // Store the composite aggregators
-            List<CompositeAggregator> compositeAggregators = new ArrayList<>();
-            for (Object[] functionAndAttribute : attributeList) {
-                //// TODO: 6/16/17 load class loadExtensionImplementation also join with the previous for loop
-                switch ((String) functionAndAttribute[0]) {
-                    case "avg":
-                        AvgIncrementalAttributeAggregator avgIncrementalAttributeAggregator = new AvgIncrementalAttributeAggregator(
-                                (Attribute) functionAndAttribute[1]);
-                        compositeAggregators.add(avgIncrementalAttributeAggregator);
-                        break;
-                    case "sum":
-                        SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator = new SumIncrementalAttributeAggregator(
-                                (Attribute) functionAndAttribute[1]);
-                        compositeAggregators.add(sumIncrementalAttributeAggregator);
-                        break;
-                    case "count":
-                        CountIncrementalAttributeAggregator countIncrementalAttributeAggregator = new CountIncrementalAttributeAggregator(
-                                (Attribute) functionAndAttribute[1]);
-                        compositeAggregators.add(countIncrementalAttributeAggregator);
-                        break;
-                    // TODO: 6/10/17 add other aggregators
-                    default:
-                        throw new ExecutionPlanRuntimeException(
-                                "Incremental aggregation has not " + "been defined for " + functionAndAttribute[0]);
+                    switch (attributeFunction.getName()) {
+                        //// TODO: 6/16/17 load class loadExtensionImplementation
+                        case "avg":
+                            AvgIncrementalAttributeAggregator avgIncrementalAttributeAggregator =
+                                    new AvgIncrementalAttributeAggregator(attributeName,
+                                            incomingStreamDefinition.getAttributeType(attributeName));
+                            compositeAggregators.add(avgIncrementalAttributeAggregator);
+                            break;
+                        case "sum":
+                            SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator =
+                                    new SumIncrementalAttributeAggregator(attributeName,
+                                            incomingStreamDefinition.getAttributeType(attributeName));
+                            compositeAggregators.add(sumIncrementalAttributeAggregator);
+                            break;
+                        case "count":
+                            CountIncrementalAttributeAggregator countIncrementalAttributeAggregator =
+                                    new CountIncrementalAttributeAggregator(attributeName,
+                                            incomingStreamDefinition.getAttributeType(attributeName));
+                            compositeAggregators.add(countIncrementalAttributeAggregator);
+                            break;
+                        // TODO: 6/10/17 add other aggregators
+                        default:
+                            throw new ExecutionPlanRuntimeException(
+                                    "Incremental aggregation has not " + "been defined for " + attributeFunction.getName());
+                    }
                 }
             }
 
@@ -219,30 +210,24 @@ public class AggregationParser {
                 }
             }
 
-            // Get original meta for later use.
-            MetaStreamEvent originalMeta = (MetaStreamEvent) streamRuntime.getMetaComplexEvent();
-
             // To assign values to new meta, a list of expression executors using the original meta must be created
             // Array elements must appear in the order of new meta elements (since assignment is done based on position
             // at the receiver level).
             List<ExpressionExecutor> metaExecutors = new ArrayList<>();
             if (timeStampVariable != null) {
-                metaExecutors.add(ExpressionParser.parseExpression(timeStampVariable, originalMeta, 0, tableMap,
-                        executors, executionPlanContext, groupBy, 0, aggregatorName));
+                metaExecutors.add(ExpressionParser.parseExpression(timeStampVariable, incomingStreamMeta, 0, tableMap,
+                        executorsOfIncomingStreamMeta, executionPlanContext, groupBy, 0, aggregatorName));
             }
             if (groupBy) {
                 metaExecutors.addAll(groupByVariables.stream()
-                        .map(groupByVariable -> ExpressionParser.parseExpression(groupByVariable, originalMeta, 0,
-                                tableMap, executors, executionPlanContext, true, 0, aggregatorName))
+                        .map(groupByVariable -> ExpressionParser.parseExpression(groupByVariable, incomingStreamMeta, 0,
+                                tableMap, executorsOfIncomingStreamMeta, executionPlanContext, true, 0, aggregatorName))
                         .collect(Collectors.toList()));
             }
             for (Expression initialValueExpression : attributeInitialValues) {
-                metaExecutors.add(ExpressionParser.parseExpression(initialValueExpression, originalMeta, 0,
-                        tableMap, executors, executionPlanContext, groupBy, 0, aggregatorName));
+                metaExecutors.add(ExpressionParser.parseExpression(initialValueExpression, incomingStreamMeta, 0,
+                        tableMap, executorsOfIncomingStreamMeta, executionPlanContext, groupBy, 0, aggregatorName));
             }// TODO: 6/16/17 join this with meta creation
-
-            // Group by variables must reflect new attribute name when group by executor is created with new meta
-            List<Variable> newGroupByVariables = new ArrayList<>();
 
             // Create new meta stream event.
             // This must hold the timestamp, group by attributes (if given) and the incremental attributes, in
@@ -255,31 +240,25 @@ public class AggregationParser {
             // New stream definition corresponding to new meta.
             StreamDefinition newStreamDefinition = StreamDefinition.id("Stream_" + UUID.randomUUID().toString());
 
+            // Executors of new meta
+            List<VariableExpressionExecutor> executorsOfNewMeta = new ArrayList<>();
+
             newMeta.initializeAfterWindowData();
             // TODO: 6/10/17 is user defined timestamp always type long?
             newMeta.addData(new Attribute("_TIMESTAMP", Attribute.Type.LONG));
             newStreamDefinition.attribute("_TIMESTAMP", Attribute.Type.LONG);
-            executors.add(new VariableExpressionExecutor(new Attribute("_TIMESTAMP", Attribute.Type.LONG), -1, 0));
 
             if (groupByVariables != null) {
                 for (Variable groupByVariable : groupByVariables) {
-                    newMeta.addData(new Attribute("_KEY_".concat(groupByVariable.getAttributeName()),
-                            originalAttributes.get(groupByVariable.getAttributeName()).getType()));
-                    newStreamDefinition.attribute("_KEY_".concat(groupByVariable.getAttributeName()),
-                            originalAttributes.get(groupByVariable.getAttributeName()).getType());
-                    executors
-                            .add(new VariableExpressionExecutor(
-                                    new Attribute("_KEY_".concat(groupByVariable.getAttributeName()),
-                                            originalAttributes.get(groupByVariable.getAttributeName()).getType()),
-                                    -1, 0));
-                    // Adding new group by variables to reflect attribute name change
-                    newGroupByVariables.add(new Variable("_KEY_".concat(groupByVariable.getAttributeName())));
+                    newMeta.addData(incomingStreamDefinition.getAttributeList().
+                            get(incomingStreamDefinition.getAttributePosition(groupByVariable.getAttributeName())));
+                    newStreamDefinition.attribute(groupByVariable.getAttributeName(),
+                            incomingStreamDefinition.getAttributeType(groupByVariable.getAttributeName()));
                 }
             }
             for (Attribute incrementalAttribute : finalListOfIncrementalAttributes) {
                 newMeta.addData(incrementalAttribute);
                 newStreamDefinition.attribute(incrementalAttribute.getName(), incrementalAttribute.getType());
-                executors.add(new VariableExpressionExecutor(incrementalAttribute, -1, 0));
             }
 
             newMeta.addInputDefinition(newStreamDefinition);
@@ -290,16 +269,22 @@ public class AggregationParser {
             for (int i=0; i<baseIncrementalAggregators.size(); i++) {
                 expressionExecutor = ExpressionParser.parseExpression(
                         baseIncrementalAggregators.get(i), newMeta, 0, tableMap,
-                        executors, executionPlanContext, groupBy, 0, aggregatorName);
+                        executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
                 baseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
                         finalListOfIncrementalAttributes.get(i).getName()));
             }
 
+            // Timestamp executor created for newMeta. The timeStamp would be retrieved using this
+            // executor in runtime.
+            VariableExpressionExecutor timeStampExecutor = (VariableExpressionExecutor)ExpressionParser.
+                    parseExpression(new Variable("_TIMESTAMP"), newMeta, 0, tableMap,
+                            executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
+
             // Create group by key generator
             GroupByKeyGenerator groupByKeyGenerator = null;
             if (groupBy) {
-                groupByKeyGenerator = new GroupByKeyGenerator(newGroupByVariables,
-                        newMeta, tableMap, executors, executionPlanContext, aggregatorName);
+                groupByKeyGenerator = new GroupByKeyGenerator(groupByVariables,
+                        newMeta, tableMap, executorsOfNewMeta, executionPlanContext, aggregatorName);
             }
 
             // Create stream event pool
@@ -325,7 +310,7 @@ public class AggregationParser {
                 root = new IncrementalExecutor(
                         incrementalDurations.get(i), child, newMeta, tableMap, executionPlanContext,
                         aggregatorName, compositeAggregators, clonedExpressionExecutors,
-                        groupByVariables, executors.get(0),
+                        groupByVariables, timeStampExecutor,
                         groupByKeyGenerator, bufferSize, streamEventPool);
                 child = root;
                 minSchedulingTime = incrementalDurations.get(i);
@@ -359,10 +344,10 @@ public class AggregationParser {
             child.setScheduler(scheduler); // Set scheduler in root incremental executor
             aggregationRuntime.setExecutor(entryValveExecutor);
 
-            AggregationDefinitionParserHelper.updateVariablePosition(newMeta, executors);
-            AggregationDefinitionParserHelper.updateVariablePosition(originalMeta, executors);
+            AggregationDefinitionParserHelper.updateVariablePosition(newMeta, executorsOfNewMeta);
+            AggregationDefinitionParserHelper.updateVariablePosition(incomingStreamMeta, executorsOfIncomingStreamMeta);
             AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, newMeta, lockWrapper, // TODO: 6/13/17 same lockWrapper as for scheduler. is it ok?
-                    aggregatorName, aggregationRuntime, metaExecutors, originalMeta, scheduler, minSchedulingTime);
+                    aggregatorName, aggregationRuntime, metaExecutors, incomingStreamMeta, scheduler, minSchedulingTime);
         } catch (RuntimeException ex) {
             throw ex; // TODO: 5/12/17 should we log?
         }
