@@ -55,7 +55,7 @@ public class ConnectionManager {
     private static volatile ConnectionManager connectionManager;
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
-    private final Map<String, GenericObjectPool> poolList;
+    private final Map<String, GenericObjectPool> connGlobalPool;
     private AtomicInteger index = new AtomicInteger(1);
     private int poolCount;
 
@@ -77,7 +77,7 @@ public class ConnectionManager {
 //            this.poolManagementPolicy = PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING;
 //        }
 
-        poolList = new ConcurrentHashMap<>();
+        connGlobalPool = new ConcurrentHashMap<>();
 
         clientEventGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
@@ -182,13 +182,20 @@ public class ConnectionManager {
         } else if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
             try {
                 TargetChannel targetChannel;
-                Map<String, GenericObjectPool> connPool = sourceHandler.getTargetChannelPool();
-                GenericObjectPool genPool = connPool.get(httpRoute.toString());
-                if (genPool == null) {
-                    genPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                    connPool.put(httpRoute.toString(), genPool);
+                Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
+                GenericObjectPool trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
+                if (trgHlrConnPool == null) {
+                    synchronized (this) {
+                        if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                            trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                            this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+                        }
+                        trgHlrConnPool = this.connGlobalPool.remove(httpRoute.toString());
+                    }
+                    trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
+                    srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
-                targetChannel = (TargetChannel) genPool.borrowObject();
+                targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
 
                 if (targetChannel.getChannel() != null) {
                     targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
@@ -345,7 +352,7 @@ public class ConnectionManager {
      * @return Map contains pools for each route
      */
     public Map<String, GenericObjectPool> getTargetChannelPool() {
-        return this.poolList;
+        return this.connGlobalPool;
     }
 
     public void notifyChannelInactive() {
