@@ -25,23 +25,23 @@ import { variablesPane as variablesPaneDefaults } from '../configs/designer-defa
 
 const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
     const headerHeight = variablesPaneDefaults.headerHeight;
-    const leftPadding = 10;
-    const iconSize = 20;
-    const iconLeftPadding = 12;
-    const globalsNoFontSize = 13;
-    const noOfGlobalsLeftPadding = 12;
-    const noOfGlobalsBGHeight = 18;
-    const noOfGlobalsTextPadding = 10;
+    const leftRightPadding = variablesPaneDefaults.leftRightPadding;
+    const iconSize = variablesPaneDefaults.iconSize;
+    const noOfGlobalsBGHeight = variablesPaneDefaults.noOfGlobalsBGHeight;
+    const globalsNoFontSize = variablesPaneDefaults.globalsNoFontSize;
+    const iconLeftPadding = variablesPaneDefaults.iconLeftPadding;
+    const noOfGlobalsLeftPadding = variablesPaneDefaults.noOfGlobalsLeftPadding;
+    const noOfGlobalsTextPadding = variablesPaneDefaults.noOfGlobalsTextPadding;
     const globalsLabelWidth = SizingUtils.getOnlyTextWidth(title);
 
     const noOfGlobalsTextWidth = SizingUtils.getOnlyTextWidth(numberOfItems, { fontSize: globalsNoFontSize });
     const noOfGlobalsBGWidth = Math.max(noOfGlobalsTextWidth + noOfGlobalsTextPadding, noOfGlobalsBGHeight);
 
-    const badgeWidth = leftPadding + globalsLabelWidth + noOfGlobalsLeftPadding + noOfGlobalsTextWidth +
-        iconLeftPadding + iconSize + leftPadding;
+    const badgeWidth = leftRightPadding + globalsLabelWidth + noOfGlobalsLeftPadding + noOfGlobalsTextWidth +
+        iconLeftPadding + iconSize + leftRightPadding;
 
     const labelBbox = {
-        x: bBox.x + leftPadding,
+        x: bBox.x + leftRightPadding,
         y: bBox.y + (headerHeight / 2),
     };
 
