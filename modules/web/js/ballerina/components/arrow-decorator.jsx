@@ -20,7 +20,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MessageManager from './../visitors/message-manager';
 
+/**
+ * React component for an arrow.
+ *
+ * @class Arrow
+ * @extends {React.Component}
+ */
 class Arrow extends React.Component {
+    /**
+     * Creates an instance of Arrow.
+     * @param {any} props React properties.
+     * @param {any} context React context.
+     * @memberof Arrow
+     */
     constructor(props, context) {
         super(props);
         this.state = { enable: true, drawOnMouseMoveFlag: -1 };
@@ -28,6 +40,15 @@ class Arrow extends React.Component {
             context.messageManager.setArrowDecorator(this);
         }
     }
+
+    /**
+     * Gets the angle of the arrow.
+     *
+     * @param {Object} start The starting point.
+     * @param {Object} end The ending point.
+     * @returns {number} Degrees.
+     * @memberof Arrow
+     */
     getArrowAngle(start, end) {
         const deltaX = end.x - start.x;
         const deltaY = end.y - start.y;
@@ -36,6 +57,13 @@ class Arrow extends React.Component {
 
         return deg;
     }
+
+    /**
+     * Renders the view for an arrow.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof Arrow
+     */
     render() {
         const { start, end, dashed, arrowSize } = this.props;
         const enable = this.props.enable;
@@ -57,15 +85,22 @@ class Arrow extends React.Component {
             className = 'action-arrow action-dash-line';
         }
         return (<g >
-            {enable && <line x1={arrowStart.x} x2={arrowEnd.x} y1={arrowStart.y} y2={arrowEnd.y} className={className} /> }
+            {enable &&
+            <line
+                x1={arrowStart.x}
+                x2={arrowEnd.x}
+                y1={arrowStart.y}
+                y2={arrowEnd.y}
+                className={className}
+            /> }
             {enable &&
             <polygon
                 points={`-${arrowSize},-${arrowSize} 0,0 -${arrowSize},${arrowSize}`}
                 transform={`translate(${arrowEnd.x}, ${arrowEnd.y})
-						rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
+                            rotate(${this.getArrowAngle(arrowStart, arrowEnd)}, 0, 0)`}
                 className="action-arrow-head"
             />
-			}
+            }
         </g>);
     }
 }
@@ -75,6 +110,7 @@ Arrow.contextTypes = {
 };
 
 Arrow.propTypes = {
+    moveWithMessageManager: PropTypes.bool,
     start: PropTypes.shape({
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
@@ -83,11 +119,18 @@ Arrow.propTypes = {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
     }),
+    dashed: PropTypes.bool,
+    arrowSize: PropTypes.number,
+    enable: PropTypes.bool,
 };
 
 Arrow.defaultProps = {
+    moveWithMessageManager: false,
+    start: undefined,
+    end: undefined,
     dashed: false,
     arrowSize: 5,
+    enable: false,
 };
 
 export default Arrow;

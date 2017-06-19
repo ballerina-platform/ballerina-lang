@@ -17,17 +17,29 @@
  */
 
 import React from 'react';
-import ConnectorActionDefinition from './connector-action-definition.jsx';
-import StatementView from './statement-decorator.jsx';
+import PropTypes from 'prop-types';
 import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
+import ConnectorDefinitionAST from './../ast/connector-definition';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
+/**
+ * React component for a connector definition.
+ *
+ * @class ConnectorDefinition
+ * @extends {React.Component}
+ */
 class ConnectorDefinition extends React.Component {
 
+    /**
+     * Creates an instance of ConnectorDefinition.
+     * @param {Object} props React properties.
+     *
+     * @memberof ConnectorDefinition
+     */
     constructor(props) {
         super(props);
         this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
@@ -36,6 +48,13 @@ class ConnectorDefinition extends React.Component {
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
 
+    /**
+     * Checkes if node can be dropped to panel body.
+     *
+     * @param {ASTNode} nodeBeingDragged The ast node being dropped.
+     * @returns {boolean} true if {@link ConnectorDeclaration} or {@link ConnectorAction}, else false.
+     * @memberof ConnectorDefinition
+     */
     canDropToPanelBody(nodeBeingDragged) {
         const nodeFactory = this.props.model.getFactory();
         // IMPORTANT: override default validation logic
@@ -44,6 +63,12 @@ class ConnectorDefinition extends React.Component {
             || nodeFactory.isConnectorAction(nodeBeingDragged);
     }
 
+    /**
+     * Adds variable to the model.
+     *
+     * @param {string} value Variable name.
+     * @memberof ConnectorDefinition
+     */
     handleAddVariable(value) {
         const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
         const match = variableDefRegex.exec(value);
@@ -53,27 +78,43 @@ class ConnectorDefinition extends React.Component {
         }
     }
 
+    /**
+     * Deletes variable.
+     *
+     * @param {VariableDefinition} deletedGlobal Variable to be removed.
+     * @memberof ConnectorDefinition
+     */
     handleDeleteVariable(deletedGlobal) {
         this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
     }
 
-
+    /**
+     * Event for variables badge click.
+     * @memberof ConnectorDefinition
+     */
     handleVarialblesBadgeClick() {
         this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
     }
 
+    /**
+     * Renders view for a connector definition.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof ConnectorDefinition
+     */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const viewState = model.getViewState();
         const components = viewState.components;
-        this.variableDefRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
+        this.variableDefRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // Not 100% accurate
         const variables = model.filterChildren(child => BallerinaASTFactory.isVariableDefinitionStatement(child));
 
         // get the connector name
         const title = model.getConnectorName();
 
-        const childrenWithNoVariables = model.filterChildren(child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
+        const childrenWithNoVariables = model.filterChildren(
+                                                    child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
 
         /**
          * Here we skip rendering the variables
@@ -91,7 +132,9 @@ class ConnectorDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-            icon="tool-icons/connector" title={title} bBox={bBox}
+            icon="tool-icons/connector"
+            title={title}
+            bBox={bBox}
             model={model}
             dropTarget={this.props.model}
             dropSourceValidateCB={node => this.canDropToPanelBody(node)}
@@ -100,18 +143,29 @@ class ConnectorDefinition extends React.Component {
             {
                     this.props.model.viewState.variablesExpanded ?
                         <GlobalExpanded
-                            bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
-                            title="Variables" onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
-                            addText={'+ Add Variable'} getValue={g => (g.getStatementString())}
+                            bBox={expandedVariablesBBox}
+                            globals={variables}
+                            onCollapse={this.handleVarialblesBadgeClick}
+                            title="Variables"
+                            onAddNewValue={this.handleAddVariable}
+                            onDeleteClick={this.handleDeleteVariable}
+                            addText={'+ Add Variable'}
+                            getValue={g => (g.getStatementString())}
                         /> :
                         <GlobalDefinitions
-                            bBox={expandedVariablesBBox} numberOfItems={variables.length}
-                            title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
+                            bBox={expandedVariablesBBox}
+                            numberOfItems={variables.length}
+                            title={'Variables'}
+                            onExpand={this.handleVarialblesBadgeClick}
                         />
                 }
             {children}
         </PanelDecorator>);
     }
 }
+
+ConnectorDefinition.propTypes = {
+    model: PropTypes.instanceOf(ConnectorDefinitionAST).isRequired,
+};
 
 export default ConnectorDefinition;

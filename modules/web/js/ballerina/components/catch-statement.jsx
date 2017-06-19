@@ -16,12 +16,24 @@
  * under the License.
  */
 import React from 'react';
-import BlockStatementDecorator from './block-statement-decorator';
 import PropTypes from 'prop-types';
 import { getComponentForNodeArray } from './utils';
+import BlockStatementDecorator from './block-statement-decorator';
+import CatchStatementAST from './../ast/statements/catch-statement';
 
+/**
+ * React component for a catch statement.
+ *
+ * @class CatchStatement
+ * @extends {React.Component}
+ */
 class CatchStatement extends React.Component {
 
+    /**
+     * Creates an instance of CatchStatement.
+     * @param {Object} props React properties.
+     * @memberof CatchStatement
+     */
     constructor(props) {
         super(props);
         this.editorOptions = {
@@ -33,13 +45,22 @@ class CatchStatement extends React.Component {
         };
     }
 
+    /**
+     * Renders the view for a catch statement.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof CatchStatement
+     */
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
         const expression = model.viewState.components.expression;
         const children = getComponentForNodeArray(this.props.model.getChildren());
         return (<BlockStatementDecorator
-            dropTarget={model} bBox={bBox} title={'Catch'} expression={expression}
+            dropTarget={model}
+            bBox={bBox}
+            title={'Catch'}
+            expression={expression}
             editorOptions={this.editorOptions}
         >
             {children}
@@ -48,12 +69,7 @@ class CatchStatement extends React.Component {
 }
 
 CatchStatement.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    model: PropTypes.instanceOf(CatchStatementAST).isRequired,
 };
 
 

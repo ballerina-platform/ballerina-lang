@@ -17,18 +17,29 @@
  */
 
 import React from 'react';
-import LifeLine from './lifeline.jsx';
+import PropTypes from 'prop-types';
 import StatementContainer from './statement-container';
-import StatementView from './statement-decorator';
 import PanelDecorator from './panel-decorator';
 import LifeLineDecorator from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
-import { panel } from './../configs/designer-defaults';
-import { statement } from './../configs/designer-defaults';
 import { lifeLine } from './../configs/designer-defaults';
+import ConnectorActionAST from './../ast/connector-action';
 
+/**
+ * React component for a connector action.
+ *
+ * @class ConnectorAction
+ * @extends {React.Component}
+ */
 class ConnectorAction extends React.Component {
 
+    /**
+     * Validating method that decides what can be dropped.
+     *
+     * @param {ASTNode} nodeBeingDragged Node that is being dropped.
+     * @returns {boolean} true if {@link ConnectorDeclaration} or {@link WorkerDeclaration}, else false.
+     * @memberof ConnectorAction
+     */
     canDropToPanelBody(nodeBeingDragged) {
         const nodeFactory = this.props.model.getFactory();
         // IMPORTANT: override default validation logic
@@ -38,17 +49,23 @@ class ConnectorAction extends React.Component {
             || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
     }
 
+    /**
+     * Renders the view for a connector action.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof ConnectorAction
+     */
     render() {
         const bBox = this.props.model.viewState.bBox;
         const name = this.props.model.getActionName();
         const statementContainerBBox = this.props.model.getViewState().components.statementContainer;
 
         // lets calculate function worker lifeline bounding box.
-        const resource_worker_bBox = {};
-        resource_worker_bBox.x = statementContainerBBox.x + (statementContainerBBox.w - lifeLine.width) / 2;
-        resource_worker_bBox.y = statementContainerBBox.y - lifeLine.head.height;
-        resource_worker_bBox.w = lifeLine.width;
-        resource_worker_bBox.h = statementContainerBBox.h + lifeLine.head.height * 2;
+        const resourceWorkerBBox = {};
+        resourceWorkerBBox.x = statementContainerBBox.x + ((statementContainerBBox.w - lifeLine.width) / 2);
+        resourceWorkerBBox.y = statementContainerBBox.y - lifeLine.head.height;
+        resourceWorkerBBox.w = lifeLine.width;
+        resourceWorkerBBox.h = statementContainerBBox.h + (lifeLine.head.height * 2);
 
         const classes = {
             lineClass: 'default-worker-life-line',
@@ -66,14 +83,16 @@ class ConnectorAction extends React.Component {
         }];
 
         return (<PanelDecorator
-            icon="tool-icons/resource" title={name} bBox={bBox}
+            icon="tool-icons/resource"
+            title={name}
+            bBox={bBox}
             model={this.props.model}
             dropTarget={this.props.model}
             dropSourceValidateCB={node => this.canDropToPanelBody(node)}
             titleComponentData={titleComponentData}
         >
             <g>
-                <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
+                <LifeLineDecorator title="default" bBox={resourceWorkerBBox} classes={classes} />
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>
@@ -81,5 +100,9 @@ class ConnectorAction extends React.Component {
         </PanelDecorator>);
     }
 }
+
+ConnectorAction.propTypes = {
+    model: PropTypes.instanceOf(ConnectorActionAST).isRequired,
+};
 
 export default ConnectorAction;

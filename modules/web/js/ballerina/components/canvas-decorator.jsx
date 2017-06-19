@@ -18,20 +18,41 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import ASTNode from '../ast/node';
+import AnnotationContainer from './annotation-container';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import './canvas-decorator.css';
-import { setCanvasOverlay, getCanvasOverlay } from '../configs/app-context';
+import { setCanvasOverlay } from '../configs/app-context';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
 
+/**
+ * React component for a canvas decorator.
+ *
+ * @class CanvasDecorator
+ * @extends {React.Component}
+ */
 class CanvasDecorator extends React.Component {
+
+    /**
+     * Creates an instance of CanvasDecorator.
+     * @param {Object} props React properites.
+     * @memberof CanvasDecorator
+     */
     constructor(props) {
         super(props);
         this.state = { dropZoneActivated: false, dropZoneDropNotAllowed: false };
     }
 
+    /**
+     * Event for when dropzone is activated.
+     *
+     * @param {Object} e event.
+     * @returns {void}
+     * @memberof CanvasDecorator
+     */
     onDropZoneActivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.dropTarget;
@@ -49,6 +70,12 @@ class CanvasDecorator extends React.Component {
         e.stopPropagation();
     }
 
+    /**
+     * Event fo when dropzone is deactivated.
+     *
+     * @param {Object} e The event.
+     * @memberof CanvasDecorator
+     */
     onDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.dropTarget;
@@ -61,8 +88,13 @@ class CanvasDecorator extends React.Component {
         e.stopPropagation();
     }
 
+    /**
+     * Renders view for a canvas.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof CanvasDecorator
+     */
     render() {
-        const { bBox = {} } = this.props;
         const dropZoneActivated = this.state.dropZoneActivated;
         const dropZoneDropNotAllowed = this.state.dropZoneDropNotAllowed;
         const canvasClassName = `svg-container${dropZoneActivated ? ' drop-zone active' : ''}`;
@@ -85,7 +117,10 @@ class CanvasDecorator extends React.Component {
                 { (this.props.annotations) ? this.props.annotations : null }
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
                     <rect
-                        x="0" y="0"width="100%" height="100%"
+                        x="0"
+                        y="0"
+                        width="100%"
+                        height="100%"
                         className={dropZoneClassName}
                         onMouseOver={e => this.onDropZoneActivate(e)}
                         onMouseOut={e => this.onDropZoneDeactivate(e)}
@@ -106,11 +141,16 @@ CanvasDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
+    annotations: PropTypes.arrayOf(PropTypes.instanceOf(AnnotationContainer)),
+};
+
+CanvasDecorator.defaultProps = {
+    annotations: [],
 };
 
 CanvasDecorator.contextTypes = {
-	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-	 messageManager: PropTypes.instanceOf(MessageManager).isRequired,
+    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
 };
 
 export default CanvasDecorator;
