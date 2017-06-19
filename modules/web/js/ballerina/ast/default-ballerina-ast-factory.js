@@ -124,18 +124,6 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
 };
 
 /**
- * Create the action invocation statement for action invocation
- * @param args
- * @returns {ActionInvocationStatement}
- */
-DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement = function (args) {
-    const actionInStmt = BallerinaASTFactory.createActionInvocationStatement(args);
-    const actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
-    actionInStmt.addChild(actionInExp);
-    return actionInStmt;
-};
-
-/**
  * Create the particular assignment statement for the action invocation
  * @param args
  * @returns {AssignmentStatement}
@@ -145,6 +133,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
         args.actionConnectorName + '.' + args.action + '()';
     const assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
     assignmentStatement.setStatementFromString(assignmentStatementString);
+    assignmentStatement.getRightExpression().getChildren()[0].setFullPackageName(args.fullPackageName);
     return assignmentStatement;
 };
 
@@ -308,6 +297,7 @@ DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
         + args.connectorName + '()';
     const connectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
     connectorDeclaration.setStatementFromString(declarationStatement);
+    connectorDeclaration.setFullPackageName(args.fullPackageName);
     return connectorDeclaration;
 };
 
