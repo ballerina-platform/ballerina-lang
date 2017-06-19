@@ -28,8 +28,10 @@ import org.wso2.siddhi.core.event.stream.converter.ConversionStreamEventChunk;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
+import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
+import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.AggregationParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -39,7 +41,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class IncrementalExecutor implements Executor {
-    private TimePeriod.Duration duration;
+    private TimePeriod.Duration duration; // TODO: 6/16/17 remove unnecessary fields
     private IncrementalExecutor child;
     private MetaStreamEvent metaEvent;
     private Map<String, Table> tableMap;
@@ -49,12 +51,13 @@ public class IncrementalExecutor implements Executor {
     private List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails;
     private List<Variable> groupByVariables;
     private ExpressionExecutor timeStampExecutor;
-    private GroupByKeyGeneratorForIncremental groupByKeyGenerator;
+    private GroupByKeyGenerator groupByKeyGenerator;
     private int bufferCount;
     private StreamEventPool streamEventPool;
 
     private long nextEmitTime = -1;
     private boolean isRoot = false;
+    private boolean isGroupBy;
     private Executor next;
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<>();
     private final StreamEvent resetEvent;
@@ -63,12 +66,13 @@ public class IncrementalExecutor implements Executor {
     private Map<Long, List<AggregationParser.ExpressionExecutorDetails>> basicExecutorsOfBufferedEvents;
     private Map<String, BaseIncrementalAggregatorStore> runningBaseAggregatorCollection;
     private ComplexEventChunk<StreamEvent> timerStreamEventChunk;
+    private Scheduler scheduler;
 
     public IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child, MetaStreamEvent metaEvent,
             Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String aggregatorName,
             List<CompositeAggregator> compositeAggregators,
             List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails, List<Variable> groupByVariables,
-            VariableExpressionExecutor timeStampExecutor, GroupByKeyGeneratorForIncremental groupByKeyGenerator,
+            VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator,
             int bufferCount, StreamEventPool streamEventPool) {
         this.duration = duration;
         this.child = child;
@@ -80,7 +84,12 @@ public class IncrementalExecutor implements Executor {
         this.basicExecutorDetails = basicExecutorDetails;
         this.groupByVariables = groupByVariables;
         this.timeStampExecutor = timeStampExecutor;
-        this.groupByKeyGenerator = groupByKeyGenerator;
+        if (groupByKeyGenerator != null) {
+            this.groupByKeyGenerator = groupByKeyGenerator;
+            isGroupBy = true;
+        } else {
+            isGroupBy = false;
+        }
         this.bufferCount = bufferCount;
         this.streamEventPool = streamEventPool;
 
@@ -112,7 +121,11 @@ public class IncrementalExecutor implements Executor {
     }
 
     public void setRoot() {
-        isRoot = true;
+        this.isRoot = true;
+    }
+
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     /*
@@ -144,6 +157,9 @@ public class IncrementalExecutor implements Executor {
     public void execute(ComplexEventChunk streamEventChunk) {
         while (streamEventChunk.hasNext()) {
             StreamEvent event = (StreamEvent) streamEventChunk.next();
+
+            System.out.println(this.duration+"..."+event.getType());
+
             // Create new chunk to hold one stream event only
             ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<>(event, event,
                     streamEventChunk.isBatch());
@@ -151,38 +167,46 @@ public class IncrementalExecutor implements Executor {
             if (event.getType() == ComplexEvent.Type.CURRENT) {
                 timeStamp = (long) timeStampExecutor.execute(event);
                 if (nextEmitTime == -1) { // The first event is always a CURRENT event
-                    nextEmitTime = getNextEmitTime(timeStamp);
-                    startTimeOfAggregates = timeStamp;
+                    nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timeStamp, this.duration);
+                    startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timeStamp, this.duration);
                 }
             } else {
                 // TIMER event has arrived
-                timeStamp = event.getTimestamp(); // TODO: 6/13/17 is this correct?
+                timeStamp = event.getTimestamp();
+                if (isRoot) {
+                    // Scheduling is done by root incremental executor only
+                    scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(timeStamp, this.duration));
+                }
             }
             if (timeStamp >= nextEmitTime) {
-                dispatchEvents(); // Dispatch before setting next emit since next emit value is used to update buffered
-                                  // events
+                long copyOfEmitTime = nextEmitTime;
+                nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timeStamp, this.duration);
+                startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timeStamp, this.duration);
+                dispatchEvents(copyOfEmitTime);
                 if (event.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
                     // Send TIMER event to next executor
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(ComplexEvent.Type.TIMER);
+                    timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfEventToRemove
+                            (timeStamp, this.duration, this.bufferCount)); // TODO: 6/16/17 correct?
                     timerStreamEventChunk.add(timerEvent);
                     getNextExecutor().execute(timerStreamEventChunk);
                     timerStreamEventChunk.clear();
                 }
-                nextEmitTime = getNextEmitTime(timeStamp);
-                startTimeOfAggregates = timeStamp;
             }
 
             if (event.getType() == ComplexEvent.Type.CURRENT) {
                 processAggregates(newEventChunk, timeStamp);
-            }
 
-            for (Map.Entry<String, BaseIncrementalAggregatorStore> x:runningBaseAggregatorCollection.entrySet()) {
-                String a="___";
-                for (Object z:x.getValue().getBaseIncrementalValues()) {
-                    a = a.concat(z.toString()+"___");
+                for (Map.Entry<String, BaseIncrementalAggregatorStore> x:runningBaseAggregatorCollection.entrySet()) {
+                    String a="___";
+                    for (Object z:x.getValue().getBaseIncrementalValues()) {
+                        a = a.concat(z.toString()+"___");
+                    }
+                    System.out.println(this.duration+"...."+isRoot+"..."+x.getValue().getKey()+"...."+a);
+
                 }
-                System.out.println(this.duration+"...."+x.getValue().getKey()+"...."+a);
+
 
             }
         }
@@ -212,42 +236,21 @@ public class IncrementalExecutor implements Executor {
         return null;
     }
 
-    private long getNextEmitTime(long currentTime) {
-        switch (this.duration) {
-        case SECONDS:
-            return currentTime - currentTime % 1000 + 1000;
-        case MINUTES:
-            return currentTime - currentTime % 60000 + 60000;
-        // TODO: 5/26/17 add rest
-        default:
-            return -1; // TODO: 5/26/17 This must be corrected
-        }
-    }
-
-    private long getEmitTimeOfEventToRemove(long eventTime) {
-        switch (this.duration) {
-        case SECONDS:
-            return eventTime - bufferCount * 1000;
-        case MINUTES:
-            return eventTime - bufferCount * 60000;
-        // TODO: 5/26/17 add rest
-        default:
-            return -1; // TODO: 5/26/17 This must be corrected
-        }
-    }
-
     private void processAggregates(ComplexEventChunk complexEventChunk, long timeStamp) {
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
-                String groupedByKey = groupByKeyGenerator.constructEventKey(event);
-                keyThreadLocal.set(groupedByKey);
+                String groupedByKey = "KEY::"; // This dummy key is used when group by is not given
+                if (isGroupBy) {
+                    groupedByKey = groupByKeyGenerator.constructEventKey(event);
+                    keyThreadLocal.set(groupedByKey);
+                }
 
                 if (isRoot) {
                     // get time at which the incoming event should have expired
                     // get relevant base map corresponding to that expiry time
                     // update aggregates of that map
-                    long actualEmitTimeForEvent = getNextEmitTime(timeStamp);
+                    long actualEmitTimeForEvent = IncrementalTimeConverterUtil.getNextEmitTime(timeStamp, this.duration);
                     if (actualEmitTimeForEvent == nextEmitTime) {
                         updateRunningBaseAggregatorCollection(groupedByKey, event);
                     } else {
@@ -301,23 +304,25 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    private void dispatchEvents() {
+    private void dispatchEvents(long copyOfEmitTime) {
 
         if (isRoot) {
             // Clone base executors and add to basicExecutorsOfBufferedEvents
             List<AggregationParser.ExpressionExecutorDetails> bufferedBasicExecutorDetails = basicExecutorDetails
                     .stream().map(AggregationParser.ExpressionExecutorDetails::clone).collect(Collectors.toList());
-            basicExecutorsOfBufferedEvents.put(nextEmitTime, bufferedBasicExecutorDetails);
+            basicExecutorsOfBufferedEvents.put(copyOfEmitTime, bufferedBasicExecutorDetails);
             // Remove oldest base executors from basicExecutorsOfBufferedEvents
-            basicExecutorsOfBufferedEvents.remove(getEmitTimeOfEventToRemove(nextEmitTime));
+            basicExecutorsOfBufferedEvents.remove(IncrementalTimeConverterUtil.
+                    getEmitTimeOfEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
 
             // Add current base aggregator collection to buffer
-            bufferedBaseAggregatorMap.put(nextEmitTime, runningBaseAggregatorCollection);
+            bufferedBaseAggregatorMap.put(copyOfEmitTime, runningBaseAggregatorCollection);
             // Reset running base aggregator collection
             resetAggregatorStore();
             // Remove oldest base aggregator collection from bufferedBaseAggregatorMap
             Map<String, BaseIncrementalAggregatorStore> baseAggregatesToDispatch = bufferedBaseAggregatorMap
-                    .remove(getEmitTimeOfEventToRemove(nextEmitTime));
+                    .remove(IncrementalTimeConverterUtil.
+                            getEmitTimeOfEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
 
             // Send oldest base aggregator collection to next executor
             if (baseAggregatesToDispatch != null) {
@@ -348,19 +353,22 @@ public class IncrementalExecutor implements Executor {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
             streamEvent.getOnAfterWindowData()[0] = baseAggregateToDispatch.getValue().getTimeStamp();
             int i = 1;
-            String[] groupByValues = baseAggregateToDispatch.getValue().getKey().split("::");
-            for (String groupByValue : groupByValues) {
-                streamEvent.getOnAfterWindowData()[i] = groupByValue;
-                i++;
+            if (isGroupBy) {
+                String[] groupByValues = baseAggregateToDispatch.getValue().getKey().split("::");
+                for (String groupByValue : groupByValues) {
+                    streamEvent.getOnAfterWindowData()[i] = groupByValue;
+                    i++;
+                }
             }
             for (Object baseIncrementalValue : baseAggregateToDispatch.getValue().getBaseIncrementalValues()) {
                 streamEvent.getOnAfterWindowData()[i] = baseIncrementalValue;
                 i++;
             }
             newComplexEventChunk.add(streamEvent);
-            ((InMemoryTable) tableMap.get(aggregatorName + "_" + this.duration.toString()))
-                    .add(baseAggregateToDispatch.getValue().getTimeStamp(), streamEvent.getOnAfterWindowData());
+            InMemoryTable inMemoryTable = ((InMemoryTable) tableMap.get(aggregatorName + "_" + this.duration.toString()));
+            inMemoryTable.add(baseAggregateToDispatch.getValue().getTimeStamp(), streamEvent.getOnAfterWindowData());
             // TODO: 6/13/17 table may not always be there?
+            System.out.println(inMemoryTable.getElementId()+"........"+inMemoryTable.currentState());
         }
         if (getNextExecutor() != null) {
             getNextExecutor().execute(newComplexEventChunk);

@@ -3,9 +3,8 @@ package org.wso2.siddhi.core.util.parser;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 
 public class AggregationRuntime {
@@ -13,17 +12,17 @@ public class AggregationRuntime {
     private AggregationDefinition aggregationDefinition;
     private StreamRuntime streamRuntime;
     private MetaComplexEvent metaComplexEvent;
-    private ExecuteStreamReceiver executeStreamReceiver;
+    private IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver;
 
     private Executor entryValveExecutor;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, ExecutionPlanContext executionPlanContext,
-                              StreamRuntime streamRuntime, MetaComplexEvent metaComplexEvent, ExecuteStreamReceiver executeStreamReceiver) {
+                              StreamRuntime streamRuntime, MetaComplexEvent metaComplexEvent, IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver) {
         this.aggregationDefinition = aggregationDefinition;
         this.executionPlanContext = executionPlanContext;
         this.metaComplexEvent = metaComplexEvent;
         this.streamRuntime = streamRuntime;
-        this.executeStreamReceiver = executeStreamReceiver;
+        this.incrementalExecuteStreamReceiver = incrementalExecuteStreamReceiver;
     }
 
     public void setExecutor(Executor executor) {
@@ -38,7 +37,7 @@ public class AggregationRuntime {
         return streamRuntime;
     }
 
-    public ExecuteStreamReceiver getExecuteStreamReceiver() {
-        return executeStreamReceiver;
+    public IncrementalExecuteStreamReceiver getIncrementalExecuteStreamReceiver() {
+        return incrementalExecuteStreamReceiver;
     }
 }

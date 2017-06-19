@@ -28,11 +28,11 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
+import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AvgIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CountIncrementalAttributeAggregator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.GroupByKeyGeneratorForIncremental;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.SumIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -142,7 +142,7 @@ public class AggregationParser {
                     }
                     if (!(attributeFunction.getParameters()[0] instanceof Variable)) {
                         throw new ExecutionPlanRuntimeException("Cannot perform aggregation on parameter of type "
-                                + attributeFunction.getParameters()[0].getClass().getTypeName());
+                                + attributeFunction.getParameters()[0].getClass().getTypeName());/// TODO: 6/16/17 it should be a variable
                     }
                     attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
                     // The 1st element of object array holds the function name (e.g. avg, sum) and 2nd element, the
@@ -155,6 +155,7 @@ public class AggregationParser {
             // Store the composite aggregators
             List<CompositeAggregator> compositeAggregators = new ArrayList<>();
             for (Object[] functionAndAttribute : attributeList) {
+                //// TODO: 6/16/17 load class loadExtensionImplementation also join with the previous for loop
                 switch ((String) functionAndAttribute[0]) {
                     case "avg":
                         AvgIncrementalAttributeAggregator avgIncrementalAttributeAggregator = new AvgIncrementalAttributeAggregator(
@@ -238,7 +239,7 @@ public class AggregationParser {
             for (Expression initialValueExpression : attributeInitialValues) {
                 metaExecutors.add(ExpressionParser.parseExpression(initialValueExpression, originalMeta, 0,
                         tableMap, executors, executionPlanContext, groupBy, 0, aggregatorName));
-            }
+            }// TODO: 6/16/17 join this with meta creation
 
             // Group by variables must reflect new attribute name when group by executor is created with new meta
             List<Variable> newGroupByVariables = new ArrayList<>();
@@ -295,9 +296,9 @@ public class AggregationParser {
             }
 
             // Create group by key generator
-            GroupByKeyGeneratorForIncremental groupByKeyGenerator = null;
+            GroupByKeyGenerator groupByKeyGenerator = null;
             if (groupBy) {
-                groupByKeyGenerator = new GroupByKeyGeneratorForIncremental(newGroupByVariables,
+                groupByKeyGenerator = new GroupByKeyGenerator(newGroupByVariables,
                         newMeta, tableMap, executors, executionPlanContext, aggregatorName);
             }
 
@@ -311,21 +312,14 @@ public class AggregationParser {
             initDefaultTables(tableMap, aggregatorName, incrementalDurations, newMeta, executionPlanContext);
 
             // Minimum scheduling time needs to be identified (duration of root incremental executor)
-            TimePeriod.Duration minSchedulingTime;
+            TimePeriod.Duration minSchedulingTime = null;
 
-            List<ExpressionExecutorDetails> clonedExpressionExecutors = new ArrayList<>(); // Each incremental executor needs its own
-            // expression executors. Hence cloning.
-            clonedExpressionExecutors.addAll(baseExpressionExecutors.stream().
-                    map(ExpressionExecutorDetails::clone).collect(Collectors.toList()));
             // Create incremental executors
-            IncrementalExecutor child = new IncrementalExecutor(
-                    incrementalDurations.get(incrementalDurations.size() - 1), null, newMeta, tableMap, executionPlanContext,
-                    aggregatorName, compositeAggregators, clonedExpressionExecutors, groupByVariables, executors.get(0),
-                    groupByKeyGenerator, bufferSize, streamEventPool);
-            minSchedulingTime = incrementalDurations.get(incrementalDurations.size() - 1);
+            IncrementalExecutor child = null;
             IncrementalExecutor root;
-            for (int i = incrementalDurations.size() - 2; i >= 0; i--) {
-                clonedExpressionExecutors = new ArrayList<>();
+            for (int i = incrementalDurations.size() - 1; i >= 0; i--) {
+                List<ExpressionExecutorDetails> clonedExpressionExecutors = new ArrayList<>();
+                // Each incremental executor needs its own expression executors. Hence cloning.
                 clonedExpressionExecutors.addAll(baseExpressionExecutors.stream().
                         map(ExpressionExecutorDetails::clone).collect(Collectors.toList()));
                 root = new IncrementalExecutor(
@@ -335,6 +329,7 @@ public class AggregationParser {
                         groupByKeyGenerator, bufferSize, streamEventPool);
                 child = root;
                 minSchedulingTime = incrementalDurations.get(i);
+
             }
 
             // Create new scheduler
@@ -351,15 +346,17 @@ public class AggregationParser {
 
             // Create new execute stream receiver
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
-            ExecuteStreamReceiver executeStreamReceiver = new ExecuteStreamReceiver(singleInputStream.getStreamId(),
+            IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = new IncrementalExecuteStreamReceiver(singleInputStream.getStreamId(),
                     latencyTracker, aggregatorName);
 
             // Set receiver to entry valve
-            entryValveExecutor.setReceiver(executeStreamReceiver);
+            entryValveExecutor.setReceiver(incrementalExecuteStreamReceiver);
 
             aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime,
-                    newMeta, executeStreamReceiver);
+                    newMeta, incrementalExecuteStreamReceiver);
+            assert child != null; // Child won't be null if incremental durations are given
             child.setRoot(); // Set root incremental executor
+            child.setScheduler(scheduler); // Set scheduler in root incremental executor
             aggregationRuntime.setExecutor(entryValveExecutor);
 
             AggregationDefinitionParserHelper.updateVariablePosition(newMeta, executors);

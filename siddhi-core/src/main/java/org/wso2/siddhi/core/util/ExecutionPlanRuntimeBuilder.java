@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -157,8 +157,8 @@ public class ExecutionPlanRuntimeBuilder {
                 getEventSinkMap(),
                 getLockSynchronizer());
 
-        ExecuteStreamReceiver executeStreamReceiver = aggregationRuntime.getExecuteStreamReceiver();
-        streamJunctionMap.get(executeStreamReceiver.getStreamId()).subscribe(executeStreamReceiver);
+        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = aggregationRuntime.getIncrementalExecuteStreamReceiver();
+        streamJunctionMap.get(incrementalExecuteStreamReceiver.getStreamId()).subscribe(incrementalExecuteStreamReceiver);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {

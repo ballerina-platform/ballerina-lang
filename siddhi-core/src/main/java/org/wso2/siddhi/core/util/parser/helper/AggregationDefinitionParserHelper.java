@@ -20,29 +20,18 @@ package org.wso2.siddhi.core.util.parser.helper;
 
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
-import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
-import org.wso2.siddhi.core.event.state.StateEventCloner;
 import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.join.JoinProcessor;
 import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
-import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
-import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.ExecuteStreamReceiver;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
@@ -142,21 +131,21 @@ public class AggregationDefinitionParserHelper {
         }
         StreamEventPool originalStreamEventPool = new StreamEventPool(originalMetaStreamEvent, 5);
         StreamEventPool newStreamEventPool = new StreamEventPool(newMetaStreamEvent, 5);
-        ExecuteStreamReceiver executeStreamReceiver = aggregationRuntime.getExecuteStreamReceiver();
-        executeStreamReceiver.setNewMetaStreamEvent(newMetaStreamEvent);
-        executeStreamReceiver.setOriginalMetaStreamEvent(originalMetaStreamEvent);
-        executeStreamReceiver.setExpressionExecutors(metaExecutors);
-        executeStreamReceiver.setStreamEventPoolForOriginalMeta(originalStreamEventPool);
-        executeStreamReceiver.setStreamEventPoolForNewMeta(newStreamEventPool);
-        executeStreamReceiver.setScheduler(scheduler);
-        executeStreamReceiver.setMinSchedulingTime(minSchedulingTime);
-        executeStreamReceiver.setBatchProcessingAllowed(false); // TODO: 6/11/17 is this correct?
-        executeStreamReceiver.setLockWrapper(lockWrapper);
-        executeStreamReceiver.init();
+        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = aggregationRuntime.getIncrementalExecuteStreamReceiver();
+        incrementalExecuteStreamReceiver.setNewMetaStreamEvent(newMetaStreamEvent);
+        incrementalExecuteStreamReceiver.setOriginalMetaStreamEvent(originalMetaStreamEvent);
+        incrementalExecuteStreamReceiver.setExpressionExecutors(metaExecutors);
+        incrementalExecuteStreamReceiver.setStreamEventPoolForOriginalMeta(originalStreamEventPool);
+        incrementalExecuteStreamReceiver.setStreamEventPoolForNewMeta(newStreamEventPool);
+        incrementalExecuteStreamReceiver.setScheduler(scheduler);
+        incrementalExecuteStreamReceiver.setMinSchedulingTime(minSchedulingTime);
+        incrementalExecuteStreamReceiver.setBatchProcessingAllowed(false); // TODO: 6/11/17 is this correct?
+        incrementalExecuteStreamReceiver.setLockWrapper(lockWrapper);
+        incrementalExecuteStreamReceiver.init();
+        incrementalExecuteStreamReceiver.setNext(aggregationRuntime.getExecutor());
 
-
-        Executor executor = aggregationRuntime.getExecutor(); // TODO: 6/13/17 correct?
-        executor.setToLast(executor);
+//        Executor executor = aggregationRuntime.getExecutor(); // TODO: 6/13/17 correct?
+//        executor.setToLast(executor);
 
         // TODO: 5/17/17 should we chain executors as in QueryParserHelper? If so following must be corrected
         /*
@@ -166,20 +155,5 @@ public class AggregationDefinitionParserHelper {
          * aggregationRuntime.getIncrementalExecutor().setNextExecutor(executor);
          */
 
-        executeStreamReceiver.setNext(aggregationRuntime.getExecutor());
-
     }
-
-    public static long getNextEmitTime(long currentTime, TimePeriod.Duration duration) {
-        switch (duration) {
-        case SECONDS:
-            return currentTime - currentTime % 1000 + 1000;
-        case MINUTES:
-            return currentTime - currentTime % 60000 + 60000;
-        // TODO: 5/26/17 add rest
-        default:
-            return -1; // TODO: 5/26/17 This must be corrected
-        }
-    }
-
 }

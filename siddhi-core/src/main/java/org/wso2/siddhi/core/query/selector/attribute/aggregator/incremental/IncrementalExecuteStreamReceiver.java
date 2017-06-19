@@ -38,7 +38,7 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExecuteStreamReceiver implements StreamJunction.Receiver {
+public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver {
 
     // TODO: 5/16/17 Copy of ProcessStreamReceiver. Change where necessary
 
@@ -62,7 +62,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     private TimePeriod.Duration minSchedulingTime;
     private boolean isFirstEvent = true;
 
-    public ExecuteStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName) {
+    public IncrementalExecuteStreamReceiver(String streamId, LatencyTracker latencyTracker, String queryName) {
         this.streamId = streamId;
         this.latencyTracker = latencyTracker;
         this.aggregatorName = queryName;
@@ -73,8 +73,8 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         return streamId;
     }
 
-    public ExecuteStreamReceiver clone(String key) {
-        ExecuteStreamReceiver processStreamReceiver = new ExecuteStreamReceiver(streamId + key, latencyTracker, aggregatorName);
+    public IncrementalExecuteStreamReceiver clone(String key) {
+        IncrementalExecuteStreamReceiver processStreamReceiver = new IncrementalExecuteStreamReceiver(streamId + key, latencyTracker, aggregatorName);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }
@@ -121,7 +121,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
             currentEvent = nextEvent;
             complexEvents = complexEvents.getNext();
         }
-        execute(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, this.batchProcessingAllowed));
+        execute(new ComplexEventChunk<>(firstEvent, currentEvent, this.batchProcessingAllowed));
     }
 
     @Override
@@ -132,7 +132,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
             if (siddhiDebugger != null) {
                 siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);
             }
-            execute(new ComplexEventChunk<StreamEvent>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
+            execute(new ComplexEventChunk<>(borrowedEvent, borrowedEvent, this.batchProcessingAllowed));
         }
     }
 
@@ -150,7 +150,7 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
         if (siddhiDebugger != null) {
             siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, firstEvent);
         }
-        execute(new ComplexEventChunk<StreamEvent>(firstEvent, currentEvent, this.batchProcessingAllowed));
+        execute(new ComplexEventChunk<>(firstEvent, currentEvent, this.batchProcessingAllowed));
     }
 
 
@@ -196,16 +196,16 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
                 borrowedNewEvent.getOnAfterWindowData()[i] = expressionExecutor.execute(borrowedOriginalEvent);
                 i++;
             }
+            if (isFirstEvent) {
+                // Scheduling must be done only for system time based events
+                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(
+                        (Long) borrowedNewEvent.getOnAfterWindowData()[0], minSchedulingTime));
+                isFirstEvent = false;
+            }
         } else {
             // TODO: 6/11/17 error
             // Expression executors must be defined to retrieve each new meta value
         }
-
-        if (isFirstEvent) {
-            scheduler.notifyAt(AggregationDefinitionParserHelper.getNextEmitTime(
-                    (Long) borrowedNewEvent.getOnAfterWindowData()[0], minSchedulingTime));
-        }
-
 
         // Send to debugger
         if (siddhiDebugger != null) {
@@ -217,13 +217,6 @@ public class ExecuteStreamReceiver implements StreamJunction.Receiver {
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {
         next.execute(streamEventChunk);
         streamEventChunk.clear();
-    }
-
-    public void processTimerEvent(ComplexEventChunk complexEventChunk) {
-        // Method to set scheduler notify time
-        this.scheduler.notifyAt(AggregationDefinitionParserHelper.getNextEmitTime(
-                complexEventChunk.getFirst().getTimestamp(), minSchedulingTime)); // TODO: 6/13/17 is this correct? Assumes that timestamp
-        // of timer event
     }
 
     public void setNewMetaStreamEvent(MetaStreamEvent metaStreamEvent) {
