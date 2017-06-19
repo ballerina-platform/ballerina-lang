@@ -4,7 +4,7 @@ annotation FileSource attach service {
     string protocol;
     string fileURI;
     string pollingInterval;
-    string readFromBeginning;
+    string seek;
 }
 annotation OnUpdate attach resource{
 

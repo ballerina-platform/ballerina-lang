@@ -35,5 +35,5 @@ public class Constants {
     public static final String ANNOTATION_ATTRIBUTE_PROTOCOL = "protocol";
     public static final String ANNOTATION_ATTRIBUTE_URI = "fileURI";
     public static final String ANNOTATION_ATTRIBUTE_POLLING_INTERVAL = "pollingInterval";
-    public static final String ANNOTATION_ATTRIBUTE_READ_FROM_BEGINNING = "readFromBeginning";
+    public static final String ANNOTATION_ATTRIBUTE_SEEK = "seek";
 }

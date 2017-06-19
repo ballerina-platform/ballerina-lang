@@ -134,9 +134,9 @@ public class FileServiceDispatcher implements ServiceDispatcher {
             if (value != null) {
                 elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_PROTOCOL, value.getStringValue());
             }
-            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_READ_FROM_BEGINNING);
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_SEEK);
             if (value != null) {
-                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_READ_FROM_BEGINNING, value.getStringValue());
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_SEEK, value.getStringValue());
             }
             value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_URI);
             if (value != null) {
