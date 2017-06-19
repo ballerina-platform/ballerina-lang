@@ -19,6 +19,9 @@
 
 package org.ballerinalang.var;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -66,5 +69,166 @@ public class VarTypeAssignmentStmtTest {
         Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonA': " +
                 "error while mapping 'age': no such field found");
     }
+
+    @Test
+    public void testCompatibleStructForceCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testCompatibleStructForceCasting", new BValue[]{});
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        BStruct structC = (BStruct) returns[0];
+
+        Assert.assertEquals(structC.getStringField(0), "updated-x-valueof-a");
+
+        Assert.assertEquals(structC.getIntField(0), 4);
+
+        // check whether error is null
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test
+    public void testInCompatibleStructForceCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testInCompatibleStructForceCasting", new BValue[]{});
+
+        // check whether struct is null
+        Assert.assertNull(returns[0]);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
+
+        String sourceType = error.getStringField(1);
+        Assert.assertEquals(sourceType, "B");
+
+        String targetType = error.getStringField(2);
+        Assert.assertEquals(targetType, "A");
+    }
+
+    @Test
+    public void testAnyToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToStringWithErrors", new BValue[]{});
+
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'string'");
+    }
+
+    @Test
+    public void testAnyNullToStringWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToStringWithErrors", new BValue[]{});
+
+        // check whether string is empty
+        Assert.assertEquals(returns[0].stringValue(), "");
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'string'");
+    }
+
+    @Test
+    public void testAnyToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToBooleanWithErrors", new BValue[]{});
+
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'int' cannot be cast to 'boolean'");
+    }
+
+    @Test
+    public void testAnyNullToBooleanWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToBooleanWithErrors", new BValue[]{});
+
+        // check whether string is empty
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'boolean'");
+    }
+
+    @Test
+    public void testAnyToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToIntWithErrors", new BValue[]{});
+
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
+    }
+
+    @Test
+    public void testAnyNullToIntWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToIntWithErrors", new BValue[]{});
+
+        // check whether int is zero
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
+    }
+
+    @Test
+    public void testAnyToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToFloatWithErrors", new BValue[]{});
+
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
+    }
+
+    @Test
+    public void testAnyNullToFloatWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyNullToFloatWithErrors", new BValue[]{});
+
+        // check whether float is zero
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'float'");
+    }
+
+    @Test
+    public void testAnyToMapWithErrors() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyToMapWithErrors", new BValue[]{});
+
+        // check whether map is null
+        Assert.assertNull(returns[0]);
+
+        // check the error
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        BStruct error = (BStruct) returns[1];
+        String errorMsg = error.getStringField(0);
+        Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
+    }
+
 
 }

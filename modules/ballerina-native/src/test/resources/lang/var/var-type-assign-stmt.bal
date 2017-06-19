@@ -44,3 +44,104 @@ function testJsonToStructWithErrors() (PersonA, errors:TypeConversionError) {
 
     return person, err;
 }
+
+struct A {
+    string x;
+    int y;
+}
+
+struct B {
+    string x;
+}
+
+function testCompatibleStructForceCasting()(A, errors:TypeCastError) {
+    A a = {x: "x-valueof-a", y:4};
+    B b = {x: "x-valueof-b"};
+
+    b = (B) a;
+
+    var c, err = (A) b;
+
+    a.x = "updated-x-valueof-a";
+    return c, err;
+}
+
+function testInCompatibleStructForceCasting()(A, errors:TypeCastError) {
+    B b = {x: "x-valueof-b"};
+
+    var a, err = (A) b;
+
+    return a, err;
+}
+
+function testAnyToStringWithErrors()(string, errors:TypeCastError) {
+    any a = 5;
+
+    var s, err = (string) a;
+
+    return s, err;
+}
+
+function testAnyNullToStringWithErrors()(string, errors:TypeCastError) {
+    any a = null;
+
+    var s, err = (string) a;
+
+    return s, err;
+}
+
+function testAnyToBooleanWithErrors()(boolean, errors:TypeCastError) {
+    any a = 5;
+
+    var b, err = (boolean) a;
+
+    return b, err;
+}
+
+function testAnyNullToBooleanWithErrors()(boolean, errors:TypeCastError) {
+    any a = null;
+
+    var b, err = (boolean) a;
+
+    return b, err;
+}
+
+function testAnyToIntWithErrors()(int, errors:TypeCastError) {
+    any a = "foo";
+
+    var b, err = (int) a;
+
+    return b, err;
+}
+
+function testAnyNullToIntWithErrors()(int, errors:TypeCastError) {
+    any a = null;
+
+    var b, err = (int) a;
+
+    return b, err;
+}
+
+function testAnyToFloatWithErrors()(float, errors:TypeCastError) {
+    any a = "foo";
+
+    var b, err = (float) a;
+
+    return b, err;
+}
+
+function testAnyNullToFloatWithErrors()(float, errors:TypeCastError) {
+    any a = null;
+
+    var b, err = (float) a;
+
+    return b, err;
+}
+
+function testAnyToMapWithErrors()(map, errors:TypeCastError) {
+    any a = "foo";
+
+    var b, err = (map) a;
+
+    return b, err;
+}
