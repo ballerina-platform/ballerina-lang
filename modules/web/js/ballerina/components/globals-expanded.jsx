@@ -64,10 +64,10 @@ export default class GlobalExpanded extends React.Component {
         const bBox = this.props.bBox;
         const topBarHeight = variablesPaneDefaults.topBarHeight;
         const globalInputHeight = variablesPaneDefaults.inputHeight;
-        const globalHeight = 30;
-        const globalDeclarationWidth = 310;
+        const iconSize = variablesPaneDefaults.iconSize;
+        const globalHeight = variablesPaneDefaults.globalItemHeight;
+        const globalDeclarationWidth = variablesPaneDefaults.globalDeclarationWidth;
         const leftPadding = 10;
-        const iconSize = 20;
         const globalElements = [];
 
         const topBarBbox = {

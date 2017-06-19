@@ -18,6 +18,7 @@
 
 import React from 'react';
 import './global-item.css';
+import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
 
 export default class GlobalDefinitionItem extends React.Component {
     constructor() {
@@ -44,7 +45,7 @@ export default class GlobalDefinitionItem extends React.Component {
 
     render() {
         const { x, y, w, h } = this.props.bBox;
-        const leftPadding = 10;
+        const leftPadding = variablesPaneDefaults.globalItemLeftPadding;
 
         const deleteStyle = {};
 
