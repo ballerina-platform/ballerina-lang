@@ -81,7 +81,8 @@ class LifeLine extends React.Component {
         const options = this.props.editorOptions;
         const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (options) {
-            new ExpressionEditor(this.topBox, this.context.container, text => this.onUpdate(text), options, packageScope);
+            new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
+                .render(this.context.container);
         }
     }
 

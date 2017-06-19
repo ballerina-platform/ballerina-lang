@@ -723,8 +723,8 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         const options = this.props.editorOptions;
         const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (options) {
-            new ExpressionEditor(this.statementBox, this.context.container,
-                text => this.onUpdate(text), options, packageScope);
+            new ExpressionEditor(this.statementBox,
+                text => this.onUpdate(text), options, packageScope).render(this.context.container);
         }
     }
 
