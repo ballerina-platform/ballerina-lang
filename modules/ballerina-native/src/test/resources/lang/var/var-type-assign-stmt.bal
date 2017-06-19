@@ -17,9 +17,27 @@ function testIntToVarAssignment() (int) {
     return age;
 }
 
+function testMultipleIntToVarAssignment() (int,int,int,int) {
+    var age, age1, age2, age3 = retFourInt();
+    return age, age1, age2, age3;
+}
+
+function retFourInt()(int,int,int,int){
+    return 100, 200, 300, 400;
+}
+
 function testStringToVarAssignment() (string) {
-    var name = "kevin";
+    var name = "name";
     return name;
+}
+
+function testMultipleStringToVarAssignment() (string,string,string,string) {
+    var name, name1, name2, name3 = retFourString();
+    return name, name1, name2, name3;
+}
+
+function retFourString()(string,string,string,string){
+    return "name_1", "name_2", "name_3", "name_4";
 }
 
 function testBooleanToVarAssignment() (boolean) {

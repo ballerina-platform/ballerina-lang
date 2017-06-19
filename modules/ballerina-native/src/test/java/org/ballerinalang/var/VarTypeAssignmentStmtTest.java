@@ -15,8 +15,6 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-
-
 package org.ballerinalang.var;
 
 import org.ballerinalang.model.values.BBoolean;
@@ -51,21 +49,55 @@ public class VarTypeAssignmentStmtTest {
     public void testIntToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntToVarAssignment",
                 new BValue[]{});
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 81);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 81);
+    }
+
+    @Test
+    public void testMultipleIntToVarAssignment() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleIntToVarAssignment",
+                new BValue[]{});
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertNotNull(returns[2]);
+        Assert.assertNotNull(returns[3]);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 300);
+        Assert.assertEquals(((BInteger) returns[3]).intValue(), 400);
     }
 
     @Test
     public void testStringToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStringToVarAssignment",
                 new BValue[]{});
-        Assert.assertEquals(((BString)returns[0]).stringValue(), "kevin");
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "name");
+    }
+
+    @Test
+    public void testMultipleStringToVarAssignment() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleStringToVarAssignment",
+                new BValue[]{});
+        Assert.assertEquals(returns.length, 4);
+
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertNotNull(returns[2]);
+        Assert.assertNotNull(returns[3]);
+
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "name_1");
+        Assert.assertEquals(((BString) returns[1]).stringValue(), "name_2");
+        Assert.assertEquals(((BString) returns[2]).stringValue(), "name_3");
+        Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
     }
 
     @Test
     public void testBooleanToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanToVarAssignment",
                 new BValue[]{});
-        Assert.assertEquals(((BBoolean)returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
 
     @Test(expectedExceptions = {ParserException.class})
@@ -86,7 +118,6 @@ public class VarTypeAssignmentStmtTest {
         BTestUtils.getProgramFile("lang/var/service-level-variable-def-with-var-type-negative.bal");
     }
 
-
     @Test
     public void testIncompatibleJsonToStructWithErrors() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToStructWithErrors",
@@ -98,7 +129,6 @@ public class VarTypeAssignmentStmtTest {
         Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'Person': error while mapping" +
                 " 'parent': incompatible types: expected 'json-object', found 'string'");
     }
-
 
     @Test
     public void testJsonToStructWithErrors() {
@@ -271,6 +301,5 @@ public class VarTypeAssignmentStmtTest {
         String errorMsg = error.getStringField(0);
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
     }
-
 
 }
