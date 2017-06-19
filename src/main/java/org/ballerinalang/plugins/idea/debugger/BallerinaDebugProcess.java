@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.debugger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.AccessToken;
@@ -26,6 +27,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -74,9 +76,6 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final BallerinaWebSocketConnector myConnector;
 
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
-    private final AtomicBoolean connectedListenerAdded = new AtomicBoolean();
-
-    private static final int MAX_RETRIES = 20;
 
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
                                  @NotNull ExecutionResult executionResult) {
@@ -114,8 +113,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void sessionInitialized() {
-        ApplicationManager.getApplication().invokeLater(() -> {
-            for (int retries = 0; retries < MAX_RETRIES; retries++) {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            while (true) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -123,7 +122,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
 
                 if (!myConnector.isConnected()) {
-                    LOGGER.debug("Not connected. Retry attempt - #" + retries);
+                    LOGGER.debug("Not connected. Retrying...");
                     myConnector.createConnection();
                     if (myConnector.isConnected()) {
                         LOGGER.debug("Connection created.");
@@ -136,12 +135,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     break;
                 }
             }
+            if (!myConnector.isConnected()) {
+                getSession().getConsoleView().print("Connection to debug server could not be established.", ConsoleViewContentType.ERROR_OUTPUT);
+                getSession().stop();
+            }
         });
     }
 
     private void startDebugSession() {
         addDebugHitListener();
-        initBreakpointHandlersAndSetBreakpoints(true);
+        initBreakpointHandlersAndSetBreakpoints();
         LOGGER.debug("Sending breakpoints.");
         myBreakPointHandler.sendBreakpoints();
         LOGGER.debug("Sending start command.");
@@ -186,14 +189,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public boolean checkCanInitBreakpoints() {
-//        if (myConnector.isConnected()) {
-//            // breakpointsInitiated could be set in another thread and at this point work (init breakpoints) could be
-//            // not yet performed
-//            return initBreakpointHandlersAndSetBreakpoints(true);
-//        }
-//        if (connectedListenerAdded.compareAndSet(false, true)) {
-//            addDebugHitListener();
-//        }
+        // We manually initializes the breakpoints after connecting to the debug server.
         return false;
     }
 
@@ -231,14 +227,11 @@ public class BallerinaDebugProcess extends XDebugProcess {
         );
     }
 
-    private boolean initBreakpointHandlersAndSetBreakpoints(boolean setBreakpoints) {
+    private void initBreakpointHandlersAndSetBreakpoints() {
         if (!breakpointsInitiated.compareAndSet(false, true)) {
-            return false;
+            return;
         }
-        if (setBreakpoints) {
-            doSetBreakpoints();
-        }
-        return true;
+        doSetBreakpoints();
     }
 
     private void doSetBreakpoints() {
@@ -334,33 +327,41 @@ public class BallerinaDebugProcess extends XDebugProcess {
             StringBuilder stringBuilder = new StringBuilder("{\"command\":\"").append(Command.SET_POINTS)
                     .append("\", \"points\": [");
             if (!getSession().areBreakpointsMuted()) {
-                int size = breakpoints.size();
-                for (int i = 0; i < size; i++) {
-                    XSourcePosition breakpointPosition = breakpoints.get(i).getSourcePosition();
-                    if (breakpointPosition == null) {
-                        return;
-                    }
-                    VirtualFile file = breakpointPosition.getFile();
-                    int line = breakpointPosition.getLine();
-                    Project project = getSession().getProject();
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    int size = breakpoints.size();
+                    for (int i = 0; i < size; i++) {
+                        XSourcePosition breakpointPosition = breakpoints.get(i).getSourcePosition();
+                        if (breakpointPosition == null) {
+                            return;
+                        }
+                        VirtualFile file = breakpointPosition.getFile();
+                        int line = breakpointPosition.getLine();
+                        Project project = getSession().getProject();
 
-                    String name = "";
-                    // Only get relative path if a package declaration is present in the file.
-                    PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-                    PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
-                            PackageDeclarationNode.class);
-                    if (packageDeclarationNode != null) {
-                        name = BallerinaUtil.suggestPackageNameForFile(project, file);
-                        name = name.replaceAll("\\.", "/") + "/";
-                    }
-                    name += file.getName();
+                        String name = "";
+                        // Only get relative path if a package declaration is present in the file.
+                        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+                        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
+                                PackageDeclarationNode.class);
+                        if (packageDeclarationNode != null) {
+                            name = BallerinaUtil.suggestPackageNameForFile(project, file);
+                            // We need to escape the file separator in the Windows. Otherwise the debug hits wont be
+                            // identified by the debug server.
+                            if (SystemInfo.isWindows) {
+                                name = name.replaceAll("\\.", "\\\\\\\\") + "\\\\";
+                            } else {
+                                name = name.replaceAll("\\.", "/") + "/";
+                            }
+                        }
+                        name += file.getName();
 
-                    stringBuilder.append("{\"fileName\":\"").append(name).append("\"");
-                    stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
-                    if (i < size - 1) {
-                        stringBuilder.append(",");
+                        stringBuilder.append("{\"fileName\":\"").append(name).append("\"");
+                        stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
+                        if (i < size - 1) {
+                            stringBuilder.append(",");
+                        }
                     }
-                }
+                });
             }
             stringBuilder.append("]}");
             myConnector.send(stringBuilder.toString());
