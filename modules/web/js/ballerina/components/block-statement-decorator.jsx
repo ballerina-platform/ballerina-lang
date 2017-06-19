@@ -35,8 +35,15 @@ const CLASS_MAP = {
     fade: 'delayed-hide-action',
 };
 
+/**
+ * Wraps other UI elements and provide box with a heading.
+ * Enrich elements with a action box and expression editors.
+ */
 class BlockStatementDecorator extends React.Component {
 
+    /**
+     * Initialize the block decorator.
+     */
     constructor() {
         super();
         this.state = {
@@ -82,14 +89,22 @@ class BlockStatementDecorator extends React.Component {
         document.getElementsByClassName('view-source-btn')[0].click();
     }
 
+    /**
+     * Call-back for when a new value is entered via expression editor.
+     */
     onUpdate() {
     }
 
+    /**
+     * Shows the action box, depending on whether on child element, delays display.
+     * @param {boolean} show - Display action box.
+     * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
+     */
     setActionVisibility(show, e) {
         if (!this.context.dragDropManager.isOnDrag()) {
             if (show) {
-                const isInChildStatement = this.isInStatementWithinMe(e.target);
-                const isFromChildStatement = this.isInStatementWithinMe(e.relatedTarget);
+                const isInChildStatement = this.isInFocusableChild(e.target);
+                const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
 
                 if (!isInChildStatement) {
                     if (isFromChildStatement) {
@@ -114,7 +129,13 @@ class BlockStatementDecorator extends React.Component {
         }
     }
 
-    isInStatementWithinMe(elmToCheck) {
+    /**
+     * True if the given element is a child of this element that has it's own focus.
+     * @private
+     * @param {HTMLElement} elmToCheck - child to be checked.
+     * @return {boolean} True if child is focusable.
+     */
+    isInFocusableChild(elmToCheck) {
         const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
         let isInStatement = false;
         let elm = elmToCheck;
@@ -127,6 +148,11 @@ class BlockStatementDecorator extends React.Component {
         return isInStatement;
     }
 
+    /**
+     * renders an ExpressionEditor in the header space.
+     * @param {string} value - Initial value.
+     * @param {object} options - options to be sent to ExpressionEditor.
+     */
     openEditor(value, options) {
         const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (value && options) {
@@ -137,8 +163,11 @@ class BlockStatementDecorator extends React.Component {
                 packageScope).render(this.context.container);
         }
     }
+
     /**
-     * Renders breakpoint indicator
+     * Render breakpoint element.
+     * @private
+     * @return {XML} React element of the breakpoint.
      */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
@@ -157,6 +186,10 @@ class BlockStatementDecorator extends React.Component {
         );
     }
 
+    /**
+     * Override the rendering logic.
+     * @returns {XML} rendered component.
+     */
     render() {
         const { bBox, title, dropTarget, expression } = this.props;
         const model = this.props.model || dropTarget;
