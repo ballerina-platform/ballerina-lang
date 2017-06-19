@@ -115,7 +115,6 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Run Service, Alerts an error to user if file is not saved
-     *
      */
     runService() {
         const activeTab = this.application.tabController.getActiveTab();
@@ -128,7 +127,6 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Run application, Alerts an error to user if file is not saved
-     *
      */
     runApplication() {
         const activeTab = this.application.tabController.getActiveTab();
@@ -143,7 +141,6 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Checks whether file or service in the FileTab is ready to run.
-     *
      * @param {FileTab} tab - instance of FileTab
      * @returns Boolean
      */
@@ -162,14 +159,12 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Stops currently running application or service
-     *
      */
     stopProgram() {
         LaunchManager.stopProgram();
     },
     /**
      * Redeploy currently running application or service
-     *
      */
     reDeployProgram() {
         const activeTab = this.application.tabController.getActiveTab();
@@ -185,7 +180,6 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Returns true if launcher toolbar is active
-     *
      * @returns Boolean
      */
     isActive() {
@@ -193,7 +187,6 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Toggle launcher view
-     *
      */
     toggleLauncher() {
         if (this.isActive()) {
@@ -254,14 +247,12 @@ const Launcher = Backbone.View.extend({
     },
     /**
      * Render body of the launcher view
-     *
      */
     renderBody() {
         this._launcherContainer.html(this.compiled(LaunchManager));
     },
     /**
      * Opens console output
-     *
      */
     showConsole() {
         $('#tab-content-wrapper').css('height:70%');

@@ -19,14 +19,12 @@
 import ASTVisitor from './ast-visitor';
 /**
  * Finds nodes with breakpoints
- *
  * @class FindBreakpointNodesVisitor
  * @extends {ASTVisitor}
  */
 class FindBreakpointNodesVisitor extends ASTVisitor {
     /**
      * Creates an instance of FindBreakpointNodesVisitor.
-     *
      * @memberof FindBreakpointNodesVisitor
      */
     constructor() {
@@ -34,11 +32,7 @@ class FindBreakpointNodesVisitor extends ASTVisitor {
         this._breakpoints = [];
     }
     /**
-     *
-     *
      * @param {int[]} breakpoints
-     *
-     * @memberof FindBreakpointNodesVisitor
      */
     setBreakpoints(breakpoints = []) {
         this._breakpoints = breakpoints;

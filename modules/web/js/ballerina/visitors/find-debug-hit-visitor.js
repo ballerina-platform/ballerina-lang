@@ -19,15 +19,13 @@
 import ASTVisitor from './ast-visitor';
 
 /**
- *  Debug hit visitor class for indicate debug hit
- *
+ * Debug hit visitor class for indicate debug hit
  * @class FindDebugHitVisitor
  * @extends {ASTVisitor}
  */
 class FindDebugHitVisitor extends ASTVisitor {
     /**
      * Creates an instance of FindDebugHitVisitor.
-     *
      * @memberof FindDebugHitVisitor
      */
     constructor() {
@@ -35,10 +33,7 @@ class FindDebugHitVisitor extends ASTVisitor {
         this._position = {};
     }
     /**
-     *
-     *
      * @param {object} position - object with line number and file name properties
-     *
      * @memberof FindDebugHitVisitor
      */
     setPosition(position) {

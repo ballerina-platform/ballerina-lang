@@ -21,21 +21,18 @@ import ASTVisitor from './ast-visitor';
 
 /**
  * Finds line numbers of breakpoints in the model
- *
  * @class FindBreakpointLinesVisitor
  * @extends {ASTVisitor}
  */
 class FindBreakpointLinesVisitor extends ASTVisitor {
     /**
      * Creates an instance of FindBreakpointLinesVisitor.
-     *
      */
     constructor() {
         super();
         this._breakpoints = [];
     }
     /**
-     *
      * Returns the array of breakpoint line numbers
      * @returns {int[]}
      *

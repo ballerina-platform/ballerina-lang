@@ -63,7 +63,6 @@ const Debugger = Backbone.View.extend({
     },
     /**
      * Returns true if debugger toolbar is active
-     *
      * @returns Boolean
      */
     isActive() {
@@ -71,7 +70,6 @@ const Debugger = Backbone.View.extend({
     },
     /**
      * Toggle debugger view
-     *
      */
     toggleDebugger() {
         if (this.isActive()) {
@@ -129,7 +127,6 @@ const Debugger = Backbone.View.extend({
     },
     /**
      * Render body of the debugger view
-     *
      */
     renderContent() {
         const debuggerContainer = $(`
