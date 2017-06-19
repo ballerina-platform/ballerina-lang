@@ -55,7 +55,7 @@ public class BallerinaWebSocketConnector {
             myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
             myWebSocket.connect();
         } catch (IOException | WebSocketException e) {
-            myConnectionState = ConnectionState.ERROR;
+            myConnectionState = ConnectionState.CONNECTING;
             LOGGER.debug(e);
         }
     }
@@ -91,19 +91,19 @@ public class BallerinaWebSocketConnector {
 
     String getState() {
         if (myConnectionState == ConnectionState.NOT_CONNECTED) {
-            return "Not connected.";
+            return "Not connected. Waiting for a connection.";
         } else if (myConnectionState == ConnectionState.CONNECTED) {
             return "Connected to " + myWebSocket.getURI() + ".";
         } else if (myConnectionState == ConnectionState.DISCONNECTED) {
             return "Disconnected.";
-        } else if (myConnectionState == ConnectionState.ERROR) {
-            return "Error occurred.";
+        } else if (myConnectionState == ConnectionState.CONNECTING) {
+            return "Connecting to " + myWebSocket.getURI() + ".";
         }
         return "Unknown";
     }
 
     private enum ConnectionState {
-        NOT_CONNECTED, CONNECTED, DISCONNECTED, ERROR
+        NOT_CONNECTED, CONNECTING, CONNECTED, DISCONNECTED
     }
 
     private class BallerinaWebSocketListenerAdapter extends WebSocketAdapter {
@@ -114,59 +114,9 @@ public class BallerinaWebSocketConnector {
         }
 
         @Override
-        public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
         public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame
                 clientCloseFrame, boolean closedByServer) throws Exception {
             myConnectionState = ConnectionState.DISCONNECTED;
-        }
-
-        @Override
-        public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onFrameError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame)
-                throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames)
-                throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onMessageDecompressionError(WebSocket websocket, WebSocketException cause, byte[] compressed)
-                throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onTextMessageError(WebSocket websocket, WebSocketException cause, byte[] data) throws
-                Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onSendError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws
-                Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void onUnexpectedError(WebSocket websocket, WebSocketException cause) throws Exception {
-            myConnectionState = ConnectionState.ERROR;
-        }
-
-        @Override
-        public void handleCallbackError(WebSocket websocket, Throwable cause) throws Exception {
-            myConnectionState = ConnectionState.ERROR;
         }
     }
 }
