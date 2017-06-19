@@ -20,19 +20,13 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 
 /**
  * Component which registers the CarbonTransport capability information.
  */
-@Component(
-        name = "org.wso2.carbon.transport.http.netty.internal.TransportServiceCapabilityProvider",
-        immediate = true,
-        service = CapabilityProvider.class,
-        property = "capabilityName=org.wso2.carbon.kernel.transports.CarbonTransport"
-)
+@Deprecated
 public class TransportServiceCapabilityProvider implements CapabilityProvider {
 
     @Activate

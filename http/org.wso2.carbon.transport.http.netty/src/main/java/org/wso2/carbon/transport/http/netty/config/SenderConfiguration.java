@@ -125,6 +125,22 @@ public class SenderConfiguration {
         this.parameters = parameters;
     }
 
+    public String getTrustStoreFile() {
+        return trustStoreFile;
+    }
+
+    public void setTrustStoreFile(String trustStoreFile) {
+        this.trustStoreFile = trustStoreFile;
+    }
+
+    public String getTrustStorePass() {
+        return trustStorePass;
+    }
+
+    public void setTrustStorePass(String trustStorePass) {
+        this.trustStorePass = trustStorePass;
+    }
+
     public SSLConfig getSslConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
             return null;
@@ -132,6 +148,5 @@ public class SenderConfiguration {
         return Util.getSSLConfigForSender(certPass, keyStorePass, keyStoreFile, trustStoreFile, trustStorePass,
                 parameters);
     }
-
 
 }

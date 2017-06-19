@@ -156,6 +156,7 @@ public class ConnectionManager {
 
         // Take connections from Global connection pool
         if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
+            // TODO: re-verify the functionality
             Map<String, GenericObjectPool> objectPoolMap = sourceHandler.getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(httpRoute.toString());
             if (pool == null) {
@@ -174,6 +175,7 @@ public class ConnectionManager {
                 carbonCallback.done(carbonMessage);
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+            // TODO: re-verify the functionality
             // manage connections according to per inbound channel caching method
             if (!sourceHandler.isChannelFutureExists(httpRoute)) {
                 acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,

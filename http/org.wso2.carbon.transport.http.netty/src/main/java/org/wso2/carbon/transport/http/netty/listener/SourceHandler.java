@@ -126,7 +126,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
              */
             HttpRequest httpRequest = (HttpRequest) msg;
             HttpHeaders headers = httpRequest.headers();
-            if (Constants.UPGRADE.equalsIgnoreCase(headers.get(Constants.CONNECTION)) &&
+            if (isConnectionUpgrade(headers) &&
                     Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
                 log.info("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
@@ -157,6 +157,21 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     }
 
+    public boolean isConnectionUpgrade(HttpHeaders headers) {
+        if (!headers.contains(Constants.CONNECTION)) {
+            return false;
+        }
+
+        String connectionHeaderValues = headers.get(Constants.CONNECTION);
+        for (String connectionValue: connectionHeaderValues.split(",")) {
+            if (Constants.UPGRADE.equalsIgnoreCase(connectionValue.trim())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /*
     This handles the WebSocket Handshake.
      */
@@ -176,11 +191,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             int maxThreads = PoolConfiguration.getInstance().getEventGroupExecutorThreads();
             EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
             pipeline.addLast(executorGroup, "ws_handler",
-                             new WebSocketSourceHandler(generateWebSocketChannelID(),
-                                                        this.connectionManager,
-                                                        this.listenerConfiguration,
-                                                        httpRequest.getUri(),
-                                                        isSecuredConnection,
+                             new WebSocketSourceHandler(generateWebSocketChannelID(), this.connectionManager,
+                                                        this.listenerConfiguration, httpRequest, isSecuredConnection,
                                                         ctx));
 
             pipeline.remove(this);
@@ -286,8 +298,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
-        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
@@ -303,16 +313,24 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
         ChannelHandler handler = ctx.handler();
         cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
         cMsg.setProperty(Constants.TO, httpRequest.getUri());
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
+
+        // TODO: Cannot find a single usage of these properties. Commenting it and will remove it in the next release.
+        // TODO: Make them available through util methods.
+//        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
+//        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
+//        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+//        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
+
+//        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+//        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().toString())
+
         return cMsg;
     }
 

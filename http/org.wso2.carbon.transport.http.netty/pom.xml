@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.transport</groupId>
         <artifactId>org.wso2.carbon.transport.http.parent</artifactId>
-        <version>4.3.1-SNAPSHOT</version>
+        <version>4.4.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -76,11 +76,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
 
         <dependency>
@@ -208,11 +203,7 @@
             startup.listener;componentName="netty-transports-mgt";
             requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
             org.wso2.carbon.messaging.CarbonMessageProcessor",
-            osgi.service;
-            objectClass="org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent";
-            requiredByComponentName="carbon-transport-mgt",
-            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
-            capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
+            osgi.service; objectClass="org.wso2.carbon.messaging.ServerConnectorProvider"
         </carbon.component>
     </properties>
 </project>

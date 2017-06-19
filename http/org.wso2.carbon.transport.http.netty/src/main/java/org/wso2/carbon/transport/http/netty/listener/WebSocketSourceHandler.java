@@ -21,6 +21,7 @@ package org.wso2.carbon.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -63,22 +64,36 @@ public class WebSocketSourceHandler extends SourceHandler {
      * @param channelId This works as the session id of the WebSocket connection.
      * @param connectionManager connection manager for WebSocket connection.
      * @param listenerConfiguration Listener configuration for WebSocket connection.
-     * @param uri Requested URI of WebSocket connection.
+     * @param httpRequest {@link HttpRequest} which contains the details of WebSocket Upgrade.
      * @param isSecured indication of whether the connection is secured or not.
      * @param ctx {@link ChannelHandlerContext} of WebSocket connection.
      */
-    public WebSocketSourceHandler(String channelId,
-                                  ConnectionManager connectionManager,
-                                  ListenerConfiguration listenerConfiguration,
-                                  String uri,
-                                  boolean isSecured,
-                                  ChannelHandlerContext ctx) throws Exception {
+    public WebSocketSourceHandler(String channelId, ConnectionManager connectionManager,
+                                  ListenerConfiguration listenerConfiguration, HttpRequest httpRequest,
+                                  boolean isSecured, ChannelHandlerContext ctx) throws Exception {
         super(connectionManager, listenerConfiguration);
-        this.uri = uri;
+        this.uri = httpRequest.uri();
         this.channelId = channelId;
         this.isSecured = isSecured;
         this.session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
+        httpRequest.headers().entries().forEach(
+                header -> {
+                    session.addUserProperty(header.getKey(), header.getValue());
+                }
+        );
         sendOnOpenMessage(ctx, isSecured, uri);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (session.isOpen()) {
+            session.setIsOpen(false);
+            int statusCode = 1001; // Client is going away.
+            String reasonText = "Client is going away";
+            cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
+            setupCarbonMessage(ctx);
+            publishToMessageProcessor(cMsg);
+        }
     }
 
     @Override
