@@ -26,6 +26,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,13 @@ import java.util.Set;
  */
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
+    public static final String HOST = "Host";
+    public static final String PORT = "Port";
+    public static final String SCHEMA = "Schema";
+    public static final String KEY_STORE_FILE = "keyStoreFile";
+    public static final String KEY_STORE_PASS = "keyStorePass";
+    public static final String CERT_PASS = "certPass";
+
     public HTTPServerConnectorProvider() {
         super(Constants.PROTOCOL_NAME);
     }
@@ -43,8 +51,12 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
         List<ServerConnector> connectors = new ArrayList<>();
 
-        ServerConnectorController serverConnectorController = new ServerConnectorController(trpConfig);
-        serverConnectorController.start();
+        ServerConnectorController serverConnectorController = new ServerConnectorController();
+
+        //This logic assumes this will be called before any other code initialize the ServerConnectorController
+        if (!serverConnectorController.isInitialized()) {
+            serverConnectorController.initialize(trpConfig);
+        }
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
 
@@ -68,6 +80,45 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
     @Override
     public ServerConnector createConnector(String s, Map<String, String> properties) {
-        return null;
+        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
+
+        Set<ListenerConfiguration> configSet = new HashSet<>();
+        ListenerConfiguration config = buildListenerConfig(s, properties);
+        configSet.add(config);
+        trpConfig.setListenerConfigurations(configSet);
+
+        ServerConnectorController serverConnectorController = new ServerConnectorController();
+        if (!serverConnectorController.isInitialized()) {
+            if (!serverConnectorController.initialize(trpConfig)) {
+                trpConfig = serverConnectorController.getTransportsConfiguration();
+                trpConfig.getListenerConfigurations().add(config);
+            }
+        } else {
+            trpConfig = serverConnectorController.getTransportsConfiguration();
+            trpConfig.getListenerConfigurations().add(config);
+        }
+
+        HTTPServerConnector connector = new HTTPServerConnector(config.getId());
+        connector.setListenerConfiguration(config);
+        connector.setServerConnectorController(serverConnectorController);
+        if (config.isBindOnStartup()) {
+            serverConnectorController.bindInterface(connector);
+        }
+        return connector;
+    }
+
+    private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
+        String host = properties.get(HOST) != null ? properties.get(HOST) : "0.0.0.0";
+        int port = Integer.parseInt(properties.get(PORT));
+        ListenerConfiguration config = new ListenerConfiguration(id, host, port);
+        String schema = properties.get(SCHEMA);
+        if (schema != null && schema.equals("https")) {
+            config.setScheme(schema);
+            config.setKeyStoreFile(properties.get(KEY_STORE_FILE));
+            config.setKeyStorePass(properties.get(KEY_STORE_PASS));
+            config.setCertPass(properties.get(CERT_PASS));
+            //todo fill truststore stuff
+        }
+        return config;
     }
 }
