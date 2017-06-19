@@ -526,7 +526,7 @@ class AnnotationAttribute extends React.Component {
 
 AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnoationEntry).isRequired,
-    annotationAttributes: PropTypes.arrayOf(AnnotationAttributeDefinition),
+    annotationAttributes: PropTypes.arrayOf(PropTypes.instanceOf(AnnotationAttributeDefinition)),
 };
 
 AnnotationAttribute.defaultProps = {
