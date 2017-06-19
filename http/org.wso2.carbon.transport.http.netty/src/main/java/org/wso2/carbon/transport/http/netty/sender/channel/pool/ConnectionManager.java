@@ -100,6 +100,19 @@ public class ConnectionManager {
 
     }
 
+    private GenericObjectPool createPoolForRoutePerSrcHndlr(GenericObjectPool genericObjectPool) {
+        GenericObjectPool.Config config = new GenericObjectPool.Config();
+        config.maxActive = poolConfiguration.getMaxActivePerPool();
+        config.maxIdle = poolConfiguration.getMaxIdlePerPool();
+        config.minIdle = poolConfiguration.getMinIdlePerPool();
+        config.testOnBorrow = poolConfiguration.isTestOnBorrow();
+        config.testWhileIdle = poolConfiguration.isTestWhileIdle();
+        config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
+        config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
+        config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
+        return new GenericObjectPool(new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool), config);
+    }
+
     public static ConnectionManager getInstance(Map<String, Object> transportProperties) {
         if (connectionManager == null) {
             synchronized (ConnectionManager.class) {
