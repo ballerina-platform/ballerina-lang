@@ -504,7 +504,7 @@ class ASTNode extends EventChannel {
     }
     /**
      * Set lineNumber atribute to node
-     * @param {Number} lineNumber
+     * @param {number} lineNumber
      * @param {object} options
      *
      */
@@ -513,7 +513,7 @@ class ASTNode extends EventChannel {
     }
     /**
      * Set isLiteral atribute to node
-     * @param {Boolean} isLiteral
+     * @param {boolean} isLiteral
      * @param {object} options
      *
      */
@@ -529,7 +529,7 @@ class ASTNode extends EventChannel {
     }
     /**
      * Get line number of the node
-     * @returns {Number}
+     * @returns {number}
      *
      */
     getLineNumber() {
