@@ -1,29 +1,8 @@
 # Features
 
-## File Templates
-
-Three types of Ballerina file templates are available.
-1) Empty File
-2) Ballerina Service
-3) Ballerina Main
-
-![alt text](images/FileTemplates.gif)
-
-## Live Templates
-
-Live templates contains boilerplate codes and lets the user to enter them easily. All available live templates can be viewed/changed at **Settings -> Editor -> Live Templates -> Ballerina**.
-
-![alt text](images/LiveTemplates.gif)
-
-## Hidden Templates
-
-Hidden templates are associated with most of the keywords. Hidden templates can be invoked by pressing `Ctrl`+`Space` after typing the keyword. Hidden template will be inserted when you select the keyword from the lookup element list as well.
-
-![alt text](images/HiddenTemplates.gif)
-
 ## Auto Imports
 
-Auto import lets you to add import declarations on the fly. All you have to do is selecting the package name from the lookup list and the package declaration will be automatically added.
+Auto import feature adds import declarations on the fly. All you have to do is selecting the package name from the lookup list and the package declaration will be automatically added.
 
 ![alt text](images/AutoImports.gif)
 
@@ -77,7 +56,7 @@ You can reformat the Ballerina codes by pressing `Ctrl`+`Alt`+`L`.
 
 ## Running Ballerina applications 
 
-You can run Ballerina main files, service files without adding/changing any run configurations.
+You can run Ballerina main without adding/changing any run configurations.
 
 ![alt text](images/RunConfig.gif)
 
@@ -93,8 +72,30 @@ Package inspection is available to improve usability. This will suggest to add t
 
 ![alt text](images/PackageFix.gif)
 
+
+## File Templates
+
+Three types of Ballerina file templates are available.
+1) Ballerina Main - Contains a sample main program
+2) Ballerina Service - Contains a sample service
+3) Empty File
+
+![alt text](images/FileTemplates.gif)
+
+## Live Templates
+
+Live templates contains boilerplate codes and lets the user to enter them easily. All available live templates can be viewed/changed at **Settings -> Editor -> Live Templates -> Ballerina**.
+
+![alt text](images/LiveTemplates.gif)
+
+## Hidden Templates
+
+Hidden templates are associated with most of the keywords. Hidden templates can be invoked by pressing `Ctrl`+`Space` after typing the keyword. Hidden template will be inserted when you select the keyword from the lookup element list as well.
+
+![alt text](images/HiddenTemplates.gif)
+
 ## Spell Checking
 
-Spell checking is enabled for all identifiers. You can rename all of the definitions and useges easily as well.
+Spell checking is enabled for all identifiers. You can rename all of the definitions and references as well.
 
 ![alt text](images/SpellChecking.gif)
