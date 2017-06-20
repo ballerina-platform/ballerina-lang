@@ -61,21 +61,11 @@ public class ServerConnectorController {
 
     private boolean initialized = false;
 
-    public ServerConnectorController() {
+    public ServerConnectorController(TransportsConfiguration transportsConfiguration) {
+        this.transportsConfiguration = transportsConfiguration;
     }
 
-    /**
-     * This method will return true if it get initialized with provided transport config,
-     * it returns false, if it is already initialized
-     *
-     * @param transportsConfiguration
-     * @return false if already initialized, false otherwise
-     */
-    public synchronized boolean initialize(TransportsConfiguration transportsConfiguration) {
-        if (initialized) {
-            return false;
-        }
-        this.transportsConfiguration = transportsConfiguration;
+    public void start() {
 
         Set<TransportProperty> transportPropertiesSet = transportsConfiguration.getTransportProperties();
 
@@ -150,7 +140,6 @@ public class ServerConnectorController {
         log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
 
         initialized = true;
-        return initialized;
     }
 
     public void stop() {
@@ -258,9 +247,5 @@ public class ServerConnectorController {
 
     public TransportsConfiguration getTransportsConfiguration() {
         return transportsConfiguration;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
     }
 }

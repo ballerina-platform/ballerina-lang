@@ -26,7 +26,6 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +35,8 @@ import java.util.Set;
  */
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
+    private ServerConnectorController serverConnectorController;
+
     public HTTPServerConnectorProvider() {
         super(Constants.PROTOCOL_NAME);
     }
@@ -44,11 +45,8 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
         List<ServerConnector> connectors = new ArrayList<>();
 
-        ServerConnectorController serverConnectorController = new ServerConnectorController();
-
-        //This logic assumes this will be called before any other code initialize the ServerConnectorController
-        if (!serverConnectorController.isInitialized()) {
-            serverConnectorController.initialize(trpConfig);
+        if (serverConnectorController == null) {
+            createServerConnectorController(trpConfig);
         }
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
@@ -75,20 +73,11 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
     public ServerConnector createConnector(String s, Map<String, String> properties) {
         TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
 
-        Set<ListenerConfiguration> configSet = new HashSet<>();
         ListenerConfiguration config = buildListenerConfig(s, properties);
-        configSet.add(config);
-        trpConfig.setListenerConfigurations(configSet);
 
-        ServerConnectorController serverConnectorController = new ServerConnectorController();
-        if (!serverConnectorController.isInitialized()) {
-            if (!serverConnectorController.initialize(trpConfig)) {
-                trpConfig = serverConnectorController.getTransportsConfiguration();
-                trpConfig.getListenerConfigurations().add(config);
-            }
-        } else {
-            trpConfig = serverConnectorController.getTransportsConfiguration();
-            trpConfig.getListenerConfigurations().add(config);
+        trpConfig.getListenerConfigurations().add(config);
+        if (serverConnectorController == null) {
+            createServerConnectorController(trpConfig);
         }
 
         HTTPServerConnector connector = new HTTPServerConnector(config.getId());
@@ -98,6 +87,18 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
             serverConnectorController.bindInterface(connector);
         }
         return connector;
+    }
+
+    /**
+     * Helper method to initialize server connector controller for the provider.
+     *
+     * @param trpConfig to be used for initialization
+     */
+    private synchronized void createServerConnectorController(TransportsConfiguration trpConfig) {
+        if (serverConnectorController == null) {
+            serverConnectorController = new ServerConnectorController(trpConfig);
+            serverConnectorController.start();
+        }
     }
 
     /**
