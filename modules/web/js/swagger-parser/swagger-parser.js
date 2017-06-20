@@ -316,7 +316,7 @@ class SwaggerParser {
         }
 
         SwaggerParser.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
-        this.createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
+        SwaggerParser.createParametersAnnotation(resourceDefinition, httpMethodJsonObject);
     }
 
     /**
