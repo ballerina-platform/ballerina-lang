@@ -23,13 +23,11 @@ import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 public class BallerinaUtil {
 
@@ -167,19 +165,9 @@ public class BallerinaUtil {
         return trimmedPath;
     }
 
-    public static String suggestPackageNameForFile(Project project, VirtualFile virtualFile) {
-        String basePath = project.getBasePath();
-        if (isLibraryFile(project, virtualFile)) {
-            basePath = getLibraryRoot(project);
-        }
-        String relativePath = FileUtil.getRelativePath(basePath, virtualFile.getPath(),
-                File.separatorChar);
-        int len = relativePath.length() - virtualFile.getName().length();
-
-        if (len <= 0) {
-            return "";
-        }
-        // Remove separator at the end if the file is not situated at the project root and get the path.
-        return relativePath.substring(0, len - 1).replaceAll(File.separator, ".");
+    public static String suggestPackageNameForFile(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+        VirtualFile parent = virtualFile.getParent();
+        PsiDirectory psiDirectory = PsiManager.getInstance(project).findDirectory(parent);
+        return suggestPackageNameForDirectory(psiDirectory);
     }
 }

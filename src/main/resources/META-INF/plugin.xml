@@ -151,6 +151,10 @@
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
         <console.folding implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFolding"/>
 
+        <!-- debugger -->
+        <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaDebugger"/>
+        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
+
         <!--project-->
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
         <projectService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
