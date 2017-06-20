@@ -36,13 +36,6 @@ import java.util.Set;
  */
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
-    public static final String HOST = "Host";
-    public static final String PORT = "Port";
-    public static final String SCHEMA = "Schema";
-    public static final String KEY_STORE_FILE = "keyStoreFile";
-    public static final String KEY_STORE_PASS = "keyStorePass";
-    public static final String CERT_PASS = "certPass";
-
     public HTTPServerConnectorProvider() {
         super(Constants.PROTOCOL_NAME);
     }
@@ -107,16 +100,24 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         return connector;
     }
 
+    /**
+     * Method to build listener configuration using provided properties map.
+     *
+     * @param id            Listener id
+     * @param properties    Property map
+     * @return              listener config
+     */
     private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
-        String host = properties.get(HOST) != null ? properties.get(HOST) : "0.0.0.0";
-        int port = Integer.parseInt(properties.get(PORT));
+        String host = properties.get(Constants.HTTP_HOST) != null ?
+                properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
+        int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
         ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(SCHEMA);
+        String schema = properties.get(Constants.HTTP_SCHEMA);
         if (schema != null && schema.equals("https")) {
             config.setScheme(schema);
-            config.setKeyStoreFile(properties.get(KEY_STORE_FILE));
-            config.setKeyStorePass(properties.get(KEY_STORE_PASS));
-            config.setCertPass(properties.get(CERT_PASS));
+            config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
+            config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
+            config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
             //todo fill truststore stuff
         }
         return config;
