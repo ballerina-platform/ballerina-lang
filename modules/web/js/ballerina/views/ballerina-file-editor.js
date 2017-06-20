@@ -26,7 +26,6 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
-import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
@@ -131,31 +130,12 @@ class BallerinaFileEditor extends EventChannel {
             model = BallerinaASTFactory.createBallerinaAstRoot();
         }
         this._model = model;
-        let self = this;
-        // make undo-manager capture all tree modifications after initial rendering
-        this._model.on('tree-modified', function (event) {
-            if (this.getUndoManager().hasUndo()) {
-                // clear undo stack from source view
-                if (this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().undoStackTop())) {
-                    this.getUndoManager().reset();
-                }
-            }
-            if (this.getUndoManager().hasRedo()) {
-                // clear redo stack from source view
-                if (this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().redoStackTop())) {
-                    this.getUndoManager().reset();
-                }
-            }
-            _.set(event, 'editor', this);
-            _.set(event, 'skipInSourceView', true);
-            this.getUndoManager().onUndoableOperation(event);
+        this._model.on('tree-modified', (event) => {
             this.trigger('content-modified');
-        }, this);
+        });
 
         this._model.on('import-new-package', (packageString) => {
-            self.trigger('update-tool-patette');
+            this.trigger('update-tool-patette');
         });
     }
 
@@ -220,9 +200,6 @@ class BallerinaFileEditor extends EventChannel {
                                     .get(0);
 
         this.messageManager = new MessageManager({ fileEditor: this });
-
-        // init undo manager
-        this._undoManager = new UndoManager();
     }
 
     /**
@@ -292,24 +269,7 @@ class BallerinaFileEditor extends EventChannel {
         this._sourceView = new SourceView(sourceViewOpts);
 
         this._sourceView.on('modified', (changeEvent) => {
-            if (self.getUndoManager().hasUndo()) {
-                // clear undo stack from design view
-                if (!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().undoStackTop())) {
-                    self.getUndoManager().reset();
-                }
-            }
-
-            if (self.getUndoManager().hasRedo()) {
-                // clear redo stack from design view
-                if (!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().redoStackTop())) {
-                    self.getUndoManager().reset();
-                }
-            }
-            _.set(changeEvent, 'editor', self);
-            self.getUndoManager().onUndoableOperation(changeEvent);
-            self.trigger('content-modified');
+            this.trigger('content-modified');
         });
 
         this._sourceView.on('breakpoints-updated', () => {
@@ -608,10 +568,6 @@ class BallerinaFileEditor extends EventChannel {
             root = this.getModel();
         }
         return root;
-    }
-
-    getUndoManager() {
-        return this._undoManager;
     }
 
     getSourceView() {

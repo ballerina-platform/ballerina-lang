@@ -26,6 +26,7 @@ import Tab from './tab';
 import File from '../workspace/file';
 import DebugManager from '../debugger/debug-manager';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
+import UndoManager from '../ballerina/undo-manager/undo-manager';
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -45,7 +46,11 @@ class FileTab extends Tab {
     constructor(options) {
         super(options);
         if (!_.has(options, 'file')) {
-            this._file = new File({ isTemp: true, isDirty: false }, { storage: this.getParent().getBrowserStorage() });
+            this._file = new File({ 
+                    isTemp: true, isDirty: false 
+                }, { 
+                    storage: this.getParent().getBrowserStorage() 
+                });
         } else {
             this._file = _.get(options, 'file');
         }
@@ -71,6 +76,7 @@ class FileTab extends Tab {
                 this.app.langseverClientController.documentDidSaveNotification(langServerOptions);
             },
         });
+        this._undoManager = new UndoManager();
     }
 
     /**
@@ -369,6 +375,10 @@ class FileTab extends Tab {
      */
     getProgramPackages() {
         return this._programPackages;
+    }
+    
+    getUndoManager() {
+        return this._undoManager;
     }
 }
 
