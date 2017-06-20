@@ -45,8 +45,6 @@ import com.intellij.xdebugger.frame.XSuspendContext;
 import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
 import com.intellij.xdebugger.ui.XDebugTabLayouter;
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketFrame;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType;
 import org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakpointProperties;
 
@@ -123,7 +121,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
                 if (!myConnector.isConnected()) {
                     LOGGER.debug("Not connected. Retrying...");
-                    myConnector.createConnection();
+                    myConnector.createConnection(this::debugHit);
                     if (myConnector.isConnected()) {
                         LOGGER.debug("Connection created.");
                         startDebugSession();
@@ -136,14 +134,14 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             }
             if (!myConnector.isConnected()) {
-                getSession().getConsoleView().print("Connection to debug server could not be established.", ConsoleViewContentType.ERROR_OUTPUT);
+                getSession().getConsoleView().print("Connection to debug server could not be established.",
+                        ConsoleViewContentType.ERROR_OUTPUT);
                 getSession().stop();
             }
         });
     }
 
     private void startDebugSession() {
-        addDebugHitListener();
         initBreakpointHandlersAndSetBreakpoints();
         LOGGER.debug("Sending breakpoints.");
         myBreakPointHandler.sendBreakpoints();
@@ -169,6 +167,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public void stop() {
         myConnector.sendCommand(Command.STOP);
+        myConnector.close();
     }
 
     @Override
@@ -193,38 +192,27 @@ public class BallerinaDebugProcess extends XDebugProcess {
         return false;
     }
 
-    private void addDebugHitListener() {
-        myConnector.addListener(
-                new BallerinaWebSocketAdaptor() {
+    private void debugHit(String response) {
+        LOGGER.debug("Received: " + response);
+        ObjectMapper mapper = new ObjectMapper();
+        Message message;
+        try {
+            message = mapper.readValue(response, Message.class);
+        } catch (IOException e) {
+            LOGGER.debug(e);
+            return;
+        }
 
-                    @Override
-                    public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-                        String json = frame.getPayloadText();
-                        LOGGER.debug("Received: " + json);
-                        ObjectMapper mapper = new ObjectMapper();
-                        Message message;
-                        try {
-                            message = mapper.readValue(json, Message.class);
-                        } catch (IOException e) {
-                            LOGGER.debug(e);
-                            return;
-                        }
-
-                        if (Response.DEBUG_HIT.name().equals(message.getCode())) {
-                            XBreakpoint<BallerinaBreakpointProperties> breakpoint
-                                    = findBreakPoint(message.getLocation());
-                            BallerinaSuspendContext context = new BallerinaSuspendContext(BallerinaDebugProcess.this,
-                                    message);
-                            XDebugSession session = getSession();
-                            if (breakpoint == null) {
-                                session.positionReached(context);
-                            } else {
-                                session.breakpointReached(breakpoint, null, context);
-                            }
-                        }
-                    }
-                }
-        );
+        if (Response.DEBUG_HIT.name().equals(message.getCode())) {
+            XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(message.getLocation());
+            BallerinaSuspendContext context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+            XDebugSession session = getSession();
+            if (breakpoint == null) {
+                session.positionReached(context);
+            } else {
+                session.breakpointReached(breakpoint, null, context);
+            }
+        }
     }
 
     private void initBreakpointHandlersAndSetBreakpoints() {
