@@ -226,12 +226,11 @@ class BlockStatementDecorator extends React.Component {
 
         this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
 
-        const actionBoxBbox = {
-            x: bBox.x + ((bBox.w - actionBox.width) / 2),
-            y: bBox.y + titleH + actionBox.padding.top,
-            w: actionBox.width,
-            h: actionBox.height,
-        };
+        const actionBoxBbox = new SimpleBBox(
+            bBox.x + ((bBox.w - actionBox.width) / 2),
+            bBox.y + titleH + actionBox.padding.top,
+            actionBox.width,
+            actionBox.height);
         const utilClassName = CLASS_MAP[this.state.active];
 
         const separatorGapV = titleH / 3;

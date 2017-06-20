@@ -25,13 +25,21 @@ import './compound-statement-decorator.css';
 import SimpleBBox from '../ast/simple-bounding-box';
 
 
+/**
+ * Adds drop zone to a another component (eg: to BlockStatementDecorator).
+ */
 class CompoundStatementDecorator extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
+    /**
+     * Constructs CompoundStatementDecorator
+     */
+    constructor() {
+        super();
 
         this.startDropZones = this.startDropZones.bind(this);
         this.stopDragZones = this.stopDragZones.bind(this);
+        this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
+        this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
 
         this.state = {
             innerDropZoneActivated: false,
@@ -41,18 +49,27 @@ class CompoundStatementDecorator extends React.Component {
         };
     }
 
+    /**
+     * registers drag drop call backs on mount.
+     */
     componentDidMount() {
         const { dragDropManager } = this.context;
         dragDropManager.on('drag-start', this.startDropZones);
         dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
+    /**
+     * un-registers drag drop call backs on mount.
+     */
     componentWillUnmount() {
         const { dragDropManager } = this.context;
         dragDropManager.off('drag-start', this.startDropZones);
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
 
+    /**
+     * Activates the drop zone.
+     */
     onDropZoneActivate() {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
@@ -78,6 +95,9 @@ class CompoundStatementDecorator extends React.Component {
         }
     }
 
+    /**
+     * Deactivates the drop zone.
+     */
     onDropZoneDeactivate() {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
@@ -89,18 +109,26 @@ class CompoundStatementDecorator extends React.Component {
         }
     }
 
+    /**
+     * Call back for drop manager.
+     */
     startDropZones() {
         this.setState({ innerDropZoneExist: true });
     }
 
-
+    /**
+     * Call back for drop manager.
+     */
     stopDragZones() {
         this.setState({ innerDropZoneExist: false });
     }
 
+    /**
+     * Override the rendering logic.
+     * @returns {XML} rendered component.
+     */
     render() {
         const { bBox } = this.props;
-        // we need to draw a drop box above the statement
         const dropZoneX = bBox.x + ((bBox.w - lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
@@ -117,8 +145,8 @@ class CompoundStatementDecorator extends React.Component {
                 height={statement.gutter.v}
                 className={dropZoneClassName}
                 {...fill}
-                onMouseOver={e => this.onDropZoneActivate(e)}
-                onMouseOut={e => this.onDropZoneDeactivate(e)}
+                onMouseOver={this.onDropZoneActivate}
+                onMouseOut={this.onDropZoneDeactivate}
             />
             {this.props.children}
         </g>);
