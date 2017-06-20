@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import TransformStatementVisitorFactory from './transform-statement-visitor-factory';
+import StatementVisitorFactory from './statement-visitor-factory';
 
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
@@ -41,7 +41,7 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            const statementVisitorFactory = new TransformStatementVisitorFactory();
+            const statementVisitorFactory = new StatementVisitorFactory();
             const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);
         }

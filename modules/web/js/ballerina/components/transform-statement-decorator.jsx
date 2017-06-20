@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -422,6 +424,8 @@ class TransformStatementDecorator extends React.Component {
             } else {
                 log.error('Invalid expression type in transform statement body');
             }
+        } else if (BallerinaASTFactory.isCommentStatement(statement)) {
+            //ignore comment statements
         } else {
             log.error('Invalid statement type in transform statement');
         }
