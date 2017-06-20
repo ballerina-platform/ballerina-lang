@@ -884,6 +884,37 @@ public class BLangModelBuilder {
         exprStack.push(connectorInitExpr);
     }
 
+    public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                  SimpleTypeName typeName, boolean argsAvailable,
+                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
+                                                  SimpleTypeName filterTypeName, boolean filterArgsAvailable) {
+        List<Expression> argExprList;
+        if (argsAvailable) {
+            argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
+
+        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
+                argExprList.toArray(new Expression[argExprList.size()]));
+
+        List<Expression> filterArgExprList;
+        if (filterArgsAvailable) {
+            filterArgExprList = exprListStack.pop();
+            checkArgExprValidity(location, filterArgExprList);
+        } else {
+            filterArgExprList = new ArrayList<>(0);
+        }
+
+        ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
+                filterTypeName,
+                filterArgExprList.toArray(new Expression[filterArgExprList.size()]));
+        connectorInitExpr.setReferenceConnectorInitExpr(filterConnectorInitExpr);
+        //exprStack.push(filterConnectorInitExpr);
+        exprStack.push(connectorInitExpr);
+    }
+
 
     // Functions, Actions and Resources
 
@@ -1073,6 +1104,24 @@ public class BLangModelBuilder {
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
+
+        currentScope = connector.getEnclosingScope();
+        currentCUGroupBuilder = null;
+    }
+
+    public void createFilterConnector(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, String connectorType) {
+        currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        currentCUGroupBuilder.setIdentifier(new Identifier(name));
+        currentCUGroupBuilder.setPkgPath(currentPackagePath);
+
+        SimpleTypeName typeName = new SimpleTypeName(connectorType);
+
+        getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
+
+        BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
+        connector.setFilterConnector(true);
+        connector.setConnectorType(typeName);
+        bFileBuilder.addFilterConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;

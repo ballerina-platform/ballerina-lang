@@ -60,7 +60,7 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   'connector' Identifier '(' parameterList? ')' connectorBody
+    :   'connector' Identifier ('<' nameReference '>')? '(' parameterList? ')' connectorBody
     ;
 
 connectorBody
@@ -234,7 +234,7 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
+    :   typeName Identifier ('=' (connectorInitExpression | compositeConnectorInitExpression | actionInvocation | expression) )? ';'
     ;
 
 mapStructLiteral
@@ -250,7 +250,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   'create' nameReference '(' expressionList? ')'
+    :   'create' nameReference '(' expressionList? ')' ('with' nameReference '(' expressionList? ')')?
+    ;
+
+compositeConnectorInitExpression
+    :   'create' nameReference ('<' nameReference '>')? '(' expressionList? ')' compositeConnectorInitBody ('with' nameReference '(' expressionList? ')')?
+    ;
+
+compositeConnectorInitBody
+    : '{' (connectorInitExpression ';')* '}'
     ;
 
 assignmentStatement

@@ -322,7 +322,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
         }
-        modelBuilder.createConnector(whiteSpaceDescriptor, connectorName);
+
+        if (ctx.nameReference() != null) {
+            modelBuilder.createFilterConnector(whiteSpaceDescriptor, connectorName, ctx.nameReference().getText());
+        } else {
+            modelBuilder.createConnector(whiteSpaceDescriptor, connectorName);
+        }
+
     }
 
     @Override
@@ -967,7 +973,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        boolean argsAvailable = ctx.expressionList() != null;
+        boolean argsAvailable = ctx.expressionList(0) != null;
+        BLangModelBuilder.NameReference filterNameReference = null;
+        if (nameReferenceStack.size() > 1) {
+            filterNameReference = nameReferenceStack.pop();
+        }
+
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
                 nameReference.getPackageName(), null);
@@ -976,8 +987,43 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
         }
-        modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                connectorTypeName, argsAvailable);
+
+        if (filterNameReference == null) {
+            modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    connectorTypeName, argsAvailable);
+        } else {
+            boolean filterArgsAvailable = ctx.expressionList(1) != null;
+            SimpleTypeName filterConnectorTypeName = new SimpleTypeName(filterNameReference.getName(),
+                    filterNameReference.getPackageName(), null);
+            filterConnectorTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
+            WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+            }
+            modelBuilder.createConnectorWithFilterInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    connectorTypeName, argsAvailable, filterWhiteSpaceDescriptor, filterConnectorTypeName,
+                    filterArgsAvailable);
+        }
+    }
+
+    @Override
+    public void enterCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void enterCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
+
+    }
+
+    @Override
+    public void exitCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
+
     }
 
     @Override
