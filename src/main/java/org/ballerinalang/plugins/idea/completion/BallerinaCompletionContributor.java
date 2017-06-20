@@ -123,13 +123,6 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
 
-        // If the current element is a Quoted string, we don't need to add suggestions.
-        if (element instanceof LeafPsiElement) {
-            if (((LeafPsiElement) element).getElementType() == BallerinaTypes.QUOTED_STRING) {
-                return;
-            }
-        }
-
         if (parent instanceof PsiFile) {
             // If the parent is PsiFile, that means we can only suggest keywords including 'package' and 'import'
             // keywords.

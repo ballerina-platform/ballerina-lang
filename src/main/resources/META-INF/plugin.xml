@@ -92,6 +92,10 @@
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
 
+        <completion.confidence language="Ballerina"
+                               implementationClass="org.ballerinalang.plugins.idea.codeinsight.completion.SkipAutoPopupInStrings"
+                               id="ballerinaSkipAutoPopupInStrings"/>
+
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>

@@ -22,12 +22,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
@@ -105,12 +102,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             if (element.getParent() instanceof PsiErrorElement) {
                 ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
                 if (serviceBodyNode != null) {
@@ -158,12 +149,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ResourceDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
@@ -183,12 +168,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             if (element.getParent() instanceof PsiErrorElement || element.getParent() instanceof NameReferenceNode) {
                 PsiElement previousNonEmptyElement = BallerinaCompletionUtils.getPreviousNonEmptyElement(element
                         .getContainingFile(), element.getTextOffset());
@@ -218,12 +197,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     ActionDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
@@ -243,12 +216,6 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
 
         @Override
         protected boolean isInContext(@NotNull PsiElement element) {
-            if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
-                if (elementType == BallerinaTypes.QUOTED_STRING) {
-                    return false;
-                }
-            }
             FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     FunctionDefinitionNode.class);
             CallableUnitBodyNode callableUnitBodyNode = PsiTreeUtil.getParentOfType(element,
