@@ -125,15 +125,33 @@ class SourceView extends EventChannel {
 
     /**
      * Set the content of text editor.
+     * IMPORTANT: Updating editor content using this api
+     * won't enable history in undo-manager of the editor.
+     * Use @link(SourceView#replaceContent) if you wish to enable history.
+     * 
+     * @deprecated
      * @param {String} content - content for the editor.
-     *
-     */
+    */
     setContent(content) {
         // avoid triggering change event on format
         this._inSilentMode = true;
         this._editor.session.setValue(content);
         this._inSilentMode = false;
         this.markClean();
+    }
+
+    /**
+     * Replace content of the editor while maintaining history
+     * 
+     * @param {*} newContent content to insert
+     */
+    replaceContent (newContent) {
+        this._inSilentMode = true;
+        const session = this._editor.getSession();
+        const contentRange = new Range(0, 0, session.getLength(), 
+                        session.getRowLength(session.getLength()));
+        session.replace(contentRange, newContent);
+        this._inSilentMode = false;
     }
 
     getContent() {
@@ -185,7 +203,7 @@ class SourceView extends EventChannel {
         return $(this._container).is(':visible');
     }
 
-    format(doSilently) {
+    format() {
         const  parserRes = this._fileEditor.parserBackend.parse(
             {
                 name: this._fileEditor.getFile().getName(),
@@ -204,9 +222,7 @@ class SourceView extends EventChannel {
         const sourceGenVisitor = new SourceGenVisitor();
         ast.accept(sourceGenVisitor);
         const formattedContent = sourceGenVisitor.getGeneratedSource();
-        const session = this._editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(), session.getRowLength(session.getLength()));
-        session.replace(contentRange, formattedContent);
+        this.replaceContent(formattedContent);
     }
 
     // dbeugger related functions.

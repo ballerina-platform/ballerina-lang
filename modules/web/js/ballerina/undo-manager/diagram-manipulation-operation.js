@@ -20,24 +20,30 @@ import log from 'log';
 import UndoableOperation from './undoable-operation';
 
 /**
- * Class to represent undoable operations done to ballerina AST
- * @class ASTManipulationOperation
+ * Class to represent undoable operations done from design view
+ * @class DiagramManipulationOperation
  * @augments UndoableOperation
  * @param args
  * @constructor
  */
-class ASTManipulationOperation extends UndoableOperation {
+class DiagramManipulationOperation extends UndoableOperation {
     constructor(args) {
         super(args);
-        if (!_.has(args, 'origin')) {
-            log.error(`Origin node is not provided. Event: ${JSON.stringify(args)}`);
-        }
-        this._originNode = _.get(args, 'origin');
-        this._data = _.get(args, 'data');
     }
 
-    undo() {}
-    redo() {}
+    undo() {
+        let file = this.getEditor().getFile(),
+            sourceView = this.getEditor().getSourceView();
+        file.setContent(this.getExistingContent()).save();
+        sourceView.replaceContent(this.getExistingContent());
+    }
+
+    redo() {
+        let file = this.getEditor().getFile(),
+            sourceView = this.getEditor().getSourceView();
+        file.setContent(this.getUpdatedContent()).save();
+        sourceView.replaceContent(this.getUpdatedContent());
+    }
 }
 
-export default ASTManipulationOperation;
+export default DiagramManipulationOperation;

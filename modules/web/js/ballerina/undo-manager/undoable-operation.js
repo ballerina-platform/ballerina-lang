@@ -30,15 +30,16 @@ class UndoableOperation extends EventChannel {
         super();
         this.setTitle(_.get(args, 'title', undefined));
         this.setEditor(_.get(args, 'editor', undefined));
-        this.setSkipInSourceView(_.get(args, 'skipInSourceView', false));
+        this.setExistingContent(_.get(args, 'existingContent', undefined));
+        this.setUpdatedContent(_.get(args, 'updatedContent', undefined));
     }
 
     canUndo() {
-        return !(this.getEditor().isInSourceView() && this.skipInSourceView());
+        return true;
     }
 
     canRedo() {
-        return !(this.getEditor().isInSourceView() && this.skipInSourceView());
+        return true;
     }
 
     getTitle() {
@@ -49,20 +50,28 @@ class UndoableOperation extends EventChannel {
         this._title = title;
     }
 
+    getExistingContent() {
+        return this._existingContent;
+    }
+
+    setExistingContent(existingContent) {
+        this._existingContent = existingContent;
+    }
+
+    getUpdatedContent() {
+        return this._updatedContent;
+    }
+
+    setUpdatedContent(updatedContent) {
+        this._updatedContent = updatedContent;
+    }
+
     getEditor() {
         return this._editor;
     }
 
     setEditor(editor) {
         this._editor = editor;
-    }
-
-    skipInSourceView() {
-        return this._skipInSourceView;
-    }
-
-    setSkipInSourceView(skipInSourceView) {
-        this._skipInSourceView = skipInSourceView;
     }
 
     undo() {}

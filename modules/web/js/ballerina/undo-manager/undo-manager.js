@@ -15,10 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import UndoableOperationFactory from './undoable-operation-factory';
 
 /**
  * Class to represent undo/redo manager
@@ -38,16 +36,16 @@ class UndoManager extends EventChannel {
     reset() {
         this._undoStack = [];
         this._redoStack = [];
-        this.trigger('reset');
+        this.trigger('updated');
     }
 
-    _push(undoableOperation) {
+    push(undoableOperation) {
         if (this._undoStack.length === this._limit) {
             // remove oldest undoable operation
             this._undoStack.splice(0, 1);
         }
         this._undoStack.push(undoableOperation);
-        this.trigger('undoable-operation-added', undoableOperation);
+        this.trigger('updated');
     }
 
     hasUndo() {
@@ -66,6 +64,7 @@ class UndoManager extends EventChannel {
         const taskToUndo = this._undoStack.pop();
         taskToUndo.undo();
         this._redoStack.push(taskToUndo);
+        this.trigger('updated');
     }
 
     hasRedo() {
@@ -76,15 +75,7 @@ class UndoManager extends EventChannel {
         const taskToRedo = this._redoStack.pop();
         taskToRedo.redo();
         this._undoStack.push(taskToRedo);
-    }
-
-    getOperationFactory() {
-        return UndoableOperationFactory;
-    }
-
-    onUndoableOperation(event) {
-        const undoableOperation = UndoableOperationFactory.getOperation(event);
-        this._push(undoableOperation);
+        this.trigger('updated');
     }
 }
 

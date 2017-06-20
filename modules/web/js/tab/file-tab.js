@@ -27,6 +27,8 @@ import File from '../workspace/file';
 import DebugManager from '../debugger/debug-manager';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
+import SourceModifyOperation from '../ballerina/undo-manager/source-modify-operation';
+import DiagramManipulationOperation from '../ballerina/undo-manager/diagram-manipulation-operation';
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -273,8 +275,10 @@ class FileTab extends Tab {
         this._fileEditor = fileEditor;
         fileEditor.render(diagramRenderingContext);
 
-        fileEditor.on('content-modified', function () {
-            const updatedContent = fileEditor.getContent();
+        fileEditor.on('content-modified', function (event) {
+            const updatedContent = fileEditor.getContent(),
+                  existingContent = this._file.getContent();
+            this._handleUndoRedoStackOnUpdate(event, existingContent, updatedContent);
             this._file.setContent(updatedContent);
             this._file.setDirty(true);
             this._file.save();
@@ -379,6 +383,21 @@ class FileTab extends Tab {
     
     getUndoManager() {
         return this._undoManager;
+    }
+
+    _handleUndoRedoStackOnUpdate (changeEvent, existingContent, updatedContent) {
+        let undoableOperationType = DiagramManipulationOperation;
+        // user did the change while in source view
+        if (this._fileEditor.isInSourceView()) {
+            undoableOperationType = SourceModifyOperation;
+        }
+        const undoableOp = new undoableOperationType({
+            title: changeEvent.title,
+            editor: this._fileEditor,
+            existingContent: existingContent,
+            updatedContent: updatedContent
+        }); 
+        this._undoManager.push(undoableOp);
     }
 }
 

@@ -132,7 +132,7 @@ class BallerinaFileEditor extends EventChannel {
         }
         this._model = model;
         this._model.on('tree-modified', (event) => {
-            this.trigger('content-modified');
+            this.trigger('content-modified', event);
         });
 
         this._model.on('import-new-package', (packageString) => {
@@ -270,7 +270,7 @@ class BallerinaFileEditor extends EventChannel {
         this._sourceView = new SourceView(sourceViewOpts);
 
         this._sourceView.on('modified', (changeEvent) => {
-            this.trigger('content-modified');
+            this.trigger('content-modified', changeEvent);
         });
 
         this._sourceView.on('breakpoints-updated', () => {
