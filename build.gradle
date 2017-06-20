@@ -30,7 +30,7 @@ sourceSets {
 
 intellij {
     //For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
-    version 'IC-2016.3'
+    version 'IC-2017.1.4'
     pluginName 'Ballerina-IntelliJ-Plugin'
     updateSinceUntilBuild false
     plugins 'coverage' //Bundled plugin dependencies
