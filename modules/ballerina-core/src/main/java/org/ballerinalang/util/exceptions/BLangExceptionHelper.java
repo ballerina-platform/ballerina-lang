@@ -67,8 +67,8 @@ public class BLangExceptionHelper {
         return new BallerinaException(errorMsg);
     }
 
-    public static SemanticException getSemanticException(NodeLocation nodeLocation, SemanticErrors semanticError,
-                                                          Object... params) {
+    public static SemanticException getSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
+                                                     Object... params) {
         String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
 
         String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
