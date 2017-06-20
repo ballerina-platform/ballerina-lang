@@ -86,7 +86,8 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                         AnnotationConstants.STORE_SUPER_CLASS,
                         AnnotationConstants.SOURCE_SUPER_CLASS,
                         AnnotationConstants.SOURCE_MAPPER_SUPER_CLASS,
-                        AnnotationConstants.WINDOW_PROCESSOR_CLASS});
+                        AnnotationConstants.WINDOW_PROCESSOR_CLASS,
+                        AnnotationConstants.COMPOSITE_AGGREGATOR_SUPER_CLASS});
                 AbstractAnnotationProcessor abstractAnnotationProcessor = null;
                 Extension annotation = element.getAnnotation(Extension.class);
                 String name = annotation.name();
@@ -142,6 +143,10 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                         case AnnotationConstants.WINDOW_PROCESSOR_CLASS:
                             abstractAnnotationProcessor =
                                     new WindowProcessorValidationAnnotationProcessor(extensionClassFullName);
+                            break;
+                        case AnnotationConstants.COMPOSITE_AGGREGATOR_SUPER_CLASS:
+                            abstractAnnotationProcessor =
+                                    new CompositeAggregatorValidationAnnotationProcessor(extensionClassFullName);
                             break;
                         default:
                             //Throw error if no matching super class.

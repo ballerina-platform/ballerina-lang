@@ -18,6 +18,10 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -26,12 +30,22 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.constant.Constant;
 
-public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
+@Extension(
+        name = "avg",
+        namespace = "incrementalAggregator",
+        description = "TBD",
+        examples = @Example(
+                syntax = "TBD",
+                description = "TBD"
+        )
+)// TODO: 6/20/17 fix annotations
+public class AvgIncrementalAttributeAggregator extends CompositeAggregator {
 
     private Attribute[] incrementalAttributes;
     private Expression[] initialValues;
 
-    public AvgIncrementalAttributeAggregator(String attributeName, Attribute.Type attributeType) {
+    @Override
+    public void init(String attributeName, Attribute.Type attributeType) {
         // Send the relevant attribute to this
         Attribute sum;
         Attribute count;
@@ -39,9 +53,11 @@ public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
         Expression countInitialValue;
 
         SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator =
-                new SumIncrementalAttributeAggregator(attributeName, attributeType);
+                new SumIncrementalAttributeAggregator();
+        sumIncrementalAttributeAggregator.init(attributeName, attributeType);
         CountIncrementalAttributeAggregator countIncrementalAttributeAggregator =
-                new CountIncrementalAttributeAggregator(attributeName, attributeType);
+                new CountIncrementalAttributeAggregator();
+        countIncrementalAttributeAggregator.init(attributeName, attributeType);
 
         // Only one attribute exists for sum and count
         sum = sumIncrementalAttributeAggregator.getIncrementalAttributes()[0];
@@ -62,6 +78,7 @@ public class AvgIncrementalAttributeAggregator implements CompositeAggregator {
         }
     }
 
+    @Override
     public Object aggregate(Object... results) {
         if (results == null || results.length != 2) {
             // TODO: 3/3/17 exception

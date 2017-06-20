@@ -18,18 +18,31 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class SumIncrementalAttributeAggregator implements CompositeAggregator {
+@Extension(
+        name = "sum",
+        namespace = "incrementalAggregator",
+        description = "TBD",
+        examples = @Example(
+                syntax = "TBD",
+                description = "TBD"
+        )
+)
+public class SumIncrementalAttributeAggregator extends CompositeAggregator {
 
     private Attribute[] incrementalAttributes;
     private Expression[] initialValues;
 
-    public SumIncrementalAttributeAggregator(String attributeName, Attribute.Type attributeType) {
+    @Override
+    public void init(String attributeName, Attribute.Type attributeType) {
         Attribute sum;
         Expression sumInitialValue;
 
@@ -58,6 +71,7 @@ public class SumIncrementalAttributeAggregator implements CompositeAggregator {
         }
     }
 
+    @Override
     public Object aggregate(Object... results) {
         if (results == null || results.length != 1) {
             // TODO: 3/3/17 exception

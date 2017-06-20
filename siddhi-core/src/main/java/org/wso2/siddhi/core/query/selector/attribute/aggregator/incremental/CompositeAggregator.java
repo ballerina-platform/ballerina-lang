@@ -3,13 +3,15 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-public interface CompositeAggregator {
+public abstract class CompositeAggregator {
 
-    Object aggregate(Object... results);
+    public abstract void init(String attributeName, Attribute.Type attributeType);
 
-    Attribute[] getIncrementalAttributes();
+    public abstract Object aggregate(Object... results);
 
-    Expression[] getIncrementalAttributeInitialValues();
+    public abstract Attribute[] getIncrementalAttributes();
 
-    Expression[] getIncrementalAggregators();
+    public abstract Expression[] getIncrementalAttributeInitialValues();
+
+    public abstract Expression[] getIncrementalAggregators();
 }

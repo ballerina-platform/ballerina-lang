@@ -40,7 +40,10 @@ import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
+import org.wso2.siddhi.core.util.extension.holder.CompositeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.AggregationDefinitionParserHelper;
@@ -59,6 +62,7 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
+import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -142,31 +146,14 @@ public class AggregationParser {
                     }
                     attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
 
-                    switch (attributeFunction.getName()) {
-                        //// TODO: 6/16/17 load class loadExtensionImplementation
-                        case "avg":
-                            AvgIncrementalAttributeAggregator avgIncrementalAttributeAggregator =
-                                    new AvgIncrementalAttributeAggregator(attributeName,
-                                            incomingStreamDefinition.getAttributeType(attributeName));
-                            compositeAggregators.add(avgIncrementalAttributeAggregator);
-                            break;
-                        case "sum":
-                            SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator =
-                                    new SumIncrementalAttributeAggregator(attributeName,
-                                            incomingStreamDefinition.getAttributeType(attributeName));
-                            compositeAggregators.add(sumIncrementalAttributeAggregator);
-                            break;
-                        case "count":
-                            CountIncrementalAttributeAggregator countIncrementalAttributeAggregator =
-                                    new CountIncrementalAttributeAggregator(attributeName,
-                                            incomingStreamDefinition.getAttributeType(attributeName));
-                            compositeAggregators.add(countIncrementalAttributeAggregator);
-                            break;
-                        // TODO: 6/10/17 add other aggregators
-                        default:
-                            throw new ExecutionPlanRuntimeException(
-                                    "Incremental aggregation has not " + "been defined for " + attributeFunction.getName());
-                    }
+                    CompositeAggregator compositeAggregator = (CompositeAggregator)SiddhiClassLoader.
+                            loadExtensionImplementation(new AttributeFunction("incrementalAggregator",
+                                    attributeFunction.getName(), attributeFunction.getParameters()),
+                                    // TODO: 6/20/17 is it ok to create new AttributeFunction?
+                            CompositeAggregatorExtensionHolder.getInstance(executionPlanContext));
+                    compositeAggregator.init(attributeName,
+                            incomingStreamDefinition.getAttributeType(attributeName));
+                    compositeAggregators.add(compositeAggregator);
                 }
             }
 

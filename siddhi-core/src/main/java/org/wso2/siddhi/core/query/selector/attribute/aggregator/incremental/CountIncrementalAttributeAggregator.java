@@ -17,18 +17,30 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class CountIncrementalAttributeAggregator implements CompositeAggregator {
+@Extension(
+        name = "count",
+        namespace = "incrementalAggregator",
+        description = "TBD",
+        examples = @Example(
+                syntax = "TBD",
+                description = "TBD"
+        )
+)
+public class CountIncrementalAttributeAggregator extends CompositeAggregator {
 
     private Attribute[] incrementalAttributes;
     private Expression[] initialValues;
 
-    public CountIncrementalAttributeAggregator(String attributeName, Attribute.Type attributeType) {
+    @Override
+    public void init(String attributeName, Attribute.Type attributeType) {
         Attribute count;
         Expression countInitialValue;
 
@@ -49,6 +61,7 @@ public class CountIncrementalAttributeAggregator implements CompositeAggregator 
         }
     }
 
+    @Override
     public Object aggregate(Object... results) {
         if (results == null || results.length != 1) {
             // TODO: 3/3/17 exception
