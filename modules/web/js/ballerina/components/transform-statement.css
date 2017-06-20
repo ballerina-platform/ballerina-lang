@@ -72,6 +72,7 @@
     position: absolute;
     border-top: 1px;
     border-style: dotted none none none;
+    width: 100%;
 }
 .variable {
     display: block;
@@ -205,10 +206,15 @@ svg.plumbConnect path {
 
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top:10px;
-    left:10px;
-    width:250px;
+    left:70px;
+    width:195px;
     position:absolute;
     height : 30px
+}
+
+.type-select-header{
+    padding-top:15px;
+    padding-left:10px;
 }
 
 .transformOverlay {
