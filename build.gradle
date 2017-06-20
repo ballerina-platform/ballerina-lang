@@ -40,3 +40,12 @@ apply plugin: 'antlr'
 dependencies {
     antlr "org.antlr:antlr4:4.6"
 }
+
+apply plugin: "jacoco"
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
