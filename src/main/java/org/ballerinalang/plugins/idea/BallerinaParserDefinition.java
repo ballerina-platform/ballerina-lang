@@ -57,6 +57,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
+import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -85,6 +86,7 @@ import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -96,7 +98,10 @@ import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerBodyNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
+import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -320,6 +325,16 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ExpressionAssignmentStatementNode(node);
             case BallerinaParser.RULE_expressionVariableDefinitionStatement:
                 return new ExpressionVariableDefinitionStatementNode(node);
+            case BallerinaParser.RULE_workerReply:
+                return new WorkerReplyNode(node);
+            case BallerinaParser.RULE_triggerWorker:
+                return new TriggerWorkerNode(node);
+            case BallerinaParser.RULE_workerDeclaration:
+                return new WorkerDeclarationNode(node);
+            case BallerinaParser.RULE_workerBody:
+                return new WorkerBodyNode(node);
+            case BallerinaParser.RULE_joinConditions:
+                return new JoinConditionNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

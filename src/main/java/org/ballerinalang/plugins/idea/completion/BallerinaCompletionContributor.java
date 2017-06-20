@@ -56,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -70,12 +71,15 @@ import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
+import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
+import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -166,6 +170,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleResourceDefinitionNode(parameters, resultSet);
         } else if (parent instanceof ActionDefinitionNode) {
             handleActionDefinitionNode(parameters, resultSet);
+        } else if (parent instanceof WorkerReplyNode || parent instanceof TriggerWorkerNode) {
+            handleWorkerReferenceNode(parameters, resultSet);
+        } else if (parent instanceof JoinConditionNode) {
+            handleJoinConditionNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -175,6 +183,37 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFileLevelKeywordsAsLookups(resultSet, true, true);
             } else {
                 addFileLevelKeywordsAsLookups(resultSet, false, true);
+            }
+        }
+    }
+
+    private void handleJoinConditionNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiElement position = parameters.getPosition();
+        PsiElement parent = position.getParent();
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile, position.getTextOffset());
+        if (previousNonEmptyElement instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) previousNonEmptyElement).getElementType();
+            if (elementType == BallerinaTypes.INTEGER_LITERAL || elementType == BallerinaTypes.COMMA
+                    || elementType == BallerinaTypes.ALL) {
+                List<WorkerDeclarationNode> workerDeclarations = BallerinaPsiImplUtil.getWorkerDeclarations(parent);
+                addWorkersAsLookup(resultSet, workerDeclarations);
+            }
+        }
+    }
+
+    private void handleWorkerReferenceNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiElement position = parameters.getPosition();
+        PsiElement parent = position.getParent();
+        PsiFile originalFile = parameters.getOriginalFile();
+        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile, position.getTextOffset());
+
+        if (previousNonEmptyElement instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) previousNonEmptyElement).getElementType();
+            if (elementType == BallerinaTypes.SENDARROW || elementType == BallerinaTypes.RECEIVEARROW) {
+                List<WorkerDeclarationNode> workerDeclarations = BallerinaPsiImplUtil.getWorkerDeclarations(parent);
+                addWorkersAsLookup(resultSet, workerDeclarations);
+                addDefaultAsLookup(resultSet);
             }
         }
     }

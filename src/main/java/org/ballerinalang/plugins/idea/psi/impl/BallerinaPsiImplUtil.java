@@ -55,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -70,6 +71,7 @@ import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1411,5 +1413,19 @@ public class BallerinaPsiImplUtil {
         String definitionRegex = "\\[\\s*]";
         int definitionDimension = getArrayDimension(definitionText, definitionRegex);
         return definitionDimension != 0;
+    }
+
+    public static List<WorkerDeclarationNode> getWorkerDeclarations(PsiElement element) {
+        List<WorkerDeclarationNode> results = new LinkedList<>();
+        // Since there are no workers inside workers in the new grammar, we can directly suggest all workers in the
+        // current definition node.
+        DefinitionNode definitionNode = PsiTreeUtil.getParentOfType(element, DefinitionNode.class);
+        if (definitionNode == null) {
+            return results;
+        }
+        Collection<WorkerDeclarationNode> workerDeclarationNodes = PsiTreeUtil.findChildrenOfType(definitionNode,
+                WorkerDeclarationNode.class);
+        results.addAll(workerDeclarationNodes);
+        return results;
     }
 }

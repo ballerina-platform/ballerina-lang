@@ -53,6 +53,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
@@ -900,6 +901,23 @@ public class BallerinaCompletionUtils {
     static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {
         LookupElementBuilder builder = LookupElementBuilder.create("length");
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+    }
+
+    static void addDefaultAsLookup(@NotNull CompletionResultSet resultSet) {
+        LookupElementBuilder builder = LookupElementBuilder.create("default");
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+    }
+
+    static void addWorkersAsLookup(@NotNull CompletionResultSet resultSet, List<WorkerDeclarationNode> workers) {
+        for (WorkerDeclarationNode worker : workers) {
+            PsiElement identifier = worker.getNameIdentifier();
+            if (identifier == null) {
+                continue;
+            }
+            LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText())
+                    .withTypeText("Worker").withIcon(BallerinaIcons.WORKER);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+        }
     }
 
     /**

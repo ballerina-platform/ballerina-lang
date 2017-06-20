@@ -38,10 +38,11 @@ public class BallerinaIcons {
     public static final Icon CONNECTOR = AllIcons.Nodes.Class;
     public static final Icon ACTION = AllIcons.Nodes.Deploy;
     public static final Icon SERVICE = AllIcons.Nodes.Static;
-    public static final Icon RESOURCE = AllIcons.Nodes.Rw_access;
+    public static final Icon RESOURCE = AllIcons.General.HideRight;
     public static final Icon STRUCT = AllIcons.Json.Object;
     public static final Icon FIELD = AllIcons.Nodes.Advice;
     public static final Icon ANNOTATION = AllIcons.Nodes.Annotationtype;
+    public static final Icon WORKER = AllIcons.Nodes.Rw_access;
 
     private BallerinaIcons() {
 

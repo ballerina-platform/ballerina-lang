@@ -14,21 +14,16 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.structureview;
+package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiFile;
+import com.intellij.lang.ASTNode;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaStructureViewRootElement extends BallerinaStructureViewElement {
+public class WorkerDeclarationNode extends IdentifierDefSubtree {
 
-    BallerinaStructureViewRootElement(PsiFile element) {
-        super(element);
-    }
-
-    @NotNull
-    @Override
-    public ItemPresentation getPresentation() {
-        return new BallerinaRootPresentation((PsiFile) element);
+    public WorkerDeclarationNode(@NotNull ASTNode node) {
+        super(node, BallerinaParserDefinition.ID);
     }
 }
