@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.net.httpsession;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -28,13 +28,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.services.dispatchers.Session;
+import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Headers;
-
-import static org.ballerinalang.nativeimpl.actions.http.Constants.COOKIE_HEADER;
 
 /**
  * Native function to get session attribute.
@@ -60,13 +55,19 @@ public class GetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
+            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String attributeKey = getStringArgument(context, 0);
-            String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
-            Session session;
+            String sessionId = sessionStruct.getStringField(0);
+            Session session = context.getSessioContext().getCurrentSession();
 
-            if (cookieHeader != null) {
-                session = context.getSessionManager().getHTTPSession(cookieHeader);
+            //return value from cached session
+            if (session != null) {
+                return getBValues(session.getAttributeValue(attributeKey));
+            }
+
+            //if session is not available in cache
+            if (sessionId != null) {
+                session = context.getSessioContext().getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
                     return getBValues(session.getAttributeValue(attributeKey));
                 } else {
@@ -74,20 +75,11 @@ public class GetAttribute extends AbstractNativeFunction {
                     throw new IllegalStateException("Session timeout");
                 }
             } else {
-                //not a request with cookie header
-                session = context.getSessionManager().createHTTPSession();
-                carbonMessage.setHeader(COOKIE_HEADER, session.getId());
-
-                // Set any intermediate headers set during ballerina execution
-                if (carbonMessage.getProperty(Constants.INTERMEDIATE_HEADERS) != null) {
-                    Headers headers = (Headers) carbonMessage.getProperty(Constants.INTERMEDIATE_HEADERS);
-                    carbonMessage.setHeaders(headers.getAll());
-                }
-                return VOID_RETURN;
+                //no session available for particular cookie
+                throw new IllegalStateException("No session available");
             }
         } catch (Exception e) {
             throw new BallerinaException(e);
-
         }
     }
 }

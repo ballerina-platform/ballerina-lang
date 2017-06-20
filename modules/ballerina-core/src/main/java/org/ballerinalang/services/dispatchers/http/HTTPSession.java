@@ -18,12 +18,16 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.services.dispatchers.Session;
-import org.ballerinalang.services.dispatchers.SessionManager;
+import org.ballerinalang.services.dispatchers.session.Session;
+import org.ballerinalang.services.dispatchers.session.SessionManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COOKIE_HEADER;
+import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
  * HTTPSession represents a session
@@ -33,10 +37,16 @@ public class HTTPSession implements Session {
     private String id;
     private Long createTime;
     private Long lastAccessedTime;
+    private int maxInactiveInterval;
     private Map<String, BValue> attributeMap = new ConcurrentHashMap<>();
+    private SessionManager sessionManager;
+    private boolean isValid = true;
+    private boolean isNew = true;
+    private String sessionScope;
 
-    public HTTPSession(String id) {
+    public HTTPSession(String id, int maxInactiveInterval) {
         this.id = id;
+        this.maxInactiveInterval = maxInactiveInterval;
         createTime = System.currentTimeMillis();
         lastAccessedTime = createTime;
     }
@@ -48,24 +58,84 @@ public class HTTPSession implements Session {
 
     @Override
     public void setAttribute(String attributeKey, BValue attributeValue) {
+        checkValidity();
         attributeMap.put(attributeKey, attributeValue);
     }
 
     @Override
     public BValue getAttributeValue(String attributeKey) {
+        checkValidity();
         return attributeMap.get(attributeKey);
     }
 
-    public Long getCreateTime() {
-        return createTime;
-    }
-
-    public Long getLastAccessed() {
+    @Override
+    public Long getLastAccessedTime() {
         return lastAccessedTime;
     }
 
+    @Override
+    public int getMaxInactiveInterval() {
+        return maxInactiveInterval;
+    }
+
+    @Override
+    public void invalidate() {
+        sessionManager.invalidateSession(this);
+        attributeMap.clear();
+        isValid = false;
+    }
 
 
     public void setManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    @Override
+    public Session setAccessed() {
+        checkValidity();
+        lastAccessedTime = System.currentTimeMillis();
+        return this;
+    }
+
+    private void checkValidity() {
+        if (!isValid) {
+            throw new IllegalStateException("Session is invalid");
+        }
+    }
+
+    @Override
+    public boolean isValid() {
+        return isValid;
+    }
+
+    @Override
+    public void generateSessionHeader(BMessage message) {
+        //Add set Cookie only for the first response after the creation
+        if (this.isNew()) {
+            message.value().setHeader(RESPONSE_COOKIE_HEADER, SESSION_ID + this.getId());
+        }
+
+        //set other headers (path)
+
+    }
+
+    public boolean isNew() {
+        return this.isNew;
+    }
+
+    @Override
+    public Session setNew(boolean isNew) {
+        this.isNew = isNew;
+        return this;
+    }
+
+    @Override
+    public void setSessionScope(String path) {
+        this.sessionScope = path;
+    }
+
+    @Override
+    public String getSessionScope() {
+        return sessionScope;
     }
 }

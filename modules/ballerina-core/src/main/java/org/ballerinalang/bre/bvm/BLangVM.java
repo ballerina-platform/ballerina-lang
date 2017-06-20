@@ -67,6 +67,7 @@ import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
+import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -1973,6 +1974,7 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
+        handleMessageHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
@@ -2950,5 +2952,14 @@ public class BLangVM {
 
         ip = -1;
         logger.error("fatal error. incorrect error table entry.");
+    }
+
+    private void handleMessageHeaders(BMessage message) {
+
+        //check session cookie header
+        Session session = context.getCurrentSession();
+        if (session != null) {
+            session.generateSessionHeader(message);
+        }
     }
 }
