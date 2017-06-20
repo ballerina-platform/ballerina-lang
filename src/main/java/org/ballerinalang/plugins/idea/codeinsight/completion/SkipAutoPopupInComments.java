@@ -17,24 +17,18 @@
 package org.ballerinalang.plugins.idea.codeinsight.completion;
 
 import com.intellij.codeInsight.completion.CompletionConfidence;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ThreeState;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class SkipAutoPopupInStrings extends CompletionConfidence {
+public class SkipAutoPopupInComments extends CompletionConfidence {
 
     @NotNull
     @Override
     public ThreeState shouldSkipAutopopup(@NotNull PsiElement contextElement, @NotNull PsiFile psiFile, int offset) {
-        if (!(contextElement instanceof LeafPsiElement)) {
-            return ThreeState.NO;
-        }
-        IElementType elementType = ((LeafPsiElement) contextElement).getElementType();
-        if (elementType == BallerinaTypes.QUOTED_STRING) {
+        if (contextElement instanceof PsiComment) {
             return ThreeState.YES;
         }
         return ThreeState.UNSURE;
