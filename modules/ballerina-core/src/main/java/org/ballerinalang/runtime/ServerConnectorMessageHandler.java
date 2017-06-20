@@ -97,36 +97,35 @@ public class ServerConnectorMessageHandler {
             ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
             // engage Service interceptors.
             CarbonCallback resourceCallback = callback;
+            CarbonMessage resourceMessage = cMsg;
             if (serviceInterceptors.isEnabled(protocol)) {
                 ServerConnectorInterceptorInfo interceptorInfo = serviceInterceptors
                         .getServerConnectorInterceptorInfo(protocol);
-
-                if (interceptorInfo != null) {
-                    resourceCallback = new ResourceInterceptorCallback(callback, protocol);
-                    List<ResourceInterceptor> requestChain = interceptorInfo.getRequestChain();
-                    BMessage message = new BMessage(cMsg);
-                    // Invoke request interceptor chain.
-                    for (ResourceInterceptor resourceInterceptor : requestChain) {
-                        ResourceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(
-                                resourceInterceptor, message);
-                        if (result.getMessageIntercepted() == null) {
-                            // Can't Intercept null message further. Let it handle at server connector level.
-                            breLog.error("error in service interception, return message null in " +
-                                    (".".equals(resourceInterceptor.getPackageInfo().getPkgPath()) ? "" :
-                                            resourceInterceptor.getPackageInfo().getPkgPath() + ":") +
-                                    resourceInterceptor.getInterceptorFunction().getName());
-                            callback.done(null);
-                            return;
-                        }
-                        message = result.getMessageIntercepted();
-                        if (!result.isInvokeNext()) {
-                            callback.done(message.value());
-                            return;
-                        }
+                resourceCallback = new ResourceInterceptorCallback(callback, protocol);
+                List<ResourceInterceptor> requestChain = interceptorInfo.getRequestChain();
+                BMessage message = new BMessage(cMsg);
+                // Invoke request interceptor chain.
+                for (ResourceInterceptor resourceInterceptor : requestChain) {
+                    ResourceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(
+                            resourceInterceptor, message);
+                    if (result.getMessageIntercepted() == null) {
+                        // Can't Intercept null message further. Let it handle at server connector level.
+                        breLog.error("error in service interception, return message null in " +
+                                (".".equals(resourceInterceptor.getPackageInfo().getPkgPath()) ? "" :
+                                        resourceInterceptor.getPackageInfo().getPkgPath() + ":") +
+                                resourceInterceptor.getInterceptorFunction().getName());
+                        callback.done(null);
+                        return;
                     }
+                    message = result.getMessageIntercepted();
+                    if (!result.isInvokeNext()) {
+                        callback.done(message.value());
+                        return;
+                    }
+                    resourceMessage = message.value();
                 }
             }
-            invokeResource(cMsg, resourceCallback, resource, service);
+            invokeResource(resourceMessage, resourceCallback, resource, service);
         } catch (Throwable throwable) {
             handleError(cMsg, callback, throwable);
         }
