@@ -151,9 +151,9 @@ CREATE PROCEDURE TestDateTimeOutParams (IN id INT, IN dateVal DATE, IN timeVal T
   SELECT timestamp_type INTO timestOut FROM DateTimeTypes where row_id = id;
   END
 /
-CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY, INOUT longArray BIGINT ARRAY,
-  INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY, INOUT boolArray BOOLEAN ARRAY,
-  INOUT varcharArray VARCHAR(50) ARRAY)
+CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
+  INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY,
+  INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY)
   MODIFIES SQL DATA
   BEGIN ATOMIC
   INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)

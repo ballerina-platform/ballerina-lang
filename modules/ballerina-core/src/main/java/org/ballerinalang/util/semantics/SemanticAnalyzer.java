@@ -1751,6 +1751,32 @@ public class SemanticAnalyzer implements NodeVisitor {
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
+
+        String pkgPath = actionIExpr.getPackagePath();
+        String name = actionIExpr.getConnectorName();
+
+        // First check action invocation happens on a variable def
+        SymbolName symbolName = new SymbolName(name, pkgPath);
+        BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
+
+        if (bLangSymbol instanceof VariableDef) {
+            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+                throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
+            }
+            Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
+            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
+            exprs[0] = variableRefExpr;
+            for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
+                exprs[i + 1] = actionIExpr.getArgExprs()[i];
+            }
+            actionIExpr.setArgExprs(exprs);
+            actionIExpr.setConnectorName(((VariableDef) bLangSymbol).getTypeName().getName());
+        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+            throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_ACTION_INVOCATION);
+        }
+
         Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             visitSingleValueExpr(expr);
@@ -2076,23 +2102,30 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-        SymbolName symbolName = variableRefExpr.getSymbolName();
+    public void visit(VariableRefExpr varRefExpr) {
+        // Resolve package path from the give package name
+        if (varRefExpr.getPkgName() != null && varRefExpr.getPkgPath() == null) {
+            throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                    SemanticErrors.UNDEFINED_PACKAGE_NAME, varRefExpr.getPkgName(),
+                    varRefExpr.getPkgName() + ":" + varRefExpr.getVarName());
+        }
+
+        SymbolName symbolName = varRefExpr.getSymbolName();
 
         // Check whether this symName is declared
         BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
 
         if (varDefSymbol == null) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.UNDEFINED_SYMBOL,
+            BLangExceptionHelper.throwSemanticError(varRefExpr, SemanticErrors.UNDEFINED_SYMBOL,
                     symbolName);
         }
 
         if (!(varDefSymbol instanceof VariableDef)) {
-            BLangExceptionHelper.throwSemanticError(variableRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+            BLangExceptionHelper.throwSemanticError(varRefExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
                     symbolName);
         }
 
-        variableRefExpr.setVariableDef((VariableDef) varDefSymbol);
+        varRefExpr.setVariableDef((VariableDef) varDefSymbol);
     }
 
     @Override
@@ -2723,10 +2756,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void visitField(FieldAccessExpr fieldAccessExpr, SymbolScope enclosingScope) {
         ReferenceExpr varRefExpr = (ReferenceExpr) fieldAccessExpr.getVarRef();
-        SymbolName symbolName = varRefExpr.getSymbolName();
-        //BLangSymbol fieldSymbol = enclosingScope.resolve(symbolName);
+        // Resolve package path from the give package name
+        if (varRefExpr.getPkgName() != null && varRefExpr.getPkgPath() == null) {
+            throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                    SemanticErrors.UNDEFINED_PACKAGE_NAME, varRefExpr.getPkgName(),
+                    varRefExpr.getPkgName() + ":" + varRefExpr.getVarName());
+        }
+
         BLangSymbol fieldSymbol;
-        //TODO resolve packge path conflict
+        SymbolName symbolName = new SymbolName(varRefExpr.getVarName(), varRefExpr.getPkgPath());
+        //TODO resolve package path conflict
         if (enclosingScope instanceof StructDef) {
             fieldSymbol = ((StructDef) enclosingScope).resolveMembers(new SymbolName(symbolName.getName(),
                     ((StructDef) enclosingScope).getPackagePath()));
