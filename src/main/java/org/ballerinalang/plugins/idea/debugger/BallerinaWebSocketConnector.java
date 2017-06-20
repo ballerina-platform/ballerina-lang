@@ -17,44 +17,35 @@
 package org.ballerinalang.plugins.idea.debugger;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketAdapter;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFactory;
-import com.neovisionaries.ws.client.WebSocketFrame;
+import org.ballerinalang.plugins.idea.debugger.client.WebSocketClient;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.net.URISyntaxException;
+
+import javax.net.ssl.SSLException;
 
 public class BallerinaWebSocketConnector {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaWebSocketConnector.class);
 
-    private WebSocket myWebSocket;
-    private String myAddress;
-    private ConnectionState myConnectionState;
-    private static WebSocketFactory webSocketFactory = new WebSocketFactory();
-
-    private static final int TIMEOUT = 10000;
     private static final String DEBUG_PROTOCOL = "ws://";
     private static final String DEBUG_WEB_SOCKET_PATH = "/debug";
+
+    private WebSocketClient client;
+    private String myAddress;
+    private ConnectionState myConnectionState;
 
     public BallerinaWebSocketConnector(@NotNull String address) {
         myAddress = address;
         myConnectionState = ConnectionState.NOT_CONNECTED;
-        webSocketFactory.setConnectionTimeout(TIMEOUT);
-        createConnection();
     }
 
-    void createConnection() {
+    void createConnection(Callback callback) {
+        client = new WebSocketClient(getUri());
         try {
-            myWebSocket = webSocketFactory.createSocket(getUri());
-            myWebSocket.addListener(new BallerinaWebSocketListenerAdapter());
-            myWebSocket.connect();
-        } catch (IOException | WebSocketException e) {
+            client.handshake(callback);
+        } catch (InterruptedException | URISyntaxException | SSLException e) {
             myConnectionState = ConnectionState.CONNECTING;
             LOGGER.debug(e);
         }
@@ -67,7 +58,7 @@ public class BallerinaWebSocketConnector {
 
     void sendCommand(Command command) {
         if (isConnected()) {
-            myWebSocket.sendText(generateRequest(command));
+            client.sendText(generateRequest(command));
         }
     }
 
@@ -77,46 +68,36 @@ public class BallerinaWebSocketConnector {
 
     void send(String json) {
         if (isConnected()) {
-            myWebSocket.sendText(json);
+            client.sendText(json);
         }
     }
 
     boolean isConnected() {
-        return myWebSocket.isOpen();
+        return client != null && client.isConnected();
     }
 
-    void addListener(WebSocketAdapter adapter) {
-        myWebSocket.addListener(adapter);
+    void close() {
+        try {
+            client.shutDown();
+        } catch (InterruptedException e) {
+            LOGGER.debug(e);
+        }
     }
 
     String getState() {
         if (myConnectionState == ConnectionState.NOT_CONNECTED) {
             return "Not connected. Waiting for a connection.";
         } else if (myConnectionState == ConnectionState.CONNECTED) {
-            return "Connected to " + myWebSocket.getURI() + ".";
+            return "Connected to " + getUri() + ".";
         } else if (myConnectionState == ConnectionState.DISCONNECTED) {
             return "Disconnected.";
         } else if (myConnectionState == ConnectionState.CONNECTING) {
-            return "Connecting to " + myWebSocket.getURI() + ".";
+            return "Connecting to " + getUri() + ".";
         }
         return "Unknown";
     }
 
     private enum ConnectionState {
         NOT_CONNECTED, CONNECTING, CONNECTED, DISCONNECTED
-    }
-
-    private class BallerinaWebSocketListenerAdapter extends WebSocketAdapter {
-
-        @Override
-        public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
-            myConnectionState = ConnectionState.CONNECTED;
-        }
-
-        @Override
-        public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame
-                clientCloseFrame, boolean closedByServer) throws Exception {
-            myConnectionState = ConnectionState.DISCONNECTED;
-        }
     }
 }
