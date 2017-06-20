@@ -346,7 +346,7 @@ public class BallerinaExecutor {
         GeneralCommandLine commandLine = !myPtyDisabled && PtyCommandLine.isEnabled() ?
                 new PtyCommandLine() : new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkUtil
-                .getBallerinaExecutablePath(myProject))));
+                .getBallerinaExecutablePath(myProject, myModule))));
         commandLine.getEnvironment().putAll(myExtraEnvironment);
         //Todo - Add BALLERINA_REPOSITORY
         //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSITORY,
