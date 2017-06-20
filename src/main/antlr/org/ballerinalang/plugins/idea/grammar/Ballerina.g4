@@ -1,5 +1,9 @@
 grammar Ballerina;
 
+@header {
+package org.ballerinalang.plugins.idea.grammar;
+}
+
 //todo comment statment
 //todo revisit blockStatement
 
