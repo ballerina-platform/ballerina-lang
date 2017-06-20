@@ -258,7 +258,7 @@ public class HTTPServicesRegistry {
 
         Map<String, String> propMap = getInterfaceProp(service);
 
-        //If port annotation is present in the service, then create a listener interface with service name
+        //If port annotation is present in the service, then create a listener interface with schema and port
         if (propMap != null) {
             listenerInterface = buildInterfaceName(propMap);
         }

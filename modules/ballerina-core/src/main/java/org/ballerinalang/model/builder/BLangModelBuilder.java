@@ -1025,6 +1025,7 @@ public class BLangModelBuilder {
         String protocolPkg = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
+        currentCUGroupBuilder.setProtocolPkgName(protocolPkgName);
         currentCUGroupBuilder.setProtocolPkg(protocolPkg);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 

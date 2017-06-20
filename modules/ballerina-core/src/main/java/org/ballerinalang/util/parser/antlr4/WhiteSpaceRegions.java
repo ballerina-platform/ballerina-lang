@@ -39,9 +39,13 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a service definition
     public static final int SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER = 0;
-    public static final int SERVICE_DEF_IDENTIFIER_TO_BODY_START = 1;
-    public static final int SERVICE_DEF_BODY_START_TO_FIRST_CHILD = 2;
-    public static final int SERVICE_DEF_END_TO_NEXT_TOKEN = 3;
+    public static final int SERVICE_DEF_SERVICE_KEYWORD_TO_LEFT_ANGLE_BRACKET = 1;
+    public static final int SERVICE_DEF_LEFT_ANGLE_BRACKET_TO_IDENTIFIER = 2;
+    public static final int SERVICE_DEF_IDENTIFIER_TO_RIGHT_ANGLE_BRACKET = 3;
+    public static final int SERVICE_DEF_RIGHT_ANGLE_BRACKET_TO_IDENTIFIER = 4;
+    public static final int SERVICE_DEF_IDENTIFIER_TO_BODY_START = 5;
+    public static final int SERVICE_DEF_BODY_START_TO_FIRST_CHILD = 6;
+    public static final int SERVICE_DEF_END_TO_NEXT_TOKEN = 7;
 
     // whitespace regions in a resource definition
     public static final int RESOURCE_DEF_RESOURCE_KEYWORD_TO_IDENTIFIER = 0;
