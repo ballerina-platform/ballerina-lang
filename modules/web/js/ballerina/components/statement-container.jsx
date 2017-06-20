@@ -69,7 +69,7 @@ class StatementContainer extends React.Component {
                 // Unless it's in a Fork, in that case only Worker are allowed.
                 const factory = dropTarget.getFactory();
                 const callback = this.props.draggable;
-                return callback ? callback(dropTarget, nodeBeingDragged) : factory.isStatement(nodeBeingDragged);
+                return callback ? callback(nodeBeingDragged, dropTarget) : factory.isStatement(nodeBeingDragged);
             });
 
             this.setState({

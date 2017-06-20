@@ -17,21 +17,33 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { blockStatement, statement, actionBox } from '../configs/designer-defaults.js';
 import StatementContainer from './statement-container';
 import ASTNode from '../ast/node';
 import SimpleBBox from '../ast/simple-bounding-box';
 import './block-statement-decorator.css';
-import ExpressionEditor from 'expression_editor_utils';
+import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
 
+const CLASS_MAP = {
+    hidden: 'hide-action',
+    visible: 'show-action',
+    fade: 'delayed-hide-action',
+};
+
+/**
+ * Wraps other UI elements and provide box with a heading.
+ * Enrich elements with a action box and expression editors.
+ */
 class BlockStatementDecorator extends React.Component {
 
+    /**
+     * Initialize the block decorator.
+     */
     constructor() {
         super();
         this.state = {
@@ -39,7 +51,12 @@ class BlockStatementDecorator extends React.Component {
         };
         this.onDelete = this.onDelete.bind(this);
         this.onBreakpointClick = this.onBreakpointClick.bind(this);
-        this.onJumptoCodeLine = this.onJumptoCodeLine.bind(this);
+        this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
+        this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
+        this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
+        this.openExpressionEditor = e => this.openEditor(this.props.expression, this.props.editorOptions, e);
+        this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
+            this.props.parameterEditorOptions, e);
     }
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
@@ -48,13 +65,18 @@ class BlockStatementDecorator extends React.Component {
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
-        if (model.isBreakpoint) {
+        if (isBreakpoint) {
             model.removeBreakpoint();
         } else {
             model.addBreakpoint();
         }
     }
 
+    /**
+     * Removes self on delete button click. Note that model is retried form dropTarget for
+     * backward compatibility with old components written when model was not required.
+     * @returns {void}
+     */
     onDelete() {
         const model = this.props.model || this.props.dropTarget;
         model.remove();
@@ -63,22 +85,27 @@ class BlockStatementDecorator extends React.Component {
      * Navigates to codeline in the source view from the design view node
      *
      */
-    onJumptoCodeLine() {
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
-
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
+    onJumpToCodeLine() {
+        document.getElementsByClassName('view-source-btn')[0].click();
     }
 
-    onUpdate(text) {
+    /**
+     * Call-back for when a new value is entered via expression editor.
+     */
+    onUpdate() {
+        // TODO: implement validate logic.
     }
 
+    /**
+     * Shows the action box, depending on whether on child element, delays display.
+     * @param {boolean} show - Display action box.
+     * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
+     */
     setActionVisibility(show, e) {
         if (!this.context.dragDropManager.isOnDrag()) {
-            const myRoot = ReactDOM.findDOMNode(this);
             if (show) {
-                const isInChildStatement = this.isInStatementWithinMe(e.target);
-                const isFromChildStatement = this.isInStatementWithinMe(e.relatedTarget);
+                const isInChildStatement = this.isInFocusableChild(e.target);
+                const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
 
                 if (!isInChildStatement) {
                     if (isFromChildStatement) {
@@ -91,7 +118,7 @@ class BlockStatementDecorator extends React.Component {
                 let elm = e.relatedTarget;
                 let isInMe = false;
                 while (elm && elm.getAttribute) {
-                    if (elm === myRoot) {
+                    if (elm === this.myRoot) {
                         isInMe = true;
                     }
                     elm = elm.parentNode;
@@ -103,12 +130,17 @@ class BlockStatementDecorator extends React.Component {
         }
     }
 
-    isInStatementWithinMe(elmToCheck) {
-        const thisNode = ReactDOM.findDOMNode(this);
+    /**
+     * True if the given element is a child of this element that has it's own focus.
+     * @private
+     * @param {HTMLElement} elmToCheck - child to be checked.
+     * @return {boolean} True if child is focusable.
+     */
+    isInFocusableChild(elmToCheck) {
         const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
         let isInStatement = false;
         let elm = elmToCheck;
-        while (elm && elm !== thisNode && elm.getAttribute) {
+        while (elm && elm !== this.myRoot && elm.getAttribute) {
             if (regex.test(elm.getAttribute('class'))) {
                 isInStatement = true;
             }
@@ -117,20 +149,33 @@ class BlockStatementDecorator extends React.Component {
         return isInStatement;
     }
 
-    openExpressionEditor(value, options, e) {
+    /**
+     * renders an ExpressionEditor in the header space.
+     * @param {string} value - Initial value.
+     * @param {object} options - options to be sent to ExpressionEditor.
+     */
+    openEditor(value, options) {
         const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (value && options) {
-            new ExpressionEditor(this.conditionBox, this.context.container, text => this.onUpdate(text), options, packageScope);
+            new ExpressionEditor(
+                this.conditionBox,
+                this.onUpdate.bind(this),
+                options,
+                packageScope).render(this.context.container);
         }
     }
+
     /**
-     * Renders breakpoint indicator
+     * Render breakpoint element.
+     * @private
+     * @return {XML} React element of the breakpoint.
      */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
         const { bBox } = this.props;
-        const pointX = bBox.x + bBox.w - breakpointSize / 2;
-        const pointY = bBox.y - breakpointSize / 2 + statement.gutter.v;
+        const breakpointHalf = breakpointSize / 2;
+        const pointX = bBox.getRight() - breakpointHalf;
+        const pointY = (bBox.y + statement.gutter.v) - breakpointHalf;
         return (
             <Breakpoint
                 x={pointX}
@@ -142,123 +187,171 @@ class BlockStatementDecorator extends React.Component {
         );
     }
 
+    /**
+     * Override the rendering logic.
+     * @returns {XML} rendered component.
+     */
     render() {
         const { bBox, title, dropTarget, expression } = this.props;
         const model = this.props.model || dropTarget;
 
-        const title_h = blockStatement.heading.height;
-        let title_w = blockStatement.heading.width;
+        const titleH = blockStatement.heading.height;
+        const titleW = this.props.titleWidth;
 
-        // If Available get the title width from given props.
-        if (this.props.titleWidth) {
-            title_w = this.props.titleWidth;
-        }
+        const p1X = bBox.x;
+        const p1Y = bBox.y + titleH;
+        const p2X = bBox.x + titleW;
+        const p2Y = bBox.y + titleH;
+        const p3X = bBox.x + titleW + 10;
+        const p3Y = bBox.y;
 
-        const p1_x = bBox.x;
-        const p1_y = bBox.y + title_h;
-        const p2_x = bBox.x + title_w;
-        const p2_y = bBox.y + title_h;
-        const p3_x = bBox.x + title_w + 10;
-        const p3_y = bBox.y;
+        const stcY = bBox.y + titleH;
+        const stcH = bBox.h - titleH;
 
-        const stc_y = bBox.y + title_h;
-        const stc_h = bBox.h - title_h;
+        const titleX = bBox.x + (titleW / 2);
+        const titleY = bBox.y + (titleH / 2);
 
-        const title_x = bBox.x + title_w / 2;
-        const title_y = bBox.y + title_h / 2;
+        const statementContainerBBox = new SimpleBBox(bBox.x, stcY, bBox.w, stcH);
 
-        const statementContainerBBox = new SimpleBBox(bBox.x, stc_y, bBox.w, stc_h);
-
-        let expression_x = 0;
+        let expressionX = 0;
         if (expression) {
-            expression_x = p3_x + statement.padding.left;
+            expressionX = p3X + statement.padding.left;
         }
-        let paramSeparator_x = 0;
+        let paramSeparatorX = 0;
         let parameterText = null;
         if (this.props.parameterBbox && this.props.parameterEditorOptions) {
-            paramSeparator_x = this.props.parameterBbox.x;
+            paramSeparatorX = this.props.parameterBbox.x;
             parameterText = this.props.parameterEditorOptions.value;
         }
 
-        this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, title_h);
+        this.conditionBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleH);
 
         const actionBoxBbox = {
-            x: bBox.x + (bBox.w - actionBox.width) / 2,
-            y: bBox.y + title_h + actionBox.padding.top,
+            x: bBox.x + ((bBox.w - actionBox.width) / 2),
+            y: bBox.y + titleH + actionBox.padding.top,
             w: actionBox.width,
             h: actionBox.height,
         };
+        const utilClassName = CLASS_MAP[this.state.active];
 
-        const utilClassName = this.state.active === 'hidden' ? 'hide-action' :
-            (this.state.active === 'visible' ? 'show-action' : 'delayed-hide-action');
+        const separatorGapV = titleH / 3;
+        return (
+            <g
+                onMouseOut={this.setActionVisibilityFalse}
+                onMouseOver={this.setActionVisibilityTrue}
+                ref={(group) => {
+                    this.myRoot = group;
+                }}
+            >
+                <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect" />
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={titleH}
+                    rx="0"
+                    ry="0"
+                    className="statement-title-rect"
+                    onClick={!parameterText && this.openExpressionEditor}
+                />
+                <text x={titleX} y={titleY} className="statement-text">{title}</text>
 
-        const expressionEditor = this.openExpressionEditor.bind(this, this.props.expression, this.props.editorOptions);
-        const paramEditor = this.openExpressionEditor.bind(this, parameterText, this.props.parameterEditorOptions);
-        return (<g
-            onMouseOut={this.setActionVisibility.bind(this, false)}
-            onMouseOver={this.setActionVisibility.bind(this, true)}
-        >
-            <rect x={bBox.x} y={bBox.y} width={bBox.w} height={bBox.h} className="background-empty-rect" />
-            <rect
-                x={bBox.x} y={bBox.y} width={bBox.w} height={title_h} rx="0" ry="0" className="statement-title-rect"
-                onClick={!parameterText && expressionEditor}
-            />
-            <text x={title_x} y={title_y} className="statement-text">{title}</text>
-
-            {(expression) &&
+                {expression &&
                 <text
-                    x={expression_x} y={title_y} className="condition-text"
-                    onClick={expressionEditor}
+                    x={expressionX}
+                    y={titleY}
+                    className="condition-text"
+                    onClick={this.openExpressionEditor}
                 >
                     {expression.text}
                 </text>}
 
-            {parameterText &&
+                {parameterText &&
                 <g>
                     <line
-                        x1={paramSeparator_x} y1={title_y - title_h / 3} y2={title_y + title_h / 3}
-                        x2={paramSeparator_x}
+                        x1={paramSeparatorX}
+                        y1={titleY - separatorGapV}
+                        y2={titleY + separatorGapV}
+                        x2={paramSeparatorX}
                         className="parameter-separator"
                     />
                     <text
-                        x={paramSeparator_x + blockStatement.heading.paramPaddingX} y={title_y} className="condition-text"
-                        onClick={paramEditor}
+                        x={paramSeparatorX + blockStatement.heading.paramPaddingX}
+                        y={titleY}
+                        className="condition-text"
+                        onClick={this.openParameterEditor}
                     >
                         ( {parameterText} )
-                </text>
+                    </text>
                 </g>}
 
-            <polyline points={`${p1_x},${p1_y} ${p2_x},${p2_y} ${p3_x},${p3_y}`} className="statement-title-polyline" />
-            <StatementContainer bBox={statementContainerBBox} dropTarget={dropTarget} draggable={this.props.draggable}>
-                {this.props.children}
-            </StatementContainer>
-            {this.props.undeletable ||
+                <polyline points={`${p1X},${p1Y} ${p2X},${p2Y} ${p3X},${p3Y}`} className="statement-title-polyline" />
+                <StatementContainer
+                    bBox={statementContainerBBox}
+                    dropTarget={dropTarget}
+                    draggable={this.props.draggable}
+                >
+                    {this.props.children}
+                </StatementContainer>
+                {this.props.undeletable ||
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
                     isBreakpoint={model.isBreakpoint}
                     onDelete={this.onDelete}
-                    onJumptoCodeLine={this.onJumptoCodeLine}
+                    onJumptoCodeLine={this.onJumpToCodeLine}
                     onBreakpointClick={this.onBreakpointClick}
                 />}
-            {
-                <g className={utilClassName}>
-                    {this.props.utilities || null}
-                </g>
-            }
-            {model.isBreakpoint && this.renderBreakpointIndicator()}
-        </g>);
+                {
+                    <g className={utilClassName}>
+                        {this.props.utilities}
+                    </g>
+                }
+                { model.isBreakpoint && this.renderBreakpointIndicator() }
+            </g>);
     }
 }
 
+BlockStatementDecorator.defaultProps = {
+    draggable: null,
+    undeletable: false,
+    titleWidth: blockStatement.heading.width,
+    editorOptions: null,
+    parameterEditorOptions: null,
+    utilities: null,
+    parameterBbox: null,
+    expression: null,
+};
+
 BlockStatementDecorator.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    draggable: PropTypes.func,
+    title: PropTypes.string.isRequired,
+    model: PropTypes.instanceOf(ASTNode).isRequired,
+    children: PropTypes.arrayOf(React.PropTypes.node).isRequired,
+    utilities: PropTypes.element,
+    bBox: PropTypes.instanceOf(SimpleBBox).isRequired,
+    parameterBbox: PropTypes.instanceOf(SimpleBBox),
+    undeletable: PropTypes.bool,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
+    titleWidth: PropTypes.number,
+    expression: PropTypes.shape({
+        text: PropTypes.string,
+    }),
+    editorOptions: PropTypes.shape({
+        propertyType: PropTypes.string,
+        key: PropTypes.string,
+        model: PropTypes.instanceOf(ASTNode),
+        getterMethod: PropTypes.func,
+        setterMethod: PropTypes.func,
+    }),
+    parameterEditorOptions: PropTypes.shape({
+        propertyType: PropTypes.string,
+        key: PropTypes.string,
+        value: PropTypes.string,
+        model: PropTypes.instanceOf(ASTNode),
+        getterMethod: PropTypes.func,
+        setterMethod: PropTypes.func,
+    }),
 };
 
 BlockStatementDecorator.contextTypes = {
