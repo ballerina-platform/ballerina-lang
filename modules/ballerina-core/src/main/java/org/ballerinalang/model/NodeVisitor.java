@@ -17,20 +17,12 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.GlobalVarLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -53,14 +45,12 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -216,8 +206,6 @@ public interface NodeVisitor {
     
     void visit(JSONFieldAccessExpr jsonPathExpr);
 
-    void visit(BacktickExpr backtickExpr);
-
     void visit(ArrayInitExpr arrayInitExpr);
 
     void visit(RefTypeInitExpr refTypeInitExpr);
@@ -237,23 +225,4 @@ public interface NodeVisitor {
     void visit(VariableRefExpr variableRefExpr);
 
     void visit(NullLiteral nullLiteral);
-    
-    
-    void visit(StackVarLocation stackVarLocation);
-
-    void visit(ServiceVarLocation serviceVarLocation);
-
-    void visit(GlobalVarLocation globalVarLocation);
-
-    void visit(ConnectorVarLocation connectorVarLocation);
-
-    void visit(ConstantLocation constantLocation);
-
-    void visit(StructVarLocation structVarLocation);
-
-    void visit(ResourceInvocationExpr resourceIExpr);
-
-    void visit(MainInvoker mainInvoker);
-
-    void visit(WorkerVarLocation workerVarLocation);
 }

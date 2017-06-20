@@ -17,17 +17,12 @@
  */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeExecutor;
-import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
-
 /**
  * {@code WorkerVarLocation} represents a location of a variable defined in a worker within the stack frame.
  *
  * @since 0.8.0
  */
-public class WorkerVarLocation extends MemoryLocation implements Node {
+public class WorkerVarLocation extends MemoryLocation {
     private int workerMemAddrOffset;
 
     public WorkerVarLocation(int workerMemAddrOffset) {
@@ -36,15 +31,5 @@ public class WorkerVarLocation extends MemoryLocation implements Node {
 
     public int getworkerMemAddrOffset() {
         return workerMemAddrOffset;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }

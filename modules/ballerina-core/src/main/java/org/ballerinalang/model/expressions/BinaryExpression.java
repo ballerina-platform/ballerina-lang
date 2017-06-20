@@ -17,13 +17,9 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
-import org.ballerinalang.model.values.BValue;
-
-import java.util.function.BiFunction;
 
 /**
  * {@code BinaryExpression} represents a binary expression.
@@ -37,7 +33,6 @@ import java.util.function.BiFunction;
 public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
-    protected BiFunction<BValue, BValue, BValue> evalFuncNewNew;
 
     public BinaryExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
                             Operator op, Expression rExpr) {
@@ -47,18 +42,6 @@ public class BinaryExpression extends UnaryExpression {
 
     public Expression getLExpr() {
         return lExpr;
-    }
-
-    public BiFunction<BValue, BValue, BValue> getEvalFunc() {
-        return evalFuncNewNew;
-    }
-
-    public void setEvalFunc(BiFunction<BValue, BValue, BValue> evalFuncNewNew) {
-        this.evalFuncNewNew = evalFuncNewNew;
-    }
-
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 
     public void setRExpr(Expression rExpr) {

@@ -18,9 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.types.TypeLattice;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -120,29 +117,6 @@ public class BallerinaFile implements Node {
 
     public Function[] getFunctions() {
         return null;
-    }
-
-    public TypeLattice getTypeLattice() {
-        return null;
-    }
-
-    public Function getMainFunction() {
-        return null;
-    }
-
-    public StructDef[] getStructDefs() {
-        return null;
-    }
-
-    public SymScope getPackageScope() {
-        return null;
-    }
-
-    public int getSizeOfStaticMem() {
-        return 0;
-    }
-
-    public void setSizeOfStaticMem(int sizeOfStaticMem) {
     }
 
     @Override

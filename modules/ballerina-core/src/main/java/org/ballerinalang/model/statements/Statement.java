@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.ExecutableStmt;
 import org.ballerinalang.model.Node;
 
 /**
@@ -29,7 +28,8 @@ import org.ballerinalang.model.Node;
  *
  * @since 0.8.0
  */
-public interface Statement extends Node, ExecutableStmt {
+public interface Statement extends Node {
+    
     void setAlwaysReturns(boolean returns);
 
     boolean isAlwaysReturns();

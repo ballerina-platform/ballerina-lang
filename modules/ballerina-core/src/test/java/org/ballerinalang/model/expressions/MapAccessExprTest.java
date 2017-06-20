@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -40,8 +39,6 @@ public class MapAccessExprTest {
 
     @BeforeClass
     public void setup() {
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
         programFile = BTestUtils.getProgramFile("lang/expressions/map-access-expr.bal");
     }
 

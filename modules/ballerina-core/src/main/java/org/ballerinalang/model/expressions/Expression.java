@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.ExecutableExpr;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.types.BType;
 
@@ -29,7 +28,7 @@ import org.ballerinalang.model.types.BType;
  * @see FunctionInvocationExpr
  * @since 0.8.0
  */
-public interface Expression extends Node, ExecutableExpr {
+public interface Expression extends Node {
 
     BType getType();
 

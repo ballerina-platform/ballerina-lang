@@ -18,12 +18,10 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.Function;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code FunctionInvocationExpr} represents function invocation expression.
@@ -37,9 +35,6 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private Expression[] exprs;
     private Function calleeFunction;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
-
     private int[] offsets;
 
     public FunctionInvocationExpr(NodeLocation location,
@@ -112,41 +107,4 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        BValue[] values = executor.visit(this);
-
-        if (calleeFunction.getReturnParamTypes().length == 0) {
-            return null;
-        }
-
-        return values[0];
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
-    }
-
 }

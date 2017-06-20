@@ -18,7 +18,6 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ExecutableMultiReturnExpr} interface makes an {@link org.ballerinalang.model.expressions.Expression}.
@@ -27,15 +26,6 @@ import org.ballerinalang.model.values.BValue;
  * @since 0.8.0
  */
 public interface ExecutableMultiReturnExpr {
-
-    /**
-     * Executes and Returns all the results of this expression.
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     * @return results of this expression
-     */
-    BValue[] executeMultiReturn(NodeExecutor executor);
-    
 
     /**
      * Returns an arrays of argument types of this expression.
