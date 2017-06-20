@@ -5,8 +5,9 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 
 @jms:JMSSource {
-factoryInitial : "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-providerUrl : "tcp://localhost:61616"}
+    factoryInitial : "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+    providerUrl : "tcp://localhost:61616"
+    }
 @jms:ConnectionProperty{key:"connectionFactoryType", value:"queue"}
 @jms:ConnectionProperty{key:"destination", value:"ballerinaqueue"}
 @jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}

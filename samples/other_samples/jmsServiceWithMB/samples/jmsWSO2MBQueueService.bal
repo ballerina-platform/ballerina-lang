@@ -4,16 +4,20 @@ import ballerina.net.jms;
 import ballerina.lang.messages;
 import ballerina.lang.system;
 
-@Source (
-protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "QpidConnectionFactory",
-factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
-connectionFactoryType = "queue")
+@jms:JMSSource {
+    factoryInitial : "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+    providerUrl : "jndi.properties"
+    }
+@jms:ConnectionProperty{key:"connectionFactoryType", value:"queue"}
+@jms:ConnectionProperty{key:"destination", value:"ballerinaqueue"}
+@jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QpidConnectionFactory"}
+
 service jmsWSO2MBQueueService {
 
     resource onMessage (message m) {
         string messageType;
         map dataMap = {};
-        messageType = jms:getMessageType(m);
+        messageType = messages:getProperty(m, "JMS_MESSAGE_TYPE");
         system:println(messages:getStringValue(m, "queue message count"));
         system:println(messageType);
         jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
