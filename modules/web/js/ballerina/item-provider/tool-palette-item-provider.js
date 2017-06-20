@@ -383,6 +383,7 @@ class ToolPaletteItemProvider extends EventChannel {
             connector.icon = this.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
+            connector.cssClass = 'icon fw fw-connector';
             definitions.push(connector);
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -404,7 +405,7 @@ class ToolPaletteItemProvider extends EventChannel {
                 action.icon = this.icons.action;
 
                 action.title = action.getName();
-
+                action.cssClass = 'icon fw fw-dgm-action';
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                 if (action.getReturnParams().length > 0) {
                     action.nodeFactoryMethod = DefaultBallerinaASTFactory
@@ -433,6 +434,7 @@ class ToolPaletteItemProvider extends EventChannel {
 
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
+            functionDef.cssClass = 'icon fw fw-function';
             definitions.push(functionDef);
         });
 
@@ -472,6 +474,7 @@ class ToolPaletteItemProvider extends EventChannel {
             connector.icon = this.icons.connector;
             connector.title = connector.getName();
             connector.id = connector.getName();
+            connector.cssClass = 'icon fw fw-connector';
             definitions.push(connector);
 
             const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -488,10 +491,11 @@ class ToolPaletteItemProvider extends EventChannel {
                     action: action.getName(),
                     actionConnectorName: connector.getName(),
                     actionPackageName: packageName,
+                    
                     fullPackageName: pckg.getName(),
                 };
                 action.icon = this.icons.action;
-
+                action.cssClass = 'icon fw fw-dgm-action';
                 action.title = action.getName();
 
                 action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
@@ -516,9 +520,14 @@ class ToolPaletteItemProvider extends EventChannel {
     }
 
 
+
     /**
-     * Create and return a ToolGroup object for a given package
-     * @param pckg {Package} Package Object.
+     * Create a tool group consisting only of functions of a package.
+     *
+     * @param {Package} pckg Package Object.
+     * @returns {ToolGroup} returns tool group.
+     *
+     * @memberof ToolPaletteItemProvider
      */
     getLibraryToolGroup(pckg) {
         const definitions = [];
@@ -544,6 +553,7 @@ class ToolPaletteItemProvider extends EventChannel {
 
             functionDef.title = functionDef.getName();
             functionDef.id = functionDef.getName();
+            functionDef.cssClass = 'icon fw fw-function';
             definitions.push(functionDef);
         });
 

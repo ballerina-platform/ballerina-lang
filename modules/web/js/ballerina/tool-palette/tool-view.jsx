@@ -105,7 +105,7 @@ class ToolView extends React.Component {
         return () => {
             if (!this.context.dragDropManager.isAtValidDropTarget()) {
                 this._$disabledIcon.show();
-                this._$draggedToolIcon.css('opacity', 0.1);
+                this._$draggedToolIcon.css('opacity', 0.3);
             } else {
                 this._$disabledIcon.hide();
                 this._$draggedToolIcon.css('opacity', 1);
@@ -120,9 +120,10 @@ class ToolView extends React.Component {
      * @memberof Tool
      */
     createCloneCallback() {
-        const icon = this.props.tool.icon;
+        let icon = this.props.tool.icon;
         const iconSize = '50px';
         d3.select(icon).attr('width', iconSize).attr('height', iconSize);
+        icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
         return () => {
             const div = this.createContainerForDraggable();
             div.node().appendChild(icon);
@@ -144,8 +145,8 @@ class ToolView extends React.Component {
         const disabledIconDiv = div.append('div').classed('disabled-icon-container', true);
         disabledIconDiv.append('i').classed('fw fw-lg fw-block tool-disabled-icon', true);
         this._$disabledIcon = $(disabledIconDiv.node());
-        this._$disabledIcon.css('top', 30 + 20);
-        this._$disabledIcon.css('left', 30 - 10);
+        this._$disabledIcon.css('top', 30 + 10);
+        this._$disabledIcon.css('left', 30);
         return div;
     }
 
