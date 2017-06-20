@@ -21,6 +21,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
@@ -155,16 +156,24 @@ public class BallerinaSdkUtil {
         return "src";
     }
 
-    public static String getSdkHome(Project project) {
-        Sdk sdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (sdk == null || sdk.getSdkType() != BallerinaSdkType.getInstance()) {
-            return "";
+    public static String getSdkHome(Project project, Module module) {
+        // Get the module SDK.
+        Sdk moduleSdk = ModuleRootManager.getInstance(module).getSdk();
+        // If the SDK is Ballerina SDK, return the home path.
+        if (moduleSdk != null && moduleSdk.getSdkType() == BallerinaSdkType.getInstance()) {
+            return moduleSdk.getHomePath();
         }
-        return sdk.getHomePath();
+        // Ge the project SDK.
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        // If the SDK is Ballerina SDK, return the home path.
+        if (projectSdk != null && projectSdk.getSdkType() == BallerinaSdkType.getInstance()) {
+            return projectSdk.getHomePath();
+        }
+        return "";
     }
 
-    public static String getBallerinaExecutablePath(Project project) {
-        String sdkHome = getSdkHome(project);
+    public static String getBallerinaExecutablePath(Project project, Module module) {
+        String sdkHome = getSdkHome(project, module);
         if (!sdkHome.isEmpty()) {
             String execPath = sdkHome + File.separator + BALLERINA_EXEC_PATH;
             return SystemInfo.isWindows ? execPath + ".bat" : execPath;
@@ -178,7 +187,7 @@ public class BallerinaSdkUtil {
     }
 
     @NotNull
-    private static List<VirtualFile> getInnerGoPathSources(@NotNull Project project, @Nullable Module module) {
+    private static List<VirtualFile> getInnerBallerinaPathSources(@NotNull Project project, @Nullable Module module) {
         return ContainerUtil.mapNotNull(getBallerinaPathRoots(project, module), new
                 RetrieveSubDirectoryOrSelfFunction("src"));
     }
