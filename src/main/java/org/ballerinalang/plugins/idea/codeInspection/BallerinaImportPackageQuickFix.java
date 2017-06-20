@@ -34,7 +34,6 @@ import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
@@ -108,11 +107,9 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
 
         List<String> importPathVariantsToImport = getImportPathVariantsToImport(startElement);
         if (importPathVariantsToImport.size() == 1) {
-            if (editor != null) {
-                PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-            }
+            Runnable addImport = () -> BallerinaPsiImplUtil.addImport(file, importPathVariantsToImport.get(0), null);
             CommandProcessor.getInstance().runUndoTransparentAction(
-                    () -> BallerinaPsiImplUtil.addImport(file, importPathVariantsToImport.get(0), null)
+                    () -> ApplicationManager.getApplication().runWriteAction(addImport)
             );
         } else {
             performImport(importPathVariantsToImport, file, editor);
@@ -161,8 +158,6 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         if (!(element instanceof PackageNameNode)) {
             return false;
         }
-        PsiDocumentManager.getInstance(editor.getProject())
-                .doPostponedOperationsAndUnblockDocument(editor.getDocument());
 
         PsiElement nameIdentifier = ((PackageNameNode) element).getNameIdentifier();
         if (nameIdentifier == null) {
