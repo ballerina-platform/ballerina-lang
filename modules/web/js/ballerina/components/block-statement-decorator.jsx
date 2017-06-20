@@ -93,6 +93,7 @@ class BlockStatementDecorator extends React.Component {
      * Call-back for when a new value is entered via expression editor.
      */
     onUpdate() {
+        // TODO: implement validate logic.
     }
 
     /**
