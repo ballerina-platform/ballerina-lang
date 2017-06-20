@@ -200,7 +200,9 @@ public class BallerinaPsiImplUtil {
                     }
                 }
             }
-            return;
+            if (!results.isEmpty()) {
+                return;
+            }
         }
 
         // Then we check the sources of project sdk.
@@ -317,13 +319,15 @@ public class BallerinaPsiImplUtil {
             if (moduleSdk != null) {
                 VirtualFile[] roots = moduleSdk.getSdkModificator().getRoots(OrderRootType.SOURCES);
                 for (VirtualFile root : roots) {
-                    VirtualFile match = getMatchingDirectory(root, packages);
-                    if (match != null) {
-                        results.add(PsiManager.getInstance(project).findDirectory(match));
+                    List<VirtualFile> matches = suggestDirectory(root, packages);
+                    for (VirtualFile file : matches) {
+                        results.add(PsiManager.getInstance(project).findDirectory(file));
                     }
                 }
             }
-            return results.toArray(new PsiDirectory[results.size()]);
+            if (!results.isEmpty()) {
+                return results.toArray(new PsiDirectory[results.size()]);
+            }
         }
 
         // Then we check the sources of project sdk.
