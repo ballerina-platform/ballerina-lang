@@ -104,8 +104,9 @@
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
         <!-- templates -->
-        <internalFileTemplate name="Ballerina Application"/>
         <internalFileTemplate name="Ballerina File"/>
+        <internalFileTemplate name="Ballerina Main"/>
+        <internalFileTemplate name="Ballerina Service"/>
 
         <defaultTemplatePropertiesProvider
                 implementation="org.ballerinalang.plugins.idea.actions.BallerinaTemplatePropertiesProvider"/>
