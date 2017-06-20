@@ -32,6 +32,12 @@ class TransformStatement extends Statement {
         this.input = _.get(args, 'input', []);
         this.output = _.get(args, 'output', []);
         this.type = 'TransformStatement';
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n',
+            3: '\n',
+        };
     }
 
     /**

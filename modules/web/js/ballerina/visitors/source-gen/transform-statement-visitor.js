@@ -28,9 +28,20 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTransformStatement(transformStatement) {
         this.node = transformStatement;
-        const constructedSourceSegment = '\n' + this.getIndentation() +
-                   transformStatement.getStatementString() + ' {\n';
+
+        const useDefaultWS = transformStatement.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
+        }
+
+        let constructedSourceSegment = '';
+
+        constructedSourceSegment += transformStatement.getStatementString()
+                  + transformStatement.getWSRegion(1)
+                  + '{' + transformStatement.getWSRegion(2);
         this.appendSource(constructedSourceSegment);
+        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
         log.debug('Begin Visit TransformStatement');
     }
@@ -47,14 +58,14 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
-    endVisitTransformStatement() {
+    endVisitTransformStatement(transformStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + '}\n');
+        this.appendSource('}' + transformStatement.getWSRegion(3));
+        this.appendSource((transformStatement.whiteSpace.useDefault) ?
+                      this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit TransformStatement');
     }
-
-
 }
 
 export default TransformStatementVisitor;
