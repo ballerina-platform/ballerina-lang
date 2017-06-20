@@ -25,6 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -38,6 +39,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.CallableUnit;
+import org.ballerinalang.model.CallableUnitSymbolName;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
@@ -2550,7 +2552,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
 
-        functionSymbol = matchAndUpdateFunctionArguments(funcIExpr, symbolName, functionSymbol);
+        functionSymbol = matchAndUpdateArguments(funcIExpr, symbolName, functionSymbol);
 
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
@@ -2671,8 +2673,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // When getting the action symbol name, Package name for the action is set to null, since the action is 
         // registered under connector, and connecter contains the package
-        SymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
-                actionIExpr.getPackagePath(), actionIExpr.getConnectorName());
+        ActionSymbolName actionSymbolName = LangModelUtils.getActionSymName(actionIExpr.getName(),
+                actionIExpr.getPackagePath(), actionIExpr.getConnectorName(), paramTypes);
 
         // Now check whether there is a matching action
         BLangSymbol actionSymbol = null;
@@ -2682,6 +2684,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
                     connectorSymbolName);
         }
+
+        actionSymbol = matchAndUpdateArguments(actionIExpr, actionSymbolName, actionSymbol);
 
         if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
             actionSymbol = ((BallerinaAction) actionSymbol).getNativeAction();
@@ -2721,6 +2725,74 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link the action with the action invocation expression
         actionIExpr.setCallableUnit(action);
+    }
+
+    /**
+     * Helper method to match the action with invocation (check whether parameters map, do cast if applicable).
+     *
+     * @param callableIExpr   invocation expression
+     * @param symbolName    action symbol name
+     * @param callableSymbol  matching action
+     * @return  actionSymbol matching action
+     */
+    private BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
+                                                      CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
+        if (callableSymbol == null) {
+            return null;
+        }
+
+        Expression[] argExprs = ((CallableUnitInvocationExpr) callableIExpr).getArgExprs();
+        Expression[] updatedArgExprs = new Expression[argExprs.length];
+
+        CallableUnitSymbolName funcSymName = (CallableUnitSymbolName) callableSymbol.getSymbolName();
+        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
+            return null;
+        }
+
+        boolean implicitCastPossible = true;
+
+        if (callableSymbol instanceof NativeUnitProxy) {
+            NativeUnit nativeUnit = ((NativeUnitProxy) callableSymbol).load();
+            for (int i = 0; i < argExprs.length; i++) {
+                Expression argExpr = argExprs[i];
+                updatedArgExprs[i] = argExpr;
+                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                BType lhsType = BTypes.resolveType(simpleTypeName, currentScope, callableIExpr.getNodeLocation());
+
+                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+                if (result.implicitCastExpr != null) {
+                    updatedArgExprs[i] = result.implicitCastExpr;
+                } else if (!result.assignable) {
+                    // TODO do we need to throw an error here?
+                    implicitCastPossible = false;
+                    break;
+                }
+            }
+        } else {
+            for (int i = 0; i < argExprs.length; i++) {
+                Expression argExpr = argExprs[i];
+                updatedArgExprs[i] = argExpr;
+                BType lhsType = ((CallableUnit) callableSymbol).getParameterDefs()[i].getType();
+
+                AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+                if (result.implicitCastExpr != null) {
+                    updatedArgExprs[i] = result.implicitCastExpr;
+                } else if (!result.assignable) {
+                    // TODO do we need to throw an error here?
+                    implicitCastPossible = false;
+                    break;
+                }
+            }
+        }
+
+        if (!implicitCastPossible) {
+            return null;
+        }
+
+        for (int i = 0; i < updatedArgExprs.length; i++) {
+            ((CallableUnitInvocationExpr) callableIExpr).getArgExprs()[i] = updatedArgExprs[i];
+        }
+        return callableSymbol;
     }
 
     private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
@@ -3136,8 +3208,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         action.setParameterTypes(paramTypes);
-        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
-                connectorDef.getName());
+        ActionSymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), action.getPackagePath(),
+                connectorDef.getName(), paramTypes);
         action.setSymbolName(symbolName);
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);
@@ -3147,8 +3219,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentScope.define(symbolName, action);
 
         if (action.isNative()) {
-            SymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
-                    connectorDef.getName(), action.getPackagePath());
+            ActionSymbolName nativeActionSymName = LangModelUtils.getNativeActionSymName(action.getName(),
+                    connectorDef.getName(), action.getPackagePath(), paramTypes);
             BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
 
             if (nativeAction == null || !(nativeAction instanceof NativeUnitProxy)) {
@@ -3203,7 +3275,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         resource.setParameterTypes(paramTypes);
-        SymbolName symbolName = LangModelUtils.getActionSymName(resource.getName(),
+        SymbolName symbolName = LangModelUtils.getResourceSymName(resource.getName(),
                 resource.getPackagePath(), service.getName());
         resource.setSymbolName(symbolName);
 
