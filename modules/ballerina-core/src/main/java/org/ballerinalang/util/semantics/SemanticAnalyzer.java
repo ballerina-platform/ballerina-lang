@@ -2594,62 +2594,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         funcIExpr.setCallableUnit(function);
     }
 
-    /**
-     * Helper method to match the function with invocation (check whether parameters map, do cast if applicable).
-     *
-     * @param funcIExpr      invocation expression
-     * @param symbolName     function symbol name
-     * @param functionSymbol matching function
-     * @return functionSymbol matching function
-     */
-    private BLangSymbol matchAndUpdateFunctionArguments(FunctionInvocationExpr funcIExpr,
-                                                        FunctionSymbolName symbolName, BLangSymbol functionSymbol) {
-        if (functionSymbol == null) {
-            return null;
-        }
-
-        Expression[] argExprs = funcIExpr.getArgExprs();
-        Expression[] updatedArgExprs = new Expression[argExprs.length];
-
-        FunctionSymbolName funcSymName = (FunctionSymbolName) functionSymbol.getSymbolName();
-        if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
-            return null;
-        }
-
-        boolean implicitCastPossible = true;
-
-        for (int i = 0; i < argExprs.length; i++) {
-            Expression argExpr = argExprs[i];
-            updatedArgExprs[i] = argExpr;
-            BType lhsType;
-            if (functionSymbol instanceof NativeUnitProxy) {
-                NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
-                SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
-                lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
-            } else {
-                lhsType = ((Function) functionSymbol).getParameterDefs()[i].getType();
-            }
-
-            AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
-            if (result.implicitCastExpr != null) {
-                updatedArgExprs[i] = result.implicitCastExpr;
-            } else if (!result.assignable) {
-                // TODO do we need to throw an error here?
-                implicitCastPossible = false;
-                break;
-            }
-        }
-
-        if (!implicitCastPossible) {
-            return null;
-        }
-
-        for (int i = 0; i < updatedArgExprs.length; i++) {
-            funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
-        }
-        return functionSymbol;
-    }
-
     private void linkAction(ActionInvocationExpr actionIExpr) {
         String pkgPath = actionIExpr.getPackagePath();
         String connectorName = actionIExpr.getConnectorName();
@@ -2728,12 +2672,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
-     * Helper method to match the action with invocation (check whether parameters map, do cast if applicable).
+     * Helper method to match the callable unit with invocation (check whether parameters map, do cast if applicable).
      *
-     * @param callableIExpr   invocation expression
-     * @param symbolName    action symbol name
-     * @param callableSymbol  matching action
-     * @return  actionSymbol matching action
+     * @param callableIExpr     invocation expression
+     * @param symbolName        callable symbol name
+     * @param callableSymbol    matching symbol
+     * @return  callableSymbol  matching symbol
      */
     private BLangSymbol matchAndUpdateArguments(AbstractExpression callableIExpr,
                                                       CallableUnitSymbolName symbolName, BLangSymbol callableSymbol) {
