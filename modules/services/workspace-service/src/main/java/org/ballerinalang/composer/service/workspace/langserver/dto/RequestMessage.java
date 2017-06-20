@@ -19,7 +19,7 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
 /**
  * Request message DTO
  */
-public class RequestMessageDTO extends MessageDTO {
+public class RequestMessage extends Message {
 
     private String method;
 

@@ -16,19 +16,18 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
-import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
-
 /**
- * DTO for initialize request result params
+ * DTO for error data
  */
-public class InitializeResultDTO {
-    private ServerCapabilitiesDTO capabilities;
+public class ErrorData {
 
-    public ServerCapabilitiesDTO getCapabilities() {
-        return capabilities;
+    private boolean retry;
+
+    public boolean isRetry() {
+        return retry;
     }
 
-    public void setCapabilities(ServerCapabilitiesDTO capabilities) {
-        this.capabilities = capabilities;
+    public void setRetry(boolean retry) {
+        this.retry = retry;
     }
 }

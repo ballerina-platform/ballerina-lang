@@ -25,7 +25,7 @@ public class ResponseErrorDTO {
 
     private String message;
 
-    private ErrorDataDTO data;
+    private ErrorData data;
 
     public int getCode() {
         return code;
@@ -43,11 +43,11 @@ public class ResponseErrorDTO {
         this.message = message;
     }
 
-    public ErrorDataDTO getData() {
+    public ErrorData getData() {
         return data;
     }
 
-    public void setData(ErrorDataDTO data) {
+    public void setData(ErrorData data) {
         this.data = data;
     }
 }

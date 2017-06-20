@@ -19,7 +19,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util;
 import com.google.gson.JsonArray;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
-import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformationDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
 import org.slf4j.Logger;
@@ -45,9 +45,9 @@ public class WorkspaceSymbolProvider {
     /**
      * Router to get the particular symbol type
      * @param query symbol query string
-     * @return SymbolInformationDTO array
+     * @return SymbolInformation array
      */
-    public SymbolInformationDTO[] getSymbols(String query) {
+    public SymbolInformation[] getSymbols(String query) {
         switch (query) {
             case LangServerConstants.BUILTIN_TYPES:
                 return getBuiltinTypes();
@@ -55,42 +55,42 @@ public class WorkspaceSymbolProvider {
                 return getPackages();
             default:
                 logger.warn("Invalid symbol query found");
-                return new SymbolInformationDTO[0];
+                return new SymbolInformation[0];
         }
     }
 
     /**
      * Get the builtin types
-     * @return SymbolInformationDTO array
+     * @return SymbolInformation array
      */
-    private SymbolInformationDTO[] getBuiltinTypes() {
+    private SymbolInformation[] getBuiltinTypes() {
         JsonArray builtinTypes = contentProvider.builtinTypes();
-        ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
+        ArrayList<SymbolInformation> symbolInformationArr = new ArrayList<>();
         for (int itr = 0; itr < builtinTypes.size(); itr++) {
-            SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
+            SymbolInformation symbolInfo = new SymbolInformation();
             symbolInfo.setName(builtinTypes.get(itr).getAsString());
             symbolInfo.setKind(SymbolKind.BUILTIN_TYPE);
             symbolInformationArr.add(symbolInfo);
         }
 
-        return symbolInformationArr.toArray(new SymbolInformationDTO[0]);
+        return symbolInformationArr.toArray(new SymbolInformation[0]);
     }
 
     /**
      * Get the packages
-     * @return SymbolInformationDTO array
+     * @return SymbolInformation array
      */
-    public SymbolInformationDTO[] getPackages() {
+    public SymbolInformation[] getPackages() {
         Map<String, ModelPackage> packages = contentProvider.getAllPackages();
-        ArrayList<SymbolInformationDTO> symbolInformationArr = new ArrayList<>();
+        ArrayList<SymbolInformation> symbolInformationArr = new ArrayList<>();
 
         for (Map.Entry<String, ModelPackage> entry : packages.entrySet()) {
-            SymbolInformationDTO symbolInfo = new SymbolInformationDTO();
+            SymbolInformation symbolInfo = new SymbolInformation();
             symbolInfo.setName(entry.getKey());
             symbolInfo.setKind(SymbolKind.PACKAGE_DEF);
             symbolInformationArr.add(symbolInfo);
         }
 
-        return symbolInformationArr.toArray(new SymbolInformationDTO[0]);
+        return symbolInformationArr.toArray(new SymbolInformation[0]);
     }
 }

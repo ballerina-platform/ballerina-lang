@@ -3,7 +3,7 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
 /**
  * Class to represent Completion Item
  */
-public class CompletionItemDTO {
+public class CompletionItem {
     private String label;
 
     private int kind;

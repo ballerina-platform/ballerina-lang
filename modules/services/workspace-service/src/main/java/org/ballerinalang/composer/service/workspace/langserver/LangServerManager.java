@@ -24,18 +24,18 @@ import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
-import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItemDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParamsDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorDataDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResultDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.MessageDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.PositionDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessageDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParams;
+import org.ballerinalang.composer.service.workspace.langserver.dto.ErrorData;
+import org.ballerinalang.composer.service.workspace.langserver.dto.InitializeResult;
+import org.ballerinalang.composer.service.workspace.langserver.dto.Message;
+import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
+import org.ballerinalang.composer.service.workspace.langserver.dto.RequestMessage;
 import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseErrorDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseMessageDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformationDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifierDTO;
-import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItemDTO;
+import org.ballerinalang.composer.service.workspace.langserver.dto.ResponseMessage;
+import org.ballerinalang.composer.service.workspace.langserver.dto.SymbolInformation;
+import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentIdentifier;
+import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
@@ -61,9 +61,9 @@ public class LangServerManager {
 
     private boolean initialized;
 
-    private Map<String, TextDocumentItemDTO> openDocumentSessions = new HashMap<>();
+    private Map<String, TextDocumentItem> openDocumentSessions = new HashMap<>();
 
-    private Map<String, TextDocumentItemDTO> closedDocumentSessions = new HashMap<>();
+    private Map<String, TextDocumentItem> closedDocumentSessions = new HashMap<>();
 
     private Gson gson;
 
@@ -106,7 +106,7 @@ public class LangServerManager {
     
     void processFrame(String json) {
         Gson gson = new Gson();
-        RequestMessageDTO message = gson.fromJson(json, RequestMessageDTO.class);
+        RequestMessage message = gson.fromJson(json, RequestMessage.class);
 
         if (message.getId() != null) {
             // Request Message Received
@@ -119,9 +119,9 @@ public class LangServerManager {
 
     /**
      * Process the received Requests
-     * @param message MessageDTO
+     * @param message Message
      */
-    private void processRequest(RequestMessageDTO message) {
+    private void processRequest(RequestMessage message) {
         if (message.getMethod().equals(LangServerConstants.INITIALIZE)) {
             this.initialize(message);
         } else if (this.isInitialized()) {
@@ -149,9 +149,9 @@ public class LangServerManager {
 
     /**
      * Process received notifications
-     * @param message MessageDTO
+     * @param message Message
      */
-    private void processNotification(RequestMessageDTO message) {
+    private void processNotification(RequestMessage message) {
         if (message.getMethod().equals(LangServerConstants.EXIT)) {
             this.exit(message);
         } else if (this.isInitialized()) {
@@ -182,7 +182,7 @@ public class LangServerManager {
      * @param session current session
      * @param response response message
      */
-    private void pushMessageToClient(LangServerSession session, ResponseMessageDTO response) {
+    private void pushMessageToClient(LangServerSession session, ResponseMessage response) {
         Gson gson = new GsonBuilder().serializeNulls().create();
         String json = gson.toJson(response);
         session.getChannel().write(new TextWebSocketFrame(json));
@@ -191,9 +191,9 @@ public class LangServerManager {
 
     /**
      * Process Invalid Method found
-     * @param message MessageDTO
+     * @param message Message
      */
-    private void invalidMethodFound(MessageDTO message) {
+    private void invalidMethodFound(Message message) {
         sendErrorResponse(LangServerConstants.METHOD_NOT_FOUND_LINE, LangServerConstants.METHOD_NOT_FOUND,
                 message, null);
     }
@@ -202,14 +202,14 @@ public class LangServerManager {
      * Send error response to invalid requests
      * @param errorMessage Error Message
      * @param errorCode Error code
-     * @param message MessageDTO
-     * @param errorData ErrorDataDTO
+     * @param message Message
+     * @param errorData ErrorData
      */
-    private void sendErrorResponse(String errorMessage, int errorCode, MessageDTO message, ErrorDataDTO errorData) {
-        ResponseMessageDTO responseMessageDTO = new ResponseMessageDTO();
+    private void sendErrorResponse(String errorMessage, int errorCode, Message message, ErrorData errorData) {
+        ResponseMessage responseMessageDTO = new ResponseMessage();
         ResponseErrorDTO responseErrorDTO = new ResponseErrorDTO();
-        if (message instanceof RequestMessageDTO) {
-            responseMessageDTO.setId(((RequestMessageDTO) message).getId());
+        if (message instanceof RequestMessage) {
+            responseMessageDTO.setId(((RequestMessage) message).getId());
         }
         responseErrorDTO.setMessage(errorMessage);
         responseErrorDTO.setCode(errorCode);
@@ -228,13 +228,13 @@ public class LangServerManager {
      * Process initialize request
      * @param message Request Message
      */
-    private void initialize(MessageDTO message) {
+    private void initialize(Message message) {
         this.setInitialized(true);
 
-        ResponseMessageDTO responseMessage = new ResponseMessageDTO();
-        InitializeResultDTO initializeResult = new InitializeResultDTO();
-        if (message instanceof RequestMessageDTO) {
-            responseMessage.setId(((RequestMessageDTO) message).getId());
+        ResponseMessage responseMessage = new ResponseMessage();
+        InitializeResult initializeResult = new InitializeResult();
+        if (message instanceof RequestMessage) {
+            responseMessage.setId(((RequestMessage) message).getId());
         }
         ServerCapabilitiesDTO serverCapabilities = new ServerCapabilitiesDTO();
         initializeResult.setCapabilities(serverCapabilities);
@@ -249,13 +249,13 @@ public class LangServerManager {
      * Handle Document did open notification
      * @param message Request Message
      */
-    private void documentDidOpen(MessageDTO message) {
-        if (message instanceof RequestMessageDTO) {
+    private void documentDidOpen(Message message) {
+        if (message instanceof RequestMessage) {
             try {
-                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessageDTO) message).
+                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessage) message).
                         getParams()).get("textDocument");
                 JsonObject jsonObject = gson.toJsonTree(textDocument).getAsJsonObject();
-                TextDocumentItemDTO textDocumentItem = gson.fromJson(jsonObject, TextDocumentItemDTO.class);
+                TextDocumentItem textDocumentItem = gson.fromJson(jsonObject, TextDocumentItem.class);
                 this.getOpenDocumentSessions().put(textDocumentItem.getDocumentUri(), textDocumentItem);
             } catch (Exception e) {
                 logger.error("Invalid document received [" + e.getMessage() + "]");
@@ -270,14 +270,14 @@ public class LangServerManager {
      * Handle Document did close notification
      * @param message Request Message
      */
-    private void documentDidClose(MessageDTO message) {
-        if (message instanceof RequestMessageDTO) {
+    private void documentDidClose(Message message) {
+        if (message instanceof RequestMessage) {
             try {
-                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessageDTO) message).
+                LinkedTreeMap textDocument = (LinkedTreeMap) ((LinkedTreeMap) ((RequestMessage) message).
                         getParams()).get("textDocument");
                 JsonObject jsonObject = gson.toJsonTree(textDocument).getAsJsonObject();
-                TextDocumentIdentifierDTO textDocumentIdentifier = gson.fromJson(jsonObject,
-                        TextDocumentIdentifierDTO.class);
+                TextDocumentIdentifier textDocumentIdentifier = gson.fromJson(jsonObject,
+                        TextDocumentIdentifier.class);
 
                 if (this.getOpenDocumentSessions().containsKey(textDocumentIdentifier.getDocumentUri())) {
                     this.getClosedDocumentSessions().put(textDocumentIdentifier.getDocumentUri(),
@@ -296,18 +296,18 @@ public class LangServerManager {
         }
     }
 
-    private void documentDidSave(MessageDTO message) {
-        if (message instanceof RequestMessageDTO) {
-            JsonObject params = gson.toJsonTree(((RequestMessageDTO) message).getParams()).getAsJsonObject();
-            DidSaveTextDocumentParamsDTO didSaveTextDocumentParams = gson.fromJson(params.toString(),
-                    DidSaveTextDocumentParamsDTO.class);
-            TextDocumentIdentifierDTO textDocumentIdentifier = didSaveTextDocumentParams.getTextDocument();
+    private void documentDidSave(Message message) {
+        if (message instanceof RequestMessage) {
+            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
+            DidSaveTextDocumentParams didSaveTextDocumentParams = gson.fromJson(params.toString(),
+                    DidSaveTextDocumentParams.class);
+            TextDocumentIdentifier textDocumentIdentifier = didSaveTextDocumentParams.getTextDocument();
 
             /**
              * If the text document have not been persisted then this is the first time we try to
              * persist the document. In that case we need to remove the previous temp entry
              */
-            TextDocumentItemDTO textDocumentItem;
+            TextDocumentItem textDocumentItem;
             if (this.getOpenDocumentSessions().containsKey("/temp/" + textDocumentIdentifier.getDocumentId())) {
                 textDocumentItem = this.getOpenDocumentSessions()
                         .get("/temp/" + textDocumentIdentifier.getDocumentId());
@@ -332,13 +332,13 @@ public class LangServerManager {
      * Handle the get workspace symbol requests
      * @param message Request Message
      */
-    private void getWorkspaceSymbol(MessageDTO message) {
-        if (message instanceof RequestMessageDTO) {
-            String query = (String) ((LinkedTreeMap) ((RequestMessageDTO) message).getParams()).get("query");
-            SymbolInformationDTO[] symbolInformationDTOs = symbolProvider.getSymbols(query);
-            ResponseMessageDTO responseMessage = new ResponseMessageDTO();
-            responseMessage.setId(((RequestMessageDTO) message).getId());
-            responseMessage.setResult(symbolInformationDTOs);
+    private void getWorkspaceSymbol(Message message) {
+        if (message instanceof RequestMessage) {
+            String query = (String) ((LinkedTreeMap) ((RequestMessage) message).getParams()).get("query");
+            SymbolInformation[] symbolInformations = symbolProvider.getSymbols(query);
+            ResponseMessage responseMessage = new ResponseMessage();
+            responseMessage.setId(((RequestMessage) message).getId());
+            responseMessage.setResult(symbolInformations);
             pushMessageToClient(langServerSession, responseMessage);
         } else {
             logger.warn("Invalid Message type found");
@@ -349,8 +349,8 @@ public class LangServerManager {
      * Process Shutdown notification
      * @param message Request Message
      */
-    private void shutdown(MessageDTO message) {
-        ResponseMessageDTO responseMessage = new ResponseMessageDTO();
+    private void shutdown(Message message) {
+        ResponseMessage responseMessage = new ResponseMessage();
         responseMessage.setResult(JsonNull.INSTANCE);
         pushMessageToClient(langServerSession, responseMessage);
     }
@@ -359,7 +359,7 @@ public class LangServerManager {
      * Handle exit notification
      * @param message Request Message
      */
-    private void exit(MessageDTO message) {
+    private void exit(Message message) {
         //Exit the process
     }
 
@@ -367,28 +367,28 @@ public class LangServerManager {
      * Get the completion items
      * @param message - Request Message
      */
-    private void getCompletionItems(MessageDTO message) {
-        if (message instanceof RequestMessageDTO) {
-            JsonObject params = gson.toJsonTree(((RequestMessageDTO) message).getParams()).getAsJsonObject();
+    private void getCompletionItems(Message message) {
+        if (message instanceof RequestMessage) {
+            JsonObject params = gson.toJsonTree(((RequestMessage) message).getParams()).getAsJsonObject();
             TextDocumentPositionParams textDocumentPositionParams = gson.fromJson(params.toString(),
                     TextDocumentPositionParams.class);
             String textContent = textDocumentPositionParams.getText();
-            PositionDTO position = textDocumentPositionParams.getPosition();
+            Position position = textDocumentPositionParams.getPosition();
 
             logger.info(textContent);
             logger.info(position.toString());
 
-            ArrayList<CompletionItemDTO> completionItems = new ArrayList<>();
-            CompletionItemDTO completionItemDTO1 = new CompletionItemDTO();
-            completionItemDTO1.setLabel("Label1");
-            CompletionItemDTO completionItemDTO2 = new CompletionItemDTO();
-            completionItemDTO2.setLabel("Label2");
-            completionItems.add(completionItemDTO1);
-            completionItems.add(completionItemDTO2);
+            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+            CompletionItem completionItem1 = new CompletionItem();
+            completionItem1.setLabel("Label1");
+            CompletionItem completionItem2 = new CompletionItem();
+            completionItem2.setLabel("Label2");
+            completionItems.add(completionItem1);
+            completionItems.add(completionItem2);
 
-            ResponseMessageDTO responseMessage = new ResponseMessageDTO();
-            responseMessage.setId(((RequestMessageDTO) message).getId());
-            responseMessage.setResult(completionItems.toArray(new CompletionItemDTO[0]));
+            ResponseMessage responseMessage = new ResponseMessage();
+            responseMessage.setId(((RequestMessage) message).getId());
+            responseMessage.setResult(completionItems.toArray(new CompletionItem[0]));
             pushMessageToClient(langServerSession, responseMessage);
         } else {
             logger.warn("Invalid Message type found");
@@ -405,11 +405,11 @@ public class LangServerManager {
         this.initialized = initialized;
     }
 
-    public Map<String, TextDocumentItemDTO> getOpenDocumentSessions() {
+    public Map<String, TextDocumentItem> getOpenDocumentSessions() {
         return this.openDocumentSessions;
     }
 
-    public Map<String, TextDocumentItemDTO> getClosedDocumentSessions() {
+    public Map<String, TextDocumentItem> getClosedDocumentSessions() {
         return closedDocumentSessions;
     }
 }

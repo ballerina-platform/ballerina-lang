@@ -12,7 +12,7 @@ public class TextDocumentPositionParams {
      */
     private String text;
 
-    private PositionDTO position;
+    private Position position;
 
     public String getText() {
         return text;
@@ -22,11 +22,11 @@ public class TextDocumentPositionParams {
         this.text = text;
     }
 
-    public PositionDTO getPosition() {
+    public Position getPosition() {
         return position;
     }
 
-    public void setPosition(PositionDTO positionDTO) {
-        this.position = positionDTO;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 }

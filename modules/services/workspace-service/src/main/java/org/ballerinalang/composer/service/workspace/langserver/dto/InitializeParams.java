@@ -17,27 +17,39 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Text document identifier dto
+ * DTO for initialize request params
  */
-public class TextDocumentIdentifierDTO {
+public class InitializeParams {
 
-    private String documentUri;
+    private int processId;
 
-    private String documentId;
+    private String rootPath;
 
-    public String getDocumentUri() {
-        return documentUri;
+    private String initializationOptions;
+
+    // TODO: We need to add the capability support
+
+    public int getProcessId() {
+        return processId;
     }
 
-    public void setDocumentUri(String documentUri) {
-        this.documentUri = documentUri;
+    public void setProcessId(int processId) {
+        this.processId = processId;
     }
 
-    public String getDocumentId() {
-        return documentId;
+    public String getRootPath() {
+        return rootPath;
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+
+    public String getInitializationOptions() {
+        return initializationOptions;
+    }
+
+    public void setInitializationOptions(String initializationOptions) {
+        this.initializationOptions = initializationOptions;
     }
 }
