@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import log from 'log';
+import ASTVisitor from './../visitors/ast-visitor';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
