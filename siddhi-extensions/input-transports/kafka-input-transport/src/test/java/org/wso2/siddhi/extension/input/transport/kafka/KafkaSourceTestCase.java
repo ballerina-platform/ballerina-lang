@@ -45,6 +45,7 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
 import org.wso2.siddhi.extension.input.mapper.text.TextSourceMapper;
 import org.wso2.siddhi.extension.output.mapper.text.TextSinkMapper;
 import org.wso2.siddhi.query.api.SiddhiApp;
@@ -272,9 +273,9 @@ public class KafkaSourceTestCase {
             // wait for some time
             Thread.sleep(28000);
             // initiate a checkpointing task
-            Future perisistor = siddhiAppRuntime.persist();
+            PersistenceReference perisistor = siddhiAppRuntime.persist();
             // waits till the checkpointing task is done
-            while (!perisistor.isDone()) {
+            while (!perisistor.getFuture().isDone()) {
                 Thread.sleep(100);
             }
             // let few more events to be published
@@ -390,10 +391,10 @@ public class KafkaSourceTestCase {
             // wait for some time
             Thread.sleep(28000);
             // initiate a checkpointing task
-            Future perisistor1 = siddhiAppRuntime1.persist();
-            Future perisistor2 = siddhiAppRuntime2.persist();
+            PersistenceReference perisistor1 = siddhiAppRuntime1.persist();
+            PersistenceReference perisistor2 = siddhiAppRuntime2.persist();
             // waits till the checkpointing task is done
-            while (!perisistor1.isDone() && !perisistor2.isDone()) {
+            while (!perisistor1.getFuture().isDone() && !perisistor2.getFuture().isDone()) {
                 Thread.sleep(100);
             }
             // let few more events to be published
