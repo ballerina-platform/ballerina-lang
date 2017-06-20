@@ -18,6 +18,8 @@
 
 package org.ballerinalang.services.dispatchers;
 
+import org.ballerinalang.services.dispatchers.http.Constants;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,15 +49,12 @@ public class DispatcherRegistry {
     }
 
     public ServiceDispatcher getServiceDispatcherFromPkg(String protocolPkg) {
+        //If protocol is null, then it defaults to http protocol
         if (protocolPkg == null) {
-            return serviceDispatchers.get("http");
+            return serviceDispatchers.get(Constants.PROTOCOL_HTTP);
         }
         return serviceDispatchers.get(protocolPackageMap.get(protocolPkg));
     }
-
-//    public boolean protocolExist(String protocolPkg) {
-//        return serviceDispatchers.keySet().contains(protocolPkg);
-//    }
 
     public Map<String, ServiceDispatcher> getServiceDispatchers() {
         return serviceDispatchers;

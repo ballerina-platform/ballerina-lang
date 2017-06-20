@@ -1026,7 +1026,7 @@ public class BLangModelBuilder {
         String protocolPkg = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
-        currentCUGroupBuilder.setProtocolPkg(protocolPkgName == null ? null : protocolPkg);
+        currentCUGroupBuilder.setProtocolPkg(protocolPkg);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -1649,13 +1649,15 @@ public class BLangModelBuilder {
     }
 
     private String validateAndGetPackagePathForServiceProtocol(NodeLocation location, String protocolPkgName) {
+        if (protocolPkgName == null) {
+            return null;
+        }
         ImportPackage importPkg = getImportPackage(protocolPkgName);
         checkForUndefinedPackagePath(location, protocolPkgName, importPkg, () -> protocolPkgName);
 
         if (importPkg == null) {
             return currentPackagePath;
         }
-
         importPkg.markUsed();
         return importPkg.getPath();
     }

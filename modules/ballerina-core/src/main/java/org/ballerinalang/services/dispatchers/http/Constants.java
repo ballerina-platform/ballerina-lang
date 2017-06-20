@@ -62,7 +62,6 @@ public class Constants {
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_NAME_INTERFACE = "Interface";
     public static final String ANNOTATION_NAME_HOST = "Host";
     public static final String ANNOTATION_NAME_PORT = "Port";
     public static final String ANNOTATION_NAME_SCHEMA = "Schema";
