@@ -213,6 +213,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (elementType == BallerinaTypes.SENDARROW || elementType == BallerinaTypes.RECEIVEARROW) {
                 List<WorkerDeclarationNode> workerDeclarations = BallerinaPsiImplUtil.getWorkerDeclarations(parent);
                 addWorkersAsLookup(resultSet, workerDeclarations);
+                addDefaultAsLookup(resultSet);
             }
         }
     }

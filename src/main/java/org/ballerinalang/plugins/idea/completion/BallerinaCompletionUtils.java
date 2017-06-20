@@ -903,6 +903,11 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
+    static void addDefaultAsLookup(@NotNull CompletionResultSet resultSet) {
+        LookupElementBuilder builder = LookupElementBuilder.create("default");
+        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
+    }
+
     static void addWorkersAsLookup(@NotNull CompletionResultSet resultSet, List<WorkerDeclarationNode> workers) {
         for (WorkerDeclarationNode worker : workers) {
             PsiElement identifier = worker.getNameIdentifier();

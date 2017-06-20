@@ -21,7 +21,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
     // In functions.
     public void testWorkerSuggestionsInWorkerInvocationStatementInFunction() {
         doTest("function testWorker () { message msg = {}; msg -> <caret> worker worker1 { } " +
-                "worker worker2 { } }", "worker1", "worker2");
+                "worker worker2 { } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerInvocationStatementInFunctionAutoCompletion() {
@@ -31,7 +31,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
 
     public void testWorkerSuggestionsInWorkerReplyStatementInFunction() {
         doTest("function testWorker () { message msg = {}; msg <- <caret> worker worker1 { } " +
-                "worker worker2 { } }", "worker1", "worker2");
+                "worker worker2 { } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerReplyStatementInFunctionAutoCompletion() {
@@ -65,7 +65,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
     // In services.
     public void testWorkerSuggestionsInWorkerInvocationStatementInService() {
         doTest("service test { resource testWorker () { message msg = {}; msg -> <caret> worker worker1 { } " +
-                "worker worker2 { } } }", "worker1", "worker2");
+                "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerInvocationStatementInServiceAutoCompletion() {
@@ -76,7 +76,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
 
     public void testWorkerSuggestionsInWorkerReplyStatementInService() {
         doTest("service test { resource testWorker () { message msg = {}; msg <- <caret> worker worker1 { } " +
-                "worker worker2 { } } }", "worker1", "worker2");
+                "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerReplyStatementInServiceAutoCompletion() {
@@ -112,7 +112,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
     // In actions.
     public void testWorkerSuggestionsInWorkerInvocationStatementInConnector() {
         doTest("connector test () { action testWorker () { message msg = {}; msg -> <caret> worker worker1 { } " +
-                "worker worker2 { } } }", "worker1", "worker2");
+                "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerInvocationStatementInConnectorAutoCompletion() {
@@ -123,7 +123,7 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
 
     public void testWorkerSuggestionsInWorkerReplyStatementInConnector() {
         doTest("connector test () { action testWorker () { message msg = {}; msg <- <caret> worker worker1 { } " +
-                "worker worker2 { } } }", "worker1", "worker2");
+                "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerReplyStatementInConnectorAutoCompletion() {

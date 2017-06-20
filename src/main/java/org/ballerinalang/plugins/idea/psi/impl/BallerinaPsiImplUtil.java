@@ -1413,7 +1413,8 @@ public class BallerinaPsiImplUtil {
 
     public static List<WorkerDeclarationNode> getWorkerDeclarations(PsiElement element) {
         List<WorkerDeclarationNode> results = new LinkedList<>();
-
+        // Since there are no workers inside workers in the new grammar, we can directly suggest all workers in the
+        // current definition node.
         DefinitionNode definitionNode = PsiTreeUtil.getParentOfType(element, DefinitionNode.class);
         if (definitionNode == null) {
             return results;

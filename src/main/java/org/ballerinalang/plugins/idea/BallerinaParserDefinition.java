@@ -98,6 +98,7 @@ import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.WorkerBodyNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
@@ -330,6 +331,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TriggerWorkerNode(node);
             case BallerinaParser.RULE_workerDeclaration:
                 return new WorkerDeclarationNode(node);
+            case BallerinaParser.RULE_workerBody:
+                return new WorkerBodyNode(node);
             case BallerinaParser.RULE_joinConditions:
                 return new JoinConditionNode(node);
             default:
