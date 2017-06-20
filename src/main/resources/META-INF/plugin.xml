@@ -151,6 +151,10 @@
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
         <console.folding implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFolding"/>
 
+        <!-- debugger -->
+        <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaDebugger"/>
+        <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
+
         <!--project-->
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
         <projectService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
@@ -166,8 +170,12 @@
 
         <!--inspections-->
         <localInspection groupPath="Ballerina" language="Ballerina" shortName="WrongPackageStatement" bundle="messages.InspectionsBundle" key="wrong.package.statement" groupKey="group.names.probable.bugs"
-                         enabledByDefault="true" level="ERROR"
+                         enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.WrongPackageStatementInspection" />
+
+        <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
+                         groupName="General" enabledByDefault="true" level="ERROR"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.BallerinaUnresolvedReferenceInspection"/>
 
         <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeinsight.highlighting.HighlightExitPointsHandlerFactory"/>
 

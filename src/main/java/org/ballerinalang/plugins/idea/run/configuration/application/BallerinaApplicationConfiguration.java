@@ -29,10 +29,8 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
 import org.jdom.Element;
@@ -104,22 +102,6 @@ public class BallerinaApplicationConfiguration
         if (StringUtil.isEmptyOrSpaces(myPackage) && StringUtil.isEmptyOrSpaces(getFilePath())) {
             throw new RuntimeConfigurationError("Both file path and package are not specified. Need to specify at " +
                     "least one.");
-        }
-        VirtualFile packageDirectory = BallerinaRunUtil.findByPath(myPackage, module.getProject());
-        if (packageDirectory == null || !packageDirectory.isDirectory()) {
-            throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'.");
-        }
-
-        if (myRunKind == RunConfigurationKind.MAIN) {
-            if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
-                throw new RuntimeConfigurationError("Cannot find a Ballerina file with main in '" + myPackage +
-                        "' package.");
-            }
-        } else if (myRunKind == RunConfigurationKind.SERVICE) {
-            if (BallerinaRunUtil.findServiceFileInDirectory(packageDirectory, getProject()) == null) {
-                throw new RuntimeConfigurationError("Cannot find a Ballerina file with any services in '" + myPackage +
-                        "' package.");
-            }
         }
     }
 

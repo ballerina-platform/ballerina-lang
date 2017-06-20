@@ -14,29 +14,34 @@ repositories {
 
 dependencies {
     compile group: 'org.antlr', name: 'antlr4-runtime', version: '4.6'
+    compile group: 'com.neovisionaries', name: 'nv-websocket-client', version: '2.2'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.6'
 }
 
-apply plugin: 'idea'
-apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
-apply plugin: "jacoco"
-
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main/java', 'adaptor/src', 'src/main/gen']
+            srcDirs = ['src/main/java', 'adaptor/src']
         }
     }
 }
 
+apply plugin: 'org.jetbrains.intellij'
 intellij {
     //For a full list of IntelliJ IDEA releases, please see https://www.jetbrains.com/intellij-repository/releases.
-    version 'IC-2016.3'
+    version 'IC-2017.1.4'
     pluginName 'Ballerina-IntelliJ-Plugin'
     updateSinceUntilBuild false
     plugins 'coverage' //Bundled plugin dependencies
 }
 
+apply plugin: 'antlr'
+dependencies {
+    antlr "org.antlr:antlr4:4.6"
+}
+
+apply plugin: "jacoco"
 jacocoTestReport {
     reports {
         xml.enabled false
