@@ -17,16 +17,27 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * Workspace symbol params dto
+ * DTO for Did sve text document notification params
  */
-public class WorkspaceSymbolParamsDTO {
-    private String query;
+public class DidSaveTextDocumentParams {
 
-    public String getQuery() {
-        return query;
+    private TextDocumentIdentifier textDocument;
+
+    private String text;
+
+    public TextDocumentIdentifier getTextDocument() {
+        return textDocument;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    public void setTextDocument(TextDocumentIdentifier textDocument) {
+        this.textDocument = textDocument;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

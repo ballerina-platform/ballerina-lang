@@ -17,17 +17,27 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for error data
+ * Text document identifier dto
  */
-public class ErrorDataDTO {
+public class TextDocumentIdentifier {
 
-    private boolean retry;
+    private String documentUri;
 
-    public boolean isRetry() {
-        return retry;
+    private String documentId;
+
+    public String getDocumentUri() {
+        return documentUri;
     }
 
-    public void setRetry(boolean retry) {
-        this.retry = retry;
+    public void setDocumentUri(String documentUri) {
+        this.documentUri = documentUri;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

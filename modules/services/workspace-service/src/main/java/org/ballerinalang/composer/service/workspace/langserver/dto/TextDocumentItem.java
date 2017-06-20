@@ -21,7 +21,7 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
 /**
  * Text document DTO
  */
-public class TextDocumentItemDTO {
+public class TextDocumentItem {
 
     private String documentUri;
 

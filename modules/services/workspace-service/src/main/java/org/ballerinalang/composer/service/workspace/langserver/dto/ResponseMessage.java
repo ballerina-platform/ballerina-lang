@@ -17,39 +17,37 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * DTO for initialize request params
+ * Response message dto
  */
-public class InitializeParamsDTO {
+public class ResponseMessage extends Message {
 
-    private int processId;
+    private String id;
 
-    private String rootPath;
+    private Object result;
 
-    private String initializationOptions;
+    private ResponseErrorDTO error;
 
-    // TODO: We need to add the capability support
-
-    public int getProcessId() {
-        return processId;
+    public String getId() {
+        return id;
     }
 
-    public void setProcessId(int processId) {
-        this.processId = processId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getRootPath() {
-        return rootPath;
+    public Object getResult() {
+        return result;
     }
 
-    public void setRootPath(String rootPath) {
-        this.rootPath = rootPath;
+    public void setResult(Object result) {
+        this.result = result;
     }
 
-    public String getInitializationOptions() {
-        return initializationOptions;
+    public ResponseErrorDTO getError() {
+        return error;
     }
 
-    public void setInitializationOptions(String initializationOptions) {
-        this.initializationOptions = initializationOptions;
+    public void setError(ResponseErrorDTO error) {
+        this.error = error;
     }
 }

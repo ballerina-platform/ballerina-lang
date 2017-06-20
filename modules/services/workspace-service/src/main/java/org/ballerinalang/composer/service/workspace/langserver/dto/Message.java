@@ -19,10 +19,10 @@
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
 /**
- * {@link MessageDTO} JSON-RPC message
+ * {@link Message} JSON-RPC message
  *
  */
-public class MessageDTO {
+public class Message {
 
     private String jsonrpc = "2.0";
 

@@ -16,38 +16,19 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.dto;
 
+import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
+
 /**
- * Response message dto
+ * DTO for initialize request result params
  */
-public class ResponseMessageDTO extends MessageDTO {
+public class InitializeResult {
+    private ServerCapabilitiesDTO capabilities;
 
-    private String id;
-
-    private Object result;
-
-    private ResponseErrorDTO error;
-
-    public String getId() {
-        return id;
+    public ServerCapabilitiesDTO getCapabilities() {
+        return capabilities;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Object getResult() {
-        return result;
-    }
-
-    public void setResult(Object result) {
-        this.result = result;
-    }
-
-    public ResponseErrorDTO getError() {
-        return error;
-    }
-
-    public void setError(ResponseErrorDTO error) {
-        this.error = error;
+    public void setCapabilities(ServerCapabilitiesDTO capabilities) {
+        this.capabilities = capabilities;
     }
 }

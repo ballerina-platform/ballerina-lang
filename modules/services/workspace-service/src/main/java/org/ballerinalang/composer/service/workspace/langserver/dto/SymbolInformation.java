@@ -19,7 +19,7 @@ package org.ballerinalang.composer.service.workspace.langserver.dto;
 /**
  * DTO for Symbol information
  */
-public class SymbolInformationDTO {
+public class SymbolInformation {
     private String name;
 
     private int kind;
