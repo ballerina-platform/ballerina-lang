@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.6</version>
+    <version>0.8.7</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -11,17 +11,13 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Support Ballerina v0.88 grammar.</li>
-        <li>Merge two run configurations into a single configuration.</li>
-        <li>Add exit points highlighting support.</li>
-        <li>Add resource path query/path param highlighting support.</li>
-        <li>Add package validation support.</li>
-        <li>Add array.length support.</li>
-        <li>Add new hidden templates.</li>
-        <li>Improve code completion.</li>
-        <li>Update live templates.</li>
+        <li>Ballerina program debug support (Experimental).</li>
+        <li>Ballerina submodule run support.</li>
+        <li>Unimported package inspection support.</li>
+        <li>Worker suggestion support in code completion.</li>
+        <li>Add worker to the structure view.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/7?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/8?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
