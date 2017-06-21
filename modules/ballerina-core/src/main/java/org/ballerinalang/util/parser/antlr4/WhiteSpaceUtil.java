@@ -890,7 +890,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_CREATE_KEYWORD_TO_NAME_REF,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_NAME_REF_TO_EXP_LIST_WRAPPER,
-                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.nameReference(0).stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;

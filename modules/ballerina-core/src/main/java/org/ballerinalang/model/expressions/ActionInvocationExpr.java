@@ -35,6 +35,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private String connectorName;
     private Expression[] exprs;
     private Action action;
+    private ActionInvocationExpr filterAction;
     private BType[] types = new BType[0];
     private int[] offsets;
 
@@ -101,6 +102,14 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public void setCallableUnit(Action callableUnit) {
         this.action = callableUnit;
+    }
+
+    public ActionInvocationExpr getFilterCallableUnit() {
+        return filterAction;
+    }
+
+    public void setFilterCallableUnit(ActionInvocationExpr callableUnit) {
+        this.filterAction = callableUnit;
     }
 
     @Override

@@ -45,6 +45,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected ImportPackage[] importPackages;
     protected Service[] services;
     protected BallerinaConnectorDef[] connectors;
+    protected BallerinaConnectorDef[] filterConnectors;
     protected Function[] functions;
     protected TypeLattice typeLattice;
     protected GlobalVariableDef[] globalVariables;
@@ -133,6 +134,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     public BallerinaConnectorDef[] getConnectors() {
         return connectors;
+    }
+
+    public BallerinaConnectorDef[] getFilterConnectors() {
+        return filterConnectors;
     }
 
     public Function[] getFunctions() {
@@ -304,6 +309,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
+        private List<BallerinaConnectorDef> filterConnectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
         private List<GlobalVariableDef> globalVarList = new ArrayList<>();
         private List<ConstDef> constList = new ArrayList<>();
@@ -350,6 +356,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.connectorList.add(connector);
         }
 
+        public void addFilterConnector(BallerinaConnectorDef connector) {
+            this.compilationUnitList.add(connector);
+            this.filterConnectorList.add(connector);
+        }
+
         public void addImportPackage(ImportPackage importPkg) {
             this.importPkgMap.put(importPkg.getPath(), importPkg);
         }
@@ -392,6 +403,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.functions = this.functionList.toArray(new Function[0]);
             bLangPackage.services = this.serviceList.toArray(new Service[0]);
             bLangPackage.connectors = this.connectorList.toArray(new BallerinaConnectorDef[0]);
+            bLangPackage.filterConnectors = this.filterConnectorList.toArray(new BallerinaConnectorDef[0]);
             bLangPackage.structDefs = this.structDefList.toArray(new StructDef[0]);
             bLangPackage.globalVariables = this.globalVarList.toArray(new GlobalVariableDef[0]);
             bLangPackage.consts = this.constList.toArray(new ConstDef[0]);

@@ -262,6 +262,7 @@ public class CodeGenerator implements NodeVisitor {
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
         createConnectorInfoEntries(bLangPackage.getConnectors());
+        createFilterConnectorInfoEntries(bLangPackage.getFilterConnectors());
         createServiceInfoEntries(bLangPackage.getServices());
         createFunctionInfoEntries(bLangPackage.getFunctions());
 
@@ -408,6 +409,10 @@ public class CodeGenerator implements NodeVisitor {
             ((BStructType) structInfo.getType()).setStructFields(structFields);
             resetIndexes(fieldIndexes);
         }
+    }
+
+    private void createFilterConnectorInfoEntries(BallerinaConnectorDef[] connectorDefs) {
+        createConnectorInfoEntries(connectorDefs);
     }
 
     private void createConnectorInfoEntries(BallerinaConnectorDef[] connectorDefs) {
@@ -1415,6 +1420,41 @@ public class CodeGenerator implements NodeVisitor {
         int pkgCPIndex = addPackageCPEntry(actionIExpr.getPackagePath());
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
 
+        // Generate instructions for filter connectors
+        BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
+        if (filterConnectorDef != null && actionIExpr.getFilterCallableUnit() != null) {
+            ActionInvocationExpr filterActionIExpr = actionIExpr.getFilterCallableUnit();
+
+            int pkgCPIndexFilter = addPackageCPEntry(filterActionIExpr.getPackagePath());
+
+            String pkgPathFilter = filterActionIExpr.getPackagePath();
+            PackageInfo actionPackageInfoFilter = programFile.getPackageInfo(pkgPathFilter);
+
+            // Get the connector ref CP index
+            ConnectorInfo connectorInfoFilter = actionPackageInfoFilter.getConnectorInfo(filterConnectorDef.getName());
+            int connectorRefCPIndexFilter = getConnectorRefCPIndex(filterConnectorDef);
+
+            String actionNameFilter = filterActionIExpr.getName();
+            UTF8CPEntry actionNameCPEntryFilter = new UTF8CPEntry(actionNameFilter);
+            int actionNameCPIndexFilter = currentPkgInfo.addCPEntry(actionNameCPEntryFilter);
+
+            ActionRefCPEntry actionRefCPEntryFilter = new ActionRefCPEntry(pkgCPIndexFilter,
+                    connectorRefCPIndexFilter, actionNameCPIndexFilter);
+
+            ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
+            actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
+            int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
+            int actionCallIndexFilter = getFilterCallableUnitCallCPIndex(filterActionIExpr);
+
+            if (actionInfoFilter.isNative()) {
+                // TODO Move this to the place where we create action info entry
+                actionInfoFilter.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
+                emit(InstructionCodes.NACALL, actionRefCPIndexFilter, actionCallIndexFilter);
+            } else {
+                emit(InstructionCodes.ACALL, actionRefCPIndexFilter, actionCallIndexFilter);
+            }
+        }
+
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
@@ -1439,6 +1479,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
+
     }
 
     @Override
@@ -1637,6 +1678,13 @@ public class CodeGenerator implements NodeVisitor {
         int initFuncCallIndex = currentPkgInfo.addCPEntry(initFuncCallCPEntry);
 
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
+
+        // Generate code for filterConnectors if there are any
+        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getReferenceConnectorInitExpr();
+        if (filterConnectorInitExpr != null) {
+            visit(filterConnectorInitExpr);
+            //connectorDef.setFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
+        }
 
         // Invoke Connector init native action if any
         BallerinaAction action = connectorDef.getInitAction();
@@ -2294,6 +2342,32 @@ public class CodeGenerator implements NodeVisitor {
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             argExpr.accept(this);
+            argRegs[i] = argExpr.getTempOffset();
+        }
+
+        // Calculate registers to store return values
+        BType[] retTypes = invocationExpr.getTypes();
+        int[] retRegs = new int[retTypes.length];
+        for (int i = 0; i < retTypes.length; i++) {
+            BType retType = retTypes[i];
+            retRegs[i] = getNextIndex(retType.getTag(), regIndexes);
+        }
+
+        invocationExpr.setOffsets(retRegs);
+        if (retRegs.length > 0) {
+            ((Expression) invocationExpr).setTempOffset(retRegs[0]);
+        }
+
+        FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
+        return currentPkgInfo.addCPEntry(funcCallCPEntry);
+    }
+
+    private int getFilterCallableUnitCallCPIndex(CallableUnitInvocationExpr invocationExpr) {
+        Expression[] argExprs = invocationExpr.getArgExprs();
+        int[] argRegs = new int[argExprs.length];
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            //argExpr.accept(this);
             argRegs[i] = argExpr.getTempOffset();
         }
 

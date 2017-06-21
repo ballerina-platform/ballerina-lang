@@ -77,6 +77,7 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ActionRefCPEntry && packageCPIndex == (((ActionRefCPEntry) obj).packageCPIndex) &&
-                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex;
+                nameCPIndex == ((ActionRefCPEntry) obj).nameCPIndex &&
+                connectorRefCPIndex == ((ActionRefCPEntry) obj).connectorRefCPIndex;
     }
 }

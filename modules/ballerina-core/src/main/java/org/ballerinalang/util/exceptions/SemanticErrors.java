@@ -108,6 +108,8 @@ public enum SemanticErrors {
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
     REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
     RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
+    RETURN_TYPES_NOT_ALLOWED_INSIDE_FILTER_CONNECTOR_ACTIONS
+            ("return.types.not.allowed.inside.filter.connector.actions", "SEMANTIC_0085"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
