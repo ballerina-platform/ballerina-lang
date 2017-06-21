@@ -99,7 +99,10 @@ public interface Session {
      */
     Session setNew(boolean isNew);
 
-    void setSessionScope(String path);
-
-    String getSessionScope();
+    /**
+     * Get path of session
+     *
+     * @return  session path
+     */
+    String getPath();
 }

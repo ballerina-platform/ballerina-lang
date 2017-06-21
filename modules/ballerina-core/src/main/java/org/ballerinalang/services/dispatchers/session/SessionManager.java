@@ -18,9 +18,7 @@
 
 package org.ballerinalang.services.dispatchers.session;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.services.dispatchers.http.HTTPSession;
-import org.ballerinalang.util.codegen.ServiceInfo;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,12 +82,12 @@ public class SessionManager {
         return null;
     }
 
-    public Session createHTTPSession() {
+    public Session createHTTPSession(String path) {
         if (sessionMap.size() >= DEFAULT_MAX_ACTIVE_SESSIONS) {
             throw new IllegalStateException("Too many active sessions");
         }
         HTTPSession session = new HTTPSession(sessionIdGenerator.generateSessionId(""),
-                DEFAULT_MAX_INACTIVE_INTERVAL);
+                DEFAULT_MAX_INACTIVE_INTERVAL, path);
         session.setManager(this);
         sessionMap.put(session.getId(), session);
         return session;

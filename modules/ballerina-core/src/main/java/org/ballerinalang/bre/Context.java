@@ -21,9 +21,7 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
-import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.services.dispatchers.session.SessionInfo;
-import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -52,8 +50,6 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
-    //private SessionManager sessionManager;
-    //private Session currentSession = null;
     private SessionInfo sessionContext;
 
     // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
@@ -189,20 +185,7 @@ public class Context {
         return programFile;
     }
 
-    public SessionInfo getSessioContext() {
+    public SessionInfo getSessionContext() {
         return sessionContext;
     }
-
-    //delete
-//    public SessionManager getSessionManager() {
-//        return sessionManager.getInstance();
-//    }
-//
-//    public Session getCurrentSession() {
-//        return currentSession;
-//    }
-//
-//    public void setCurrentSession(Session currentSession) {
-//        this.currentSession = currentSession;
-//    }
 }

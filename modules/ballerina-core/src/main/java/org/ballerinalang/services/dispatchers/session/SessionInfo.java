@@ -19,17 +19,15 @@
 package org.ballerinalang.services.dispatchers.session;
 
 /**
- * Created by chamil on 6/19/17.
+ * SessionInfo contains session info.
  */
 public class SessionInfo {
 
     private SessionManager sessionManager;
     private Session currentSession = null;
-    private PathMatcher matcher;
 
     public SessionInfo() {
         this.sessionManager = SessionManager.getInstance();
-        this.matcher = PathMatcher.getInstance();
     }
 
     public SessionManager getSessionManager() {
@@ -42,9 +40,5 @@ public class SessionInfo {
 
     public void setCurrentSession(Session currentSession) {
         this.currentSession = currentSession;
-    }
-
-    public PathMatcher getPathMatcher() {
-        return matcher;
     }
 }

@@ -29,8 +29,4 @@ native function getAttribute (Session session, string attributeKey) (any);
 @doc:Param { value:"attributeValue: HTTPSession attribute Value" }
 native function setAttribute (Session session, string attributeKey, any attributeValue);
 
-@doc:Description { value:"Sets session cookie scope"}
-@doc:Param { value:"session: A session struct" }
-@doc:Param { value:"path: Session available Path" }
-native function setPath (Session session, string path);
 

@@ -59,7 +59,7 @@ public class SetAttribute extends AbstractNativeFunction {
             BValue attributeValue = getRefArgument(context, 1);
 
             String sessionId = sessionStruct.getStringField(0);
-            Session session = context.getSessioContext().getCurrentSession();
+            Session session = context.getSessionContext().getCurrentSession();
 
             //return value from cached session
             if (session != null) {
@@ -68,7 +68,7 @@ public class SetAttribute extends AbstractNativeFunction {
 
             //if session is not available in cache
             if (sessionId != null) {
-                session = context.getSessioContext().getSessionManager().getHTTPSession(sessionId);
+                session = context.getSessionContext().getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
                     session.setAttribute(attributeKey, attributeValue);
                 } else {

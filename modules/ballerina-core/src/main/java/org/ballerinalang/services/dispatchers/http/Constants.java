@@ -90,6 +90,7 @@ public class Constants {
 
 
     public static final String COOKIE_HEADER = "Cookie";
-    public static final String SESSION_ID = "JSESSIONID=";
+    public static final String SESSION_ID = "BSESSIONID=";
+    public static final String PATH = "Path=";
     public static final String RESPONSE_COOKIE_HEADER = "Set-Cookie";
 }

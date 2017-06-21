@@ -30,10 +30,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
+import static org.ballerinalang.nativeimpl.actions.http.Constants.REQUEST_URL;
 import static org.ballerinalang.services.dispatchers.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
@@ -58,13 +62,16 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
         value = "HTTP session struct") })
 public class GetSessionParam extends AbstractNativeFunction {
 
+    private static final Logger logger = LoggerFactory.getLogger(GetSessionParam.class);
+
     @Override
     public BValue[] execute(Context context) {
         try {
             CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             Boolean create = getBooleanArgument(context, 0);
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
-            Session session = context.getSessioContext().getCurrentSession();
+            Session session = context.getSessionContext().getCurrentSession();
+            String path = (String) carbonMessage.getProperty(REQUEST_URL);
 
             if (session != null) {
                 session = session.setAccessed();
@@ -76,26 +83,27 @@ public class GetSessionParam extends AbstractNativeFunction {
                     session = Arrays.stream(cookieHeader.split(";"))
                             .filter(cookie -> cookie.startsWith(SESSION_ID))
                             .findFirst()
-                            .map(jsession -> context.getSessioContext().getSessionManager()
+                            .map(jsession -> context.getSessionContext().getSessionManager()
                                     .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
-                } catch (Exception e) {
-                    new IllegalStateException(e);
+                } catch (NoSuchElementException e) {
+                    //ignore throwable
+                    logger.info("Session not available in SessionManager");
                 }
                 if (session != null) {
                     session.setNew(false);
                 } else {
                     if (create) {
-                        context.getSessioContext().getSessionManager().createHTTPSession();
+                        context.getSessionContext().getSessionManager().createHTTPSession(path);
                     }
-                    return null;
+                    return new BValue[]{};
                 }
                 session.setAccessed();
             } else if (create) {
-                session = context.getSessioContext().getSessionManager().createHTTPSession();
+                session = context.getSessionContext().getSessionManager().createHTTPSession(path);
             }
             carbonMessage.removeHeader(COOKIE_HEADER);
             if (session != null) {
-                context.getSessioContext().setCurrentSession(session);
+                context.getSessionContext().setCurrentSession(session);
                 return new BValue[]{GetSession.createSessionStruct(context, session)};
             }
             return new BValue[]{};
@@ -106,13 +114,3 @@ public class GetSessionParam extends AbstractNativeFunction {
     }
 }
 
-
-/*
-
-@doc:Description { value:"Gets the session struct"}
-@doc:Param { value:"m: A message object" }
-@doc:Param { value:"create: Create a new session or not" }
-@doc:Return { value:"Session: HTTP session struct" }
-native function getSessionWithParam (message m, Boolean create) (Session);
-
-*/

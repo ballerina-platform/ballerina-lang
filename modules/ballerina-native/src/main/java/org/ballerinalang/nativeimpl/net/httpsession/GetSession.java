@@ -33,9 +33,12 @@ import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 import static org.ballerinalang.services.dispatchers.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
@@ -60,13 +63,15 @@ public class GetSession extends AbstractNativeFunction {
 
     public static final String SESSION_PACKAGE = "ballerina.net.httpsession";
     public static final String STRUCT_SESSION = "Session";
+    private static final Logger logger = LoggerFactory.getLogger(GetSession.class);
 
     @Override
     public BValue[] execute(Context context) {
         try {
             CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
-            Session session = context.getSessioContext().getCurrentSession();
+            Session session = context.getSessionContext().getCurrentSession();
+            String path = (String) context.getServiceInfo().getName();
 
             if (session != null) {
                 session = session.setAccessed();
@@ -78,29 +83,29 @@ public class GetSession extends AbstractNativeFunction {
                     session = Arrays.stream(cookieHeader.split(";"))
                             .filter(cookie -> cookie.startsWith(SESSION_ID))
                             .findFirst()
-                            .map(jsession -> context.getSessioContext().getSessionManager()
-                                    .getHTTPSession(jsession.substring(SESSION_ID.length()))).get(); //retrieve from session map
-                } catch (Exception e) {
-                    new IllegalStateException(e);
+                            .map(jsession -> context.getSessionContext().getSessionManager()
+                                    .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
+                } catch (NoSuchElementException e) {
+                    //ignore throwable
+                    logger.info("Session not available in SessionManager");
                 }
                 if (session != null) {
-                    session.setNew(false);
+                    //path Validity check
+                    if (session.getPath().equals(path)) {
+                        session.setNew(false);
+                    } else {
+                        throw new BallerinaException("Invalid path :" + path);
+                    }
+
                 } else {
-                    session = context.getSessioContext().getSessionManager().createHTTPSession();
+                    session = context.getSessionContext().getSessionManager().createHTTPSession(path);
                 }
-
-                //path match
-                context.getSessioContext().getPathMatcher().pathMatchWithURI(context,session);
-
-
-
-
             } else {
                 //create session since a request without cookie
-                session = context.getSessioContext().getSessionManager().createHTTPSession();
+                session = context.getSessionContext().getSessionManager().createHTTPSession(path);
             }
 
-            context.getSessioContext().setCurrentSession(session);
+            context.getSessionContext().setCurrentSession(session);
             carbonMessage.removeHeader(COOKIE_HEADER); //do null check
             return new BValue[]{createSessionStruct(context, session)};
 

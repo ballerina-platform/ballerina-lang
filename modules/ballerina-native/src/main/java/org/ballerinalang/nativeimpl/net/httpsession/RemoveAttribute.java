@@ -19,7 +19,7 @@
 package org.ballerinalang.nativeimpl.net.httpsession;
 
 /**
- * Created by chamil on 6/18/17.
+ *
  */
 public class RemoveAttribute {
 }

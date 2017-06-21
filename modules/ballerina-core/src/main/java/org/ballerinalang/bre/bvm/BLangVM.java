@@ -2957,7 +2957,7 @@ public class BLangVM {
     private void handleMessageHeaders(BMessage message) {
 
         //check session cookie header
-        Session session = context.getCurrentSession();
+        Session session = context.getSessionContext().getCurrentSession();
         if (session != null) {
             session.generateSessionHeader(message);
         }

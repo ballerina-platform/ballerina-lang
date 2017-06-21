@@ -26,6 +26,7 @@ import org.ballerinalang.services.dispatchers.session.SessionManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.ballerinalang.services.dispatchers.http.Constants.PATH;
 import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
@@ -34,6 +35,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
  */
 public class HTTPSession implements Session {
 
+    private final String sessionPath;
     private String id;
     private Long createTime;
     private Long lastAccessedTime;
@@ -42,13 +44,13 @@ public class HTTPSession implements Session {
     private SessionManager sessionManager;
     private boolean isValid = true;
     private boolean isNew = true;
-    private String sessionScope;
 
-    public HTTPSession(String id, int maxInactiveInterval) {
+    public HTTPSession(String id, int maxInactiveInterval, String path) {
         this.id = id;
         this.maxInactiveInterval = maxInactiveInterval;
         createTime = System.currentTimeMillis();
         lastAccessedTime = createTime;
+        this.sessionPath = path;
     }
 
     @Override
@@ -85,7 +87,6 @@ public class HTTPSession implements Session {
         isValid = false;
     }
 
-
     public void setManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
@@ -112,11 +113,10 @@ public class HTTPSession implements Session {
     public void generateSessionHeader(BMessage message) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
-            message.value().setHeader(RESPONSE_COOKIE_HEADER, SESSION_ID + this.getId());
+            message.value().setHeader(RESPONSE_COOKIE_HEADER, SESSION_ID + this.getId() + "; "
+                    + PATH + this.getPath() + ";");
         }
-
         //set other headers (path)
-
     }
 
     public boolean isNew() {
@@ -129,13 +129,9 @@ public class HTTPSession implements Session {
         return this;
     }
 
-    @Override
-    public void setSessionScope(String path) {
-        this.sessionScope = path;
-    }
 
     @Override
-    public String getSessionScope() {
-        return sessionScope;
+    public String getPath() {
+        return sessionPath;
     }
 }
