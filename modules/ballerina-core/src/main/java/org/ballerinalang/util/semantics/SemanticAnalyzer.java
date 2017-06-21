@@ -1107,26 +1107,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableDef varDef) {
-        // Resolves the type of the variable
-        BType lhsType = null;
-        if (varDef.getTypeName().getName().equals("var")) {
-
-        } else {
-            // This is not a possible case with current ballerina grammar - added for completeness
-            lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
-            varDef.setType(lhsType);
-        }
-
-        // Check whether this variable is already defined, if not define it.
-        SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
-        BLangSymbol varSymbol = currentScope.resolve(symbolName);
-        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
-            BLangExceptionHelper.throwSemanticError(varDef, SemanticErrors.REDECLARED_SYMBOL, varDef.getName());
-        }
-        currentScope.define(symbolName, varDef);
-
-        // Set memory location
-        setMemoryLocation(varDef);
     }
 
 
@@ -1195,20 +1175,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
-        if (assignStmt.isDeclaredWithVar()) {
-            for (Expression expr : lExprs) {
-                if (!(expr instanceof VariableRefExpr)) {
-                    BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
-                }
-                VariableRefExpr refExpr = (VariableRefExpr) expr;
-                Identifier identifier = new Identifier(refExpr.getVarName());
-                SymbolName symbolName = new SymbolName(identifier.getName());
-                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
-                        refExpr.getWhiteSpaceDescriptor(), identifier,
-                        new SimpleTypeName("var"), symbolName, currentScope);
-                variableDef.accept(this);
-            }
-        }
         visitLExprsOfAssignment(assignStmt, lExprs);
 
         Expression rExpr = assignStmt.getRExpr();
@@ -2558,6 +2524,31 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
+        // handle special case for assignment statement declared with var
+        if (assignStmt.isDeclaredWithVar()) {
+            for (Expression expr : lExprs) {
+                if (!(expr instanceof VariableRefExpr)) {
+                    BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
+                }
+                VariableRefExpr refExpr = (VariableRefExpr) expr;
+                Identifier identifier = new Identifier(refExpr.getVarName());
+                SymbolName symbolName = new SymbolName(identifier.getName());
+                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                        refExpr.getWhiteSpaceDescriptor(), identifier,
+                        null, symbolName, currentScope);
+
+                // Check whether this variable is already defined, if not define it.
+                SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
+                BLangSymbol varSymbol = currentScope.resolve(symbolName);
+                if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+                    BLangExceptionHelper.throwSemanticError(variableDef, SemanticErrors.REDECLARED_SYMBOL,
+                            variableDef.getName());
+                }
+                currentScope.define(varDefSymName, variableDef);
+                // Set memory location
+                setMemoryLocation(variableDef);
+            }
+        }
         // This set data structure is used to check for repeated variable names in the assignment statement
         Set<String> varNameSet = new HashSet<>();
 
