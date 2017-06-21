@@ -209,11 +209,19 @@ public class TransactionStmtFlowTest {
     }
 
     @Test()
-    public void testValidAbort3() {
+    public void testValidAbortAndReturn() {
         ProgramFile programFile = BTestUtils.getProgramFile("lang/statements/transactionStmt/valid-abort.bal");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "test", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "st inTrx inAbt outAbt");
+
+        returns = BLangFunctions.invokeNew(programFile, "testReturn1", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx com");
+
+        returns = BLangFunctions.invokeNew(programFile, "testReturn2", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx abt");
     }
 
 }

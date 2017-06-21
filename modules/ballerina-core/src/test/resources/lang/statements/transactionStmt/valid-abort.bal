@@ -15,3 +15,26 @@ function test ()(string) {
     }
     return i;
 }
+
+function testReturn1 ()(string) {
+    string i = "st";
+    transaction {
+        i = i + " inTrx";
+    } committed {
+        i = i + " com";
+        return i;
+    }
+    return "done";
+}
+
+function testReturn2 ()(string) {
+    string i = "st";
+    transaction {
+        i = i + " inTrx";
+        abort;
+    } aborted {
+        i = i + " abt";
+        return i;
+    }
+    return "done";
+}
