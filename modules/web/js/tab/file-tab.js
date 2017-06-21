@@ -103,7 +103,7 @@ class FileTab extends Tab {
             const model = this._fileEditor.getModel();
             let packageName = '.';
             if (model.getChildrenOfType(model.getFactory().isPackageDefinition)[0]) {
-                packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
+                packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName() || '.';
             }
             const content = { fileName: this._file.getName(), filePath: this._file.getPath(), packageName, content: this._file.getContent() };
             this.programPackagesBackend.call({ method: 'POST', content, async: true, callback: this.onResponseRecieved, callbackObj: this });
