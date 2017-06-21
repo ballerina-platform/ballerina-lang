@@ -33,6 +33,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Can be used to close a file object.
@@ -55,10 +56,8 @@ public class Close extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getRefArgument(context, 0);
-        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
-        BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
-        closeQuietly(is);
-        closeQuietly(os);
+        SeekableByteChannel channel = (SeekableByteChannel) struct.getNativeData("channel");
+        closeQuietly(channel);
         return VOID_RETURN;
     }
 

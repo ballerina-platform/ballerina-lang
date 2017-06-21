@@ -29,7 +29,11 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Moves a file from a given location to another.
@@ -57,18 +61,25 @@ public class Move extends AbstractNativeFunction {
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
 
-        File sourceFile = new File(source.getStringField(0));
-        if (!sourceFile.exists()) {
-            throw new BallerinaException("failed to move file: file not found: " + sourceFile.getPath());
+        Path sourcePath = Paths.get(source.getStringField(0));
+        if (!Files.exists(sourcePath)) {
+            throw new BallerinaException("failed to move file: file not found: " + sourcePath);
         }
-        File destinationFile = new File(destination.getStringField(0));
-        File parent = destinationFile.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("failed to move file: cannot create directory: " + parent.getPath());
+        Path destinationPath = Paths.get(destination.getStringField(0));
+        Path parent = destinationPath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new BallerinaException("failed to move file: cannot create directory: " + parent);
+            }
         }
-        if (!sourceFile.renameTo(destinationFile)) {
-            throw new BallerinaException("failed to move file: " + sourceFile.getPath());
+        try {
+            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            throw new BallerinaException("failed to move file: " + sourcePath);
         }
+
         return VOID_RETURN;
     }
 }

@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Test cases for ballerina.model.file.
@@ -219,32 +220,10 @@ public class FileTest {
         String sourcePath = "temp/open-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
-
-            BValue[] args = { new BString(sourcePath) , new BString("rw")};
+            BValue[] args = {new BString(sourcePath), new BString("rw")};
             BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("ra");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("r");
-            sourceStruct =  (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNull(sourceStruct.getNativeData("outStream"), "Output Stream found in read mode");
-
-            args[1] = new BString("w");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in write mode");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("a");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in append mode");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
+            Assert.assertTrue(((SeekableByteChannel) sourceStruct.getNativeData("channel")).isOpen(),
+                              "Channel not opened");
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -259,17 +238,15 @@ public class FileTest {
         BLangFunctions.invokeNew(programFile, "testOpen", args);
     }
 
-    @Test(expectedExceptions = IOException.class)
+    @Test
     public void testClose() throws IOException {
         String sourcePath = "temp/close-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
             BValue[] args = { new BString(sourcePath) };
             BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testClose", args)[0];
-            InputStream inputStream = (BufferedInputStream) sourceStruct.getNativeData("inStream");
-            OutputStream outputStream = (BufferedOutputStream) sourceStruct.getNativeData("outStream");
-            inputStream.read();
-            outputStream.write(1);
+            SeekableByteChannel channel = (SeekableByteChannel) sourceStruct.getNativeData("channel");
+            Assert.assertFalse(channel.isOpen(), "Channel not closed");
         } else {
             Assert.fail("Error in file creation.");
         }

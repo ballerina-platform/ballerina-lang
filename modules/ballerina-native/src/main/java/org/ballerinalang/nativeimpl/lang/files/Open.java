@@ -31,12 +31,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Gets the streams from a local file.
@@ -63,18 +67,19 @@ public class Open extends AbstractNativeFunction {
         BStruct struct = (BStruct) getRefArgument(context, 0);
         String accessMode = getStringArgument(context, 0);
         try {
-            File file = new File(struct.getStringField(0));
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
-            
+
+            Path path = Paths.get(struct.getStringField(0));
+            Set<OpenOption> opts = new HashSet<>();
+
             if (accessLC.contains("r")) {
-                if (!file.exists()) {
-                    throw new BallerinaException("file not found: " + file.getPath());
+                if (!Files.exists(path)) {
+                    throw new BallerinaException("file not found: " + path);
                 }
-                if (!file.canRead()) {
-                    throw new BallerinaException("file is not readable: " + file.getPath());
+                if (!Files.isReadable(path)) {
+                    throw new BallerinaException("file is not readable: " + path);
                 }
-                BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
-                struct.addNativeData("inStream", is);
+                opts.add(StandardOpenOption.READ);
             }
             
             boolean write = accessLC.contains("w");
@@ -82,6 +87,8 @@ public class Open extends AbstractNativeFunction {
             
             // if opened for read only, then return.
             if (!write && !append) {
+                SeekableByteChannel channel = Files.newByteChannel(path, opts);
+                struct.addNativeData("channel", channel);
                 return VOID_RETURN;
             }
             
@@ -90,22 +97,32 @@ public class Open extends AbstractNativeFunction {
                 log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
             }
 
-            if (file.exists() && !file.canWrite()) {
-                throw new BallerinaException("file is not writable: " + file.getPath());
+            if (Files.exists(path) && !Files.isWritable(path)) {
+                throw new BallerinaException("file is not writable: " + path);
             }
-            createDirs(file);
-            BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file, append));
-            struct.addNativeData("outStream", os);
+            createDirs(path);
+            opts.add(StandardOpenOption.CREATE);
+            if (write) {
+                opts.add(StandardOpenOption.WRITE);
+            } else {
+                opts.add(StandardOpenOption.APPEND);
+            }
+            SeekableByteChannel channel = Files.newByteChannel(path, opts);
+            struct.addNativeData("channel", channel);
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }
         return VOID_RETURN;
     }
 
-    private void createDirs(File destinationFile) {
-        File parent = destinationFile.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("Error in writing file");
+    private void createDirs(Path path) {
+        Path parent = path.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new BallerinaException("Error in writing file");
+            }
         }
     }
 }
