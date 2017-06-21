@@ -1175,6 +1175,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
+
         visitLExprsOfAssignment(assignStmt, lExprs);
 
         Expression rExpr = assignStmt.getRExpr();
@@ -2524,7 +2525,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
-        // handle special case for assignment statement declared with var
+        // Handle special case for assignment statement declared with var
         if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : lExprs) {
                 if (!(expr instanceof VariableRefExpr)) {
