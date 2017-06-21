@@ -285,6 +285,8 @@ public class HTTPServicesRegistry {
             // Delay the startup until all services are deployed
             BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
         } else {
+            //It comes to this means, same listener interface is already present. So in here, it checks
+            //whether existing interface also has same parameters (schema, keystores etc). If not throw and error
             Map<String, String> existingMap = listenerPropMap.get(listenerInterface);
             if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
                 //TODO get the error from error msgs
@@ -302,6 +304,14 @@ public class HTTPServicesRegistry {
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
+    /**
+     * Method to build property map given the service annotations.
+     * This will first look for the port property and if present then it will get other properties,
+     * and create the property map.
+     *
+     * @param service from which annotations are retrieved
+     * @return  propMap with required properties
+     */
     private Map<String, String> getInterfaceProp(ServiceInfo service) {
         AnnotationAttachmentInfo portAnnotationInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PORT);
@@ -355,10 +365,16 @@ public class HTTPServicesRegistry {
         return propMap;
     }
 
+    /**
+     * Build interface name using schema and port.
+     *
+     * @param propMap which has schema and port
+     * @return interfaceName
+     */
     private String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
         iName.append(propMap.get(Constants.ANNOTATION_NAME_SCHEMA) != null ?
-                propMap.get(Constants.ANNOTATION_NAME_SCHEMA) : "http");
+                propMap.get(Constants.ANNOTATION_NAME_SCHEMA) : Constants.PROTOCOL_HTTP);
         iName.append("_");
         iName.append(propMap.get(Constants.ANNOTATION_NAME_PORT));
         return iName.toString();
