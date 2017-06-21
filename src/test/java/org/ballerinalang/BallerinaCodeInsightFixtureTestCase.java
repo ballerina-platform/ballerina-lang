@@ -16,11 +16,89 @@
 
 package org.ballerinalang;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.module.ModuleType;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.testFramework.LightProjectDescriptor;
+import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.plugins.idea.BallerinaModuleType;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls("temp:///");
+        if (isSdkAware()) {
+            setUpProjectSdk();
+        }
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        try {
+            BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls();
+        } finally {
+            //noinspection ThrowFromFinallyBlock
+            super.tearDown();
+        }
+    }
+
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;
+    }
+
+    @NotNull
+    private static DefaultLightProjectDescriptor createMockProjectDescriptor() {
+        return new DefaultLightProjectDescriptor() {
+
+            @NotNull
+            @Override
+            public Sdk getSdk() {
+                return createMockSdk("0.88");
+            }
+
+            @NotNull
+            @Override
+            public ModuleType getModuleType() {
+                return BallerinaModuleType.getInstance();
+            }
+        };
+    }
+
+    private void setUpProjectSdk() {
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            Sdk sdk = getProjectDescriptor().getSdk();
+            ProjectJdkTable.getInstance().addJdk(sdk);
+            ProjectRootManager.getInstance(myFixture.getProject()).setProjectSdk(sdk);
+        });
+    }
+
+    @NotNull
+    private static Sdk createMockSdk(@NotNull String version) {
+        String homePath = new File(getTestDataPath("mockSdk-") + version + "/").getAbsolutePath();
+        BallerinaSdkType sdkType = BallerinaSdkType.getInstance();
+        ProjectJdkImpl sdk = new ProjectJdkImpl("Ballerina " + version, sdkType, homePath, version);
+        sdkType.setupSdkPaths(sdk);
+        sdk.setVersionString(version);
+        return sdk;
+    }
+
+    @Override
+    protected LightProjectDescriptor getProjectDescriptor() {
+        return isSdkAware() ? createMockProjectDescriptor() : null;
+    }
+
+    private boolean isSdkAware() {
+        return annotatedWith(BallerinaSDKAware.class);
     }
 }
