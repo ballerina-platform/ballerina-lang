@@ -22,7 +22,7 @@ import ASTVisitor from './../visitors/ast-visitor';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
-import SwaggerView from './swagger-view';
+import SwaggerView from './swagger/swagger-view';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
@@ -312,8 +312,7 @@ class BallerinaFileEditor extends EventChannel {
                     alerts.error('Cannot switch to Source view due to syntax errors.');
                     log.error('Cannot switch to Source view due to syntax errors.');
                     return false;
-                } 
-                    self._swaggerView.updateServices();
+                }
                 
             }
 
@@ -443,8 +442,6 @@ class BallerinaFileEditor extends EventChannel {
                     alerts.error('Cannot switch to Design view due to syntax errors.');
                     log.error('Cannot switch to Design view due to syntax errors.');
                     return false;
-                } else {
-                    self._swaggerView.updateServices();
                 }
             }
             // canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
@@ -518,18 +515,12 @@ class BallerinaFileEditor extends EventChannel {
 
     generateSwaggerSources() {
         // Visit the ast model and generate the source
-        const swaggerSources = [];
-        for (let i = 0; i < _.size(this.getModel().getServiceDefinitions()); i++) {
-            const swaggerJsonVisitor = new SwaggerJsonVisitor();
-            this.getModel().getServiceDefinitions()[i].accept(swaggerJsonVisitor);
-            swaggerSources.push({
-                serviceDefinitionAST: this.getModel().getServiceDefinitions()[i],
-                swagger: swaggerJsonVisitor.getSwaggerJson(),
-                hasModified: true,
-            });
-        }
-
-        return swaggerSources;
+        const swaggerJsonVisitor = new SwaggerJsonVisitor();
+        this.getModel().getServiceDefinitions()[0].accept(swaggerJsonVisitor);
+        return {
+            serviceDefinitionAST: this.getModel().getServiceDefinitions()[0],
+            swagger: swaggerJsonVisitor.getSwaggerJson(),
+        };
     }
 
     /**
