@@ -118,27 +118,7 @@ class ConflictMergeModal extends React.Component {
             </tr>);
         });
 
-        return (<Modal show={this.state.showModal} onHide={this.hideModal}>
-            <Modal.Header closeButton>
-                <Modal.Title>Following resources have be deleted. How would you like to continue ?</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Table bsClass="table table-inverse" striped bordered condensed hover>
-                    <thead>
-                        <tr>
-                            <th>Resource</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {resourcesToUpdate}
-                    </tbody>
-                </Table>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle="primary" onClick={this.onDeleteResources}>Done</Button>
-            </Modal.Footer>
-        </Modal>);
+        return (null);
     }
 }
 

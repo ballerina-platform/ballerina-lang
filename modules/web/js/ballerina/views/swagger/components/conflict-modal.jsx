@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import $ from 'jquery';
 import ServiceDefinitionAST from './../../../ast/service-definition';
 import ResourceDefinitionAST from './../../../ast/resource-definition';
 import SwaggerParser from '../../../../swagger-parser/swagger-parser';
@@ -83,7 +83,7 @@ class ConflictModal extends React.Component {
      * @memberof ConflictModal
      */
     hideModal() {
-        this.setState({ showModal: false });
+        $(this.modal).modal();
     }
 
     /**
@@ -103,21 +103,56 @@ class ConflictModal extends React.Component {
         const resourceNameComponents = this.props.missingOriginalResourceDefs.map(
             resourceDef => <li key={resourceDef.getID()}>{resourceDef.getResourceName()}</li>);
 
-        return (<Modal show={this.state.showModal} onHide={this.hideModal}>
-            <Modal.Header closeButton>
-                <Modal.Title>Following resources have be deleted. How would you like to continue ?</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <ul>
-                    {resourceNameComponents}
-                </ul>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle="primary" onClick={this.onDeleteResources}>Delete All</Button>
-                <Button bsStyle="default" onClick={this.onKeepResources}>Keep All</Button>
-                <Button bsStyle="default" onClick={this.onMoreOptions}>More Options</Button>
-            </Modal.Footer>
-        </Modal>);
+        return (<div className="modal fade" id="swagger-conflict-modal" tabIndex="-1" role="dialog" aria-hidden="true" ref={(ref) => { this.modal = ref; }}>
+            <div className="modal-dialog swagger-conflict-modal-dialog" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 className="modal-title swagger-conflict-dialog-title">Following resources have be deleted.
+                            How would you like to continue ?</h4>
+                        <hr className="style1" />
+                    </div>
+                    <div className="modal-body">
+                        <div className="container-fluid">
+                            <div className="modal-body">
+                                <div className="container-fluid">
+                                    <form className="form-horizontal">
+                                        <div className="form-group">
+                                            <ul>
+                                                {resourceNameComponents}
+                                            </ul>
+                                        </div>
+                                        <div className="form-group">
+                                            <div className="folder-dialog-form-btn">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary open-button"
+                                                    onClick={this.onDeleteResources}
+                                                >Delete All</button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default"
+                                                    data-dismiss="modal"
+                                                    onClick={this.onKeepResources}
+                                                >Keep All</button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-default"
+                                                    data-dismiss="modal"
+                                                    onClick={this.onMoreOptions}
+                                                >More Options</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>);
     }
 }
 

@@ -194,6 +194,8 @@ class SwaggerView extends EventChannel {
         $(this._container).get(0).appendChild(conflictModalPopUpWrapper);
 
         const mergeResourcesFunc = () => {
+            ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
+
             const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
             ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
         };
