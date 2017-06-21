@@ -71,9 +71,17 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
         return pkgName;
     }
 
+    public void setPackageName(String pkgName) {
+        this.pkgName = pkgName;
+    }
+
     @Override
     public String getPackagePath() {
         return pkgPath;
+    }
+
+    public void setPackagePath(String pkgPath) {
+        this.pkgPath = pkgPath;
     }
 
     @Override
