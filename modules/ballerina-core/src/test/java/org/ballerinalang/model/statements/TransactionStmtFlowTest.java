@@ -208,4 +208,12 @@ public class TransactionStmtFlowTest {
         BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-abort3.bal");
     }
 
+    @Test()
+    public void testValidAbort3() {
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/statements/transactionStmt/valid-abort.bal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx inAbt outAbt");
+    }
+
 }
