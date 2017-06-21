@@ -18,6 +18,8 @@
 
 package org.ballerinalang.runtime.threadpool;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,6 +38,7 @@ public class ThreadPoolFactory {
     // A configuration parameter which is user configurable is also required.
     // Issue#1929
     private ExecutorService executorService =  Executors.newFixedThreadPool(500, new BLangThreadFactory("BLangWorker"));
+    private Map<String, ExecutorService> singularThreads = new HashMap<>();
 
     //TODO: Make the number of threads configurable
     private ExecutorService workerExecutor = Executors.newFixedThreadPool(100,
@@ -49,6 +52,16 @@ public class ThreadPoolFactory {
 
     public ExecutorService getExecutor() {
         return executorService;
+    }
+
+    public ExecutorService getSingleThreadExecutor(String serviceName) {
+        if (!singularThreads.containsKey(serviceName)) {
+            ExecutorService singleThreadExecutor =
+                    Executors.newFixedThreadPool(1, new BLangThreadFactory("BLangWorker"));
+            singularThreads.put(serviceName, singleThreadExecutor);
+            return singleThreadExecutor;
+        }
+        return singularThreads.get(serviceName);
     }
 
     public ExecutorService getWorkerExecutor() {
