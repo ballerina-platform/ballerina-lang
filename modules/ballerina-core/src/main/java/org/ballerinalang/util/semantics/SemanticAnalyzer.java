@@ -1213,11 +1213,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                if (rExpr instanceof FunctionInvocationExpr) {
-                    assignVariableRefTypes(lExprs, ((FunctionInvocationExpr) rExpr).getTypes());
-                } else if (rExpr instanceof ActionInvocationExpr) {
-                    assignVariableRefTypes(lExprs, ((ActionInvocationExpr) rExpr).getTypes());
-                }
+                assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
             }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
@@ -1227,11 +1223,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
             if (assignStmt.isDeclaredWithVar()) {
-                if (rExpr instanceof TypeCastExpression) {
-                    assignVariableRefTypes(lExprs, ((TypeCastExpression) rExpr).getTypes());
-                } else if (rExpr instanceof TypeConversionExpr) {
-                    assignVariableRefTypes(lExprs, ((TypeConversionExpr) rExpr).getTypes());
-                }
+                assignVariableRefTypes(lExprs, ((ExecutableMultiReturnExpr) rExpr).getTypes());
             }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
             return;
@@ -1254,7 +1246,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitSingleValueExpr(rExpr);
         BType rhsType = rExpr.getType();
         if (assignStmt.isDeclaredWithVar()) {
-            assignVariableRefTypes(new Expression[]{lExpr}, new BType[]{rhsType});
+            ((VariableRefExpr) lExpr).getVariableDef().setType(rhsType);
             lhsType = rhsType;
         }
 

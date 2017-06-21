@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.88
  */
-public class VarTypeAssignmentStmtTest {
+public class VarDeclaredAssignmentStmtTest {
 
     private ProgramFile bLangProgram;
 
