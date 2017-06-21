@@ -188,7 +188,6 @@ public class BLangModelBuilder {
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
         this.packageScope = currentScope;
-        //currentWorker.push("default");
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
         currentPackagePath = ".";
 
@@ -234,12 +233,13 @@ public class BLangModelBuilder {
     }
 
     public void addImplicitImportPackages() {
-        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
-            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
-            error.setImplicitImport(true);
-            bFileBuilder.addImportPackage(error);
-            importPkgMap.put(error.getName(), error);
+        if ("ballerina.lang.errors".equals(currentPackagePath) || "ballerina.doc".equals(currentPackagePath)) {
+            return;
         }
+        ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+        error.setImplicitImport(true);
+        bFileBuilder.addImportPackage(error);
+        importPkgMap.put(error.getName(), error);
     }
 
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
@@ -1642,6 +1642,23 @@ public class BLangModelBuilder {
 
         if (importPkg == null) {
             nameReference.setPkgPath(currentPackagePath);
+            return;
+        }
+
+        importPkg.markUsed();
+        nameReference.setPkgPath(importPkg.getPath());
+    }
+
+    public void resolvePackageFromNameReference(NameReference nameReference) {
+        String pkgName = nameReference.getPackageName();
+        ImportPackage importPkg = getImportPackage(pkgName);
+        if (pkgName == null && importPkg == null) {
+            nameReference.setPkgPath(currentPackagePath);
+            return;
+        } else if (importPkg == null) {
+            // package name available but cannot resolve a package
+            // Could be an XML qualified name reference
+            // Validate this at the semantic validation phase
             return;
         }
 

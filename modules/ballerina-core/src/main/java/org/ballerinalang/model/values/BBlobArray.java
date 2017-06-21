@@ -32,8 +32,9 @@ public class BBlobArray extends BNewArray {
 
     private byte[][] values;
 
-    private BBlobArray(byte[][] values) {
+    public BBlobArray(byte[][] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BBlobArray() {
