@@ -1092,7 +1092,7 @@ public class BLangModelBuilder {
         AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         assignStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (isVarDeclaration) {
-            assignStmt.setVarDeclaration(true);
+            assignStmt.setDeclaredWithVar(true);
         }
         addToBlockStmt(assignStmt);
     }

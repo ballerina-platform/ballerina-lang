@@ -732,7 +732,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
-        if (assignStmt.isVarDeclaration()) {
+        if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : assignStmt.getLExprs()) {
                 ((VariableRefExpr) expr).getVariableDef().accept(this);
             }

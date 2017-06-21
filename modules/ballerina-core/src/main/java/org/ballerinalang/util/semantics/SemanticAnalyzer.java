@@ -1193,7 +1193,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
-        if (assignStmt.isVarDeclaration()) {
+        if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : lExprs) {
                 if (!(expr instanceof VariableRefExpr)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
@@ -1212,7 +1212,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
-            if (assignStmt.isVarDeclaration()) {
+            if (assignStmt.isDeclaredWithVar()) {
                 if (rExpr instanceof FunctionInvocationExpr) {
                     assignVariableRefTypes(lExprs, ((FunctionInvocationExpr) rExpr).getTypes());
                 } else if (rExpr instanceof ActionInvocationExpr) {
@@ -1226,7 +1226,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof TypeConversionExpr)) {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
-            if (assignStmt.isVarDeclaration()) {
+            if (assignStmt.isDeclaredWithVar()) {
                 if (rExpr instanceof TypeCastExpression) {
                     assignVariableRefTypes(lExprs, ((TypeCastExpression) rExpr).getTypes());
                 } else if (rExpr instanceof TypeConversionExpr) {
@@ -1242,7 +1242,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = lExpr.getType();
 
         if (rExpr instanceof RefTypeInitExpr) {
-            if (assignStmt.isVarDeclaration()) {
+            if (assignStmt.isDeclaredWithVar()) {
                 BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
             }
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
@@ -1253,7 +1253,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         visitSingleValueExpr(rExpr);
         BType rhsType = rExpr.getType();
-        if (assignStmt.isVarDeclaration()) {
+        if (assignStmt.isDeclaredWithVar()) {
             assignVariableRefTypes(new Expression[]{lExpr}, new BType[]{rhsType});
             lhsType = rhsType;
         }
