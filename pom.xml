@@ -566,11 +566,6 @@
                 <version>${jayway.jsonpath.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
-                <artifactId>tapestry-json</artifactId>
-                <version>${tapestry.json.orbit.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
