@@ -31,9 +31,9 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class PersistenceTestCase {
     private static final Logger log = Logger.getLogger(PersistenceTestCase.class);
@@ -262,9 +262,9 @@ public class PersistenceTestCase {
 
         //persisting
         Thread.sleep(500);
-        Future future = siddhiAppRuntime.persist();
+        PersistenceReference persistenceReference = siddhiAppRuntime.persist();
         try {
-            future.get();
+            persistenceReference.getFuture().get();
         } catch (ExecutionException e) {
             throw e.getCause() instanceof NoPersistenceStoreException ? new NoPersistenceStoreException() : e;
         }

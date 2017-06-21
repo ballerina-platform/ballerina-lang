@@ -30,12 +30,18 @@ public class AsyncSnapshotPersistor implements Runnable {
     private byte[] snapshots;
     private PersistenceStore persistenceStore;
     private String siddhiAppName;
+    private String revision;
 
     public AsyncSnapshotPersistor(byte[] snapshots, PersistenceStore persistenceStore,
                                   String siddhiAppName) {
         this.snapshots = snapshots;
         this.persistenceStore = persistenceStore;
         this.siddhiAppName = siddhiAppName;
+        revision = System.currentTimeMillis() + "_" + siddhiAppName;
+    }
+
+    public String getRevision() {
+        return revision;
     }
 
     @Override
@@ -44,7 +50,6 @@ public class AsyncSnapshotPersistor implements Runnable {
             if (log.isDebugEnabled()) {
                 log.debug("Persisting...");
             }
-            String revision = System.currentTimeMillis() + "_" + siddhiAppName;
             persistenceStore.save(siddhiAppName, revision, snapshots);
             if (log.isDebugEnabled()) {
                 log.debug("Persisted.");

@@ -43,6 +43,7 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.snapshot.AsyncSnapshotPersistor;
+import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -303,15 +304,18 @@ public class SiddhiAppRuntime {
         return siddhiDebugger;
     }
 
-    public Future persist() {
+    public PersistenceReference persist() {
         try {
             // first, pause all the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::pause));
             // take snapshots of execution units
             byte[] snapshots = siddhiAppContext.getSnapshotService().snapshot();
             // start the snapshot persisting task asynchronously
-            return siddhiAppContext.getExecutorService().submit(new AsyncSnapshotPersistor(snapshots,
-                    siddhiAppContext.getSiddhiContext().getPersistenceStore(), siddhiAppContext.getName()));
+            AsyncSnapshotPersistor asyncSnapshotPersistor = new AsyncSnapshotPersistor(snapshots,
+                    siddhiAppContext.getSiddhiContext().getPersistenceStore(), siddhiAppContext.getName());
+            String revision = asyncSnapshotPersistor.getRevision();
+            Future future = siddhiAppContext.getExecutorService().submit(asyncSnapshotPersistor);
+            return new PersistenceReference(future, revision);
         } finally {
             // at the end, resume the event sources
             eventSourceMap.values().forEach(list -> list.forEach(Source::resume));
