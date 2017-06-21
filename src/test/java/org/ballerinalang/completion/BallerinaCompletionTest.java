@@ -42,7 +42,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/completion";
+        return getTestDataPath("completion");
     }
 
     /**

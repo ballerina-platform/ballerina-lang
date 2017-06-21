@@ -16,13 +16,13 @@
 
 package org.ballerinalang.folding;
 
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
-public class BallerinaFoldingTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaFoldingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/folding";
+        return getTestDataPath("folding");
     }
 
     public void testConnector() {

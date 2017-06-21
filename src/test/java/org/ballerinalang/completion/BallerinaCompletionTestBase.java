@@ -18,13 +18,13 @@ package org.ballerinalang.completion;
 
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class BallerinaCompletionTestBase extends LightPlatformCodeInsightFixtureTestCase {
+public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     void doTest(String fileContent, String... expectedLookups) {
         if (fileContent != null) {

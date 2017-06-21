@@ -26,7 +26,7 @@ public class BallerinaResolveAnnotationFieldTest extends BallerinaResolveTestBas
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/field/annotation";
+        return getTestDataPath("psi/resolve/field/annotation");
     }
 
     public void testFieldDefinitionInSameFile() {

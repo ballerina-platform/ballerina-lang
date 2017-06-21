@@ -17,16 +17,16 @@
 package org.ballerinalang.marker;
 
 import com.intellij.codeInsight.daemon.GutterMark;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 
 import java.util.List;
 
-public class BallerinaRecursiveCallMarkerTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaRecursiveCallMarkerTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/recursiveMarker";
+        return getTestDataPath("recursiveMarker");
     }
 
     public void testFunction1() {

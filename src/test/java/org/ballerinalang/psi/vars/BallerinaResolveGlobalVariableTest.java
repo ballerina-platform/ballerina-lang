@@ -26,7 +26,7 @@ public class BallerinaResolveGlobalVariableTest extends BallerinaResolveTestBase
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/vars/global";
+        return getTestDataPath("psi/resolve/vars/global");
     }
 
     public void testGlobalVariableInSameFileInConnector() {

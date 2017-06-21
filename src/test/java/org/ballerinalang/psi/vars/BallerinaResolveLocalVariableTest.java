@@ -22,7 +22,7 @@ public class BallerinaResolveLocalVariableTest extends BallerinaResolveTestBase 
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/vars/local";
+        return getTestDataPath("psi/resolve/vars/local");
     }
 
     public void testLocalVariableInAction() {

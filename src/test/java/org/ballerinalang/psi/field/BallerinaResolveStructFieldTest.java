@@ -27,7 +27,7 @@ public class BallerinaResolveStructFieldTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/field/struct";
+        return getTestDataPath("psi/resolve/field/struct");
     }
 
     public void testSingleLevelFieldAccessInConnector1() {

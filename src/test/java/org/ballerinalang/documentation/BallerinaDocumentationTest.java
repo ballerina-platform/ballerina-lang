@@ -22,13 +22,13 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
-public class BallerinaDocumentationTest extends LightCodeInsightFixtureTestCase {
+public class BallerinaDocumentationTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/documentation";
+        return getTestDataPath("documentation");
     }
 
     public void testFunction1() {

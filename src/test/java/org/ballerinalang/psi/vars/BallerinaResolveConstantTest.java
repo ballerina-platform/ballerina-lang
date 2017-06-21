@@ -26,7 +26,7 @@ public class BallerinaResolveConstantTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/vars/constant";
+        return getTestDataPath("psi/resolve/vars/constant");
     }
 
     public void testConstantInSameFileInConnector() {

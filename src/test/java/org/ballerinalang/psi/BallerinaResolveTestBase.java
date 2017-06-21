@@ -25,14 +25,14 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public abstract class BallerinaResolveTestBase extends LightPlatformCodeInsightFixtureTestCase {
+public abstract class BallerinaResolveTestBase extends BallerinaCodeInsightFixtureTestCase {
 
     @NotNull
     private static final String REF_MARK = "/*ref*/";

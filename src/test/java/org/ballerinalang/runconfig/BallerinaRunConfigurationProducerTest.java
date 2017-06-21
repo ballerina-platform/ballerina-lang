@@ -21,17 +21,17 @@ import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType;
 
-public class BallerinaRunConfigurationProducerTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/runconfig";
+        return getTestDataPath("runconfig");
     }
 
     public void testMainWithoutPackageRunConfiguration() {

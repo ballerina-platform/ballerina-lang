@@ -18,14 +18,14 @@ package org.ballerinalang.formatting;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.Nullable;
 
-public class BallerinaFormattingTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/formatting";
+        return getTestDataPath("formatting");
     }
 
     public void testEchoService() {

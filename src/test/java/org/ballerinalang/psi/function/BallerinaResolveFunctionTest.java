@@ -26,7 +26,7 @@ public class BallerinaResolveFunctionTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/function";
+        return getTestDataPath("psi/resolve/function");
     }
 
     public void testFunctionInSameFileInvokeInAction() {

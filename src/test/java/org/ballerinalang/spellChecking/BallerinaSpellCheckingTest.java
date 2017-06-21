@@ -17,13 +17,13 @@
 package org.ballerinalang.spellChecking;
 
 import com.intellij.spellchecker.inspections.SpellCheckingInspection;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
-public class BallerinaSpellCheckingTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaSpellCheckingTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/spellchecking";
+        return getTestDataPath("spellchecking");
     }
 
     @Override

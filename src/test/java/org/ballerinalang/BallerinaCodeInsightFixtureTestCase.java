@@ -14,30 +14,13 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.psi.vars;
+package org.ballerinalang;
 
-import org.ballerinalang.psi.BallerinaResolveTestBase;
+import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 
-public class BallerinaResolveParameterTest extends BallerinaResolveTestBase {
+abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
-    @Override
-    protected String getTestDataPath() {
-        return getTestDataPath("psi/resolve/vars/parameter");
-    }
-
-    public void testParameterInAction() {
-        doFileTest();
-    }
-
-    public void testParameterInConnector() {
-        doFileTest();
-    }
-
-    public void testParameterInFunction() {
-        doFileTest();
-    }
-
-    public void testParameterInService() {
-        doFileTest();
+    protected static String getTestDataPath(String path) {
+        return "src/test/resources/testData/" + path;
     }
 }

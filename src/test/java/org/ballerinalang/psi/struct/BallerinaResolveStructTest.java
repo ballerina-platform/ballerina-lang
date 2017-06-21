@@ -26,7 +26,7 @@ public class BallerinaResolveStructTest extends BallerinaResolveTestBase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/psi/resolve/struct";
+        return getTestDataPath("psi/resolve/struct");
     }
 
     public void testStructInSameFileInAction() {

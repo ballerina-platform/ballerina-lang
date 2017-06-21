@@ -16,9 +16,9 @@
 
 package org.ballerinalang.runconfig;
 
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
-public class BallerinaRunLineMarkerTest extends LightPlatformCodeInsightFixtureTestCase {
+public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestCase {
 
     public void testMainWithoutPackageRunLineMarker() {
         myFixture.configureByText("a.bal", "function <caret>main(string[] args){}\nfunction test(){}\n");
