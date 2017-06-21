@@ -28,7 +28,7 @@ struct StackTraceItem {
     int lineNumber;
 }
 
-@doc:Description {value:"Provide access to StackTrace of an Error. StackTreace available only when an error is thrown. Otherwise, returns a null reference."}
+@doc:Description {value:"Provide access to StackTrace of an Error. StackTrace available only when an error is thrown. Otherwise, returns a null reference."}
 @doc:Param {value:"err : The Error struct"}
 @doc:Return {value:"ballerina.lang.errors:StackTrace: StackTrace struct containing StackTrace of the error."}
 native function getStackTrace(Error err)(StackTrace);
@@ -70,7 +70,7 @@ struct TypeConversionError {
 
 @doc:Description {value:"Represents an error occurred when accessing filed of a referance value which is null"}
 @doc:Field {value:"msg:  An error message explaining about the error."}
-@doc:Field {value:"cause: The error that caused this TypeConversionError to get thrown. the null reference is permitted. if the value is null, either cause is unknown or this NullReferenceError originated from itself."}
+@doc:Field {value:"cause: The error that caused this NullReferenceError to get thrown. the null reference is permitted. if the value is null, either cause is unknown or this NullReferenceError originated from itself."}
 struct NullReferenceError {
     string msg;
     Error cause;
