@@ -1268,13 +1268,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
-        for (int i = 0; i < expr.length; i++) {
-            ((VariableRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
-        }
-    }
-
-
     @Override
     public void visit(BlockStmt blockStmt) {
         openScope(blockStmt);
@@ -2311,6 +2304,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(NullLiteral nullLiteral) {
         nullLiteral.setType(BTypes.typeNull);
+    }
+
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
     }
 
 
@@ -3715,6 +3712,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+        for (int i = 0; i < expr.length; i++) {
+            ((VariableRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
     /**
      * This class holds the results of the type assignability check.
      *
@@ -3725,7 +3728,4 @@ public class SemanticAnalyzer implements NodeVisitor {
         TypeCastExpression implicitCastExpr;
     }
 
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
-    }
 }
