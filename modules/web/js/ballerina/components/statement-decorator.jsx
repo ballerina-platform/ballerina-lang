@@ -18,47 +18,86 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { lifeLine } from './../configs/designer-defaults';
 import ASTNode from '../ast/node';
 import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import SimpleBBox from './../ast/simple-bounding-box';
-import * as DesignerDefaults from './../configs/designer-defaults';
+import { lifeLine, actionBox } from '../configs/designer-defaults.js';
 import MessageManager from './../visitors/message-manager';
 import './statement-decorator.css';
-import ExpressionEditor from 'expression_editor_utils';
+import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
 
-const text_offset = 50;
+/**
+ * Wraps other UI elements and provide box with a heading.
+ * Enrich elements with a action box and expression editors.
+ */
+class StatementDecorator extends React.PureComponent {
 
-class StatementDecorator extends React.Component {
+    /**
+     * Calculate statement box.
+     * @param {object} props - New props.
+     * @return {SimpleBBox} - Statement box.
+     */
+    static calculateStatementBox(props) {
+        const { viewState } = props;
+        const { bBox } = viewState;
+        const innerZoneHeight = viewState.components['drop-zone'].h;
+        return new SimpleBBox(bBox.x, bBox.y + innerZoneHeight, bBox.w, bBox.h - innerZoneHeight);
+    }
 
-    constructor(props, context) {
-        super(props, context);
-        const { dragDropManager } = context;
+    /**
+     *
+     * @param {object} props - Init props.
+     * Initialize the statement decorator.
+     */
+    constructor(props) {
+        super();
+
         this.startDropZones = this.startDropZones.bind(this);
         this.stopDragZones = this.stopDragZones.bind(this);
+        this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
+        this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
+        this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
+        this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
 
         this.state = {
             innerDropZoneActivated: false,
             innerDropZoneDropNotAllowed: false,
             innerDropZoneExist: false,
             active: 'hidden',
+            statementBox: StatementDecorator.calculateStatementBox(props),
         };
     }
 
+    /**
+     * registers drag drop call backs on mount.
+     */
     componentDidMount() {
         const { dragDropManager } = this.context;
         dragDropManager.on('drag-start', this.startDropZones);
         dragDropManager.on('drag-stop', this.stopDragZones);
     }
 
+    /**
+     * Calculate statement box on props change.
+     * @param {object} props - Next props.
+     */
+    componentWillReceiveProps(props) {
+        this.setState({ statementBox: StatementDecorator.calculateStatementBox(props) });
+    }
+
+
+    /**
+     * un-registers drag drop call backs on mount.
+     */
     componentWillUnmount() {
         const { dragDropManager } = this.context;
         dragDropManager.off('drag-start', this.startDropZones);
         dragDropManager.off('drag-stop', this.stopDragZones);
     }
+
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
      *
@@ -66,18 +105,25 @@ class StatementDecorator extends React.Component {
     onBreakpointClick() {
         const { model } = this.props;
         const { isBreakpoint = false } = model;
-        if (model.isBreakpoint) {
+        if (isBreakpoint) {
             model.removeBreakpoint();
         } else {
             model.addBreakpoint();
         }
     }
 
+    /**
+     * Removes self on delete button click.
+     * @returns {void}
+     */
     onDelete() {
         this.props.model.remove();
     }
 
-    onDropZoneActivate(e) {
+    /**
+     * Activates the drop zone.
+     */
+    onDropZoneActivate() {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         const model = this.props.model;
@@ -102,7 +148,10 @@ class StatementDecorator extends React.Component {
         }
     }
 
-    onDropZoneDeactivate(e) {
+    /**
+     * Deactivates the drop zone.
+     */
+    onDropZoneDeactivate() {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         if (dragDropManager.isOnDrag()) {
@@ -112,22 +161,29 @@ class StatementDecorator extends React.Component {
             }
         }
     }
+
     /**
-     * Navigates to codeline in the source view from the design view node
-     *
+     * Navigates to code line in the source view from the design view node
      */
-    onJumptoCodeLine() {
+    onJumpToCodeLine() {
         const { viewState: { fullExpression } } = this.props;
         const { renderingContext: { ballerinaFileEditor } } = this.context;
 
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
+        document.getElementsByClassName('view-source-btn')[0].click();
         ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
     }
 
-    onUpdate(text) {
+    /**
+     * Call-back for when a new value is entered via expression editor.
+     */
+    onUpdate() {
+        // TODO: implement validate logic.
     }
 
+    /**
+     * Shows the action box.
+     * @param {boolean} show - Display action box if true or else hide.
+     */
     setActionVisibility(show) {
         if (!this.context.dragDropManager.isOnDrag()) {
             if (show) {
@@ -138,29 +194,42 @@ class StatementDecorator extends React.Component {
         }
     }
 
-    openExpressionEditor(e) {
-        let options = this.props.editorOptions;
-        let packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+    /**
+     * renders an ExpressionEditor in the statement box.
+     */
+    openEditor() {
+        const options = this.props.editorOptions;
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
         if (options) {
-            new ExpressionEditor(this.statementBox,
+            new ExpressionEditor(this.state.statementBox,
                 text => this.onUpdate(text), options, packageScope).render(this.context.container);
         }
     }
 
+    /**
+     * Call back for drop manager.
+     */
     startDropZones() {
         this.setState({ innerDropZoneExist: true });
     }
 
+    /**
+     * Call back for drop manager.
+     */
     stopDragZones() {
         this.setState({ innerDropZoneExist: false });
     }
+
     /**
      * Renders breakpoint indicator
+     * @return {XML} Breakpoint react element.
      */
     renderBreakpointIndicator() {
         const breakpointSize = 14;
-        const pointX = this.statementBox.x + this.statementBox.w - breakpointSize / 2;
-        const pointY = this.statementBox.y - breakpointSize / 2;
+        const bBox = this.state.statementBox;
+        const breakpointHalf = breakpointSize / 2;
+        const pointX = bBox.getRight() - breakpointHalf;
+        const pointY = bBox.y - breakpointHalf;
         return (
             <Breakpoint
                 x={pointX}
@@ -172,32 +241,31 @@ class StatementDecorator extends React.Component {
         );
     }
 
+    /**
+     * Override the rendering logic.
+     * @returns {XML} rendered component.
+     */
     render() {
         const { viewState, expression, model } = this.props;
-        let bBox = viewState.bBox;
-        let innerZoneHeight = viewState.components['drop-zone'].h;
+        const bBox = viewState.bBox;
+        const innerZoneHeight = viewState.components['drop-zone'].h;
 
         // calculate the bBox for the statement
-        this.statementBox = {};
-        this.statementBox.h = bBox.h - innerZoneHeight;
-        this.statementBox.y = bBox.y + innerZoneHeight;
-        this.statementBox.w = bBox.w;
-        this.statementBox.x = bBox.x;
-        // we need to draw a drop box above and a statement box
-        const text_x = bBox.x + (bBox.w / 2);
-        const text_y = this.statementBox.y + (this.statementBox.h / 2);
-        const drop_zone_x = bBox.x + (bBox.w - lifeLine.width) / 2;
+        const textX = bBox.x + (bBox.w / 2);
+        const textY = this.state.statementBox.y + (this.state.statementBox.h / 2);
+        const dropZoneX = bBox.x + ((bBox.w - lifeLine.width) / 2);
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
             + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+        const titleH = bBox.h;
 
-        const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
-        actionBbox.w = DesignerDefaults.actionBox.width;
-        actionBbox.h = DesignerDefaults.actionBox.height;
-        actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
-        actionBbox.y = bBox.y + bBox.h + DesignerDefaults.actionBox.padding.top;
+        const actionBoxBbox = new SimpleBBox(
+            bBox.x + ((bBox.w - actionBox.width) / 2),
+            bBox.y + titleH + actionBox.padding.top,
+            actionBox.width,
+            actionBox.height);
         let statementRectClass = 'statement-rect';
         if (model.isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
@@ -206,28 +274,41 @@ class StatementDecorator extends React.Component {
         return (
             <g
                 className="statement"
-                onMouseOut={this.setActionVisibility.bind(this, false)}
-                onMouseOver={this.setActionVisibility.bind(this, true)}
+                onMouseOut={this.setActionVisibilityFalse}
+                onMouseOver={this.setActionVisibilityTrue}
+                ref={(group) => {
+                    this.myRoot = group;
+                }}
             >
                 <rect
-                    x={drop_zone_x} y={bBox.y} width={lifeLine.width} height={innerZoneHeight}
-                    className={dropZoneClassName} {...fill}
-                    onMouseOver={e => this.onDropZoneActivate(e)}
-                    onMouseOut={e => this.onDropZoneDeactivate(e)}
+                    x={dropZoneX}
+                    y={bBox.y}
+                    width={lifeLine.width}
+                    height={innerZoneHeight}
+                    className={dropZoneClassName}
+                    {...fill}
+                    onMouseOver={this.onDropZoneActivate}
+                    onMouseOut={this.onDropZoneDeactivate}
                 />
                 <rect
-                    x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} className={statementRectClass}
-                    onClick={e => this.openExpressionEditor(e)}
+                    x={bBox.x}
+                    y={this.state.statementBox.y}
+                    width={bBox.w}
+                    height={this.state.statementBox.h}
+                    className={statementRectClass}
+                    onClick={e => this.openEditor(e)}
                 />
                 <g className="statement-body">
-                    <text x={text_x} y={text_y} className="statement-text" onClick={e => this.openExpressionEditor(e)}>{expression}</text>
+                    <text x={textX} y={textY} className="statement-text" onClick={e => this.openEditor(e)}>
+                        {expression}
+                    </text>
                 </g>
                 <ActionBox
-                    bBox={actionBbox}
+                    bBox={actionBoxBbox}
                     show={this.state.active}
                     isBreakpoint={model.isBreakpoint}
                     onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
+                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
                     onBreakpointClick={() => this.onBreakpointClick()}
                 />
                 {model.isBreakpoint && this.renderBreakpointIndicator()}
@@ -237,15 +318,27 @@ class StatementDecorator extends React.Component {
 
 }
 
+StatementDecorator.defaultProps = {
+    editorOptions: null,
+    children: null,
+};
+
 StatementDecorator.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }),
+    viewState: PropTypes.shape({
+        bBox: PropTypes.instanceOf(SimpleBBox),
+        fullExpression: PropTypes.string,
+        components: PropTypes.objectOf(PropTypes.instanceOf(SimpleBBox)),
+    }).isRequired,
+    children: PropTypes.node,
     model: PropTypes.instanceOf(ASTNode).isRequired,
     expression: PropTypes.string.isRequired,
+    editorOptions: PropTypes.shape({
+        propertyType: PropTypes.string,
+        key: PropTypes.string,
+        model: PropTypes.instanceOf(ASTNode),
+        getterMethod: PropTypes.func,
+        setterMethod: PropTypes.func,
+    }),
 };
 
 StatementDecorator.contextTypes = {
