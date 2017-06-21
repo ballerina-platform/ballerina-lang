@@ -181,6 +181,7 @@ import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareC
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongLong;
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorStringString;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.executor.function.ScriptFunctionExecutor;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorInt;
@@ -265,7 +266,7 @@ public class ExpressionParser {
      * @param currentState            Current state number
      * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @param siddhiAppContext    SiddhiAppContext
+     * @param siddhiAppContext        SiddhiAppContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @param queryName               query name of expression belongs to.
@@ -443,10 +444,15 @@ public class ExpressionParser {
 
         } else if (expression instanceof AttributeFunction) {
             //extensions
+
             Object executor;
+
             try {
-                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
-                        FunctionExecutorExtensionHolder.getInstance(siddhiAppContext));
+                if ((siddhiAppContext.isFunctionExist(((AttributeFunction) expression).getName())) && (((AttributeFunction) expression).getNamespace()).isEmpty()) {
+                    executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getName());
+                } else
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
+                            FunctionExecutorExtensionHolder.getInstance(siddhiAppContext));
             } catch (SiddhiAppCreationException ex) {
                 try {
                     executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
@@ -1460,9 +1466,9 @@ public class ExpressionParser {
      * @param innerExpressions        InnerExpressions to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
-     * @param tableMap           Event Table Map
+     * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @param siddhiAppContext    SiddhiAppContext
+     * @param siddhiAppContext        SiddhiAppContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return List of expressionExecutors

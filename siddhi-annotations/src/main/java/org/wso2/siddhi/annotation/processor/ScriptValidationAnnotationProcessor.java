@@ -1,5 +1,6 @@
+package org.wso2.siddhi.annotation.processor;
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,21 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.siddhi.core.function;
-
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.Attribute;
-
 /**
- * Parent interface for Script Function.
- */
-public abstract class Script {
-    public abstract void init(String name, String body, ConfigReader configReader);
-
-    public abstract Object eval(String name, Object[] arg);
-
-    public abstract Attribute.Type getReturnType();
-
-    public abstract void setReturnType(Attribute.Type returnType);
+ *
+ * This processor will extend the validation rules for validate script specific annotation contents.
+ * **/
+public class ScriptValidationAnnotationProcessor extends AbstractAnnotationProcessor {
+    public ScriptValidationAnnotationProcessor(String extensionClassFullName) {
+        super(extensionClassFullName);
+    }
 }
