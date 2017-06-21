@@ -702,7 +702,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "version" command and it holds arguments and flags specified by the user
+     * This class represents the "version" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.1
      */
