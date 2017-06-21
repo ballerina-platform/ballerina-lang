@@ -45,9 +45,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
         List<ServerConnector> connectors = new ArrayList<>();
 
-        if (serverConnectorController == null) {
-            createServerConnectorController(trpConfig);
-        }
+        createServerConnectorController(trpConfig);
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
 
@@ -76,9 +74,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
         ListenerConfiguration config = buildListenerConfig(s, properties);
 
         trpConfig.getListenerConfigurations().add(config);
-        if (serverConnectorController == null) {
-            createServerConnectorController(trpConfig);
-        }
+        createServerConnectorController(trpConfig);
 
         HTTPServerConnector connector = new HTTPServerConnector(config.getId());
         connector.setListenerConfiguration(config);
