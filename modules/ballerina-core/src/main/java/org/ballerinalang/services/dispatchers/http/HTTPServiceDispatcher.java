@@ -18,8 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
@@ -47,11 +45,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPServiceDispatcher.class);
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
-    @Deprecated
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        return null;
-    }
-
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
@@ -60,14 +53,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     @Override
     public String getProtocolPackage() {
         return Constants.PROTOCOL_PACKAGE_HTTP;
-    }
-
-    @Override
-    public void serviceRegistered(Service service) {}
-
-    @Override
-    public void serviceUnregistered(Service service) {
-        HTTPServicesRegistry.getInstance().unregisterService(service);
     }
 
     public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {

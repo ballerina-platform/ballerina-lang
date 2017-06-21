@@ -19,8 +19,6 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnotationAttributeValue;
@@ -46,8 +44,6 @@ public class HTTPServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
     // Outer Map key=interface, Inner Map key=basePath
-    @Deprecated
-    private final Map<String, Map<String, Service>> servicesMap = new ConcurrentHashMap<>();
     private final Map<String, Map<String, ServiceInfo>> servicesInfoMap = new ConcurrentHashMap<>();
     //Outer map key = interface, Inner map = listener property map
     private final Map<String, Map<String, String>> listenerPropMap = new ConcurrentHashMap<>();
@@ -59,156 +55,6 @@ public class HTTPServicesRegistry {
 
     public static HTTPServicesRegistry getInstance() {
         return servicesRegistry;
-    }
-
-    /**
-     * @param interfaceId interface id of the service.
-     * @param basepath basepath of the service.
-     * @return the {@link Service} is exists else null.
-     */
-    @Deprecated
-    public Service getService(String interfaceId, String basepath) {
-        return servicesMap.get(interfaceId).get(basepath);
-    }
-
-    /**
-     * @param interfaceId interface id of the services.
-     * @return the services map if exists else null.
-     */
-    @Deprecated
-    public Map<String, Service> getServicesByInterface(String interfaceId) {
-        return servicesMap.get(interfaceId);
-    }
-
-    /**
-     * Register a service into the map.
-     * @param service requested service to register.
-     */
-    @Deprecated
-    public void registerService(Service service) {
-        if (serviceExists(service)) {
-            logger.debug("Service already exists.");
-            return;
-        }
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getSymbolName().getName();
-        for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
-                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
-                basePath = annotation.getValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        Map<String, Service> servicesOnInterface = servicesMap.get(listenerInterface);
-        if (servicesOnInterface == null) {
-            // Assumption : this is always sequential, no two simultaneous calls can get here
-            servicesOnInterface = new HashMap<>();
-            servicesMap.put(listenerInterface, servicesOnInterface);
-            ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-            if (connector == null) {
-                throw new BallerinaException(
-                        "ServerConnector interface not registered for : " + listenerInterface);
-            }
-            // Delay the startup until all services are deployed
-            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
-        }
-        if (servicesOnInterface.containsKey(basePath)) {
-            throw new BallerinaException(
-                    "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
-        }
-
-        servicesOnInterface.put(basePath, service);
-
-        logger.info("Service deployed : " +
-                         (service.getSymbolName().getPkgPath() != null ?
-                                 service.getSymbolName().getPkgPath() + ":" : "") +
-                         service.getSymbolName().getName() +
-                         " with context " +  basePath);
-    }
-
-    /**
-     * Removing service from the service registry.
-     * @param service requested service to be removed.
-     */
-    @Deprecated
-    public void unregisterService(Service service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        // String basePath = Constants.DEFAULT_BASE_PATH;
-        String basePath = service.getSymbolName().getName();
-
-        for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
-                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
-                basePath = annotation.getValue();
-            }
-        }
-
-        if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
-            basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        Map<String, Service> servicesOnInterface = servicesMap.get(listenerInterface);
-        if (servicesOnInterface != null) {
-            servicesOnInterface.remove(basePath);
-            if (servicesOnInterface.isEmpty()) {
-                servicesMap.remove(listenerInterface);
-                ServerConnector connector =
-                        BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
-                if (connector != null) {
-                    try {
-                        connector.stop();
-                    } catch (ServerConnectorException e) {
-                        throw new BallerinaException("Cannot stop the connector for the interface : " +
-                                                             listenerInterface, e);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Indicate the service exists already.
-     *
-     * TODO : This code seems redundant. Remove this.
-     * @param service requested service to check.
-     * @return true if service exists.
-     */
-    @Deprecated
-    public boolean serviceExists(Service service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getSymbolName().getName();
-        for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
-                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH) &&
-                       annotation.getValue() != null && !annotation.getValue().trim().isEmpty()) {
-                basePath = annotation.getValue();
-            }
-        }
-        return servicesMap.containsKey(listenerInterface) && servicesMap.get(listenerInterface).containsKey(basePath);
     }
 
     /**
