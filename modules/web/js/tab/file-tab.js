@@ -15,24 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
-import Tab from './tab';
 import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import File from '../workspace/file';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
-import Backend from 'ballerina/views/backend';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
+import Backend from 'ballerina/views/backend';
+import Tab from './tab';
+import File from '../workspace/file';
 import DebugManager from '../debugger/debug-manager';
-import alerts from 'alerts';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
-let FileTab;
 
-FileTab = Tab.extend({
-    initialize(options) {
-        Tab.prototype.initialize.call(this, options);
+class FileTab extends Tab {
+    constructor(options) {
+        super(options);
         if (!_.has(options, 'file')) {
             this._file = new File({ isTemp: true, isDirty: false }, { storage: this.getParent().getBrowserStorage() });
         } else {
@@ -56,19 +53,19 @@ FileTab = Tab.extend({
         this.programPackagesBackend = new Backend({ url: this.app.config.services.programPackages.endpoint });
         this.deserializer = BallerinaASTDeserializer;
         this._file.setLangserverCallbacks({
-            documentDidSaveNotification: (options) => {
-                this.app.langseverClientController.documentDidSaveNotification(options);
+            documentDidSaveNotification: (langServerOptions) => {
+                this.app.langseverClientController.documentDidSaveNotification(langServerOptions);
             },
         });
-    },
+    }
 
     getTitle() {
         return _.isNil(this._file) ? 'untitled' : this._file.getName();
-    },
+    }
 
     getFile() {
         return this._file;
-    },
+    }
 
     /**
      * callback function for handling response from the program package resolving backend
@@ -86,7 +83,7 @@ FileTab = Tab.extend({
 
         fileTab._fileEditor.getEnvironment().addPackages(programPackages);
         fileTab._fileEditor.reRender();
-    },
+    }
 
     render() {
         Tab.prototype.render.call(this);
@@ -94,7 +91,7 @@ FileTab = Tab.extend({
         if (!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())) {
             if (!_.isEmpty(this._file.getContent().trim())) {
                 const validateResponse = this.validateBackend.parse({ name: this._file.getName(), path: this._file.getPath(), package: this._astRoot, content: this._file.getContent() });
-                if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                if (validateResponse.errors !== undefined && !_.isEmpty(validateResponse.errors)) {
                     this.renderBallerinaEditor(this._parseResponse, true);
                     return;
                 }
@@ -104,18 +101,21 @@ FileTab = Tab.extend({
             this.renderBallerinaEditor(parseResponse);
 
             const model = this._fileEditor.getModel();
-            const packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName() || '.';
+            let packageName = '.';
+            if (model.getChildrenOfType(model.getFactory().isPackageDefinition)[0]) {
+                packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
+            }
             const content = { fileName: this._file.getName(), filePath: this._file.getPath(), packageName, content: this._file.getContent() };
-            const programPackagesResponse = this.programPackagesBackend.call({ method: 'POST', content, async: true, callback: this.onResponseRecieved, callbackObj: this });
+            this.programPackagesBackend.call({ method: 'POST', content, async: true, callback: this.onResponseRecieved, callbackObj: this });
         } else if (!_.isNil(this._parseResponse)) {
             this.renderBallerinaEditor(this._parseResponse, false);
-            var updatedContent = this.getBallerinaFileEditor().generateSource();
+            const updatedContent = this.getBallerinaFileEditor().generateSource();
             this._file.setContent(updatedContent);
             this._file.setDirty(true);
             this._file.save();
         } else {
             this.renderBallerinaEditor(undefined, false, this.createEmptyBallerinaRoot());
-            var updatedContent = this.getBallerinaFileEditor().generateSource();
+            const updatedContent = this.getBallerinaFileEditor().generateSource();
             this._file.setContent(updatedContent);
             this._file.save();
         }
@@ -131,7 +131,7 @@ FileTab = Tab.extend({
         };
         this.app.langseverClientController.documentDidOpenNotification(documentOptions);
         $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
-    },
+    }
 
     /**
      * Rendering Ballerina editor. Either you an provide ASTRoot element or a parseResponse recieved from the backend service
@@ -140,7 +140,6 @@ FileTab = Tab.extend({
      * @param root - ASTRoot to render
      */
     renderBallerinaEditor(parseResponse, parseFailed, root) {
-        const self = this;
         const ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
         const backendEndpointsOptions = _.get(this.options, 'application.config.services');
         const renderingContextOpts = { application: this.options.application };
@@ -156,7 +155,7 @@ FileTab = Tab.extend({
         const fileEditor = new BallerinaFileEditor({
             model: astRoot,
             parseFailed,
-            file: self._file,
+            file: this._file,
             container: this.$el.get(0),
             viewOptions: ballerinaEditorOptions,
             backendEndpointsOptions,
@@ -205,7 +204,7 @@ FileTab = Tab.extend({
 
         DebugManager.on('debug-hit', function (message) {
             const position = message.location;
-            if (position.fileName == this._file.getName()) {
+            if (position.fileName === this._file.getName()) {
                 fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
             }
         }, this);
@@ -235,7 +234,7 @@ FileTab = Tab.extend({
         this.app.commandManager.getCommands().forEach((command) => {
             fileEditor.getSourceView().bindCommand(command);
         });
-    },
+    }
 
     updateHeader() {
         if (this._file.isDirty()) {
@@ -243,7 +242,7 @@ FileTab = Tab.extend({
         } else {
             this.getHeader().setText(this.getTitle());
         }
-    },
+    }
 
     /**
      * Re-render current ballerina file.
@@ -252,7 +251,7 @@ FileTab = Tab.extend({
         if (this._fileEditor) {
             this._fileEditor.reRender();
         }
-    },
+    }
 
     createEmptyBallerinaRoot() {
         const ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
@@ -265,20 +264,19 @@ FileTab = Tab.extend({
         ballerinaAstRoot.setPackageDefinition(packageDefinition);
 
         return ballerinaAstRoot;
-    },
+    }
 
     getBallerinaFileEditor() {
         return this._fileEditor;
-    },
+    }
 
     removeAllBreakpoints() {
         DebugManager.removeAllBreakpoints(this._file.getName());
-    },
+    }
 
     getBreakPoints() {
         return DebugManager.getDebugPoints(this._file.getName());
-    },
-
-});
+    }
+}
 
 export default FileTab;
