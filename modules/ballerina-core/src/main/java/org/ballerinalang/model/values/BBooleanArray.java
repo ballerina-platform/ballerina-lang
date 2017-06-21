@@ -32,8 +32,9 @@ public class BBooleanArray extends BNewArray {
 
     private int[] values;
 
-    private BBooleanArray(int[] values) {
+    public BBooleanArray(int[] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BBooleanArray() {

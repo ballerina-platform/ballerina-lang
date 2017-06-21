@@ -21,6 +21,7 @@ import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -187,6 +188,40 @@ public class TransactionStmtFlowTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "start inOuterTrx inInnerTrx trxErr endInnerTrx inInnerCmt endOuterTrx inOuterCmt  end");
 
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort1.bal:7: " +
+            "abort statement is not allowed here.*")
+    public void testInvalidAbort1() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-abort1.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort2.bal:7: " +
+            "abort statement is not allowed here.*")
+    public void testInvalidAbort2() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-abort2.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*invalid-abort3.bal:3: " +
+            "abort statement is not allowed here.*")
+    public void testInvalidAbort3() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/invalid-abort3.bal");
+    }
+
+    @Test()
+    public void testValidAbortAndReturn() {
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/statements/transactionStmt/valid-abort.bal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx inAbt outAbt");
+
+        returns = BLangFunctions.invokeNew(programFile, "testReturn1", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx com");
+
+        returns = BLangFunctions.invokeNew(programFile, "testReturn2", new BValue[0]);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "st inTrx abt");
     }
 
 }

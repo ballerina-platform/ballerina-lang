@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,18 +18,18 @@
 package org.ballerinalang.model;
 
 /**
- * {@code FunctionSymbolName} represents a package qualified
+ * {@code ActionSymbolName} represents a package qualified
  * name of a {@link org.ballerinalang.model.symbols.BLangSymbol} in Ballerina package.
  *
- * @since 0.8.3
+ * @since 0.89
  */
-public class FunctionSymbolName extends CallableUnitSymbolName {
+public class ActionSymbolName extends CallableUnitSymbolName {
 
-    public FunctionSymbolName(String name, String pkgPath, int noOfParameters) {
+    public ActionSymbolName(String name, String pkgPath, int noOfParameters) {
         super(name, pkgPath, noOfParameters);
     }
 
-    public FunctionSymbolName(String name, int noOfParameters) {
+    public ActionSymbolName(String name, int noOfParameters) {
         super(name, noOfParameters);
     }
 }

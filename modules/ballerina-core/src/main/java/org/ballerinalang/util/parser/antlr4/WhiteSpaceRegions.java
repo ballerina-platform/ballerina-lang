@@ -352,7 +352,8 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in a transform statement
     public static final int TRANSFORM_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int TRANSFORM_STMT_TO_BODY_START = 2;
+    public static final int TRANSFORM_STMT_TO_BODY_START = 1;
+    public static final int TRANSFORM_STMT_BODY_START_TO_FIRST_CHILD = 2;
     public static final int TRANSFORM_STMT_END_TO_NEXT_TOKEN = 3;
 
     // whitespace regions in a transaction statement
