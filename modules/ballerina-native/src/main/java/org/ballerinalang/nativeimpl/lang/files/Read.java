@@ -31,7 +31,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -64,17 +69,25 @@ public class Read extends AbstractNativeFunction {
         BStruct file = (BStruct) getRefArgument(context, 0);
         int bytesToRead = getIntArgument(context, 0);
         byte[] data;
-        int nRead;
+        long nRead;
         try {
-            BufferedInputStream is = (BufferedInputStream) file.getNativeData("inStream");
-            if (is == null) {
-                throw new BallerinaException("file is not opened in read mode: " + file.getStringField(0));
+            SeekableByteChannel sbc = (SeekableByteChannel) file.getNativeData("channel");
+            if (sbc == null) {
+                throw new BallerinaException("file " + file.getStringField(0) + " is not opened yet");
             }
-            data = new byte[bytesToRead];
-            nRead = is.read(data, 0, bytesToRead);
-        } catch (Throwable e) {
+            if (bytesToRead == -1) {
+                Path path = Paths.get(file.getStringField(0));
+                data = Files.readAllBytes(path);
+                nRead = data.length;
+            } else {
+                long position = sbc.position();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToRead);
+                nRead = sbc.position() - position;
+                data = Arrays.copyOf(byteBuffer.array(), (int) nRead);
+            }
+        } catch (IOException e) {
             throw new BallerinaException("failed to read from file: " + e.getMessage(), e);
         }
-        return getBValues(new BBlob(Arrays.copyOf(data, nRead)), new BInteger(nRead));
+        return getBValues(new BBlob(data), new BInteger(nRead));
     }
 }

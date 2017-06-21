@@ -28,7 +28,13 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Deletes a file from a given location.
@@ -50,30 +56,31 @@ public class Delete extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         BStruct target = (BStruct) getRefArgument(context, 0);
-        File targetFile = new File(target.getStringField(0));
-        if (!targetFile.exists()) {
-            throw new BallerinaException("failed to delete file: file not found: " + targetFile.getPath());
-        }
-        if (!delete(targetFile)) {
-            throw new BallerinaException("failed to delete file: " + targetFile.getPath());
+        Path targetPath = Paths.get(target.getStringField(0));
+        try {
+            delete(targetPath);
+        } catch (IOException e) {
+            throw new BallerinaException("failed to delete file: " + targetPath.toString());
         }
         return VOID_RETURN;
     }
 
-    private boolean delete(File targetFile) {
-
-        String[] entries = targetFile.list();
-        if (entries != null && entries.length != 0) {
-            for (String s : entries) {
-                File currentFile = new File(targetFile.getPath(), s);
-                if (currentFile.isDirectory()) {
-                    delete(currentFile);
-                } else if (!currentFile.delete()) {
-                    return false;
-                }
-            }
+    private void delete(Path targetPath) throws IOException {
+        if (Files.isDirectory(targetPath)) {
+                Files.walkFileTree(targetPath, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+        } else {
+            Files.delete(targetPath);
         }
-        return targetFile.delete();
     }
-
 }
