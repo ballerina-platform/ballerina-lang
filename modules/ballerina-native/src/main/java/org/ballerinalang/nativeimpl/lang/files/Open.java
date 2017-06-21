@@ -85,30 +85,26 @@ public class Open extends AbstractNativeFunction {
             boolean write = accessLC.contains("w");
             boolean append = accessLC.contains("a");
 
-            // if opened for read only, then return.
-            if (!write && !append) {
-                SeekableByteChannel channel = Files.newByteChannel(path, opts);
-                struct.addNativeData("channel", channel);
-                return VOID_RETURN;
-            }
+            if (write || append) {
 
-            // if opened for both write and append, then give priority to append
-            if (write && append) {
-                log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
-            }
-
-            if (Files.exists(path) && !Files.isWritable(path)) {
-                throw new BallerinaException("file is not writable: " + path);
-            }
-            createDirs(path);
-            opts.add(StandardOpenOption.CREATE);
-            if (write) {
-                opts.add(StandardOpenOption.WRITE);
-            } else {
-                opts.add(StandardOpenOption.APPEND);
+                // if opened for both write and append, then give priority to append
+                if (write && append) {
+                    log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
+                }
+                if (Files.exists(path) && !Files.isWritable(path)) {
+                    throw new BallerinaException("file is not writable: " + path);
+                }
+                createDirs(path);
+                opts.add(StandardOpenOption.CREATE);
+                if (write) {
+                    opts.add(StandardOpenOption.WRITE);
+                } else {
+                    opts.add(StandardOpenOption.APPEND);
+                }
             }
             SeekableByteChannel channel = Files.newByteChannel(path, opts);
             struct.addNativeData("channel", channel);
+
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }
