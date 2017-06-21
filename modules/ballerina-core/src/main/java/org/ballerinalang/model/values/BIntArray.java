@@ -32,8 +32,9 @@ public class BIntArray extends BNewArray {
 
     private long[] values;
 
-    private BIntArray(long[] values) {
+    public BIntArray(long[] values) {
         this.values = values;
+        this.size = values.length;
     }
     
     public BIntArray() {

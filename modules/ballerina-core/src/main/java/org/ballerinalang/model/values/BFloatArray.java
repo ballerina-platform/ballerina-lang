@@ -32,8 +32,9 @@ public class BFloatArray extends BNewArray {
 
     private double[] values;
 
-    private BFloatArray(double[] values) {
+    public BFloatArray(double[] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BFloatArray() {
