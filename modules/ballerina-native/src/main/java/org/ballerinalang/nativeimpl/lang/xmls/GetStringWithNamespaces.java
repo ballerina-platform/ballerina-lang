@@ -77,7 +77,7 @@ public class GetStringWithNamespaces extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getRefArgument(ctx, 0);
             String xPath = getStringArgument(ctx, 0);
-            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
+            BMap<String, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
             xml = XMLUtils.getSingletonValue(xml);
             
@@ -87,8 +87,8 @@ public class GetStringWithNamespaces extends AbstractNativeFunction {
             DocumentBuilder builder = processor.newDocumentBuilder();
             XdmNode doc = builder.build(((OMElement) xml.value()).getSAXSource(true));
             if (namespaces != null && !namespaces.isEmpty()) {
-                for (BString entry : namespaces.keySet()) {
-                    xPathCompiler.declareNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
+                for (String entry : namespaces.keySet()) {
+                    xPathCompiler.declareNamespace(entry, namespaces.get(entry).stringValue());
                 }
             }
             XPathSelector selector = xPathCompiler.compile(xPath).load();
