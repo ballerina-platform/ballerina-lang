@@ -98,12 +98,10 @@ public abstract class BNewArray implements BRefType {
         }
     }
 
-    protected void ensureCapacity(int capacity, int currentArraySize) {
-        int y = capacity / DEFAULT_ARRAY_SIZE;
-        int x = currentArraySize / DEFAULT_ARRAY_SIZE;
-
-        if (y - x >= 0) {
-            int newLength = (y + 1) * DEFAULT_ARRAY_SIZE;
+    protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
+        if (requestedCapacity - currentArraySize >= 0) {
+            // Here the growth rate is 1.5. This value has been used by many other languages
+            int newLength = currentArraySize + (currentArraySize >> 1);
             newLength = Math.min(newLength, MAX_ARRAY_SIZE);
             grow(newLength);
         }
