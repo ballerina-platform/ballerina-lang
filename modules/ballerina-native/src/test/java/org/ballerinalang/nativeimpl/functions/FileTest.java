@@ -34,14 +34,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.SeekableByteChannel;
 
@@ -189,7 +186,7 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to delete file: " +
+            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: failed to delete file: " +
             "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
     public void testDeleteNonExistentFile() {
         String targetPath = "temp/delete-non-existing-file.txt";
@@ -265,8 +262,8 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to write to " +
-            "file: file is not opened in write or append mode.*")
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: file temp[\\\\/]write-non-opened.txt is not opened yet.*")
     public void testWriteWithoutOpeningFile() {
         String targetPath = "temp/write-non-opened.txt";
         byte[] content = "Sample Text".getBytes();
@@ -289,8 +286,8 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to read from " +
-            "file: file is not opened in read mode.*")
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: file temp[\\\\/]read-non-opened-file.txt is not opened yet.*")
     public void testReadWithoutOpeningFile() throws IOException {
         String targetPath = "temp/read-non-opened-file.txt";
         File targetFile = new File(targetPath);

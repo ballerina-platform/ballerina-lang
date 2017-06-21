@@ -28,9 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 
@@ -55,7 +53,6 @@ public class Write extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-
         byte[] content = getBlobArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 0);
         try {

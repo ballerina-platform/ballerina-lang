@@ -57,7 +57,6 @@ public class Move extends AbstractNativeFunction {
 
     @Override 
     public BValue[] execute(Context context) {
-
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
 
@@ -75,11 +74,11 @@ public class Move extends AbstractNativeFunction {
             }
         }
         try {
-            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            Files.move(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING,
+                       StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             throw new BallerinaException("failed to move file: " + sourcePath);
         }
-
         return VOID_RETURN;
     }
 }

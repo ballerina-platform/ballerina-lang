@@ -27,8 +27,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -60,8 +58,6 @@ import java.nio.file.attribute.BasicFileAttributes;
         value = "The location where the File should be pasted") })
 public class Copy extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Copy.class);
-    
     @Override
     public BValue[] execute(Context context) {
 
@@ -84,40 +80,36 @@ public class Copy extends AbstractNativeFunction {
         }
         try {
             Files.walkFileTree(sourcePath, new CopyDirVisitor(sourcePath, destinationPath,
-                      new CopyOption[]{StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.COPY_ATTRIBUTES}));
+                                                              new CopyOption[] { StandardCopyOption.REPLACE_EXISTING,
+                                                                                 StandardCopyOption.COPY_ATTRIBUTES }));
         } catch (IOException e) {
             throw new BallerinaException("failed to copy file: " + sourcePath);
         }
         return VOID_RETURN;
     }
 
-    public static class CopyDirVisitor extends SimpleFileVisitor<Path>
-    {
+    private static class CopyDirVisitor extends SimpleFileVisitor<Path> {
         private final Path fromPath;
         private final Path toPath;
         private final CopyOption[] copyOptions;
 
-        public CopyDirVisitor(Path fromPath, Path toPath, CopyOption[] copyOptions)
-        {
+        private CopyDirVisitor(Path fromPath, Path toPath, CopyOption[] copyOptions) {
             this.fromPath = fromPath;
             this.toPath = toPath;
             this.copyOptions = copyOptions;
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
-        {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir));
-            if( !Files.exists(targetPath) )
-            {
+            if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
             return FileVisitResult.CONTINUE;
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-        {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOptions);
             return FileVisitResult.CONTINUE;
         }

@@ -81,17 +81,17 @@ public class Open extends AbstractNativeFunction {
                 }
                 opts.add(StandardOpenOption.READ);
             }
-            
+
             boolean write = accessLC.contains("w");
             boolean append = accessLC.contains("a");
-            
+
             // if opened for read only, then return.
             if (!write && !append) {
                 SeekableByteChannel channel = Files.newByteChannel(path, opts);
                 struct.addNativeData("channel", channel);
                 return VOID_RETURN;
             }
-            
+
             // if opened for both write and append, then give priority to append
             if (write && append) {
                 log.info("found both 'a' and 'w' in access mode string. opening file in append mode");

@@ -52,11 +52,14 @@ import java.nio.file.attribute.BasicFileAttributes;
         value = "File that should be deleted") })
 public class Delete extends AbstractNativeFunction {
 
-    @Override 
+    @Override
     public BValue[] execute(Context context) {
-
         BStruct target = (BStruct) getRefArgument(context, 0);
         Path targetPath = Paths.get(target.getStringField(0));
+        if (!Files.exists(targetPath)) {
+            throw new BallerinaException("error: ballerina.lang.errors:Error, message: failed to delete file:" +
+                                         " file not found: " + targetPath.toString());
+        }
         try {
             delete(targetPath);
         } catch (IOException e) {
@@ -67,20 +70,22 @@ public class Delete extends AbstractNativeFunction {
 
     private void delete(Path targetPath) throws IOException {
         if (Files.isDirectory(targetPath)) {
-                Files.walkFileTree(targetPath, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
+            Files.walkFileTree(targetPath, new DeleteDirVisitor());
         } else {
             Files.delete(targetPath);
+        }
+    }
+
+    private static class DeleteDirVisitor extends SimpleFileVisitor<Path> {
+
+        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
         }
     }
 }

@@ -80,9 +80,8 @@ public class Read extends AbstractNativeFunction {
                 data = Files.readAllBytes(path);
                 nRead = data.length;
             } else {
-                long position = sbc.position();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToRead);
-                nRead = sbc.position() - position;
+                nRead = sbc.read(byteBuffer);
                 data = Arrays.copyOf(byteBuffer.array(), (int) nRead);
             }
         } catch (IOException e) {
