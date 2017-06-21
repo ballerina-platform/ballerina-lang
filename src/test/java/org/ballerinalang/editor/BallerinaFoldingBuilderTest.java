@@ -14,15 +14,15 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.folding;
+package org.ballerinalang.editor;
 
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 
-public class BallerinaFoldingTest extends BallerinaCodeInsightFixtureTestCase {
+public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return getTestDataPath("folding");
+        return getTestDataPath("editor/folding");
     }
 
     public void testConnector() {
