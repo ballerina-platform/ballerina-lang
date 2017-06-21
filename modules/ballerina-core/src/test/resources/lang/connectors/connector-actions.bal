@@ -88,10 +88,3 @@ function testDotActionInvocation(string functionArg1, string functionArg2, int f
     s1, s2, i = testConnector.action5(functionArg4);
     return;
 }
-
-function testDotActionInvocationWrong(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
-    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
-
-    s1, s2, i = testConnector.action5(testConnector, functionArg4);
-    return;
-}
