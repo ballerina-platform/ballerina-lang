@@ -54,6 +54,8 @@ public class PoolConfiguration {
 
     private int eventGroupExecutorThreads = 15;
 
+    private long setMaxWait = 60000L;
+
     private PoolConfiguration(Map<String, Object> transportProperties) {
 
         numberOfPools = Util.getIntProperty(transportProperties, Constants.NUMBER_OF_POOLS, 0);
@@ -75,6 +77,9 @@ public class PoolConfiguration {
 
         eventGroupExecutorThreads = Util.getIntProperty(
                 transportProperties, Constants.EVENT_GROUP_EXECUTOR_THREAD_SIZE, 15);
+
+        eventGroupExecutorThreads = Util.getIntProperty(
+                transportProperties, Constants.MAX_WAIT_FOR_CLIENT_CONNECTION_POOL, 60000);
 
         logger.debug(Constants.NUMBER_OF_POOLS + ": " + numberOfPools);
         logger.debug(Constants.MAX_ACTIVE_CONNECTIONS_PER_POOL + ":" + maxActivePerPool);
@@ -138,5 +143,9 @@ public class PoolConfiguration {
 
     public int getEventGroupExecutorThreads() {
         return eventGroupExecutorThreads;
+    }
+
+    public long getMaxWait() {
+        return setMaxWait;
     }
 }

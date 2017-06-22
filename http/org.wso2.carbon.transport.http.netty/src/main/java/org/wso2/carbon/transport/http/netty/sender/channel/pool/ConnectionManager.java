@@ -74,6 +74,7 @@ public class ConnectionManager {
         config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
+        config.maxWait = poolConfiguration.getMaxWait();
         return new GenericObjectPool(
                 new PoolableTargetChannelFactory(httpRoute, eventLoopGroup, eventLoopClass, senderConfiguration),
                 config);
