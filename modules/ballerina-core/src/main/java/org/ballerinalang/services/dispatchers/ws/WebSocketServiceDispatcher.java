@@ -77,12 +77,6 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         return null;
     }
 
-    @Override
-    public void serviceRegistered(ServiceInfo service) {
-        // Nothing goes here since all the WebSocket services are registered as HTTP endpoints too.
-        // TODO: Implement a separate ServicesRegistry for WebSocket
-    }
-
     private String findWebSocketUpgradePath(ServiceInfo service) {
         AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
                 Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
