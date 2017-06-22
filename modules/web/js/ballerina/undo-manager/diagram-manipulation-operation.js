@@ -32,17 +32,35 @@ class DiagramManipulationOperation extends UndoableOperation {
     }
 
     undo() {
-        let file = this.getEditor().getFile(),
-            sourceView = this.getEditor().getSourceView();
+        let editor = this.getEditor(),
+            file = editor.getFile(),
+            sourceView = editor.getSourceView();
         sourceView.undo();
         file.setContent(sourceView.getContent()).save();
+        let response = editor.parserBackend.parse({ content: sourceView.getContent() });
+        if (response.error && !_.isEmpty(response.message)) {
+            log.error(`Cannot render updated diagram due to syntax errors : ${  response.message}`);
+        } else {
+            let root = editor.deserializer.getASTModel(response);
+            editor.setModel(root);
+            editor.trigger('update-diagram');
+        }
     }
 
     redo() {
-        let file = this.getEditor().getFile(),
-            sourceView = this.getEditor().getSourceView();
+        let editor = this.getEditor(),
+            file = editor.getFile(),
+            sourceView = editor.getSourceView();
         sourceView.redo();
         file.setContent(sourceView.getContent()).save();
+        let response = editor.parserBackend.parse({ content: sourceView.getContent() });
+        if (response.error && !_.isEmpty(response.message)) {
+            log.error(`Cannot render updated diagram due to syntax errors : ${  response.message}`);
+        } else {
+            let root = editor.deserializer.getASTModel(response);
+            editor.setModel(root);
+            editor.trigger('update-diagram');
+        }
     }
 }
 
