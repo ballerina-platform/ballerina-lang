@@ -641,7 +641,7 @@ class BallerinaFileEditor extends EventChannel {
      /**
       * find nodes which has debugpoints in design view
      */
-    _showDesignViewBreakpoints(breakpoints = []) {
+    showDesignViewBreakpoints(breakpoints = []) {
         const findBreakpointsVisitor = new FindBreakpointNodesVisitor(this._model);
         findBreakpointsVisitor.setBreakpoints(breakpoints);
         this._model.accept(findBreakpointsVisitor);
