@@ -158,7 +158,7 @@
         <projectConfigurable id="Ballerina" groupId="language" provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
-
+        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
 

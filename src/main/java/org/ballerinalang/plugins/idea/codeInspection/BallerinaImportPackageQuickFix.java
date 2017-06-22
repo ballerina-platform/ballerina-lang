@@ -46,6 +46,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
+import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -143,17 +144,18 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
     @Override
     public boolean isAvailable(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement,
                                @NotNull PsiElement endElement) {
+        // We only perform this action on Ballerina modules since this might cause issues in other modules.
         Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
         boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
         if (!isBallerinaModule) {
             return false;
         }
-
+        // If the file contain error elements, do not perform auto import. Since this might affect badly to the user
+        // experience.
         Collection<PsiErrorElement> errorElements = PsiTreeUtil.findChildrenOfType(file, PsiErrorElement.class);
-        if(!errorElements.isEmpty()){
+        if (!errorElements.isEmpty()) {
             return false;
         }
-
         if (!(startElement instanceof PackageNameNode)) {
             return false;
         }
@@ -193,13 +195,14 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
 
         // autoimport on trying to fix
         if (packagesToImport.size() == 1) {
-            // Todo - CodeInsightSettings.getInstance().isAddUnambiguousImportsOnTheFly()
-            if (!LaterInvocator.isInModalContext() && (ApplicationManager.getApplication().isUnitTestMode() ||
-                    DaemonListeners.canChangeFileSilently(file))) {
-                if (reference == null || reference.resolve() == null) {
-                    performImport(file, firstPackageToImport);
+            if (BallerinaCodeInsightSettings.getInstance().isAddUnambiguousImportsOnTheFly()) {
+                if (!LaterInvocator.isInModalContext() && (ApplicationManager.getApplication().isUnitTestMode() ||
+                        DaemonListeners.canChangeFileSilently(file))) {
+                    if (reference == null || reference.resolve() == null) {
+                        performImport(file, firstPackageToImport);
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
@@ -211,7 +214,9 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
             if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint(true)) {
                 return false;
             }
-            // Todo - if(!CodeInsightSettings.getInstance().isShowImportPopup()){return false;}
+            if (!BallerinaCodeInsightSettings.getInstance().isShowImportPopup()) {
+                return false;
+            }
             TextRange referenceRange = element.getTextRange();
             String message = ShowAutoImportPass.getMessage(packagesToImport.size() > 1,
                     ContainerUtil.getFirstItem(packagesToImport)

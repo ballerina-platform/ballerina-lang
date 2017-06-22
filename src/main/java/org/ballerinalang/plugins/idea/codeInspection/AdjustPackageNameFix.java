@@ -86,11 +86,4 @@ public class AdjustPackageNameFix extends LocalQuickFixAndIntentionActionOnPsiEl
         } catch (IncorrectOperationException e) {
         }
     }
-
-    @Override
-    public boolean isAvailable(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement,
-                               @NotNull PsiElement endElement) {
-        Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
-        return BallerinaSdkService.isBallerinaModule(module);
-    }
 }
