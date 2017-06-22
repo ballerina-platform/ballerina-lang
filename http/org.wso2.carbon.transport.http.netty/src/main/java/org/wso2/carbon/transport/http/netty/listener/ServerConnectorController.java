@@ -246,4 +246,7 @@ public class ServerConnectorController {
         return false;
     }
 
+    public TransportsConfiguration getTransportsConfiguration() {
+        return transportsConfiguration;
+    }
 }
