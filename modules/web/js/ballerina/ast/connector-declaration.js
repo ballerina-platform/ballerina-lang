@@ -67,7 +67,7 @@ class ConnectorDeclaration extends ASTNode {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Assignment statement Custom Tree modified',
+                title: 'Modify Connector Declaration',
                 context: nodeToFireEvent,
             });
         } else {

@@ -83,7 +83,7 @@ class ReferenceTypeInitExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Reference Type Init Expression Custom Tree modified',
+                title: 'Modify Reference Type Init Expression',
                 context: this,
             });
 

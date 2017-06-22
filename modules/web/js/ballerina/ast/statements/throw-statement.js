@@ -66,7 +66,7 @@ class ThrowStatement extends Statement {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Throw Statement Custom Tree modified',
+                title: 'Modify Throw Statement',
                 context: this,
             });
 

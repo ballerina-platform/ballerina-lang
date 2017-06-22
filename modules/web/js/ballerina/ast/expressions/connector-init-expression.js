@@ -116,7 +116,7 @@ class ConnectorInitExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'ConnectorInit Expression Custom Tree modified',
+                title: 'Modify ConnectorInit Expression',
                 context: this,
             });
 

@@ -82,7 +82,7 @@ class KeyValueExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Array Init Expression Custom Tree modified',
+                title: 'Modify Array Init Expression',
                 context: this,
             });
 

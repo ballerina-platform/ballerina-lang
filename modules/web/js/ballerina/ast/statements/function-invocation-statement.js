@@ -89,7 +89,7 @@ class FunctionInvocationStatement extends Statement {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Function Invocation Expression Custom Tree modified',
+                title: 'Modify Function Invocation Expression',
                 context: nodeToFireEvent,
             });
         } else {

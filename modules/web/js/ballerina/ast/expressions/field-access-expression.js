@@ -89,7 +89,7 @@ class FieldAccessExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Field Access Expression Custom Tree modified',
+                title: 'Modify Field Access Expression',
                 context: this,
             });
 
