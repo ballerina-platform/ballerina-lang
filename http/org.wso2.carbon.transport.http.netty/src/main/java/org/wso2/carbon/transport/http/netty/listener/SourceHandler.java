@@ -50,14 +50,12 @@ import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,9 +68,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     protected HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
-    private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
     protected Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
-    protected Map<String, TargetChannel> targetChannelPerHostPool = new HashMap<>();
     protected ListenerConfiguration listenerConfiguration;
     private WebSocketServerHandshaker handshaker;
 
@@ -90,8 +86,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool() == null ? this.targetChannelPool
-                : connectionManager.getTargetChannelPool();
     }
 
     @Override
@@ -102,8 +96,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool() == null ? this.targetChannelPool
-                : connectionManager.getTargetChannelPool();
     }
 
     @SuppressWarnings("unchecked")
@@ -264,28 +256,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
 
-        if (connectionManager.getPoolConfiguration().getNumberOfPools() == 0) {
-            targetChannelPool.forEach((k, genericObjectPool) -> {
-                try {
-                    targetChannelPool.remove(k).close();
-                } catch (Exception e) {
-                    log.error("Couldn't close target channel socket connections", e);
-                }
-            });
-        } else if (connectionManager.getPoolConfiguration().getNumberOfPools() == 2) {
-            targetChannelPerHostPool.forEach((k, targetChannel) -> targetChannel.getChannel().close());
-        }
+        targetChannelPool.forEach((k, genericObjectPool) -> {
+            try {
+                targetChannelPool.remove(k).close();
+            } catch (Exception e) {
+                log.error("Couldn't close target channel socket connections", e);
+            }
+        });
 
         connectionManager.notifyChannelInactive();
     }
-
-//    public TargetChannel removeChannelFuture(HttpRoute route) {
-//        return channelFutureMap.remove(route.toString());
-//    }
-//
-//    public boolean isChannelFutureExists(HttpRoute route) {
-//        return (channelFutureMap.get(route.toString()) != null);
-//    }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {
         return targetChannelPool;
@@ -331,16 +311,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
 
-        // TODO: Cannot find a single usage of these properties. Commenting it and will remove it in the next release.
-        // TODO: Make them available through util methods.
-//        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-//        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-//        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-//        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-
-//        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-//        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().toString())
-
         return cMsg;
     }
 
@@ -349,10 +319,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      */
     protected String generateWebSocketChannelID() {
         return ctx.channel().id().asLongText();
-    }
-
-    public Map<String, TargetChannel> getTargetChannelPerHostPool() {
-        return targetChannelPerHostPool;
     }
 
     @Override

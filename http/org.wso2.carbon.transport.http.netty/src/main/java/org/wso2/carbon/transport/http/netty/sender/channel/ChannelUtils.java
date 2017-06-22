@@ -98,20 +98,6 @@ public class ChannelUtils {
                     bootstrapConfiguration.getConnectTimeOut());
         }
 
-        // TODO: Remove this in the next release!!!
-        // here we need to wait it in other thread
-//        final CountDownLatch channelLatch = new CountDownLatch(1);
-//        channelFuture.addListener(cf -> channelLatch.countDown());
-//
-//        try {
-//            boolean wait = channelLatch.await(bootstrapConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-//            if (wait) {
-//                log.debug("Waited for connection creation in Sender");
-//            }
-//        } catch (InterruptedException ex) {
-//            throw new Exception("Interrupted while waiting for " + "connection to " + httpRoute.toString());
-//        }
-
         // this wait is okay as we have a timeout in connect method
         channelFuture.awaitUninterruptibly();
         Channel channel = null;

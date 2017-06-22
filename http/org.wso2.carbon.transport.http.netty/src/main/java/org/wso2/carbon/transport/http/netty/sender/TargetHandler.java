@@ -171,10 +171,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtTargetResponseReceiving(cMsg);
         }
 
-        // TODO: Make them available through util messages.
-//        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-//        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
                 org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.CALL_BACK, callback);

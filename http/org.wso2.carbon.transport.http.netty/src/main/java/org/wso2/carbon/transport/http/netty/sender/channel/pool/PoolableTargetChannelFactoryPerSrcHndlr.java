@@ -29,20 +29,15 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
 
     private static final Logger log = LoggerFactory.getLogger(PoolableTargetChannelFactoryPerSrcHndlr.class);
 
-    private GenericObjectPool genericObjectPool;
+    private final GenericObjectPool genericObjectPool;
 
     public PoolableTargetChannelFactoryPerSrcHndlr(GenericObjectPool genericObjectPool) {
         this.genericObjectPool = genericObjectPool;
     }
 
-
     @Override
     public Object makeObject() throws Exception {
         TargetChannel targetChannel = (TargetChannel) this.genericObjectPool.borrowObject();
-        while (!targetChannel.getChannel().isActive() || !targetChannel.getChannel().isOpen()) {
-            this.genericObjectPool.invalidateObject(targetChannel);
-            targetChannel = (TargetChannel) this.genericObjectPool.borrowObject();
-        }
         log.debug("Created channel: {}", targetChannel);
         return targetChannel;
     }
