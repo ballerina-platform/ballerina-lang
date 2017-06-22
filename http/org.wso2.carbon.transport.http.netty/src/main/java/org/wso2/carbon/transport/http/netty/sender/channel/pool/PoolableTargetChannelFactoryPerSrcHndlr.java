@@ -60,14 +60,8 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     }
 
     @Override
-    public void activateObject(Object o) throws Exception {
-
-    }
+    public void activateObject(Object o) throws Exception {}
 
     @Override
-    public void passivateObject(Object o) throws Exception {
-
-    }
-
-
+    public void passivateObject(Object o) throws Exception {}
 }
