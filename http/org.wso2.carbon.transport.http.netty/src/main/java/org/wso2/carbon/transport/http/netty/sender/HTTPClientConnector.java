@@ -135,19 +135,6 @@ public class HTTPClientConnector implements ClientConnector {
         try {
             connectionManager.
                     executeTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
-            // TODO: Remove this in the next release!!
-//              TargetChannel targetChannel = connectionManager.
-//                     executeTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
-//            if (targetChannel != null) {
-//                TargetHandler targetHandler = targetChannel.getTargetHandler();
-//                targetHandler.setCallback(callback);
-//                targetHandler.setIncomingMsg(msg);
-//                targetHandler.setConnectionManager(connectionManager);
-//                targetHandler.setTargetChannel(targetChannel);
-//                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, msg)) {
-//                    targetChannel.setRequestWritten(true); // If request written
-//                }
-//            }
         } catch (Exception failedCause) {
             throw new ClientConnectorException(failedCause.getMessage(), failedCause);
         }

@@ -37,8 +37,6 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -48,27 +46,19 @@ public class ConnectionManager {
 
     private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
 
-    private static volatile ConnectionManager connectionManager;
+    private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
     private final Map<String, GenericObjectPool> connGlobalPool;
     private AtomicInteger index = new AtomicInteger(1);
-    private int poolCount;
-
-    private ExecutorService executorService;
-    private EventLoopGroup clientEventGroup;
+    private static volatile ConnectionManager connectionManager;
 
     private ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties) {
         this.poolConfiguration = poolConfiguration;
-        this.poolCount = poolConfiguration.getNumberOfPools();
-        this.executorService = Executors.newFixedThreadPool(poolConfiguration.getExecutorServiceThreads());
-        if (poolConfiguration.getNumberOfPools() == 0) {
-            this.poolManagementPolicy = PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING;
-        } else if (poolConfiguration.getNumberOfPools() == 1) {
+        if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
         connGlobalPool = new ConcurrentHashMap<>();
-
         clientEventGroup = new NioEventLoopGroup(
                 Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
     }
@@ -135,89 +125,74 @@ public class ConnectionManager {
             SenderConfiguration senderConfiguration, HttpRequest httpRequest, CarbonMessage carbonMessage,
             CarbonCallback carbonCallback) throws Exception {
 
-        Class cl;
-        EventLoopGroup group;
-        if (sourceHandler != null) {
-            ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
-            group = ctx.channel().eventLoop();
-            cl = ctx.channel().getClass();
-        } else {
-            cl = NioSocketChannel.class;
-            group = clientEventGroup;
-            poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
-        }
-
         // Take connections from Global connection pool
-        if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
-            try {
-                TargetChannel targetChannel;
-                Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                GenericObjectPool trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
-                if (trgHlrConnPool == null) {
-                    synchronized (this) {
-                        if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
-                            trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                            this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+        try {
+            GenericObjectPool trgHlrConnPool;
+            TargetChannel targetChannel;
+
+            if (sourceHandler != null) {
+                EventLoopGroup group;
+                ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
+                group = ctx.channel().eventLoop();
+                Class cl = ctx.channel().getClass();
+
+                if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
+                    // This is faster than the above one (about 2k difference)
+                    Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
+                    trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
+                    if (trgHlrConnPool == null) {
+                        trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                        srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
+                    }
+                } else {
+                    Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
+                    trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
+                    if (trgHlrConnPool == null) {
+                        synchronized (this) {
+                            if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                                trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                                this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
+                            }
+                            trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
+                            trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
                         }
-                        trgHlrConnPool = this.connGlobalPool.remove(httpRoute.toString());
-                        trgHlrConnPool = createPoolForRoutePerSrcHndlr(trgHlrConnPool);
+                        srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                     }
-                    srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
                 }
-                targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
+            } else {
+                Class cl = NioSocketChannel.class;
+                EventLoopGroup group = clientEventGroup;
 
-                if (targetChannel.getChannel() != null) {
-                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
-                    targetChannel.setCorrelatedSource(sourceHandler);
-                    targetChannel.setHttpRoute(httpRoute);
-                    TargetHandler targetHandler = targetChannel.getTargetHandler();
-                    targetHandler.setCallback(carbonCallback);
-                    targetHandler.setIncomingMsg(carbonMessage);
-                    targetHandler.setConnectionManager(connectionManager);
-                    targetHandler.setTargetChannel(targetChannel);
-                    if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
-                        targetChannel.setRequestWritten(true); // If request written
+                synchronized (this) {
+                    if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
+                        trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
+                        this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                     }
+                    trgHlrConnPool = this.connGlobalPool.get(httpRoute.toString());
                 }
-            } catch (Exception e) {
-                String msg = "Failed to send the request through the default pooling";
-                log.error(msg, e);
-                MessagingException messagingException = new MessagingException(msg, e, 101500);
-                carbonMessage.setMessagingException(messagingException);
-                carbonCallback.done(carbonMessage);
             }
-        } else if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
-            // This is faster than the above one (about 2k difference)
-            try {
-                TargetChannel targetChannel;
-                Map<String, GenericObjectPool> srcHlrConnPool = sourceHandler.getTargetChannelPool();
-                GenericObjectPool trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
-                if (trgHlrConnPool == null) {
-                    trgHlrConnPool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
-                    srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
-                }
-                targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
 
-                if (targetChannel.getChannel() != null) {
-                    targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
-                    targetChannel.setCorrelatedSource(sourceHandler);
-                    targetChannel.setHttpRoute(httpRoute);
-                    TargetHandler targetHandler = targetChannel.getTargetHandler();
-                    targetHandler.setCallback(carbonCallback);
-                    targetHandler.setIncomingMsg(carbonMessage);
-                    targetHandler.setConnectionManager(connectionManager);
-                    targetHandler.setTargetChannel(targetChannel);
-                    if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
-                        targetChannel.setRequestWritten(true); // If request written
-                    }
+            targetChannel = (TargetChannel) trgHlrConnPool.borrowObject();
+
+            if (targetChannel.getChannel() != null) {
+                targetChannel.setTargetHandler(targetChannel.getHTTPClientInitializer().getTargetHandler());
+                targetChannel.setCorrelatedSource(sourceHandler);
+                targetChannel.setHttpRoute(httpRoute);
+                TargetHandler targetHandler = targetChannel.getTargetHandler();
+                targetHandler.setCallback(carbonCallback);
+                targetHandler.setIncomingMsg(carbonMessage);
+                targetHandler.setConnectionManager(connectionManager);
+                targetHandler.setTargetChannel(targetChannel);
+                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, carbonMessage)) {
+                    targetChannel.setRequestWritten(true); // If request written
                 }
-            } catch (Exception e) {
-                String msg = "Failed to send the request through the default pooling";
-                log.error(msg, e);
-                MessagingException messagingException = new MessagingException(msg, e, 101500);
-                carbonMessage.setMessagingException(messagingException);
-                carbonCallback.done(carbonMessage);
             }
+        } catch (Exception e) {
+            String msg = "Failed to send the request through the default pooling";
+            log.error(msg, e);
+            MessagingException messagingException = new MessagingException(msg, e, 101500);
+            carbonMessage.setMessagingException(messagingException);
+            carbonCallback.done(carbonMessage);
         }
     }
 
