@@ -130,6 +130,14 @@ class AnnotationContainer extends React.Component {
 
         const packagePrefix = match && match[1];
 
+
+        // Add import if not imported to AST-Root.
+        const importToBeAdded = ASTFactory.createImportDeclaration({
+            packageName: this.state.selectedPackageNameValue,
+        });
+        this.context.renderingContext.ballerinaFileEditor
+            .getModel().addImport(importToBeAdded, {doSilently: true});
+
         const newAnnotation = ASTFactory.createAnnotation({
             fullPackageName: this.state.selectedPackageNameValue,
             packageName: packagePrefix,
@@ -137,12 +145,6 @@ class AnnotationContainer extends React.Component {
         });
 
         this.props.model.parentNode.addChild(newAnnotation);
-
-        // Add import if not imported to AST-Root.
-        const importToBeAdded = ASTFactory.createImportDeclaration({
-            packageName: this.state.selectedPackageNameValue,
-        });
-        this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
 
         // Resetting the state of the component.
         this.setState({

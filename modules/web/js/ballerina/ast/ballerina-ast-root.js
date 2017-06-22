@@ -182,7 +182,7 @@ class BallerinaASTRoot extends ASTNode {
         if (this.isExistingPackage(importDeclaration.getPackageName())) {
             const errorString = 'Package "' + importDeclaration.getPackageName() + '" is already imported.';
             log.debug(errorString);
-            throw errorString;
+            return;
         }
 
         const ballerinaASTFactory = this.getFactory();
