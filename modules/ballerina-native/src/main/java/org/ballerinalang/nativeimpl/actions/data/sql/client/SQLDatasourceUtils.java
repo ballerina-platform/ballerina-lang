@@ -1060,7 +1060,10 @@ public class SQLDatasourceUtils {
                 String rest = source.substring(19);
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
-                timeZoneOffSet = offsetData[1];
+                int calculatedtimeZoneOffSet = offsetData[1];
+                if (calculatedtimeZoneOffSet != -1) {
+                    timeZoneOffSet = calculatedtimeZoneOffSet;
+                }
                 calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
@@ -1079,7 +1082,7 @@ public class SQLDatasourceUtils {
 
     private static int[] getTimeZoneWithMilliSeconds(String fractionStr) {
         int miliSecond = 0;
-        int timeZoneOffSet = 0;
+        int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
             int milliSecondPartLength = 0;
             if (fractionStr.endsWith("Z")) { //timezone is given as Z
