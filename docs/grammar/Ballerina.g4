@@ -254,7 +254,7 @@ connectorInitExpression
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
+    :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
