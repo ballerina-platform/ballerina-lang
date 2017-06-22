@@ -115,6 +115,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
+        connectionManager.invalidateTargetChannel(targetChannel);
+
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtTargetConnectionTermination(Integer.toString(ctx.hashCode()));
