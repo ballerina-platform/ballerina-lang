@@ -98,10 +98,7 @@ class BallerinaFileEditor extends EventChannel {
         if (this.isInSourceView()) {
             return this._sourceView.getContent();
         } 
-            let generatedSource = this.generateSource();
-            this._sourceView.setContent(generatedSource);
-            return this._sourceView.getContent();
-        
+        return this.generateSource();
     }
 
     isInSourceView() {
@@ -307,6 +304,7 @@ class BallerinaFileEditor extends EventChannel {
         this._swaggerView = new SwaggerView(swaggerViewOpts);
 
         let sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
+        this._sourceViewBtn = sourceViewBtn;
         sourceViewBtn.click(() => {
             if (self.isInSwaggerView()) {
                 if (self._swaggerView.hasSwaggerErrors()) {
@@ -319,16 +317,9 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
-            // If the file has changed we will add the generated source to source view
-            // If not we will display the content as it is in the file.
-            const generatedSource = this.generateSource();
-            if(this._file.isDirty()){
-                this._sourceView.setContent(generatedSource);
-            } else {
-                this._sourceView.setContent(this._file.getContent());
-            }
 
             sourceViewContainer.show();
+            this._sourceView._editor.resize(true)
             swaggerViewContainer.hide();
             this._$designViewContainer.hide();
             designViewBtn.show();
@@ -667,6 +658,10 @@ class BallerinaFileEditor extends EventChannel {
 
     getEnvironment() {
         return this._environment || new PackageScopedEnvironment();
+    }
+
+    activateSourceView() {
+        this._sourceViewBtn.click();
     }
 
 }

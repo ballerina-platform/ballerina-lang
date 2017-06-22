@@ -17,6 +17,7 @@
  */
 
 import UndoableOperation from './undoable-operation';
+import alerts from 'alerts';
 
 /**
  * Class to represent an undoable source modify operation
@@ -31,23 +32,25 @@ class SourceModifyOperation extends UndoableOperation {
     }
 
     undo() {
-        if (this.canUndo()) {
-            this.getEditor().getSourceView().undo();
+        if (!this.getEditor().isInSourceView()) {
+            this.getEditor().activateSourceView();
+            alerts.info('Switched view to undo changes done from source view');
         }
+        let file = this.getEditor().getFile(),
+            sourceView = this.getEditor().getSourceView();
+        sourceView.undo();
+        file.setContent(sourceView.getContent()).save();
     }
 
     redo() {
-        if (this.canRedo()) {
-            this.getEditor().getSourceView().redo();
+        if (!this.getEditor().isInSourceView()) {
+            this.getEditor().activateSourceView();
+            alerts.info('Switched view to redo changes done from source view');
         }
-    }
-
-    canUndo() {
-        return this.getEditor().isInSourceView();
-    }
-
-    canRedo() {
-        return this.getEditor().isInSourceView();
+        let file = this.getEditor().getFile(),
+            sourceView = this.getEditor().getSourceView();
+        sourceView.redo();
+        file.setContent(sourceView.getContent()).save();
     }
 }
 

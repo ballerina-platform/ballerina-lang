@@ -170,7 +170,7 @@ class VariableDefinitionStatement extends Statement {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Variable Definition Custom Tree modified',
+                title: 'Modify Variable Definition',
                 context: nodeToFireEvent,
             });
         } else {

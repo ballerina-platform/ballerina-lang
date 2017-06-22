@@ -30,8 +30,6 @@ class UndoableOperation extends EventChannel {
         super();
         this.setTitle(_.get(args, 'title', undefined));
         this.setEditor(_.get(args, 'editor', undefined));
-        this.setExistingContent(_.get(args, 'existingContent', undefined));
-        this.setUpdatedContent(_.get(args, 'updatedContent', undefined));
     }
 
     canUndo() {
@@ -48,22 +46,6 @@ class UndoableOperation extends EventChannel {
 
     setTitle(title) {
         this._title = title;
-    }
-
-    getExistingContent() {
-        return this._existingContent;
-    }
-
-    setExistingContent(existingContent) {
-        this._existingContent = existingContent;
-    }
-
-    getUpdatedContent() {
-        return this._updatedContent;
-    }
-
-    setUpdatedContent(updatedContent) {
-        this._updatedContent = updatedContent;
     }
 
     getEditor() {

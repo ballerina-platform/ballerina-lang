@@ -34,15 +34,15 @@ class DiagramManipulationOperation extends UndoableOperation {
     undo() {
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
-        file.setContent(this.getExistingContent()).save();
-        sourceView.replaceContent(this.getExistingContent());
+        sourceView.undo();
+        file.setContent(sourceView.getContent()).save();
     }
 
     redo() {
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
-        file.setContent(this.getUpdatedContent()).save();
-        sourceView.replaceContent(this.getUpdatedContent());
+        sourceView.redo();
+        file.setContent(sourceView.getContent()).save();
     }
 }
 

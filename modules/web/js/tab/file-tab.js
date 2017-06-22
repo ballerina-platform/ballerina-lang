@@ -276,9 +276,13 @@ class FileTab extends Tab {
         fileEditor.render(diagramRenderingContext);
 
         fileEditor.on('content-modified', function (event) {
-            const updatedContent = fileEditor.getContent(),
-                  existingContent = this._file.getContent();
-            this._handleUndoRedoStackOnUpdate(event, existingContent, updatedContent);
+            const updatedContent = fileEditor.getContent();
+            // if the modification happened from design view
+            // updadte source view content
+            if (!fileEditor.isInSourceView()) {            
+                fileEditor.getSourceView().replaceContent(updatedContent, true);
+            }
+            this._handleUndoRedoStackOnUpdate(event);
             this._file.setContent(updatedContent);
             this._file.setDirty(true);
             this._file.save();
@@ -385,7 +389,7 @@ class FileTab extends Tab {
         return this._undoManager;
     }
 
-    _handleUndoRedoStackOnUpdate (changeEvent, existingContent, updatedContent) {
+    _handleUndoRedoStackOnUpdate (changeEvent) {
         let undoableOperationType = DiagramManipulationOperation;
         // user did the change while in source view
         if (this._fileEditor.isInSourceView()) {
@@ -393,9 +397,7 @@ class FileTab extends Tab {
         }
         const undoableOp = new undoableOperationType({
             title: changeEvent.title,
-            editor: this._fileEditor,
-            existingContent: existingContent,
-            updatedContent: updatedContent
+            editor: this._fileEditor
         }); 
         this._undoManager.push(undoableOp);
     }

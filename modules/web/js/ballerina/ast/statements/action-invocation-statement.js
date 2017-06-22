@@ -103,7 +103,7 @@ class ActionInvocationStatement extends Statement {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Action Invocation Expression Custom Tree modified',
+                title: 'Modify Action Invocation',
                 context: nodeToFireEvent,
             });
         } else {

@@ -140,7 +140,7 @@ class WorkerInvocationStatement extends Statement {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Worker Invoke Statement Custom Tree modified',
+                title: 'Modify Worker Invoke Statement',
                 context: this,
             });
 
