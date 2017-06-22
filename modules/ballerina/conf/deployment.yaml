@@ -16,29 +16,31 @@
 
 # Ballerina Configuration Parameters
 ballerina.config:
-  # List of Ballerina Service Interceptor Configuration
-  serviceInterceptors:
+  # List of Ballerina Service Connector Configuration
+  serverConnectors:
     -
-      # Server Connector ID
-      serverConnector: http
-      # Enable Service interception
-      enable: false
-      # Interceptor deployment directory
-      deploymentDirectory: path/to/deployment/directory
-      # Request interceptors.
-      request:
-        -
-          # Package name of the request interceptor.
-          packageName: interceptor.package.name
-          # Ballerina Archive name.
-          archiveName: interceptor.bmz
-      # Resonse interceptors.
-      response:
-        -
-          # Package name of the request interceptor.
-          packageName: interceptor.package.name
-          # Ballerina Archive name.
-          archiveName: interceptor.bmz
+      # Name of the Server connector.
+      name: ballerina.net.http
+      # Exposed protocol
+      protocol: http
+      # Service Intercetor related config.
+      interceptors:
+        # Enable Service interception
+        enable: false
+        # Interceptor deployment directory
+        deploymentDirectory: path/to/deployment/directory
+        # Service interceptor List. Interceptors are engaged in the way they are defined.
+        serviceInterceptors:
+          -
+            # Package name of the request interceptor.
+            packageName: interceptor.package.name
+            # Ballerina Archive name.
+            archiveName: interceptor.bmz
+          -
+            # Package name of the request interceptor.
+            packageName: interceptor.package.name
+            # Ballerina Archive name.
+            archiveName: interceptor.bmz
 
 wso2.securevault:
   secretRepository:
