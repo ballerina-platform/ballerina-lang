@@ -81,20 +81,20 @@ public class AggregationTestCase {
                 "from cseEventStream " +
                 "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1 " +
                 "group by symbol "+
-                "aggregate every sec...min ;";
+                "aggregate by timestamp every sec...min ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
-        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90l, 6, 1496289950l});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40l, 10, 1496289990l});
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289990000L});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200l, 56, 1496291990l}); // TODO: 5/18/17 check with null later
-        inputHandler.send(new Object[]{"WSO2", 100f, null, 200l, 56, 1496291990l});
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496291990000L}); // TODO: 5/18/17 check with null later
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 56, 1496291990000L});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200l, 56, 1496292992l});
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200l, 56, 1496292993l});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496292992000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496292993000L});
         Thread.sleep(2000);
         executionPlanRuntime.shutdown();
 

@@ -37,7 +37,6 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class IncrementalExecutor implements Executor {
@@ -187,7 +186,7 @@ public class IncrementalExecutor implements Executor {
                     // Send TIMER event to next executor
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(ComplexEvent.Type.TIMER);
-                    timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfEventToRemove
+                    timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove
                             (timeStamp, this.duration, this.bufferCount)); // TODO: 6/16/17 correct?
                     timerStreamEventChunk.add(timerEvent);
                     getNextExecutor().execute(timerStreamEventChunk);
@@ -313,7 +312,7 @@ public class IncrementalExecutor implements Executor {
             basicExecutorsOfBufferedEvents.put(copyOfEmitTime, bufferedBasicExecutorDetails);
             // Remove oldest base executors from basicExecutorsOfBufferedEvents
             basicExecutorsOfBufferedEvents.remove(IncrementalTimeConverterUtil.
-                    getEmitTimeOfEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
+                    getEmitTimeOfLastEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
 
             // Add current base aggregator collection to buffer
             bufferedBaseAggregatorMap.put(copyOfEmitTime, runningBaseAggregatorCollection);
@@ -322,7 +321,7 @@ public class IncrementalExecutor implements Executor {
             // Remove oldest base aggregator collection from bufferedBaseAggregatorMap
             Map<String, BaseIncrementalAggregatorStore> baseAggregatesToDispatch = bufferedBaseAggregatorMap
                     .remove(IncrementalTimeConverterUtil.
-                            getEmitTimeOfEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
+                            getEmitTimeOfLastEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
 
             // Send oldest base aggregator collection to next executor
             if (baseAggregatesToDispatch != null) {
