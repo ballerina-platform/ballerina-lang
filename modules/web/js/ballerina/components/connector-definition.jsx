@@ -93,7 +93,8 @@ class ConnectorDefinition extends React.Component {
      * @memberof ConnectorDefinition
      */
     handleVarialblesBadgeClick() {
-        this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
+        this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     /**
@@ -166,6 +167,10 @@ class ConnectorDefinition extends React.Component {
 
 ConnectorDefinition.propTypes = {
     model: PropTypes.instanceOf(ConnectorDefinitionAST).isRequired,
+};
+
+ConnectorDefinition.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired
 };
 
 export default ConnectorDefinition;

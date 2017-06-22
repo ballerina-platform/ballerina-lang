@@ -66,7 +66,7 @@ class WhileStatement extends ConditionalStatement {
             const condition = this.getFactory().createFromJson(parsedJson);
             condition.initFromJson(parsedJson);
             this.setCondition(condition);
-            condition.setParent(this);
+            condition.setParent(this, {doSilently: true});
         }
     }
 
@@ -101,7 +101,7 @@ class WhileStatement extends ConditionalStatement {
             const condition = self.getFactory().createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
             self.setCondition(condition, { doSilently: true });
-            condition.setParent(this);
+            condition.setParent(this, {doSilently: true});
         }
         _.each(jsonNode.children, (childNode) => {
             let child;

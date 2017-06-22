@@ -44,7 +44,8 @@ class PanelDecorator extends React.Component {
     }
 
     onCollapseClick() {
-        this.props.model.setAttribute('viewState.collapsed', !this.props.model.viewState.collapsed);
+        this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
+        this.context.editor.trigger('update-diagram');
     }
 
     onDelete() {
@@ -276,7 +277,8 @@ class PanelDecorator extends React.Component {
     }
 
     onAnnotationEditButtonClick() {
-        this.props.model.setAttribute('viewState.showAnnotationContainer', !this.props.model.viewState.showAnnotationContainer);
+        this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
+        this.context.editor.trigger('update-diagram');
     }
 }
 
@@ -294,6 +296,7 @@ PanelDecorator.propTypes = {
 };
 
 PanelDecorator.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 };
 

@@ -70,11 +70,13 @@ class PackageDefinition extends React.Component {
     }
 
     handleImportsBadgeClick() {
-        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
+        this.props.model.viewState.importsExpanded = !this.props.model.viewState.importsExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     handleGlobalsBadgeClick() {
-        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
+        this.props.model.viewState.globalsExpanded = !this.props.model.viewState.globalsExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     onPackageInputBlur() {
@@ -103,7 +105,7 @@ class PackageDefinition extends React.Component {
     handleAddImport(value) {
         const newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
         newImportDeclaration.setPackageName(value);
-        newImportDeclaration.setParent(this.props.model.parent);
+        newImportDeclaration.setParent(this.props.model.parent, {doSilently: true});
         this.props.model.parent.addImport(newImportDeclaration);
     }
 
@@ -116,11 +118,13 @@ class PackageDefinition extends React.Component {
     }
 
     handleGlobalsBadgeClick() {
-        this.props.model.setAttribute('viewState.globalsExpanded', !this.props.model.viewState.globalsExpanded);
+        this.props.model.viewState.globalsExpanded = !this.props.model.viewState.globalsExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     handleImportsBadgeClick() {
-        this.props.model.setAttribute('viewState.importsExpanded', !this.props.model.viewState.importsExpanded);
+        this.props.model.viewState.importsExpanded = !this.props.model.viewState.importsExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     handlePackageIconClick() {
@@ -291,7 +295,8 @@ PackageDefinition.propTypes = {
 };
 
 PackageDefinition.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired
 };
 
 export default PackageDefinition;

@@ -62,7 +62,7 @@ class ConnectorAction extends ASTNode {
         let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
             argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
-            this.addChild(argParamDefHolder);
+            this.addChild(argParamDefHolder, undefined, true, true, false);
         }
         return argParamDefHolder;
     }
@@ -168,7 +168,7 @@ class ConnectorAction extends ASTNode {
         let returnParamDefHolder = this.findChild(this.getFactory().isReturnParameterDefinitionHolder);
         if (_.isUndefined(returnParamDefHolder)) {
             returnParamDefHolder = this.getFactory().createReturnParameterDefinitionHolder();
-            this.addChild(returnParamDefHolder);
+            this.addChild(returnParamDefHolder, undefined, true, true, false);
         }
         return returnParamDefHolder;
     }

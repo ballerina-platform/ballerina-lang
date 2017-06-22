@@ -17,6 +17,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import ResourceDefinition from './resource-definition.jsx';
 import StatementView from './statement-decorator.jsx';
 import PanelDecorator from './panel-decorator';
@@ -57,7 +58,8 @@ class ServiceDefinition extends React.Component {
     }
 
     handleVarialblesBadgeClick() {
-        this.props.model.setAttribute('viewState.variablesExpanded', !this.props.model.viewState.variablesExpanded);
+        this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
+        this.context.editor.trigger('update-diagram');
     }
 
     render() {
@@ -105,4 +107,7 @@ class ServiceDefinition extends React.Component {
     }
 }
 
+ServiceDefinition.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired
+};
 export default ServiceDefinition;
