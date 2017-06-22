@@ -631,12 +631,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         if (ctx.nameReference() != null) {
             BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+            modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
+
             SimpleTypeName typeName = new SimpleTypeName(nameReference.getName(),
                     nameReference.getPackageName(), nameReference.getPackagePath());
+
             if (isVerboseMode) {
                 WhiteSpaceDescriptor ws = WhiteSpaceUtil.getRefTypeNameWS(tokenStream, ctx);
                 typeName.setWhiteSpaceDescriptor(ws);
             }
+
             typeNameStack.push(typeName);
         }
     }
@@ -717,12 +721,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         int attribuesAvailable = ctx.annotationAttributeList() == null ? 0 :
                 ctx.annotationAttributeList().annotationAttribute().size();
+
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationAttachmentWS(tokenStream, ctx);
         }
-        modelBuilder.addAnnotationAttachment(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                nameReferenceStack.pop(), attribuesAvailable);
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+        modelBuilder.addAnnotationAttachment(currentLocation, whiteSpaceDescriptor,
+                nameReference, attribuesAvailable);
     }
 
     @Override
@@ -843,7 +852,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, false);
     }
 
     @Override
@@ -869,7 +878,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
-                                               exprAvailable);
+                exprAvailable);
 
     }
 
@@ -967,16 +976,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
+        NodeLocation currentLocation = getCurrentLocation(ctx);
         boolean argsAvailable = ctx.expressionList() != null;
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
         SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
                 nameReference.getPackageName(), null);
+
         connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
         }
-        modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+
+        modelBuilder.createConnectorInitExpr(currentLocation, whiteSpaceDescriptor,
                 connectorTypeName, argsAvailable);
     }
 
@@ -993,7 +1006,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, isVarDeclaration);
     }
 
     @Override
@@ -1399,7 +1416,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getForkInvokeStmtWS(tokenStream, ctx);
             }
             modelBuilder.createWorkerInvocationStmt("fork",
-                        getCurrentLocation(ctx), whiteSpaceDescriptor);
+                    getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
@@ -1456,13 +1473,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        if (ctx.exception == null) {
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
-            }
-            modelBuilder.createVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, nameReferenceStack.pop());
+        if (ctx.exception != null) {
+            return;
         }
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
+        }
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.resolvePackageFromNameReference(nameReference);
+        modelBuilder.createVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
     }
 
     @Override
@@ -1471,15 +1494,21 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
-        if (ctx.exception == null) {
-            int dimensions = (ctx.getChildCount() - 1) / 3;
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
-            }
-            modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                    nameReferenceStack.pop(), dimensions);
+        if (ctx.exception != null) {
+            return;
         }
+        int dimensions = (ctx.getChildCount() - 1) / 3;
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
+        }
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.resolvePackageFromNameReference(nameReference);
+        modelBuilder.createMapArrayVarRefExpr(currentLocation, whiteSpaceDescriptor,
+                nameReference, dimensions);
+
     }
 
     @Override
@@ -1515,8 +1544,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationStmtWS(tokenStream, ctx);
             whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
         }
-        modelBuilder.createFunctionInvocationStmt(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                nameReferenceStack.pop(), argsAvailable);
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+        modelBuilder.createFunctionInvocationStmt(currentLocation, whiteSpaceDescriptor,
+                nameReference, argsAvailable);
     }
 
     @Override
@@ -1619,9 +1652,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
+        NodeLocation nodeLocation = getCurrentLocation(ctx);
         String actionName = ctx.Identifier().getText();
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        NodeLocation nodeLocation = getCurrentLocation(ctx);
+        modelBuilder.validateAndSetPackagePath(nodeLocation, nameReference);
         boolean argsAvailable = ctx.expressionList() != null;
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
@@ -1630,7 +1664,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReference.getWhiteSpaceDescriptor());
         }
         modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
-                    argsAvailable);
+                argsAvailable);
     }
 
     @Override
@@ -1639,14 +1673,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
-        if (ctx.exception == null) {
-            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-            if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getBacktickStringWS(tokenStream, ctx);
-            }
-            modelBuilder.createBacktickExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                    ctx.BacktickStringLiteral().getText());
-        }
     }
 
     @Override
@@ -1716,8 +1742,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
             whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
         }
-        modelBuilder.addFunctionInvocationExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                nameReferenceStack.pop(), argsAvailable);
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+        modelBuilder.addFunctionInvocationExpr(currentLocation, whiteSpaceDescriptor,
+                nameReference, argsAvailable);
     }
 
     @Override
@@ -1755,7 +1785,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-//        modelBuilder.createVarRefExpr();
     }
 
     @Override
@@ -1788,7 +1817,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTypeConversionExpression(TypeConversionExpressionContext ctx) {
     }
-    
+
     @Override
     public void exitTypeConversionExpression(TypeConversionExpressionContext ctx) {
         if (ctx.exception != null) {
@@ -1800,7 +1829,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         modelBuilder.createTypeConversionExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop());
     }
-    
+
     @Override
     public void enterBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx) {
     }
@@ -1889,15 +1918,15 @@ public class BLangAntlr4Listener implements BallerinaListener {
             String pkgName = ctx.Identifier(0).getText();
             String name = ctx.Identifier(1).getText();
             nameReference = new BLangModelBuilder.NameReference(pkgName, name);
-
         } else {
             String name = ctx.Identifier(0).getText();
             nameReference = new BLangModelBuilder.NameReference(null, name);
         }
+
         if (isVerboseMode) {
             nameReference.setWhiteSpaceDescriptor(WhiteSpaceUtil.getNameRefWS(tokenStream, ctx));
         }
-        modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
+
         nameReferenceStack.push(nameReference);
     }
 

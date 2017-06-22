@@ -119,4 +119,13 @@ public class BArrayValueTest {
         Assert.assertTrue(returns[2] instanceof BJSON);
         Assert.assertEquals(returns[2].stringValue(), "{\"name\":\"supun\"}");
     }
+
+    @Test(description = "test default value of an element in an json array")
+    public void testArrayGrowth() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArrayGrowth", args);
+
+        BInteger value = (BInteger) returns[0];
+        Assert.assertEquals(value.intValue(), 2390725);
+    }
 }

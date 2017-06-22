@@ -216,9 +216,9 @@ public class StructTest {
     }
     
     @Test(description = "Test initializing a struct with mismatching field type",
-            expectedExceptions = {BallerinaException.class},
+            expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible types: expected "
-                    + "'string', found 'int'")
+                    + "'map', found 'int'")
     public void testMismatchingTypeFieldInit() {
         BTestUtils.getProgramFile("lang/structs/invalid-type-attribute-init.bal");
     }

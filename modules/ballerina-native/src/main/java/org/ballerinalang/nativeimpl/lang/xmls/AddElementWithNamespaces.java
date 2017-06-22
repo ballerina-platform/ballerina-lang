@@ -81,7 +81,7 @@ public class AddElementWithNamespaces extends AbstractNativeFunction {
             BXML xml = (BXML) getRefArgument(ctx, 0);
             String xPath = getStringArgument(ctx, 0);
             OMElement value = (OMElement) ((BXML) getRefArgument(ctx, 1)).value();
-            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 2);
+            BMap<String, BString> namespaces = (BMap) getRefArgument(ctx, 2);
 
             if (value == null) {
                 return VOID_RETURN;
@@ -92,8 +92,8 @@ public class AddElementWithNamespaces extends AbstractNativeFunction {
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             if (namespaces != null && !namespaces.isEmpty()) {
-                for (BString entry : namespaces.keySet()) {
-                    axiomxPath.addNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
+                for (String entry : namespaces.keySet()) {
+                    axiomxPath.addNamespace(entry, namespaces.get(entry).stringValue());
                 }
             }
 

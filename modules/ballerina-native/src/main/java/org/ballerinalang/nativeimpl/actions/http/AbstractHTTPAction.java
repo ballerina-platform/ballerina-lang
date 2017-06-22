@@ -139,6 +139,13 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 throw new BallerinaException("Http client connector is not available");
             }
 
+            Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+            if (sourceHandler != null) {
+                context.setProperty(Constants.SRC_HANDLER, sourceHandler);
+            } else {
+                message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+            }
+
             clientConnector.send(message, balConnectorCallback);
 
             // Wait till Response comes
@@ -175,6 +182,14 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         if (clientConnector == null) {
             throw new BallerinaException("Http client connector is not available");
         }
+
+        Object sourceHandler = message.getProperty(Constants.SRC_HANDLER);
+        if (sourceHandler != null) {
+            context.setProperty(Constants.SRC_HANDLER, sourceHandler);
+        } else {
+            message.setProperty(Constants.SRC_HANDLER, context.getProperty(Constants.SRC_HANDLER));
+        }
+
         clientConnector.send(message, balConnectorCallback);
     }
 

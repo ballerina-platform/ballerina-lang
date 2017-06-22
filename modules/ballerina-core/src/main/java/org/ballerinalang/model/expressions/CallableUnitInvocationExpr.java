@@ -27,7 +27,6 @@ import org.ballerinalang.model.types.BType;
  * @param <T> type of the invocation expression
  * @see FunctionInvocationExpr
  * @see ActionInvocationExpr
- * @see ResourceInvocationExpr
  * @since 0.8.0
  */
 public interface CallableUnitInvocationExpr<T extends CallableUnit> extends ExecutableMultiReturnExpr {
@@ -72,12 +71,4 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
      * @param types arrays of argument types
      */
     void setTypes(BType[] types);
-
-    int getGotoBranchID();
-
-    void setGotoBranchID(int retuningBranchID);
-
-    boolean hasGotoBranchID();
-
-    void setHasGotoBranchID(boolean hasReturningBranch);
 }

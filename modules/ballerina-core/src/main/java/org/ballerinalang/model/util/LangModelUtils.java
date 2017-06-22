@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.util;
 
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
@@ -48,13 +49,19 @@ public class LangModelUtils {
         return new SymbolName(identifier, pkgPath);
     }
 
-    public static SymbolName getActionSymName(String actionName, String pkgPath, String connectorName) {
-        return new SymbolName(connectorName + "." + actionName, pkgPath);
+    public static SymbolName getResourceSymName(String resourceName, String pkgPath, String serviceName) {
+        return new SymbolName(serviceName + "." + resourceName, pkgPath);
     }
 
-    public static SymbolName getNativeActionSymName(String actionName, String connectorName,
-                                              String pkgPath) {
-        return new SymbolName("NativeAction" + "." + connectorName + "." + actionName, pkgPath);
+    public static ActionSymbolName getActionSymName(String actionName, String pkgPath, String connectorName,
+                                                    BType[] types) {
+        return new ActionSymbolName(connectorName + "." + actionName, pkgPath, types.length);
+    }
+
+    public static ActionSymbolName getNativeActionSymName(String actionName, String connectorName,
+                                              String pkgPath, BType[] types) {
+        return new ActionSymbolName("NativeAction" + "." + connectorName + "." + actionName, pkgPath,
+                types.length);
     }
 
     public static BType[] getTypesOfParams(ParameterDef[] parameterDefs) {

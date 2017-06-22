@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.88-SNAPSHOT</version>
+        <version>0.89-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -109,6 +109,7 @@
                         <srcDir>${ballerina.source.directory}</srcDir>
                         <targetDir>${generated.ballerina.source.directory}</targetDir>
                         <pkgRepositoryClass>${package.repository.provider.class}</pkgRepositoryClass>
+                        <isSystemPkgRepository>${ballerina.system.package.repository}</isSystemPkgRepository>
                     </options>
                 </configuration>
                 <executions>
@@ -129,6 +130,8 @@
                     <additionalClasspathElements>
                     <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
                         /BallerinaNativeConstructsProvider.class</additionalClasspathElement>
+                    <additionalClasspathElement>${basedir}/target/classes/org/wso2/ballerina/nativeimpl
+                            /repository/BallerinaBuiltinPackageRepository.class</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
@@ -239,6 +242,7 @@
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <package.repository.provider.class>org.ballerinalang.nativeimpl.repository.BallerinaBuiltinPackageRepository
         </package.repository.provider.class>
+        <ballerina.system.package.repository>true</ballerina.system.package.repository>
         
         <!-- Path to the generated natives ballerina files temp directory -->
         <!--<generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>-->

@@ -40,20 +40,16 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
     private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    protected Map<String, Object> properties = new HashMap();
+    protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
-    private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
     private SessionInfo sessionContext;
 
-    // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
-    private boolean vmBasedExecutor = false;
     private int startIP;
     private BStruct errorThrown;
 
@@ -66,13 +62,11 @@ public class Context {
 
     @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
 
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
         this.sessionContext = new SessionInfo();
     }
@@ -91,10 +85,6 @@ public class Context {
 
     public void setDebugEnabled(boolean debugEnabled) {
         this.debugEnabled = debugEnabled;
-    }
-
-    public ControlStack getControlStack() {
-        return this.controlStack;
     }
 
     public ControlStackNew getControlStackNew() {
@@ -137,14 +127,6 @@ public class Context {
         this.serviceInfo = serviceInfo;
     }
 
-    public Object getServerConnectorProtocol() {
-        return serverConnectorProtocol;
-    }
-
-    public void setServerConnectorProtocol(Object serverConnectorProtocol) {
-        this.serverConnectorProtocol = serverConnectorProtocol;
-    }
-
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
         this.ballerinaTransactionManager = ballerinaTransactionManager;
     }
@@ -155,14 +137,6 @@ public class Context {
 
     public boolean isInTransaction() {
         return this.ballerinaTransactionManager != null;
-    }
-
-    public boolean isVMBasedExecutor() {
-        return vmBasedExecutor;
-    }
-
-    public void setVMBasedExecutor(boolean vmBasedExecutor) {
-        this.vmBasedExecutor = vmBasedExecutor;
     }
 
     public BStruct getError() {

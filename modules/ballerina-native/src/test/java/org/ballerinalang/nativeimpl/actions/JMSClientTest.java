@@ -18,7 +18,6 @@
 
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
@@ -33,14 +32,12 @@ import org.testng.annotations.Test;
  * Test cases for jms client.
  */
 public class JMSClientTest {
-    private SymScope globalScope;
     private ProgramFile bLangProgram;
     private boolean isNonBlockingEnabled;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.getProgramFile("samples/jmsClientConnectorTest.bal");
-        globalScope = new SymScope(SymScope.Name.GLOBAL);
         BuiltInNativeConstructLoader.loadConstructs();
         isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
         ModeResolver.getInstance().setNonblockingEnabled(false);
