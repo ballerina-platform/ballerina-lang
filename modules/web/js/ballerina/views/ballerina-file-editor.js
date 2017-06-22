@@ -286,6 +286,7 @@ class BallerinaFileEditor extends EventChannel {
         this._debugger.on('session-completed', _.bind(this._clearExistingDebugHit, this));
 
         this._sourceView.render();
+        this._sourceView.setContent(this._file.getContent() || '');
 
         let lastRenderedTimestamp = this._file.getLastPersisted();
         let transformPopUp = '#transformOverlay';
@@ -465,7 +466,6 @@ class BallerinaFileEditor extends EventChannel {
             this._swaggerView.hide();
             this._$designViewContainer.hide();
             this._sourceView.show();
-            self._sourceView.setContent(self._file.getContent());
             self.setActiveView('source');
         } else {
             designViewBtn.hide();
