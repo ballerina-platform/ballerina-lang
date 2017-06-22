@@ -24,7 +24,8 @@ import ReactDOM from 'react-dom';
 import * as YAML from 'js-yaml';
 import SwaggerParser from '../../../swagger-parser/swagger-parser';
 import ConflictModal from './components/conflict-modal';
-// import ConflictMergeModal from './components/conflict-merge-modal';
+import ConflictMergeModal from './components/conflict-merge-modal';
+import SwaggerJsonVisitor from './../../visitors/swagger-json-gen/service-definition-visitor';
 
 const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
@@ -85,12 +86,7 @@ class SwaggerView extends EventChannel {
         this._swaggerAceEditor.setTheme(editorTheme);
         this._swaggerAceEditor.setFontSize(this._swaggerEditorFontSize);
 
-
-        // Setting the default selected swagger
-        this._swaggerEditor.specActions.updateUrl('');
-        this._swaggerEditor.specActions.updateLoadingStatus('success');
-        this._swaggerEditor.specActions.updateSpec(JSON.stringify(this._swaggerData.swagger));
-        this._swaggerEditor.specActions.formatIntoYaml();
+        this.updateSpecView(this._swaggerData.swagger);
 
         this._swaggerAceEditor.getSession().on('change', (e) => {
             // @todo - set a dirty state in the model. need to refactor.
@@ -193,17 +189,26 @@ class SwaggerView extends EventChannel {
         conflictModalPopUpWrapper.className = 'swagger-modal-container';
         document.body.appendChild(conflictModalPopUpWrapper);
 
-        const mergeResourcesFunc = () => {
-            // ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
+        const moreOptionsFunc = () => {
+            ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
+            args.swaggerView = this;
+            const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
+            ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
+        };
 
-            // const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
-            // ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
+        const keepResourcesFunc = () => {
+            swaggerParser.mergeToService(originalServiceDef);
+            const swaggerJsonVisitor = new SwaggerJsonVisitor();
+            originalServiceDef.accept(swaggerJsonVisitor);
+            this._swaggerData.swagger = swaggerJsonVisitor.getSwaggerJson();
+            this.updateSpecView(this._swaggerData.swagger);
         };
 
         const conflictModal = React.createElement(ConflictModal, {
             missingOriginalResourceDefs,
             originalServiceDef,
-            mergeResourcesFunc,
+            moreOptionsFunc,
+            keepResourcesFunc,
             swaggerParser,
         }, null);
 
@@ -216,7 +221,7 @@ class SwaggerView extends EventChannel {
      * @static
      * @param {ResourceDefinition} resourceDef The resource definition.
      * @param {ResourceDefinition} resourceDefToCompare The resource definition to compare with.
-     * @returns true if same resource, else false.
+     * @returns {boolean} true if same resource, else false.
      * @memberof SwaggerView
      */
     static isSameResource(resourceDef, resourceDefToCompare) {
@@ -230,6 +235,19 @@ class SwaggerView extends EventChannel {
     }
 
     /**
+     * Updates the swagger spec
+     *
+     * @param {Object} swagger Swagger JSON.
+     * @memberof SwaggerView
+     */
+    updateSpecView(swagger) {
+        this._swaggerEditor.specActions.updateUrl('');
+        this._swaggerEditor.specActions.updateLoadingStatus('success');
+        this._swaggerEditor.specActions.updateSpec(JSON.stringify(swagger));
+        this._swaggerEditor.specActions.formatIntoYaml();
+    }
+
+    /**
      * Set the default node tree.
      * @param {Object} root root node.
      *
@@ -238,14 +256,30 @@ class SwaggerView extends EventChannel {
         this._generatedNodeTree = root;
     }
 
+    /**
+     * Shows the swagger container.
+     *
+     * @memberof SwaggerView
+     */
     show() {
         $(this._container).show();
     }
 
+    /**
+     * Hides the swagger container.
+     *
+     * @memberof SwaggerView
+     */
     hide() {
         $(this._container).hide();
     }
 
+    /**
+     * Check if the swagger view shown.
+     *
+     * @returns {boolean} True if shown, else false.
+     * @memberof SwaggerView
+     */
     isVisible() {
         return $(this._container).is(':visible');
     }
@@ -255,6 +289,7 @@ class SwaggerView extends EventChannel {
      *
      * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions.
      * @param {Object} editorEvent The ace onChange event.
+     * @return {boolean} True if value is updated, else false.
      *
      * @memberof SwaggerView
      */
@@ -492,9 +527,22 @@ class SwaggerView extends EventChannel {
 
     /**
      * Returns the number of errors in the editor.
+     *
+     * @returns {boolean} True if errors exists, else false.
+     * @memberof SwaggerView
      */
     hasSwaggerErrors() {
         return _.size(this._swaggerAceEditor.getSession().getAnnotations());
+    }
+
+    /**
+     * Gets teh swagger data for this view.
+     *
+     * @returns {Object} Swagger data.
+     * @memberof SwaggerView
+     */
+    getSwaggerData() {
+        return this._swaggerData;
     }
 }
 

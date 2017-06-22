@@ -71,7 +71,7 @@ class ConflictModal extends React.Component {
      * @memberof ConflictModal
      */
     onKeepResources() {
-        this.props.swaggerParser.mergeToService(this.props.originalServiceDef);
+        this.props.keepResourcesFunc();
         this.hideModal();
     }
 
@@ -81,7 +81,7 @@ class ConflictModal extends React.Component {
      */
     onMoreOptions() {
         this.hideModal();
-        this.props.mergeResourcesFunc();
+        this.props.moreOptionsFunc();
     }
 
     /**
@@ -164,7 +164,8 @@ class ConflictModal extends React.Component {
 ConflictModal.propTypes = {
     missingOriginalResourceDefs: PropTypes.arrayOf(PropTypes.instanceOf(ResourceDefinitionAST)).isRequired,
     originalServiceDef: PropTypes.instanceOf(ServiceDefinitionAST).isRequired,
-    mergeResourcesFunc: PropTypes.func.isRequired,
+    keepResourcesFunc: PropTypes.func.isRequired,
+    moreOptionsFunc: PropTypes.func.isRequired,
     swaggerParser: PropTypes.instanceOf(SwaggerParser).isRequired,
 };
 
