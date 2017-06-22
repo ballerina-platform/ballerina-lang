@@ -36,4 +36,5 @@ public class Constants {
     public static final String ANNOTATION_ATTRIBUTE_URI = "fileURI";
     public static final String ANNOTATION_ATTRIBUTE_POLLING_INTERVAL = "pollingInterval";
     public static final String ANNOTATION_ATTRIBUTE_SEEK = "seek";
+    public static final String ANNOTATION_ATTRIBUTE_THROTTLE = "throttle";
 }

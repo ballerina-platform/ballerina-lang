@@ -5,6 +5,7 @@ annotation FileSource attach service {
     string fileURI;
     string pollingInterval;
     string seek;
+    string throttle;
 }
 annotation OnUpdate attach resource{
 

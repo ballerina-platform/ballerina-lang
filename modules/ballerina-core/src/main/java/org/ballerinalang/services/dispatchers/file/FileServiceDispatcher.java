@@ -142,6 +142,10 @@ public class FileServiceDispatcher implements ServiceDispatcher {
             if (value != null) {
                 elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_URI, value.getStringValue());
             }
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_THROTTLE);
+            if (value != null) {
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_THROTTLE, value.getStringValue());
+            }
             String serviceName = service.getName();
             ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
                     Constants.PROTOCOL_FILE, serviceName, elementsMap);
