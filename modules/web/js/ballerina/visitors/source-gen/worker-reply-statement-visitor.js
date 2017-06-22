@@ -25,11 +25,18 @@ class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     beginVisitWorkerReplyStatement(workerReplyStatement) {
+        if (workerReplyStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         this.appendSource(workerReplyStatement.getStatementString());
     }
 
-    endVisitWorkerReplyStatement() {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ';\n');
+    endVisitWorkerReplyStatement(workerReplyStatement) {
+        this.appendSource(';' + workerReplyStatement.getWSRegion(4));
+        this.appendSource((workerReplyStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

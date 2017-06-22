@@ -49,6 +49,14 @@ class EnableDefaultWSVisitor {
             node.getConnectorName().accept(this);
         } else if (node.getFactory().isCatchStatement(node)) {
             node.getParameter().accept(this);
+        } else if (node.getFactory().isWorkerInvocationStatement(node)) {
+            node.getExpressionList().forEach((expr) => {
+                expr.accept(this);
+            });
+        } else if (node.getFactory().isWorkerReplyStatement(node)) {
+            node.getExpressionList().forEach((expr) => {
+                expr.accept(this);
+            });
         }
     }
 
