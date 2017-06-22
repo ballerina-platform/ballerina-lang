@@ -261,7 +261,7 @@ query_output
     ;
 
 update_set
-    :
+    : dereferencing_attribute =
 
 output_event_type
     : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS   
@@ -329,8 +329,12 @@ stream_reference
     ;
 
 attribute_reference
-    : hash1='#'? name1=name ('['attribute_index1=attribute_index']')? (hash2='#' name2=name ('['attribute_index2=attribute_index']')?)? '.'  attribute_name
+    : dereferencing_attribute
     | attribute_name
+    ;
+
+dereferencing_attribute
+    : hash1='#'? name1=name ('['attribute_index1=attribute_index']')? (hash2='#' name2=name ('['attribute_index2=attribute_index']')?)? '.'  attribute_name
     ;
 
 attribute_index
