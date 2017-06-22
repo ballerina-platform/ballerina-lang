@@ -20,19 +20,24 @@ package org.ballerinalang.runtime.config;
 import org.wso2.carbon.config.annotation.Configuration;
 import org.wso2.carbon.config.annotation.Element;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Parent Bean Class for Ballerina Configuration.
+ * Configuration bean class for Service Interceptor.
  */
-@Configuration(namespace = "ballerina.config", description = "ballerina configuration")
-public class BallerinaConfiguration {
-    @Element(description = "ballerina service connector configuration")
-    private List<ServerConnectorConfig> serverConnectors = new ArrayList<>();
+@Configuration(description = "interceptor configuration")
+public class ServiceInterceptorConfig {
 
-    public List<ServerConnectorConfig> getServerConnectors() {
-        return serverConnectors;
+    @Element(description = "interceptor package", required = true)
+    private String packageName = "";
+
+    @Element(description = "name of the ballerina Archive" , required = true)
+    private String archiveName = "";
+
+    public String getPackageName() {
+        return packageName;
     }
-}
 
+    public String getArchiveName() {
+        return archiveName;
+    }
+
+}

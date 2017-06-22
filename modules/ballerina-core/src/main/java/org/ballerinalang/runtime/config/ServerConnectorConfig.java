@@ -15,29 +15,36 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.runtime.config.interceptors;
+package org.ballerinalang.runtime.config;
 
 import org.wso2.carbon.config.annotation.Configuration;
 import org.wso2.carbon.config.annotation.Element;
 
+
 /**
- * Configuration bean class for Interceptor
+ * Configuration BeanClass for Server Connectors.
  */
-@Configuration(description = "interceptor configuration")
-public class InterceptorConfig {
+@Configuration(description = "Server Connector Configuration")
+public class ServerConnectorConfig {
 
-    @Element(description = "interceptor package", required = true)
-    private String packageName = "";
+    @Element(description = "service connector name. eg: ballerina.net.http", required = true)
+    private String name;
 
-    @Element(description = "name of the ballerina Archive" , required = true)
-    private String archiveName = "";
+    @Element(description = "protocol identifier exposed by server connector. eg: http", required = true)
+    private String protocol;
 
-    public String getPackageName() {
-        return packageName;
+    @Element(description = "Server connector interceptors' configuration")
+    private InterceptorConfig interceptors = new InterceptorConfig();
+
+    public String getName() {
+        return name;
     }
 
-    public String getArchiveName() {
-        return archiveName;
+    public String getProtocol() {
+        return protocol;
     }
 
+    public InterceptorConfig getInterceptors() {
+        return interceptors;
+    }
 }

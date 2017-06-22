@@ -27,11 +27,11 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.interceptors.BLangServiceInterceptors;
 import org.ballerinalang.runtime.interceptors.BLangVMInterceptors;
-import org.ballerinalang.runtime.interceptors.ResourceInterceptor;
-import org.ballerinalang.runtime.interceptors.ResourceInterceptorCallback;
-import org.ballerinalang.runtime.interceptors.ServerConnectorInterceptorInfo;
+import org.ballerinalang.runtime.interceptors.ServiceInterceptorCallback;
+import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
+import org.ballerinalang.runtime.model.ServerConnector;
+import org.ballerinalang.runtime.model.ServiceInterceptor;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -64,8 +64,6 @@ public class ServerConnectorMessageHandler {
 
     private static final Logger breLog = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
-    private static BLangServiceInterceptors serviceInterceptors = BLangServiceInterceptors.getInstance();
-
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
 
         String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
@@ -95,37 +93,7 @@ public class ServerConnectorMessageHandler {
 
             // Find the Resource
             ResourceInfo resource = resourceDispatcher.findResource(service, cMsg, callback);
-            // engage Service interceptors.
-            CarbonCallback resourceCallback = callback;
-            CarbonMessage resourceMessage = cMsg;
-            if (serviceInterceptors.isEnabled(protocol)) {
-                ServerConnectorInterceptorInfo interceptorInfo = serviceInterceptors
-                        .getServerConnectorInterceptorInfo(protocol);
-                resourceCallback = new ResourceInterceptorCallback(callback, protocol);
-                List<ResourceInterceptor> requestChain = interceptorInfo.getRequestChain();
-                BMessage message = new BMessage(cMsg);
-                // Invoke request interceptor chain.
-                for (ResourceInterceptor resourceInterceptor : requestChain) {
-                    ResourceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(
-                            resourceInterceptor, message);
-                    if (result.getMessageIntercepted() == null) {
-                        // Can't Intercept null message further. Let it handle at server connector level.
-                        breLog.error("error in service interception, return message null in " +
-                                (".".equals(resourceInterceptor.getPackageInfo().getPkgPath()) ? "" :
-                                        resourceInterceptor.getPackageInfo().getPkgPath() + ":") +
-                                resourceInterceptor.getInterceptorFunction().getName());
-                        callback.done(null);
-                        return;
-                    }
-                    message = result.getMessageIntercepted();
-                    if (!result.isInvokeNext()) {
-                        callback.done(message.value());
-                        return;
-                    }
-                    resourceMessage = message.value();
-                }
-            }
-            invokeResource(resourceMessage, resourceCallback, resource, service);
+            invokeResource(cMsg, callback, protocol, resource, service);
         } catch (Throwable throwable) {
             handleError(cMsg, callback, throwable);
         }
@@ -134,20 +102,54 @@ public class ServerConnectorMessageHandler {
     /**
      * Resource invocation logic.
      *
-     * @param carbonMessage  incoming carbonMessage
-     * @param carbonCallback carbonCallback
-     * @param resourceInfo   resource that has been invoked
-     * @param serviceInfo    service that has been invoked
+     * @param cMsg         incoming carbonMessage
+     * @param callback     carbonCallback
+     * @param protocol     protocol of the resource
+     * @param resourceInfo resource that has been invoked
+     * @param serviceInfo  service that has been invoked
      */
-    public static void invokeResource(CarbonMessage carbonMessage, CarbonCallback carbonCallback,
+    public static void invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
+        // engage Service interceptors.
+        CarbonCallback resourceCallback = callback;
+        CarbonMessage resourceMessage = cMsg;
+        if (BLangRuntimeRegistry.getInstance().isInterceptionEnabled(protocol)) {
+            ServerConnector serverConnector = BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
+            resourceCallback = new ServiceInterceptorCallback(callback, protocol);
+            List<ServiceInterceptor> serviceInterceptorList = serverConnector.getServiceInterceptorList();
+            BMessage message = new BMessage(cMsg);
+            // Invoke request interceptor serviceInterceptorList.
+            for (ServiceInterceptor interceptor : serviceInterceptorList) {
+                if (interceptor.getRequestFunction() == null) {
+                    continue;
+                }
+                ServiceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor,
+                        interceptor.getRequestFunction(), message);
+                if (result.getMessageIntercepted() == null) {
+                    // Can't Intercept null message further. Let it handle at server connector level.
+                    breLog.error("error in service interception, return message null in " +
+                            (".".equals(interceptor.getPackageInfo().getPkgPath()) ? "" :
+                                    interceptor.getPackageInfo().getPkgPath() + ":") +
+                            ServiceInterceptor.REQUEST_INTERCEPTOR_NAME);
+                    callback.done(null);
+                    return;
+                }
+                message = result.getMessageIntercepted();
+                if (!result.isInvokeNext()) {
+                    callback.done(message.value());
+                    return;
+                }
+                resourceMessage = message.value();
+            }
+        }
+        // Invoke VM.
         PackageInfo packageInfo = serviceInfo.getPackageInfo();
         ProgramFile programFile = packageInfo.getProgramFile();
 
         Context context = new Context(programFile);
         context.setServiceInfo(serviceInfo);
-        context.setCarbonMessage(carbonMessage);
-        context.setBalCallback(new DefaultBalCallback(carbonCallback));
+        context.setCarbonMessage(resourceMessage);
+        context.setBalCallback(new DefaultBalCallback(resourceCallback));
         ControlStackNew controlStackNew = context.getControlStackNew();
 
         // Now create callee's stack-frame
@@ -171,9 +173,10 @@ public class ServerConnectorMessageHandler {
         int longParamCount = 0;
         String[] paramNameArray = resourceInfo.getParamNames();
         BType[] bTypes = resourceInfo.getParamTypes();
-        if (carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS) != null) {
+        if (resourceMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS) != null) {
             Map<String, String> resourceArgumentValues =
-                    (Map<String, String>) carbonMessage.getProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
+                    (Map<String, String>) resourceMessage.getProperty(org.ballerinalang.runtime.Constants
+                            .RESOURCE_ARGS);
 
             for (int i = 0; i < paramNameArray.length; i++) {
                 BType btype = bTypes[i];
@@ -198,7 +201,7 @@ public class ServerConnectorMessageHandler {
         }
 
         // It is given that first parameter of the resource is carbon message.
-        refLocalVars[0] = new BMessage(carbonMessage);
+        refLocalVars[0] = new BMessage(resourceMessage);
         calleeSF.setLongLocalVars(longLocalVars);
         calleeSF.setDoubleLocalVars(doubleLocalVars);
         calleeSF.setStringLocalVars(stringLocalVars);

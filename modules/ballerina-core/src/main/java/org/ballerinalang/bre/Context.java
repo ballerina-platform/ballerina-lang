@@ -52,7 +52,7 @@ public class Context {
     private BStruct unhandledError;
 
     // TODO : Temporary solution to make non-blocking working.
-    public boolean initFunction = false;
+    public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;

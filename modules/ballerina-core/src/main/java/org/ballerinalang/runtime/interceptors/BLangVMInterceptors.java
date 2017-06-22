@@ -22,8 +22,10 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.runtime.model.ServiceInterceptor;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -44,27 +46,24 @@ public interface BLangVMInterceptors {
     /**
      * Invokes given ResourceInterceptor with given message.
      *
-     * @param resourceInterceptor ballerina interceptor to be invoked
-     * @param bMessage            input arguments for the interceptor
+     * @param serviceInterceptor service interceptor to be invoked
+     * @param functionInfo       which service interceptor function to be invoked
+     * @param bMessage           input arguments for the interceptor
      * @return return values from the interceptor
      */
-    static ResourceInterceptor.Result invokeResourceInterceptor(ResourceInterceptor resourceInterceptor,
-                                                                BMessage bMessage) {
-
-        Context context = new Context(resourceInterceptor.getProgramFile());
-        context.initFunction = true;
-        PackageInfo packageInfo = resourceInterceptor.getPackageInfo();
-        FunctionInfo functionInfo = resourceInterceptor.getInterceptorFunction();
+    static ServiceInterceptor.Result invokeResourceInterceptor(ServiceInterceptor serviceInterceptor, FunctionInfo
+            functionInfo, BMessage bMessage) {
+        Context context = new Context(serviceInterceptor.getProgramFile());
+        context.disableNonBlocking = true;
+        PackageInfo packageInfo = serviceInterceptor.getPackageInfo();
 
         ControlStackNew controlStackNew = context.getControlStackNew();
 
-        // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
-        // registers to hold function arguments as well as return values from the callee.
-        org.ballerinalang.bre.bvm.StackFrame callerSF =
-                new org.ballerinalang.bre.bvm.StackFrame(packageInfo, -1, new int[0]);
+        // First Create the caller's stack frame.
+        //This frame contains zero local variables, but it has registers hold return values from the callee.
+        StackFrame callerSF = new StackFrame(packageInfo, -1, new int[0]);
         controlStackNew.pushFrame(callerSF);
         // registers to store return values. (boolean, message)
-        int[] retRegs = {0, 0};
         callerSF.setLongRegs(new long[0]);
         callerSF.setDoubleRegs(new double[0]);
         callerSF.setStringRegs(new String[0]);
@@ -73,9 +72,9 @@ public interface BLangVMInterceptors {
         callerSF.setByteRegs(new byte[0][]);
 
         // Now create callee's stackframe
+        int[] retRegs = {0, 0};
         WorkerInfo defaultWorkerInfo = functionInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
+        StackFrame calleeSF = new StackFrame(functionInfo, defaultWorkerInfo, -1, retRegs);
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
@@ -100,9 +99,9 @@ public interface BLangVMInterceptors {
         calleeSF.setRefLocalVars(refLocalVars);
 
         // Execute workers
-        BLangVMWorkers.invoke(resourceInterceptor.getProgramFile(), functionInfo, calleeSF, retRegs);
-
-        BLangVM bLangVM = new BLangVM(resourceInterceptor.getProgramFile());
+        BLangVMWorkers.invoke(serviceInterceptor.getProgramFile(), functionInfo, calleeSF, retRegs);
+        // Execute Default worker.
+        BLangVM bLangVM = new BLangVM(serviceInterceptor.getProgramFile());
         context.setStartIP(codeAttribInfo.getCodeAddrs());
         bLangVM.run(context);
 
@@ -112,6 +111,6 @@ public interface BLangVMInterceptors {
             throw new BLangRuntimeException(BLangVMErrors.getErrorMessage(context.getError()));
         }
 
-        return new ResourceInterceptor.Result(callerSF.getIntRegs()[0] == 1, (BMessage) callerSF.getRefRegs()[0]);
+        return new ServiceInterceptor.Result(callerSF.getIntRegs()[0] == 1, (BMessage) callerSF.getRefRegs()[0]);
     }
 }

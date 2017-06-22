@@ -20,6 +20,9 @@ package org.ballerinalang.runtime.interceptors;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.ServerConnectorMessageHandler;
+import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
+import org.ballerinalang.runtime.model.ServerConnector;
+import org.ballerinalang.runtime.model.ServiceInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -28,15 +31,15 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.List;
 
 /**
- * {@link ResourceInterceptorCallback} Wrapper Callback for Resource's response interception
+ * {@link ServiceInterceptorCallback} Wrapper Callback for Resource's response interception
  */
-public class ResourceInterceptorCallback extends DefaultBalCallback {
+public class ServiceInterceptorCallback extends DefaultBalCallback {
 
-    private static final Logger breLog = LoggerFactory.getLogger(ResourceInterceptorCallback.class);
+    private static final Logger breLog = LoggerFactory.getLogger(ServiceInterceptorCallback.class);
 
     private String protocol;
 
-    public ResourceInterceptorCallback(CarbonCallback parentCallback, String protocol) {
+    public ServiceInterceptorCallback(CarbonCallback parentCallback, String protocol) {
         super(parentCallback);
         this.protocol = protocol;
     }
@@ -45,28 +48,28 @@ public class ResourceInterceptorCallback extends DefaultBalCallback {
     @Override
     public void done(CarbonMessage cMsg) {
         try {
-            // An instance of ResourceInterceptorCallback is created only when
-            // BLangServiceInterceptors.getInstance().isEnabled(protocol) is true and
-            // BLangServiceInterceptors.getInstance().getServerConnectorInterceptorInfo(protocol) != null.
-            ServerConnectorInterceptorInfo interceptorInfo = BLangServiceInterceptors.getInstance()
-                    .getServerConnectorInterceptorInfo(protocol);
             // Engage Response Interceptors.
-            List<ResourceInterceptor> responseChain = interceptorInfo.getResponseChain();
+            ServerConnector serverConnector = BLangRuntimeRegistry.getInstance().getServerConnector(protocol);
+            List<ServiceInterceptor> serviceInterceptors = serverConnector.getServiceInterceptorList();
             BMessage message = new BMessage(cMsg);
-            for (ResourceInterceptor interceptor : responseChain) {
-                ResourceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor, message);
-                if (result.messageIntercepted == null) {
+            for (int i = serviceInterceptors.size() - 1; i >= 0; i--) {
+                ServiceInterceptor interceptor = serviceInterceptors.get(i);
+                if (interceptor.getResponseFunction() == null) {
+                    continue;
+                }
+                ServiceInterceptor.Result result = BLangVMInterceptors.invokeResourceInterceptor(interceptor,
+                        interceptor.getResponseFunction(), message);
+                if (result.getMessageIntercepted() == null) {
                     // Can't Intercept null message further. Let it handle at server connector level.
                     breLog.error("error in service interception, return message null in " +
                             (".".equals(interceptor.getPackageInfo().getPkgPath()) ? "" :
                                     interceptor.getPackageInfo().getPkgPath() + ":") +
-                            interceptor.getInterceptorFunction().getName());
+                            ServiceInterceptor.RESPONSE_INTERCEPTOR_NAME);
                     parentCallback.done(null);
                     return;
                 }
-
-                message = result.messageIntercepted;
-                if (!result.invokeNext) {
+                message = result.getMessageIntercepted();
+                if (!result.isInvokeNext()) {
                     parentCallback.done(message.value());
                     return;
                 }

@@ -17,33 +17,35 @@
 # Ballerina Configuration Parameters
 ballerina.config:
   # List of Ballerina Service Interceptor Configuration
-  serviceInterceptors:
+  serverConnectors:
     -
-      # Server Connector ID
-      serverConnector: http
-      # Enable Service interception
-      enable: true
-      # Interceptor deployment directory
-      deploymentDirectory: ${ballerina.home}/bre/interceptors
-      # Request interceptors.
-      request:
-        -
-          packageName: ballerina.test.intercept.simpleAuth
-          archiveName: simpleAuth.bmz
-        -
-          packageName: ballerina.test.intercept.req1
-          archiveName: req1.bmz
-      # Resonse interceptors.
-      response:
-        -
-          packageName: ballerina.test.intercept.res1
-          archiveName: res1.bmz
-        -
-          packageName: ballerina.test.intercept.res2
-          archiveName: res2.bmz
-        -
-          packageName: ballerina.test.intercept.faulty
-          archiveName: faulty.bmz
+      # Name of the Server connector.
+      name: ballerina.net.http
+      # Exposed protocol
+      protocol: http
+      # Service Intercetor related config.
+      interceptors:
+        # Enable Service interception
+        enable: true
+        # Interceptor deployment directory
+        deploymentDirectory: ${ballerina.home}/bre/interceptors
+        # Service interceptor List. Interceptors are engaged in the way they are defined.
+        serviceInterceptors:
+          -
+            packageName: ballerina.test.intercept.simpleAuth
+            archiveName: simpleAuth.bmz
+          -
+            packageName: ballerina.test.intercept.req1
+            archiveName: req1.bmz
+          -
+            packageName: ballerina.test.intercept.res2
+            archiveName: res2.bmz
+          -
+            packageName: ballerina.test.intercept.nullable
+            archiveName: nullable.bmz
+          -
+            packageName: ballerina.test.intercept.res1
+            archiveName: res1.bmz
 
 
 wso2.securevault:

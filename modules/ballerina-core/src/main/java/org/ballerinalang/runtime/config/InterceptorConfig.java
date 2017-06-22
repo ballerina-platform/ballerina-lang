@@ -15,23 +15,16 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.runtime.config.interceptors;
+package org.ballerinalang.runtime.config;
 
-import org.wso2.carbon.config.annotation.Configuration;
 import org.wso2.carbon.config.annotation.Element;
 
 import java.util.ArrayList;
-import java.util.List;
-
 
 /**
- * Configuration BeanClass for Service Interceptors.
+ * Configuration BeanClass for Service Connectors's Interceptors.
  */
-@Configuration(description = "Interceptor Configuration")
-public class ServiceInterceptorConfig {
-
-    @Element(description = "service connector type", required = true)
-    private String serverConnector;
+public class InterceptorConfig {
 
     @Element(description = "flag to enable server Connector interception")
     private boolean enable = false;
@@ -39,29 +32,18 @@ public class ServiceInterceptorConfig {
     @Element(description = "interceptor deployment directory", required = true)
     private String deploymentDirectory;
 
-    @Element(description = "request interceptors")
-    private ArrayList<InterceptorConfig> request = new ArrayList<>();
-
-    @Element(description = "response interceptors")
-    private ArrayList<InterceptorConfig> response = new ArrayList<>();
+    @Element(description = "service interceptors list")
+    private ArrayList<ServiceInterceptorConfig> serviceInterceptors = new ArrayList<>();
 
     public boolean isEnable() {
         return enable;
-    }
-
-    public String getServerConnector() {
-        return serverConnector;
     }
 
     public String getDeploymentDirectory() {
         return deploymentDirectory;
     }
 
-    public List<InterceptorConfig> getRequest() {
-        return request;
-    }
-
-    public List<InterceptorConfig> getResponse() {
-        return response;
+    public ArrayList<ServiceInterceptorConfig> getServiceInterceptors() {
+        return serviceInterceptors;
     }
 }

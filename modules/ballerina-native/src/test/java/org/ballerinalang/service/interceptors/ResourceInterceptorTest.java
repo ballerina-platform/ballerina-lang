@@ -19,8 +19,8 @@ package org.ballerinalang.service.interceptors;
 
 import org.ballerinalang.runtime.config.BLangConfigurationManager;
 import org.ballerinalang.runtime.config.ConfigConstants;
-import org.ballerinalang.runtime.interceptors.BLangServiceInterceptors;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 import org.ballerinalang.testutils.EnvironmentInitializer;
 import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
@@ -43,7 +43,7 @@ public class ResourceInterceptorTest {
     public void setup() {
         programFile = EnvironmentInitializer.setupProgramFile("ballerina/bre/service/echoService.bal");
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME, "src/test/resources/ballerina");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
     }
 
     @AfterClass
@@ -51,7 +51,7 @@ public class ResourceInterceptorTest {
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_HOME, "");
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF, "");
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
     }
 
     @Test(priority = 0)
@@ -85,10 +85,10 @@ public class ResourceInterceptorTest {
     @Test(priority = 10)
     public void testLoadFromSystemProperty() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment2.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
@@ -100,20 +100,20 @@ public class ResourceInterceptorTest {
     //    @Test(priority = 11)
     public void testLoadFromSystemPropertyNegative() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/foo.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
-        Assert.assertFalse(BLangServiceInterceptors.getInstance().isEnabled("http"));
+        BLangRuntimeRegistry.getInstance().initialize();
+        Assert.assertFalse(BLangRuntimeRegistry.getInstance().isInterceptionEnabled("http"));
     }
 
     @Test(priority = 20)
     public void testGlobalVariable() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment3.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
@@ -125,10 +125,10 @@ public class ResourceInterceptorTest {
     @Test(priority = 21)
     public void testGlobalVariableMultipleRequest() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment3.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
@@ -147,10 +147,10 @@ public class ResourceInterceptorTest {
     @Test(priority = 30)
     public void testFaultyInterceptor() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment4.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
@@ -165,10 +165,10 @@ public class ResourceInterceptorTest {
     @Test(priority = 31)
     public void testReturnMessageNull() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment5.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "POST");
         cMsg.setHeader("username", "admin");
         cMsg.setHeader("password", "admin");
@@ -180,19 +180,19 @@ public class ResourceInterceptorTest {
             expectedExceptionsMessageRegExp = ".*no exported package found called foo.bar.*")
     public void testInvalidPackageName() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment6.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
     }
 
     @Test(priority = 41, expectedExceptions = IllegalArgumentException.class,
             expectedExceptionsMessageRegExp = ".*no such file or directory.*foo.bmz.*")
     public void testInvalidArchiveName() {
         BLangConfigurationManager.getInstance().clear();
-        BLangServiceInterceptors.getInstance().clear();
+        BLangRuntimeRegistry.getInstance().clear();
         System.setProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF,
                 "src/test/resources/ballerina/bre/conf/deployment7.yaml");
-        BLangServiceInterceptors.getInstance().initialize();
+        BLangRuntimeRegistry.getInstance().initialize();
     }
 }

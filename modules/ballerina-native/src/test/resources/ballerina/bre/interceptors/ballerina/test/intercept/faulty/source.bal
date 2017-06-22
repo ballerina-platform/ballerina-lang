@@ -8,10 +8,6 @@ function requestInterceptor (message msg) (boolean, message) {
     return true, msg;
 }
 
-function responseInterceptor (message msg) (boolean, message) {
-    return false, null;
-}
-
 function main (string[] args) {
     system:println("Hello, World!");
 }
