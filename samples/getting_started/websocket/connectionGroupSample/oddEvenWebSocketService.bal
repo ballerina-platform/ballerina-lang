@@ -5,7 +5,7 @@ import ballerina.net.http;
 
 @http:BasePath {value:"/group"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service oddEvenWebSocketService {
+service<ws> oddEvenWebSocketService {
 
     string evenConnectionGroupName = "evenGroup";
     string oddConnectionGroupName = "oddGroup";
