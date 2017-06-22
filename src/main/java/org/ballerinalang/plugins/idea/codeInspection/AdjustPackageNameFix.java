@@ -20,6 +20,8 @@ import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.daemon.QuickFixBundle;
 import com.intellij.codeInspection.LocalQuickFixAndIntentionActionOnPsiElement;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -28,6 +30,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaElementFactory;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -82,5 +85,12 @@ public class AdjustPackageNameFix extends LocalQuickFixAndIntentionActionOnPsiEl
             }
         } catch (IncorrectOperationException e) {
         }
+    }
+
+    @Override
+    public boolean isAvailable(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement,
+                               @NotNull PsiElement endElement) {
+        Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
+        return BallerinaSdkService.isBallerinaModule(module);
     }
 }
