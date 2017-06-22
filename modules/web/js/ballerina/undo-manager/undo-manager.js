@@ -28,7 +28,8 @@ import EventChannel from 'event_channel';
 class UndoManager extends EventChannel {
     constructor(args) {
         super();
-        this._limit = _.get(args, 'limit', 20);
+        // FIXME: get this limit via a config
+        this._limit = _.get(args, 'limit', 50);
         this._undoStack = [];
         this._redoStack = [];
     }
