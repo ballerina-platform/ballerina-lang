@@ -96,7 +96,7 @@ const FileBrowser = Backbone.View.extend({
     },
 
     getURLProvider() {
-        return function (node) {
+        return (node) => {
             if (node.id === '#') {
                 if (!_.isNil(this._root)) {
                     if (this._fetchFiles) {
