@@ -30,7 +30,14 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitWhileStatement(whileStatement) {
         this.node = whileStatement;
-        this.appendSource('\n' + this.getIndentation() + 'while (' + whileStatement.getConditionString() + ') {\n');
+        if (whileStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource('while' + whileStatement.getWSRegion(1) + '(' 
+            + whileStatement.getWSRegion(2) + whileStatement.getConditionString() + ')' 
+            + whileStatement.getWSRegion(3) + '{' + whileStatement.getWSRegion(4));
+        this.appendSource((whileStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
         this.indent();
     }
 
@@ -45,9 +52,11 @@ class WhileStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
-    endVisitWhileStatement() {
+    endVisitWhileStatement(whileStatement) {
         this.outdent();
-        this.appendSource(this.getIndentation() + '}\n');
+        this.appendSource('}' + whileStatement.getWSRegion(5));
+        this.appendSource((whileStatement.whiteSpace.useDefault)
+          ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }
