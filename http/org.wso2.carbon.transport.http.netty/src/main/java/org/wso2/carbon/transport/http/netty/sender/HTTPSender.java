@@ -102,25 +102,9 @@ public class HTTPSender implements TransportSender {
                     + "listener side please copy property SRC_HANDLER from incoming message");
         }
 
-
-//        Channel outboundChannel = null;
         try {
             connectionManager
                     .executeTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
-            // TODO: Remove this in the next release!
-//            TargetChannel targetChannel = connectionManager
-//                    .executeTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
-//            if (targetChannel != null) {
-//                outboundChannel = targetChannel.getChannel();
-//                targetChannel.getTargetHandler().setCallback(callback);
-//                targetChannel.getTargetHandler().setIncomingMsg(msg);
-//                targetChannel.getTargetHandler().setTargetChannel(targetChannel);
-//                targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-//                boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-//                if (written) {
-//                    targetChannel.setRequestWritten(true);
-//                }
-//            }
         } catch (Exception failedCause) {
             throw new MessageProcessorException(failedCause.getMessage(), failedCause);
         }
