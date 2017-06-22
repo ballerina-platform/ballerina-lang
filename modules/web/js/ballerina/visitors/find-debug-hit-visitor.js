@@ -45,10 +45,12 @@ class FindDebugHitVisitor extends ASTVisitor {
     beginVisit(node) {
         if (node.getLineNumber() === this._position.lineNumber) {
             node.addDebugHit();
+            this.hasToRerender = true;
         }
         if (node.isDebugHit && node.getLineNumber() !== this._position.lineNumber) {
             // debughit has removed but model is not updated
             node.removeDebugHit();
+            this.hasToRerender = true;
         }
     }
     /**

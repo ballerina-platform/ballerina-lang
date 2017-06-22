@@ -490,13 +490,13 @@ class ASTNode extends EventChannel {
      * Sets isDebugHit atribute to node
      */
     addDebugHit() {
-        this.setAttribute('isDebugHit', true);
+        this.isDebugHit = true;
     }
     /**
      * Removes isDebugHit atribute from node
      */
     removeDebugHit() {
-        this.setAttribute('isDebugHit', false);
+        this.isDebugHit = false;
     }
     /**
      * Set lineNumber atribute to node
