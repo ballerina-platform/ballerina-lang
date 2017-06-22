@@ -18,14 +18,12 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.bre.MemoryLocation;
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code VariableRefExpr} represents a variable reference in Ballerina.
@@ -97,10 +95,6 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         return variableDef.getMemoryLocation();
     }
 
-    public void setMemoryLocation(MemoryLocation location) {
-        this.variableDef.setMemoryLocation(location);
-    }
-
     public VariableDef getVariableDef() {
         return variableDef;
     }
@@ -112,9 +106,5 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }

@@ -17,11 +17,6 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeExecutor;
-import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
-
 /**
  * {@code ServiceVarLocation} represents a location where a variable declared in a
  * {@code Service }  is stored at runtime
@@ -32,7 +27,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class ServiceVarLocation extends MemoryLocation implements Node {
+public class ServiceVarLocation extends MemoryLocation {
     private int staticMemAddrOffset;
 
     public ServiceVarLocation(int staticMemAddrOffset) {
@@ -42,15 +37,4 @@ public class ServiceVarLocation extends MemoryLocation implements Node {
     public int getStaticMemAddrOffset() {
         return staticMemAddrOffset;
     }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
 }

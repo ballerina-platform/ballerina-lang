@@ -56,12 +56,7 @@ public class Split extends AbstractNativeFunction {
         String regex = getStringArgument(context, 1);
 
         String[] splitArray = initialString.split(regex);
-                        
-        BStringArray bSplitArray = new BStringArray();
-        for (int i = 0; i < splitArray.length; i++) {
-            bSplitArray.add(i, splitArray[i]);
-        }
-
+        BStringArray bSplitArray = new BStringArray(splitArray);
         return getBValues(bSplitArray);
     }
 }

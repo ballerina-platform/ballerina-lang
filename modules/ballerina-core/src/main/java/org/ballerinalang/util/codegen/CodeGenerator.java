@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
 import org.ballerinalang.bre.GlobalVarLocation;
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
@@ -58,7 +57,6 @@ import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayLengthExpression;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
@@ -86,14 +84,12 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -314,7 +310,7 @@ public class CodeGenerator implements NodeVisitor {
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
-            
+
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : service.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -323,7 +319,7 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), gvIndexes);
                 GlobalVarLocation globalVarLocation = new GlobalVarLocation(fieldIndex);
                 varDef.setMemoryLocation(globalVarLocation);
-                
+
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -333,8 +329,8 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
             localVarAttribInfo.setLocalVariables(localVarInfo);
             serviceInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
-            
-            
+
+
             // Create the init function info
             createFunctionInfoEntries(new Function[]{service.getInitFunction()});
             serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
@@ -442,7 +438,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
-            
+
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : connectorDef.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -452,7 +448,7 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
                 varDef.setMemoryLocation(connectorVarLocation);
-                
+
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -462,7 +458,7 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
             localVarAttribInfo.setLocalVariables(localVarInfo);
             connectorInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
-            
+
             connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
             connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
@@ -571,7 +567,7 @@ public class CodeGenerator implements NodeVisitor {
             AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
             currentServiceInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
         }
-        
+
         for (Resource resource : service.getResources()) {
             resource.accept(this);
         }
@@ -674,7 +670,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(VariableDef variableDef) {
-
     }
 
     @Override
@@ -728,6 +723,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        if (assignStmt.isDeclaredWithVar()) {
+            for (Expression expr : assignStmt.getLExprs()) {
+                assignVariableDefMemoryLocation(((VariableRefExpr) expr).getVariableDef());
+            }
+        }
+
         // Evaluate the rhs expression
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr == null) {
@@ -1550,12 +1551,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    @Override
-    public void visit(BacktickExpr backtickExpr) {
-
-    }
-
-
+    
     // Init expressions
 
     @Override
@@ -2003,51 +1999,6 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    @Override
-    public void visit(StackVarLocation stackVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ServiceVarLocation serviceVarLocation) {
-
-    }
-
-    @Override
-    public void visit(GlobalVarLocation globalVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConnectorVarLocation connectorVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ConstantLocation constantLocation) {
-
-    }
-
-    @Override
-    public void visit(StructVarLocation structVarLocation) {
-
-    }
-
-    @Override
-    public void visit(ResourceInvocationExpr resourceIExpr) {
-
-    }
-
-    @Override
-    public void visit(MainInvoker mainInvoker) {
-
-    }
-
-    @Override
-    public void visit(WorkerVarLocation workerVarLocation) {
-
-    }
-
 
     // Private methods
 
@@ -2441,11 +2392,8 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }
-        if (timeoutIP == nextIP()) {
-            gotoInstruction.setOperand(0, nextIP() + 1);
-        } else {
-            gotoInstruction.setOperand(0, nextIP());
-        }
+
+        gotoInstruction.setOperand(0, nextIP());
     }
 
 
@@ -2686,6 +2634,17 @@ public class CodeGenerator implements NodeVisitor {
         }
         
         return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
+    }
+
+    private void assignVariableDefMemoryLocation(VariableDef variableDef) {
+        MemoryLocation memoryLocation = variableDef.getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
+            int lvIndex = getNextIndex(variableDef.getType().getTag(), lvIndexes);
+            MemoryLocation stackVarLocation = new StackVarLocation(lvIndex);
+            variableDef.setMemoryLocation(stackVarLocation);
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
+            currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
+        }
     }
 
     /**

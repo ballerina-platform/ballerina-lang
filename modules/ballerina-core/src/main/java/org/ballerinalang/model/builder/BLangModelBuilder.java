@@ -47,7 +47,6 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
@@ -127,7 +126,6 @@ public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
     public static final String IF_CLAUSE = "IfClause";
     public static final String ELSE_CLAUSE = "ElseClause";
-    public static final String CATCH_CLAUSE = "CatchClause";
     public static final String TRY_CLAUSE = "TryClause";
     public static final String FINALLY_CLAUSE = "FinallyClause";
 
@@ -190,7 +188,6 @@ public class BLangModelBuilder {
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
         this.packageScope = currentScope;
-        //currentWorker.push("default");
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
         currentPackagePath = ".";
 
@@ -236,12 +233,13 @@ public class BLangModelBuilder {
     }
 
     public void addImplicitImportPackages() {
-        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
-            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
-            error.setImplicitImport(true);
-            bFileBuilder.addImportPackage(error);
-            importPkgMap.put(error.getName(), error);
+        if ("ballerina.lang.errors".equals(currentPackagePath) || "ballerina.doc".equals(currentPackagePath)) {
+            return;
         }
+        ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+        error.setImplicitImport(true);
+        bFileBuilder.addImportPackage(error);
+        importPkgMap.put(error.getName(), error);
     }
 
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
@@ -734,17 +732,6 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-    public void createBacktickExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                   String stringContent) {
-        String errMsg = location.getFileName() + ":" + location.getLineNumber() + ": " + 
-                "backtick expression is not supported";
-        errorMsgs.add(errMsg);
-    
-         String templateStr = getValueWithinBackquote(stringContent);
-         BacktickExpr backtickExpr = new BacktickExpr(location, whiteSpaceDescriptor,  templateStr);
-         exprStack.push(backtickExpr);
-    }
-
     public void startExprList() {
         exprListStack.push(new ArrayList<>());
     }
@@ -841,22 +828,6 @@ public class BLangModelBuilder {
 
     public void createMapStructLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         List<KeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
-        for (KeyValueExpr argExpr : keyValueExprList) {
-
-            if (argExpr.getKeyExpr() instanceof BacktickExpr) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-                errorMsgs.add(errMsg);
-
-            }
-
-            if (argExpr.getValueExpr() instanceof BacktickExpr) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-                errorMsgs.add(errMsg);
-
-            }
-        }
 
         Expression[] argExprs;
         if (keyValueExprList.size() == 0) {
@@ -1113,12 +1084,16 @@ public class BLangModelBuilder {
         addToBlockStmt(commentStmt);
     }
 
-    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                     boolean isVarDeclaration) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
 
         AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         assignStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        if (isVarDeclaration) {
+            assignStmt.setDeclaredWithVar(true);
+        }
         addToBlockStmt(assignStmt);
     }
 
@@ -1674,6 +1649,23 @@ public class BLangModelBuilder {
         nameReference.setPkgPath(importPkg.getPath());
     }
 
+    public void resolvePackageFromNameReference(NameReference nameReference) {
+        String pkgName = nameReference.getPackageName();
+        ImportPackage importPkg = getImportPackage(pkgName);
+        if (pkgName == null && importPkg == null) {
+            nameReference.setPkgPath(currentPackagePath);
+            return;
+        } else if (importPkg == null) {
+            // package name available but cannot resolve a package
+            // Could be an XML qualified name reference
+            // Validate this at the semantic validation phase
+            return;
+        }
+
+        importPkg.markUsed();
+        nameReference.setPkgPath(importPkg.getPath());
+    }
+
 
     // Private methods
 
@@ -1803,11 +1795,7 @@ public class BLangModelBuilder {
 
     protected void checkArgExprValidity(NodeLocation location, Expression argExpr) {
         String errMsg = null;
-        if (argExpr instanceof BacktickExpr) {
-            errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-
-        } else if (argExpr instanceof ArrayInitExpr) {
+        if (argExpr instanceof ArrayInitExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
 

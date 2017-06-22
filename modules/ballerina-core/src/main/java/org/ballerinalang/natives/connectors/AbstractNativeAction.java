@@ -73,43 +73,13 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         annotations = new ArrayList<>();
     }
 
-    /**
-     * Get Argument by index.
-     *
-     * @param context current {@code {@link Context}} instance.
-     * @param index   index of the parameter.
-     * @return BValue;
-     */
-    public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
-
-            BValue result;
-            if (context.isVMBasedExecutor()) {
-                result = context.getControlStackNew().getCurrentFrame().argValues[index];
-            } else {
-                result = context.getControlStack().getCurrentFrame().values[index];
-            }
-
-            if (result == null) {
-                throw new BallerinaException("argument " + index + " is null");
-            }
-            return result;
-        }
-        throw new ArgumentOutOfRangeException(index);
-    }
-
     public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            BValue result;
-            if (context.isVMBasedExecutor()) {
-                result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
+            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
+
             return result;
         }
         throw new ArgumentOutOfRangeException(index);
@@ -117,63 +87,28 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public int getIntArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            if (context.isVMBasedExecutor()) {
-                if (index < context.getControlStackNew().getCurrentFrame().getLongLocalVars().length) {
-                    return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
-                } else {
-                    throw new BallerinaException("argument " + index + " is null");
-                }
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
+            return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public String getStringArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            if (context.isVMBasedExecutor()) {
-                if (index < context.getControlStackNew().getCurrentFrame().getStringLocalVars().length) {
-                    return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
-                } else {
-                    throw new BallerinaException("argument " + index + " is null");
-                }
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
+            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public long getLongArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            if (context.isVMBasedExecutor()) {
-                if (index < context.getControlStackNew().getCurrentFrame().getDoubleLocalVars().length) {
-                    return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
-                } else {
-                    throw new BallerinaException("argument " + index + " is null");
-                }
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
+            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            if (context.isVMBasedExecutor()) {
-                if (index < context.getControlStackNew().getCurrentFrame().getIntLocalVars().length) {
-                    return (context.getControlStackNew().getCurrentFrame()
-                            .getIntLocalVars()[index] == 1) ? true : false;
-                } else {
-                    throw new BallerinaException("argument " + index + " is null");
-                }
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
+            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -217,7 +152,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     /**
      * Declare implementation of Native action is support non-blocking behaviour.
-     *
+     * <p>
      * Default is false, Override to support non-blocking behaviour.
      *
      * @return true, if current is implementation supports non-blocking.

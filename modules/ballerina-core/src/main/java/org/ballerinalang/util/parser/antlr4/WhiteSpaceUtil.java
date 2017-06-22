@@ -1041,7 +1041,10 @@ public class WhiteSpaceUtil {
                                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_TO_BODY_START,
                                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_TO_BODY_START,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_BODY_START_TO_FIRST_CHILD,
+                               getWhitespaceToRight(tokenStream,
+                                          getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.TRANSFORM_STMT_END_TO_NEXT_TOKEN,
                                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

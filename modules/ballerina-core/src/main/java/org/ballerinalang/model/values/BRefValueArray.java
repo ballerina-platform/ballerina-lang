@@ -30,8 +30,9 @@ public class BRefValueArray extends BNewArray {
 
     private BRefType[] values;
 
-    private BRefValueArray(BRefType[] values) {
+    public BRefValueArray(BRefType[] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BRefValueArray(BType type) {

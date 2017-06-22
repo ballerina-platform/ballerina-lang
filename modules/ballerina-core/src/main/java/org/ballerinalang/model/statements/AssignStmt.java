@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.expressions.Expression;
@@ -29,6 +28,7 @@ import org.ballerinalang.model.expressions.Expression;
  */
 public class AssignStmt extends AbstractStatement {
     private Expression[] lhsExprs;
+    private boolean isDeclaredWithVar;
 
     private Expression rhsExpr;
 
@@ -55,12 +55,16 @@ public class AssignStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
-    @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
     public void setRhsExpr(Expression rhsExpr) {
         this.rhsExpr = rhsExpr;
     }
+
+    public boolean isDeclaredWithVar() {
+        return isDeclaredWithVar;
+    }
+
+    public void setDeclaredWithVar(boolean isDeclaredWithVar) {
+        this.isDeclaredWithVar = isDeclaredWithVar;
+    }
+
 }
