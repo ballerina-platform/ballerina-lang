@@ -185,8 +185,15 @@ class SwaggerView extends EventChannel {
             swaggerParser,
         } = args;
 
+        const modalContainerWrapperClass = 'swagger-modal-container';
+
+        const modelContainersToDelete = document.body.getElementsByClassName(modalContainerWrapperClass);
+        for (let i = 0; i < modelContainersToDelete.length; i++) {
+            document.body.removeChild(modelContainersToDelete[i]);
+        }
+
         const conflictModalPopUpWrapper = document.createElement('div');
-        conflictModalPopUpWrapper.className = 'swagger-modal-container';
+        conflictModalPopUpWrapper.className = modalContainerWrapperClass;
         document.body.appendChild(conflictModalPopUpWrapper);
 
         const moreOptionsFunc = () => {
