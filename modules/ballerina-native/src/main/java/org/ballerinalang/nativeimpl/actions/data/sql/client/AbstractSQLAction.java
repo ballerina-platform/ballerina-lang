@@ -56,7 +56,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -71,6 +73,11 @@ import javax.transaction.xa.XAResource;
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
+    public Calendar utcCalendar;
+
+    public AbstractSQLAction() {
+        utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    }
 
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
         Connection conn = null;
@@ -82,7 +89,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, query);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
+            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                     getColumnDefinitions(rs));
             context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
         } catch (SQLException e) {
@@ -161,7 +168,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
+                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                         getColumnDefinitions(rs));
                 context.getControlStackNew().getCurrentFrame().returnValues[0] = datatable;
             } else {
@@ -367,10 +374,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME:
-                SQLDatasourceUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP);
+                SQLDatasourceUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP, utcCalendar);
                 break;
             case Constants.SQLDataTypes.TIME:
-                SQLDatasourceUtils.setTimeValue(stmt, value, index, direction, Types.TIME);
+                SQLDatasourceUtils.setTimeValue(stmt, value, index, direction, Types.TIME, utcCalendar);
                 break;
             case Constants.SQLDataTypes.BINARY:
                 SQLDatasourceUtils.setBinaryValue(stmt, value, index, direction, Types.BINARY);
@@ -484,12 +491,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME: {
-                Timestamp value = stmt.getTimestamp(index + 1);
+                Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
                 paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIME: {
-                Time value = stmt.getTime(index + 1);
+                Time value = stmt.getTime(index + 1, utcCalendar);
                 paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
