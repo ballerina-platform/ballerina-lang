@@ -24,7 +24,7 @@ import ReactDOM from 'react-dom';
 import * as YAML from 'js-yaml';
 import SwaggerParser from '../../../swagger-parser/swagger-parser';
 import ConflictModal from './components/conflict-modal';
-import ConflictMergeModal from './components/conflict-merge-modal';
+// import ConflictMergeModal from './components/conflict-merge-modal';
 
 const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
@@ -190,14 +190,14 @@ class SwaggerView extends EventChannel {
         } = args;
 
         const conflictModalPopUpWrapper = document.createElement('div');
-        conflictModalPopUpWrapper.className = 'swager-modal-container';
-        $(this._container).get(0).appendChild(conflictModalPopUpWrapper);
+        conflictModalPopUpWrapper.className = 'swagger-modal-container';
+        document.body.appendChild(conflictModalPopUpWrapper);
 
         const mergeResourcesFunc = () => {
-            ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
+            // ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
 
-            const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
-            ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
+            // const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
+            // ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
         };
 
         const conflictModal = React.createElement(ConflictModal, {

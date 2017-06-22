@@ -36,14 +36,20 @@ class ConflictModal extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.state = {
-            showModal: true,
-        };
 
         this.onDeleteResources = this.onDeleteResources.bind(this);
         this.onKeepResources = this.onKeepResources.bind(this);
         this.onMoreOptions = this.onMoreOptions.bind(this);
         this.hideModal = this.hideModal.bind(this);
+    }
+
+    /**
+     * Show the modal on mount.
+     *
+     * @memberof ConflictModal
+     */
+    componentDidMount() {
+        $(this.modal).modal('show');
     }
 
     /**
@@ -83,15 +89,7 @@ class ConflictModal extends React.Component {
      * @memberof ConflictModal
      */
     hideModal() {
-        $(this.modal).modal();
-    }
-
-    /**
-     * Shows the modal.
-     * @memberof ConflictModal
-     */
-    showModal() {
-        this.setState({ showModal: true });
+        $(this.modal).modal('hide');
     }
 
     /**
@@ -103,7 +101,14 @@ class ConflictModal extends React.Component {
         const resourceNameComponents = this.props.missingOriginalResourceDefs.map(
             resourceDef => <li key={resourceDef.getID()}>{resourceDef.getResourceName()}</li>);
 
-        return (<div className="modal fade" id="swagger-conflict-modal" tabIndex="-1" role="dialog" aria-hidden="true" ref={(ref) => { this.modal = ref; }}>
+        return (<div
+            className="modal fade"
+            id="swagger-conflict-modal"
+            tabIndex="-1"
+            role="dialog"
+            aria-hidden="true"
+            ref={(ref) => { this.modal = ref; }}
+        >
             <div className="modal-dialog swagger-conflict-modal-dialog" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
