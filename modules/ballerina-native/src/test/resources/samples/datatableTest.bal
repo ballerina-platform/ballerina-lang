@@ -49,12 +49,6 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
-struct ResultDatesMSOra {
-    string DATE_TYPE;
-    string TIMESTAMP_TYPE;
-}
-
-
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
