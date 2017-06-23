@@ -25,11 +25,18 @@ class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
     }
 
     beginVisitWorkerInvocationStatement(workerInvocationStatement) {
+        if (workerInvocationStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
         this.appendSource(workerInvocationStatement.getStatementString());
     }
 
-    endVisitWorkerInvocationStatement() {
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource() + ';\n');
+    endVisitWorkerInvocationStatement(workerInvocationStatement) {
+        this.appendSource(';' + workerInvocationStatement.getWSRegion(4));
+        this.appendSource((workerInvocationStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

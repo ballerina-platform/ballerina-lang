@@ -36,6 +36,13 @@ class WorkerReplyStatement extends Statement {
         this._expressionList = _.get(args, 'expressionList', []);
         this._replyStatement = _.get(args, 'replyStatement', 'm1 <- workerName');
         this._workerName = _.get(args, 'workerName', 'workerName');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: ' ',
+            3: '',
+            4: '\n'
+        };
     }
 
     /**
@@ -124,7 +131,12 @@ class WorkerReplyStatement extends Statement {
                 statementStr += ',';
             }
         }
-        statementStr += '<-' + this.getWorkerName();
+        statementStr += ((!_.isNil(_.last(this.getExpressionList()))
+                            && _.last(this.getExpressionList()).whiteSpace.useDefault)
+                          ? this.getWSRegion(1) : '' );
+        statementStr += '<-' + this.getWSRegion(2) 
+                + this.getWorkerName() + this.getWSRegion(3);
+
 
         return statementStr;
     }

@@ -44,6 +44,14 @@ class WhileStatement extends ConditionalStatement {
             this.setCondition(this.getFactory().createBasicLiteralExpression(opts));
         }
         this._statements = _.get(args, 'statements', []);
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '',
+            3: ' ',
+            4: '\n',
+            5: '\n'
+        };
     }
 
     /**
