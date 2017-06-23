@@ -176,7 +176,7 @@ public class DebugInfoHolder {
     }
 
     /**
-     * Debugging steps
+     * Debugging steps.
      */
     public enum DebugCommand {
         STEP_IN,

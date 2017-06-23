@@ -80,7 +80,7 @@ public class SetStringWithNamespaces extends AbstractNativeFunction {
             BXML xml = (BXML) getRefArgument(ctx, 0);
             String xPath = getStringArgument(ctx, 0);
             String value = getStringArgument(ctx, 1);
-            BMap<BString, BString> namespaces = (BMap) getRefArgument(ctx, 1);
+            BMap<String, BString> namespaces = (BMap) getRefArgument(ctx, 1);
 
             xml = XMLUtils.getSingletonValue(xml);
             
@@ -88,8 +88,8 @@ public class SetStringWithNamespaces extends AbstractNativeFunction {
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             // set the namespaces
             if (namespaces != null && !namespaces.isEmpty()) {
-                for (BString entry : namespaces.keySet()) {
-                    axiomxPath.addNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
+                for (String entry : namespaces.keySet()) {
+                    axiomxPath.addNamespace(entry, namespaces.get(entry).stringValue());
                 }
             }
             Object ob = axiomxPath.evaluate(xml.value());

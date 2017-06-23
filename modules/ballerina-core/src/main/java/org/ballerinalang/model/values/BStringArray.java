@@ -32,8 +32,9 @@ public class BStringArray extends BNewArray {
 
     private String[] values;
 
-    private BStringArray(String[] values) {
+    public BStringArray(String[] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BStringArray() {
