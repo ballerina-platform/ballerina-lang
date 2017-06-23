@@ -25,10 +25,9 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InMemorySource;
-import org.wso2.siddhi.core.stream.input.source.Source;
 
 /**
- * Implementation of {@link Source} to receive events through in-memory transport for unavailability checking.
+ * Implementation of Source to receive events through in-memory transport for unavailability checking.
  */
 @Extension(
         name = "testFailingInMemory",
@@ -57,9 +56,9 @@ public class TestFailingInMemorySource extends InMemorySource {
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         this.connectionCallback = connectionCallback;
-        if(fail){
+        if (fail) {
             numberOfErrorOccurred++;
-            throw  new ConnectionUnavailableException("Connection failed!");
+            throw new ConnectionUnavailableException("Connection failed!");
         }
         super.connect(connectionCallback);
     }

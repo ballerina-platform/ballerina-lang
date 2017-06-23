@@ -47,7 +47,7 @@ public abstract class Source implements Snapshotable {
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ScheduledExecutorService scheduledExecutorService;
-    private ConnectionCallback connectionCallback=new ConnectionCallback();
+    private ConnectionCallback connectionCallback = new ConnectionCallback();
 
     public void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
                      ConfigReader configReader, StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
@@ -113,6 +113,17 @@ public abstract class Source implements Snapshotable {
         return elementId;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
+    }
+
+    /**
+     * Callback class used to pass connection exception during message retrieval
+     */
     public class ConnectionCallback {
         public void onError(ConnectionUnavailableException e) {
             disconnect();
@@ -121,13 +132,5 @@ public abstract class Source implements Snapshotable {
                     "', " + e.getMessage() + ", will retry connection immediately.", e);
             connectWithRetry();
         }
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public StreamDefinition getStreamDefinition() {
-        return streamDefinition;
     }
 }

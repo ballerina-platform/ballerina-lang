@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -401,13 +402,17 @@ public class InMemoryTransportTestCase {
         siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+        TestFailingInMemorySink.fail = true;
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
-        Thread.sleep(6000);
+        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+        TestFailingInMemorySink.fail = false;
+        Thread.sleep(5500);
+        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 0, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 0, ibmCount.get());
-        Assert.assertEquals("Number of errors", 3, TestFailingInMemorySink.numberOfErrorOccurred);
+        Assert.assertEquals("Number of WSO2 events", 1, wso2Count.get());
+        Assert.assertEquals("Number of IBM events", 2, ibmCount.get());
+        Assert.assertEquals("Number of errors", 2, TestFailingInMemorySink.numberOfErrorOccurred);
         siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
@@ -438,16 +443,7 @@ public class InMemoryTransportTestCase {
             public void receive(Event[] events) {
                 EventPrinter.print(events);
                 for (Event event : events) {
-                    switch (wso2Count.incrementAndGet()) {
-                        case 1:
-                            org.junit.Assert.assertEquals(55.6f, event.getData(1));
-                            break;
-                        case 2:
-                            org.junit.Assert.assertEquals(57.6f, event.getData(1));
-                            break;
-                        default:
-                            org.junit.Assert.fail();
-                    }
+                    wso2Count.incrementAndGet();
                 }
             }
         });
@@ -456,13 +452,19 @@ public class InMemoryTransportTestCase {
 
         InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
         InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
-        Thread.sleep(2000);
+        TestFailingInMemorySource.fail = true;
+        TestFailingInMemorySource.connectionCallback.onError(new ConnectionUnavailableException("Connection Lost"));
+        Thread.sleep(500);
         InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
-        Thread.sleep(100);
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 57.6f, 100L}));
+        TestFailingInMemorySource.fail = false;
+        Thread.sleep(5500);
+        InMemoryBroker.publish("WSO2", new Event(System.currentTimeMillis(), new Object[]{"WSO2", 55.6f, 100L}));
+        InMemoryBroker.publish("IBM", new Event(System.currentTimeMillis(), new Object[]{"IBM", 75.6f, 100L}));
 
         //assert event count
-        Assert.assertEquals("Number of WSO2 events", 1, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 0, ibmCount.get());
+        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
         Assert.assertEquals("Number of errors", 1, TestFailingInMemorySource.numberOfErrorOccurred);
         siddhiAppRuntime.shutdown();
 
