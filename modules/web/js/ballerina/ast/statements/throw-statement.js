@@ -31,6 +31,11 @@ class ThrowStatement extends Statement {
     constructor() {
         super('ThrowStatement');
         this.type = 'ThrowStatement';
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: ' ',
+            2: '\n'
+        };
     }
 
     /**
@@ -84,7 +89,7 @@ class ThrowStatement extends Statement {
      * @override
      */
     getStatementString() {
-        return 'throw ' + this.getChildren()[0].getExpressionString();
+        return 'throw' + this.getWSRegion(1) + this.getChildren()[0].getExpressionString();
     }
 
     /**

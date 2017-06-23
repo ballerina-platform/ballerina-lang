@@ -23,16 +23,22 @@ class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
         return true;
     }
 
-    beginVisitThrowStatement() {
-        this.appendSource('throw ');
+    beginVisitThrowStatement(throwStatement) {
+        if (throwStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource(throwStatement.getStatementString());
     }
 
     visitThrowStatement() {
     }
 
     endVisitThrowStatement(throwStatement) {
-        this.appendSource(throwStatement.getChildren()[0].getExpressionString() + ';\n');
-        this.getParent().appendSource(this.getIndentation() + this.getGeneratedSource());
+        this.appendSource(';' + throwStatement.getWSRegion(2));
+        this.appendSource((throwStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 }
 

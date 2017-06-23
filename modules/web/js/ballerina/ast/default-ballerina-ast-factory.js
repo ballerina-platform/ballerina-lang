@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import BallerinaASTFactory from './ballerina-ast-factory';
 import FragmentUtils from '../utils/fragment-utils';
@@ -35,6 +36,7 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     const serviceDef = BallerinaASTFactory.createServiceDefinition(args);
     const resourceDef = DefaultBallerinaASTFactory.createResourceDefinition(args);
     serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
+    serviceDef.accept(new EnableDefaultWSVisitor());
     return serviceDef;
 };
 
@@ -53,6 +55,7 @@ DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
     forkJoinStatement.addChild(joinStatement);
     forkJoinStatement.addChild(worker1Declaration);
     forkJoinStatement.addChild(worker2Declaration);
+    forkJoinStatement.accept(new EnableDefaultWSVisitor());
     return forkJoinStatement;
 };
 
@@ -93,6 +96,7 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
         rightValue: responsesAnnotationArray,
     });
     responsesAnnotation.addChild(responseAnnotationEntry);
+    responsesAnnotation.accept(new EnableDefaultWSVisitor());
     return resourceDef;
 };
 
@@ -106,6 +110,7 @@ DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
     connectorDef.addArgument('message', 'm');
     const connectorActionDef = DefaultBallerinaASTFactory.createConnectorAction();
     connectorDef.addChild(connectorActionDef, undefined, undefined, undefined, true);
+    connectorDef.accept(new EnableDefaultWSVisitor());
     return connectorDef;
 };
 
@@ -117,6 +122,7 @@ DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
 DefaultBallerinaASTFactory.createConnectorAction = function (args) {
     const actionDef = BallerinaASTFactory.createConnectorAction(args);
     actionDef.addArgument('message', 'm');
+    actionDef.accept(new EnableDefaultWSVisitor());
     return actionDef;
 };
 
@@ -130,6 +136,7 @@ DefaultBallerinaASTFactory.createConnectorAction = function (args) {
 DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
     const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
     variableDefinitionStatement.setStatementFromString('int i = 0');
+    variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
     return variableDefinitionStatement;
 };
 
@@ -144,6 +151,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
     const assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
     assignmentStatement.setStatementFromString(assignmentStatementString);
     assignmentStatement.getRightExpression().getChildren()[0].setFullPackageName(args.fullPackageName);
+    assignmentStatement.accept(new EnableDefaultWSVisitor());
     return assignmentStatement;
 };
 
@@ -155,6 +163,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     const tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
     tryCatchStatement.setStatementFromString('try{}catch(exception e){}');
+    tryCatchStatement.accept(new EnableDefaultWSVisitor());
     return tryCatchStatement;
 };
 
@@ -166,6 +175,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     const throwStatement = BallerinaASTFactory.createThrowStatement(args);
     throwStatement.setStatementFromString('throw e');
+    throwStatement.accept(new EnableDefaultWSVisitor());
     return throwStatement;
 };
 
@@ -186,6 +196,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     const transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
     transactionAbortedStatement.setStatementFromString('transaction {} aborted {} committed {}');
+    transactionAbortedStatement.accept(new EnableDefaultWSVisitor());
     return transactionAbortedStatement;
 };
 
@@ -198,6 +209,7 @@ DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
     const functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
     functionDefinition.setFunctionName('main');
     functionDefinition.addArgument('string[]', 'args');
+    functionDefinition.accept(new EnableDefaultWSVisitor());
     return functionDefinition;
 };
 
@@ -210,11 +222,11 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
     const fragment = FragmentUtils.createStatementFragment('a = b;');
     const parsedJson = FragmentUtils.parseFragment(fragment);
     if ((!_.has(parsedJson, 'error')
-        || !_.has(parsedJson, 'syntax_errors'))
-        && _.isEqual(parsedJson.type, 'assignment_statement')) {
+           || !_.has(parsedJson, 'syntax_errors'))
+           && _.isEqual(parsedJson.type, 'assignment_statement')) {
         const node = BallerinaASTFactory.createFromJson(parsedJson);
         node.initFromJson(parsedJson);
-        node.whiteSpace.useDefault = true;
+        node.accept(new EnableDefaultWSVisitor());
         return node;
     }
     return BallerinaASTFactory.createAssignmentStatement(args);
@@ -265,10 +277,12 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
             });
             const expression = leftOperandExpression + ' = ' + functionInvokeString;
             variableDefinitionStatement.setStatementFromString(expression);
+			variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
             return variableDefinitionStatement;
         }
     }
     funcInvocationStatement.addChild(funcInvocationExpression);
+    funcInvocationStatement.accept(new EnableDefaultWSVisitor());
     return funcInvocationStatement;
 };
 
@@ -280,6 +294,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
 DefaultBallerinaASTFactory.createWorkerInvocationStatement = function (args) {
     const workerInvocationStatement = BallerinaASTFactory.createWorkerInvocationStatement(args);
     workerInvocationStatement.setStatementFromString('m -> workerName');
+    workerInvocationStatement.accept(new EnableDefaultWSVisitor());
     return workerInvocationStatement;
 };
 
@@ -291,6 +306,7 @@ DefaultBallerinaASTFactory.createWorkerInvocationStatement = function (args) {
 DefaultBallerinaASTFactory.createWorkerReplyStatement = function (args) {
     const workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement(args);
     workerReplyStatement.setStatementFromString('m <- workerName');
+    workerReplyStatement.accept(new EnableDefaultWSVisitor());
     return workerReplyStatement;
 };
 
@@ -319,6 +335,7 @@ DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
     const connectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
     connectorDeclaration.setStatementFromString(declarationStatement);
     connectorDeclaration.setFullPackageName(args.fullPackageName);
+    connectorDeclaration.accept(new EnableDefaultWSVisitor());
     return connectorDeclaration;
 };
 

@@ -46,12 +46,20 @@ class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitIfStatement(ifStatement) {
         this.outdent();
+        const elseIfStmts = ifStatement.getParent().getElseIfStatements(),
+              elseStmt = ifStatement.getParent().getElseStatement();
         // if using default ws, add a new line to end unless there are any elseif stmts available
         // or an else statement is available
-        const tailingWS = (ifStatement.whiteSpace.useDefault
-                            && (_.isEmpty(ifStatement.getParent().getElseIfStatements())
-                                      && _.isNil(ifStatement.getParent().getElseStatement())))
+        let tailingWS = (ifStatement.whiteSpace.useDefault
+                            && (_.isEmpty(elseIfStmts) && _.isNil(elseStmt)))
                         ? '\n' : ifStatement.getWSRegion(5);
+        
+        // if either an else-if or else block available & they are newly added
+        // reset tailing ws
+        if ((!_.isEmpty(elseIfStmts) && _.first(elseIfStmts).whiteSpace.useDefault)
+                || (!_.isNil(elseStmt) && elseStmt.whiteSpace.useDefault)) {
+            tailingWS = ' ';
+        }
         this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
