@@ -222,8 +222,8 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
     const fragment = FragmentUtils.createStatementFragment('a = b;');
     const parsedJson = FragmentUtils.parseFragment(fragment);
     if ((!_.has(parsedJson, 'error')
-           || !_.has(parsedJson, 'syntax_errors'))
-           && _.isEqual(parsedJson.type, 'assignment_statement')) {
+        || !_.has(parsedJson, 'syntax_errors'))
+        && _.isEqual(parsedJson.type, 'assignment_statement')) {
         const node = BallerinaASTFactory.createFromJson(parsedJson);
         node.initFromJson(parsedJson);
         node.accept(new EnableDefaultWSVisitor());
@@ -277,7 +277,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
             });
             const expression = leftOperandExpression + ' = ' + functionInvokeString;
             variableDefinitionStatement.setStatementFromString(expression);
-			variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
+            variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
             return variableDefinitionStatement;
         }
     }
