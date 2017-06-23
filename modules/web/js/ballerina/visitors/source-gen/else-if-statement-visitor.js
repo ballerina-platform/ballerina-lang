@@ -36,12 +36,24 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     endVisitElseIfStatement(elseIfStatement) {
         this.outdent();
+        const elseIfStmts = elseIfStatement.getParent().getElseIfStatements(),
+              elseStmt = elseIfStatement.getParent().getElseStatement();
         // if using default ws, add a new line to end unless there are anymore elseif stmts available
         // or an else statement is available
-        const tailingWS = (elseIfStatement.whiteSpace.useDefault
-                        && (_.isNil(elseIfStatement.getParent().getElseStatement())
-                            && _.isEqual(_.last(elseIfStatement.getParent().getElseIfStatements()), elseIfStatement)))
+        let tailingWS = (elseIfStatement.whiteSpace.useDefault 
+                            && (_.isNil(elseStmt) && _.isEqual(_.last(elseIfStmts), elseIfStatement)))
                         ? '\n' : elseIfStatement.getWSRegion(6);
+
+        // if there is a newly added else-if or an else stmt after this
+        // reset tailing whitespace
+        let nextBlock;
+        if (!_.isEqual(_.last(elseIfStmts), elseIfStatement)) {
+            nextBlock = _.nth(elseIfStmts, _.indexOf(elseIfStmts, elseIfStatement) + 1);
+        } else if (!_.isNil(elseStmt)) {
+            nextBlock = elseStmt;
+        }
+        tailingWS = (!_.isNil(nextBlock) && nextBlock.whiteSpace.useDefault)
+                        ? ' ' : tailingWS;
         this.appendSource('}' + tailingWS);
         this.getParent().appendSource(this.getGeneratedSource());
     }

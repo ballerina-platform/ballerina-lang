@@ -33,8 +33,6 @@ class IfElseStatement extends Statement {
      */
     constructor(args) {
         super('IfElseStatement');
-
-        this._elseIfStatements = [];
         this.createIfStatement(args);
     }
 
@@ -43,7 +41,9 @@ class IfElseStatement extends Statement {
      * @return {IfStatement} if statement
      */
     getIfStatement() {
-        return this._ifStatement;
+        const stmtArray = this.getChildrenOfType(this.getFactory().isIfStatement);
+        return (!_.isNil(stmtArray) && !_.isEmpty(stmtArray))
+                ? _.nth(stmtArray, 0) : undefined ;
     }
 
     /**
@@ -51,7 +51,9 @@ class IfElseStatement extends Statement {
      * @return {ElseStatement} else statement
      */
     getElseStatement() {
-        return this._elseStatement;
+        const stmtArray = this.getChildrenOfType(this.getFactory().isElseStatement);
+        return (!_.isNil(stmtArray) && !_.isEmpty(stmtArray))
+                ? _.nth(stmtArray, 0) : undefined ;
     }
 
     /**
@@ -59,20 +61,7 @@ class IfElseStatement extends Statement {
      * @return {ElseIfStatement} else if statement
      */
     getElseIfStatements() {
-        return this._elseIfStatements;
-    }
-
-    /**
-     * Set the if statement
-     * @param {IfStatement} ifStatement if statement to be set
-     * @param {object} options set attribute options
-     * @returns {void}
-     */
-    setIfStatement(ifStatement, options) {
-        if (!_.isNil(this._ifStatement)) {
-            this._ifStatement.remove();
-        }
-        this.setAttribute('_ifStatement', ifStatement, options);
+        return this.getChildrenOfType(this.getFactory().isElseIfStatement);
     }
 
     /**
@@ -82,7 +71,6 @@ class IfElseStatement extends Statement {
      */
     createIfStatement(args) {
         const newIfStmt = new IfStatement(args);
-        this._ifStatement = newIfStmt;
         this.addChild(newIfStmt);
         return newIfStmt;
     }
@@ -94,7 +82,6 @@ class IfElseStatement extends Statement {
      */
     createElseStatement(args) {
         const newElseStatement = this.getFactory().createElseStatement(args);
-        this._elseStatement = newElseStatement;
         this.addChild(newElseStatement);
         return newElseStatement;
     }
@@ -111,7 +98,6 @@ class IfElseStatement extends Statement {
         });
         _.set(args, 'condition', condition);
         const newElseIfStatement = this.getFactory().createElseIfStatement(args);
-        this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
     }
@@ -122,7 +108,6 @@ class IfElseStatement extends Statement {
      * @returns {void}
      */
     addElseStatement(elseStatement) {
-        this._elseStatement = elseStatement;
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, elseStatement);
     }
 
@@ -136,8 +121,6 @@ class IfElseStatement extends Statement {
         const elseStatementIndex = _.findIndex(this.getChildren(), (node) => {
             return BallerinaASTFactory.isElseStatement(node);
         });
-
-        this._elseIfStatements.push(elseIfStatement);
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(
             this, elseIfStatement, index || elseStatementIndex);
@@ -174,13 +157,13 @@ class IfElseStatement extends Statement {
      * @returns {void}
      */
     initFromJson(jsonNode) {
+        this.children.length = 0;
         // create if statement
         const ifStmtNode = jsonNode.if_statement;
         if (!_.isNil(ifStmtNode)) {
             const ifStatement = this.getFactory().createFromJson(ifStmtNode);
             this.addChild(ifStatement);
             ifStatement.initFromJson(ifStmtNode);
-            this.setIfStatement(ifStatement);
         }
         // create else statement
         const elseStmtNode = jsonNode.else_statement;
@@ -188,7 +171,6 @@ class IfElseStatement extends Statement {
             const elseStatement = this.getFactory().createFromJson(elseStmtNode);
             this.addChild(elseStatement);
             elseStatement.initFromJson(elseStmtNode);
-            this._elseStatement = elseStatement;
         }
 
         // create else if statements
@@ -198,7 +180,6 @@ class IfElseStatement extends Statement {
                     const elseIfStatement = this.getFactory().createFromJson(elseIfStmtNode);
                     this.addChild(elseIfStatement);
                     elseIfStatement.initFromJson(elseIfStmtNode);
-                    this._elseIfStatements.push(elseIfStatement);
                 }
             });
         }
