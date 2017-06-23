@@ -29,4 +29,20 @@ native function getAttribute (Session session, string attributeKey) (any);
 @doc:Param { value:"attributeValue: HTTPSession attribute Value" }
 native function setAttribute (Session session, string attributeKey, any attributeValue);
 
+@doc:Description { value:"Gets the session attribute names"}
+@doc:Param { value:"session: A session struct" }
+@doc:Return { value:"[]: HTTPSession attribute name array" }
+native function getAttributeNames (Session session) (string[]);
+
+@doc:Description { value:"Gets the session attribute"}
+@doc:Param { value:"session: A session struct" }
+native function invalidate (Session session);
+
+@doc:Description { value:"Remove the session attribute"}
+@doc:Param { value:"session: A session struct" }
+@doc:Param { value:"attributeKey: HTTPSession attribute key" }
+native function removeAttribute (Session session, string attributeKey);
+
+
+
 
