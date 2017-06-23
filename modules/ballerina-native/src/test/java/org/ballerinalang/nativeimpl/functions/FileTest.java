@@ -194,19 +194,19 @@ public class FileTest {
         BLangFunctions.invokeNew(programFile, "testDelete", args);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: directory not empty: temp.*")
     public void testDeleteDir() throws IOException {
         String fileOne = "temp/delete-file-one.txt";
         String fileTwo = "temp/delete-file-two.txt";
         File one = new File(fileOne);
         File two = new File(fileTwo);
         String targetPath = "temp";
-        File targetFile = new File(targetPath);
         if (one.createNewFile() && two.createNewFile()) {
             BValue[] args = { new BString(targetPath) };
 
             BLangFunctions.invokeNew(programFile, "testDelete", args);
-            Assert.assertFalse(targetFile.exists(), "Target Directory exists");
         } else {
             Assert.fail("Error in file creation.");
         }

@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,31 +62,13 @@ public class Delete extends AbstractNativeFunction {
                                          " file not found: " + targetPath.toString());
         }
         try {
-            delete(targetPath);
+            Files.delete(targetPath);
+        } catch (DirectoryNotEmptyException e) {
+            throw new BallerinaException("Directory not empty: " + targetPath.toString());
         } catch (IOException e) {
             throw new BallerinaException("failed to delete file: " + targetPath.toString());
         }
         return VOID_RETURN;
     }
 
-    private void delete(Path targetPath) throws IOException {
-        if (Files.isDirectory(targetPath)) {
-            Files.walkFileTree(targetPath, new DeleteDirVisitor());
-        } else {
-            Files.delete(targetPath);
-        }
-    }
-
-    private static class DeleteDirVisitor extends SimpleFileVisitor<Path> {
-
-        @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.delete(file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            Files.delete(dir);
-            return FileVisitResult.CONTINUE;
-        }
-    }
 }
