@@ -22,7 +22,7 @@ connector TestConnector2(string param1, string param2, int param3) {
           aa = 13;
           system:println(aa);
           msg -> sampleWorker;
-          system:println("Worker in action test started");
+          system:println("Worker in action test started " + param1);
           result <- sampleWorker;
           return result;
 
@@ -74,7 +74,7 @@ connector TestConnector<TestConnector2>(string param1, string param2, int param3
           aa = 133;
           system:println(aa);
           msg -> sampleWorker;
-          system:println("Worker in filter connector test started - XXXXXXXXXXXXXXXXXXXXXXXX ");
+          system:println("Worker in filter connector test started - XXXXXXXXXXXXXXXXXXXXXXXX " + param1);
           result <- sampleWorker;
 
           worker sampleWorker {

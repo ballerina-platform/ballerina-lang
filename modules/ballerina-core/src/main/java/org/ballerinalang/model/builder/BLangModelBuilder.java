@@ -858,6 +858,15 @@ public class BLangModelBuilder {
                                                   SimpleTypeName typeName, boolean argsAvailable,
                                                   WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
                                                   SimpleTypeName filterTypeName, boolean filterArgsAvailable) {
+
+        List<Expression> filterArgExprList;
+        if (filterArgsAvailable) {
+            filterArgExprList = exprListStack.pop();
+            checkArgExprValidity(location, filterArgExprList);
+        } else {
+            filterArgExprList = new ArrayList<>(0);
+        }
+
         List<Expression> argExprList;
         if (argsAvailable) {
             argExprList = exprListStack.pop();
@@ -868,14 +877,6 @@ public class BLangModelBuilder {
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
-
-        List<Expression> filterArgExprList;
-        if (filterArgsAvailable) {
-            filterArgExprList = exprListStack.pop();
-            checkArgExprValidity(location, filterArgExprList);
-        } else {
-            filterArgExprList = new ArrayList<>(0);
-        }
 
         ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
                 filterTypeName,

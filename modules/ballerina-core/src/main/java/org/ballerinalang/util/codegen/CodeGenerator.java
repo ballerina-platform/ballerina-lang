@@ -1424,7 +1424,7 @@ public class CodeGenerator implements NodeVisitor {
         BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
         if (filterConnectorDef != null && actionIExpr.getFilterCallableUnit() != null) {
             ActionInvocationExpr filterActionIExpr = actionIExpr.getFilterCallableUnit();
-
+            //visit(filterActionIExpr);
             int pkgCPIndexFilter = addPackageCPEntry(filterActionIExpr.getPackagePath());
 
             String pkgPathFilter = filterActionIExpr.getPackagePath();
@@ -1444,7 +1444,7 @@ public class CodeGenerator implements NodeVisitor {
             ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
             actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
             int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
-            int actionCallIndexFilter = getFilterCallableUnitCallCPIndex(filterActionIExpr);
+            int actionCallIndexFilter = getCallableUnitCallCPIndex(filterActionIExpr);
 
             if (actionInfoFilter.isNative()) {
                 // TODO Move this to the place where we create action info entry
@@ -2341,7 +2341,9 @@ public class CodeGenerator implements NodeVisitor {
         int[] argRegs = new int[argExprs.length];
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
-            argExpr.accept(this);
+            if (!argExpr.hasTemporaryValues()) {
+                argExpr.accept(this);
+            }
             argRegs[i] = argExpr.getTempOffset();
         }
 
@@ -2367,7 +2369,9 @@ public class CodeGenerator implements NodeVisitor {
         int[] argRegs = new int[argExprs.length];
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
-            //argExpr.accept(this);
+            if (!argExpr.hasTemporaryValues()) {
+                argExpr.accept(this);
+            }
             argRegs[i] = argExpr.getTempOffset();
         }
 
