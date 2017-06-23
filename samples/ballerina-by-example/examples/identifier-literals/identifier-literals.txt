@@ -1,0 +1,1 @@
+In Ballerina, global variables can be declared out side function and service level and can be used within functions.
