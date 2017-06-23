@@ -83,9 +83,9 @@ Also notice the **Source View** and **Swagger View** buttons in the lower right 
 
     ![alt text](images/EchoSwagger.png "Swagger view")
 
-    This editor allows you to write Swagger definitions to create services. 
+    If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
-1. Click **Design View** to return to the visual editor. 
+1. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
 
 1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
 
