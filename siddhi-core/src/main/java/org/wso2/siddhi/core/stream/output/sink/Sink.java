@@ -23,10 +23,13 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -35,25 +38,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class Sink implements SinkListener, Snapshotable {
 
-    private static final Logger log = Logger.getLogger(Sink.class);
+    private static final Logger LOG = Logger.getLogger(Sink.class);
+    private StreamDefinition streamDefinition;
     private String type;
     private SinkMapper mapper;
-    private boolean tryConnect = false;
+    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
     private String elementId;
+    private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
     private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private ScheduledExecutorService scheduledExecutorService;
 
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
                      ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
                      OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
                      SiddhiAppContext siddhiAppContext) {
+        this.streamDefinition = streamDefinition;
         this.type = type;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
-            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
-                            siddhiAppContext);
+            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
             this.mapper = sinkMapper;
         }
+        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
 
     }
 
@@ -75,8 +82,8 @@ public abstract class Sink implements SinkListener, Snapshotable {
      *
      * @param outputStreamDefinition containing stream definition bind to the {@link Sink}
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
-     * @param sinkConfigReader  this hold the {@link Sink} extensions configuration reader.
-     * @param siddhiAppContext {@link SiddhiAppContext} of the parent siddhi app.
+     * @param sinkConfigReader       this hold the {@link Sink} extensions configuration reader.
+     * @param siddhiAppContext       {@link SiddhiAppContext} of the parent siddhi app.
      */
     protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
                                  ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext);
@@ -106,35 +113,68 @@ public abstract class Sink implements SinkListener, Snapshotable {
         return mapper;
     }
 
-    public void connectWithRetry(ExecutorService executorService) {
-        tryConnect = true;
-        try {
-            connect();
-            isConnected.set(true);
-        } catch (ConnectionUnavailableException | RuntimeException e) {
-            log.error(e.getMessage(), e);
+    public void connectWithRetry() {
+        if (!isConnected.get()) {
+            isTryingToConnect.set(true);
+            try {
+                connect();
+                isConnected.set(true);
+                isTryingToConnect.set(false);
+                backoffRetryCounter.reset();
+            } catch (ConnectionUnavailableException | RuntimeException e) {
+                LOG.error("Error while connecting at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                scheduledExecutorService.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectWithRetry();
+                    }
+                }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
+                backoffRetryCounter.increment();
+            }
         }
-        //// TODO: 2/9/17 implement exponential retry connection
-//        while (tryConnect && !connected) {
-//            try {
-//                connect();
-//                connected = true;
-//            } catch (ConnectionUnavailableException e) {
-//                log.error(e.getMessage()+", Retrying in ",e);
-//            }
-//        }
+    }
+
+    @Override
+    public void publishEvents(Object payload, DynamicOptions transportOptions) {
+        if (isConnected.get()) {
+            try {
+                publish(payload, transportOptions);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                publishEvents(payload, transportOptions);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
+                    "' as its still trying to reconnect!, event dropped '" + payload + "'");
+        } else {
+            connectWithRetry();
+            publishEvents(payload, transportOptions);
+        }
 
     }
+
+    /**
+     * Sending events via output transport
+     *
+     * @param payload          payload of the event
+     * @param transportOptions one of the event constructing the payload
+     * @throws ConnectionUnavailableException throw when connections are unavailable.
+     */
+    public abstract void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException;
 
     public boolean isConnected() {
         return isConnected.get();
     }
 
     public void shutdown() {
-        tryConnect = false;
-        isConnected.set(false);
         disconnect();
         destroy();
+        isConnected.set(false);
+        isTryingToConnect.getAndSet(false);
     }
 
     @Override

@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -60,7 +59,7 @@ public abstract class SinkMapper implements Snapshotable {
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader);
         siddhiAppContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
-                                                                  this);
+                this);
     }
 
     /**
@@ -95,10 +94,11 @@ public abstract class SinkMapper implements Snapshotable {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition       The stream definition
+     *
+     * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder un mapped payload for reference
-     * @param mapperConfigReader this hold the {@link SinkMapper} extensions configuration reader.
+     * @param mapperConfigReader     this hold the {@link SinkMapper} extensions configuration reader.
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader
@@ -107,12 +107,10 @@ public abstract class SinkMapper implements Snapshotable {
     /**
      * Called to map the events and send them to {@link SinkListener}
      *
-     * @param events                  {@link Event}s that need to be mapped
+     * @param events       {@link Event}s that need to be mapped
      * @param sinkListener {@link SinkListener} that will be called with the mapped events
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    public void mapAndSend(Event[] events, SinkListener sinkListener)
-            throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, SinkListener sinkListener) {
         updateEventIds(events);
         if (groupDeterminer != null) {
             LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
@@ -124,24 +122,22 @@ public abstract class SinkMapper implements Snapshotable {
 
             for (ArrayList<Event> eventList : eventMap.values()) {
                 mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
-                           payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
+                        payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
 
             }
         } else {
             mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener,
-                       new DynamicOptions(events[0]));
+                    new DynamicOptions(events[0]));
         }
     }
 
     /**
      * Called to map the event and send it to {@link SinkListener}
      *
-     * @param event                   The {@link Event} that need to be mapped
+     * @param event        The {@link Event} that need to be mapped
      * @param sinkListener {@link SinkListener} that will be called with the mapped event
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    public void mapAndSend(Event event, SinkListener sinkListener)
-            throws ConnectionUnavailableException {
+    public void mapAndSend(Event event, SinkListener sinkListener) {
         updateEventId(event);
         mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener, new DynamicOptions(event));
     }
@@ -149,32 +145,28 @@ public abstract class SinkMapper implements Snapshotable {
     /**
      * Called to map the events and send them to {@link SinkListener}
      *
-     * @param events                  {@link Event}s that need to be mapped
-     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped events
-     * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link SinkListener}
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @param events                 {@link Event}s that need to be mapped
+     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder To build the message payload based on the given template
+     * @param sinkListener           {@link SinkListener} that will be called with the mapped events
+     * @param dynamicOptions         {@link DynamicOptions} containing transport related options which will be passed
+     *                               to the  {@link SinkListener}
      */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener, DynamicOptions dynamicOptions);
 
     /**
      * Called to map the event and send it to {@link SinkListener}
      *
-     * @param event                   {@link Event} that need to be mapped
-     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped event
-     * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link SinkListener}
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @param event                  {@link Event} that need to be mapped
+     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder To build the message payload based on the given template
+     * @param sinkListener           {@link SinkListener} that will be called with the mapped event
+     * @param dynamicOptions         {@link DynamicOptions} containing transport related options which will be passed
+     *                               to the  {@link SinkListener}
      */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener, DynamicOptions dynamicOptions);
 
     public final String getType() {
         return this.type;

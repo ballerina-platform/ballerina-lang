@@ -270,7 +270,7 @@ public class SiddhiAppRuntime {
         }
         for (List<Sink> sinks : eventSinkMap.values()) {
             for (Sink sink : sinks) {
-                sink.connectWithRetry(siddhiAppContext.getExecutorService());
+                sink.connectWithRetry();
             }
         }
         for (StreamJunction streamJunction : streamJunctionMap.values()) {
