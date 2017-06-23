@@ -331,3 +331,13 @@ function testSliceSingleton() (xml) {
     xml x1 = xmls:parse("<bookName>Book1</bookName>");
     return xmls:slice(x1, -1, -1);
 }
+
+function testXPathOnCopiedXML() (xml, xml) {
+    xml original = xmls:parse("<root><bookName>Book1</bookName><bookId>001</bookId><bookAuthor>Author01</bookAuthor></root>");
+    xml copy = xmls:copy(original);
+
+    xmls:remove(original,"/root/bookName");
+    xmls:remove(copy,"/root/bookAuthor");
+
+    return original, copy;
+}
