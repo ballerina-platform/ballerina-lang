@@ -106,7 +106,7 @@ class TransactionAbortedStatement extends Statement {
             this.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'TransactionAborted Statement Custom Tree modified',
+                title: 'Modify Transaction Aborted Statement',
                 context: nodeToFireEvent,
             });
 

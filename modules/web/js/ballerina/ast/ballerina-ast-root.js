@@ -33,18 +33,24 @@ import ASTNode from './node';
 class BallerinaASTRoot extends ASTNode {
     constructor(args) {
         super('BallerinaASTRoot');
+        this.on('tree-modified', (e) => {
+            if (e.type === 'child-added') {
+                // to add the imports based on the function/action drag and drop to editor
+                addImportsForTopLevel(e.data.child, { doSilently: true });
+            }
+        });
         this.packageDefinition = _.get(args, 'packageDefinition');
         const self = this;
         const factory = self.getFactory();
         // Add new imports on new child added to the canvas.
         // Ignore if already added or if it is a current package
-        const addImport = function (fullPackageName) {
+        const addImport = function (fullPackageName, options) {
             if (!self.isExistingPackage(fullPackageName)
                 && !_.isEqual(fullPackageName, 'Current Package')) {
                 const importDeclaration = factory.createImportDeclaration();
-                importDeclaration.setPackageName(fullPackageName);
-                importDeclaration.setParent(self);
-                self.addImport(importDeclaration);
+                importDeclaration.setPackageName(fullPackageName, options);
+                importDeclaration.setParent(self, options);
+                self.addImport(importDeclaration, options);
             }
         };
 
@@ -85,12 +91,6 @@ class BallerinaASTRoot extends ASTNode {
                 }
             }
         };
-        this.on('tree-modified', (e) => {
-            if (e.type === 'child-added') {
-                // to add the imports based on the function/action drag and drop to editor
-                addImportsForTopLevel(e.data.child, { doSilently: true });
-            }
-        });
 
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
@@ -181,8 +181,8 @@ class BallerinaASTRoot extends ASTNode {
     addImport(importDeclaration, options) {
         if (this.isExistingPackage(importDeclaration.getPackageName())) {
             const errorString = 'Package "' + importDeclaration.getPackageName() + '" is already imported.';
-            log.error(errorString);
-            throw errorString;
+            log.debug(errorString);
+            return;
         }
 
         const ballerinaASTFactory = this.getFactory();

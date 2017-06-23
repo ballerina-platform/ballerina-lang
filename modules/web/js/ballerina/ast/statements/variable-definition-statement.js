@@ -95,8 +95,8 @@ class VariableDefinitionStatement extends Statement {
      * @param {string} identifier - variable identifier
      * @returns {void}
      */
-    setIdentifier(identifier) {
-        this.children[0].setVariableName(identifier);
+    setIdentifier(identifier, opts) {
+        this.children[0].setVariableName(identifier, opts);
     }
 
     /**
@@ -104,8 +104,8 @@ class VariableDefinitionStatement extends Statement {
      * @param {string} bType - BType of the variable
      * @returns {void}
      */
-    setBType(bType) {
-        this.children[0].setVariableType(bType);
+    setBType(bType, opts) {
+        this.children[0].setVariableType(bType, opts);
     }
 
     /**
@@ -170,7 +170,7 @@ class VariableDefinitionStatement extends Statement {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Variable Definition Custom Tree modified',
+                title: 'Modify Variable Definition',
                 context: nodeToFireEvent,
             });
         } else {

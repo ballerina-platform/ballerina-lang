@@ -130,7 +130,7 @@ class AssignmentStatement extends Statement {
             nodeToFireEvent.trigger('tree-modified', {
                 origin: nodeToFireEvent,
                 type: 'custom',
-                title: 'Assignment statement Custom Tree modified',
+                title: 'Modify Assignment Statement',
                 context: nodeToFireEvent,
             });
         } else {

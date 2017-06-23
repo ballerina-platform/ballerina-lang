@@ -160,7 +160,7 @@ class WorkerReplyStatement extends Statement {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Worker Reply Statement Custom Tree modified',
+                title: 'Modify Worker Reply Statement',
                 context: this,
             });
 

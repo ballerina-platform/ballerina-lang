@@ -109,7 +109,7 @@ class FunctionInvocationExpression extends Expression {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'Function Invocation Expression Custom Tree modified',
+                title: 'Modify Function Invocation Expression',
                 context: this,
             });
 

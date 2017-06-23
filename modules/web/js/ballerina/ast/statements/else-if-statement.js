@@ -56,7 +56,7 @@ class ElseIfStatement extends ConditionalStatement {
             const condition = this.getFactory().createFromJson(parsedJson);
             condition.initFromJson(parsedJson);
             this.setCondition(condition);
-            condition.setParent(this);
+            condition.setParent(this, {doSilently: true});
         }
     }
 
@@ -97,8 +97,8 @@ class ElseIfStatement extends ConditionalStatement {
         if (!_.isNil(jsonNode.condition)) {
             const condition = this.getFactory().createFromJson(jsonNode.condition);
             condition.initFromJson(jsonNode.condition);
-            this.setCondition(condition);
-            condition.setParent(this);
+            this.setCondition(condition, {doSilently: true});
+            condition.setParent(this, {doSilently: true});
         }
         _.each(jsonNode.children, (childNode) => {
             let child;

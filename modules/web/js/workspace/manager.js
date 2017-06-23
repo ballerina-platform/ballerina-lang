@@ -300,25 +300,22 @@ class WorkspaceManager {
         const redoMenuItem = this.app.menuBar.getMenuItemByID('edit.redo');
 
         if (activeTab instanceof FileTab) {
-            const fileEditor = activeTab.getBallerinaFileEditor();
-            if (!_.isUndefined(fileEditor)) {
-                const undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
-                if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
-                    undoMenuItem.enable();
-                    // undoMenuItem.addLabelSuffix(
-                    //     undoManager.undoStackTop().getTitle());
-                } else {
-                    undoMenuItem.disable();
-                    undoMenuItem.clearLabelSuffix();
-                }
-                if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
-                    redoMenuItem.enable();
-                    // redoMenuItem.addLabelSuffix(
-                    //     undoManager.redoStackTop().getTitle());
-                } else {
-                    redoMenuItem.disable();
-                    redoMenuItem.clearLabelSuffix();
-                }
+            const undoManager = activeTab.getUndoManager();
+            if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
+                undoMenuItem.enable();
+                undoMenuItem.addLabelSuffix(
+                    undoManager.undoStackTop().getTitle());
+            } else {
+                undoMenuItem.disable();
+                undoMenuItem.clearLabelSuffix();
+            }
+            if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
+                redoMenuItem.enable();
+                redoMenuItem.addLabelSuffix(
+                    undoManager.redoStackTop().getTitle());
+            } else {
+                redoMenuItem.disable();
+                redoMenuItem.clearLabelSuffix();
             }
         } else {
             undoMenuItem.disable();
@@ -369,7 +366,7 @@ class WorkspaceManager {
 
     handleUndo() {
         // undo manager for current tab
-        const undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+        const undoManager = this.app.tabController.getActiveTab().getUndoManager();
         if (undoManager.hasUndo()) {
             undoManager.undo();
         }
@@ -378,7 +375,7 @@ class WorkspaceManager {
 
     handleRedo() {
         // undo manager for current tab
-        const undoManager = this.app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+        const undoManager = this.app.tabController.getActiveTab().getUndoManager();
         if (undoManager.hasRedo()) {
             undoManager.redo();
         }

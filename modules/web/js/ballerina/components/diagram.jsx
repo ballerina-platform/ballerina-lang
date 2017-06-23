@@ -67,6 +67,7 @@ class Diagram extends React.Component {
      */
     getChildContext() {
         return {
+            editor: this.props.editor,
             dragDropManager: this.props.dragDropManager,
             messageManager: this.props.messageManager,
             container: this.props.container,
@@ -173,6 +174,7 @@ Diagram.propTypes = {
 };
 
 Diagram.childContextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,

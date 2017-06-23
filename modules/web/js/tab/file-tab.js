@@ -26,6 +26,9 @@ import Tab from './tab';
 import File from '../workspace/file';
 import DebugManager from '../debugger/debug-manager';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
+import UndoManager from '../ballerina/undo-manager/undo-manager';
+import SourceModifyOperation from '../ballerina/undo-manager/source-modify-operation';
+import DiagramManipulationOperation from '../ballerina/undo-manager/diagram-manipulation-operation';
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -45,7 +48,11 @@ class FileTab extends Tab {
     constructor(options) {
         super(options);
         if (!_.has(options, 'file')) {
-            this._file = new File({ isTemp: true, isDirty: false }, { storage: this.getParent().getBrowserStorage() });
+            this._file = new File({ 
+                    isTemp: true, isDirty: false 
+                }, { 
+                    storage: this.getParent().getBrowserStorage() 
+                });
         } else {
             this._file = _.get(options, 'file');
         }
@@ -71,6 +78,7 @@ class FileTab extends Tab {
                 this.app.langseverClientController.documentDidSaveNotification(langServerOptions);
             },
         });
+        this._undoManager = new UndoManager();
     }
 
     /**
@@ -267,8 +275,14 @@ class FileTab extends Tab {
         this._fileEditor = fileEditor;
         fileEditor.render(diagramRenderingContext);
 
-        fileEditor.on('content-modified', function () {
+        fileEditor.on('content-modified', function (event) {
             const updatedContent = fileEditor.getContent();
+            // if the modification happened from design view
+            // updadte source view content
+            if (!fileEditor.isInSourceView()) {            
+                fileEditor.getSourceView().replaceContent(updatedContent, true);
+            }
+            this._handleUndoRedoStackOnUpdate(event);
             this._file.setContent(updatedContent);
             this._file.setDirty(true);
             this._file.save();
@@ -369,6 +383,23 @@ class FileTab extends Tab {
      */
     getProgramPackages() {
         return this._programPackages;
+    }
+    
+    getUndoManager() {
+        return this._undoManager;
+    }
+
+    _handleUndoRedoStackOnUpdate (changeEvent) {
+        let undoableOperationType = DiagramManipulationOperation;
+        // user did the change while in source view
+        if (this._fileEditor.isInSourceView()) {
+            undoableOperationType = SourceModifyOperation;
+        }
+        const undoableOp = new undoableOperationType({
+            title: changeEvent.title,
+            editor: this._fileEditor
+        }); 
+        this._undoManager.push(undoableOp);
     }
 }
 

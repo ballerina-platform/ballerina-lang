@@ -109,7 +109,7 @@ class TryCatchStatement extends Statement {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'custom',
-                title: 'TryCatch Statement Custom Tree modified',
+                title: 'Modify TryCatch Statement',
                 context: this,
             });
 

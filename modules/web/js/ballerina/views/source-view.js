@@ -29,6 +29,26 @@ import SourceViewCompleterFactory from './../../ballerina/utils/source-view-comp
 
 let ace = global.ace;
 let Range = ace.acequire('ace/range').Range;
+let AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
+
+// override default undo manager of ace editor
+class NotifyingUndoManager extends AceUndoManager {
+    constructor(sourceView) {
+        super();
+        this.sourceView = sourceView;
+    }
+    execute(args) {
+        super.execute(args);
+        if (!this.sourceView.inSilentMode) {
+            let changeEvent = {
+                type: 'source-modified',
+                title: 'Modify source'
+            };
+            this.sourceView.trigger('modified', changeEvent);
+        }
+        this.sourceView.inSilentMode = false;
+    }
+}
 
  // require ballerina mode
  const langTools = ace.acequire('ace/ext/language_tools');
@@ -73,6 +93,7 @@ class SourceView extends EventChannel {
         this._editor = ace.edit(this._container);
         let mode = ace.acequire(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
+        this._editor.getSession().setUndoManager(new NotifyingUndoManager(this));
         // Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
         let editorThemeName = (this._storage.get('pref:sourceViewTheme') !== null) ? this._storage.get('pref:sourceViewTheme')
@@ -104,17 +125,7 @@ class SourceView extends EventChannel {
         this._editor.getSession().setValue(this._content);
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
         this._editor.on('change', (event) => {
-            if (!self._inSilentMode) {
-                let changeEvent = {
-                    type: 'source-modified',
-                    title: 'Modify source',
-                    data: {
-                        type: event.action,
-                        lines: event.lines,
-                    },
-                };
-                self.trigger('modified', changeEvent);
-            }
+            // IMPORTANT: now listening to changes via overridden undo manager
         });
 
         // register actions
@@ -125,15 +136,33 @@ class SourceView extends EventChannel {
 
     /**
      * Set the content of text editor.
+     * IMPORTANT: Updating editor content using this api
+     * won't enable history in undo-manager of the editor.
+     * Use @link(SourceView#replaceContent) if you wish to enable history.
+     * 
+     * @deprecated
      * @param {String} content - content for the editor.
-     *
-     */
+    */
     setContent(content) {
         // avoid triggering change event on format
-        this._inSilentMode = true;
+        this.inSilentMode = true;
         this._editor.session.setValue(content);
-        this._inSilentMode = false;
         this.markClean();
+    }
+
+    /**
+     * Replace content of the editor while maintaining history
+     * 
+     * @param {*} newContent content to insert
+     */
+    replaceContent (newContent, doSilently) {
+        if (doSilently) {  
+            this.inSilentMode = true;
+        }
+        const session = this._editor.getSession();
+        const contentRange = new Range(0, 0, session.getLength(), 
+                        session.getRowLength(session.getLength()));
+        session.replace(contentRange, newContent);
     }
 
     getContent() {
@@ -185,7 +214,7 @@ class SourceView extends EventChannel {
         return $(this._container).is(':visible');
     }
 
-    format(doSilently) {
+    format() {
         const  parserRes = this._fileEditor.parserBackend.parse(
             {
                 name: this._fileEditor.getFile().getName(),
@@ -204,9 +233,7 @@ class SourceView extends EventChannel {
         const sourceGenVisitor = new SourceGenVisitor();
         ast.accept(sourceGenVisitor);
         const formattedContent = sourceGenVisitor.getGeneratedSource();
-        const session = this._editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(), session.getRowLength(session.getLength()));
-        session.replace(contentRange, formattedContent);
+        this.replaceContent(formattedContent, false);
     }
 
     // dbeugger related functions.
@@ -248,11 +275,11 @@ class SourceView extends EventChannel {
     }
 
     undo() {
-        return this._editor.getSession().getUndoManager().undo();
+        this._editor.getSession().getUndoManager().undo();
     }
 
     redo() {
-        return this._editor.getSession().getUndoManager().redo();
+        this._editor.getSession().getUndoManager().redo();
     }
 
     markClean() {

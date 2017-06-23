@@ -139,6 +139,7 @@ class ASTNode extends EventChannel {
             this.trigger('tree-modified', {
                 origin: this,
                 type: 'child-added',
+                title: `Add ${child.getType()}`,
                 data: {
                     child,
                     index,
@@ -172,6 +173,7 @@ class ASTNode extends EventChannel {
                     this.trigger('tree-modified', {
                         origin: this,
                         type: 'child-removed',
+                        title: `Remove ${child.getType()}`,
                         data: {
                             child,
                             index: itr,
@@ -344,32 +346,13 @@ class ASTNode extends EventChannel {
              */
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'custom',
+                type: 'modify-node',
                 title,
-                context: this,
                 data: {
                     attributeName,
                     newValue,
                     oldValue,
-                },
-                undo() {
-                    this.setAttribute(attributeName, oldValue, {
-                        doSilently: true,
-                    });
-                    if (_.has(options, 'undoCallBack') && _.isFunction(options.undoCallBack)) {
-                        const undoCallBack = _.get(options, 'undoCallBack');
-                        undoCallBack();
-                    }
-                },
-                redo() {
-                    this.setAttribute(attributeName, newValue, {
-                        doSilently: true,
-                    });
-                    if (_.has(options, 'redoCallBack') && _.isFunction(options.redoCallBack)) {
-                        const redoCallBack = _.get(options, 'redoCallBack');
-                        redoCallBack();
-                    }
-                },
+                }
             });
         }
     }
@@ -423,27 +406,8 @@ class ASTNode extends EventChannel {
              */
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'custom',
-                title,
-                context: this,
-                undo() {
-                    const currentArray = _.get(this, arrAttrName);
-                    if (existingValueIndex === -1) {
-                        // A value with this key did not exist. So remove it.
-                        _.remove(currentArray, options.predicate);
-                    } else {
-                        this.pushToArrayAttribute(arrAttrName, existingValue, {
-                            predicate: options.predicate,
-                            doSilently: true,
-                        });
-                    }
-                },
-                redo() {
-                    this.pushToArrayAttribute(arrAttrName, newValue, {
-                        predicate: options.predicate,
-                        doSilently: true,
-                    });
-                },
+                type: 'modify-node',
+                title
             });
         }
     }

@@ -94,7 +94,7 @@ class ConnectorDefinition extends ASTNode {
         let argParamDefHolder = this.findChild(this.getFactory().isArgumentParameterDefinitionHolder);
         if (_.isUndefined(argParamDefHolder)) {
             argParamDefHolder = this.getFactory().createArgumentParameterDefinitionHolder();
-            this.addChild(argParamDefHolder);
+            this.addChild(argParamDefHolder, undefined, true, true, false);
         }
         return argParamDefHolder;
     }

@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import $ from 'jquery';
 import log from 'log';
-import BallerinaView from './ballerina-view';
+import ASTVisitor from './../visitors/ast-visitor';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
@@ -27,7 +27,6 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 import ToolPaletteView from './../tool-palette/tool-palette-view';
-import UndoManager from './../undo-manager/undo-manager';
 import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
@@ -99,10 +98,7 @@ class BallerinaFileEditor extends EventChannel {
         if (this.isInSourceView()) {
             return this._sourceView.getContent();
         } 
-            let generatedSource = this.generateSource();
-            this._sourceView.setContent(generatedSource);
-            return this._sourceView.getContent();
-        
+        return this.generateSource();
     }
 
     isInSourceView() {
@@ -132,31 +128,12 @@ class BallerinaFileEditor extends EventChannel {
             model = BallerinaASTFactory.createBallerinaAstRoot();
         }
         this._model = model;
-        let self = this;
-        // make undo-manager capture all tree modifications after initial rendering
-        this._model.on('tree-modified', function (event) {
-            if (this.getUndoManager().hasUndo()) {
-                // clear undo stack from source view
-                if (this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().undoStackTop())) {
-                    this.getUndoManager().reset();
-                }
-            }
-            if (this.getUndoManager().hasRedo()) {
-                // clear redo stack from source view
-                if (this.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(this.getUndoManager().redoStackTop())) {
-                    this.getUndoManager().reset();
-                }
-            }
-            _.set(event, 'editor', this);
-            _.set(event, 'skipInSourceView', true);
-            this.getUndoManager().onUndoableOperation(event);
-            this.trigger('content-modified');
-        }, this);
+        this._model.on('tree-modified', (event) => {
+            this.trigger('content-modified', event);
+        });
 
         this._model.on('import-new-package', (packageString) => {
-            self.trigger('update-tool-patette');
+            this.trigger('update-tool-patette');
         });
     }
 
@@ -221,9 +198,6 @@ class BallerinaFileEditor extends EventChannel {
                                     .get(0);
 
         this.messageManager = new MessageManager({ fileEditor: this });
-
-        // init undo manager
-        this._undoManager = new UndoManager();
     }
 
     /**
@@ -293,24 +267,7 @@ class BallerinaFileEditor extends EventChannel {
         this._sourceView = new SourceView(sourceViewOpts);
 
         this._sourceView.on('modified', (changeEvent) => {
-            if (self.getUndoManager().hasUndo()) {
-                // clear undo stack from design view
-                if (!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().undoStackTop())) {
-                    self.getUndoManager().reset();
-                }
-            }
-
-            if (self.getUndoManager().hasRedo()) {
-                // clear redo stack from design view
-                if (!self.getUndoManager().getOperationFactory()
-                        .isSourceModifiedOperation(self.getUndoManager().redoStackTop())) {
-                    self.getUndoManager().reset();
-                }
-            }
-            _.set(changeEvent, 'editor', self);
-            self.getUndoManager().onUndoableOperation(changeEvent);
-            self.trigger('content-modified');
+            this.trigger('content-modified', changeEvent);
         });
 
         this._sourceView.on('breakpoints-updated', () => {
@@ -329,6 +286,7 @@ class BallerinaFileEditor extends EventChannel {
         this._debugger.on('session-completed', _.bind(this._clearExistingDebugHit, this));
 
         this._sourceView.render();
+        this._sourceView.setContent(this._file.getContent() || '');
 
         let lastRenderedTimestamp = this._file.getLastPersisted();
         let transformPopUp = '#transformOverlay';
@@ -347,6 +305,7 @@ class BallerinaFileEditor extends EventChannel {
         this._swaggerView = new SwaggerView(swaggerViewOpts);
 
         let sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
+        this._sourceViewBtn = sourceViewBtn;
         sourceViewBtn.click(() => {
             if (self.isInSwaggerView()) {
                 if (self._swaggerView.hasSwaggerErrors()) {
@@ -359,16 +318,9 @@ class BallerinaFileEditor extends EventChannel {
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
-            // If the file has changed we will add the generated source to source view
-            // If not we will display the content as it is in the file.
-            const generatedSource = this.generateSource();
-            if(this._file.isDirty()){
-                this._sourceView.setContent(generatedSource);
-            } else {
-                this._sourceView.setContent(this._file.getContent());
-            }
 
             sourceViewContainer.show();
+            this._sourceView._editor.resize(true)
             swaggerViewContainer.hide();
             this._$designViewContainer.hide();
             designViewBtn.show();
@@ -514,7 +466,6 @@ class BallerinaFileEditor extends EventChannel {
             this._swaggerView.hide();
             this._$designViewContainer.hide();
             this._sourceView.show();
-            self._sourceView.setContent(self._file.getContent());
             self.setActiveView('source');
         } else {
             designViewBtn.hide();
@@ -609,10 +560,6 @@ class BallerinaFileEditor extends EventChannel {
             root = this.getModel();
         }
         return root;
-    }
-
-    getUndoManager() {
-        return this._undoManager;
     }
 
     getSourceView() {
@@ -711,6 +658,10 @@ class BallerinaFileEditor extends EventChannel {
 
     getEnvironment() {
         return this._environment || new PackageScopedEnvironment();
+    }
+
+    activateSourceView() {
+        this._sourceViewBtn.click();
     }
 
 }
