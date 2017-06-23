@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -172,6 +173,27 @@ public class FileTest {
         } else {
             Assert.fail("Error in file creation.");
         }
+    }
+
+    @Test
+    public void testExists() throws IOException {
+        String targetPath = "temp/exist-file.txt";
+        File targetFile = new File(targetPath);
+        if (targetFile.createNewFile()) {
+            BValue[] args = { new BString(targetPath) };
+            BValue[] returnVal = BLangFunctions.invokeNew(programFile, "testExists", args);
+            Assert.assertTrue(((BBoolean) returnVal[0]).booleanValue(), "Exists return false when file exists");
+        } else {
+            Assert.fail("Error in file creation.");
+        }
+    }
+
+    @Test
+    public void testExistsNonExistentFile() throws IOException {
+        String targetPath = "temp/exist-file.txt";
+        BValue[] args = { new BString(targetPath) };
+        BValue[] returnVal = BLangFunctions.invokeNew(programFile, "testExists", args);
+        Assert.assertFalse(((BBoolean) returnVal[0]).booleanValue(), "Exists return true when file doesn't exist");
     }
 
     @Test
