@@ -41,6 +41,12 @@ You just started Ballerina, ran the HelloWorld sample, and got a response within
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
+## Why Ballerina Composer
+
+The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. This is a revolutionary way of doing programming for integration due to its use of sequence diagrams, enabling you to architecturally generate your code while designing your solution. The Ballerina Composer sets Ballerina apart from other integration paradigms due to its unique visual representation.
+
+You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view to define services by writing Swagger definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create your programs in the way that you like to work.
+
 ## Run the Composer
 
 1. At the command prompt, type `composer`.
@@ -52,6 +58,10 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
     ![alt text](images/WelcomePage.png "Welcome page")
     
     Let's open a sample and take a look around. 
+
+## Exploring the Ballerina Composer
+
+Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
 
 1. Click **echoService**.
 
@@ -79,4 +89,4 @@ Also notice the **Source View** and **Swagger View** buttons in the lower right 
 
 1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
 
-Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to take Ballerina for a spin and [write your first Ballerina program](tutorials/first-program.md).
