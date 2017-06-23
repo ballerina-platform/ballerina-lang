@@ -22,6 +22,7 @@
 import _ from 'lodash';
 import log from 'log';
 import ASTNode from './node';
+import FragmentUtils from '../utils/fragment-utils';
 
 /**
  * Constructs BallerinaASTRoot
@@ -264,6 +265,52 @@ class BallerinaASTRoot extends ASTNode {
 
             this.addChild(newConstantDefinition, index + 1);
         }
+    }
+
+    /**
+     * Adds a global (a variable or a constant) from a string
+     * @param {string} globalDefString global definition string to be set
+     * @returns {void}
+     */
+    addGlobalFromString(globalDefString) {
+        if(!globalDefString){
+            return;
+        }
+        // This is not 100% accurate
+        const globalDecRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g;
+
+        const match = globalDecRegex.exec(globalDefString);
+
+        if (match && match[1] && match[2] && match[3]) {
+            this.addConstantDefinition(match[1], match[2], match[3]);
+            return;
+        }
+
+        const varDefStatement = this.getFactory().createVariableDefinitionStatement();
+        varDefStatement.setStatementFromString(globalDefString, ({isValid, response}) => {
+            if(!isValid){
+                return;
+            }
+            // Get the index of the last constant declaration.
+            let index = _.findLastIndex(this.getChildren(), (child) => {
+                return this.getFactory().isConstantDefinition(child) ||
+                       this.getFactory().isVariableDefinitionStatement(child);
+            });
+
+            // If index is still -1, then get the index of the last import.
+            if (index == -1) {
+                index = _.findLastIndex(this.getChildren(), (child) => {
+                    return this.getFactory().isImportDeclaration(child);
+                });
+            }
+
+            // If index is still -1, then consider the package definition.
+            if (_.isEqual(index, -1) && !_.isNil(this.getPackageDefinition())) {
+                index = 0;
+            }
+
+            this.addChild(varDefStatement, index + 1);
+        });
     }
 
     /**

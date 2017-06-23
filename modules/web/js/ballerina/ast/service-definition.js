@@ -127,6 +127,25 @@ class ServiceDefinition extends ASTNode {
         }
     }
 
+    addVariableDefinitionFromString(variableDefString) {
+        if(!variableDefString){
+            return;
+        }
+
+        const varDefStatement = this.getFactory().createVariableDefinitionStatement();
+        varDefStatement.setStatementFromString(variableDefString, ({isValid, response}) => {
+            if(!isValid) {
+                return;
+            }
+
+            // Get the index of the last variable definition statement.
+            const index = _.findLastIndex(this.getChildren(), child =>
+                                    this.getFactory().isVariableDefinitionStatement(child));
+
+            this.addChild(varDefStatement, index + 1);
+        });
+    }
+
     /**
      * Removes an existing variable definition statement.
      * @param {string} modelID - The model ID of variable definition statement.

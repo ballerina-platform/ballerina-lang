@@ -135,6 +135,8 @@ class Diagram extends React.Component {
                 break;
             case 'ConstantDefinition':
                 break;
+            case 'VariableDefinitionStatement':
+                break;
             default:
                 otherNodes.push(child);
             }

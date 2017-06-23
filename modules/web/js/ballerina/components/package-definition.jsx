@@ -134,6 +134,16 @@ class PackageDefinition extends React.Component {
         }
     }
 
+    static getDisplayValue(globalDef) {
+        if(BallerinaASTFactory.isVariableDefinitionStatement(globalDef)){
+            return globalDef.getStatementString();
+        }
+
+        if(BallerinaASTFactory.isConstantDefinition(globalDef)){
+            return globalDef.getConstantDefinitionAsString()
+        }
+    }
+
     render() {
         const model = this.props.model;
         const bBox = model.viewState.bBox;
@@ -169,7 +179,8 @@ class PackageDefinition extends React.Component {
 
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => c.constructor.name === 'ImportDeclaration');
-        const globals = astRoot.children.filter(c => c.constructor.name === 'ConstantDefinition');
+        const globals = astRoot.children.filter(
+            c => c.constructor.name === 'ConstantDefinition' || c.constructor.name === 'VariableDefinitionStatement');
 
         const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
@@ -271,12 +282,14 @@ class PackageDefinition extends React.Component {
                         <GlobalExpanded
                             bBox={expandedGlobalsBbox}
                             globals={globals}
+                            model={this.props.model.parent}
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
                             addText={'+ Add Global'}
-                            onAddNewValue={this.handleAddGlobal}
+                            onAddNewValue={this.props.model.parent.addGlobalFromString.bind(this.props.model.parent)}
+                            newValuePlaceholder={'int a'}
                             onDeleteClick={this.handleDeleteGlobal}
-                            getValue={g => (g.getConstantDefinitionAsString())}
+                            getValue={PackageDefinition.getDisplayValue}
                         /> :
                         <GlobalDefinitions
                             bBox={globalsBbox}
