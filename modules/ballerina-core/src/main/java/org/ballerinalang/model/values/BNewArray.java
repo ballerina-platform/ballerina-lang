@@ -68,7 +68,7 @@ public abstract class BNewArray implements BRefType {
     protected void prepareForAdd(long index, int currentArraySize) {
         int intIndex = (int) index;
         rangeCheck(index, size);
-        ensureCapacity(intIndex, currentArraySize);
+        ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }
 
@@ -79,7 +79,7 @@ public abstract class BNewArray implements BRefType {
     }
 
     protected void rangeCheck(long index, int size) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
+        if (index > MAX_ARRAY_SIZE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
@@ -99,11 +99,16 @@ public abstract class BNewArray implements BRefType {
     }
 
     protected void ensureCapacity(int requestedCapacity, int currentArraySize) {
-        if (requestedCapacity - currentArraySize >= 0) {
+        if ((requestedCapacity) - currentArraySize >= 0) {
             // Here the growth rate is 1.5. This value has been used by many other languages
-            int newLength = currentArraySize + (currentArraySize >> 1);
-            newLength = Math.min(newLength, MAX_ARRAY_SIZE);
-            grow(newLength);
+            int newArraySize = currentArraySize + (currentArraySize >> 1);
+
+            // Now get the maximum value of the calculate new array size and request capacity
+            newArraySize = Math.max(newArraySize, requestedCapacity);
+
+            // Now get the minimum value of new array size and maximum array size
+            newArraySize = Math.min(newArraySize, MAX_ARRAY_SIZE);
+            grow(newArraySize);
         }
     }
 

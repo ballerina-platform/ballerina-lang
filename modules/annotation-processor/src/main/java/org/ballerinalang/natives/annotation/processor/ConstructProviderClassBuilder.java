@@ -40,7 +40,6 @@ import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +73,6 @@ public class ConstructProviderClassBuilder {
 
     
     private Writer sourceFileWriter;
-    private String pkgRepositoryClass;
     private String className;
     private String packageName;
     private String balSourceDir;
@@ -99,7 +97,6 @@ public class ConstructProviderClassBuilder {
                                      "import " + SimpleTypeName.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
                                      "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
-                                     "import " + BuiltinPackageRepository.class.getCanonicalName() + ";\n\n" +
                                      "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n" +
                                      "import " + NativeException.class.getCanonicalName() + ";\n\n";
     
@@ -111,20 +108,17 @@ public class ConstructProviderClassBuilder {
      * @param className Class name of the generated construct provider class
      * @param srcDir  source directory of ballerina files
      */
-    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir,
-                                         String pkgRepositoryClass) {
+    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
         this.packageName = packageName;
         this.className = className;
         this.balSourceDir = srcDir;
-        this.pkgRepositoryClass = pkgRepositoryClass;
 
-        
+
         // Initialize the class writer. 
         initClassWriter(filer);
         
         // Create config file in META-INF/services directory
         createNativeConstructsLoaderServiceMetaFile(filer);
-        createBuiltinPackageRepositoryServiceMetaFile(filer);
     }
     
     /**
@@ -171,37 +165,6 @@ public class ConstructProviderClassBuilder {
                     NativeConstructLoader.class.getCanonicalName());
             configWriter = metaFile.openWriter();
             configWriter.write(packageName + "." + className);
-        } catch (IOException e) {
-            throw new BallerinaException("error while generating config file: " + e.getMessage());
-        } finally {
-            if (configWriter != null) {
-                try {
-                    configWriter.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Create the configuration file in META-INF/services, required for java service
-     * provider api related to built in package repository.
-     *
-     * @param filer {@link Filer} associated with this annotation processor.
-     * @param
-     */
-    private void createBuiltinPackageRepositoryServiceMetaFile(Filer filer) {
-        if (pkgRepositoryClass == null || pkgRepositoryClass.isEmpty()) {
-            return;
-        }
-        Writer configWriter = null;
-        try {
-            //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
-                    BuiltinPackageRepository.class.getCanonicalName());
-            configWriter = metaFile.openWriter();
-            configWriter.write(pkgRepositoryClass);
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {

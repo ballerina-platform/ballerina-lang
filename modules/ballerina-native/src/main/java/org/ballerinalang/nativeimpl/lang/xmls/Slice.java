@@ -40,8 +40,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         packageName = "ballerina.lang.xmls",
         functionName = "slice",
         args = {@Argument(name = "x", type = TypeEnum.XML),
-            @Argument(name = "startIndex", type = TypeEnum.XML),
-            @Argument(name = "endIndex", type = TypeEnum.XML)},
+            @Argument(name = "startIndex", type = TypeEnum.INT),
+            @Argument(name = "endIndex", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )

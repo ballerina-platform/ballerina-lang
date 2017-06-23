@@ -1175,11 +1175,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression[] lExprs = assignStmt.getLExprs();
+
         visitLExprsOfAssignment(assignStmt, lExprs);
 
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
+            if (assignStmt.isDeclaredWithVar()) {
+                assignVariableRefTypes(lExprs, ((CallableUnitInvocationExpr) rExpr).getTypes());
+            }
             checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
         }
@@ -1187,6 +1191,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (lExprs.length > 1 && (rExpr instanceof TypeCastExpression || rExpr instanceof TypeConversionExpr)) {
             ((AbstractExpression) rExpr).setMultiReturnAvailable(true);
             rExpr.accept(this);
+            if (assignStmt.isDeclaredWithVar()) {
+                assignVariableRefTypes(lExprs, ((ExecutableMultiReturnExpr) rExpr).getTypes());
+            }
             checkForMultiValuedCastingErrors(assignStmt, lExprs, (ExecutableMultiReturnExpr) rExpr);
             return;
         }
@@ -1196,6 +1203,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType lhsType = lExpr.getType();
 
         if (rExpr instanceof RefTypeInitExpr) {
+            if (assignStmt.isDeclaredWithVar()) {
+                BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
+            }
             RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
             assignStmt.setRExpr(refTypeInitExpr);
             refTypeInitExpr.accept(this);
@@ -1204,6 +1214,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         visitSingleValueExpr(rExpr);
         BType rhsType = rExpr.getType();
+        if (assignStmt.isDeclaredWithVar()) {
+            ((VariableRefExpr) lExpr).getVariableDef().setType(rhsType);
+            lhsType = rhsType;
+        }
 
         // Check whether the right-hand type can be assigned to the left-hand type.
         AssignabilityResult result = performAssignabilityCheck(lhsType, rExpr);
@@ -2263,6 +2277,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         nullLiteral.setType(BTypes.typeNull);
     }
 
+    @Override
+    public void visit(ArrayLengthExpression arrayLengthExpression) {
+    }
+
 
     // Private methods.
 
@@ -2507,6 +2525,31 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
+        // Handle special case for assignment statement declared with var
+        if (assignStmt.isDeclaredWithVar()) {
+            for (Expression expr : lExprs) {
+                if (!(expr instanceof VariableRefExpr)) {
+                    BLangExceptionHelper.throwSemanticError(assignStmt, SemanticErrors.INVALID_VAR_ASSIGNMENT);
+                }
+                VariableRefExpr refExpr = (VariableRefExpr) expr;
+                Identifier identifier = new Identifier(refExpr.getVarName());
+                SymbolName symbolName = new SymbolName(identifier.getName());
+                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                        refExpr.getWhiteSpaceDescriptor(), identifier,
+                        null, symbolName, currentScope);
+
+                // Check whether this variable is already defined, if not define it.
+                SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
+                BLangSymbol varSymbol = currentScope.resolve(symbolName);
+                if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+                    BLangExceptionHelper.throwSemanticError(variableDef, SemanticErrors.REDECLARED_SYMBOL,
+                            variableDef.getName());
+                }
+                currentScope.define(varDefSymName, variableDef);
+                // Set memory location
+                setMemoryLocation(variableDef);
+            }
+        }
         // This set data structure is used to check for repeated variable names in the assignment statement
         Set<String> varNameSet = new HashSet<>();
 
@@ -3685,6 +3728,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
+    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+        for (int i = 0; i < expr.length; i++) {
+            ((VariableRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
     /**
      * This class holds the results of the type assignability check.
      *
@@ -3695,7 +3744,4 @@ public class SemanticAnalyzer implements NodeVisitor {
         TypeCastExpression implicitCastExpr;
     }
 
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
-    }
 }
