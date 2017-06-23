@@ -23,7 +23,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import alerts from 'alerts';
 import EventChannel from 'event_channel';
-import BallerinaView from './ballerina-view';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
