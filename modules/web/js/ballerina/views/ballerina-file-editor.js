@@ -550,12 +550,20 @@ class BallerinaFileEditor extends EventChannel {
     getSourceView() {
         return this._sourceView;
     }
-
+    /**
+     * Call designview and source view to indicate a debug hit
+     * @param {DebugPoint} position
+     * @memberof BallerinaFileEditor
+     */
     debugHit(position) {
         this._sourceView.debugHit(position);
         this._debugHitDesignView(position);
     }
-
+    /**
+     * Indicate a debug hit in design view
+     * @param {DebugPoint} position
+     * @memberof BallerinaFileEditor
+     */
     _debugHitDesignView(position) {
         const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
         findDebugHitVisitor.setPosition(position);
@@ -564,7 +572,10 @@ class BallerinaFileEditor extends EventChannel {
             this.reRender();
         }
     }
-
+    /**
+     * Clears existing debughit in design view and source view
+     * @memberof BallerinaFileEditor
+     */
     _clearExistingDebugHit() {
         this._currentDebugHit = {};
         const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
@@ -629,12 +640,26 @@ class BallerinaFileEditor extends EventChannel {
         this.trigger('update-diagram');
         this._sourceView.resize();
     }
+    /**
+     * Returns file name with package name
+     * @returns string - File name with package name
+     * @memberof BallerinaFieleEditor
+     */
+    getFileNameWithPackage() {
+        const packageInfo = this._model.getChildrenOfType(this._model.getFactory().isPackageDefinition)[0];
+        const fileName = this.getFile().getName();
+        if (packageInfo && packageInfo.getPackageName()) {
+            const packageName = packageInfo.getPackageName();
+            return `${packageName.replace(/\./g, '/')}/${fileName}`;
+        }
+        return fileName;
+    }
 
     /**
      * Remove existing breakpoints and  publish breakpoints to DebugManager
     */
     publishBreakpoints() {
-        const fileName = this._file.getName();
+        const fileName = this.getFileNameWithPackage();
         let breakpoints = [];
         if (this.isInSourceView()) {
             breakpoints = this._sourceView.getBreakpoints();

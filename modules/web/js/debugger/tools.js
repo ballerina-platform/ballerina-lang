@@ -174,7 +174,7 @@ class Tools extends EventChannel {
         this.container.on('click', '#remote_debug', () => {
             $('.debug-connection-group').removeClass('has-error');
             $('.debug-connection-error').addClass('hide');
-            self.connectionDialog.modal('show');
+            this.connectionDialog.modal('show');
         });
     }
     /**

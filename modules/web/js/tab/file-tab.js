@@ -265,9 +265,12 @@ class FileTab extends Tab {
             this.removeAllBreakpoints();
         });
 
-        DebugManager.on('debug-hit', function (message) {
+        DebugManager.on('debug-hit', (message) => {
             const position = message.location;
-            if (position.fileName === this._file.getName()) {
+            // Normalize file separator to /, ballerina debugger core can use file seperator \ or / depending on the OS
+            // TODO: refactor this after API changes of BreakpointDTO  in core
+            const fileName = position.fileName.replace(/\\/g, '/');
+            if (fileName === fileEditor.getFileNameWithPackage()) {
                 fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
             }
         }, this);
@@ -279,7 +282,7 @@ class FileTab extends Tab {
             const updatedContent = fileEditor.getContent();
             // if the modification happened from design view
             // updadte source view content
-            if (!fileEditor.isInSourceView()) {            
+            if (!fileEditor.isInSourceView()) {
                 fileEditor.getSourceView().replaceContent(updatedContent, true);
             }
             this._handleUndoRedoStackOnUpdate(event);
