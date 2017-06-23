@@ -76,7 +76,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "no service found to handle incoming request received to : /foo/message");
+                "no matching service found for path : /foo/message");
     }
 
     @Test(description = "Test for resource dispatcher availability check")
@@ -98,7 +98,7 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
         CarbonMessage invoke = Services.invoke(cMsg);
         Assert.assertEquals(invoke.getMessageDataSource().getMessageAsString(),
-                "no matching resource found for path : /bar , method : GET");
+                "no matching resource found for path : /echo/bar , method : GET");
     }
 
     @Test

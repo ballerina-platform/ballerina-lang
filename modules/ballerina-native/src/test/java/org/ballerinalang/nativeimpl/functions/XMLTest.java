@@ -781,4 +781,25 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<bookName>Book1</bookName>");
     }
+    
+    @Test
+    public void testXPathOnCopiedXML() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testXPathOnCopiedXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root><bookId>001</bookId><bookAuthor>Author01</bookAuthor>" +
+                "</root>");
+        Assert.assertEquals(returns[1].stringValue(), "<root><bookName>Book1</bookName><bookId>001</bookId></root>");
+    }
+    
+    @Test
+    public void testSeqCopy() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSeqCopy");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<!-- comment about the book--><bookName>Book1</bookName>" +
+                "<bookId>Updated Book ID</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
+        Assert.assertEquals(returns[1].stringValue(), "<!-- comment about the book--><bookName>Book1</bookName>" +
+                "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
+    }
 }
