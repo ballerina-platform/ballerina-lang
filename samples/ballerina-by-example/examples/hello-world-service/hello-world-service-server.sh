@@ -1,1 +1,1 @@
-./ballerina run service service-resource.bal
+./ballerina run service hello-world-service.bal
