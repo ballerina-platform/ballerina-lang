@@ -55,30 +55,31 @@ public class GetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
+
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String attributeKey = getStringArgument(context, 0);
             String sessionId = sessionStruct.getStringField(0);
-            Session session = context.getSessionContext().getCurrentSession();
+            Session session = context.getCurrentSession();
 
             //return value from cached session
-            if (session != null) {
+            if (session != null && (sessionId.equals(session.getId()))) {
                 return getBValues(session.getAttributeValue(attributeKey));
+            } else {
+                if (sessionId != null) {
+                    session = context.getSessionManager().getHTTPSession(sessionId);
+                    if (session != null) {
+                        return getBValues(session.getAttributeValue(attributeKey));
+                    } else {
+                        //no session available bcz of the time out
+                        throw new IllegalStateException("Session timeout");
+                    }
+                } else {
+                    //no session available for particular cookie
+                    throw new IllegalStateException("No session available");
+                }
             }
 
-            //if session is not available in cache
-            if (sessionId != null) {
-                session = context.getSessionContext().getSessionManager().getHTTPSession(sessionId);
-                if (session != null) {
-                    return getBValues(session.getAttributeValue(attributeKey));
-                } else {
-                    //no session available bcz of the time out
-                    throw new IllegalStateException("Session timeout");
-                }
-            } else {
-                //no session available for particular cookie
-                throw new IllegalStateException("No session available");
-            }
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             throw new BallerinaException(e);
         }
     }

@@ -21,7 +21,8 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
-import org.ballerinalang.services.dispatchers.session.SessionInfo;
+import org.ballerinalang.services.dispatchers.session.Session;
+import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -48,7 +49,7 @@ public class Context {
     private BallerinaTransactionManager ballerinaTransactionManager;
     private DebugInfoHolder debugInfoHolder;
     private boolean debugEnabled = false;
-    private SessionInfo sessionContext;
+    private Session currentSession = null;
 
     private int startIP;
     private BStruct errorThrown;
@@ -68,7 +69,6 @@ public class Context {
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
         this.controlStackNew = new ControlStackNew();
-        this.sessionContext = new SessionInfo();
     }
 
     public DebugInfoHolder getDebugInfoHolder() {
@@ -159,7 +159,15 @@ public class Context {
         return programFile;
     }
 
-    public SessionInfo getSessionContext() {
-        return sessionContext;
+    public SessionManager getSessionManager() {
+        return SessionManager.getInstance();
+    }
+
+    public Session getCurrentSession() {
+        return currentSession;
+    }
+
+    public void setCurrentSession(Session currentSession) {
+        this.currentSession = currentSession;
     }
 }

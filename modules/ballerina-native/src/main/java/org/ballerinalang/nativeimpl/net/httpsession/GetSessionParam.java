@@ -37,7 +37,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import static org.ballerinalang.nativeimpl.actions.http.Constants.REQUEST_URL;
+import static org.ballerinalang.services.dispatchers.http.Constants.BASE_PATH;
 import static org.ballerinalang.services.dispatchers.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
@@ -70,8 +70,8 @@ public class GetSessionParam extends AbstractNativeFunction {
             CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             Boolean create = getBooleanArgument(context, 0);
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
-            Session session = context.getSessionContext().getCurrentSession();
-            String path = (String) carbonMessage.getProperty(REQUEST_URL);
+            String path = (String) carbonMessage.getProperty(BASE_PATH);
+            Session session = context.getCurrentSession();
 
             if (session != null) {
                 session = session.setAccessed();
@@ -83,7 +83,7 @@ public class GetSessionParam extends AbstractNativeFunction {
                     session = Arrays.stream(cookieHeader.split(";"))
                             .filter(cookie -> cookie.startsWith(SESSION_ID))
                             .findFirst()
-                            .map(jsession -> context.getSessionContext().getSessionManager()
+                            .map(jsession -> context.getSessionManager()
                                     .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
                 } catch (NoSuchElementException e) {
                     //ignore throwable
@@ -93,22 +93,22 @@ public class GetSessionParam extends AbstractNativeFunction {
                     session.setNew(false);
                 } else {
                     if (create) {
-                        context.getSessionContext().getSessionManager().createHTTPSession(path);
+                        context.getSessionManager().createHTTPSession(path);
                     }
                     return new BValue[]{};
                 }
                 session.setAccessed();
             } else if (create) {
-                session = context.getSessionContext().getSessionManager().createHTTPSession(path);
+                session = context.getSessionManager().createHTTPSession(path);
             }
             carbonMessage.removeHeader(COOKIE_HEADER);
             if (session != null) {
-                context.getSessionContext().setCurrentSession(session);
+                context.setCurrentSession(session);
                 return new BValue[]{GetSession.createSessionStruct(context, session)};
             }
             return new BValue[]{};
 
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             throw new BallerinaException(e);
         }
     }

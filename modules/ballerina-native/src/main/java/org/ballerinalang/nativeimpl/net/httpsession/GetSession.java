@@ -40,6 +40,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import static org.ballerinalang.services.dispatchers.http.Constants.BASE_PATH;
 import static org.ballerinalang.services.dispatchers.http.Constants.COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
@@ -67,11 +68,12 @@ public class GetSession extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
+        CarbonMessage carbonMessage = null;
         try {
-            CarbonMessage carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
+            carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
-            Session session = context.getSessionContext().getCurrentSession();
-            String path = (String) context.getServiceInfo().getName();
+            String path = (String) carbonMessage.getProperty(BASE_PATH);
+            Session session = context.getCurrentSession();
 
             if (session != null) {
                 session = session.setAccessed();
@@ -83,7 +85,7 @@ public class GetSession extends AbstractNativeFunction {
                     session = Arrays.stream(cookieHeader.split(";"))
                             .filter(cookie -> cookie.startsWith(SESSION_ID))
                             .findFirst()
-                            .map(jsession -> context.getSessionContext().getSessionManager()
+                            .map(jsession -> context.getSessionManager()
                                     .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
                 } catch (NoSuchElementException e) {
                     //ignore throwable
@@ -94,22 +96,21 @@ public class GetSession extends AbstractNativeFunction {
                     if (session.getPath().equals(path)) {
                         session.setNew(false);
                     } else {
-                        throw new BallerinaException("Invalid path :" + path);
+                        throw new BallerinaException(path + " is not an allowed path");
                     }
-
                 } else {
-                    session = context.getSessionContext().getSessionManager().createHTTPSession(path);
+                    session = context.getSessionManager().createHTTPSession(path);
                 }
             } else {
                 //create session since a request without cookie
-                session = context.getSessionContext().getSessionManager().createHTTPSession(path);
+                session = context.getSessionManager().createHTTPSession(path);
             }
 
-            context.getSessionContext().setCurrentSession(session);
-            carbonMessage.removeHeader(COOKIE_HEADER); //do null check
+            context.setCurrentSession(session);
+            carbonMessage.removeHeader(COOKIE_HEADER);
             return new BValue[]{createSessionStruct(context, session)};
 
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             throw new BallerinaException(e);
         }
     }

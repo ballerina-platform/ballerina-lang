@@ -81,6 +81,7 @@ under the License.
             <class name="org.ballerinalang.service.ServiceTest"/>
             <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
             <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionTest"/>
         </classes>
     </test>
 

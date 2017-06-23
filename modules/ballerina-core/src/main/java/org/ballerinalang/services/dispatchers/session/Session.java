@@ -21,6 +21,8 @@ package org.ballerinalang.services.dispatchers.session;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Set;
+
 /**
  * {@code Session} represents the session interface.
  * <p>
@@ -69,6 +71,20 @@ public interface Session {
      * @return Time.
      */
     Long getLastAccessedTime();
+
+    /**
+     * Get attribute name list
+     *
+     * @return name array.
+     */
+    Set<String>  getAttributeNames();
+
+    /**
+     * Remove attribute from session
+     *
+     * @param name which needs to delete
+     */
+    void removeAttribute(String name);
 
     /**
      * Get max inactive time duration

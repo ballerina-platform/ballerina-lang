@@ -24,6 +24,7 @@ import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.services.dispatchers.session.SessionManager;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.services.dispatchers.http.Constants.PATH;
@@ -68,6 +69,17 @@ public class HTTPSession implements Session {
     public BValue getAttributeValue(String attributeKey) {
         checkValidity();
         return attributeMap.get(attributeKey);
+    }
+
+    @Override
+    public Set<String> getAttributeNames() {
+        checkValidity();
+        return attributeMap.keySet();
+    }
+
+    public void removeAttribute(String name) {
+        checkValidity();
+        attributeMap.remove(name);
     }
 
     @Override
