@@ -15,11 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import BallerinaASTFactory from './ballerina-ast-factory';
 import FragmentUtils from '../utils/fragment-utils';
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
-import _ from 'lodash';
 
 /**
  * @class DefaultBallerinaASTFactory
@@ -29,7 +28,8 @@ const DefaultBallerinaASTFactory = {};
 
 /**
  * creates ServiceDefinition
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} serviceDef
  */
 DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     const serviceDef = BallerinaASTFactory.createServiceDefinition(args);
@@ -38,6 +38,11 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     return serviceDef;
 };
 
+/**
+ * create Fork Join
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} forkJoinStatement
+ * */
 DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
     const forkJoinStatement = BallerinaASTFactory.createForkJoinStatement(args);
     const joinStatement = BallerinaASTFactory.createJoinStatement();
@@ -53,7 +58,8 @@ DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
 
 /**
  * creates ResourceDefinition
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} resourceDef
  */
 DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const resourceDef = BallerinaASTFactory.createResourceDefinition(args);
@@ -83,14 +89,17 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
 
     // Creating the responses array entry
     const responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
-    const responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({ rightValue: responsesAnnotationArray });
+    const responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({
+        rightValue: responsesAnnotationArray,
+    });
     responsesAnnotation.addChild(responseAnnotationEntry);
     return resourceDef;
 };
 
 /**
  * creates ConnectorDefinition
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} connectorDef
  */
 DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
     const connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
@@ -102,7 +111,8 @@ DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
 
 /**
  * creates ConnectorAction
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} actionDef
  */
 DefaultBallerinaASTFactory.createConnectorAction = function (args) {
     const actionDef = BallerinaASTFactory.createConnectorAction(args);
@@ -125,8 +135,8 @@ DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
 
 /**
  * Create the particular assignment statement for the action invocation
- * @param args
- * @returns {AssignmentStatement}
+ * @param {object} args - argument to be passed in to factory methods.
+ * @returns {AssignmentStatement} assignmentStatement
  */
 DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function (args) {
     const assignmentStatementString = 'm = ' + args.actionPackageName + ':' +
@@ -139,7 +149,8 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
 
 /**
  * creates TryCatchStatement
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} tryCatchStatement
  */
 DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
     const tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
@@ -150,7 +161,7 @@ DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
 /**
  * creates ThrowStatement
  * @param {Object} args - Arguments for creating a new throw statement.
- * @returns {ThrowStatement}
+ * @returns {ThrowStatement} throwStatement
  */
 DefaultBallerinaASTFactory.createThrowStatement = function (args) {
     const throwStatement = BallerinaASTFactory.createThrowStatement(args);
@@ -161,7 +172,7 @@ DefaultBallerinaASTFactory.createThrowStatement = function (args) {
 /**
  * create an abort statement.
  * @param {object} args - arguments for creating a new throw statement.
- * @return {AbortStatement}
+ * @return {AbortStatement} AbortStatement
  * */
 DefaultBallerinaASTFactory.createAbortStatement = function (args) {
     return BallerinaASTFactory.createAbortStatement(args);
@@ -170,7 +181,7 @@ DefaultBallerinaASTFactory.createAbortStatement = function (args) {
 /**
  * create TransactionAborted Statement.
  * @param {object} args - argument for creating a new TransactionAborted statement.
- * @return {TransactionAbortedStatement}
+ * @return {TransactionAbortedStatement} transactionAbortedStatement
  * */
 DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
     const transactionAbortedStatement = BallerinaASTFactory.createTransactionAbortedStatement(args);
@@ -180,7 +191,8 @@ DefaultBallerinaASTFactory.createTransactionAbortedStatement = function (args) {
 
 /**
  * creates MainFunctionDefinition
- * @param args
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} functionDefinition
  */
 DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
     const functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
@@ -191,27 +203,27 @@ DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
 
 /**
  * creates Aggregated AssignmentStatement
- * @param {Object} args
- * @returns {AssignmentStatement}
+ * @param {Object} args argument to be passed in to factory methods.
+ * @returns {AssignmentStatement} AssignmentStatement
  */
 DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
     const fragment = FragmentUtils.createStatementFragment('a = b;');
     const parsedJson = FragmentUtils.parseFragment(fragment);
     if ((!_.has(parsedJson, 'error')
-           || !_.has(parsedJson, 'syntax_errors'))
-           && _.isEqual(parsedJson.type, 'assignment_statement')) {
+        || !_.has(parsedJson, 'syntax_errors'))
+        && _.isEqual(parsedJson.type, 'assignment_statement')) {
         const node = BallerinaASTFactory.createFromJson(parsedJson);
         node.initFromJson(parsedJson);
         node.whiteSpace.useDefault = true;
         return node;
     }
-    return BallerinaASTFactory.createAssignmentStatement();
+    return BallerinaASTFactory.createAssignmentStatement(args);
 };
 
 /**
  * creates FunctionInvocationStatement
- * @param args
- * @returns {FunctionInvocationStatement}
+ * @param {object} args - argument to be passed in to factory methods.
+ * @returns {FunctionInvocationStatement} funcInvocationStatement
  */
 DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
     const funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement();
@@ -243,13 +255,17 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
 
         if (!_.isEmpty(args.functionDef.getReturnParams())) {
             // FIXME : Do a better solution to this by refactoring transform addChild and canDrop
-            const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            const leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-            const rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-            rightOp.addChild(funcInvocationExpression);
-            assignmentStmt.addChild(leftOp);
-            assignmentStmt.addChild(rightOp);
-            return assignmentStmt;
+            const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();
+            let leftOperandExpression = '';
+            args.functionDef.getReturnParams().forEach((returnParam, index) => {
+                if (index === 0) {
+                    leftOperandExpression = returnParam.type + ' ' + (returnParam.identifier
+                            ? returnParam.identifier : returnParam.type.substr(0, 1));
+                }
+            });
+            const expression = leftOperandExpression + ' = ' + functionInvokeString;
+            variableDefinitionStatement.setStatementFromString(expression);
+            return variableDefinitionStatement;
         }
     }
     funcInvocationStatement.addChild(funcInvocationExpression);
@@ -258,30 +274,30 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
 
 /**
  * creates WorkerInvocationStatement
- * @param args
- * @returns {WorkerInvocationStatement}
+ * @param {object} args - argument to be passed in to factory methods.
+ * @returns {WorkerInvocationStatement} workerInvocationStatement
  */
 DefaultBallerinaASTFactory.createWorkerInvocationStatement = function (args) {
-    const workerInvocationStatement = BallerinaASTFactory.createWorkerInvocationStatement();
+    const workerInvocationStatement = BallerinaASTFactory.createWorkerInvocationStatement(args);
     workerInvocationStatement.setStatementFromString('m -> workerName');
     return workerInvocationStatement;
 };
 
 /**
  * creates workerReplyStatement
- * @param args
- * @returns WorkerReplyStatement}
+ * @param {object} args - argument to be passed in to factory methods.
+ * @returns {WorkerReplyStatement} workerReplyStatement
  */
 DefaultBallerinaASTFactory.createWorkerReplyStatement = function (args) {
-    const workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement();
+    const workerReplyStatement = BallerinaASTFactory.createWorkerReplyStatement(args);
     workerReplyStatement.setStatementFromString('m <- workerName');
     return workerReplyStatement;
 };
 
 /**
  * create AnnotationDefinition
- * @param {object} args
- * @return {AnnotationDefinition}
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {AnnotationDefinition} annotationDefinition
  * */
 DefaultBallerinaASTFactory.createAnnotationDefinition = function (args) {
     const annotationDefinition = BallerinaASTFactory.createAnnotationDefinition(args);
@@ -290,6 +306,11 @@ DefaultBallerinaASTFactory.createAnnotationDefinition = function (args) {
     return annotationDefinition;
 };
 
+/**
+ * create connector declaration
+ * @param {object} args - argument to be passed in to factory methods.
+ * @return {ASTNode} connectorDeclaration
+ * */
 DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
     const packageName = args.pkgName;
     const declarationStatement = (packageName !== 'Current Package' ? args.pkgName + ':' : '') + args.connectorName
