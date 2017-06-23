@@ -46,7 +46,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for getting a session at first time")
     public void testGetSessionWithoutSessionCookie() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/init", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -57,7 +57,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for getting a session with param at first time")
     public void testGetSessionWithParamMethodCheck() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/initparam", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -68,7 +68,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for not getting a session with at first time")
     public void testGetSessionWithParamMethod() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/initparam3", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test3", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -80,7 +80,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for Cookie Session Header availability check")
     public void testCookieSessionHeader() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/init", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -93,7 +93,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for Cookie Session path availability check")
     public void testCookiePath() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/init", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -106,7 +106,7 @@ public class HTTPSessionTest {
 
     @Test(description = "Test for Get Attribute Function")
     public void testGetAttributeFunction() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/getAt", "GET");
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test4", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
@@ -252,5 +252,16 @@ public class HTTPSessionTest {
         stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "chamil");
+    }
+
+    @Test(description = "Test for getAttributeNames function")
+    public void testGetAttributeNamesFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "arraysize:2");
     }
 }

@@ -85,9 +85,7 @@ public class Constants {
     public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
-    
     public static final String VALUE_ATTRIBUTE = "value";
-
 
     public static final String COOKIE_HEADER = "Cookie";
     public static final String SESSION_ID = "BSESSIONID=";

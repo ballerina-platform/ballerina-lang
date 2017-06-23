@@ -9,7 +9,7 @@ struct Data {
 @http:BasePath {value:"/sample"}
 service sample {
     @http:GET{}
-    @http:Path{value:"/init"}
+    @http:Path{value:"/test1"}
     resource echo (message m) {
 
         string result = "";
@@ -22,7 +22,7 @@ service sample {
     }
 
     @http:GET{}
-    @http:Path{value:"/initparam"}
+    @http:Path{value:"/test2"}
     resource echo2 (message m) {
 
         string result = "";
@@ -35,7 +35,7 @@ service sample {
     }
 
     @http:GET{}
-    @http:Path{value:"/initparam3"}
+    @http:Path{value:"/test3"}
     resource echo3 (message m) {
 
         string result = "";
@@ -50,7 +50,7 @@ service sample {
     }
 
     @http:GET{}
-    @http:Path{value:"/getAt"}
+    @http:Path{value:"/test4"}
     resource testGetAt (message m) {
 
         string result = "";
@@ -132,5 +132,28 @@ service sample2 {
 
         messages:setStringPayload(m, d.name);
         reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/names"}
+    resource keyNames (message m) {
+
+        int sessionCounter;
+        int arrsize = 0;
+        httpsession:Session ses = httpsession:getSession(m);
+        if(httpsession:getAttribute(ses,"Counter") == null) {
+            sessionCounter = 0;
+        } else {
+            sessionCounter = (int) httpsession:getAttribute(ses,"Counter");
+        }
+        sessionCounter = sessionCounter+1;
+        httpsession:setAttribute(ses, "Counter", sessionCounter);
+        httpsession:setAttribute(ses, "Name", "myname");
+        string[] arr = httpsession:getAttributeNames(ses);
+        //arrsize = arr.length();
+
+        messages:setStringPayload(m, "arraysize:"+arrsize);
+        reply m;
+
     }
 }

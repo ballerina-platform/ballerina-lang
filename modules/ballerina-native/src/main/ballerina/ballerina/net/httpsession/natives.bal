@@ -31,7 +31,7 @@ native function setAttribute (Session session, string attributeKey, any attribut
 
 @doc:Description { value:"Gets the session attribute names"}
 @doc:Param { value:"session: A session struct" }
-@doc:Return { value:"[]: HTTPSession attribute name array" }
+@doc:Return { value:"string[]: HTTPSession attribute name array" }
 native function getAttributeNames (Session session) (string[]);
 
 @doc:Description { value:"Gets the session attribute"}

@@ -49,7 +49,7 @@ import java.util.Set;
         value = "Gets the session attribute names")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
         value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "[]",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string[]",
         value = "HTTPSession attribute name array") })
 public class GetAttributeNames extends AbstractNativeFunction {
     @Override
