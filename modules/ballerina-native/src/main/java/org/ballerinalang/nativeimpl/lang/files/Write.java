@@ -30,6 +30,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 
 /**
@@ -61,6 +62,8 @@ public class Write extends AbstractNativeFunction {
                 throw new BallerinaException("file " + destination.getStringField(0) + " is not opened yet");
             }
             sbc.write(ByteBuffer.wrap(content));
+        } catch (NonWritableChannelException e) {
+            throw new BallerinaException("channel not opened in write mode: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new BallerinaException("failed to write to file: " + e.getMessage(), e);
         }

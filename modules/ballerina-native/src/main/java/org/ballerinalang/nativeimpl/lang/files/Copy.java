@@ -70,6 +70,7 @@ public class Copy extends AbstractNativeFunction {
         if (!Files.exists(sourcePath)) {
             throw new BallerinaException("failed to copy file: file not found: " + sourcePath);
         }
+
         Path parent = destinationPath.getParent();
         if (parent != null && !Files.exists(parent)) {
             try {
@@ -78,6 +79,7 @@ public class Copy extends AbstractNativeFunction {
                 throw new BallerinaException("failed to copy file: cannot create directory: " + parent);
             }
         }
+
         try {
             Files.walkFileTree(sourcePath, new CopyDirVisitor(sourcePath, destinationPath,
                                                               new CopyOption[] { StandardCopyOption.REPLACE_EXISTING,
@@ -85,6 +87,7 @@ public class Copy extends AbstractNativeFunction {
         } catch (IOException e) {
             throw new BallerinaException("failed to copy file: " + sourcePath);
         }
+
         return VOID_RETURN;
     }
 
@@ -105,6 +108,7 @@ public class Copy extends AbstractNativeFunction {
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
             }
+
             return FileVisitResult.CONTINUE;
         }
 

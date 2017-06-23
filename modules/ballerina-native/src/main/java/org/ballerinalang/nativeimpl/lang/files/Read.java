@@ -33,11 +33,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.NonReadableChannelException;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 
 /**
  * Get the blob from a file.
@@ -75,15 +72,15 @@ public class Read extends AbstractNativeFunction {
             if (sbc == null) {
                 throw new BallerinaException("file " + file.getStringField(0) + " is not opened yet");
             }
-            if (bytesToRead == -1) {
-                Path path = Paths.get(file.getStringField(0));
-                data = Files.readAllBytes(path);
-                nRead = data.length;
-            } else {
-                ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToRead);
-                nRead = sbc.read(byteBuffer);
-                data = Arrays.copyOf(byteBuffer.array(), (int) nRead);
+
+            if ((bytesToRead == -1) || (bytesToRead > sbc.size())) {
+                bytesToRead = (int) sbc.size();
             }
+            ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToRead);
+            nRead = sbc.read(byteBuffer);
+            data = byteBuffer.array();
+        } catch (NonReadableChannelException e) {
+            throw new BallerinaException("file is not opened in read mode: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new BallerinaException("failed to read from file: " + e.getMessage(), e);
         }

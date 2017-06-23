@@ -28,8 +28,6 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
@@ -59,8 +57,6 @@ import java.util.Set;
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "accessMode",
         value = "The mode the file should be opened in") })
 public class Open extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(Open.class);
     
     @Override 
     public BValue[] execute(Context context) {
@@ -87,19 +83,15 @@ public class Open extends AbstractNativeFunction {
 
             if (write || append) {
 
-                // if opened for both write and append, then give priority to append
-                if (write && append) {
-                    log.info("found both 'a' and 'w' in access mode string. opening file in append mode");
-                }
                 if (Files.exists(path) && !Files.isWritable(path)) {
                     throw new BallerinaException("file is not writable: " + path);
                 }
                 createDirs(path);
                 opts.add(StandardOpenOption.CREATE);
-                if (write) {
-                    opts.add(StandardOpenOption.WRITE);
-                } else {
+                if (append) {
                     opts.add(StandardOpenOption.APPEND);
+                } else {
+                    opts.add(StandardOpenOption.WRITE);
                 }
             }
             SeekableByteChannel channel = Files.newByteChannel(path, opts);
