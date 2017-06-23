@@ -136,15 +136,20 @@ class ServiceDefinition extends React.Component {
         };
 
         const rightComponents = [];
-        // Pushing swagger edit button.
-        rightComponents.push({
-            component: PanelDecoratorButton,
-            props: {
-                key: `${model.getID()}-swagger-button`,
-                icon: ImageUtil.getSVGIconString('swagger'),
-                onClick: () => this.onSwaggerButtonClicked(),
-            },
-        });
+
+        // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.
+        // eslint-disable-next-line no-constant-condition
+        if (true) {
+            // Pushing swagger edit button.
+            rightComponents.push({
+                component: PanelDecoratorButton,
+                props: {
+                    key: `${model.getID()}-swagger-button`,
+                    icon: ImageUtil.getSVGIconString('swagger'),
+                    onClick: () => this.onSwaggerButtonClicked(),
+                },
+            });
+        }
 
         return (<PanelDecorator
             icon="tool-icons/service"
