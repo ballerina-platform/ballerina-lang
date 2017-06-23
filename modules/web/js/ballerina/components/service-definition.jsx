@@ -179,16 +179,13 @@ class ServiceDefinition extends React.Component {
     }
 }
 
-ServiceDefinition.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired
-};
-
 ServiceDefinition.propTypes = {
     model: PropTypes.instanceOf(ServiceDefinitionAST).isRequired,
 };
 
 ServiceDefinition.contextTypes = {
     renderingContext: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ServiceDefinition;
