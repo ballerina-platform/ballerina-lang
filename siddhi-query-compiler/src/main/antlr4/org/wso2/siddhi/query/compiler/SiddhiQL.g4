@@ -261,7 +261,8 @@ query_output
     ;
 
 update_set
-    : dereferencing_attribute =
+    : (dereferencing_attribute '=' expression)+
+    ;
 
 output_event_type
     : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS   
