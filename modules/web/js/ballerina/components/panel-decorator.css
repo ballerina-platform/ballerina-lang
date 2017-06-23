@@ -26,7 +26,6 @@
 
 .panel-header-controls-wrapper{
     fill: #666769;
-    width: 55px;
 }
 .panel .panel-body .panel-body-rect.drop-zone.active {
     fill: green;

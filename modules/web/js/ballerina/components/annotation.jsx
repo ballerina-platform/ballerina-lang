@@ -386,7 +386,7 @@ class Annotation extends React.Component {
 Annotation.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
     haveEndingComma: PropTypes.bool,
-    removeIcon: PropTypes.instanceOf(React.ReactElement),
+    removeIcon: PropTypes.element,
 };
 
 Annotation.defaultProps = {

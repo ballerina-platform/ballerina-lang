@@ -38,6 +38,8 @@ class SwaggerParser {
         } else {
             this._swaggerJson = swaggerDefintiion;
         }
+
+        this._unModifiedResources = [];
     }
 
     /**
@@ -106,7 +108,7 @@ class SwaggerParser {
                     return false;
                 });
 
-                // if the operation id does not match we will check if a resource exist with matching path and methos
+                // if the operation id does not match we will check if a resource exist with matching path and methods.
                 if (_.isUndefined(existingResource)) {
                     existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                         const httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
@@ -116,7 +118,7 @@ class SwaggerParser {
                             _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());
                     });
                     // if operationId exists set it as resource name.
-                    if (operation.operationId) {
+                    if (existingResource && operation.operationId) {
                         existingResource.setResourceName(operation.operationId);
                     }
                 }
@@ -504,6 +506,8 @@ class SwaggerParser {
         // if an operation id is defined set it as resource name.
         if (httpMethodJsonObject.operationId) {
             newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
+        } else {
+            newResourceDefinition.setResourceName(pathString.replace(/\W/g, '') + httpMethodAsString.toUpperCase());
         }
 
         newResourceDefinition.getPathAnnotation(true).getChildren()[0].setRightValue(JSON.stringify(pathString));
