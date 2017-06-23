@@ -22,11 +22,11 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -74,14 +74,14 @@ public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                     ExecutionPlanContext executionPlanContext) {
+                     SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length == 0) {
-            throw new ExecutionPlanValidationException("Coalesce must have at least one parameter");
+            throw new SiddhiAppValidationException("Coalesce must have at least one parameter");
         }
         Attribute.Type type = attributeExpressionExecutors[0].getReturnType();
         for (ExpressionExecutor expressionExecutor : attributeExpressionExecutors) {
             if (type != expressionExecutor.getReturnType()) {
-                throw new ExecutionPlanValidationException("Coalesce cannot have parameters with different type");
+                throw new SiddhiAppValidationException("Coalesce cannot have parameters with different type");
             }
         }
         returnType = type;

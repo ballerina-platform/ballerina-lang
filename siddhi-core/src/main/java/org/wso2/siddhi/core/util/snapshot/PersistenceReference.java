@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,25 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.exception;
+
+package org.wso2.siddhi.core.util.snapshot;
+
+import java.util.concurrent.Future;
 
 /**
- * Exception class to be used when runtime error occurs in Siddi execution.
+ * Class which contains the references related to persistence
  */
-public class ExecutionPlanRuntimeException extends RuntimeException {
-    public ExecutionPlanRuntimeException() {
-        super();
+public class PersistenceReference {
+
+    private Future future;
+    private String revision;
+
+    public PersistenceReference(Future future, String revision) {
+        this.future = future;
+        this.revision = revision;
     }
 
-    public ExecutionPlanRuntimeException(String message) {
-        super(message);
+    public Future getFuture() {
+        return future;
     }
 
-    public ExecutionPlanRuntimeException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
-
-    public ExecutionPlanRuntimeException(Throwable throwable) {
-        super(throwable);
+    public String getRevision() {
+        return revision;
     }
 }

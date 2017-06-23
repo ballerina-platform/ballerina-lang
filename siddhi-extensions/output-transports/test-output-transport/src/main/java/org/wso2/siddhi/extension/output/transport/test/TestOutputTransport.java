@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.output.transport.test;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
@@ -45,7 +45,7 @@ public class TestSink extends Sink {
         availableConfigs.addAll(options.keySet());
         availableConfigs.addAll(unmappedDynamicOptions.keySet());
         if (!availableConfigs.contains(TOPIC_KEY)) {
-            throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +
+            throw new SiddhiAppCreationException(String.format("{{%s}} configuration " +
                     "could not be found in provided configs.", TOPIC_KEY));
         }
     }

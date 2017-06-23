@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -65,11 +65,11 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
      * The initialization method for FunctionExecutor
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader this hold the {@link MaxForeverAttributeAggregator} configuration reader.
-     * @param executionPlanContext         Execution plan runtime context
+     * @param siddhiAppContext         Siddhi app runtime context
      */
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
+                        SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 1) {
             throw new OperationNotSupportedException("MaxForever aggregator has to have exactly 1 parameter, " +
                     "currently " +

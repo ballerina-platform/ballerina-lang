@@ -52,4 +52,6 @@ public @interface Parameter {
     boolean optional() default false;
 
     boolean dynamic() default false;
+
+    String defaultValue() default "";
 }

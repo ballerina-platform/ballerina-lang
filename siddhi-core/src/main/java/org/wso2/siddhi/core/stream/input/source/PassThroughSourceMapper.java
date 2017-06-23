@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -64,7 +64,7 @@ public class PassThroughSourceMapper extends SourceMapper {
             } else if (eventObject instanceof Object[]) {
                 inputEventHandler.getInputHandler().send((Object[]) eventObject);
             } else {
-                throw new ExecutionPlanRuntimeException("Event object must be either Event[], Event or Object[] " +
+                throw new SiddhiAppRuntimeException("Event object must be either Event[], Event or Object[] " +
                         "but found " + eventObject.getClass().getCanonicalName());
             }
         }

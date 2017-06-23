@@ -24,7 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -63,12 +63,12 @@ public class KafkaSink extends Sink {
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
-                        ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
+                        ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
         kafkaConnect = optionHolder.validateAndGetStaticValue(KAFKA_BROKER_LIST);
         optionalConfigs = optionHolder.validateAndGetStaticValue(KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES, null);
         topicOption = optionHolder.validateAndGetOption(KAFKA_PUBLISH_TOPIC);
         partitionOption = optionHolder.getOrCreateOption(KAFKA_PARTITION_NO, null);
-        executorService = executionPlanContext.getScheduledExecutorService();
+        executorService = siddhiAppContext.getScheduledExecutorService();
     }
 
     @Override

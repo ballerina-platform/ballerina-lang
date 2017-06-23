@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.util.parser;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.table.holder.IndexEventHolder;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.HashMap;
@@ -63,7 +63,7 @@ public class EventHolderPasser {
                                                                  "at '" + tableDefinition.getId() + "'");
             }
             if (primaryKeyAnnotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
+                throw new SiddhiAppValidationException(SiddhiConstants.ANNOTATION_PRIMARY_KEY + " annotation " +
                                                                    "contains "
                                                                    + primaryKeyAnnotation.getElements().size() + " element, at '" + tableDefinition.getId() + "'");
             }
@@ -77,14 +77,14 @@ public class EventHolderPasser {
                                                                     tableDefinition.getAnnotations());
         if (indexAnnotation != null) {
             if (indexAnnotation.getElements().size() == 0) {
-                throw new ExecutionPlanValidationException(SiddhiConstants.ANNOTATION_INDEX + " annotation contains "
+                throw new SiddhiAppValidationException(SiddhiConstants.ANNOTATION_INDEX + " annotation contains "
                                                                    + indexAnnotation.getElements().size() + " element");
             }
             for (Element element : indexAnnotation.getElements()) {
                 Integer previousValue = indexMetaData.put(element.getValue().trim(), tableDefinition
                         .getAttributePosition(element.getValue().trim()));
                 if (previousValue != null) {
-                    throw new ExecutionPlanCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " " +
+                    throw new SiddhiAppCreationException("Multiple " + SiddhiConstants.ANNOTATION_INDEX + " " +
                                                                      "annotations defined with same attribute '" + element.getValue().trim() + "', at '" +
                                                                      tableDefinition.getId() + "'");
                 }

@@ -22,12 +22,12 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -111,14 +111,14 @@ public class KeyValueSinkmapperTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineStream(outputDefinition);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineStream(outputDefinition);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -127,7 +127,7 @@ public class KeyValueSinkmapperTestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -171,7 +171,7 @@ public class KeyValueSinkmapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='keyvalue')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -183,10 +183,10 @@ public class KeyValueSinkmapperTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sink:inMemory", InMemorySink.class);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -195,7 +195,7 @@ public class KeyValueSinkmapperTestCase {
         //assert event count
         Assert.assertEquals("Incorrect number of events consumed!", 2, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);

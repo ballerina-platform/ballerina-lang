@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class ConvertFunctionTestCase {
     private static final Logger log = Logger.getLogger(ConvertFunctionTestCase.class);
@@ -57,9 +57,9 @@ public class ConvertFunctionTestCase {
                 " as valueB, convert(typeN,'string') as valueN " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -75,12 +75,12 @@ public class ConvertFunctionTestCase {
                 }
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true, null});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -116,9 +116,9 @@ public class ConvertFunctionTestCase {
                 "(typeB,'bool') as valueB6  " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -166,12 +166,12 @@ public class ConvertFunctionTestCase {
                 Assert.assertTrue(inEvents[0].getData(35) instanceof Boolean && ((Boolean) inEvents[0].getData(35)));
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 2f, 3d, 4, 5L, true});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -192,9 +192,9 @@ public class ConvertFunctionTestCase {
                 "'bool') as valueB6 " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -207,16 +207,16 @@ public class ConvertFunctionTestCase {
                 Assert.assertTrue(inEvents[0].getData(5) instanceof Boolean && (Boolean) inEvents[0].getData(5));
             }
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(1, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void convertFunctionTest4() throws InterruptedException {
         log.info("convert function test 4");
 
@@ -232,9 +232,9 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS) as valueB1 " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -243,15 +243,15 @@ public class ConvertFunctionTestCase {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void convertFunctionTest5() throws InterruptedException {
         log.info("convert function test 5");
 
@@ -267,9 +267,9 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS,'string','int') as valueB1 " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -278,15 +278,15 @@ public class ConvertFunctionTestCase {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void convertFunctionTest6() throws InterruptedException {
         log.info("convert function test 6");
 
@@ -302,9 +302,9 @@ public class ConvertFunctionTestCase {
                 "select convert(typeS,string) as valueB1 " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -313,11 +313,11 @@ public class ConvertFunctionTestCase {
             }
 
         });
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("typeStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("typeStream");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"true", 1f, 1d, 1, 1L, true});
         Thread.sleep(100);
         Assert.assertEquals(0, count);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

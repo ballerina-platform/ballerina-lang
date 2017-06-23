@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
@@ -39,14 +39,14 @@ public abstract class Source implements Snapshotable {
     private boolean tryConnect = false;
 
     public void init(OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.mapper = sourceMapper;
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        init(sourceMapper, transportOptionHolder, configReader, executionPlanContext);
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
+        init(sourceMapper, transportOptionHolder, configReader, siddhiAppContext);
     }
 
     public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
-            configReader, ExecutionPlanContext executionPlanContext);
+            configReader, SiddhiAppContext siddhiAppContext);
 
     public abstract void connect() throws ConnectionUnavailableException;
 

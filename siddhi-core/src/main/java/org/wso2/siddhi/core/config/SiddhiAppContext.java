@@ -36,9 +36,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Holder object for context information of {@link org.wso2.siddhi.query.api.ExecutionPlan}.
+ * Holder object for context information of {@link org.wso2.siddhi.query.api.SiddhiApp}.
  */
-public class ExecutionPlanContext {
+public class SiddhiAppContext {
 
     private SiddhiContext siddhiContext = null;
     private String name;
@@ -61,7 +61,7 @@ public class ExecutionPlanContext {
     private ExceptionHandler<Object> disruptorExceptionHandler;
     private int bufferSize;
 
-    public ExecutionPlanContext() {
+    public SiddhiAppContext() {
         this.eternalReferencedHolders = new CopyOnWriteArrayList<EternalReferencedHolder>();
         this.scriptFunctionMap = new HashMap<String, Script>();
     }

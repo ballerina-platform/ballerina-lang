@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.input;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.DefinitionNotExistException;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -37,12 +37,12 @@ public class InputManager {
     private Map<String, StreamJunction> streamJunctionMap;
     private InputDistributor inputDistributor;
 
-    public InputManager(ExecutionPlanContext executionPlanContext,
+    public InputManager(SiddhiAppContext siddhiAppContext,
                         ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
                         ConcurrentMap<String, StreamJunction> streamJunctionMap) {
         this.streamJunctionMap = streamJunctionMap;
         this.inputDistributor = new InputDistributor();
-        this.inputEntryValve = new InputEntryValve(executionPlanContext, inputDistributor);
+        this.inputEntryValve = new InputEntryValve(siddhiAppContext, inputDistributor);
     }
 
     public InputHandler getInputHandler(String streamId) {

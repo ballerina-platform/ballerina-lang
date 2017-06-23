@@ -20,13 +20,13 @@ package org.wso2.siddhi.core.query.table;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 /**
@@ -44,11 +44,11 @@ public class DefineTableTestCase {
         TableDefinition tableDefinition = TableDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.INT);
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineTable(tableDefinition);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineTable(tableDefinition);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -57,8 +57,8 @@ public class DefineTableTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "define table Table(symbol string, price int, volume float) ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -68,8 +68,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "define table TestTable(symbol string, price int, volume float); " +
                 "define table TestTable(symbols string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -79,8 +79,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "define table TestTable(symbol string, volume float); " +
                 "define table TestTable(symbols string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -90,8 +90,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String tables = "define table TestTable(symbol string, price int, volume float); " +
                 "define table TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(tables);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(tables);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -101,8 +101,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String definitions = "define stream TestTable(symbol string, price int, volume float); " +
                 "define table TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -112,8 +112,8 @@ public class DefineTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         String definitions = "define table TestTable(symbol string, price int, volume float); " +
                 "define stream TestTable(symbol string, price int, volume float); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(definitions);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(definitions);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -121,7 +121,7 @@ public class DefineTableTestCase {
         log.info("testTableDefinition8 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "" +
                 "from StockStream " +
@@ -129,8 +129,8 @@ public class DefineTableTestCase {
                 "insert into OutputStream;" +
                 "" +
                 "define table OutputStream (symbol string, price float, volume long); ";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -139,15 +139,15 @@ public class DefineTableTestCase {
         log.info("testTableDefinition9 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price float, volume long); " +
                 "" +
                 "from StockStream " +
                 "select symbol, price, volume " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -155,15 +155,15 @@ public class DefineTableTestCase {
         log.info("testTableDefinition10 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float); " +
                 "define table OutputStream (symbol string, price float, volume long);" +
                 "" +
                 "from StockStream " +
                 "select symbol, price " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -171,15 +171,15 @@ public class DefineTableTestCase {
         log.info("testTableDefinition11 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from StockStream " +
                 "select symbol, price, volume " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -187,15 +187,15 @@ public class DefineTableTestCase {
         log.info("testTableDefinition12 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -203,15 +203,15 @@ public class DefineTableTestCase {
         log.info("testTableDefinition13 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price int, volume float, time long); " +
                 "" +
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = DuplicateDefinitionException.class)
@@ -219,30 +219,30 @@ public class DefineTableTestCase {
         log.info("testTableDefinition14 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price int, volume int); " +
                 "" +
                 "from StockStream " +
                 "select * " +
                 "insert into OutputStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testQuery15() throws InterruptedException {
         log.info("testTableDefinition15 - OUT 0");
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream StockStream(symbol string, price int, volume float);" +
                 "define table OutputStream (symbol string, price int, volume float); " +
                 "" +
                 "from OutputStream " +
                 "select symbol, price, volume " +
                 "insert into StockStream;";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.shutdown();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.shutdown();
     }
 }

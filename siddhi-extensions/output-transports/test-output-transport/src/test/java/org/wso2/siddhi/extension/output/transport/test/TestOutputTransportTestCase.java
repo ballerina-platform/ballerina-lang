@@ -22,12 +22,12 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.stream.output.sink.PassThroughSinkmapper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -107,15 +107,15 @@ public class TestSinkTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(inputDefinition);
-        executionPlan.defineStream(outputDefinition);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(inputDefinition);
+        siddhiApp.defineStream(outputDefinition);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 75.6f, 100L});
             stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -124,7 +124,7 @@ public class TestSinkTestCase {
             Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
             Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -158,7 +158,7 @@ public class TestSinkTestCase {
         siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='test', topic='{{symbol}}', @map(type='text')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -168,11 +168,11 @@ public class TestSinkTestCase {
                 "select * " +
                 "insert into BarStream; ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+            InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
             stockStream.send(new Object[]{"IBM", 75.6f, 100L});
             stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
@@ -181,7 +181,7 @@ public class TestSinkTestCase {
             Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
             Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 }

@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
@@ -56,8 +56,8 @@ public class InMemorySource extends Source {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader,
-                     ExecutionPlanContext
-            executionPlanContext) {
+                     SiddhiAppContext
+            siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory source");
         this.subscriber = new InMemoryBroker.Subscriber() {

@@ -30,7 +30,7 @@ public class DefineTriggerTestCase {
 
     @Test
     public void testCreatingTableDefinition() {
-        ExecutionPlan.executionPlan("test").defineTrigger(TriggerDefinition.id("TriggerStream").atEvery(Expression
+        SiddhiApp.siddhiApp("test").defineTrigger(TriggerDefinition.id("TriggerStream").atEvery(Expression
                 .Time.day(5).value()));
     }
 

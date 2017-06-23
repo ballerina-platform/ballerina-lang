@@ -17,14 +17,14 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
-import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
+import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -41,25 +41,25 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class PartitionParser {
 
-    public static PartitionRuntime parse(ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder, Partition partition,
-                                         ExecutionPlanContext executionPlanContext,
+    public static PartitionRuntime parse(SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder, Partition partition,
+                                         SiddhiAppContext siddhiAppContext,
                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
-        PartitionRuntime partitionRuntime = new PartitionRuntime(executionPlanRuntimeBuilder.getStreamDefinitionMap()
-                , executionPlanRuntimeBuilder.getStreamJunctions(), partition, executionPlanContext);
+        PartitionRuntime partitionRuntime = new PartitionRuntime(siddhiAppRuntimeBuilder.getStreamDefinitionMap()
+                , siddhiAppRuntimeBuilder.getStreamJunctions(), partition, siddhiAppContext);
         for (Query query : partition.getQueryList()) {
             List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
             ConcurrentMap<String, AbstractDefinition> combinedStreamMap = new ConcurrentHashMap<String,
                     AbstractDefinition>();
             combinedStreamMap.putAll(streamDefinitionMap);
             combinedStreamMap.putAll(partitionRuntime.getLocalStreamDefinitionMap());
-            QueryRuntime queryRuntime = QueryParser.parse(query, executionPlanContext, combinedStreamMap,
-                    executionPlanRuntimeBuilder.getTableDefinitionMap(),
-                    executionPlanRuntimeBuilder.getWindowDefinitionMap(),
-                    executionPlanRuntimeBuilder.getTableMap(),
-                    executionPlanRuntimeBuilder.getEventWindowMap(),
-                    executionPlanRuntimeBuilder.getEventSourceMap(),
-                    executionPlanRuntimeBuilder.getEventSinkMap(),
-                    executionPlanRuntimeBuilder.getLockSynchronizer());
+            QueryRuntime queryRuntime = QueryParser.parse(query, siddhiAppContext, combinedStreamMap,
+                    siddhiAppRuntimeBuilder.getTableDefinitionMap(),
+                    siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
+                    siddhiAppRuntimeBuilder.getTableMap(),
+                    siddhiAppRuntimeBuilder.getEventWindowMap(),
+                    siddhiAppRuntimeBuilder.getEventSourceMap(),
+                    siddhiAppRuntimeBuilder.getEventSinkMap(),
+                    siddhiAppRuntimeBuilder.getLockSynchronizer());
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);

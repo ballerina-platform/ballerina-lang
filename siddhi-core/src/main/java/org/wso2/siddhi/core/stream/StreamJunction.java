@@ -24,7 +24,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.SiddhiEventFactory;
@@ -51,7 +51,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class StreamJunction {
     private static final Logger log = Logger.getLogger(StreamJunction.class);
-    private final ExecutionPlanContext executionPlanContext;
+    private final SiddhiAppContext siddhiAppContext;
     private final StreamDefinition streamDefinition;
     private int bufferSize;
     private List<Receiver> receivers = new CopyOnWriteArrayList<Receiver>();
@@ -64,28 +64,28 @@ public class StreamJunction {
     private boolean isTraceEnabled;
 
     public StreamJunction(StreamDefinition streamDefinition, ExecutorService executorService, int bufferSize,
-                          ExecutionPlanContext executionPlanContext) {
+                          SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.bufferSize = bufferSize;
         this.executorService = executorService;
-        this.executionPlanContext = executionPlanContext;
-        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
-            String metricName = executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+        this.siddhiAppContext = siddhiAppContext;
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            String metricName = siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
-                    SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
+                    SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_STREAMS +
                     SiddhiConstants.METRIC_DELIMITER + streamDefinition.getId();
-            this.throughputTracker = executionPlanContext
+            this.throughputTracker = siddhiAppContext
                     .getSiddhiContext()
                     .getStatisticsConfiguration()
                     .getFactory()
-                    .createThroughputTracker(metricName, executionPlanContext.getStatisticsManager());
+                    .createThroughputTracker(metricName, siddhiAppContext.getStatisticsManager());
         }
         try {
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
                                                                    streamDefinition.getAnnotations());
-            async = executionPlanContext.isAsync();
+            async = siddhiAppContext.isAsync();
             if (annotation != null) {
                 async = true;
                 String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
@@ -203,8 +203,8 @@ public class StreamJunction {
 
     private void sendData(long timeStamp, Object[] data) {
         // Set timestamp to system if Siddhi is in playback mode
-        if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator())
+        if (siddhiAppContext.isPlayback()) {
+            ((EventTimeBasedMillisTimestampGenerator) this.siddhiAppContext.getTimestampGenerator())
                     .setCurrentTimestamp(timeStamp);
         }
         if (throughputTracker != null) {
@@ -238,14 +238,14 @@ public class StreamJunction {
                     disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
                                                      bufferSize, executorService, producerType,
                                                      new BlockingWaitStrategy());
-                    disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
+                    disruptor.handleExceptionsWith(siddhiAppContext.getDisruptorExceptionHandler());
                     break;
                 }
             }
             if (disruptor == null) {
                 disruptor = new Disruptor<Event>(new SiddhiEventFactory(streamDefinition.getAttributeList().size()),
                                                  bufferSize, executorService);
-                disruptor.handleExceptionsWith(executionPlanContext.getDisruptorExceptionHandler());
+                disruptor.handleExceptionsWith(siddhiAppContext.getDisruptorExceptionHandler());
             }
             for (Receiver receiver : receivers) {
                 disruptor.handleEventsWith(new StreamHandler(receiver));

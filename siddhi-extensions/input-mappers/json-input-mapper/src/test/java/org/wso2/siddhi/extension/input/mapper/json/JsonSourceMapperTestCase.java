@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.mapper.json;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -39,7 +39,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 1");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='json')) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -50,9 +50,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -78,7 +78,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
@@ -112,7 +112,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 4, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -120,7 +120,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 2");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -132,9 +132,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -157,7 +157,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
@@ -190,7 +190,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 3, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -198,7 +198,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 3");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='false'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -210,9 +210,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -241,7 +241,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
@@ -281,7 +281,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 5, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -289,7 +289,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 4");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -301,9 +301,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -329,7 +329,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"event\":{\n" +
@@ -384,7 +384,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 1, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -392,7 +392,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 5");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -404,9 +404,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -423,7 +423,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", "  {\n" +
                 "   \"event\":{\n" +
@@ -452,7 +452,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 1, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -460,7 +460,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 6");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -472,9 +472,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -491,7 +491,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "   \"event\": {\n" +
@@ -529,7 +529,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 1, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -537,7 +537,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 8");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true'))\n" +
                 "define stream FooStream (symbol string, price float, volume long); " +
@@ -549,9 +549,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -568,7 +568,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " {\n" +
                 "      \"testEvent\":{\n" +
@@ -588,7 +588,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 1, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -596,7 +596,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 9");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', fail.on.missing.attribute='true', " +
                 "@attributes(symbol = \"event.symbol\", price = \"event.price\", " +
@@ -611,9 +611,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -648,7 +648,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", " \n" +
                 "[\n" +
@@ -673,7 +673,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 7, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     /*
@@ -685,7 +685,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 10");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
                 "@attributes(symbol = \"stock.company.symbol\", price = \"stock.price\", " +
@@ -699,9 +699,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -724,7 +724,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", "\n" +
                 "{\"portfolio\":\n" +
@@ -741,7 +741,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 3, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -749,7 +749,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 11");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
                 "fail.on.missing.attribute=\"true\", " +
@@ -764,9 +764,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -795,7 +795,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", "\n" +
                 "{\"portfolio\":\n" +
@@ -822,7 +822,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 5, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -830,7 +830,7 @@ public class JsonSourceMapperTestCase {
         log.info("test JsonSourceMapper 12");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', " +
                 "@map(type='json', enclosing.element=\"portfolio\", " +
                 "fail.on.missing.attribute=\"false\", " +
@@ -845,9 +845,9 @@ public class JsonSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -879,7 +879,7 @@ public class JsonSourceMapperTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         InMemoryBroker.publish("stock", "\n" +
                 "{\"portfolio\":\n" +
@@ -906,7 +906,7 @@ public class JsonSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 6, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 }

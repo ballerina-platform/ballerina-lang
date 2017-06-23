@@ -23,14 +23,14 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -116,7 +116,7 @@ public class RDBMSTable implements Table {
         try {
             DBQueryHelper.loadConfiguration();
         } catch (CannotLoadConfigurationException e) {
-            throw new ExecutionPlanCreationException("Error while loading the rdbms configuration file", e);
+            throw new SiddhiAppCreationException("Error while loading the rdbms configuration file", e);
         }
     }
 
@@ -132,10 +132,10 @@ public class RDBMSTable implements Table {
      * @param storeEventPool
      * @param storeEventCloner
      * @param configReader
-     * @param executionPlanContext ExecutionPlan related meta information
+     * @param siddhiAppContext SiddhiApp related meta information
      */
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner
-            storeEventCloner, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+            storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSTableConstants.BLOOM_FILTER_SIZE;
@@ -154,7 +154,7 @@ public class RDBMSTable implements Table {
         dataSourceName = fromAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
         tableName = fromAnnotation.getElement(RDBMSTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
 
-        DataSource dataSource = executionPlanContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
+        DataSource dataSource = siddhiAppContext.getSiddhiContext().getSiddhiDataSource(dataSourceName);
         List<Attribute> attributeList = tableDefinition.getAttributeList();
 
         if (dataSource == null && dataSourceName == null) {
@@ -178,10 +178,10 @@ public class RDBMSTable implements Table {
         }
 
         if (dataSource == null) {
-            throw new ExecutionPlanCreationException("Datasource specified for the event table is invalid/null");
+            throw new SiddhiAppCreationException("Datasource specified for the event table is invalid/null");
         }
         if (tableName == null) {
-            throw new ExecutionPlanCreationException("Invalid query specified. Required properties (tableName) not " +
+            throw new SiddhiAppCreationException("Invalid query specified. Required properties (tableName) not " +
                     "found ");
         }
 
@@ -196,11 +196,11 @@ public class RDBMSTable implements Table {
             this.dbHandler = new DBHandler(dataSource, tableName, attributeList, tableDefinition);
 
             if ((con = dataSource.getConnection()) == null) {
-                throw new ExecutionPlanCreationException("Error while making connection to database");
+                throw new SiddhiAppCreationException("Error while making connection to database");
             }
 
             if (cacheType != null) {
-                cachedTable = new CachingTable(cacheType, cacheSizeInString, executionPlanContext, tableDefinition);
+                cachedTable = new CachingTable(cacheType, cacheSizeInString, siddhiAppContext, tableDefinition);
                 isCachingEnabled = true;
 
                 if (cacheLoadingType != null && cacheLoadingType.equalsIgnoreCase(RDBMSTableConstants.EAGER_CACHE_LOADING_ELEMENT)) {
@@ -237,7 +237,7 @@ public class RDBMSTable implements Table {
             }
 
         } catch (SQLException e) {
-            throw new ExecutionPlanCreationException("Error while making connection to database", e);
+            throw new SiddhiAppCreationException("Error while making connection to database", e);
         } finally {
             if (con != null) {
                 try {
@@ -330,10 +330,10 @@ public class RDBMSTable implements Table {
      */
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaInfoHolder, executionPlanContext,
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, tableDefinition, cachedTable, queryName);
     }
 

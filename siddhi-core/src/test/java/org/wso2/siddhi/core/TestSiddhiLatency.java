@@ -73,10 +73,10 @@ public class TestSiddhiLatency {
                 "\t\tSELECT rule, messageID, false AS isThrottled, timeNow\n" +
                 "\t\tINSERT INTO ThrottleStream; ";
 
-        ExecutionPlanRuntime commonExecutionPlanRuntime = siddhiManager.createExecutionPlanRuntime
+        SiddhiAppRuntime commonSiddhiAppRuntime = siddhiManager.createSiddhiAppRuntime
                 (eligibilityStream + commonQuery);
 
-        commonExecutionPlanRuntime.addCallback("ThrottleStream", new StreamCallback() {
+        commonSiddhiAppRuntime.addCallback("ThrottleStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 log.info("Common callback latency =" + (System.currentTimeMillis() - (Long) events[0].getData(3)));
@@ -88,9 +88,9 @@ public class TestSiddhiLatency {
             }
         });
 
-        commonExecutionPlanRuntime.start();
+        commonSiddhiAppRuntime.start();
         //get and register inputHandler
-        eligibilityStreamInputHandler = commonExecutionPlanRuntime.getInputHandler("EligibilityStream");
+        eligibilityStreamInputHandler = commonSiddhiAppRuntime.getInputHandler("EligibilityStream");
 
 
         String requestStream = "define stream RequestStream (messageID string, app_key string, api_key string, " +
@@ -101,7 +101,7 @@ public class TestSiddhiLatency {
                 "timeNow\n" +
                 "INSERT INTO EligibilityStream;";
 
-        ExecutionPlanRuntime ruleRuntime = siddhiManager.createExecutionPlanRuntime(requestStream + eligibilityQuery);
+        SiddhiAppRuntime ruleRuntime = siddhiManager.createSiddhiAppRuntime(requestStream + eligibilityQuery);
         ruleRuntime.addCallback("EligibilityStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {

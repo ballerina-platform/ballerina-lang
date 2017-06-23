@@ -22,12 +22,12 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -74,26 +74,26 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
 
     @Override
     public void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                     ExecutionPlanContext executionPlanContext) {
+                     SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 2) {
-            throw new ExecutionPlanValidationException("convert() must have at 2 parameters, attribute and to be " +
+            throw new SiddhiAppValidationException("convert() must have at 2 parameters, attribute and to be " +
                                                                "converted type");
         }
         inputType = attributeExpressionExecutors[0].getReturnType();
         if (inputType == Attribute.Type.OBJECT) {
-            throw new ExecutionPlanValidationException("1st parameter of convert() cannot be 'object' as " +
+            throw new SiddhiAppValidationException("1st parameter of convert() cannot be 'object' as " +
                                                                "it's not supported, it has to be either of (STRING, " +
                                                                "INT, LONG, FLOAT, DOUBLE, BOOL), but found " +
                                                                attributeExpressionExecutors[0].getReturnType());
         }
         if (attributeExpressionExecutors[1].getReturnType() != Attribute.Type.STRING) {
-            throw new ExecutionPlanValidationException("2nd parameter of convert() must be 'string' have constant " +
+            throw new SiddhiAppValidationException("2nd parameter of convert() must be 'string' have constant " +
                                                                "value either of (STRING, INT, LONG, FLOAT, DOUBLE, "
                                                                + "BOOL), but found " +
                                                                attributeExpressionExecutors[0].getReturnType());
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("2nd parameter of convert() must have constant value either " +
+            throw new SiddhiAppValidationException("2nd parameter of convert() must have constant value either " +
                                                                "of (STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found "
                                                                + "a variable expression");
         }
@@ -111,7 +111,7 @@ public class ConvertFunctionExecutor extends FunctionExecutor {
         } else if (Attribute.Type.LONG.toString().equalsIgnoreCase(type)) {
             returnType = Attribute.Type.LONG;
         } else {
-            throw new ExecutionPlanValidationException("2nd parameter of convert() must have value either of " +
+            throw new SiddhiAppValidationException("2nd parameter of convert() must have value either of " +
                                                                "(STRING, INT, LONG, FLOAT, DOUBLE, BOOL), but found '" +
                                                                type + "'");
         }

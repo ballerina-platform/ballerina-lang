@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.output.ratelimit;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
@@ -39,23 +39,23 @@ public abstract class OutputRateLimiter implements EternalReferencedHolder, Snap
 
     protected List<QueryCallback> queryCallbacks = new ArrayList<QueryCallback>();
     protected OutputCallback outputCallback = null;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     protected LatencyTracker latencyTracker;
     protected LockWrapper lockWrapper;
     protected String queryName;
     private boolean hasCallBack = false;
     private String elementId;
 
-    public void init(ExecutionPlanContext executionPlanContext, LockWrapper lockWrapper, String queryName) {
-        this.executionPlanContext = executionPlanContext;
+    public void init(SiddhiAppContext siddhiAppContext, LockWrapper lockWrapper, String queryName) {
+        this.siddhiAppContext = siddhiAppContext;
         this.queryName = queryName;
         if (outputCallback != null && (outputCallback instanceof InsertIntoStreamCallback)) {
             this.lockWrapper = lockWrapper;
         }
         if (elementId == null) {
-            elementId = "OutputRateLimiter-" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "OutputRateLimiter-" + siddhiAppContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
+        siddhiAppContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     protected void sendToCallBacks(ComplexEventChunk complexEventChunk) {

@@ -21,12 +21,12 @@ package org.wso2.siddhi.extension.output.transport.http;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.sink.PassThroughSinkmapper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -79,18 +79,18 @@ public class HttpSinkTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setExtension("sinkMapper:text", PassThroughSinkmapper.class);
 
-        ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineStream(outputDefinition);
-        executionPlan.addQuery(query);
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiApp siddhiApp = new SiddhiApp("ep1");
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineStream(outputDefinition);
+        siddhiApp.addQuery(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(100);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

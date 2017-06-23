@@ -18,7 +18,7 @@
 package org.wso2.siddhi.tcp.transport.utils;
 
 
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class StreamTypeHolder {
 
     public void putStreamCallback(StreamListener streamListener) {
         if (this.streamInfoMap.containsKey(streamListener.getStreamDefinition().getId())) {
-            throw new ExecutionPlanCreationException("TCP source with name '" + streamListener.getStreamDefinition()
+            throw new SiddhiAppCreationException("TCP source with name '" + streamListener.getStreamDefinition()
                     .getId() + "' already defined !");
         }
         this.streamInfoMap.put(streamListener.getStreamDefinition().getId(), new StreamInfo(streamListener));

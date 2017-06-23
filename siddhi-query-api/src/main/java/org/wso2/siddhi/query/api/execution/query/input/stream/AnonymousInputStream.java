@@ -18,7 +18,7 @@
 package org.wso2.siddhi.query.api.execution.query.input.stream;
 
 
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
 
@@ -33,7 +33,7 @@ public class AnonymousInputStream extends SingleInputStream {
     public AnonymousInputStream(Query query) {
         super("Anonymous-" + UUID.randomUUID());
         if (query.getOutputStream() != null && !(query.getOutputStream() instanceof ReturnStream)) {
-            throw new ExecutionPlanValidationException("OutputStream of the query is not on type Return!");
+            throw new SiddhiAppValidationException("OutputStream of the query is not on type Return!");
         }
         this.query = query;
 

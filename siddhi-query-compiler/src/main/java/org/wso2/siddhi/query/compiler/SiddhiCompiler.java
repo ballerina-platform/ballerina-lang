@@ -36,7 +36,7 @@ package org.wso2.siddhi.query.compiler;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -52,7 +52,7 @@ import org.wso2.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
  */
 public class SiddhiCompiler {
 
-    public static ExecutionPlan parse(String source) {
+    public static SiddhiApp parse(String source) {
 
         ANTLRInputStream input = new ANTLRInputStream(source);
         SiddhiQLLexer lexer = new SiddhiQLLexer(input);
@@ -67,7 +67,7 @@ public class SiddhiCompiler {
         ParseTree tree = parser.parse();
 
         SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
-        return (ExecutionPlan) eval.visit(tree);
+        return (SiddhiApp) eval.visit(tree);
     }
 
     public static StreamDefinition parseStreamDefinition(String source) {

@@ -23,7 +23,7 @@ grammar SiddhiQL;
 }
 
 parse
-    : execution_plan EOF
+    : siddhi_app EOF
     ;
 
 error
@@ -31,8 +31,8 @@ error
   //      {throw new SiddhiParserException("You have an error in your SiddhiQL at line " + $UNEXPECTED_CHAR.line + ", unexpected charecter '"+ $UNEXPECTED_CHAR.text +"'");}
     ;
 
-execution_plan
-    : (plan_annotation|error)*
+siddhi_app
+    : (app_annotation|error)*
       ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
       | (execution_element|error) (';' (execution_element|error))* ';'?
       | (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
@@ -102,8 +102,8 @@ annotation
     : '@' name ('(' (annotation_element|annotation) (',' (annotation_element|annotation) )* ')' )?
     ;
 
-plan_annotation
-    : '@' PLAN ':' name ('(' annotation_element (',' annotation_element )* ')' )?
+app_annotation
+    : '@' APP ':' name ('(' annotation_element (',' annotation_element )* ')' )?
     ;
 
 annotation_element
@@ -609,7 +609,7 @@ DEFINE:   D E F I N E;
 FUNCTION: F U N C T I O N;
 TRIGGER:  T R I G G E R;
 TABLE:    T A B L E;
-PLAN:     P L A N;
+APP:      A P P;
 FROM:     F R O M;
 PARTITION:    P A R T I T I O N; 
 WINDOW:   W I N D O W;

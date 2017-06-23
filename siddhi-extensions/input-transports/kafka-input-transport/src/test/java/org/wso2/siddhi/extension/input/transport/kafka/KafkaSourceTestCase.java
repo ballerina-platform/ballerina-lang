@@ -37,7 +37,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -45,9 +45,10 @@ import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.persistence.InMemoryPersistenceStore;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
+import org.wso2.siddhi.core.util.snapshot.PersistenceReference;
 import org.wso2.siddhi.extension.input.mapper.text.TextSourceMapper;
 import org.wso2.siddhi.extension.output.mapper.text.TextSinkMapper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -105,8 +106,8 @@ public class KafkaSourceTestCase {
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
@@ -115,7 +116,7 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -142,13 +143,13 @@ public class KafkaSourceTestCase {
 
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Thread.sleep(2000);
             kafkaPublisher(topics, 2, 2);
             Thread.sleep(5000);
             assertEquals(4, count);
             assertTrue(eventArrived);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -162,8 +163,8 @@ public class KafkaSourceTestCase {
             createTopic(topics, 2);
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@source(type='kafka', topic='kafka_topic3', group.id='test1', threading" +
@@ -172,7 +173,7 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -183,7 +184,7 @@ public class KafkaSourceTestCase {
 
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Future eventSender = executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -197,7 +198,7 @@ public class KafkaSourceTestCase {
             assertEquals(4, count);
             assertTrue(eventArrived);
 
-            Collection<List<Source>> sources = executionPlanRuntime.getSources();
+            Collection<List<Source>> sources = siddhiAppRuntime.getSources();
             // pause the transports
             sources.forEach(e -> e.forEach(Source::pause));
 
@@ -220,7 +221,7 @@ public class KafkaSourceTestCase {
             assertEquals(4, count);
             assertTrue(eventArrived);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -237,7 +238,7 @@ public class KafkaSourceTestCase {
             siddhiManager.setPersistenceStore(persistenceStore);
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
 
-            String query = "@Plan:name('TestExecutionPlan') " +
+            String query = "@app:name('TestSiddhiApp') " +
                     "define stream BarStream (count long); " +
                     "@info(name = 'query1') " +
                     "@source(type='kafka', topic='kafka_topic4', group.id='test', " +
@@ -245,8 +246,8 @@ public class KafkaSourceTestCase {
                     "@map(type='text'))" +
                     "Define stream FooStream (symbol string, price float, volume long);" +
                     "from FooStream select count(symbol) as count insert into BarStream;";
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(query);
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -266,26 +267,26 @@ public class KafkaSourceTestCase {
                 }
             });
             Thread.sleep(2000);
-            // start the execution plan
-            executionPlanRuntime.start();
+            // start the siddhi app
+            siddhiAppRuntime.start();
 
             // wait for some time
             Thread.sleep(28000);
             // initiate a checkpointing task
-            Future perisistor = executionPlanRuntime.persist();
+            PersistenceReference perisistor = siddhiAppRuntime.persist();
             // waits till the checkpointing task is done
-            while (!perisistor.isDone()) {
+            while (!perisistor.getFuture().isDone()) {
                 Thread.sleep(100);
             }
             // let few more events to be published
             Thread.sleep(5000);
-            // initiate a execution plan shutdown - to demonstrate a node failure
-            executionPlanRuntime.shutdown();
-            // let few events to be published while the execution plan is down
+            // initiate a siddhi app shutdown - to demonstrate a node failure
+            siddhiAppRuntime.shutdown();
+            // let few events to be published while the siddhi app is down
             Thread.sleep(5000);
-            // recreate the execution plan
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            // recreate the siddhi app
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(query);
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -296,10 +297,10 @@ public class KafkaSourceTestCase {
 
                 }
             });
-            // start the execution plan
-            executionPlanRuntime.start();
+            // start the siddhi app
+            siddhiAppRuntime.start();
             // immediately trigger a restore from last revision
-            executionPlanRuntime.restoreLastRevision();
+            siddhiAppRuntime.restoreLastRevision();
             Thread.sleep(5000);
 
             // waits till all the events are published
@@ -312,7 +313,7 @@ public class KafkaSourceTestCase {
             // assert the count
             assertEquals(50, count);
 
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -337,7 +338,7 @@ public class KafkaSourceTestCase {
             siddhiManager2.setPersistenceStore(persistenceStore1);
             siddhiManager2.setExtension("inputmapper:text", TextSourceMapper.class);
 
-            String query1 = "@Plan:name('TestExecutionPlan') " +
+            String query1 = "@app:name('TestSiddhiApp') " +
                     "@sink(type='kafka', topic='kafka_topic6', bootstrap.servers='localhost:9092', partition" +
                     ".no='0', " +
                     "@map(type='text'))" +
@@ -349,7 +350,7 @@ public class KafkaSourceTestCase {
                     "@info(name = 'query1') " +
                     "from FooStream select count(symbol) as count insert into BarStream;";
 
-            String query2 = "@Plan:name('TestExecutionPlan') " +
+            String query2 = "@app:name('TestSiddhiApp') " +
                     "define stream BarStream (count long); " +
                     "@source(type='kafka', topic='kafka_topic6', " +
                     "threading.option='topic.wise', bootstrap.servers='localhost:9092', partition.no.list='0', " +
@@ -358,10 +359,10 @@ public class KafkaSourceTestCase {
                     "@info(name = 'query1') " +
                     "from FooStream select count(number) as count insert into BarStream;";
 
-            ExecutionPlanRuntime executionPlanRuntime1 = siddhiManager1.createExecutionPlanRuntime(query1);
-            ExecutionPlanRuntime executionPlanRuntime2 = siddhiManager2.createExecutionPlanRuntime(query2);
+            SiddhiAppRuntime siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(query1);
+            SiddhiAppRuntime siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(query2);
 
-            executionPlanRuntime2.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime2.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -373,9 +374,9 @@ public class KafkaSourceTestCase {
                 }
             });
 
-            // start the execution plan
-            executionPlanRuntime1.start();
-            executionPlanRuntime2.start();
+            // start the siddhi app
+            siddhiAppRuntime1.start();
+            siddhiAppRuntime2.start();
             // let it initialize
             Thread.sleep(2000);
 
@@ -390,23 +391,23 @@ public class KafkaSourceTestCase {
             // wait for some time
             Thread.sleep(28000);
             // initiate a checkpointing task
-            Future perisistor1 = executionPlanRuntime1.persist();
-            Future perisistor2 = executionPlanRuntime2.persist();
+            PersistenceReference perisistor1 = siddhiAppRuntime1.persist();
+            PersistenceReference perisistor2 = siddhiAppRuntime2.persist();
             // waits till the checkpointing task is done
-            while (!perisistor1.isDone() && !perisistor2.isDone()) {
+            while (!perisistor1.getFuture().isDone() && !perisistor2.getFuture().isDone()) {
                 Thread.sleep(100);
             }
             // let few more events to be published
             Thread.sleep(5000);
-            // initiate a execution plan shutdown - to demonstrate a node failure
-            executionPlanRuntime1.shutdown();
-            executionPlanRuntime2.shutdown();
-            // let few events to be published while the execution plan is down
+            // initiate a siddhi app shutdown - to demonstrate a node failure
+            siddhiAppRuntime1.shutdown();
+            siddhiAppRuntime2.shutdown();
+            // let few events to be published while the siddhi app is down
             Thread.sleep(5000);
-            // recreate the execution plan
-            executionPlanRuntime1 = siddhiManager1.createExecutionPlanRuntime(query1);
-            executionPlanRuntime2 = siddhiManager2.createExecutionPlanRuntime(query2);
-            executionPlanRuntime2.addCallback("BarStream", new StreamCallback() {
+            // recreate the siddhi app
+            siddhiAppRuntime1 = siddhiManager1.createSiddhiAppRuntime(query1);
+            siddhiAppRuntime2 = siddhiManager2.createSiddhiAppRuntime(query2);
+            siddhiAppRuntime2.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -417,12 +418,12 @@ public class KafkaSourceTestCase {
 
                 }
             });
-            // start the execution plan
-            executionPlanRuntime1.start();
-            executionPlanRuntime2.start();
+            // start the siddhi app
+            siddhiAppRuntime1.start();
+            siddhiAppRuntime2.start();
             // immediately trigger a restore from last revision
-            executionPlanRuntime1.restoreLastRevision();
-            executionPlanRuntime2.restoreLastRevision();
+            siddhiAppRuntime1.restoreLastRevision();
+            siddhiAppRuntime2.restoreLastRevision();
             Thread.sleep(5000);
 
             // waits till all the events are published
@@ -435,8 +436,8 @@ public class KafkaSourceTestCase {
             // assert the count
             assertEquals(50, count);
 
-            executionPlanRuntime1.shutdown();
-            executionPlanRuntime2.shutdown();
+            siddhiAppRuntime1.shutdown();
+            siddhiAppRuntime2.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -448,8 +449,8 @@ public class KafkaSourceTestCase {
             log.info("Creating test for multiple topics and partitions and thread topic wise");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
                     "@info(name = 'query1') " +
                         "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', threading.option='topic.wise', " +
@@ -457,7 +458,7 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                                 "Define stream FooStream (symbol string, price float, volume long);" +
                     "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -465,9 +466,9 @@ public class KafkaSourceTestCase {
                     }
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Thread.sleep(20000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -479,8 +480,8 @@ public class KafkaSourceTestCase {
             log.info("Creating test for multiple topics and partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
@@ -489,7 +490,7 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -497,9 +498,9 @@ public class KafkaSourceTestCase {
                     }
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Thread.sleep(20000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -511,8 +512,8 @@ public class KafkaSourceTestCase {
             log.info("Creating test for single topic with multiple partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@source(type='kafka', topic='kafka_topic', group.id='test', threading.option='single" +
@@ -521,7 +522,7 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     for (Event event : events) {
@@ -529,9 +530,9 @@ public class KafkaSourceTestCase {
                     }
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Thread.sleep(20000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -543,8 +544,8 @@ public class KafkaSourceTestCase {
             log.info("Creating test for multiple topic with no partitions on single thread");
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream BarStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
@@ -552,15 +553,15 @@ public class KafkaSourceTestCase {
                             "@map(type='text'))" +
                             "Define stream FooStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+            siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     EventPrinter.print(events);
                 }
             });
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
             Thread.sleep(20000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -717,29 +718,29 @@ public class KafkaSourceTestCase {
                 siddhiManager.setExtension("source.mapper:text", TextSourceMapper.class);
                 siddhiManager.setExtension("sink.mapper:text", TextSinkMapper.class);
 
-                ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-                executionPlan.defineStream(inputDefinition);
-                executionPlan.defineStream(outputDefinition);
-                executionPlan.addQuery(query);
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+                SiddhiApp siddhiApp = new SiddhiApp("ep1");
+                siddhiApp.defineStream(inputDefinition);
+                siddhiApp.defineStream(outputDefinition);
+                siddhiApp.addQuery(query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-                executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+                siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
                     @Override
                     public void receive(Event[] events) {
                         System.out.println("Printing received events !!");
                         EventPrinter.print(events);
                     }
                 });
-                executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+                siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
                     @Override
                     public void receive(Event[] events) {
                         System.out.println("Printing publishing events !!");
                         EventPrinter.print(events);
                     }
                 });
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
                 Thread.sleep(30000);
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             } catch (ZkTimeoutException ex) {
                 log.warn("No zookeeper may not be available.", ex);
             } catch (InterruptedException e) {

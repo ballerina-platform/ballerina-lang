@@ -23,11 +23,11 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -61,11 +61,11 @@ public class MaximumFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
+                        SiddhiAppContext siddhiAppContext) {
         Attribute.Type attributeTypeOne = attributeExpressionExecutors[0].getReturnType();
         if (!((attributeTypeOne == Attribute.Type.DOUBLE) || (attributeTypeOne == Attribute.Type.INT) ||
                 (attributeTypeOne == Attribute.Type.FLOAT) || (attributeTypeOne == Attribute.Type.LONG))) {
-            throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + 1 +
+            throw new SiddhiAppValidationException("Invalid parameter type found for the argument" + 1 +
                     " of maximum() function, " +
                     "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                     " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
@@ -75,14 +75,14 @@ public class MaximumFunctionExecutor extends FunctionExecutor {
             Attribute.Type attributeType = attributeExpressionExecutors[i].getReturnType();
             if (!((attributeType == Attribute.Type.DOUBLE) || (attributeType == Attribute.Type.INT) ||
                     (attributeType == Attribute.Type.FLOAT) || (attributeType == Attribute.Type.LONG))) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for the argument" + i +
+                throw new SiddhiAppValidationException("Invalid parameter type found for the argument" + i +
                         " of maximum() function, " +
                         "required " + Attribute.Type.INT + " or " + Attribute.Type.LONG +
                         " or " + Attribute.Type.FLOAT + " or " + Attribute.Type.DOUBLE +
                         ", but found " + attributeType.toString());
             }
             if (attributeTypeOne != attributeType) {
-                throw new ExecutionPlanValidationException("Invalid parameter type found for arguments  " +
+                throw new SiddhiAppValidationException("Invalid parameter type found for arguments  " +
                         "of maximum() function, all parameters should be of same type, but found " +
                         attributeTypeOne + " and " + attributeExpressionExecutors[i].getReturnType());
             }

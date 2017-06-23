@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
@@ -30,9 +30,9 @@ import java.util.Map;
 public class AggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
-                                                executionPlanContext, String queryName) {
-        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
+                                        ExpressionExecutor[] attributeExpressionExecutors, SiddhiAppContext
+                                                siddhiAppContext, String queryName) {
+        super(attributeAggregator, attributeExpressionExecutors, siddhiAppContext, queryName);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                attributeExpressionExecutors, executionPlanContext, queryName);
+                                                attributeExpressionExecutors, siddhiAppContext, queryName);
     }
 
     @Override

@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
@@ -37,9 +37,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
                                                ExpressionExecutor[] attributeExpressionExecutors,
-                                               ConfigReader configReader, ExecutionPlanContext executionPlanContext,
+                                               ConfigReader configReader, SiddhiAppContext siddhiAppContext,
                                                String queryName) {
-        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
+        super(attributeAggregator, attributeExpressionExecutors, siddhiAppContext, queryName);
         this.configReader = configReader;
     }
 
@@ -56,7 +56,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext, configReader);
+            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, siddhiAppContext, configReader);
             currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
@@ -65,7 +65,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                       attributeExpressionExecutors, configReader, executionPlanContext,
+                                                       attributeExpressionExecutors, configReader, siddhiAppContext,
                                                        queryName);
     }
 
@@ -87,7 +87,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
         for (Map.Entry<String, Map<String, Object>> entry : data.entrySet()) {
             String key = entry.getKey();
             AttributeAggregator aAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            aAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext, configReader);
+            aAttributeAggregator.initAggregator(attributeExpressionExecutors, siddhiAppContext, configReader);
             aAttributeAggregator.start();
             aAttributeAggregator.restoreState(entry.getValue());
             aggregatorMap.put(key, aAttributeAggregator);

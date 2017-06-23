@@ -18,33 +18,33 @@
 package org.wso2.siddhi.core.exception;
 
 /**
- * Exception class to be used when an error occurs while creating {@link org.wso2.siddhi.query.api.ExecutionPlan}
+ * Exception class to be used when an error occurs while creating {@link org.wso2.siddhi.query.api.SiddhiApp}
  */
-public class ExecutionPlanCreationException extends RuntimeException {
+public class SiddhiAppCreationException extends RuntimeException {
     boolean classLoadingIssue = false;
 
-    public ExecutionPlanCreationException() {
+    public SiddhiAppCreationException() {
         super();
     }
 
-    public ExecutionPlanCreationException(String message) {
+    public SiddhiAppCreationException(String message) {
         super(message);
     }
 
-    public ExecutionPlanCreationException(String message, boolean isClassLoadingIssue) {
+    public SiddhiAppCreationException(String message, boolean isClassLoadingIssue) {
         super(message);
         classLoadingIssue = isClassLoadingIssue;
     }
 
-    public ExecutionPlanCreationException(String message, Throwable throwable) {
+    public SiddhiAppCreationException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public ExecutionPlanCreationException(Throwable throwable) {
+    public SiddhiAppCreationException(Throwable throwable) {
         super(throwable);
     }
 
-    public ExecutionPlanCreationException(String message, Throwable throwable, boolean isClassLoadingIssue) {
+    public SiddhiAppCreationException(String message, Throwable throwable, boolean isClassLoadingIssue) {
         super(message, throwable);
         classLoadingIssue = isClassLoadingIssue;
     }

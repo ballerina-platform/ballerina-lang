@@ -23,12 +23,12 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -90,19 +90,19 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-                        ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                        ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 3) {
             // check whether all the arguments passed
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to ifThenElse() function, " +
+            throw new SiddhiAppValidationException("Invalid no of arguments passed to ifThenElse() function, " +
                     "required only 3, but found " + attributeExpressionExecutors.length);
         } else if (!attributeExpressionExecutors[0].getReturnType().equals(Attribute.Type.BOOL)) {
             // check whether first argument Boolean or not
-            throw new ExecutionPlanValidationException("Input type of if in ifThenElse function should be of " +
+            throw new SiddhiAppValidationException("Input type of if in ifThenElse function should be of " +
                     "type BOOL, but found " + attributeExpressionExecutors[0].getReturnType());
         } else if (!attributeExpressionExecutors[1].getReturnType().equals(
                 attributeExpressionExecutors[2].getReturnType())) {
             // check whether second and thirds argument's return type are equivalent.
-            throw new ExecutionPlanValidationException("Input type of then in ifThenElse function and else in " +
+            throw new SiddhiAppValidationException("Input type of then in ifThenElse function and else in " +
                     "ifThenElse function should be of equivalent type. but found then type: " +
                     attributeExpressionExecutors[1].getReturnType() + " and else type: " +
                     attributeExpressionExecutors[2].getReturnType());
@@ -164,7 +164,7 @@ public class IfThenElseFunctionExecutor extends FunctionExecutor {
                     }
             );
         } catch (Exception e) {
-            log.error("Exception on execution plan '" + executionPlanContext.getName() +
+            log.error("Exception on siddhi app '" + siddhiAppContext.getName() +
                     "' on class '" + this.getClass().getName() + "', " + e.getMessage(), e);
             return null;
         }

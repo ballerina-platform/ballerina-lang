@@ -17,14 +17,14 @@
 package org.wso2.siddhi.service.util;
 
 /**
- * Class which defines the Execution Plan Configuration
+ * Class which defines the Siddhi app Configuration
  */
-public class ExecutionPlanConfiguration {
+public class SiddhiAppConfiguration {
     private String name;
     private String description;
     private boolean isTracingEnabled;
     private boolean isStatisticsEnabled;
-    private String executionPlan;
+    private String siddhiApp;
     private boolean editable;
 
     public String getName() {
@@ -43,12 +43,12 @@ public class ExecutionPlanConfiguration {
         this.description = description;
     }
 
-    public String getExecutionPlan() {
-        return executionPlan;
+    public String getSiddhiApp() {
+        return siddhiApp;
     }
 
-    public void setExecutionPlan(String executionPlan) {
-        this.executionPlan = executionPlan;
+    public void setSiddhiApp(String siddhiApp) {
+        this.siddhiApp = siddhiApp;
     }
 
     public boolean isTracingEnabled() {

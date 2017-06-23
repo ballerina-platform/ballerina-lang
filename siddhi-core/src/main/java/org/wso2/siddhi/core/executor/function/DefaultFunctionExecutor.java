@@ -23,12 +23,12 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -67,21 +67,21 @@ public class DefaultFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-                        ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+                        ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 2) {
             // check whether all the arguments passed
-            throw new ExecutionPlanValidationException("Invalid no of parameters passed to default() function, " +
+            throw new SiddhiAppValidationException("Invalid no of parameters passed to default() function, " +
                                                                "it require only 2 (attribute, default value) , "
                                                                + "but found "
                                                                + attributeExpressionExecutors.length);
         } else if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("Invalid parameter passed to default() function, " +
+            throw new SiddhiAppValidationException("Invalid parameter passed to default() function, " +
                                                                "this only consumes constants, but found "
                                                                + attributeExpressionExecutors[1].getClass().getName());
 
         } else if ((attributeExpressionExecutors[0].getReturnType() != attributeExpressionExecutors[1]
                 .getReturnType())) {
-            throw new ExecutionPlanValidationException("Both attribute and default value parameters need to be of "
+            throw new SiddhiAppValidationException("Both attribute and default value parameters need to be of "
                                                                + "same return type but they are of " +
                                                                attributeExpressionExecutors[0].getReturnType() + "and" +
                                                                attributeExpressionExecutors[1].getReturnType());

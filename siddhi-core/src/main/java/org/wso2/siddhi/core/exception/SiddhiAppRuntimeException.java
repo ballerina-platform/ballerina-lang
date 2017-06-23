@@ -15,22 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.exception;
+package org.wso2.siddhi.core.exception;
 
 /**
- * Exception thrown when attribute is not present
+ * Exception class to be used when runtime error occurs in Siddi execution.
  */
-public class AttributeNotExistException extends SiddhiAppValidationException {
+public class SiddhiAppRuntimeException extends RuntimeException {
+    public SiddhiAppRuntimeException() {
+        super();
+    }
 
-    public AttributeNotExistException(String message) {
+    public SiddhiAppRuntimeException(String message) {
         super(message);
     }
 
-    public AttributeNotExistException(String message, Throwable throwable) {
+    public SiddhiAppRuntimeException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public AttributeNotExistException(Throwable throwable) {
+    public SiddhiAppRuntimeException(Throwable throwable) {
         super(throwable);
     }
 }

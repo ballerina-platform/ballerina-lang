@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.util.snapshot;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,10 +33,10 @@ public class SnapshotService {
 
     private static final Logger log = Logger.getLogger(SnapshotService.class);
     private HashMap<String, List<Snapshotable>> snapshotableMap = new HashMap<String, List<Snapshotable>>();
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
 
-    public SnapshotService(ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
+    public SnapshotService(SiddhiAppContext siddhiAppContext) {
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     public synchronized void addSnapshotable(String queryName, Snapshotable snapshotable) {
@@ -64,7 +64,7 @@ public class SnapshotService {
             log.debug("Taking snapshot ...");
         }
         try {
-            executionPlanContext.getThreadBarrier().lock();
+            siddhiAppContext.getThreadBarrier().lock();
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
                 snapshotableList.forEach(snapshotableElement -> snapshots.put(snapshotableElement.getElementId(),
@@ -78,10 +78,10 @@ public class SnapshotService {
                 log.debug("Snapshot serialization finished.");
             }
         } finally {
-            executionPlanContext.getThreadBarrier().unlock();
+            siddhiAppContext.getThreadBarrier().unlock();
         }
         if (log.isDebugEnabled()) {
-            log.debug("Snapshot taken for Execution Plan '" + executionPlanContext.getName() + "'");
+            log.debug("Snapshot taken for Siddhi app '" + siddhiAppContext.getName() + "'");
         }
 
         return serializedSnapshots;
@@ -91,7 +91,7 @@ public class SnapshotService {
         Map<String, Object> state = new HashMap<>();
         try {
             // Lock the threads in Siddhi
-            executionPlanContext.getThreadBarrier().lock();
+            siddhiAppContext.getThreadBarrier().lock();
             List<Snapshotable> list = snapshotableMap.get(queryName);
 
             if (list != null) {
@@ -103,7 +103,7 @@ public class SnapshotService {
             }
 
         } finally {
-            executionPlanContext.getThreadBarrier().unlock();
+            siddhiAppContext.getThreadBarrier().unlock();
         }
         log.debug("Taking snapshot finished.");
 
@@ -117,7 +117,7 @@ public class SnapshotService {
                 ByteSerializer.byteToObject(snapshot);
         List<Snapshotable> snapshotableList;
         try {
-            this.executionPlanContext.getThreadBarrier().lock();
+            this.siddhiAppContext.getThreadBarrier().lock();
             for (Map.Entry<String, List<Snapshotable>> entry : snapshotableMap.entrySet()) {
                 snapshotableList = entry.getValue();
                 for (Snapshotable snapshotable : snapshotableList) {
@@ -125,7 +125,7 @@ public class SnapshotService {
                 }
             }
         } finally {
-            executionPlanContext.getThreadBarrier().unlock();
+            siddhiAppContext.getThreadBarrier().unlock();
         }
     }
 

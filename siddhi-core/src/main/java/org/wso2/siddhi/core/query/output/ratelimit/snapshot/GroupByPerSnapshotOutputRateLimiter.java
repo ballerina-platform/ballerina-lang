@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -47,8 +47,8 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
 
     public GroupByPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
             scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
-                                               ExecutionPlanContext executionPlanContext, String queryName) {
-        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
+                                               SiddhiAppContext siddhiAppContext, String queryName) {
+        super(wrappedSnapshotOutputRateLimiter, siddhiAppContext);
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -97,7 +97,7 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
 
     @Override
     public void start() {
-        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, siddhiAppContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
@@ -128,7 +128,7 @@ public class GroupByPerSnapshotOutputRateLimiter extends SnapshotOutputRateLimit
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new GroupByPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                wrappedSnapshotOutputRateLimiter, siddhiAppContext, queryName);
     }
 
 }

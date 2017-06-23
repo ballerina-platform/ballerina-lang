@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.transport.jms;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -42,7 +42,7 @@ public class JMSSourceTestCase {
         // starting the ActiveMQ broker
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(PROVIDER_URL);
 
-        // deploying the execution plan
+        // deploying the siddhi app
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@source(type='jms', @map(type='text'), "
@@ -59,10 +59,10 @@ public class JMSSourceTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timeStamp, inEvents, removeEvents);
@@ -71,7 +71,7 @@ public class JMSSourceTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         // publishing events
         publishEvents("DAS_JMS_TEST", null, "activemq", "text", "src/test/resources/events/events_text.txt");

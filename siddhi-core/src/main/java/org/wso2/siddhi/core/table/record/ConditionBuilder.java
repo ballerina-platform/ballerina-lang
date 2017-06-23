@@ -18,11 +18,11 @@
 
 package org.wso2.siddhi.core.table.record;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -66,19 +66,19 @@ import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 public class ConditionBuilder {
     private final Map<String, ExpressionExecutor> variableExpressionExecutorMap;
     private final MatchingMetaInfoHolder matchingMetaInfoHolder;
-    private final ExecutionPlanContext executionPlanContext;
+    private final SiddhiAppContext siddhiAppContext;
     private final List<VariableExpressionExecutor> variableExpressionExecutors;
     private final Map<String, Table> tableMap;
     private final String queryName;
     private Expression expression;
 
     ConditionBuilder(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                     ExecutionPlanContext executionPlanContext,
+                     SiddhiAppContext siddhiAppContext,
                      List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, Table> tableMap,
                      String queryName) {
         this.expression = expression;
         this.matchingMetaInfoHolder = matchingMetaInfoHolder;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.variableExpressionExecutors = variableExpressionExecutors;
         this.tableMap = tableMap;
         this.queryName = queryName;
@@ -195,7 +195,7 @@ public class ConditionBuilder {
                 String streamId = isNull.getStreamId();
                 MetaStateEvent metaStateEvent = matchingMetaInfoHolder.getMetaStateEvent();
                 if (streamId == null) {
-                    throw new ExecutionPlanCreationException("IsNull does not support streamId being null");
+                    throw new SiddhiAppCreationException("IsNull does not support streamId being null");
                 } else {
                     AbstractDefinition definitionOutput = null;
                     MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
@@ -249,7 +249,7 @@ public class ConditionBuilder {
                 conditionVisitor.endVisitConstant(((LongConstant) expression).getValue(), Attribute.Type.LONG);
             } else {
                 throw new OperationNotSupportedException("No constant exist with type " +
-                                                                 expression.getClass().getName());
+                        expression.getClass().getName());
             }
         } else if (expression instanceof AttributeFunction) {
             conditionVisitor.beginVisitAttributeFunction(
@@ -292,12 +292,12 @@ public class ConditionBuilder {
                         } else {
                             try {
                                 definition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
-                                                                                   definition.getId() + " with " +
-                                                                                   "reference: " + metaStreamEvent
+                                throw new SiddhiAppValidationException(firstInput + " and Input Stream: " +
+                                        definition.getId() + " with " +
+                                        "reference: " + metaStreamEvent
                                         .getInputReferenceId() + " contains attribute " +
-                                                                                   "with same" +
-                                                                                   " name '" + attributeName + "'");
+                                        "with same" +
+                                        " name '" + attributeName + "'");
                             } catch (AttributeNotExistException e) {
                                 //do nothing as its expected
                             }
@@ -319,9 +319,9 @@ public class ConditionBuilder {
                     try {
                         type = definition.getAttributeType(attributeName);
                     } catch (AttributeNotExistException e) {
-                        throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
-                                                                           definition.getId() + " with " + "reference: "
-                                                                           + metaStreamEvent.getInputReferenceId());
+                        throw new SiddhiAppValidationException(e.getMessage() + " Input Stream: " +
+                                definition.getId() + " with " + "reference: "
+                                + metaStreamEvent.getInputReferenceId());
                     }
 
                     if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder
@@ -380,7 +380,7 @@ public class ConditionBuilder {
         if (!variableExpressionExecutorMap.containsKey(id)) {
             ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(
                     variable, matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, tableMap,
-                    variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }
         conditionVisitor.endVisitStreamVariable(id, variable.getStreamId(), variable.getAttributeName(), type);

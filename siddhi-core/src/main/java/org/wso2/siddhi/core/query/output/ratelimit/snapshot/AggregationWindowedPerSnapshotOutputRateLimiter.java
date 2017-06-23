@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -54,9 +54,9 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
             scheduledExecutorService, final List<Integer> aggregateAttributePositionList,
                                                               WrappedSnapshotOutputRateLimiter
                                                                       wrappedSnapshotOutputRateLimiter,
-                                                              ExecutionPlanContext executionPlanContext, String
+                                                              SiddhiAppContext siddhiAppContext, String
                                                                       queryName) {
-        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        super(wrappedSnapshotOutputRateLimiter, siddhiAppContext);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -153,7 +153,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public void start() {
-        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, siddhiAppContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
@@ -186,7 +186,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, siddhiAppContext, queryName);
     }
 
 

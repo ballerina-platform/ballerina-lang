@@ -22,13 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,7 +56,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with default mapping");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml')) " +
                 "define stream FooStream (symbol string, price float, volume int); " +
                 "define stream BarStream (symbol string, price float, volume int); ";
@@ -67,9 +67,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -93,7 +93,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<events><event><symbol></symbol><price>55.689</price>" +
                 "<volume>100</volume></event></events>");
         InMemoryBroker.publish("stock", "<events><event><symbol>IBM@#$%^*</symbol><price>75</price>" +
@@ -113,7 +113,7 @@ public class XmlSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 3, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -122,7 +122,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with default mapping for multiple events");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml')) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -133,9 +133,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -154,7 +154,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
                 "<volume>100</volume></event><event><symbol>IBM</symbol><price>75.6</price>" +
                 "<volume>10</volume></event><event111><symbol>IBM</symbol><price>75.6</price>" +
@@ -162,7 +162,7 @@ public class XmlSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -171,7 +171,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with default mapping for multiple events");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml')) " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -182,9 +182,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -197,7 +197,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<test><event><symbol>WSO2</symbol><price>55.6</price>" +
                 "<volume>100</volume></event><event><symbol>IBM</symbol><price>75.6</price>" +
                 "<volume>10</volume></event></test>");
@@ -211,7 +211,7 @@ public class XmlSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 0, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -220,7 +220,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with custom mapping. Here multiple events are sent in one message.");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes,at=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
@@ -235,9 +235,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -262,7 +262,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -313,7 +313,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 4, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -322,7 +322,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with custom mapping. Here, only one event is sent in a message.");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol/@exchange\"" +
@@ -337,9 +337,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -362,7 +362,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -381,7 +381,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -391,7 +391,7 @@ public class XmlSourceMapperTestCase {
                 "Here multiple events are sent in one message.");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"company/symbol\"" +
@@ -406,9 +406,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -427,7 +427,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -454,7 +454,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -463,7 +463,7 @@ public class XmlSourceMapperTestCase {
         log.info("Test case for xml input mapping with custom mapping where @attribute is not present");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\")) " +
@@ -476,9 +476,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -497,7 +497,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
                 "<volume>100</volume></event></events>");
         InMemoryBroker.publish("stock", "<events><event><symbol>IBM</symbol><price>75.6</price>" +
@@ -507,7 +507,7 @@ public class XmlSourceMapperTestCase {
 
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -516,7 +516,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml message correctly mapped without grouping element with correct xpath from root");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "@attributes(symbol = \"//stock[1]/symbol\"" +
@@ -531,9 +531,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -549,7 +549,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -565,7 +565,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 1, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -574,7 +574,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml message being dropped due to incorrect namespace in mapping");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:data\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
@@ -589,9 +589,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -610,7 +610,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -626,7 +626,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 0, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -635,7 +635,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml message being dropped without grouping element when incorrect xpath is used from root");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "@attributes(symbol = \"symbol\"" +
@@ -650,9 +650,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -665,7 +665,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -681,7 +681,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 0, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -690,7 +690,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml message being dropped due to incorrect grouping element configuration");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio11\", @attributes(symbol = \"symbol\"" +
@@ -705,9 +705,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -720,7 +720,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -736,16 +736,16 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 0, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void testXmlInputMappingCustom9() throws InterruptedException {
         log.info("Verify xml message being dropped due to non existence stream attributes");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol1 = \"symbol\"" +
@@ -760,9 +760,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -775,8 +775,8 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.start();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -785,7 +785,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml mapping when elements defined are non existent and fail.on.unknown.attribute is false");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", fail.on.unknown.attribute=\"false\"," +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
@@ -800,9 +800,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -821,7 +821,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -837,7 +837,7 @@ public class XmlSourceMapperTestCase {
                 "</portfolio>");
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 
@@ -846,7 +846,7 @@ public class XmlSourceMapperTestCase {
         log.info("Verify xml mapping when multiple enclosing tags are present");
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "@source(type='inMemory', topic='stock', @map(type='xml', namespaces = " +
                 "\"dt=urn:schemas-microsoft-com:datatypes\", " +
                 "enclosing.element=\"//portfolio\", @attributes(symbol = \"symbol\"" +
@@ -861,9 +861,9 @@ public class XmlSourceMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-        executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("BarStream", new StreamCallback() {
 
             @Override
             public void receive(Event[] events) {
@@ -882,7 +882,7 @@ public class XmlSourceMapperTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<root>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
@@ -902,7 +902,7 @@ public class XmlSourceMapperTestCase {
                 "</root>");
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         siddhiManager.shutdown();
     }
 }

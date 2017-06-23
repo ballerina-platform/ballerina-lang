@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -45,8 +45,8 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
 
     public AllAggregationPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
             scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
-                                                      ExecutionPlanContext executionPlanContext, String queryName) {
-        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
+                                                      SiddhiAppContext siddhiAppContext, String queryName) {
+        super(wrappedSnapshotOutputRateLimiter, siddhiAppContext);
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -94,13 +94,13 @@ public class AllAggregationPerSnapshotOutputRateLimiter extends SnapshotOutputRa
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AllAggregationPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
-                                                              wrappedSnapshotOutputRateLimiter, executionPlanContext,
+                                                              wrappedSnapshotOutputRateLimiter, siddhiAppContext,
                                                               queryName);
     }
 
     @Override
     public void start() {
-        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, siddhiAppContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();

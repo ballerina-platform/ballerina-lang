@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
@@ -38,7 +38,7 @@ public abstract class DistributedTransport extends Sink {
     private static final Logger log = Logger.getLogger(DistributedTransport.class);
     protected DistributionStrategy strategy;
     protected StreamDefinition streamDefinition;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     private OptionHolder sinkOptionHolder;
     private String[] supportedDynamicOptions;
 
@@ -49,15 +49,15 @@ public abstract class DistributedTransport extends Sink {
      * @param optionHolder           Option holder containing static and dynamic options related to the
      * {@link Sink}
      * @param sinkConfigReader this hold the {@link Sink} extensions configuration reader.
-     * @param executionPlanContext   Context of the execution plan which this output sink belongs to
+     * @param siddhiAppContext   Context of the siddhi app which this output sink belongs to
      */
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
-                        ConfigReader sinkConfigReader, ExecutionPlanContext
-                                executionPlanContext) {
+                        ConfigReader sinkConfigReader, SiddhiAppContext
+                                siddhiAppContext) {
         this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class DistributedTransport extends Sink {
      * @param mapOptionHolder Options of the mapper
      * @param payloadTemplate The template of the payload message
      * @param mapperConfigReader This hold the {@link Sink} extensions configuration reader for the mapper
-     * @param executionPlanContext The execution plan context
+     * @param siddhiAppContext The siddhi app context
      * @param destinationOptionHolders List of option holders containing the options mentioned in @destination
      * @param sinkAnnotation The annotation of the Sink
      * @param strategy Publishing strategy to be used by the distributed transport
@@ -82,15 +82,15 @@ public abstract class DistributedTransport extends Sink {
                      ConfigReader sinkConfigReader,
                      SinkMapper sinkMapper, String mapType, OptionHolder mapOptionHolder, String payloadTemplate
             ,
-                     ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext, List<OptionHolder>
+                     ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext, List<OptionHolder>
                              destinationOptionHolders, Annotation sinkAnnotation, DistributionStrategy strategy,
                      String[] supportedDynamicOptions) {
         this.strategy = strategy;
         this.supportedDynamicOptions = supportedDynamicOptions;
         init(streamDefinition, type, transportOptionHolder, sinkConfigReader, sinkMapper, mapType, mapOptionHolder,
-                payloadTemplate, mapperConfigReader, executionPlanContext);
+                payloadTemplate, mapperConfigReader, siddhiAppContext);
         initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, sinkConfigReader,
-                      executionPlanContext);
+                      siddhiAppContext);
     }
 
     @Override
@@ -134,7 +134,7 @@ public abstract class DistributedTransport extends Sink {
 
     public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders,
                                        Annotation sinkAnnotation, ConfigReader sinkConfigReader,
-                                       ExecutionPlanContext executionPlanContext);
+                                       SiddhiAppContext siddhiAppContext);
 
 
 }
