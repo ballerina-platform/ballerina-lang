@@ -31,6 +31,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -62,10 +63,11 @@ public class Open extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getRefArgument(context, 0);
         String accessMode = getStringArgument(context, 0);
+        Path path = null;
         try {
             String accessLC = accessMode.toLowerCase(Locale.getDefault());
 
-            Path path = Paths.get(struct.getStringField(0));
+            path = Paths.get(struct.getStringField(0));
             Set<OpenOption> opts = new HashSet<>();
 
             if (accessLC.contains("r")) {
@@ -97,6 +99,8 @@ public class Open extends AbstractNativeFunction {
             SeekableByteChannel channel = Files.newByteChannel(path, opts);
             struct.addNativeData("channel", channel);
 
+        } catch (AccessDeniedException e) {
+            throw new BallerinaException("Do not have access to write file: " + path, e);
         } catch (Throwable e) {
             throw new BallerinaException("failed to open file: " + e.getMessage(), e);
         }

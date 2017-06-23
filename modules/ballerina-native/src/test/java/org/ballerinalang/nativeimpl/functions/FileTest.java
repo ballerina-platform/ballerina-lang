@@ -226,6 +226,21 @@ public class FileTest {
         }
     }
 
+    @Test
+    public void testOpenWithInvalidParams() throws IOException {
+        String targetPath = "temp/write-file.txt";
+        File targetFile = new File(targetPath);
+        byte[] content = "Sample Text".getBytes();
+        BBlob byteContent = new BBlob(content);
+        OutputStream outputStream = new FileOutputStream(targetFile);
+        outputStream.write(content);
+        BValue[] args = { byteContent, new BString(targetPath) };
+        BLangFunctions.invokeNew(programFile, "testOpenWithInvalidParams", args);
+        Assert.assertTrue(targetFile.exists(), "File not created");
+        Assert.assertNotEquals("Sample Text".getBytes(), getBytesFromFile(targetFile), "File opened in write mode");
+        Assert.assertEquals("Sample TextSample Text".getBytes(), getBytesFromFile(targetFile), "Written wrong content");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to open file: " +
             "file not found: temp[\\\\/]open-non-existing-file.txt.*")
