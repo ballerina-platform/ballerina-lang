@@ -341,3 +341,19 @@ function testXPathOnCopiedXML() (xml, xml) {
 
     return original, copy;
 }
+
+function testSeqCopy()(xml, xml) {
+    xml x1 = xmls:parse("<!-- comment about the book-->");
+    xml x2 = xmls:parse("<bookName>Book1</bookName>");
+    xml x3 = xmls:parse("<bookId>001</bookId>");
+    xml x4 = xmls:parse("<bookAuthor>Author01</bookAuthor>");
+    xml x5 = xmls:parse("<?word document=\"book.doc\" ?>");
+    
+    xml original = x1 + x2 + x3 + x4 + x5;
+    xml copy = xmls:copy(original);
+
+    xml x7 = xmls:parse("Updated Book ID");
+    xmls:setChildren(x3, x7);
+    
+    return original, copy;
+}
