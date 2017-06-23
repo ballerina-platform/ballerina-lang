@@ -113,7 +113,7 @@ public abstract class Source implements Snapshotable {
         return elementId;
     }
 
-    protected class ConnectionCallback {
+    public class ConnectionCallback {
         public void onError(ConnectionUnavailableException e) {
             disconnect();
             isConnected.set(false);

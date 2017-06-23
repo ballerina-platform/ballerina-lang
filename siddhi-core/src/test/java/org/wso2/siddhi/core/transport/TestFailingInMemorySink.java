@@ -23,25 +23,28 @@ import org.wso2.siddhi.core.util.transport.DynamicOptions;
 )
 public class TestFailingInMemorySink extends InMemorySink {
     public static int numberOfErrorOccurred = 0;
-    private boolean isOkToConnect;
+    public static boolean fail;
 
     public TestFailingInMemorySink() {
-        this.isOkToConnect = true;
+        this.fail = false;
         this.numberOfErrorOccurred = 0;
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        if (!isOkToConnect) {
+        if (fail) {
             numberOfErrorOccurred++;
             throw new ConnectionUnavailableException("Connection unavailable during connection");
         }
+        super.connect();
     }
 
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        isOkToConnect = false;
-        numberOfErrorOccurred++;
-        throw new ConnectionUnavailableException("Connection unavailable during publishing");
+        if (fail) {
+            numberOfErrorOccurred++;
+            throw new ConnectionUnavailableException("Connection unavailable during publishing");
+        }
+        super.publish(payload, dynamicOptions);
     }
 }

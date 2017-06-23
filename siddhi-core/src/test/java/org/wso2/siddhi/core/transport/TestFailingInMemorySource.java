@@ -46,30 +46,21 @@ import org.wso2.siddhi.core.stream.input.source.Source;
 public class TestFailingInMemorySource extends InMemorySource {
     private static final Logger LOG = Logger.getLogger(InMemorySource.class);
     public static int numberOfErrorOccurred;
-    private boolean connected = false;
+    public static boolean fail = false;
+    public static ConnectionCallback connectionCallback;
 
     public TestFailingInMemorySource() {
         numberOfErrorOccurred = 0;
+        fail = false;
     }
 
     @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
-        if (!connected) {
-            super.connect(connectionCallback);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        LOG.error(e.getMessage(), e);
-                    }
-                    disconnect();
-                    numberOfErrorOccurred++;
-                    connectionCallback.onError(new ConnectionUnavailableException("Connection failed!"));
-                }
-            }).start();
-            connected = true;
+        this.connectionCallback = connectionCallback;
+        if(fail){
+            numberOfErrorOccurred++;
+            throw  new ConnectionUnavailableException("Connection failed!");
         }
+        super.connect(connectionCallback);
     }
 }
