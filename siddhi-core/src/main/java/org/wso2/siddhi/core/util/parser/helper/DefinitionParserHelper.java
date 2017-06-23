@@ -295,9 +295,10 @@ public class DefinitionParserHelper {
                     sourceMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation),
                             siddhiAppContext.getSiddhiContext().getConfigManager().generateConfigReader
                                     (mapperExtension.getNamespace(), mapperExtension.getName()));
-                    source.init(sourceOptionHolder, sourceMapper, siddhiAppContext.getSiddhiContext()
+                    source.init(sourceType, sourceOptionHolder, sourceMapper, siddhiAppContext.getSiddhiContext()
                             .getConfigManager().generateConfigReader
-                                    (sourceExtension.getNamespace(), sourceExtension.getName()), siddhiAppContext);
+                                    (sourceExtension.getNamespace(), sourceExtension.getName()), streamDefinition,
+                            siddhiAppContext);
 
                     List<Source> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
@@ -406,15 +407,15 @@ public class DefinitionParserHelper {
                                     destinationOptHolders, configReader);
 
                             ((DistributedTransport) sink).init(streamDefinition, sinkType,
-                                                               transportOptionHolder, sinkConfigReader, sinkMapper,
-                                                               mapType, mapOptionHolder,
-                                                               payload, mapperConfigReader, siddhiAppContext,
-                                                               destinationOptHolders,
-                                                               sinkAnnotation, distributionStrategy,
-                                                               supportedDynamicOptions);
+                                    transportOptionHolder, sinkConfigReader, sinkMapper,
+                                    mapType, mapOptionHolder,
+                                    payload, mapperConfigReader, siddhiAppContext,
+                                    destinationOptHolders,
+                                    sinkAnnotation, distributionStrategy,
+                                    supportedDynamicOptions);
                         } else {
                             sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader, sinkMapper,
-                                      mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
+                                    mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
                         }
 
                         // Setting the output group determiner

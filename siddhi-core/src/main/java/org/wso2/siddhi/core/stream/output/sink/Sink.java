@@ -42,8 +42,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private StreamDefinition streamDefinition;
     private String type;
     private SinkMapper mapper;
-    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
     private String elementId;
+
+    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ScheduledExecutorService scheduledExecutorService;
@@ -174,11 +175,15 @@ public abstract class Sink implements SinkListener, Snapshotable {
         disconnect();
         destroy();
         isConnected.set(false);
-        isTryingToConnect.getAndSet(false);
+        isTryingToConnect.set(false);
     }
 
     @Override
     public String getElementId() {
         return elementId;
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
     }
 }

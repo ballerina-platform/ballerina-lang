@@ -100,7 +100,7 @@ public class KafkaSource extends Source{
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         String zkServerList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS);
         String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID, null);
         String threadingOption = optionHolder.validateAndGetStaticValue(THREADING_OPTION);

@@ -23,9 +23,13 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract class to represent Event Sources. Events Sources are the object entry point to Siddhi from external
@@ -33,22 +37,32 @@ import java.util.concurrent.ExecutorService;
  * source should be implemented.
  */
 public abstract class Source implements Snapshotable {
-    private static final Logger log = Logger.getLogger(Source.class);
+    private static final Logger LOG = Logger.getLogger(Source.class);
+    private String type;
     private SourceMapper mapper;
+    private StreamDefinition streamDefinition;
     private String elementId;
-    private boolean tryConnect = false;
 
-    public void init(OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
+    private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private ScheduledExecutorService scheduledExecutorService;
+    private ConnectionCallback connectionCallback=new ConnectionCallback();
+
+    public void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
+                     ConfigReader configReader, StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
+        this.type = sourceType;
         this.mapper = sourceMapper;
+        this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(sourceMapper, transportOptionHolder, configReader, siddhiAppContext);
+        scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
 
     public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
             configReader, SiddhiAppContext siddhiAppContext);
 
-    public abstract void connect() throws ConnectionUnavailableException;
+    public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
 
     public abstract void disconnect();
 
@@ -58,14 +72,26 @@ public abstract class Source implements Snapshotable {
 
     public abstract void resume();
 
-    public void connectWithRetry(ExecutorService executorService) {
-        tryConnect = true;
-        try {
-            connect();
-        } catch (ConnectionUnavailableException | RuntimeException e) {
-            log.error(e.getMessage(), e);
+    public void connectWithRetry() {
+        if (!isConnected.get()) {
+            isTryingToConnect.set(true);
+            try {
+                connect(connectionCallback);
+                isConnected.set(true);
+                isTryingToConnect.set(false);
+                backoffRetryCounter.reset();
+            } catch (ConnectionUnavailableException | RuntimeException e) {
+                LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                scheduledExecutorService.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectWithRetry();
+                    }
+                }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
+                backoffRetryCounter.increment();
+            }
         }
-        // TODO: 2/9/17 Implement exponential retry
     }
 
     public SourceMapper getMapper() {
@@ -73,13 +99,35 @@ public abstract class Source implements Snapshotable {
     }
 
     public void shutdown() {
-        tryConnect = false;
-        disconnect();
-        destroy();
+        try {
+            disconnect();
+            destroy();
+        } finally {
+            isConnected.set(false);
+            isTryingToConnect.set(false);
+        }
     }
 
     @Override
     public String getElementId() {
         return elementId;
+    }
+
+    protected class ConnectionCallback {
+        public void onError(ConnectionUnavailableException e) {
+            disconnect();
+            isConnected.set(false);
+            LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                    "', " + e.getMessage() + ", will retry connection immediately.", e);
+            connectWithRetry();
+        }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
     }
 }

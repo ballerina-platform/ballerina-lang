@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
@@ -90,15 +89,15 @@ public class SiddhiAppRuntime {
     private SiddhiDebugger siddhiDebugger;
 
     public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
-                                Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
-                                Map<String, QueryRuntime> queryProcessorMap,
-                                Map<String, StreamJunction> streamJunctionMap,
-                                Map<String, Table> tableMap,
-                                Map<String, List<Source>> eventSourceMap,
-                                Map<String, List<Sink>> eventSinkMap,
-                                Map<String, PartitionRuntime> partitionMap,
-                                SiddhiAppContext siddhiAppContext,
-                                Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
+                            Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
+                            Map<String, QueryRuntime> queryProcessorMap,
+                            Map<String, StreamJunction> streamJunctionMap,
+                            Map<String, Table> tableMap,
+                            Map<String, List<Source>> eventSourceMap,
+                            Map<String, List<Sink>> eventSinkMap,
+                            Map<String, PartitionRuntime> partitionMap,
+                            SiddhiAppContext siddhiAppContext,
+                            Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
         this.inputManager = inputManager;
@@ -206,16 +205,51 @@ public class SiddhiAppRuntime {
         return eventSourceMap.values();
     }
 
+    public synchronized void start() {
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            siddhiAppContext.getStatisticsManager().startReporting();
+        }
+        for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
+            eternalReferencedHolder.start();
+        }
+        for (List<Sink> sinks : eventSinkMap.values()) {
+            for (Sink sink : sinks) {
+                sink.connectWithRetry();
+            }
+        }
+        for (StreamJunction streamJunction : streamJunctionMap.values()) {
+            streamJunction.startProcessing();
+        }
+        for (List<Source> sources : eventSourceMap.values()) {
+            for (Source source : sources) {
+                source.connectWithRetry();
+            }
+        }
+    }
+
     public synchronized void shutdown() {
         for (List<Source> sources : eventSourceMap.values()) {
             for (Source source : sources) {
-                source.shutdown();
+                try {
+                    source.shutdown();
+                } catch (Throwable t) {
+                    log.error("Error in shutting down source '" + source.getType() + "' at '" +
+                            source.getStreamDefinition().getId() + "' on Siddhi App '" + siddhiAppContext.getName() +
+                            "', " + t.getMessage(), t);
+                }
+
             }
         }
 
         for (List<Sink> sinks : eventSinkMap.values()) {
             for (Sink sink : sinks) {
-                sink.shutdown();
+                try {
+                    sink.shutdown();
+                } catch (Throwable t) {
+                    log.error("Error in shutting down source '" + sink.getType() + "' at '" +
+                            sink.getStreamDefinition().getId() + "' on Siddhi App '" + siddhiAppContext.getName() +
+                            "', " + t.getMessage(), t);
+                }
             }
         }
 
@@ -223,8 +257,8 @@ public class SiddhiAppRuntime {
             try {
                 eternalReferencedHolder.stop();
             } catch (Throwable t) {
-                log.error("Error in shutting down Siddhi app '" + siddhiAppContext.getName() +
-                        "', " + t.getMessage(), t);
+                log.error("Error while stopping EternalReferencedHolder '" + eternalReferencedHolder +
+                        "' down Siddhi app '" + siddhiAppContext.getName() + "', " + t.getMessage(), t);
             }
         }
         inputManager.disconnect();
@@ -258,28 +292,6 @@ public class SiddhiAppRuntime {
         if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
             siddhiAppContext.getStatisticsManager().stopReporting();
             siddhiAppContext.getStatisticsManager().cleanup();
-        }
-    }
-
-    public synchronized void start() {
-        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
-            siddhiAppContext.getStatisticsManager().startReporting();
-        }
-        for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
-            eternalReferencedHolder.start();
-        }
-        for (List<Sink> sinks : eventSinkMap.values()) {
-            for (Sink sink : sinks) {
-                sink.connectWithRetry();
-            }
-        }
-        for (StreamJunction streamJunction : streamJunctionMap.values()) {
-            streamJunction.startProcessing();
-        }
-        for (List<Source> sources : eventSourceMap.values()) {
-            for (Source source : sources) {
-                source.connectWithRetry(siddhiAppContext.getExecutorService());
-            }
         }
     }
 

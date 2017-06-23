@@ -49,7 +49,7 @@ import java.util.Map;
         )
 )
 public class InMemorySource extends Source {
-    private static final Logger log = Logger.getLogger(InMemorySource.class);
+    private static final Logger LOG = Logger.getLogger(InMemorySource.class);
     private static final String TOPIC_KEY = "topic";
     private SourceEventListener sourceEventListener;
     private InMemoryBroker.Subscriber subscriber;
@@ -74,7 +74,7 @@ public class InMemorySource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         InMemoryBroker.subscribe(subscriber);
     }
 
