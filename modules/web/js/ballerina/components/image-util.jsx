@@ -38,6 +38,8 @@ class ImageUtils {
     static getSVGIconString(iconName) {
         return images[iconName];
     }
+
+    
 }
 
 export default ImageUtils;
