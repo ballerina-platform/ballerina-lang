@@ -83,7 +83,8 @@ public class UpdateOrInsertStream extends OutputStream {
 
         UpdateOrInsertStream that = (UpdateOrInsertStream) o;
 
-        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) : that.onUpdateExpression != null) {
+        if (onUpdateExpression != null ? !onUpdateExpression.equals(that.onUpdateExpression) :
+                that.onUpdateExpression != null) {
             return false;
         }
         return updateSetter != null ? updateSetter.equals(that.updateSetter) : that.updateSetter == null;
