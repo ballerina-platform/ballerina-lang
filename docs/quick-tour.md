@@ -59,7 +59,7 @@ You can build your integrations by creating sequence diagrams, dragging elements
     
     Let's open a sample and take a look around. 
 
-## Exploring the Ballerina Composer
+## Explore the Ballerina Composer
 
 Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
 
