@@ -29,6 +29,8 @@ import java.nio.file.Paths;
 
 /**
  * Utility methods for loading Ballerina Configuration.
+ *
+ * @since 0.89
  */
 public class BLangConfigurationManager {
 
@@ -36,6 +38,7 @@ public class BLangConfigurationManager {
 
     private static BLangConfigurationManager instance = new BLangConfigurationManager();
     private BallerinaConfiguration configuration;
+    private ConfigProvider configProvider;
 
     private BLangConfigurationManager() {
     }
@@ -53,6 +56,26 @@ public class BLangConfigurationManager {
         if (configuration != null) {
             return configuration;
         }
+        try {
+            configProvider = getBallerinaConfigProvider();
+            configuration = configProvider.getConfigurationObject(BallerinaConfiguration.class);
+        } catch (ConfigurationException e) {
+            breLog.warn("unable to load ballerina configuration, using default configuration.", e);
+            configuration = new BallerinaConfiguration();
+        }
+        return configuration;
+    }
+
+    /**
+     * Returns Config Provider for ballerina runtime.
+     *
+     * @return ConfigProvider instance.
+     * @throws ConfigurationException when error occurred while loading configuration.
+     */
+    public ConfigProvider getBallerinaConfigProvider() throws ConfigurationException {
+        if (configProvider != null) {
+            return configProvider;
+        }
         Path balConfPath = null;
         String balConfString = System.getProperty(ConfigConstants.SYS_PROP_BALLERINA_CONF);
         if (balConfString != null) {
@@ -63,19 +86,12 @@ public class BLangConfigurationManager {
                     ConfigConstants.DEFAULT_CONF_DIR_BRE, ConfigConstants.DEFAULT_CONF_DIR_CONF,
                     ConfigConstants.DEFAULT_CONF_FILE_NAME);
         }
-
-        ConfigProvider configProvider;
-        try {
-            configProvider = ConfigProviderFactory.getConfigProvider(balConfPath);
-            configuration = configProvider.getConfigurationObject(BallerinaConfiguration.class);
-        } catch (ConfigurationException e) {
-            breLog.warn("unable to load ballerina configuration, using default configuration.", e);
-            configuration = new BallerinaConfiguration();
-        }
-        return configuration;
+        configProvider = ConfigProviderFactory.getConfigProvider(balConfPath);
+        return configProvider;
     }
 
     public void clear() {
         configuration = null;
+        configProvider = null;
     }
 }
