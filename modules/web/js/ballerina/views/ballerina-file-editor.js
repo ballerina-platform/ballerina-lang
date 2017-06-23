@@ -575,6 +575,9 @@ class BallerinaFileEditor extends EventChannel {
         const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
         findDebugHitVisitor.setPosition(position);
         this._model.accept(findDebugHitVisitor);
+        if (findDebugHitVisitor.hasToRerender) {
+            this.reRender();
+        }
     }
 
     _clearExistingDebugHit() {
@@ -582,6 +585,9 @@ class BallerinaFileEditor extends EventChannel {
         const findDebugHitVisitor = new FindDebugHitVisitor(this._model);
         findDebugHitVisitor.setPosition({});
         this._model.accept(findDebugHitVisitor);
+        if (findDebugHitVisitor.hasToRerender) {
+            this.reRender();
+        }
         this._sourceView.clearExistingDebugHit();
     }
 
