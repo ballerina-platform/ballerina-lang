@@ -18,16 +18,21 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ImageUtil from './image-util';
 
 /**
- * 
- * 
+ * React component for a button displayed on the panel header.
+ *
  * @class PanelDecoratorButton
  * @extends {React.PureComponent}
  */
 class PanelDecoratorButton extends React.PureComponent {
 
+    /**
+     * Renders the view of a panel button.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof PanelDecoratorButton
+     */
     render() {
         const bBox = this.props.bBox;
         const iconSize = 14;

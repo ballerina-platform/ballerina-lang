@@ -47,11 +47,14 @@ class ServiceDefinition extends React.Component {
         this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
-        this.onSwaggerButtonClicked = this.onSwaggerButtonClicked.bind();
     }
 
+    /**
+     * Event handler when the swagger button of the service definition panel is clicked.
+     * @memberof ServiceDefinition
+     */
     onSwaggerButtonClicked() {
-
+        this.context.renderingContext.ballerinaFileEditor.showSwaggerView();
     }
 
     /**
@@ -139,7 +142,7 @@ class ServiceDefinition extends React.Component {
             props: {
                 key: `${model.getID()}-swagger-button`,
                 icon: ImageUtil.getSVGIconString('swagger'),
-                onClick: this.onSwaggerButtonClicked,
+                onClick: () => this.onSwaggerButtonClicked(),
             },
         });
 
@@ -182,6 +185,10 @@ ServiceDefinition.contextTypes = {
 
 ServiceDefinition.propTypes = {
     model: PropTypes.instanceOf(ServiceDefinitionAST).isRequired,
+};
+
+ServiceDefinition.contextTypes = {
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ServiceDefinition;

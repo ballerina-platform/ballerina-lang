@@ -207,7 +207,6 @@ let config = {
                     controls: {
                         view_source_btn: '.view-source-btn',
                         view_design_btn: '.view-design-btn',
-                        view_swagger_btn: '.view-swagger-btn',
                     },
                     cssClass: {
                         text_editor_class: 'text-editor',

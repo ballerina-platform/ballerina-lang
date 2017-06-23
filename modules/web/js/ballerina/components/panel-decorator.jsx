@@ -85,6 +85,16 @@ class PanelDecorator extends React.Component {
         });
     }
 
+    /**
+     * Creates the panel heading buttons on the far right.
+     *
+     * @param {number} x The far x corner position on the heading.
+     * @param {number} y The y position(The starting y position of the panel heading).
+     * @param {number} width The width of a button.
+     * @param {number} height The height of a button.
+     * @returns {ReactElement[]} A list of buttons.
+     * @memberof PanelDecorator
+     */
     getRightHeadingButtons(x, y, width, height) {
         const staticButtons = [];
 
