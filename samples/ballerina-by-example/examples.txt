@@ -3,4 +3,7 @@ Hello World Service
 Global Variables
 Any Type
 Identifier Literals
-
+Websocket Basic Endpoint
+Websocket Basic Functions
+Websocket Connection store
+Websocket Connection Groups
