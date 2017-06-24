@@ -602,8 +602,14 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_WHILE_KEYWORD_TO_CONDITION_WRAPPER,
                 getWhitespaceToLeft(tokenStream,
                         getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_CONDITION_WRAPPER_CONDITION_START,
+                getWhitespaceToRight(tokenStream,
+                        getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START,
                 getWhitespaceToLeft(tokenStream,
+                        getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_BODY_START_TO_FIRST_TOKEN,
+                getWhitespaceToRight(tokenStream,
                         getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WHILE_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
