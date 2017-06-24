@@ -1,0 +1,2 @@
+// Ballerina supports "`any`" type, which can hold values of any type.
+// Variables defined as "`any`" types needs to be cast to the appropriate type before using them.
