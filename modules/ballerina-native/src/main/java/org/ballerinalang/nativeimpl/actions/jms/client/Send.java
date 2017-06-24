@@ -20,12 +20,14 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
-import org.ballerinalang.nativeimpl.actions.jms.utils.JMSMessageUtils;
+import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
+import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
@@ -77,93 +80,101 @@ public class Send extends AbstractJMSAction {
     @Override
     public BValue execute(Context context) {
 
-        // Extracting Argument values
+        // Extract argument values
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-
-        //Getting ballerina message and extract carbon message.
         BMessage bMessage = (BMessage) getRefArgument(context, 1);
-        if (bMessage == null) {
-            throw new BallerinaException("Ballerina message not found", context);
-        }
-        CarbonMessage message = bMessage.value();
+        String destination = getStringArgument(context, 0);
 
+        CarbonMessage message = bMessage.value();
         validateParams(bConnector);
 
-        // set return value to the current frame
+        // Set return value to the current frame
         BValue valueRef = new BBoolean(true);
         context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
 
-        //Getting the map of properties.
+        // Get the map of properties.
         BMap<String, BString> properties = (BMap<String, BString>) bConnector.getRefField(0);
 
-        //Create property map to send to transport.
-//        Map<String, String> propertyMap = properties.keySet()
-//                .stream()
-//                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
         Map<String, String> propertyMap = new HashMap<>();
         for (String key:properties.keySet()) {
             propertyMap.put(key, properties.get(key).stringValue());
         }
 
-        //Creating message content according to the message type.
-        String messageType = getStringArgument(context, 1);
-        if (messageType.equalsIgnoreCase(JMSConstants.TEXT_MESSAGE_TYPE) ||
-            messageType.equalsIgnoreCase(JMSConstants.BYTES_MESSAGE_TYPE)) {
-            BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
-            if (ballerinaMessageDataSource != null) {
-                if (ballerinaMessageDataSource instanceof StringDataSource) {
-                    message = new TextCarbonMessage(((StringDataSource) ballerinaMessageDataSource).getValue());
-                } else {
-                    throw new BallerinaException(
-                            "If the message type is " + messageType + ", a string payload must be set", context);
-                }
-            } else if (!(message instanceof TextCarbonMessage)) {
-                throw new BallerinaException(
-                        "If the message type is " + messageType + ", either string payload should be set or " +
-                        "pass a received jms text or bytes message", context);
-            }
-            propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, messageType);
-        } else if (messageType.equalsIgnoreCase(JMSConstants.OBJECT_MESSAGE_TYPE)) {
-            message = JMSMessageUtils.toSerializableCarbonMessage(bMessage);
-            propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.OBJECT_MESSAGE_TYPE);
-        } else if (messageType.equalsIgnoreCase(JMSConstants.MAP_MESSAGE_TYPE)) {
-            BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
-
-            if (ballerinaMessageDataSource != null) {
-                message = new MapCarbonMessage();
-                MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
-                if (ballerinaMessageDataSource instanceof BMap) {
-                    BMap mapData = (BMap) ballerinaMessageDataSource;
-                    for (Object o : mapData.keySet()) {
-                        BValue key = (BValue) o;
-                        BValue value = mapData.get(key);
-                        mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
-                    }
-
-                    message = mapCarbonMessage;
-                }
-            } else if (!(message instanceof MapCarbonMessage)) {
-                throw new BallerinaException(
-                        "If the message type is MapMessage, either set MapData property or pass a received" +
-                        " jms map message", context);
-            }
-            propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
-        } else {
-            propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
+        // Create message content according to the message type.
+        String messageType = message.getHeader(Constants.CONTENT_TYPE);
+        if (messageType == null) {
+            messageType = Constants.OCTET_STREAM;
         }
-        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getStringArgument(context, 0));
+
+        message.setHeader(JMSConstants.JMS_MESSAGE_TYPE, messageType);
+        switch (messageType) {
+            case Constants.TEXT_PLAIN:
+            case Constants.APPLICATION_JSON:
+            case Constants.APPLICATION_XML:
+                message = getTextCarbonMessage(bMessage, messageType, context);
+                break;
+            case Constants.APPLICATION_FORM:
+                message = getMapCarbonMessage(bMessage, context);
+                break;
+            case Constants.OCTET_STREAM:
+            default:
+                message = getBlobCarbonMessage(bMessage, context);
+        }
+
+        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, destination);
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Sending " + messageType + " to " +
-                          propertyMap.get(JMSConstants.DESTINATION_PARAM_NAME));
+                log.debug("Sending " + messageType + " to " + propertyMap.get(JMSConstants.DESTINATION_PARAM_NAME));
             }
-            //Getting the sender instance and sending the message.
+
             BallerinaConnectorManager.getInstance().getClientConnector("jms")
                                      .send(message, null, propertyMap);
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occurred while sending message.", e, context);
+            throw new BallerinaException("Failed to send message. " + e.getMessage(), e, context);
         }
         return null;
+    }
+
+    private CarbonMessage getBlobCarbonMessage(BMessage bMessage, Context context) {
+        return bMessage.value();
+    }
+
+    private CarbonMessage getMapCarbonMessage(BMessage bMessage, Context context) {
+
+        CarbonMessage carbonMessage = bMessage.value();
+        if (carbonMessage instanceof MapCarbonMessage) {
+            return carbonMessage;
+        }
+
+        BallerinaMessageDataSource dataSource = bMessage.getMessageDataSource();
+        if (dataSource instanceof BMap) {
+            MapCarbonMessage mapCarbonMessage = MessageUtil.createMapMessageWithoutData(carbonMessage);
+            BMap<String, ? extends BValue> mapData = (BMap) dataSource;
+            for (String key : mapData.keySet()) {
+                BValue value = mapData.get(key);
+                mapCarbonMessage.setValue(key, value.stringValue());
+            }
+            return mapCarbonMessage;
+        } else {
+            throw new BallerinaException("Invalid Map Message provided", context);
+        }
+
+    }
+
+    private CarbonMessage getTextCarbonMessage(BMessage bMessage, String messageType, Context context) {
+        CarbonMessage carbonMessage = bMessage.value();
+        if (carbonMessage instanceof TextCarbonMessage) {
+            return carbonMessage;
+        }
+
+        BallerinaMessageDataSource dataSource = bMessage.getMessageDataSource();
+        if (dataSource instanceof StringDataSource || dataSource instanceof BJSON
+                || dataSource instanceof BXML) {
+            carbonMessage = MessageUtil.createTextMessageWithData(carbonMessage);
+        } else {
+            throw new BallerinaException("Invalid message type provided. Message Type: " + messageType, context);
+        }
+        return carbonMessage;
     }
 
     @Override public void execute(Context context, BalConnectorCallback connectorCallback) {
