@@ -1,0 +1,1 @@
+Ballerina supports writing servieces that can be invoked externally. Each service must have at least one Resource. Requests are dispatched to Resources withing a Service. Service name and Resource name compose the uniquely addressable URI.
