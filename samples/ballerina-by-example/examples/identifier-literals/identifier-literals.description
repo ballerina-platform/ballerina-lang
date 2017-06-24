@@ -1,0 +1,2 @@
+// Ballerina supports Identifier literals, that means, it is possible to define
+// symbols without restrictions like "no spaces, no special character" etc in Ballerina.
