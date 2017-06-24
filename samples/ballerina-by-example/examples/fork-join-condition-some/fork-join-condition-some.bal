@@ -11,7 +11,7 @@ function main(string[] args) {
       int i = 23;
       // Define a string variable within the worker to send to join block
       string n = "Colombo";
-      // Print the values of variables visible to worker W2
+      // Print the values defined within worker W1
       system:println("[W1 worker]: inside worker
       Value of integer variable is [" + i + "]
       Value of string variable is [" + n + "]");
@@ -22,7 +22,7 @@ function main(string[] args) {
     worker W2 {
       // Define a float variable within the worker to send to join block
       float f = 10.344;
-      // Print the values of variables within worker W2
+      // Print the value defined within worker W2
       system:println("[W2 worker]: starting worker
       Value of float variable is [" + f + "]");
       // Send data to join block of the fork-join from worker W2
@@ -30,7 +30,7 @@ function main(string[] args) {
     }
   } join (some 1) (map results){
       // In the above join block, "some 1" is given to wait for one worker.
-      // Declare variables to receive the results from forked workers W1 and W2
+
       // check whether the returned worker is W1
       if (results["W1"] != null) {
       any[] r1;
@@ -40,7 +40,7 @@ function main(string[] args) {
       int p = (int) r1[0];
       // Getting the 1th index of array returned from worker W1
       string l = (string) r1[1];
-      // Print values received from workers within join block
+      // Print values received from worker W1 within join block
       system:println("[default worker] within join:
       Value of integer from W1 is [" + p + "]");
       system:println("[default worker] within join:
@@ -54,6 +54,7 @@ function main(string[] args) {
       r2,_   = (any[]) results["W2"];
       // Getting the 0th index of array returned from worker W2
       float q = (float) r2[0];
+      // Print value received from worker W2 within join block
       system:println("[default worker] within join:
       Value of float from W2 [" + q + "]");
       }
