@@ -39,14 +39,16 @@ import org.ballerinalang.model.types.BType;
  */
 public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
 
+    private String fieldName;
     private String pkgName;
-
     private String pkgPath;
 
     /**
      * Unique identifier or this expression.
      */
     private SymbolName symbolName;
+
+    private ReferenceExpr varReferenceExpr;
 
     /**
      * Holds a reference to the actual variable, stated in the expression.
@@ -79,22 +81,6 @@ public class FieldAccessExpr extends UnaryExpression implements ReferenceExpr {
      * Flag indicating whether the expression is an array or not.
      */
     private boolean isArrayIndexExpr = false;
-
-    /**
-     * Creates a field access expression.
-     *
-     * @param location location of the expression in the source file
-     * @param whiteSpaceDescriptor Holds whitespace region data
-     * @param symbolName Symbol Name of the current field
-     * @param varRefExpr Variable reference represented by the current field
-     */
-    @Deprecated
-    public FieldAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
-                           Expression varRefExpr) {
-        super(location, whiteSpaceDescriptor, null, varRefExpr);
-        this.symbolName = symbolName;
-        this.varRefExpr = varRefExpr;
-    }
     
     /**
      * Creates a field access expression.

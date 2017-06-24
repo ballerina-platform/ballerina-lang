@@ -36,7 +36,13 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     private String pkgPath;
     private SymbolName symbolName;
     private Expression[] indexExprs;
+    private Expression indexExpr;
     private boolean isLHSExpr;
+
+    /**
+     * Holds a reference to the actual variable, stated in the expression.
+     */
+    private ReferenceExpr varRefExpr;
 
     private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
                                String pkgName, String pkgPath, Expression arrayVarRefExpr, Expression[] indexExprs) {
@@ -48,13 +54,11 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         this.indexExprs = indexExprs;
     }
 
-    private ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName,
-                               String pkgName, String pkgPath, Expression arrayVarRefExpr, Expression[] indexExprs) {
-        super(location, whiteSpaceDescriptor, null, arrayVarRefExpr);
-        this.pkgName = pkgName;
-        this.pkgPath = pkgPath;
-        this.symbolName = symbolName;
-        this.indexExprs = indexExprs;
+    public ArrayMapAccessExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                               ReferenceExpr varRefExpr, Expression indexExpr) {
+        super(location, whiteSpaceDescriptor, null, varRefExpr);
+        this.varRefExpr = varRefExpr;
+        this.indexExpr = indexExpr;
     }
 
     @Override

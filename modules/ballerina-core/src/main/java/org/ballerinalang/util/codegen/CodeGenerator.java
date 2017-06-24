@@ -66,9 +66,11 @@ import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FieldAccessExpr;
+import org.ballerinalang.model.expressions.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
+import org.ballerinalang.model.expressions.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
@@ -84,6 +86,7 @@ import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
+import org.ballerinalang.model.expressions.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
@@ -1997,6 +2000,21 @@ public class CodeGenerator implements NodeVisitor {
                 variableRefExpr.setTempOffset(exprRegIndex);
             }
         }
+    }
+
+    @Override
+    public void visit(SimpleVarRefExpr simpleVarRefExpr) {
+
+    }
+
+    @Override
+    public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
+
+    }
+
+    @Override
+    public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
+
     }
 
 

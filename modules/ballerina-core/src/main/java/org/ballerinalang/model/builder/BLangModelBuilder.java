@@ -54,9 +54,11 @@ import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FieldAccessExpr;
+import org.ballerinalang.model.expressions.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
+import org.ballerinalang.model.expressions.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
@@ -66,12 +68,13 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ReferenceExpr;
+import org.ballerinalang.model.expressions.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.VariableReferenceExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -112,8 +115,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model(AST).
@@ -582,7 +583,7 @@ public class BLangModelBuilder {
     }
 
     /**
-     * <p>Create variable reference expression.</p>
+     * <p>Create Simple variable reference expression.</p>
      * There are three types of variables references as per the grammar file.
      * <ol>
      * <li> Simple variable references. a, b, index etc</li>
@@ -594,39 +595,34 @@ public class BLangModelBuilder {
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param nameReference  nameReference of the variable
      */
-    public void createVarRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                 NameReference nameReference) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, nameReference.name,
+    public void createSimpleVarRefExpr(NodeLocation location,
+                                       WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                       NameReference nameReference) {
+
+        SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
                 nameReference.pkgName, nameReference.pkgPath);
-        variableRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
-        exprStack.push(variableRefExpr);
+        simpleVarRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
+        exprStack.push(simpleVarRefExpr);
     }
 
-    /**
-     * <p>Create map array variable reference expression.</p>
-     *
-     * @param location location of the variable reference expression in the source file.
-     * @param whiteSpaceDescriptor Holds whitespace region data
-     * @param nameReference nameReference of the variable.
-     * @param dimensions dimensions of map array.
-     */
-    public void createMapArrayVarRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                         NameReference nameReference, int dimensions) {
-        FieldAccessExpr fieldExpr = null;
-        for (int i = 0; i <= dimensions; i++) {
-            Expression parent;
-            if (i == dimensions) {
-                parent = new VariableRefExpr(location, whiteSpaceDescriptor, nameReference.name, nameReference.pkgName,
-                        nameReference.pkgPath);
-            } else {
-                parent = exprStack.pop();
-            }
-            FieldAccessExpr parentExpr = new FieldAccessExpr(location, whiteSpaceDescriptor, parent, fieldExpr);
-            parentExpr.setIsArrayIndexExpr(true);
-            fieldExpr = parentExpr;
-        }
-        exprStack.push(fieldExpr);
+    public void createIndexBasedVarRefExpr(NodeLocation location,
+                                           WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        Expression indexExpr = exprStack.pop();
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
+        IndexBasedVarRefExpr indexBasedVarRefExpr = new IndexBasedVarRefExpr(location, whiteSpaceDescriptor,
+                varRefExpr, indexExpr);
+        exprStack.push(indexBasedVarRefExpr);
     }
+
+    public void createFieldBasedVarRefExpr(NodeLocation location,
+                                           WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                           String fieldName) {
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
+        FieldBasedVarRefExpr fieldBasedVarRefExpr = new FieldBasedVarRefExpr(location, whiteSpaceDescriptor,
+                varRefExpr, fieldName);
+        exprStack.push(fieldBasedVarRefExpr);
+    }
+    
 
     public void createBinaryExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String opStr) {
         Expression rExpr = exprStack.pop();
@@ -1698,78 +1694,6 @@ public class BLangModelBuilder {
             addExprToList(exprList, n - 1);
             exprList.add(expr);
         }
-    }
-
-    /**
-     * return value within double quotes.
-     *
-     * @param inputString string with double quotes
-     * @return value
-     */
-    private static String getValueWithinBackquote(String inputString) {
-        Pattern p = Pattern.compile("`([^`]*)`");
-        Matcher m = p.matcher(inputString);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
-    }
-
-    /**
-     * Create an expression for accessing fields, represented in the form of 'identifier.identifier'.
-     *
-     * @param location Source location of the ballerina file
-     * @param whiteSpaceDescriptor Holds whitespace region data
-     */
-    public void createFieldRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        if (exprStack.size() < 2) {
-            return;
-        }
-
-        // Accessing a field with syntax x.y.z means y and z are static field names, but x is a variable ref.
-        // Hence the varRefs are replaced with a basic literal, upto the very first element in the chain.
-        // First element is treated as a variableRef.
-        ReferenceExpr childExpr = (ReferenceExpr) exprStack.pop();
-        //TODO fix this properly - disabled the test GlobalVarErrorTest
-        //TODO Since by default package path is set to Variable Reference we need differentiate the two cases
-        //TODO where we put package put package name intentionally against, we get this from user programmed
-        //TODO ballerina programme
-        //if (childExpr.getPkgPath() != null) {
-        //    String errMsg = BLangExceptionHelper.constructSemanticError(location,
-        //            SemanticErrors.STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER, childExpr.getPkgName() + ":" +
-        //            childExpr.getVarName());
-        //    errorMsgs.add(errMsg);
-        //}
-
-        if (childExpr instanceof FieldAccessExpr) {
-            FieldAccessExpr fieldExpr = (FieldAccessExpr) childExpr;
-            Expression varRefExpr = fieldExpr.getVarRef();
-            if (varRefExpr instanceof VariableRefExpr) {
-                varRefExpr = new BasicLiteral(varRefExpr.getNodeLocation(), varRefExpr.getWhiteSpaceDescriptor(),
-                        new SimpleTypeName(TypeConstants.STRING_TNAME),
-                        new BString(((VariableRefExpr) varRefExpr).getVarName()));
-                fieldExpr.setVarRef(varRefExpr);
-            }
-        } else if (childExpr instanceof VariableRefExpr) {
-            BasicLiteral fieldNameLietral = new BasicLiteral(childExpr.getNodeLocation(),
-                    childExpr.getWhiteSpaceDescriptor(), new SimpleTypeName(TypeConstants.STRING_TNAME),
-                    new BString(((VariableRefExpr) childExpr).getVarName()));
-            childExpr = new FieldAccessExpr(location, whiteSpaceDescriptor, fieldNameLietral);
-        } else {
-            childExpr = new FieldAccessExpr(location, whiteSpaceDescriptor, childExpr);
-        }
-
-        ReferenceExpr parentExpr = (ReferenceExpr) exprStack.pop();
-        Expression newParentExpr;
-        if (parentExpr instanceof FieldAccessExpr) {
-            FieldAccessExpr fieldOfParent = ((FieldAccessExpr) parentExpr).getFieldExpr();
-            fieldOfParent.setFieldExpr((FieldAccessExpr) childExpr);
-            newParentExpr = parentExpr;
-        } else {
-            newParentExpr = new FieldAccessExpr(location, whiteSpaceDescriptor, parentExpr.getPkgName(),
-                    parentExpr.getPkgPath(), parentExpr, (FieldAccessExpr) childExpr);
-        }
-        exprStack.push(newParentExpr);
     }
 
     protected ImportPackage getImportPackage(String pkgName) {
