@@ -1,6 +1,6 @@
 // Ballerina datatable is used to retrive data from database
-// table. Use following sql scripts to create table and
-// sample data.
+// table. Use the following sql scripts to create table and
+// sample data in a mysql database.
 //
 //create table employees (
 //    id int,

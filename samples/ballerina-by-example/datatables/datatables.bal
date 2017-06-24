@@ -16,9 +16,10 @@ struct Result {
 function main (string[] args) {
     //Create a SQL connector by providing the required database connection
     //pool properties.
-    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/testdb",
-                         "username":"root", "password":"root"};
-    sql:ClientConnector testDB = create sql:ClientConnector(props);
+    map props = {"jdbcUrl":"jdbc:mysql://localhost:3306/db",
+                   "username":"root", "password":"root"};
+    sql:ClientConnector testDB = create 
+				sql:ClientConnector(props);
     //Query the table using SQL connector select action.Either select or call
     //action can return a datatable.
     sql:Parameter[] params = [];
@@ -31,7 +32,7 @@ function main (string[] args) {
         any dataStruct = datatables:next(dt);
         var rs, err = (Result)dataStruct;
         //Access data from struct and print the values.
-        system:println("Employese:" + rs.id + "|" + rs.name +
+        system:println("Employee:" + rs.id + "|" + rs.name +
                        "|" + rs.salary + "|" + rs.status +
                        "|" + rs.birthdate +
                        "|" + rs.birthtime +
