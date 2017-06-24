@@ -33,7 +33,14 @@ public interface Workspace {
     
     JsonArray listDirectoriesInPath(String path) throws IOException;
     
-    JsonArray listFilesInPath(String path) throws IOException;
+    /**
+     * Returns a JSON array with the files in a specific path.
+     * @param path The path.
+     * @param extensions A list of extensions to support.
+     * @return Json array of files.
+     * @throws IOException
+     */
+    JsonArray listFilesInPath(String path, List<String> extensions) throws IOException;
     
     JsonObject exists(String path) throws IOException;
     

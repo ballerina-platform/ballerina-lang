@@ -68,8 +68,11 @@ public class CloudWorkspace implements Workspace {
             IOException {
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public JsonArray listFilesInPath(String path) throws IOException {
+    public JsonArray listFilesInPath(String path, List<String> extensions) throws IOException {
         return null;
     }
     
