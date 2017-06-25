@@ -1,5 +1,7 @@
 Hello World
 Hello World Service
+Value Types
+Constants
 Global Variables
 Any Type
 Identifier Literals
