@@ -34,8 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.DosFileAttributes;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -96,13 +96,13 @@ public class LocalFSWorkspace implements Workspace {
         }
         return dirs;
     }
-    
+
     @Override
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
         Files.write(ioPath, content.getBytes(Charset.defaultCharset()));
     }
-    
+
     @Override
     public JsonObject read(String path) throws IOException {
         byte[] fileContent = Files.readAllBytes(Paths.get(path));
@@ -110,18 +110,18 @@ public class LocalFSWorkspace implements Workspace {
         content.addProperty(CONTENT, new String(fileContent, Charset.defaultCharset()));
         return content;
     }
-    
+
     @Override
     public void delete(String path, String type) throws IOException {
         Path ioPath = Paths.get(path);
         if (FOLDER_TYPE.equals(type)) {
             Files.walk(ioPath, FileVisitOption.FOLLOW_LINKS).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
+                 .forEach(File::delete);
         } else {
             Files.delete(ioPath);
         }
     }
-    
+
     @Override
     public void create(String path, String type) throws IOException {
         Path ioPath = Paths.get(path);
@@ -131,7 +131,7 @@ public class LocalFSWorkspace implements Workspace {
             Files.createFile(ioPath);
         }
     }
-    
+
     @Override
     public void log(String loggerID, String timestamp, String level, String url, String message, String layout)
             throws IOException {
@@ -154,9 +154,9 @@ public class LocalFSWorkspace implements Workspace {
             default:
                 frontEndLog.debug(logMessage);
         }
-        
+
     }
-    
+
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
         if (null != root.getFileName()) {
@@ -186,7 +186,7 @@ public class LocalFSWorkspace implements Workspace {
         }
         return rootObj;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -197,9 +197,8 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()) {
             Path next = iterator.next();
-            if ((Files.isDirectory(next) || Files.isRegularFile(next))
-                    && !Files.isHidden(next)
-                    && !isWindowsSystemFile(next)) {
+            if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next) &&
+                !isWindowsSystemFile(next)) {
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 if (Files.isRegularFile(next)) {
                     Path fileName = next.getFileName();
@@ -210,7 +209,7 @@ public class LocalFSWorkspace implements Workspace {
                 } else {
                     dirs.add(jsnObj);
                 }
-                
+
             }
         }
         return dirs;
