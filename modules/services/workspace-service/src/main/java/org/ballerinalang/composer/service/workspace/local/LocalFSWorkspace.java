@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.composer.service.workspace.Workspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,10 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.DosFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,10 +43,11 @@ import java.util.List;
  * Workspace implementation for local file system.
  */
 public class LocalFSWorkspace implements Workspace {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FOLDER_TYPE = "folder";
     private static final String CONTENT = "content";
+    private static final String BAL_EXT = ".bal";
 
     @Override
     public JsonArray listRoots() throws IOException {
@@ -59,15 +63,7 @@ public class LocalFSWorkspace implements Workspace {
             JsonObject rootObj = getJsonObjForFile(root, false);
             try {
                 if (Files.isDirectory(root) && Files.list(root).count() > 0) {
-                    JsonArray children = new JsonArray();
-                    Iterator<Path> rootItr = Files.list(root).iterator();
-                    while (rootItr.hasNext()) {
-                        Path next = rootItr.next();
-                        if (Files.isDirectory(next) && !Files.isHidden(next)) {
-                            JsonObject childObj = getJsonObjForFile(next, true);
-                            children.add(childObj);
-                        }
-                    }
+                    JsonArray children = listFilesInPath(root.toFile().getAbsolutePath(), Arrays.asList(BAL_EXT));
                     rootObj.add("children", children);
                 }
             } catch (IOException e) {
@@ -201,7 +197,9 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()) {
             Path next = iterator.next();
-            if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next)) {
+            if ((Files.isDirectory(next) || Files.isRegularFile(next))
+                    && !Files.isHidden(next)
+                    && !isWindowsSystemFile(next)) {
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 if (Files.isRegularFile(next)) {
                     Path fileName = next.getFileName();
@@ -217,7 +215,7 @@ public class LocalFSWorkspace implements Workspace {
         }
         return dirs;
     }
-    
+
     @Override
     public JsonObject exists(String path) throws IOException {
         Path ioPath = Paths.get(path);
@@ -226,5 +224,13 @@ public class LocalFSWorkspace implements Workspace {
         result.addProperty("file", path);
         result.addProperty("exists", exists);
         return result;
+    }
+
+    private boolean isWindowsSystemFile(Path filePath) throws IOException {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            DosFileAttributes dosAttribs = Files.readAttributes(filePath, DosFileAttributes.class);
+            return dosAttribs.isSystem();
+        }
+        return false;
     }
 }
