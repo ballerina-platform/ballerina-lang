@@ -65,6 +65,7 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
         const commandManager = this._options.application.commandManager;
         const browserStorage = this._options.application.browserStorage;
         const workspaceExplorer = this._options.application.workspaceExplorer;
+        const pathSeperator = this._options.application.getPathSeperator();
 
         const ballerinaHome = _.get(this._options, 'balHome');
         const samples = _.get(this._options, 'samples', []);
@@ -73,14 +74,17 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
             sampleName: sample.name,
             isFile: sample.isFile,
             clickEventCallback: () => {
+                // convert paths to platform specific paths 
+                const sampleFile = sample.path.split('/').join(pathSeperator),
+                      sampleFolder = sample.folder.split('/').join(pathSeperator);
                 if (sample.isFile) {
-                    commandManager.dispatch('open-file', ballerinaHome + sample.path);
+                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
                 } else {
-                    commandManager.dispatch('open-folder', ballerinaHome + sample.folder);
+                    commandManager.dispatch('open-folder', ballerinaHome + sampleFolder);
                     if (!workspaceExplorer.isActive()) {
                         commandManager.dispatch('toggle-file-explorer');
                     }
-                    commandManager.dispatch('open-file', ballerinaHome + sample.path);
+                    commandManager.dispatch('open-file', ballerinaHome + sampleFile);
                 }
             },
             image: sample.image,
