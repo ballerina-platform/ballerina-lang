@@ -5,4 +5,10 @@ Constants
 Global Variables
 Any Type
 Identifier Literals
+JMS Message Consumer
+JMS Message Producer
+JMS Client Acknowledgment
+JMS Message Headers
+JMS Message Properties
+
 
