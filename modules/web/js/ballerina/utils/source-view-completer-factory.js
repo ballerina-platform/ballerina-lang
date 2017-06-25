@@ -41,7 +41,7 @@ class CompleterFactory {
                 const options = {
                     textDocument: editor.getValue(),
                     position: {
-                        line: cursorPosition.row,
+                        line: cursorPosition.row + 1,
                         character: cursorPosition.column,
                     },
                 };

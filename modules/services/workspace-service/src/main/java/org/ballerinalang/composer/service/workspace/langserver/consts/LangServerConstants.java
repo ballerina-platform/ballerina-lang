@@ -25,14 +25,14 @@ public class LangServerConstants {
      * The minimum server port number. Lets start with 5006 which is the default port number
      */
     public static final int MIN_PORT_NUMBER = 5006;
-    
+
     /**
      * The maximum server currentMinPort number.
      */
     public static final int MAX_PORT_NUMBER = 5999;
-    
+
     public static final String B_LANGSERVER_WEBSOCKET_PATH = "/blangserver";
-    
+
     public static final String B_LANGSERVER_PORT = "9093";
 
     /**
@@ -78,6 +78,12 @@ public class LangServerConstants {
      */
     public static final String BUILTIN_TYPES = "builtinTypes";
     public static final String PACKAGES = "packages";
+
+    /**
+     * Resolving Criteria
+     */
+    public static final int INVALID_CRITERIA = -1;
+    public static final int FUNCTION_INVOCATION_CRITERIA = 1;
 
     /**
      * Types of programs that are executable.

@@ -22,7 +22,6 @@ import EventChannel from 'event_channel';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
 
-// ################ Handle the websocket closing and error as well #######################
 /**
  * Class for language server client controller
  */
