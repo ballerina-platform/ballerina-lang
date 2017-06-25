@@ -3,4 +3,4 @@ Hello World Service
 Global Variables
 Any Type
 Identifier Literals
-
+Blob Type
