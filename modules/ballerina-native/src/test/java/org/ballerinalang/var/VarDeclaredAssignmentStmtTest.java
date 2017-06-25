@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.ParserException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -116,6 +117,26 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         BTestUtils.getProgramFile("lang/var/service-level-variable-def-with-var-type-negative.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class }, expectedExceptionsMessageRegExp = ".*invalid usage of var")
+    public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
+        //all the expression of LHS of var declaration should be variable references
+        BTestUtils.getProgramFile("lang/var/var-invalid-usage-struct-field-access.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = ".*'age' is repeated on the left side of assignment")
+    public void testVarDeclarationWithDuplicateVariableRefs() {
+        //all the expression of LHS of var declaration should be unique variable references
+        BTestUtils.getProgramFile("lang/var/var-duplicate-variable-ref-lhs-expr.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = ".*invalid usage of var")
+    public void testVarDeclarationWithArrayInit() {
+        //var declarations cannot have array init, json init over RHS expr
+        BTestUtils.getProgramFile("lang/var/var-declaration-with-array-init.bal");
     }
 
     @Test
