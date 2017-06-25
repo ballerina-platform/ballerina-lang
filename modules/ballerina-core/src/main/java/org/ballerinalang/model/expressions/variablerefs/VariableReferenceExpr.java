@@ -15,7 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.model.expressions.variablerefs;
+
+import org.ballerinalang.model.expressions.Expression;
 
 /**
  * {@code VariableReferenceExpr} represents variable reference expression.
@@ -30,4 +32,8 @@ public interface VariableReferenceExpr extends Expression {
     boolean isLHSExpr();
 
     void setLHSExpr(boolean lhsExpr);
+
+    VariableReferenceExpr getParentVarRefExpr();
+
+    void setParentVarRefExpr(VariableReferenceExpr varRefExpr);
 }

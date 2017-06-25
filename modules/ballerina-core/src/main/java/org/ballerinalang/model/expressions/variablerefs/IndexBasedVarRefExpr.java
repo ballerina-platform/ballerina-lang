@@ -15,15 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.model.expressions.variablerefs;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.UnaryExpression;
 
 /**
  * {@code IndexBasedVarRefExpr} represents a variable reference expression with an array index.
- * e.g. tokens[0];
+ * e.g. tokens[0] or names["ballerina]";
  *
  * @since 0.89
  */
@@ -31,9 +34,15 @@ public class IndexBasedVarRefExpr extends UnaryExpression implements VariableRef
     // Variable reference expression
     private VariableReferenceExpr varRefExpr;
 
+    // Parent in the node tree
+    private VariableReferenceExpr parentVarRefExpr;
+
     // Array index expression
     private Expression indexExpr;
     private boolean isLHSExpr;
+
+    // Struct field access using a string index
+    private VariableDef fieldDef;
 
     public IndexBasedVarRefExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -52,6 +61,14 @@ public class IndexBasedVarRefExpr extends UnaryExpression implements VariableRef
         return indexExpr;
     }
 
+    public VariableDef getFieldDef() {
+        return fieldDef;
+    }
+
+    public void setFieldDef(VariableDef fieldDef) {
+        this.fieldDef = fieldDef;
+    }
+
     @Override
     public boolean isLHSExpr() {
         return isLHSExpr;
@@ -60,6 +77,16 @@ public class IndexBasedVarRefExpr extends UnaryExpression implements VariableRef
     @Override
     public void setLHSExpr(boolean lhsExpr) {
         isLHSExpr = lhsExpr;
+    }
+
+    @Override
+    public VariableReferenceExpr getParentVarRefExpr() {
+        return parentVarRefExpr;
+    }
+
+    @Override
+    public void setParentVarRefExpr(VariableReferenceExpr varRefExpr) {
+        this.parentVarRefExpr = varRefExpr;
     }
 
     @Override

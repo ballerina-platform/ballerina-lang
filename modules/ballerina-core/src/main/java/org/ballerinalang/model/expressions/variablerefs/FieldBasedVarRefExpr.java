@@ -15,11 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.model.expressions.variablerefs;
 
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.UnaryExpression;
 
 /**
  * {@code FieldBasedVarRefExpr} represents a variable reference expression which ends with a field access.
@@ -32,8 +35,14 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
     // Variable reference expression
     private VariableReferenceExpr varRefExpr;
 
-    // Field name
-    private String fieldName;
+    // Parent in the node tree
+    private VariableReferenceExpr parentVarRefExpr;
+
+    // Field identifier
+    private Identifier fieldIdentifier;
+
+    // Only for structs
+    private VariableDef fieldDef;
 
     // Flag indicating whether the entire expression is a left hand side expression.
     private boolean isLHSExpr;
@@ -41,10 +50,10 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
     public FieldBasedVarRefExpr(NodeLocation location,
                                 WhiteSpaceDescriptor whiteSpaceDescriptor,
                                 VariableReferenceExpr varRefExpr,
-                                String fieldName) {
+                                Identifier fieldIdentifier) {
         super(location, whiteSpaceDescriptor, null, varRefExpr);
         this.varRefExpr = varRefExpr;
-        this.fieldName = fieldName;
+        this.fieldIdentifier = fieldIdentifier;
     }
 
     public VariableReferenceExpr getVarRefExpr() {
@@ -52,7 +61,15 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
     }
 
     public String getFieldName() {
-        return fieldName;
+        return fieldIdentifier.getName();
+    }
+
+    public VariableDef getFieldDef() {
+        return fieldDef;
+    }
+
+    public void setFieldDef(VariableDef fieldDef) {
+        this.fieldDef = fieldDef;
     }
 
     /**
@@ -60,6 +77,7 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
      *
      * @return Flag indicating whether this expression is a left hand side expression in an assignment.
      */
+    @Override
     public boolean isLHSExpr() {
         return isLHSExpr;
     }
@@ -69,6 +87,7 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
      *
      * @param isLhsExpr Flag indicating whether this expression is a left hand side expression in an assignment.
      */
+    @Override
     public void setLHSExpr(boolean isLhsExpr) {
         isLHSExpr = isLhsExpr;
 
@@ -76,6 +95,16 @@ public class FieldBasedVarRefExpr extends UnaryExpression implements VariableRef
 //        if (fieldRefExpr != null) {
 //            fieldRefExpr.setLHSExpr(isLhsExpr);
 //        }
+    }
+
+    @Override
+    public VariableReferenceExpr getParentVarRefExpr() {
+        return parentVarRefExpr;
+    }
+
+    @Override
+    public void setParentVarRefExpr(VariableReferenceExpr varRefExpr) {
+        this.parentVarRefExpr = varRefExpr;
     }
 
     @Override

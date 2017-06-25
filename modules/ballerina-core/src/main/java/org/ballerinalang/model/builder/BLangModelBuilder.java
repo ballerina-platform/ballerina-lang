@@ -53,12 +53,9 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
-import org.ballerinalang.model.expressions.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
-import org.ballerinalang.model.expressions.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
@@ -68,13 +65,14 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.expressions.VariableReferenceExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -292,7 +290,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> globalVariableDef.addAnnotation(attachment));
 
         // Create Variable definition statement for the global variable
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, whiteSpaceDescriptor, identifier.getName());
+        SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, identifier.getName());
         variableRefExpr.setVariableDef(globalVariableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
@@ -346,7 +344,7 @@ public class BLangModelBuilder {
         
         if (currentScope instanceof StructDef) {
             VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
-            VariableRefExpr fieldRefExpr = new VariableRefExpr(location, null, identifier.getName());
+            SimpleVarRefExpr fieldRefExpr = new SimpleVarRefExpr(location, null, identifier.getName());
             fieldRefExpr.setVariableDef(fieldDef);
             VariableDefStmt fieldDefStmt = new VariableDefStmt(location, fieldDef, fieldRefExpr, defaultValExpr);
             fieldDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
@@ -611,6 +609,7 @@ public class BLangModelBuilder {
         VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
         IndexBasedVarRefExpr indexBasedVarRefExpr = new IndexBasedVarRefExpr(location, whiteSpaceDescriptor,
                 varRefExpr, indexExpr);
+        varRefExpr.setParentVarRefExpr(indexBasedVarRefExpr);
         exprStack.push(indexBasedVarRefExpr);
     }
 
@@ -619,7 +618,8 @@ public class BLangModelBuilder {
                                            String fieldName) {
         VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
         FieldBasedVarRefExpr fieldBasedVarRefExpr = new FieldBasedVarRefExpr(location, whiteSpaceDescriptor,
-                varRefExpr, fieldName);
+                varRefExpr, new Identifier(fieldName));
+        varRefExpr.setParentVarRefExpr(fieldBasedVarRefExpr);
         exprStack.push(fieldBasedVarRefExpr);
     }
     
@@ -1051,7 +1051,7 @@ public class BLangModelBuilder {
                                             SimpleTypeName typeName, String varName, boolean exprAvailable) {
         validateIdentifier(varName, location);
         Identifier identifier = new Identifier(varName);
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
+        SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location,  whiteSpaceDescriptor, identifier.getName());
         SymbolName symbolName = new SymbolName(identifier.getName());
 
         VariableDef variableDef = new VariableDef(location, whiteSpaceDescriptor, identifier, typeName, symbolName,
@@ -1112,7 +1112,7 @@ public class BLangModelBuilder {
 
     public void createReplyStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression argExpr = exprStack.pop();
-        if (!(argExpr instanceof VariableRefExpr)) {
+        if (!(argExpr instanceof SimpleVarRefExpr)) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REF_TYPE_MESSAGE_ALLOWED);
             errorMsgs.add(errMsg);
@@ -1382,7 +1382,7 @@ public class BLangModelBuilder {
 
     public void createThrowStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         Expression expression = exprStack.pop();
-        if (expression instanceof VariableRefExpr || expression instanceof FunctionInvocationExpr) {
+        if (expression instanceof SimpleVarRefExpr || expression instanceof FunctionInvocationExpr) {
             ThrowStmt throwStmt = new ThrowStmt(location, whiteSpaceDescriptor, expression);
             addToBlockStmt(throwStmt);
             return;
@@ -1785,7 +1785,7 @@ public class BLangModelBuilder {
                 for (Expression lExpr : ((AssignStmt) statement).getLExprs()) {
                     Expression[] varRefExpressions = getVariableReferencesFromExpression(lExpr);
                     for (Expression exp : varRefExpressions) {
-                        String varName = ((VariableRefExpr) exp).getVarName();
+                        String varName = ((SimpleVarRefExpr) exp).getVarName();
                         if (inputs.get(varName) == null) {
                             //if variable has not been used as an input before
                             if (outputs.get(varName) == null) {
@@ -1803,7 +1803,7 @@ public class BLangModelBuilder {
                 Expression rExpr = ((AssignStmt) statement).getRExpr();
                 Expression[] varRefExpressions = getVariableReferencesFromExpression(rExpr);
                 for (Expression exp : varRefExpressions) {
-                    String varName = ((VariableRefExpr) exp).getVarName();
+                    String varName = ((SimpleVarRefExpr) exp).getVarName();
                     if (outputs.get(varName) == null) {
                         //if variable has not been used as an output before
                         if (inputs.get(varName) == null) {
@@ -1822,8 +1822,16 @@ public class BLangModelBuilder {
     }
 
     private Expression[] getVariableReferencesFromExpression(Expression expression) {
-        if (expression instanceof FieldAccessExpr) {
-            return new Expression[] { ((FieldAccessExpr) expression).getVarRef() };
+        if (expression instanceof FieldBasedVarRefExpr) {
+            while (!(expression instanceof SimpleVarRefExpr)) {
+                if (expression instanceof FieldBasedVarRefExpr) {
+                    expression = ((FieldBasedVarRefExpr) expression).getVarRefExpr();
+                } else if (expression instanceof IndexBasedVarRefExpr) {
+                    expression = ((IndexBasedVarRefExpr) expression).getVarRefExpr();
+                }
+            }
+            return new Expression[]{expression};
+
         } else if (expression instanceof FunctionInvocationExpr) {
             Expression[] argExprs = ((FunctionInvocationExpr) expression).getArgExprs();
             List<Expression> expList = new ArrayList<>();
@@ -1832,8 +1840,10 @@ public class BLangModelBuilder {
                 expList.addAll(Arrays.asList(varRefExps));
             }
             return expList.toArray(new Expression[expList.size()]);
-        } else if (expression instanceof VariableRefExpr) {
+
+        } else if (expression instanceof SimpleVarRefExpr) {
             return new Expression[] { expression };
+
         }
         return new Expression[] {};
     }
