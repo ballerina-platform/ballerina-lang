@@ -1,4 +1,4 @@
-# To run the program, put the code in `json.bal`
+# To run the program, put the code in `datatables.bal`
 # and use `$BALLERINA_HOME/bin/ballerina run main datatables.bal`.
 
 $ $BALLERINA_HOME/bin/ballerina run main datatables.bal
