@@ -1046,3 +1046,11 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 .annotation-array-entry {
     float: left;
 }
+
+.modal-dialog.swagger-conflict-modal-dialog {
+    margin: 100px auto 0;
+}
+
+.swagger-conflict-modal-dialog {
+    width: 745px;
+}

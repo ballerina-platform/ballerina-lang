@@ -84,7 +84,7 @@ const FileTabList = TabList.extend(
                 });
 
                 if (!_.isUndefined(activeTabId)) {
-                    const activeTab = _.find(this.getTabList(), t => t.cid === activeTabId);
+                    const activeTab = _.find(this.getTabList(), tab => tab.cid === activeTabId);
                     if (!_.isUndefined(activeTab)) {
                         this.setActiveTab(activeTab);
                     }

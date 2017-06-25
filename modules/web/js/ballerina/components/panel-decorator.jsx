@@ -18,10 +18,10 @@
 
 import React from 'react';
 import _ from 'lodash';
-import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
-import ASTNode from '../ast/node';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import ImageUtil from './image-util';
+import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import EditableText from './editable-text';
 import './panel-decorator.css';
@@ -30,6 +30,7 @@ import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import { getComponentForNodeArray } from './utils';
 import { util } from '../visitors/sizing-utils';
 import SimpleBBox from '../ast/simple-bounding-box';
+import PanelDecoratorButton from './panel-decorator-button';
 
 class PanelDecorator extends React.Component {
 
@@ -84,6 +85,65 @@ class PanelDecorator extends React.Component {
         });
     }
 
+    /**
+     * Creates the panel heading buttons on the far right.
+     *
+     * @param {number} x The far x corner position on the heading.
+     * @param {number} y The y position(The starting y position of the panel heading).
+     * @param {number} width The width of a button.
+     * @param {number} height The height of a button.
+     * @returns {ReactElement[]} A list of buttons.
+     * @memberof PanelDecorator
+     */
+    getRightHeadingButtons(x, y, width, height) {
+        const staticButtons = [];
+
+        const collapsed = this.props.model.viewState.collapsed || false;
+
+        // Creating collapse button.
+        const collapseButtonProps = {
+            bBox: {
+                x: x - width,
+                y,
+                height,
+                width,
+            },
+            icon: (collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up'),
+            onClick: () => this.onCollapseClick(),
+            key: `${this.props.model.getID()}-collapse-button`,
+        };
+
+        staticButtons.push(React.createElement(PanelDecoratorButton, collapseButtonProps, null));
+
+        // Creating delete button.
+        const deleteButtonProps = {
+            bBox: {
+                x: x - (width * 2),
+                y,
+                height,
+                width,
+            },
+            icon: ImageUtil.getSVGIconString('delete'),
+            onClick: () => this.onDelete(),
+            key: `${this.props.model.getID()}-delete-button`,
+        };
+
+        staticButtons.push(React.createElement(PanelDecoratorButton, deleteButtonProps, null));
+
+        // Dynamic buttons
+        const dynamicButtons = this.props.rightComponents.map((rightComponent, index) => {
+            rightComponent.props.bBox = {
+                x: x - ((index + 3) * width),
+                y,
+                width,
+                height,
+            };
+            return React.createElement(rightComponent.component, rightComponent.props, null);
+        });
+
+        return [...staticButtons, ...dynamicButtons];
+    }
+
     render() {
         const bBox = this.props.bBox;
         const titleHeight = panel.heading.height;
@@ -122,6 +182,8 @@ class PanelDecorator extends React.Component {
             strokeDasharray: `0, ${panelBBox.w}, ${panelBBox.h} , 0 , ${panelBBox.w} , 0 , ${panelBBox.h}`,
         };
 
+        const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect
@@ -154,24 +216,7 @@ class PanelDecorator extends React.Component {
                     xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
                     className="annotation-icon"
                 />
-                {titleComponents}
-                <g className="panel-header-controls">
-                    <rect
-                        x={bBox.x + bBox.w - 54} y={bBox.y + annotationBodyHeight} width={55} height={titleHeight}
-                        className="panel-header-controls-wrapper"
-                    />
-                    <image
-                        x={bBox.x + bBox.w - 44} y={bBox.y + 6 + annotationBodyHeight} width={iconSize}
-                        height={iconSize} className="control"
-                        xlinkHref={ImageUtil.getSVGIconString('delete')} onClick={() => this.onDelete()}
-                    />
-                    <image
-                        x={bBox.x + bBox.w - 22} y={bBox.y + 6 + annotationBodyHeight} width={iconSize}
-                        height={iconSize} className="control"
-                        xlinkHref={(collapsed) ? ImageUtil.getSVGIconString('down') : ImageUtil.getSVGIconString('up')}
-                        onClick={() => this.onCollapseClick()}
-                    />
-                </g>
+                {rightHeadingButtons}
             </g>
             <g className={panelBodyClassName}>
                 <CSSTransitionGroup
@@ -293,6 +338,14 @@ PanelDecorator.propTypes = {
     model: PropTypes.instanceOf(ASTNode).isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode),
     dropSourceValidateCB: PropTypes.func,
+    rightComponents: PropTypes.arrayOf(PropTypes.shape({
+        component: PropTypes.func.isRequired,
+        props: PropTypes.object.isRequired,
+    })),
+};
+
+PanelDecorator.defaultProps = {
+    rightComponents: [],
 };
 
 PanelDecorator.contextTypes = {

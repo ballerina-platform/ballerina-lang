@@ -16,25 +16,50 @@
  * under the License.
  */
 
-// require all react images
+/**
+ * Gets the base name of a file.
+ *
+ * @param {string} filename The file name.
+ * @param {string} ext The extension.
+ * @returns {string} Base name.
+ */
+function getBasename(filename, ext) {
+    return filename.substring(2, filename.indexOf(ext));
+}
+
+/**
+ * Gets a list of all svg files.
+ *
+ * @param {func} requireContext Webpack func.
+ * @returns {Object} The components for the svgs.
+ */
 function requireAll(requireContext) {
     const components = {};
-    requireContext.keys().map((item) => {
+    requireContext.keys().forEach((item) => {
         const module = requireContext(item);
         if (module) {
-            components[_getBasename(item, '.svg')] = module;
+            components[getBasename(item, '.svg')] = module;
         }
     });
     return components;
 }
 
-function _getBasename(filename, ext) {
-    return filename.substring(2, filename.indexOf(ext));
-}
-
 const images = requireAll(require.context('images', true, /\.svg$/));
 
+/**
+ * Utility class for images.
+ *
+ * @class ImageUtils
+ */
 class ImageUtils {
+    /**
+     * Gets the base64 string for svg images.
+     *
+     * @static
+     * @param {string} iconName The name of the icon.
+     * @returns {string} Base64 string for xlinkHref.
+     * @memberof ImageUtils
+     */
     static getSVGIconString(iconName) {
         return images[iconName];
     }

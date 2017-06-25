@@ -34,10 +34,12 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.nio.file.ReadOnlyFileSystemException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -156,11 +158,14 @@ public class WorkspaceService {
     @GET
     @Path("/listFiles")
     @Produces("application/json")
-    public Response filesInPath(@QueryParam("path") String path) {
+    public Response filesInPath(@QueryParam("path") String path,
+                                @DefaultValue(".bal") @QueryParam("extensions") String extensions) {
         try {
+            List<String> extensionList = Arrays.asList(extensions.split(","));
+    
             return Response.status(Response.Status.OK)
                     .entity(workspace.listFilesInPath(new String(Base64.getDecoder().decode(path),
-                            Charset.defaultCharset())))
+                            Charset.defaultCharset()), extensionList))
                     .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage());

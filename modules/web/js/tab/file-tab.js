@@ -48,11 +48,11 @@ class FileTab extends Tab {
     constructor(options) {
         super(options);
         if (!_.has(options, 'file')) {
-            this._file = new File({ 
-                    isTemp: true, isDirty: false 
-                }, { 
-                    storage: this.getParent().getBrowserStorage() 
-                });
+            this._file = new File({
+                isTemp: true, isDirty: false,
+            }, {
+                storage: this.getParent().getBrowserStorage(),
+            });
         } else {
             this._file = _.get(options, 'file');
         }
@@ -265,9 +265,12 @@ class FileTab extends Tab {
             this.removeAllBreakpoints();
         });
 
-        DebugManager.on('debug-hit', function (message) {
+        DebugManager.on('debug-hit', (message) => {
             const position = message.location;
-            if (position.fileName === this._file.getName()) {
+            // Normalize file separator to /, ballerina debugger core can use file seperator \ or / depending on the OS
+            // TODO: refactor this after API changes of BreakpointDTO  in core
+            const fileName = position.fileName.replace(/\\/g, '/');
+            if (fileName === fileEditor.getFileNameWithPackage()) {
                 fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
             }
         }, this);
@@ -279,7 +282,7 @@ class FileTab extends Tab {
             const updatedContent = fileEditor.getContent();
             // if the modification happened from design view
             // updadte source view content
-            if (!fileEditor.isInSourceView()) {            
+            if (!fileEditor.isInSourceView()) {
                 fileEditor.getSourceView().replaceContent(updatedContent, true);
             }
             this._handleUndoRedoStackOnUpdate(event);
@@ -384,21 +387,36 @@ class FileTab extends Tab {
     getProgramPackages() {
         return this._programPackages;
     }
-    
+
+    /**
+     * Gets the undo manager.
+     *
+     * @returns {UndoManager} The undo manager.
+     * @memberof FileTab
+     */
     getUndoManager() {
         return this._undoManager;
     }
 
-    _handleUndoRedoStackOnUpdate (changeEvent) {
+    /**
+     * Handles the undoredo stack on update.
+     *
+     * @param {Object} changeEvent Event.
+     * @param {string} changeEvent.title The event title.
+     * @memberof FileTab
+     */
+    _handleUndoRedoStackOnUpdate(changeEvent) {
         let undoableOperationType = DiagramManipulationOperation;
         // user did the change while in source view
         if (this._fileEditor.isInSourceView()) {
             undoableOperationType = SourceModifyOperation;
         }
+
+        // eslint-disable-next-line new-cap
         const undoableOp = new undoableOperationType({
             title: changeEvent.title,
-            editor: this._fileEditor
-        }); 
+            editor: this._fileEditor,
+        });
         this._undoManager.push(undoableOp);
     }
 }

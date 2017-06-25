@@ -32,7 +32,6 @@ class ServicePreviewView extends React.PureComponent {
         if (this.props.sampleConfigs) {
             previewThumbnails = this.props.sampleConfigs.map(config => (
                 <div
-                    role="presentation"
                     className="col-md-3 thumbnail-wrapper"
                     onClick={config.clickEventCallback}
                     key={config.sampleName}

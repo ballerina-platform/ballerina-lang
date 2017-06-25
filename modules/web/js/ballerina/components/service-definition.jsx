@@ -18,17 +18,29 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ResourceDefinition from './resource-definition.jsx';
-import StatementView from './statement-decorator.jsx';
 import PanelDecorator from './panel-decorator';
 import { getComponentForNodeArray } from './utils';
 import GlobalExpanded from './globals-expanded';
 import GlobalDefinitions from './global-definitions';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ServiceDefinitionAST from './../ast/service-definition';
+import PanelDecoratorButton from './panel-decorator-button';
+import ImageUtil from './image-util';
 
+/**
+ * React component for a service definition.
+ *
+ * @class ServiceDefinition
+ * @extends {React.Component}
+ */
 class ServiceDefinition extends React.Component {
 
+    /**
+     * Creates an instance of ServiceDefinition.
+     * @param {Object} props React properties.
+     * @memberof ServiceDefinition
+     */
     constructor(props) {
         super(props);
         this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
@@ -37,6 +49,21 @@ class ServiceDefinition extends React.Component {
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
 
+    /**
+     * Event handler when the swagger button of the service definition panel is clicked.
+     * @memberof ServiceDefinition
+     */
+    onSwaggerButtonClicked() {
+        this.context.renderingContext.ballerinaFileEditor.showSwaggerView();
+    }
+
+    /**
+     * Checks if a specific type of node can be dropped.
+     *
+     * @param {ASTNode} nodeBeingDragged The node that is being dropped.
+     * @returns {boolean} True if can be dropped, else false.
+     * @memberof ServiceDefinition
+     */
     canDropToPanelBody(nodeBeingDragged) {
         const nodeFactory = this.props.model.getFactory();
           // IMPORTANT: override default validation logic
@@ -45,6 +72,12 @@ class ServiceDefinition extends React.Component {
               || nodeFactory.isResourceDefinition(nodeBeingDragged);
     }
 
+    /**
+     * Adds new variable definition statement to the model.
+     *
+     * @param {string} value The value of the variable.
+     * @memberof ServiceDefinition
+     */
     handleAddVariable(value) {
         const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
         const match = variableDefRegex.exec(value);
@@ -53,15 +86,32 @@ class ServiceDefinition extends React.Component {
         }
     }
 
+    /**
+     * Handles global variable delete event.
+     *
+     * @param {ASTNode} deletedGlobal Variable AST.
+     * @memberof ServiceDefinition
+     */
     handleDeleteVariable(deletedGlobal) {
         this.props.model.removeVariableDefinitionStatement(deletedGlobal.getID());
     }
 
+    /**
+     * Handles variables badge click event to expand or collapse the view.
+     *
+     * @memberof ServiceDefinition
+     */
     handleVarialblesBadgeClick() {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
         this.context.editor.trigger('update-diagram');
     }
 
+    /**
+     * Renders the view for a service definition.
+     *
+     * @returns {ReactElement} The view.
+     * @memberof ServiceDefinition
+     */
     render() {
         const model = this.props.model;
         const viewState = model.getViewState();
@@ -72,7 +122,8 @@ class ServiceDefinition extends React.Component {
         // get the service name
         const title = model.getServiceName();
 
-        const childrenWithNoVariables = model.filterChildren(child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
+        const childrenWithNoVariables = model.filterChildren(
+                                                child => !BallerinaASTFactory.isVariableDefinitionStatement(child));
 
         /**
          * Here we skip rendering the variables
@@ -84,22 +135,48 @@ class ServiceDefinition extends React.Component {
             y: components.body.y + DesignerDefaults.panel.body.padding.top,
         };
 
+        const rightComponents = [];
+
+        // TODO: Check whether the service is a http/https and then only allow. JMS services does not need swagger defs.
+        // eslint-disable-next-line no-constant-condition
+        if (true) {
+            // Pushing swagger edit button.
+            rightComponents.push({
+                component: PanelDecoratorButton,
+                props: {
+                    key: `${model.getID()}-swagger-button`,
+                    icon: ImageUtil.getSVGIconString('swagger'),
+                    onClick: () => this.onSwaggerButtonClicked(),
+                },
+            });
+        }
+
         return (<PanelDecorator
-            icon="tool-icons/service" title={title} bBox={bBox}
+            icon="tool-icons/service"
+            title={title}
+            bBox={bBox}
             model={model}
             dropTarget={this.props.model}
             dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+            rightComponents={rightComponents}
         >
             {
                     viewState.variablesExpanded ?
                         <GlobalExpanded
-                            bBox={expandedVariablesBBox} globals={variables} onCollapse={this.handleVarialblesBadgeClick}
-                            title="Variables" addText={'+ Add Variable'} onAddNewValue={this.handleAddVariable} onDeleteClick={this.handleDeleteVariable}
+                            bBox={expandedVariablesBBox}
+                            globals={variables}
+                            onCollapse={this.handleVarialblesBadgeClick}
+                            title="Variables"
+                            addText={'+ Add Variable'}
+                            onAddNewValue={this.handleAddVariable}
+                            onDeleteClick={this.handleDeleteVariable}
                             getValue={g => (g.getStatementString())}
                         /> :
                         <GlobalDefinitions
-                            bBox={expandedVariablesBBox} numberOfItems={variables.length}
-                            title={'Variables'} onExpand={this.handleVarialblesBadgeClick}
+                            bBox={expandedVariablesBBox}
+                            numberOfItems={variables.length}
+                            title={'Variables'}
+                            onExpand={this.handleVarialblesBadgeClick}
                         />
                 }
             {children}
@@ -107,7 +184,13 @@ class ServiceDefinition extends React.Component {
     }
 }
 
-ServiceDefinition.contextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired
+ServiceDefinition.propTypes = {
+    model: PropTypes.instanceOf(ServiceDefinitionAST).isRequired,
 };
+
+ServiceDefinition.contextTypes = {
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
+};
+
 export default ServiceDefinition;

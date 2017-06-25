@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016-2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,6 +25,12 @@ import 'jstree/dist/themes/default/style.css';
 
 const FileBrowser = Backbone.View.extend({
 
+    /**
+     * Initializes the file browser.
+     *
+     * @param {Object} config Configuration object.
+     * @param {string[]} [config.extensions=undefined] A list of extensions. Case is ignored. Example: [".bal", ".json"]
+     */
     initialize(config) {
         let errMsg;
         if (!_.has(config, 'container')) {
@@ -51,6 +57,7 @@ const FileBrowser = Backbone.View.extend({
         this._isActive = false;
         this._fetchFiles = _.get(config, 'fetchFiles', false);
         this._root = _.get(config, 'root');
+        this._extensions = _.get(config, 'extensions');
 
         this._treeConfig = {
             core: {
@@ -100,6 +107,10 @@ const FileBrowser = Backbone.View.extend({
             if (node.id === '#') {
                 if (!_.isNil(this._root)) {
                     if (this._fetchFiles) {
+                        if (this._extensions) {
+                            return `${this._workspaceServiceURL}/listFiles?path=${btoa(this._root)}` +
+                                                                        `&extensions=${_.join(this._extensions, ',')}`;
+                        }
                         return `${this._workspaceServiceURL}/listFiles?path=${btoa(this._root)}`;
                     }
                     return `${this._workspaceServiceURL}/list?path=${btoa(this._root)}`;
@@ -108,6 +119,10 @@ const FileBrowser = Backbone.View.extend({
             }
 
             if (this._fetchFiles) {
+                if (this._extensions) {
+                    return `${this._workspaceServiceURL}/listFiles?path=${btoa(node.id)}` +
+                                                                        `&extensions=${_.join(this._extensions, ',')}`;
+                }
                 return `${this._workspaceServiceURL}/listFiles?path=${btoa(node.id)}`;
             }
             return `${this._workspaceServiceURL}/list?path=${btoa(node.id)}`;

@@ -17,6 +17,8 @@ package org.ballerinalang.composer.service.workspace.local;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.ballerinalang.composer.service.workspace.Workspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +42,13 @@ import java.util.List;
 public class LocalFSWorkspace implements Workspace {
     
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
-    private static final String FILE_EXTENSION = ".bal";
     private static final String FOLDER_TYPE = "folder";
     private static final String CONTENT = "content";
 
     @Override
     public JsonArray listRoots() throws IOException {
         final Iterable<Path> rootDirs = FileSystems.getDefault().getRootDirectories();
-        List<Path> rootDirsList = new ArrayList<Path>();
+        List<Path> rootDirsList = new ArrayList<>();
         rootDirs.forEach(rootDirsList::add);
         return getJsonArrayForDirs(rootDirsList);
     }
@@ -190,8 +191,11 @@ public class LocalFSWorkspace implements Workspace {
         return rootObj;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public JsonArray listFilesInPath(String path) throws IOException {
+    public JsonArray listFilesInPath(String path, List<String> extensions) throws IOException {
         Path ioPath = Paths.get(path);
         JsonArray dirs = new JsonArray();
         Iterator<Path> iterator = Files.list(ioPath).iterator();
@@ -201,7 +205,8 @@ public class LocalFSWorkspace implements Workspace {
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 if (Files.isRegularFile(next)) {
                     Path fileName = next.getFileName();
-                    if (null != fileName && fileName.toString().endsWith(FILE_EXTENSION)) {
+                    SuffixFileFilter fileFilter = new SuffixFileFilter(extensions, IOCase.INSENSITIVE);
+                    if (null != fileName && fileFilter.accept(next.toFile())) {
                         dirs.add(jsnObj);
                     }
                 } else {

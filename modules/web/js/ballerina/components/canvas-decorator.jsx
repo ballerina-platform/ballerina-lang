@@ -114,7 +114,7 @@ class CanvasDecorator extends React.Component {
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg*/ }
                 </div>
-                { (this.props.annotations) ? this.props.annotations : null }
+                {(this.props.annotations && this.props.annotations.length > 0) ? this.props.annotations : null }
                 <svg className={canvasClassName} width={this.props.bBox.w} height={this.props.bBox.h}>
                     <rect
                         x="0"
@@ -141,7 +141,7 @@ CanvasDecorator.propTypes = {
     }).isRequired,
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(ASTNode).isRequired,
-    annotations: PropTypes.arrayOf(PropTypes.instanceOf(AnnotationContainer)),
+    annotations: PropTypes.arrayOf(PropTypes.element),
 };
 
 CanvasDecorator.defaultProps = {

@@ -19,8 +19,13 @@ import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
 import EventChannel from 'event_channel';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import * as YAML from 'js-yaml';
-import SwaggerParser from '../../swagger-parser/swagger-parser';
+import SwaggerParser from '../../../swagger-parser/swagger-parser';
+import ConflictModal from './components/conflict-modal';
+import ConflictMergeModal from './components/conflict-merge-modal';
+import SwaggerJsonVisitor from './../../visitors/swagger-json-gen/service-definition-visitor';
 
 const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
@@ -49,18 +54,18 @@ class SwaggerView extends EventChannel {
         this._container = _.get(args, 'container');
         this._swaggerEditorTheme = _.get(args, 'swaggerEditorTheme');
         this._swaggerEditorFontSize = _.get(args, 'swaggerEditorFontSize');
-        this._currentEditingServiceDefinition = undefined;
         this._manualUpdate = false;
         this._swaggerData = undefined;
         this._resourceMappings = new Map();
+        this._pasteTriggered = false;
     }
 
     /**
      * Set the content of swagger editor.
      * @param {Object[]} swaggerInfos - An object array which contains service definition ASTs and their swagger
      * definitions.
-     * @param {ServiceDefinition} swaggerInfos[].serviceDefinitionAST The Service definition.
-     * @param {Object} swaggerInfos[].swagger The JSON swagger definition.
+     * @param {ServiceDefinition} swaggerInfos.serviceDefinitionAST The Service definition.
+     * @param {Object} swaggerInfos.swagger The JSON swagger definition.
      */
     render(swaggerInfos) {
         this._swaggerData = swaggerInfos;
@@ -81,57 +86,7 @@ class SwaggerView extends EventChannel {
         this._swaggerAceEditor.setTheme(editorTheme);
         this._swaggerAceEditor.setFontSize(this._swaggerEditorFontSize);
 
-        // Remove dropdown wrapper if already exists.
-        $(this._container).find('div.swagger-service-selector-wrapper').remove();
-
-        // Creating the service selecting wrapper.
-        const swaggerServiceSelectorWrapper = $('<div/>', {
-            class: 'swagger-service-selector-wrapper',
-        }).prependTo(this._container);
-
-        $('<span/>', {
-            text: 'Select Service to Edit: ',
-            class: 'swagger-service-selector-span',
-        }).appendTo(swaggerServiceSelectorWrapper);
-
-        const swaggerServiceSelectorDropdownWrapper = $('<div/>', {
-            class: 'type-drop-wrapper',
-        }).appendTo(swaggerServiceSelectorWrapper);
-
-        let servicesDropDown = $($('<select/>').appendTo(swaggerServiceSelectorDropdownWrapper));
-        servicesDropDown = servicesDropDown.select2({
-            data: this.getServicesForDropdown(),
-        });
-
-        // Hiding top bar if there is only one service.
-        if (_.isEqual(_.size(this._swaggerData), 1)) {
-            swaggerServiceSelectorWrapper.hide();
-        }
-
-        // Event when an item is selected from the dropdown.
-        servicesDropDown.on('select2:select', (e) => {
-            const serviceDefinitionID = e.params.data.id;
-            _.forEach(this._swaggerData, (swaggerInfo) => {
-                if (_.isEqual(swaggerInfo.serviceDefinitionAST.getID(), serviceDefinitionID)) {
-                    this._manualUpdate = true;
-                    this._swaggerEditor.specActions.updateUrl('');
-                    this._swaggerEditor.specActions.updateLoadingStatus('success');
-                    this._swaggerEditor.specActions.updateSpec(JSON.stringify(swaggerInfo.swagger));
-                    this._swaggerEditor.specActions.formatIntoYaml();
-
-                    this._currentEditingServiceDefinition = swaggerInfo.serviceDefinitionAST;
-                    this._manualUpdate = false;
-                }
-            });
-        });
-
-        // Setting the default selected swagger
-        this._swaggerEditor.specActions.updateUrl('');
-        this._swaggerEditor.specActions.updateLoadingStatus('success');
-        this._swaggerEditor.specActions.updateSpec(JSON.stringify(this._swaggerData[0].swagger));
-        this._swaggerEditor.specActions.formatIntoYaml();
-
-        this._currentEditingServiceDefinition = this._swaggerData[0].serviceDefinitionAST;
+        this.updateSpecView(this._swaggerData.swagger);
 
         this._swaggerAceEditor.getSession().on('change', (e) => {
             // @todo - set a dirty state in the model. need to refactor.
@@ -139,23 +94,31 @@ class SwaggerView extends EventChannel {
 
             try {
                 if (this._manualUpdate === false) {
-                    // log.info(e);
-                    const serviceDefinition = this._currentEditingServiceDefinition;
+                    const serviceDefinition = this._swaggerData.serviceDefinitionAST;
                     if (_.isEqual(e.start.row, e.end.row)) {
                         this._updateResourceMappings(serviceDefinition, e);
                     }
 
                     // We keep updating the yaml for a service instead of merging to the service AST
-                    _.forEach(this._swaggerData, (swaggerDataEntry) => {
-                        if (_.isEqual(swaggerDataEntry.serviceDefinitionAST.getID(), serviceDefinition.getID())) {
-                            swaggerDataEntry.swagger = YAML.safeLoad(this._swaggerAceEditor.getValue());
-                            swaggerDataEntry.hasModified = true;
-                        }
-                    });
+                    if (_.isEqual(this._swaggerData.serviceDefinitionAST.getID(), serviceDefinition.getID())) {
+                        this._swaggerData.swagger = YAML.safeLoad(this._swaggerAceEditor.getValue());
+                    }
+
+                    // Pasting a content within replacing lines will trigger onChange twice, once with 'remove' action
+                    // and another with 'insert'. Hence we are updating the services only once and not on both events.
+                    if (!(this._pasteTriggered && e.action === 'remove')) {
+                        this._pasteTriggered = false;
+                        this.updateServices();
+                    }
                 }
             } catch (error) {
                 log.warn(error);
             }
+        });
+
+        // Keep tracking paste events to avoid triggering onChange twice.
+        this._swaggerAceEditor.on('paste', () => {
+            this._pasteTriggered = true;
         });
     }
 
@@ -165,31 +128,130 @@ class SwaggerView extends EventChannel {
     updateServices() {
         // we do not update the dom if swagger is not edited.
         if (this.swaggerDirty) {
-            _.forEach(this._swaggerData, (swaggerDataEntry) => {
-                if (swaggerDataEntry.hasModified) {
-                    const swaggerParser = new SwaggerParser(swaggerDataEntry.swagger, false);
-                    swaggerParser.mergeToService(swaggerDataEntry.serviceDefinitionAST);
+            setTimeout(() => {
+                if (!this.hasSwaggerErrors()) {
+                    const swaggerParser = new SwaggerParser(this._swaggerData.swagger, false);
+                    // Keep the original service defintion as ref.
+                    const originalServiceDef = this._swaggerData.serviceDefinitionAST;
+                    // Make a copy of the service definition.
+                    const updatedServiceDef = _.cloneDeep(this._swaggerData.serviceDefinitionAST);
+                    // Removing all resourceDefs so that the resources for the new swagger def are created.
+                    updatedServiceDef.getResourceDefinitions().forEach((resourceDef) => {
+                        updatedServiceDef.removeChild(resourceDef);
+                    });
+
+                    // Merging will allows to have resources that maps to the new swagger json.
+                    swaggerParser.mergeToService(updatedServiceDef);
+
+                    const missingOriginalResourceDefs = originalServiceDef.getResourceDefinitions().filter(
+                        (originalResourceDef) => {
+                            let isMissingResource = true;
+                            updatedServiceDef.getResourceDefinitions().forEach((updatedResourceDef) => {
+                                if (SwaggerView.isSameResource(originalResourceDef, updatedResourceDef)) {
+                                    isMissingResource = false;
+                                }
+                            });
+                            return isMissingResource;
+                        });
+
+                    if (missingOriginalResourceDefs.length > 0) {
+                        this.showMergeConflictModal({
+                            originalServiceDef,
+                            missingOriginalResourceDefs,
+                            swaggerParser,
+                        });
+                    } else {
+                        swaggerParser.mergeToService(originalServiceDef);
+                    }
                 }
-            });
+                // Wait till any errors come from the swagger editor as there is an inbuilt delay.
+            }, 2000);
         }
     }
 
     /**
-     * Gets the items for the service selection dropdown.
-     *
-     * @returns {Object} An array of objects for select2 dropdown.
-     *
+     * Shows the merge conflict modal.
+     * @param {Object} args Object needed for building the modals.
+     * @param {ServiceDefinition} args.originalServiceDef The original service definition which hasnt been updated.
+     * @param {ResourceDefinition[]} args.missingOriginalResourceDefs The missing resource defintions which could not be
+     *  mapped.
+     * @param {SwaggerParser} args.swaggerParser Swagger parser which has the new swagger json.
      * @memberof SwaggerView
      */
-    getServicesForDropdown() {
-        const dataArray = [];
-        _.forEach(this._swaggerData, (swaggerInfo) => {
-            dataArray.push({
-                id: swaggerInfo.serviceDefinitionAST.getID(),
-                text: swaggerInfo.serviceDefinitionAST.getServiceName(),
-            });
-        });
-        return dataArray;
+    showMergeConflictModal(args) {
+        const {
+            originalServiceDef,
+            missingOriginalResourceDefs,
+            swaggerParser,
+        } = args;
+
+        const modalContainerWrapperClass = 'swagger-modal-container';
+
+        const modelContainersToDelete = document.body.getElementsByClassName(modalContainerWrapperClass);
+        for (let i = 0; i < modelContainersToDelete.length; i++) {
+            document.body.removeChild(modelContainersToDelete[i]);
+        }
+
+        const conflictModalPopUpWrapper = document.createElement('div');
+        conflictModalPopUpWrapper.className = modalContainerWrapperClass;
+        document.body.appendChild(conflictModalPopUpWrapper);
+
+        const moreOptionsFunc = () => {
+            ReactDOM.unmountComponentAtNode(conflictModalPopUpWrapper);
+            args.swaggerView = this;
+            const conflictMergeModal = React.createElement(ConflictMergeModal, args, null);
+            ReactDOM.render(conflictMergeModal, conflictModalPopUpWrapper);
+        };
+
+        const keepResourcesFunc = () => {
+            swaggerParser.mergeToService(originalServiceDef);
+            const swaggerJsonVisitor = new SwaggerJsonVisitor();
+            originalServiceDef.accept(swaggerJsonVisitor);
+            this._swaggerData.swagger = swaggerJsonVisitor.getSwaggerJson();
+            this.updateSpecView(this._swaggerData.swagger);
+        };
+
+        const conflictModal = React.createElement(ConflictModal, {
+            missingOriginalResourceDefs,
+            originalServiceDef,
+            moreOptionsFunc,
+            keepResourcesFunc,
+            swaggerParser,
+        }, null);
+
+        ReactDOM.render(conflictModal, conflictModalPopUpWrapper);
+    }
+
+    /**
+     * Checks whether it is the same resource using a combination of http method and path value.
+     *
+     * @static
+     * @param {ResourceDefinition} resourceDef The resource definition.
+     * @param {ResourceDefinition} resourceDefToCompare The resource definition to compare with.
+     * @returns {boolean} true if same resource, else false.
+     * @memberof SwaggerView
+     */
+    static isSameResource(resourceDef, resourceDefToCompare) {
+        const matchingHttpMethod = resourceDef.getHttpMethodAnnotation() &&
+                                                        resourceDef.getHttpMethodAnnotation().getIdentifier() ===
+                                                        resourceDefToCompare.getHttpMethodAnnotation().getIdentifier();
+        const matchingPath = resourceDef.getPathAnnotation() &&
+                                            resourceDef.getPathAnnotation().getChildren()[0].getRightValue() ===
+                                            resourceDefToCompare.getPathAnnotation().getChildren()[0].getRightValue();
+        return matchingHttpMethod && matchingPath;
+    }
+
+    /**
+     * Updates the swagger spec
+     *
+     * @param {Object} swagger Swagger JSON.
+     * @memberof SwaggerView
+     */
+    updateSpecView(swagger) {
+        this._swaggerEditor.specActions.updateUrl('');
+        this._swaggerEditor.specActions.updateLoadingStatus('success');
+        this._swaggerEditor.specActions.updateSpec(JSON.stringify(swagger));
+        this._swaggerEditor.specActions.formatIntoYaml();
     }
 
     /**
@@ -201,14 +263,30 @@ class SwaggerView extends EventChannel {
         this._generatedNodeTree = root;
     }
 
+    /**
+     * Shows the swagger container.
+     *
+     * @memberof SwaggerView
+     */
     show() {
         $(this._container).show();
     }
 
+    /**
+     * Hides the swagger container.
+     *
+     * @memberof SwaggerView
+     */
     hide() {
         $(this._container).hide();
     }
 
+    /**
+     * Check if the swagger view shown.
+     *
+     * @returns {boolean} True if shown, else false.
+     * @memberof SwaggerView
+     */
     isVisible() {
         return $(this._container).is(':visible');
     }
@@ -218,6 +296,7 @@ class SwaggerView extends EventChannel {
      *
      * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions.
      * @param {Object} editorEvent The ace onChange event.
+     * @return {boolean} True if value is updated, else false.
      *
      * @memberof SwaggerView
      */
@@ -233,19 +312,28 @@ class SwaggerView extends EventChannel {
                 (this._resourceMappings.has(editorEvent.start.row) &&
                     this._resourceMappings.get(editorEvent.start.row).type === 'operationId')) {
                 this._updateOperationID(astPath, serviceDefinition, editorEvent);
+                return true;
             } else if (_.size(astPath) === 1 && _.isEqual(astPath[0], 'paths')) {
                 this._updatePath(astPath, serviceDefinition, editorEvent);
+                return true;
             } else if (_.size(astPath) === 2) {
                 this._updateHttpMethod(astPath, serviceDefinition, editorEvent);
+                return true;
             }
+            return false;
         } else if (_.isNull(astPath) && this._resourceMappings.has(editorEvent.start.row)) {
             const mapping = this._resourceMappings.get(editorEvent.start.row);
             if (_.isEqual(mapping.type, 'path') && !_.isUndefined(mapping.ast)) {
                 mapping.ast.getChildren()[0].setRightValue('""', { doSilently: true });
+                return true;
             } else if (_.isEqual(mapping.type, 'method') && !_.isUndefined(mapping.ast)) {
                 mapping.ast.setIdentifier('', { doSilently: true });
+                return true;
             }
+            return false;
         }
+
+        return false;
     }
 
     /**
@@ -446,9 +534,22 @@ class SwaggerView extends EventChannel {
 
     /**
      * Returns the number of errors in the editor.
+     *
+     * @returns {boolean} True if errors exists, else false.
+     * @memberof SwaggerView
      */
     hasSwaggerErrors() {
         return _.size(this._swaggerAceEditor.getSession().getAnnotations());
+    }
+
+    /**
+     * Gets teh swagger data for this view.
+     *
+     * @returns {Object} Swagger data.
+     * @memberof SwaggerView
+     */
+    getSwaggerData() {
+        return this._swaggerData;
     }
 }
 
