@@ -265,6 +265,7 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionConnectorName: connector.getName(),
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName(),
+                    actionDefinition: action,
                 };
                 action.icon = this.icons.action;
 
@@ -401,6 +402,7 @@ class ToolPaletteItemProvider extends EventChannel {
                     actionConnectorName: connector.getName(),
                     actionPackageName: packageName,
                     fullPackageName: pckg.getName(),
+                    actionDefinition: action,
                 };
                 action.icon = this.icons.action;
 
@@ -491,8 +493,8 @@ class ToolPaletteItemProvider extends EventChannel {
                     action: action.getName(),
                     actionConnectorName: connector.getName(),
                     actionPackageName: packageName,
-                    
                     fullPackageName: pckg.getName(),
+                    actionDefinition: action,
                 };
                 action.icon = this.icons.action;
                 action.cssClass = 'icon fw fw-dgm-action';
