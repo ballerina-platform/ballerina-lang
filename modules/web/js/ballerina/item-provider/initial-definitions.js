@@ -185,7 +185,7 @@ const createReplyStatementTool = {
     name: 'Reply',
     cssClass: 'icon fw fw-reply',
     title: 'Reply',
-    nodeFactoryMethod: BallerinaASTFactory.createReplyStatement,
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createReplyStatement,
 };
 
 const createReturnStatementTool = {
