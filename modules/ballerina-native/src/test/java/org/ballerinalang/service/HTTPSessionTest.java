@@ -24,6 +24,7 @@ import org.ballerinalang.testutils.MessageUtils;
 import org.ballerinalang.testutils.Services;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -139,6 +140,29 @@ public class HTTPSessionTest {
         Assert.assertEquals(stringDataSource.getValue(), "2");
     }
 
+    @Test(description = "Test for path limitation per service")
+    public void testCheckPathValidityPerService() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "arraysize:2");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "4");
+    }
+
     @Test(description = "Test for path limitation")
     public void testCheckPathValidity() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo", "GET");
@@ -159,9 +183,35 @@ public class HTTPSessionTest {
 
         stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        String error = stringDataSource.getValue().substring(0, 69);
-        Assert.assertEquals(error, "ballerina.lang.errors:Error, message: /sample2 is not an allowed path");
-        }
+        String error = stringDataSource.getValue().substring(0, 92);
+        Assert.assertEquals(error, "ballerina.lang.errors:Error, message: failed to get session: " +
+                "/sample2 is not an allowed path");
+    }
+
+    @Test(description = "Test for path limitation with getSessionParam")
+    public void testCheckPathValiditygetSessionParam() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo2", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "1");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        String error = stringDataSource.getValue().substring(0, 92);
+        Assert.assertEquals(error, "ballerina.lang.errors:Error, message: failed to get session: " +
+                "/sample2 is not an allowed path");
+    }
 
     @Test(description = "Test for incorrect Cookie")
     public void testCounterFunctionalityIncorrectCookie() {
@@ -263,5 +313,78 @@ public class HTTPSessionTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "arraysize:2");
+    }
+
+    @Test(description = "Test for array elements get from getAttributeNames function")
+    public void testGetAttributeNamesFunctionArrayelements() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names2", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "Counter");
+    }
+
+    @Test(description = "Test for null attributes from getAttributeNames function")
+    public void testNullGetAttributeNamesFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names5", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "0");
+    }
+
+    @Test(description = "Test for removeAttribute function")
+    public void testRemoveAttributeFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names3", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "3");
+    }
+
+    @Test(description = "Test for removeAttribute function for unavailable attributes")
+    public void testRemoveAttributeFunctionForUnavailableAttribute() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names6", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "1");
+    }
+
+    @Test(description = "Test for invalidate function")
+    public void testInvalidateFunction() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/names4", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        String error = stringDataSource.getValue().substring(38, 96);
+        Assert.assertEquals(error, "failed to get attribute names: No such session in progress");
+    }
+
+    @Test(description = "Test for null session with getsessionparam")
+    public void testNullSessionWithGetSessionParam() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test5", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        String error = stringDataSource.getValue().substring(0, 56);
+        Assert.assertEquals(error, "ballerina.lang.errors:Error, message: argument 0 is null");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        EnvironmentInitializer.cleanup(programFile);
     }
 }

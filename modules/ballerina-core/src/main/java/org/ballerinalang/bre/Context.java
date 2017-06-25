@@ -164,7 +164,10 @@ public class Context {
     }
 
     public Session getCurrentSession() {
-        return currentSession;
+        if (currentSession != null && currentSession.isValid()) {
+            return currentSession;
+        }
+        return null;
     }
 
     public void setCurrentSession(Session currentSession) {

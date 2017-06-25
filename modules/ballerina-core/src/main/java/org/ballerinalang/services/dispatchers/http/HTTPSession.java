@@ -17,16 +17,12 @@
  */
 
 package org.ballerinalang.services.dispatchers.http;
-
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.services.dispatchers.session.SessionManager;
-
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import static org.ballerinalang.services.dispatchers.http.Constants.PATH;
 import static org.ballerinalang.services.dispatchers.http.Constants.RESPONSE_COOKIE_HEADER;
 import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
@@ -72,11 +68,24 @@ public class HTTPSession implements Session {
     }
 
     @Override
-    public Set<String> getAttributeNames() {
+    public String[] getAttributeNames() {
         checkValidity();
-        return attributeMap.keySet();
+        return attributeMap.keySet().toArray(new String[attributeMap.size()]);
     }
 
+
+    @Override
+    public Session setNew(boolean isNew) {
+        this.isNew = isNew;
+        return this;
+    }
+
+    @Override
+    public String getPath() {
+        return sessionPath;
+    }
+
+    @Override
     public void removeAttribute(String name) {
         checkValidity();
         attributeMap.remove(name);
@@ -97,10 +106,7 @@ public class HTTPSession implements Session {
         sessionManager.invalidateSession(this);
         attributeMap.clear();
         isValid = false;
-    }
 
-    public void setManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -108,12 +114,6 @@ public class HTTPSession implements Session {
         checkValidity();
         lastAccessedTime = System.currentTimeMillis();
         return this;
-    }
-
-    private void checkValidity() {
-        if (!isValid) {
-            throw new IllegalStateException("Session is invalid");
-        }
     }
 
     @Override
@@ -131,19 +131,18 @@ public class HTTPSession implements Session {
         //set other headers (path)
     }
 
+    public void setManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
+    private void checkValidity() {
+        if (!isValid) {
+            throw new IllegalStateException("Failed to execute action: Session is invalid");
+        }
+    }
+
     public boolean isNew() {
         return this.isNew;
     }
 
-    @Override
-    public Session setNew(boolean isNew) {
-        this.isNew = isNew;
-        return this;
-    }
-
-
-    @Override
-    public String getPath() {
-        return sessionPath;
-    }
 }

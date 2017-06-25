@@ -55,7 +55,6 @@ public class GetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String attributeKey = getStringArgument(context, 0);
             String sessionId = sessionStruct.getStringField(0);
@@ -65,22 +64,16 @@ public class GetAttribute extends AbstractNativeFunction {
             if (session != null && (sessionId.equals(session.getId()))) {
                 return getBValues(session.getAttributeValue(attributeKey));
             } else {
-                if (sessionId != null) {
-                    session = context.getSessionManager().getHTTPSession(sessionId);
-                    if (session != null) {
-                        return getBValues(session.getAttributeValue(attributeKey));
-                    } else {
-                        //no session available bcz of the time out
-                        throw new IllegalStateException("Session timeout");
-                    }
+                session = context.getSessionManager().getHTTPSession(sessionId);
+                if (session != null) {
+                    return getBValues(session.getAttributeValue(attributeKey));
                 } else {
-                    //no session available for particular cookie
-                    throw new IllegalStateException("No session available");
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Failed to get attribute: No such session in progress");
                 }
             }
-
         } catch (IllegalStateException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 }

@@ -68,7 +68,7 @@ public class GetSession extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        CarbonMessage carbonMessage = null;
+        CarbonMessage carbonMessage;
         try {
             carbonMessage = ((BMessage) getRefArgument(context, 0)).value();
             String cookieHeader = carbonMessage.getHeader(COOKIE_HEADER);
@@ -79,7 +79,6 @@ public class GetSession extends AbstractNativeFunction {
                 session = session.setAccessed();
                 return new BValue[]{createSessionStruct(context, session)};
             }
-
             if (cookieHeader != null) {
                 try {
                     session = Arrays.stream(cookieHeader.split(";"))
@@ -89,29 +88,28 @@ public class GetSession extends AbstractNativeFunction {
                                     .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
                 } catch (NoSuchElementException e) {
                     //ignore throwable
-                    logger.info("Session not available in SessionManager");
+                    logger.info("Failed to get session: Session not available");
                 }
                 if (session != null) {
                     //path Validity check
                     if (session.getPath().equals(path)) {
                         session.setNew(false);
                     } else {
-                        throw new BallerinaException(path + " is not an allowed path");
+                        throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                     }
                 } else {
                     session = context.getSessionManager().createHTTPSession(path);
                 }
             } else {
-                //create session since a request without cookie
+                //create session since  request doesn't have a cookie
                 session = context.getSessionManager().createHTTPSession(path);
             }
-
             context.setCurrentSession(session);
             carbonMessage.removeHeader(COOKIE_HEADER);
             return new BValue[]{createSessionStruct(context, session)};
 
         } catch (IllegalStateException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 

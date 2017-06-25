@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.net.httpsession;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.Set;
 
 /**
  * Native function to get session attribute keys.
@@ -42,7 +41,7 @@ import java.util.Set;
         functionName = "getAttributeNames",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
                 structPackage = "ballerina.net.httpsession")},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY)},
+        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
@@ -60,34 +59,18 @@ public class GetAttributeNames extends AbstractNativeFunction {
             Session session = context.getCurrentSession();
 
             if (session != null && (sessionId.equals(session.getId()))) {
-                return createBvalueArray(session.getAttributeNames());
+                return getBValues(new BStringArray(session.getAttributeNames()));
             } else {
-                if (sessionId != null) {
-                    session = context.getSessionManager().getHTTPSession(sessionId);
-                    if (session != null) {
-                        return createBvalueArray(session.getAttributeNames());
-                    } else {
-                        //no session available bcz of the time out
-                        throw new IllegalStateException("Session timeout");
-                    }
+                session = context.getSessionManager().getHTTPSession(sessionId);
+                if (session != null) {
+                    return getBValues(new BStringArray(session.getAttributeNames()));
                 } else {
-                    //no session available for particular cookie
-                    throw new IllegalStateException("No session available");
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Failed to get attribute names: No such session in progress");
                 }
-
             }
-
         } catch (IllegalStateException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         }
-    }
-
-    private BValue[] createBvalueArray(Set<String> attributeNames) {
-        BValue[] arr = new BValue[attributeNames.size()];
-        int i = 0;
-        for (String name : attributeNames) {
-            arr[i++] = new BString(name);
-        }
-        return arr;
     }
 }

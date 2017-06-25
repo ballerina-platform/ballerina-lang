@@ -65,6 +65,17 @@ service sample {
         reply m;
     }
 
+    @http:GET{}
+    @http:Path{value:"/test5"}
+    resource echo5 (message m) {
+
+        string result = "chamil";
+        httpsession:Session session = httpsession:getSessionWithParam(m, false );
+        any attribute = httpsession:getAttribute(session,"name");
+        messages:setStringPayload(m, result);
+        reply m;
+    }
+
     @http:POST{}
     @http:Path{value:"/hello"}
     resource hello (message m) {
@@ -77,7 +88,6 @@ service sample {
         } else {
             httpsession:setAttribute(session, "name", result);
         }
-
         messages:setStringPayload(m, result);
         reply m;
     }
@@ -91,6 +101,23 @@ service counter {
 
         int sessionCounter;
         httpsession:Session ses = httpsession:getSession(m);
+        if(httpsession:getAttribute(ses,"Counter") == null) {
+            sessionCounter = 0;
+        } else {
+            sessionCounter = (int) httpsession:getAttribute(ses,"Counter");
+        }
+        sessionCounter = sessionCounter+1;
+        httpsession:setAttribute(ses, "Counter", sessionCounter);
+        messages:setStringPayload(m, sessionCounter);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/echo2"}
+    resource echoCount2 (message m) {
+
+        int sessionCounter;
+        httpsession:Session ses = httpsession:getSessionWithParam(m, true);
         if(httpsession:getAttribute(ses,"Counter") == null) {
             sessionCounter = 0;
         } else {
@@ -129,7 +156,6 @@ service sample2 {
         } else {
             httpsession:setAttribute(Session, "nameStruct", d);
         }
-
         messages:setStringPayload(m, d.name);
         reply m;
     }
@@ -138,22 +164,81 @@ service sample2 {
     @http:Path{value:"/names"}
     resource keyNames (message m) {
 
-        int sessionCounter;
-        int arrsize = 0;
         httpsession:Session ses = httpsession:getSession(m);
-        if(httpsession:getAttribute(ses,"Counter") == null) {
-            sessionCounter = 0;
-        } else {
-            sessionCounter = (int) httpsession:getAttribute(ses,"Counter");
-        }
-        sessionCounter = sessionCounter+1;
-        httpsession:setAttribute(ses, "Counter", sessionCounter);
-        httpsession:setAttribute(ses, "Name", "myname");
+        httpsession:setAttribute(ses, "Counter", "1");
+        httpsession:setAttribute(ses, "Name", "chamil");
         string[] arr = httpsession:getAttributeNames(ses);
-        //arrsize = arr.length();
-
-        messages:setStringPayload(m, "arraysize:"+arrsize);
+        int arrsize = arr.length;
+        messages:setStringPayload(m, "arraysize:" + arrsize);
         reply m;
-
     }
+
+    @http:GET{}
+    @http:Path{value:"/names2"}
+    resource keyNames2 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:setAttribute(ses, "Counter", "1");
+        httpsession:setAttribute(ses, "location", "colombo");
+        string[] arr = httpsession:getAttributeNames(ses);
+        messages:setStringPayload(m, arr[0]);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/names3"}
+    resource keyNames3 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:setAttribute(ses, "location", "colombo");
+        httpsession:setAttribute(ses, "channel", "yue");
+        httpsession:setAttribute(ses, "month", "june");
+        httpsession:setAttribute(ses, "Name", "chamil");
+        httpsession:removeAttribute(ses, "Name");
+        string[] arr = httpsession:getAttributeNames(ses);
+        int arrsize = arr.length;
+        messages:setStringPayload(m, arrsize);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/names4"}
+    resource keyNames4 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:setAttribute(ses, "Counter", "1");
+        httpsession:setAttribute(ses, "Name", "chamil");
+        httpsession:removeAttribute(ses, "Name");
+        httpsession:invalidate(ses);
+        string[] arr = httpsession:getAttributeNames(ses);
+        int arrsize = arr.length;
+        messages:setStringPayload(m, arrsize);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/names5"}
+    resource keyNames5 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        string[] arr = httpsession:getAttributeNames(ses);
+        int arrsize = arr.length;
+        messages:setStringPayload(m, arrsize);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/names6"}
+    resource keyNames6 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:setAttribute(ses, "location", "colombo");
+        httpsession:removeAttribute(ses, "Name");
+        string[] arr = httpsession:getAttributeNames(ses);
+        int arrsize = arr.length;
+        messages:setStringPayload(m, arrsize);
+        reply m;
+    }
+
+
 }

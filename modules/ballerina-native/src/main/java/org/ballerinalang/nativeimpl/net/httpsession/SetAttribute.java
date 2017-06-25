@@ -56,41 +56,32 @@ public class SetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) throws IllegalFormatException {
         try {
-
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String attributeKey = getStringArgument(context, 0);
             BValue attributeValue = getRefArgument(context, 1);
-
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
 
             if (attributeKey == null || attributeValue == null) {
-                throw new NullPointerException("Attribute key: "
+                throw new NullPointerException("Failed to set attribute: Attribute key: "
                         + attributeKey + "Attribute Value: " + attributeValue);
             }
-
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
                 session.setAttribute(attributeKey, attributeValue);
             } else {
-                if (sessionId != null) {
-                    session = context.getSessionManager().getHTTPSession(sessionId);
-                    if (session != null) {
-                        session.setAttribute(attributeKey, attributeValue);
-                    } else {
-                        //no session available bcz of the time out
-                        throw new IllegalStateException("Session timeout");
-                    }
+                session = context.getSessionManager().getHTTPSession(sessionId);
+                if (session != null) {
+                    session.setAttribute(attributeKey, attributeValue);
                 } else {
-                    //no session available for particular cookie
-                    throw new IllegalStateException("No session available");
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Failed to set attribute: No such session in progress");
                 }
             }
-
         } catch (IllegalStateException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         } catch (NullPointerException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         }
         return VOID_RETURN;
     }

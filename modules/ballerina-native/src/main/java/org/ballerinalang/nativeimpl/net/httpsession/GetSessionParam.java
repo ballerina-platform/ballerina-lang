@@ -77,7 +77,6 @@ public class GetSessionParam extends AbstractNativeFunction {
                 session = session.setAccessed();
                 return new BValue[]{GetSession.createSessionStruct(context, session)};
             }
-
             if (cookieHeader != null) {
                 try {
                     session = Arrays.stream(cookieHeader.split(";"))
@@ -87,17 +86,25 @@ public class GetSessionParam extends AbstractNativeFunction {
                                     .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
                 } catch (NoSuchElementException e) {
                     //ignore throwable
-                    logger.info("Session not available in SessionManager");
+                    logger.info("Failed to get session: Session not available");
                 }
                 if (session != null) {
-                    session.setNew(false);
+                    //path Validity check
+                    if (session.getPath().equals(path)) {
+                        session.setNew(false);
+                        session.setAccessed();
+                    } else {
+                        throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
+                    }
                 } else {
                     if (create) {
-                        context.getSessionManager().createHTTPSession(path);
+                        session = context.getSessionManager().createHTTPSession(path);
+                    } else {
+                        //Return null if create is false.
+                        logger.info("Session is not created");
+                        return new BValue[]{};
                     }
-                    return new BValue[]{};
                 }
-                session.setAccessed();
             } else if (create) {
                 session = context.getSessionManager().createHTTPSession(path);
             }
@@ -107,9 +114,10 @@ public class GetSessionParam extends AbstractNativeFunction {
                 return new BValue[]{GetSession.createSessionStruct(context, session)};
             }
             return new BValue[]{};
-
         } catch (NullPointerException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
+        } catch (IllegalStateException e) {
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 }

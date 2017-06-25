@@ -48,7 +48,6 @@ public class Invalidate extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
@@ -56,22 +55,18 @@ public class Invalidate extends AbstractNativeFunction {
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
                 session.invalidate();
+                context.setCurrentSession(null);
             } else {
-                if (sessionId != null) {
-                    session = context.getSessionManager().getHTTPSession(sessionId);
-                    if (session != null) {
-                        session.invalidate();
-                    } else {
-                        //no session available bcz of the time out
-                        throw new IllegalStateException("Session timeout");
-                    }
+                session = context.getSessionManager().getHTTPSession(sessionId);
+                if (session != null) {
+                    session.invalidate();
                 } else {
-                    //no session available for particular cookie
-                    throw new IllegalStateException("No session available");
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Failed to invalidate session: No such session in progress");
                 }
             }
         } catch (IllegalStateException e) {
-            throw new BallerinaException(e);
+            throw new BallerinaException(e.getMessage(), e);
         }
         return new BValue[0];
     }

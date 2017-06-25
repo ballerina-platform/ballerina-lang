@@ -62,7 +62,6 @@ public class SessionManager {
 
     public static void init() {
         sessionIdGenerator.setSessionIdLength(SESSION_ID_LENGTH);
-
         // Session expiry scheduled task
         sessionExpiryChecker = Executors.newScheduledThreadPool(1);
         sessionExpiryChecker.scheduleAtFixedRate(() ->
@@ -84,7 +83,7 @@ public class SessionManager {
 
     public Session createHTTPSession(String path) {
         if (sessionMap.size() >= DEFAULT_MAX_ACTIVE_SESSIONS) {
-            throw new IllegalStateException("Too many active sessions");
+            throw new IllegalStateException("Failed to create session: Too many active sessions");
         }
         HTTPSession session = new HTTPSession(sessionIdGenerator.generateSessionId(""),
                 DEFAULT_MAX_INACTIVE_INTERVAL, path);
