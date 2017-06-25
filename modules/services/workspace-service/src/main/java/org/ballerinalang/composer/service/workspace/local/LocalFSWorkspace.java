@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,10 +41,11 @@ import java.util.List;
  * Workspace implementation for local file system.
  */
 public class LocalFSWorkspace implements Workspace {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FOLDER_TYPE = "folder";
     private static final String CONTENT = "content";
+    private static final String BAL_EXT = ".bal";
 
     @Override
     public JsonArray listRoots() throws IOException {
@@ -59,15 +61,7 @@ public class LocalFSWorkspace implements Workspace {
             JsonObject rootObj = getJsonObjForFile(root, false);
             try {
                 if (Files.isDirectory(root) && Files.list(root).count() > 0) {
-                    JsonArray children = new JsonArray();
-                    Iterator<Path> rootItr = Files.list(root).iterator();
-                    while (rootItr.hasNext()) {
-                        Path next = rootItr.next();
-                        if (Files.isDirectory(next) && !Files.isHidden(next)) {
-                            JsonObject childObj = getJsonObjForFile(next, true);
-                            children.add(childObj);
-                        }
-                    }
+                    JsonArray children = listFilesInPath(root.toFile().getAbsolutePath(), Arrays.asList(BAL_EXT));
                     rootObj.add("children", children);
                 }
             } catch (IOException e) {
