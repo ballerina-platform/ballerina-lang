@@ -37,58 +37,66 @@ class Tools extends EventChannel {
         super();
         this.compiled = _.template(
             `<% if (!active) { %>
-              <div class="debug-panel-header">
-                   <span class="tool-group-header-title">Debug</span>
-              </div>
-              <div class="btn-group col-xs-12">
-                <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12"
-                  id="debug_application"
-                  title="Start Debugging Application">
-                 <span class="launch-label">Application</span>
-                 <button type="button" class="btn btn-default pull-right btn-config" title="Config">
-                    <i class="fw fw-configarations"></i>
-                  </button>
+                <div class="debug-panel-header">
+                    <span class="tool-group-header-title">Debug</span>
                 </div>
-                <button type="button"
-                  class="btn btn-default text-left btn-debug-activate col-xs-12"
-                  id="debug_service" title="Start Debugging Service">
-                  Service
-                </button>
-                 <button type="button"
-                    class="btn btn-default text-left btn-debug-activate col-xs-12"
-                    id="remote_debug" title="Start Debugging Remotely">
-                    Debug Remotely
-                 </button>
-              </div>
-              <% } %>
-              <% if (active) { %>
-              <div class="debug-panel-header">
-                <span class="tool-group-header-title">Debugger Active</span></span>
-              </div>
-              <div class="">
-              <button type="button"
-                class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )">
-                <i class="fw fw-stop" />
-              </button>
-              <button type="button"
-                class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
-                data-action="Resume"  title="Resume ( Alt + R )">
-                <i class="fw fw-start " />
-              </button>
-              <button type="button"
-                class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
-                data-action="StepOver"  title="Step Over ( Alt + O )">
-                <i class="fw fw-stepover " />
-              </button>
-              <button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
-                data-action="StepIn"  title="Step In ( Alt + I )">
-                <i class="fw fw-stepin " />
-              </button>
-              <button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>"
-                data-action="StepOut"  title="Step Out ( Alt + U )">
-                <i class="fw fw-stepout " />
-              </button>
-              </div><% } %>`);
+                <div class="btn-group col-xs-12">
+                    <div type="button" 
+                        class="btn btn-default text-left btn-debug-activate col-xs-12"
+                        id="debug_application"
+                        title="Start Debugging Application">
+                        <span class="launch-label">Application</span>
+                            <button type="button" class="btn btn-default pull-right btn-config" title="Config">
+                                <i class="fw fw-configarations"></i>
+                            </button>
+                    </div>
+                    <button type="button"
+                        class="btn btn-default text-left btn-debug-activate col-xs-12"
+                        id="debug_service" 
+                        title="Start Debugging Service">
+                        Service
+                    </button>
+                    <button type="button"
+                        class="btn btn-default text-left btn-debug-activate col-xs-12"
+                        id="remote_debug" title="Start Debugging Remotely">
+                        Debug Remotely
+                    </button>
+                </div>
+            <% } %>
+            <% if (active) { %>
+                <div class="debug-panel-header">
+                    <span class="tool-group-header-title">Debugger Active</span></span>
+                </div>
+                <div>
+                    <button type="button"
+                        class="btn btn-default btn-debug-action pull-left"
+                        data-action="Stop"  
+                        title="Stop Debug ( Alt + P )"
+                    >
+                        <i class="fw fw-stop" />
+                    </button>
+                    <button type="button"
+                        class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                        data-action="Resume"  title="Resume ( Alt + R )">
+                        <i class="fw fw-start " />
+                    </button>
+                    <button type="button"
+                        class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                        data-action="StepOver"  title="Step Over ( Alt + O )">
+                        <i class="fw fw-stepover " />
+                    </button>
+                    <button type="button" class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                        data-action="StepIn"  title="Step In ( Alt + I )">
+                        <i class="fw fw-stepin " />
+                    </button>
+                    <button type="button" class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                        data-action="StepOut"  title="Step Out ( Alt + U )">
+                        <i class="fw fw-stepout " />
+                    </button>
+                    <div class="clearfix">
+                </div>
+            <% } %>
+              `);
 
         this.connectionDialog = $('#modalDebugConnection');
         this.appArgsDialog = $('#modalRunApplicationWithArgs');

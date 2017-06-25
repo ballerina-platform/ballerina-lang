@@ -86,7 +86,10 @@
 .btn-debug-action{
     width: 20% !important;
     padding:11px !important;
-    float: left;
+}
+
+.debugger-container .jstree-default .jstree-clicked{
+    background: #211919;
 }
 
 .sidebar-left .btn-debug-action:hover ,
