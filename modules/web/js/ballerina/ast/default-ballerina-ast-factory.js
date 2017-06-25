@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import _ from 'lodash';
 import BallerinaASTFactory from './ballerina-ast-factory';
 import FragmentUtils from '../utils/fragment-utils';
@@ -41,10 +40,22 @@ DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
 };
 
 /**
- * create Fork Join
+ * Create the default reply statement.
+ * @param args
+ * @returns {ReplyStatement}
+ */
+DefaultBallerinaASTFactory.createReplyStatement = function (args) {
+    const replyStatement = BallerinaASTFactory.createReplyStatement(args);
+    replyStatement.setReplyMessage('m');
+    replyStatement.accept(new EnableDefaultWSVisitor());
+    return replyStatement;
+};
+
+/**
+ *  * create Fork Join
  * @param {object} args - argument to be passed in to factory methods.
  * @return {ASTNode} forkJoinStatement
- * */
+ */
 DefaultBallerinaASTFactory.createForkJoinStatement = function (args) {
     const forkJoinStatement = BallerinaASTFactory.createForkJoinStatement(args);
     const joinStatement = BallerinaASTFactory.createJoinStatement();
@@ -83,6 +94,9 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const argumentParameterDefinitionHolder = BallerinaASTFactory.createArgumentParameterDefinitionHolder();
     argumentParameterDefinitionHolder.addChild(parameterDef);
     resourceDef.addChild(argumentParameterDefinitionHolder);
+
+    const replyStatement = DefaultBallerinaASTFactory.createReplyStatement(args);
+    resourceDef.addChild(replyStatement);
 
     const responsesAnnotation = BallerinaASTFactory.createAnnotation({
         fullPackageName: 'ballerina.net.http.swagger',
