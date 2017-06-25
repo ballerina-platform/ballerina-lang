@@ -19,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.composer.service.workspace.Workspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.DosFileAttributes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Arrays;
@@ -195,7 +197,9 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()) {
             Path next = iterator.next();
-            if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next)) {
+            if ((Files.isDirectory(next) || Files.isRegularFile(next))
+                    && !Files.isHidden(next)
+                    && !isWindowsSystemFile(next)) {
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 if (Files.isRegularFile(next)) {
                     Path fileName = next.getFileName();
@@ -211,7 +215,7 @@ public class LocalFSWorkspace implements Workspace {
         }
         return dirs;
     }
-    
+
     @Override
     public JsonObject exists(String path) throws IOException {
         Path ioPath = Paths.get(path);
@@ -220,5 +224,13 @@ public class LocalFSWorkspace implements Workspace {
         result.addProperty("file", path);
         result.addProperty("exists", exists);
         return result;
+    }
+
+    private boolean isWindowsSystemFile(Path filePath) throws IOException {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            DosFileAttributes dosAttribs = Files.readAttributes(filePath, DosFileAttributes.class);
+            return dosAttribs.isSystem();
+        }
+        return false;
     }
 }
