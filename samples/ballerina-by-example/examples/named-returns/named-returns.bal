@@ -14,7 +14,7 @@ function defaultValues () (int a, float b, boolean c, string d) {
 }
 
 @doc:Description {value:"When named returns are present, it is possible to simply use 'return' without explicitly naming them."}
-@doc:Description {value:"However, it is not possible to have a mix of named return and normal returns [i.e: (int x, int)]"}
+@doc:Description {value:"However, it is not possible to have a mix of named return and normal returns [i.e: (int x, int)]."}
 function optionalReturnStmt () (int x, int y) {
     x = 8;
     y = 13;

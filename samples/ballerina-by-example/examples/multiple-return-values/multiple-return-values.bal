@@ -20,7 +20,7 @@ function main (string[] args) {
     a, b = getInts();
     system:println(a + " " + b);
 
-    // If a particular value returned is not needed, it can be ignored by using '_'
+    // If a particular value returned is not needed, it can be ignored by using '_'.
     a, _, c = newVals();
     system:println(a + " " + b + " " + c);
 }
