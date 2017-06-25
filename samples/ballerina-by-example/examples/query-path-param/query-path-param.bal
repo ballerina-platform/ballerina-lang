@@ -6,7 +6,7 @@ service sample {
 
     @http:GET {}
     @http:Path {value:"/path/{foo}"}
-    @doc:description{value : "PathParam and QueryParam extract values from the request URI."}
+    @doc:description{value : "PathParam and QueryParam extract values from the request URI"}
     resource params (message m, @http:PathParam {value:"foo"} string foo1, @http:QueryParam {value:"bar"} string bar1) {
         // Create a response message
         message response = {};
