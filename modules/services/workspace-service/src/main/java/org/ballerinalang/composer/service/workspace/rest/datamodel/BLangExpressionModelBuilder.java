@@ -79,6 +79,7 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -94,6 +95,7 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BTypes;
+
 import java.util.Stack;
 
 
@@ -270,6 +272,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(BreakStmt breakStmt) {
         
+    }
+
+    @Override
+    public void visit(ContinueStmt continueStmt) {
+
     }
     
     @Override
