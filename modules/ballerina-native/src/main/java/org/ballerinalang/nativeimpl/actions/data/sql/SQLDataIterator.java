@@ -25,6 +25,7 @@ import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -150,6 +151,9 @@ public class SQLDataIterator implements DataIterator {
         try {
             switch (type) {
             case Types.BLOB:
+            case Types.BINARY:
+            case Types.LONGVARBINARY:
+            case Types.VARBINARY:
                 Blob value = rs.getBlob(columnName);
                 return new BBlob(value.getBytes(1L, (int) value.length()));
             case Types.CLOB:
@@ -159,14 +163,18 @@ public class SQLDataIterator implements DataIterator {
             case Types.DATE:
                 return getBString(rs.getDate(columnName));
             case Types.TIME:
+            case Types.TIME_WITH_TIMEZONE:
                 return getBString(rs.getTime(columnName));
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
                 return getBString(rs.getTimestamp(columnName));
-            case Types.BINARY:
-                return getBString(rs.getBinaryStream(columnName));
+            case Types.ROWID:
+                return new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
             }
         } catch (SQLException e) {
             throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
         }
         return null;
     }

@@ -338,6 +338,21 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.VARCHAR:
                 SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
                 break;
+            case Constants.SQLDataTypes.CHAR:
+                SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.CHAR);
+                break;
+            case Constants.SQLDataTypes.LONGVARCHAR:
+                SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.LONGVARCHAR);
+                break;
+            case Constants.SQLDataTypes.NCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.NCHAR);
+                break;
+            case Constants.SQLDataTypes.NVARCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.NVARCHAR);
+                break;
+            case Constants.SQLDataTypes.LONGNVARCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.LONGNVARCHAR);
+                break;
             case Constants.SQLDataTypes.DOUBLE:
                 SQLDatasourceUtils.setDoubleValue(stmt, value, index, direction, Types.DOUBLE);
                 break;
@@ -378,8 +393,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.BLOB:
                 SQLDatasourceUtils.setBlobValue(stmt, value, index, direction, Types.BLOB);
                 break;
+            case Constants.SQLDataTypes.LONGVARBINARY:
+                SQLDatasourceUtils.setBlobValue(stmt, value, index, direction, Types.LONGVARBINARY);
+                break;
+            case Constants.SQLDataTypes.VARBINARY:
+                SQLDatasourceUtils.setBinaryValue(stmt, value, index, direction, Types.VARBINARY);
+                break;
             case Constants.SQLDataTypes.CLOB:
                 SQLDatasourceUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
+                break;
+            case Constants.SQLDataTypes.NCLOB:
+                SQLDatasourceUtils.setNClobValue(stmt, value, index, direction, Types.NCLOB);
                 break;
             case Constants.SQLDataTypes.ARRAY:
                 SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);

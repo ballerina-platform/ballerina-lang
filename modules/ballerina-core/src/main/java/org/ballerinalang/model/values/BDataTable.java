@@ -98,6 +98,9 @@ public class BDataTable implements BRefType<Object> {
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 value = iterator.get(columnName, sqlType);
                 break;
             case Types.TINYINT:
@@ -225,6 +228,9 @@ public class BDataTable implements BRefType<Object> {
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 type = BTypes.typeString;
                 break;
             case Types.BLOB:

@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -104,6 +105,31 @@ public class SQLDatasourceUtils {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setString(index + 1, value.stringValue());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setString(index + 1, value.stringValue());
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setNStringValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNString(index + 1, value.stringValue());
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (value == null) {
@@ -472,7 +498,11 @@ public class SQLDatasourceUtils {
     public static void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         byte[] val = null;
         if (value != null) {
-            val = getBytesFromBase64String(value.stringValue());
+            if (value instanceof BBlob) {
+                val = ((BBlob) value).blobValue();
+            } else if (value instanceof BString) {
+                val = getBytesFromBase64String(value.stringValue());
+            }
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -501,7 +531,11 @@ public class SQLDatasourceUtils {
     public static void setBlobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         byte[] val = null;
         if (value != null) {
-            val = getBytesFromBase64String(value.stringValue());
+            if (value instanceof BBlob) {
+                val = ((BBlob) value).blobValue();
+            } else if (value instanceof BString) {
+                val = getBytesFromBase64String(value.stringValue());
+            }
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -544,6 +578,35 @@ public class SQLDatasourceUtils {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setClob(index + 1, val, value.stringValue().length());
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setNClobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        BufferedReader val = null;
+        if (value != null) {
+            val = new BufferedReader(new StringReader(value.stringValue()));
+        }
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNClob(index + 1, val, value.stringValue().length());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNClob(index + 1, val, value.stringValue().length());
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
