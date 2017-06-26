@@ -123,7 +123,7 @@ public class DataTableTest {
         Assert.assertTrue(returns[3].stringValue().contains("2017-02-03"));
         Assert.assertTrue(returns[4].stringValue().contains("2017-02-03T11:53:00"));
         Assert.assertTrue(returns[5].stringValue().contains("2017-02-03T11:53:00"));
-        Assert.assertEquals((returns[6]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
+        Assert.assertEquals((returns[6]).stringValue(), "wso2 ballerina binary test.");
     }
 
     @SuppressWarnings("unchecked")
@@ -270,6 +270,12 @@ public class DataTableTest {
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
+    }
+
+    @Test(description = "Check getByIndex methods for primitive types.")
+    public void testBlobInsert() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobInsert");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @AfterSuite

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -94,9 +93,14 @@ public class BDataTable implements BRefType<Object> {
             case Types.NCLOB:
             case Types.BLOB:
             case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 value = iterator.get(columnName, sqlType);
                 break;
             case Types.TINYINT:
@@ -122,10 +126,58 @@ public class BDataTable implements BRefType<Object> {
             dataArray[index] = value;
             ++index;
         }
-        bStruct.setMemoryBlock(dataArray);
-        BLangVM.prepareStructureTypeFromNativeAction(bStruct);
+        return prepareBStruct(dataArray);
+    }
+
+    private BStruct prepareBStruct(Object... values) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
+        BType[] typeArray = bStruct.getFieldTypes();
+        for (int i = 0; i < typeArray.length; i++) {
+            BType paramType = typeArray[i];
+            if (values.length < i + 1) {
+                break;
+            }
+            switch (paramType.getTag()) {
+            case TypeTags.INT_TAG:
+                if (values[i] != null && values[i] instanceof BInteger) {
+                    bStruct.setIntField(++longRegIndex, ((BInteger) values[i]).intValue());
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (values[i] != null && values[i] instanceof BFloat) {
+                    bStruct.setFloatField(++doubleRegIndex, ((BFloat) values[i]).floatValue());
+                }
+                break;
+            case TypeTags.STRING_TAG:
+                if (values[i] != null && values[i] instanceof BString) {
+                    bStruct.setStringField(++stringRegIndex, ((BString) values[i]).stringValue());
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (values[i] != null && values[i] instanceof BBoolean) {
+                    bStruct.setBooleanField(++booleanRegIndex, ((BBoolean) values[i]).booleanValue() ? 1 : 0);
+                }
+                break;
+            case TypeTags.BLOB_TAG:
+                if (values[i] != null && values[i] instanceof BBlob) {
+                    bStruct.setBlobField(++blobRegIndex, ((BBlob) values[i]).blobValue());
+                }
+                break;
+            default:
+                if (values[i] != null && (values[i] instanceof BRefType)) {
+                    bStruct.setRefField(++refRegIndex, (BRefType) values[i]);
+                }
+            }
+        }
         return bStruct;
     }
+
+
 
     private BMap<BString, BValue> getDataArray(String columnName) {
         Map<String, Object> arrayMap = iterator.getArray(columnName);
@@ -173,13 +225,18 @@ public class BDataTable implements BRefType<Object> {
             case Types.LONGNVARCHAR:
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.BINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 type = BTypes.typeString;
                 break;
             case Types.BLOB:
+            case Types.LONGVARBINARY:
+            case Types.BINARY:
+            case Types.VARBINARY:
                 type = BTypes.typeBlob;
                 break;
             case Types.TINYINT:
