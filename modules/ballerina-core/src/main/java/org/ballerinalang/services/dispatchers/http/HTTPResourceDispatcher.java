@@ -68,7 +68,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             }
             // Throw an exception if the resource is not found.
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-            throw new BallerinaException("no matching resource found for path : " + subPath + " , method : " + method);
+            throw new BallerinaException("no matching resource found for path : "
+                    + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
 
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException(e.getMessage());
