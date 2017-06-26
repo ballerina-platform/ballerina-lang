@@ -75,25 +75,26 @@ public class GetSession extends AbstractNativeFunction {
             String path = (String) carbonMessage.getProperty(BASE_PATH);
             Session session = context.getCurrentSession();
 
-            if (session != null) {
-                session = session.setAccessed();
-                return new BValue[]{createSessionStruct(context, session)};
-            }
             if (cookieHeader != null) {
                 try {
-                    session = Arrays.stream(cookieHeader.split(";"))
-                            .filter(cookie -> cookie.startsWith(SESSION_ID))
-                            .findFirst()
-                            .map(jsession -> context.getSessionManager()
-                                    .getHTTPSession(jsession.substring(SESSION_ID.length()))).get();
+                    String sessionId = Arrays.stream(cookieHeader.split(";"))
+                                        .filter(cookie -> cookie.startsWith(SESSION_ID))
+                                        .findFirst().get().substring(SESSION_ID.length());
+                    //return value from cached session
+                    if (session != null && (sessionId.equals(session.getId()))) {
+                        session = session.setAccessed();
+                        return new BValue[]{createSessionStruct(context, session)};
+                    }
+                    session = context.getSessionManager().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
                     //ignore throwable
-                    logger.info("Failed to get session: Session not available");
+                    logger.info("Failed to get session: Incorrect Session cookie");
                 }
                 if (session != null) {
                     //path Validity check
                     if (session.getPath().equals(path)) {
                         session.setNew(false);
+                        session.setAccessed();
                     } else {
                         throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                     }

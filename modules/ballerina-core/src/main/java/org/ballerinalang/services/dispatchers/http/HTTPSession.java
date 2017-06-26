@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.services.dispatchers.session.SessionManager;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import static org.ballerinalang.services.dispatchers.http.Constants.PATH;
@@ -30,7 +31,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 /**
  * HTTPSession represents a session
  */
-public class HTTPSession implements Session {
+public class HTTPSession implements Session, Serializable {
 
     private final String sessionPath;
     private String id;
@@ -106,7 +107,6 @@ public class HTTPSession implements Session {
         sessionManager.invalidateSession(this);
         attributeMap.clear();
         isValid = false;
-
     }
 
     @Override
@@ -128,7 +128,6 @@ public class HTTPSession implements Session {
             message.value().setHeader(RESPONSE_COOKIE_HEADER, SESSION_ID + this.getId() + "; "
                     + PATH + this.getPath() + ";");
         }
-        //set other headers (path)
     }
 
     public void setManager(SessionManager sessionManager) {
