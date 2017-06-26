@@ -126,8 +126,7 @@ public class BDataTable implements BRefType<Object> {
             dataArray[index] = value;
             ++index;
         }
-        prepareBStruct(dataArray);
-        return bStruct;
+        return prepareBStruct(dataArray);
     }
 
     private BStruct prepareBStruct(Object... values) {
@@ -137,8 +136,9 @@ public class BDataTable implements BRefType<Object> {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        for (int i = 0; i < bStruct.getFieldTypes().length; i++) {
-            BType paramType = bStruct.getFieldTypes()[i];
+        BType[] typeArray = bStruct.getFieldTypes();
+        for (int i = 0; i < typeArray.length; i++) {
+            BType paramType = typeArray[i];
             if (values.length < i + 1) {
                 break;
             }
