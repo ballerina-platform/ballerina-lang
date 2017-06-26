@@ -56,7 +56,9 @@ function testMapToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    return <Person> m;
+    Person p;
+    p, _ = <Person> m;
+    return p;
 }
 
 function testStructToJson() (json) {
@@ -92,7 +94,8 @@ function testJsonToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    Person p = <Person> j;
+    Person p;
+    p, _ = <Person> j;
     return p;
 }
 
@@ -104,7 +107,12 @@ function testIncompatibleMapToStruct() (Person) {
                info:{status:"single"},
                marks:marks
              };
-    Person p = <Person> m;
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> m;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -132,7 +140,12 @@ function testMapWithIncompatibleArrayToStruct() (Person) {
                score: 5.67,
                alive:true
              };
-    Person p = <Person> m;
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> m;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -158,7 +171,8 @@ function testMapWithIncompatibleStructToStruct() (Employee) {
                info:{status:"single"},
                marks:marks
              };
-    Employee e = <Employee> m;
+    Employee e;
+    e, _ = <Employee> m;
     return e;
 }
 
@@ -169,7 +183,12 @@ function testIncompatibleJsonToStruct() (Person) {
                info:{status:"single"},
                marks:[87,94,72]
              };
-    Person p = <Person> j; 
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -188,7 +207,12 @@ function testJsonWithIncompatibleMapToStruct() (Person) {
                info:{status:"single"},
                marks:[87,94,72]
              };
-    Person p = <Person> j; 
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -207,7 +231,12 @@ function testJsonWithIncompatibleTypeToStruct() (Person) {
                info:{status:"single"},
                marks:[87,94,72]
              };
-    Person p = <Person> j; 
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -226,13 +255,23 @@ function testJsonWithIncompatibleStructToStruct() (Person) {
                info:{status:"single"},
                marks:[87,94,72]
              };
-    Person p = <Person> j; 
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
 function testJsonArrayToStruct() (Person) {
     json j = [87,94,72];
-    Person p = <Person> j; 
+    Person p;
+    errors:TypeConversionError e;
+    p, e = <Person> j;
+    if (e != null) {
+        throw e;
+    }
     return p;
 }
 
@@ -249,32 +288,44 @@ function testStructWithMessageToJson() (json) {
 
 function testJsonIntToString() (string) {
     json j = 5;
-    return <int>j; 
+    int value;
+    value, _ = (int)j;
+    return <string>value;
 }
 
 function testBooleanInJsonToInt() (int) {
     json j = true;
-    return <int>j;
+    int value;
+    value, _ = (int)j;
+    return value;
 }
 
 function testIncompatibleJsonToInt() (int) {
     json j = "hello";
-    return <int>j;
+    int value;
+    value, _ = (int)j;
+    return value;
 }
 
 function testIntInJsonToFloat() (float) {
     json j = 7;
-    return <float>j;
+    float value;
+    value, _ = (float)j;
+    return value;
 }
 
 function testIncompatibleJsonToFloat() (float) {
     json j = "hello";
-    return <float>j;
+    float value;
+    value, _ = (float)j;
+    return value;
 }
 
 function testIncompatibleJsonToBoolean() (boolean) {
     json j = "hello";
-    return <boolean>j;
+    boolean value;
+    value, _ = (boolean)j;
+    return value;
 }
 
 struct Address {
@@ -288,7 +339,8 @@ struct AnyArray {
 
 function testJsonToAnyArray() (AnyArray) {
     json j = {a:[4, "Supun", 5.36, true, {lname:"Setunga"}, [4,3,7], null]};
-    AnyArray a = <AnyArray> j;
+    AnyArray a;
+    a, _ = <AnyArray> j;
     return a;
 }
 
@@ -298,7 +350,8 @@ struct IntArray {
 
 function testJsonToIntArray() (IntArray) {
     json j = {a:[4,3,9]};
-    IntArray a = <IntArray> j;
+    IntArray a;
+    a, _ = <IntArray> j;
     return a;
 }
 
@@ -308,13 +361,15 @@ struct StringArray {
 
 function testJsonToStringArray() (StringArray) {
     json j = {a:["a","b","c"]};
-    StringArray a = <StringArray> j;
+    StringArray a;
+    a, _ = <StringArray> j;
     return a;
 }
 
 function testJsonIntArrayToStringArray() (StringArray) {
     json j = {a:[4,3,9]};
-    StringArray a = <StringArray> j;
+    StringArray a;
+    a, _ = <StringArray> j;
     return a;
 }
 
@@ -324,57 +379,83 @@ struct XmlArray {
 
 function testJsonToXmlArray() (XmlArray) {
     json j = {a:["a","b","c"]};
-    XmlArray a = <XmlArray> j;
+    XmlArray a;
+    errors:TypeConversionError e;
+    a, e = <XmlArray> j;
+    if (e != null) {
+        throw e;
+    }
     return a;
 }
 
 function testNullJsonArrayToArray() (StringArray) {
     json j = {a:null};
-    StringArray a = <StringArray> j;
+    StringArray a;
+    a, _ = <StringArray> j;
     return a;
 }
 
 function testNullJsonToArray() (StringArray) {
     json j;
-    StringArray a = <StringArray> j;
+    StringArray a;
+    a, _ = <StringArray> j;
     return a;
 }
 
 function testNonArrayJsonToArray() (StringArray) {
     json j = {a:"im not an array"};
-    StringArray a = <StringArray> j;
+    StringArray a;
+    errors:TypeConversionError e;
+    a, e = <StringArray> j;
+    if (e != null) {
+        throw e;
+    }
     return a;
 }
 
 function testNullJsonToString() (string) {
     json j;
-    return <string>j;
+    //json to string is a cast, not a conversion
+    string value;
+    value, _ = (string)j;
+    return value;
 }
 
 function testNullJsonToInt() (int) {
     json j;
-    return <int>j;
+    //json to int is a cast, not a conversion
+    int value;
+    value, _ = (int)j;
+    return value;
 }
 
 function testNullJsonToFloat() (float) {
     json j;
-    return <float>j;
+    //json to float is a cast, not a conversion
+    float value;
+    value, _ = (float)j;
+    return value;
 }
 
 function testNullJsonToBoolean() (boolean) {
     json j;
-    return <boolean>j;
+    //json to boolean is a cast, not a conversion
+    boolean value;
+    value, _ = (boolean)j;
+    return value;
 }
 
 function testNullJsonToStruct() (Person) {
     json j;
-    Person p = <Person> j;
+    Person p;
+    p, _ = <Person> j;
     return p;
 }
 
 function testNullMapToStruct() (Person) {
     map m;
-    Person p = <Person> m;
+    Person p;
+    p, _ = <Person> m;
     return p;
 }
 

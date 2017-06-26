@@ -45,23 +45,35 @@ function testJsonArrayInit() (json) {
 function testGetString() (string, string) {
     json j1 = "Supun";
     json j2 = {name:"Setunga"};
-    return (string)j1, (string)j2.name;
+    string j1String;
+    string j2String;
+    j1String, _ = (string)j1;
+    j2String, _ = (string)j2.name;
+    return j1String, j2String;
 }
 
 function testGetInt() (int, int) {
     json j1 = 25;
     json j2 = {age:43};
-    return (int)j1, (int)j2.age;
+    int j1Int;
+    int j2Int;
+    j1Int, _ = (int)j1;
+    j2Int, _ = (int)j2.age;
+    return j1Int, j2Int;
 }
 
 function testGetFloat() (float) {
     json j = {score:9.73};
-    return (float)j.score;
+    float jFloat;
+    jFloat, _ = (float)j.score;
+    return jFloat;
 }
 
 function testGetBoolean() (boolean) {
     json j = {pass:true};
-    return (boolean)j.pass;
+    boolean jBoolean;
+    jBoolean, _ = (boolean)j.pass;
+    return jBoolean;
 }
 
 function testGetJson() (json) {
@@ -181,8 +193,15 @@ function testGetNestedJsonElement() (string, string, string, string) {
     
     string addressKey = "address";
     string cityKey = "city";
-    
-    return (string)j.address.city, (string)j["address"]["city"], (string)j.address["city"], (string)j[addressKey][cityKey];
+    string cityString1;
+    string cityString2;
+    string cityString3;
+    string cityString4;
+    cityString1, _ = (string)j.address.city;
+    cityString2, _ = (string)j["address"]["city"];
+    cityString3, _ = (string)j.address["city"];
+    cityString4, _ = (string)j[addressKey][cityKey];
+    return cityString1, cityString2, cityString3, cityString4;
 }
 
 function testJsonExprAsIndex() (string) {
@@ -190,8 +209,14 @@ function testJsonExprAsIndex() (string) {
     
     string addressKey = "address";
     string cityKey = "city";
-    
-    return (string)j.address[(string)j.address.area];
+
+    //Moving index expression into another line since with new changes, it is a unsafe cast,
+    //which returns a error value if any.
+    string key;
+    key, _ = (string)j.address.area;
+    string value;
+    value, _ = (string)j.address[key];
+    return value;
 }
 
 function testSetArrayOutofBoundElement() (json) {
@@ -208,7 +233,9 @@ function testSetToNonArrayWithIndex() (json) {
 
 function testGetFromNonArrayWithIndex() (string) {
     json j = {name:"supun"};
-    return (string)j[7];
+    string name;
+    name, _ = (string)j[7];
+    return name;
 }
 
 function testSetToNonObjectWithKey() (json) {
@@ -224,17 +251,23 @@ function testGetFromNonObjectWithKey() (any) {
 
 function testGetStringInArray() (string) {
     json j = ["a", "b", "c"];
-    return (string)j[1];
+    string value;
+    value, _ = (string)j[1];
+    return value;
 }
 
 function testGetArrayOutofBoundElement() (string) {
     json j = [1,2,3];
-    return (string)j[5];
+    string value;
+    value, _ = (string)j[5];
+    return value;
 }
 
 function testGetStringFromPrimitive() (string) {
     json j = {name:"Supun"};
-    return (string)j.name.fname;
+    string name;
+    name, _ = (string)j.name.fname;
+    return name;
 }
 
 function testUpdateNestedElement() (json) {
@@ -245,15 +278,15 @@ function testUpdateNestedElement() (json) {
 
 function testEmptyStringToJson() (json) {
     string s = "";
-    return <json> s;
+    return (json) s;
 }
 
 function testJsonStringToJson() (json) {
     string s = "{\"name\", \"supun\"}";
-    return <json> s;
+    return (json) s;
 }
 
 function testStringWithEscapedCharsToJson() (json) {
     string s = "{\\\"name\\\", \"supun\"}";
-    return <json> s;
+    return (json) s;
 }

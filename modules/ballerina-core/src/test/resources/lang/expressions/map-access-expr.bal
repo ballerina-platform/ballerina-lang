@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y)(int) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = (int) testMap["first"];
-    yy = (int) testMap["second"];
+    xx, _ = (int) testMap["first"];
+    yy, _ = (int) testMap["second"];
 
     return xx + yy;
 }
@@ -23,5 +23,7 @@ function mapReturnTest(string firstName, string lastName) (map) {
 function testArrayAccessAsIndexOfMapt() (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
-    return (string)namesMap[keys[0]];
+    string key;
+    key, _ = (string)namesMap[keys[0]];
+    return key;
 }
