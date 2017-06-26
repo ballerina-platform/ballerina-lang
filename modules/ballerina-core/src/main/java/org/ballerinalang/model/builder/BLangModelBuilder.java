@@ -1671,9 +1671,6 @@ public class BLangModelBuilder {
     }
 
     private String validateAndGetPackagePathForServiceProtocol(NodeLocation location, String protocolPkgName) {
-        if (protocolPkgName == null) {
-            return null;
-        }
         ImportPackage importPkg = getImportPackage(protocolPkgName);
         checkForUndefinedPackagePath(location, protocolPkgName, importPkg, () -> protocolPkgName);
 
