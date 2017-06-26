@@ -78,7 +78,9 @@ public class BallerinaWebSocketConnector {
 
     void close() {
         try {
-            client.shutDown();
+            if (client != null) {
+                client.shutDown();
+            }
         } catch (InterruptedException e) {
             LOGGER.debug(e);
         }
