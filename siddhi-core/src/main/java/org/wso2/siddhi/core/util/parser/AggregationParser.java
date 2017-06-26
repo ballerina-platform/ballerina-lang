@@ -328,6 +328,9 @@ public class AggregationParser {
                     newMeta, incrementalExecuteStreamReceiver);
             assert child != null; // Child won't be null if incremental durations are given
             child.setRoot(); // Set root incremental executor
+            if (timeStampVariable != null) {
+                child.setIsExternalTimeStampBased();
+            }
             child.setScheduler(scheduler); // Set scheduler in root incremental executor
             aggregationRuntime.setExecutor(entryValveExecutor);
 

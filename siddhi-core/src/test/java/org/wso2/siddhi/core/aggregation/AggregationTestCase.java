@@ -88,13 +88,13 @@ public class AggregationTestCase {
         InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
         executionPlanRuntime.start();
         inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
-        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289990000L});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496291990000L}); // TODO: 5/18/17 check with null later
-        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 56, 1496291990000L});
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289952000L}); // TODO: 5/18/17 check with null later
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 56, 1496289952000L});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496292992000L});
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496292993000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496289954000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496289954000L});
         Thread.sleep(2000);
         executionPlanRuntime.shutdown();
 
@@ -223,10 +223,10 @@ public class AggregationTestCase {
             aggregationRuntime.getIncrementalExecutor().execute(event);
         }
 */
-        
-//        aggregationRuntime.getIncrementalExecutor().execute(); // TODO: 5/9/17 send events to "cseEventStream 
+
+//        aggregationRuntime.getIncrementalExecutor().execute(); // TODO: 5/9/17 send events to "cseEventStream
     }
-        
+
 
 
 
