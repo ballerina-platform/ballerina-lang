@@ -1,6 +1,4 @@
-# To run the program, put the code in `fork-join.bal`
-# and use `$BALLERINA_HOME/bin/ballerina`.
-$ $BALLERINA_HOME/bin/ballerina run main fork-join.bal
+$ ballerina run main fork-join.bal
 [W1 worker]: inside worker
       Value of integer variable is [23]
       Value of string variable is [Colombo]
