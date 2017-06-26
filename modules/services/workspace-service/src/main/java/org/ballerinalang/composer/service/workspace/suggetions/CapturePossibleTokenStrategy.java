@@ -43,6 +43,7 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
     public CapturePossibleTokenStrategy(Position cursorPosition) {
         this.cursorPosition = cursorPosition;
         possibleTokens = new LinkedList<>();
+        this.setSuggestionsFilterDataModel(new SuggestionsFilterDataModel());
     }
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {

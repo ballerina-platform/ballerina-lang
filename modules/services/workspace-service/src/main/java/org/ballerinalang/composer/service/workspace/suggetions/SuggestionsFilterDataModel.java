@@ -37,6 +37,14 @@ public class SuggestionsFilterDataModel {
     private int tokenIndex;
     private BallerinaFile ballerinaFile;
 
+
+    /**
+     * Constructor for SuggestionsFilterDataModel
+     +     */
+    public SuggestionsFilterDataModel(){
+        
+    }
+
     /**
      * Constructor for SuggestionsFilterDataModel
      * @param parser - parser instance
