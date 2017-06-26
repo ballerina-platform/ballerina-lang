@@ -729,19 +729,4 @@ public class RDBMSEventTable extends AbstractRecordTable {
                     "cannot be set: " + e.getMessage(), e);
         }
     }
-
-    @Override
-    protected void connect() throws ConnectionUnavailableException {
-
-    }
-
-    @Override
-    protected void disconnect() {
-
-    }
-
-    @Override
-    protected void destroy() {
-
-    }
 }
