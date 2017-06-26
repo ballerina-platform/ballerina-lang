@@ -17,11 +17,15 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
 
 import java.util.HashMap;
+import java.util.StringJoiner;
 
 /**
  * The {@code BStruct} represents the value of a user defined struct in Ballerina.
@@ -119,7 +123,35 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
      */
     @Override
     public String stringValue() {
-        return null;
+        int stringIndex = 0,
+                intIndex = 0,
+                longIndex = 0,
+                doubleIndex = 0,
+                byteIndex = 0,
+                refValIndex = 0;
+        
+        StringJoiner sj = new StringJoiner(",", "{", "}");
+        for (StructField field : ((BStructType) structType).getStructFields()) {
+            String fieldName = field.getFieldName();
+            Object fieldVal;
+            BType fieldType = field.getFieldType();
+            if (fieldType == BTypes.typeString) {
+                fieldVal = "\"" + stringFields[stringIndex++] + "\"";
+            } else if (fieldType == BTypes.typeInt) {
+                fieldVal = longFields[longIndex++];
+            } else if (fieldType == BTypes.typeFloat) {
+                fieldVal = doubleFields[doubleIndex++];
+            }  else if (fieldType == BTypes.typeBoolean) {
+                fieldVal = intFields[intIndex++];
+            } else if (fieldType == BTypes.typeBlob) {
+                fieldVal = byteFields[byteIndex++].toString();
+            } else {
+                BValue val = refFields[refValIndex++];
+                fieldVal = val == null ? null : val.stringValue();
+            }
+            sj.add(fieldName + ":" + fieldVal);
+        }
+        return sj.toString();
     }
 
     @Override
