@@ -26,6 +26,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -277,6 +278,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
         RDBMSConditionVisitor visitor = new RDBMSConditionVisitor(this.tableName);
         conditionBuilder.build(visitor);
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
+    }
+
+    @Override
+    public void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
     /**
