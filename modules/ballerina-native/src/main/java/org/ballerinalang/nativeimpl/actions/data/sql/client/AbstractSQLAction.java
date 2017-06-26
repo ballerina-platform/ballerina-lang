@@ -21,10 +21,10 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -189,12 +189,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
             int[] updatedCount = stmt.executeBatch();
             conn.commit();
-            BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
+            BIntArray countArray = new BIntArray();
             int iSize = updatedCount.length;
             for (int i = 0; i < iSize; ++i) {
-                arrayValue.add(i, new BInteger(updatedCount[i]));
+                countArray.add(i, updatedCount[i]);
             }
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = arrayValue;
+            context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -524,7 +524,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
+            int direction = (int) paramValue.getIntField(0);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }

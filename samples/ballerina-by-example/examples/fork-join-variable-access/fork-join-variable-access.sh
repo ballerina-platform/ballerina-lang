@@ -1,6 +1,4 @@
-# To run the program, put the code in `fork-join-variable-access.bal`
-# and use `$BALLERINA_HOME/bin/ballerina`.
-$ $BALLERINA_HOME/bin/ballerina run main fork-join-variable-access.bal
+$ ballerina run main fork-join-variable-access.bal
 [default worker] before fork-join:
       Value of integer variable is [100]
       Value of string variable is [WSO2]
