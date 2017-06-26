@@ -885,7 +885,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     private void getSymbolMap(SymbolScope symbolScope, List symbols) {
         if (symbolScope != null) {
-            symbols.addAll(symbolScope.getSymbolMap().keySet());
+            symbolScope.getSymbolMap().forEach((k, v) -> {
+                SymbolInfo symbolInfo = new SymbolInfo(k.getName(), v);
+                symbols.add(symbolInfo);
+            });
+//            symbols.addAll(symbolScope.getSymbolMap());
             SymbolScope enclosingScope = symbolScope.getEnclosingScope();
             if (enclosingScope != null) {
                 getSymbolMap(enclosingScope, symbols);
