@@ -1,20 +1,15 @@
 import ballerina.lang.system;
+import ballerina.doc;
+@doc:Description {value: "global variable declaration."}
+int total = 98;
 
-@doc:Description{value : "This is a global level int variable."}
-int globalInt = 98;
-
-@doc:Description{value : "This is a global level string variable."}
-string globalString = "string value";
+string content = "";
 
 function main (string[] args) {
 
-    //Accessing global level int variable.
-    system:println("global int - " + globalInt);
-    //Accessing global level string variable.
-    system:println("global string - " + globalString);
+    //Accessing a global variable.
+    system:println(total);
 
-    //Changing global level variable value within the function.
-    globalInt = globalInt + 66;
-
-    system:println("global int changed - " + globalInt);
+    content = content + "This is a sample text\n";
+    system:println(content);
 }

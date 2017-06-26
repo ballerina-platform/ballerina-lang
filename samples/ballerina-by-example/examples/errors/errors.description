@@ -1,0 +1,9 @@
+//Ballerina errors can both be returned as yet another return value or be thrown.
+//Any Ballerina error type should structurally equivalent to the
+//ballerina.lang.errors:Error struct.
+
+//Ballerina best practices encourage developers, to return errors from a
+//function/action in an error condition. The caller of the function/action may
+//handle errors returns by the function/action if it necessary.
+
+//This example explains how errors can be handled as a return value.

@@ -1,2 +1,3 @@
-// In Ballerina, global variables can be declared out-side functions,
-// service level and can be used within functions and services.
+//In Ballerina, global variables are defined as lop level constructs.
+//They are usually defined on top of the Ballerina program.
+//The global variables holds their value throughout the lifetime of Ballerina program.
