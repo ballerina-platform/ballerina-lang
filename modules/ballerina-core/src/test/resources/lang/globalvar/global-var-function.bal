@@ -16,11 +16,13 @@ function getGlobalVars() (int, string, float, any) {
 }
 
 function accessGlobalVar() (int) {
-    return glbVarInt + (int)glbVarAny;
+    int value;
+    value, _ = (int)glbVarAny;
+    return glbVarInt + value;
 }
 
 function changeGlobalVar(int addVal) (float) {
-    glbVarFloatChange = 77 + addVal;
+    glbVarFloatChange = 77 + <float> addVal;
     float value = glbVarFloatChange;
     return value;
 }

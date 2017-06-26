@@ -19,8 +19,8 @@ function testImplicitCastInvocationWithMultipleParams() (string) {
     return multiParam(a, b, c, d, e);
 }
 
-function multiParam(string a, float b, float c, string d, int e) (string) {
-    string result = a + e;
+function multiParam(int a, float b, int c, float d, int e) (string) {
+    string result = "" + a + e;
     return result;
 }
 
