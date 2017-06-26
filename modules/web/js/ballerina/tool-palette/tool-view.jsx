@@ -120,10 +120,7 @@ class ToolView extends React.Component {
      * @memberof Tool
      */
     createCloneCallback() {
-        let icon = this.props.tool.icon;
-        const iconSize = '50px';
-        d3.select(icon).attr('width', iconSize).attr('height', iconSize);
-        icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
+        const icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
         return () => {
             const div = this.createContainerForDraggable();
             div.node().appendChild(icon);
@@ -159,7 +156,6 @@ class ToolView extends React.Component {
      */
     render() {
         const tool = this.props.tool;
-        const icon = tool.icon;
         if (this.props.toolOrder === 'horizontal') {
             return (
                 <div
@@ -190,7 +186,7 @@ class ToolView extends React.Component {
                     data-toggle="tooltip"
                     title={tool.get('title')}
                 >
-                    <img src={icon.getAttribute('src')} className="tool-image" alt={tool.get('name')} />
+                    <i className={tool.get('cssClass')} />
                 </div>
                 <div
                     className="tool-container-vertical-title"

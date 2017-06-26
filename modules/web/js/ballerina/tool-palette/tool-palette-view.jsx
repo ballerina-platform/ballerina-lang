@@ -24,6 +24,8 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import InitialTools from '../item-provider/initial-definitions';
 import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
+import ToolGroup from './../tool-palette/tool-group';
+import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
 
 
 class ToolsPanel extends React.Component {
@@ -176,9 +178,14 @@ class ToolSearch extends React.Component {
 
 class ToolPaletteView extends React.Component {
 
+    /**
+     * Creates an instance of ToolPaletteView.
+     * @param {any} props react props.
+     * 
+     * @memberof ToolPaletteView
+     */
     constructor(props) {
         super(props);
-        this.provider = props.provider;
         // bind the event handlers to this
         this.onSearchTextChange = this.onSearchTextChange.bind(this);
         this.changePane = this.changePane.bind(this);
@@ -225,12 +232,21 @@ class ToolPaletteView extends React.Component {
         this.setState({ tab: type, search: '' });
     }
 
+    /**
+     * Filter out functions and connectors in a tool group.
+     *
+     * @param {tring} text search text.
+     * @param {ToolGroup} data tool group.
+     * @returns {ToolGroup} filtered out tool group.
+     *
+     * @memberof ToolPaletteView
+     */
     searchTools(text, data) {
         if (text === undefined || text === '') {
             return data;
         } else if (data.tools instanceof Array) {
             data.tools = data.tools.filter(function (item) {
-                if (item.get('title').toLowerCase().includes(this.searchText)) {
+                if (item.get('name').toLowerCase().includes(this.searchText)) {
                     return true;
                 }
                 return false;
@@ -244,6 +260,111 @@ class ToolPaletteView extends React.Component {
         return data;
     }
 
+    /**
+     * Convert package to tool group.
+     *
+     * @param {any} pckg package to be converted.
+     * @param {string} [mode='both' | 'connectors' | 'functions' ] include connectors or functions.
+     * @returns {ToolGroup}
+     *
+     * @memberof ToolPaletteView
+     */
+    package2ToolGroup(pckg, mode = 'both') {
+        const withConnectors = (mode === 'both' || mode === 'connectors');
+        const withFunctions = (mode === 'both' || mode === 'functions');
+        const definitions = [];
+
+        if (withConnectors) {
+            // Sort the connector package by name
+            const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
+                return connectorPackage.getName();
+            }]);
+            _.each(connectorsOrdered, (connector) => {
+                const packageName = _.last(_.split(pckg.getName(), '.'));
+                const args = {
+                    pkgName: packageName,
+                    connectorName: connector.getName(),
+                };
+                const connTool = {};
+                connTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
+                connTool.meta = args;
+                // TODO : use a generic icon
+                connTool.title = connector.getName();
+                connTool.name = connector.getName();
+                connTool.id = connector.getName();
+                connTool.cssClass = 'icon fw fw-connector';
+                definitions.push(connTool);
+
+                const actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
+                    return action.getName();
+                }]);
+                _.each(actionsOrdered, (action, index, collection) => {
+                    /* We need to add a special class to actions to indent them in tool palette. */
+                    const actionTool = {};
+                    actionTool.classNames = 'tool-connector-action';
+                    if ((index + 1) === collection.length) {
+                        action.classNames = 'tool-connector-action tool-connector-last-action';
+                    }
+                    actionTool.meta = {
+                        action: action.getName(),
+                        actionConnectorName: connector.getName(),
+                        actionPackageName: packageName,
+                        fullPackageName: pckg.getName(),
+                        actionDefinition: action,
+                    };
+
+                    actionTool.title = action.getName();
+                    actionTool.name = action.getName();
+                    actionTool.cssClass = 'icon fw fw-dgm-action';
+                    actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0) {
+                        actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory
+                                                    .createAggregatedActionInvocationAssignmentStatement;
+                    }
+
+                    actionTool.id = `${connector.getName()}-${action.getName()}`;
+                    definitions.push(actionTool);
+                });
+            });
+        }
+
+        if (withFunctions) {
+            const functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
+                return functionDef.getName();
+            }]);
+
+            _.each(functionsOrdered, (functionDef) => {
+                if (functionDef.getName() === 'main') {
+                    // do not add main function to tool palette
+                    return;
+                }
+
+                const packageName = _.last(_.split(pckg.getName(), '.'));
+                const functionTool = {};
+                functionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                functionTool.meta = {
+                    functionDef,
+                    packageName,
+                    fullPackageName: pckg.getName(),
+                };
+                functionTool.title = functionDef.getName();
+                functionTool.name = functionDef.getName();
+                functionTool.id = functionDef.getName();
+                functionTool.cssClass = 'icon fw fw-function';
+                definitions.push(functionTool);
+            });
+        }
+
+        const group = new ToolGroup({
+            toolGroupName: pckg.getName(),
+            toolGroupID: `${pckg.getName()}-tool-group`,
+            toolOrder: 'vertical',
+            toolDefinitions: definitions,
+        });
+
+        return group;
+    }
+
     render() {
         const searching = this.state.search.length > 0;
         // get the model
@@ -252,7 +373,7 @@ class ToolPaletteView extends React.Component {
         const environment = this.props.editor.getEnvironment();
         // get the current package
         const currentPackage = this.props.editor.generateCurrentPackage();
-        let currentTools = this.provider.getCombinedToolGroup(currentPackage);
+        let currentTools = this.package2ToolGroup(currentPackage);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -269,7 +390,7 @@ class ToolPaletteView extends React.Component {
             imports.forEach((item) => {
                 const pkg = environment.getPackageByName(item.getPackageName());
                 if (!_.isNil(pkg)) {
-                    let group = this.provider.getConnectorToolGroup(pkg);
+                    let group = this.package2ToolGroup(pkg, 'connectors');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -280,12 +401,16 @@ class ToolPaletteView extends React.Component {
                         />);
                     }
 
-                    group = this.provider.getLibraryToolGroup(pkg);
+                    group = this.package2ToolGroup(pkg, 'functions');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
                         library.push(
-                            <ToolGroupView group={group} key={`library${item.getPackageName()}`} showGridStyles={false} />);
+                            <ToolGroupView
+                                group={group}
+                                key={`library${item.getPackageName()}`}
+                                showGridStyles={false}
+                            />);
                     }
                 }
             });
@@ -297,7 +422,7 @@ class ToolPaletteView extends React.Component {
             packages.forEach((pkg) => {
                 let group;
                 if (this.state.tab === 'connectors') {
-                    group = this.provider.getConnectorToolGroup(pkg);
+                    group = this.package2ToolGroup(pkg, 'connectors');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -305,7 +430,7 @@ class ToolPaletteView extends React.Component {
                             <ToolGroupView group={group} key={`connector${pkg.getName()}`} showGridStyles={false} />);
                     }
                 } else {
-                    group = this.provider.getLibraryToolGroup(pkg);
+                    group = this.package2ToolGroup(pkg, 'functions');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
 
                     if (group !== undefined && !_.isEmpty(group.tools)) {

@@ -35,7 +35,6 @@ import Backend from './backend';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import Package from './../env/package';
-import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
 import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 import DebugManager from './../../debugger/debug-manager';
@@ -193,7 +192,6 @@ class BallerinaFileEditor extends EventChannel {
 
         this.dragDropManager = new DragDropManager();
 
-        this.toolPaletteItemProvider = new ToolPaletteItemProvider({ editor: this });
         this.toolPaletteContainer = $(this._container)
             .find(_.get(viewOptions, 'design_view.tool_palette.container'))
             .get(0);
@@ -237,7 +235,6 @@ class BallerinaFileEditor extends EventChannel {
         // this.toolPalette.render();
         const toolPalette = React.createElement(ToolPaletteView, {
             editor: this,
-            provider: this.toolPaletteItemProvider,
             dragDropManager: this.dragDropManager,
             container: this.toolPaletteContainer,
         }, null);
