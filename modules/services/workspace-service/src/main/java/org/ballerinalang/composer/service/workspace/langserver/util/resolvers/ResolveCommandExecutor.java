@@ -36,9 +36,14 @@ public class ResolveCommandExecutor {
         StatementContextResolver statementContextResolver = new StatementContextResolver();
         VariableDefinitionStatementContextResolver variableDefinitionStatementContextResolver =
                 new VariableDefinitionStatementContextResolver();
+        PackageNameContextResolver packageNameContextResolver = new PackageNameContextResolver();
+        DefaultResolver defaultResolver = new DefaultResolver();
+
         resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
                 variableDefinitionStatementContextResolver);
+        resolvers.put(BallerinaParser.PackageNameContext.class, packageNameContextResolver);
+        resolvers.put(null, defaultResolver);
     }
 
     /**

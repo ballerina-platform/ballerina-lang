@@ -137,8 +137,6 @@ public class LangServerHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         //@todo proper error handling
-        this.sendErrorResponse(LangServerConstants.INTERNAL_ERROR_LINE,
-                LangServerConstants.INTERNAL_ERROR, message, null);
         ctx.close();
     }
 

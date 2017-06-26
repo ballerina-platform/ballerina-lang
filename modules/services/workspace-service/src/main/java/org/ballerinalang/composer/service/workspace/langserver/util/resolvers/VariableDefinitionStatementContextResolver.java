@@ -25,6 +25,7 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 /**
  * Variable definition Statement context resolver for resolving the items of the statement context
  */
-public class VariableDefinitionStatementContextResolver implements ItemResolver {
+class VariableDefinitionStatementContextResolver implements ItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         // We need to Calculate from which level of the symbol table. Decide the level by considering
@@ -50,17 +51,22 @@ public class VariableDefinitionStatementContextResolver implements ItemResolver 
         int searchTokenIndex = currentTokenIndex + 1;
 
         while (continueSearch) {
-            String tokenStr = tokenStream.get(searchTokenIndex).getText();
-            if (tokenStr.equals(":") || tokenStr.equals(".")) {
-                searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
-                searchLevel++;
-            } else if (tokenStr.equals("\n")) {
+            if (tokenStream != null) {
+                String tokenStr = tokenStream.get(searchTokenIndex).getText();
+                if (tokenStr.equals(":") || tokenStr.equals(".")) {
+                    searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
+                    searchLevel++;
+                } else if (tokenStr.equals("\n")) {
+                    continueSearch = false;
+                }
+                searchTokenIndex++;
+            } else {
                 continueSearch = false;
             }
-            searchTokenIndex++;
         }
 
-        ArrayList<SymbolInfo> searchList = symbols;
+        List<SymbolInfo> searchList = symbols.stream()
+                .filter(symbolInfo -> !(symbolInfo.getSymbol() instanceof BType)).collect(Collectors.toList());
 
         for (int itr = 0; itr < searchLevel; itr++) {
             String searchStr = searchTokens.get(itr);
@@ -72,23 +78,20 @@ public class VariableDefinitionStatementContextResolver implements ItemResolver 
                     ).collect(Collectors.toList());
 
             searchList.clear();
-            for (int filterItr = 0; filterItr < filteredSymbolInfoList.size(); filterItr++) {
-                if (filteredSymbolInfoList.get(filterItr).getSymbol() instanceof NativePackageProxy) {
+            for (SymbolInfo aFilteredSymbolInfoList : filteredSymbolInfoList) {
+                if (aFilteredSymbolInfoList.getSymbol() instanceof NativePackageProxy) {
                     BLangPackage bLangPackage =
-                            ((NativePackageProxy) filteredSymbolInfoList.get(filterItr).getSymbol()).load();
+                            ((NativePackageProxy) aFilteredSymbolInfoList.getSymbol()).load();
                     bLangPackage.getSymbolMap().forEach((k, v) -> {
                         SymbolInfo symbolInfo = new SymbolInfo(k.getName(), v);
                         searchList.add(symbolInfo);
                     });
-                } else if (filteredSymbolInfoList.get(filterItr).getSymbol() instanceof NativeUnitProxy) {
-                    NativeUnit nativeUnit = ((NativeUnitProxy) filteredSymbolInfoList
-                            .get(filterItr).getSymbol()).load();
+                } else if (aFilteredSymbolInfoList.getSymbol() instanceof NativeUnitProxy) {
+                    NativeUnit nativeUnit = ((NativeUnitProxy) aFilteredSymbolInfoList.getSymbol()).load();
                     SymbolInfo symbolInfo = new SymbolInfo(((BLangSymbol) nativeUnit).getName(),
                             ((BLangSymbol) nativeUnit));
                     searchList.add(symbolInfo);
                 }
-
-
             }
         }
 
@@ -96,8 +99,11 @@ public class VariableDefinitionStatementContextResolver implements ItemResolver 
             // For each token call the api to get the items related to the token
             CompletionItem completionItem = new CompletionItem();
             completionItem.setLabel(symbolInfo.getSymbolName());
+            String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
+            completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
             completionItems.add(completionItem);
         }));
+
         return completionItems;
     }
 }

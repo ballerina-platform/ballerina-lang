@@ -18,7 +18,7 @@ package org.ballerinalang.composer.service.workspace.langserver.consts;
 
 
 /**
- * Application launcher constants.
+ * Language Server constants.
  */
 public class LangServerConstants {
     /**

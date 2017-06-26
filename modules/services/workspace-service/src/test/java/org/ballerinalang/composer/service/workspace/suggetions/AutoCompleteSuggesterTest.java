@@ -34,14 +34,15 @@ public class AutoCompleteSuggesterTest {
 
     public static void main(String[] args) throws IOException {
         BFile bFile = new BFile();
-        bFile.setContent("@http:BasePath { value: \"/healthcare\"}\n" +
+        bFile.setContent("import \n" +
+                "@http:BasePath { value: \"/healthcare\"}\n" +
                 "service Service1 {\n" +
                 "\n" +
                 "    @http:POST {}\n" +
                 "    @http:Path { value: \"/reserve\"}\n" +
                 "    resource Resource1 (message m) {\n" +
                 "    \tint a = 12;\n" +
-                "    \tint b = http:\n" +
+                "    \tint b = 12\n" +
                 "    }\n" +
                 "}\n");
         bFile.setFilePath("/temp");
@@ -49,8 +50,8 @@ public class AutoCompleteSuggesterTest {
         bFile.setPackageName(".");
 
         Position position = new Position();
-        position.setLine(8);
-        position.setCharacter(18);
+        position.setLine(1);
+        position.setCharacter(7);
         AutoCompleteSuggester autoCompleteSuggester = new AutoCompleteSuggesterImpl();
         CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(position);
         BallerinaFile ballerinaFile = autoCompleteSuggester.getBallerinaFile(bFile, position,

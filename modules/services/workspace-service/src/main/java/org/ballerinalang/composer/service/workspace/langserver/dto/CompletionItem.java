@@ -14,6 +14,8 @@ public class CompletionItem {
 
     private String sortText;
 
+    private String insertText;
+
     // TODO: add the necessary other information accordingly
 
 
@@ -55,5 +57,13 @@ public class CompletionItem {
 
     public void setSortText(String sortText) {
         this.sortText = sortText;
+    }
+
+    public String getInsertText() {
+        return insertText;
+    }
+
+    public void setInsertText(String insertText) {
+        this.insertText = insertText;
     }
 }

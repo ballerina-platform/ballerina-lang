@@ -56,9 +56,11 @@ public class SuggestionsFilterDataModel {
     }
 
     private void init(Parser parser) {
-        this.tokenStream = parser.getTokenStream();
-        this.vocabulary = parser.getVocabulary();
-        this.tokenIndex = parser.getCurrentToken().getTokenIndex();
+        if (parser != null) {
+            this.tokenStream = parser.getTokenStream();
+            this.vocabulary = parser.getVocabulary();
+            this.tokenIndex = parser.getCurrentToken().getTokenIndex();
+        }
     }
 
     /**

@@ -141,6 +141,9 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
      * @return {@link SuggestionsFilterDataModel}
      */
     public SuggestionsFilterDataModel getSuggestionsFilterDataModel() {
+        if (this.suggestionsFilterDataModel == null) {
+            this.suggestionsFilterDataModel = new SuggestionsFilterDataModel(null, null, null);
+        }
         return suggestionsFilterDataModel;
     }
 

@@ -43,7 +43,11 @@ public class SuggestionsFilter {
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {
-        return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
+        if (dataModel.getContext() == null) {
+            return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+        } else {
+            return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
+        }
     }
 
     /**

@@ -47,7 +47,12 @@ class CompleterFactory {
                 };
                 langserverController.getCompletions(options, (response) => {
                     response.result.map((completionItem) => {
-                        completions.push({ name: completionItem.label, value: completionItem.label, meta: 'type' });
+                        completions.push(
+                            {
+                                caption: completionItem.label,
+                                snippet: completionItem.insertText,
+                                meta: 'type',
+                            });
                     });
                     callback(null, completions);
                 });
