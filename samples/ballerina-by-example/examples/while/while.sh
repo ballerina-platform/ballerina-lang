@@ -12,6 +12,3 @@ This is number 6
 This is number 7
 This is number 8
 This is number 9
-
-
-# Next example:
