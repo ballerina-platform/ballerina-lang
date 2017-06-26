@@ -161,8 +161,6 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
 
         List<AnnotationAttachmentInfo> connectionProperties = new ArrayList<>();
 
-        AnnotationAttachmentInfo jmsSource = service.getAnnotationAttachmentInfo(Constants.JMS_PACKAGE,
-                Constants.ANNOTATION_JMS_SOURCE);
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) service.getAttributeInfo(
                 AttributeInfo.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo != null) {
@@ -174,33 +172,25 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
             }
         }
 
-        if (jmsSource != null) {
-            Map<String, String> annotationKeyValuePairs = connectionProperties.stream()
-                    .collect(Collectors.toMap(
-                            entry -> entry.getAnnotationAttributeValue
-                                    (Constants.CONNECTION_PROPERTY_KEY).getStringValue(),
-                            entry -> entry.getAnnotationAttributeValue
-                                    (Constants.CONNECTION_PROPERTY_VALUE).getStringValue()
-                    ));
+        Map<String, String> annotationKeyValuePairs = connectionProperties.stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getAnnotationAttributeValue
+                                (Constants.CONNECTION_PROPERTY_KEY).getStringValue(),
+                        entry -> entry.getAnnotationAttributeValue
+                                (Constants.CONNECTION_PROPERTY_VALUE).getStringValue()
+                ));
 
-            annotationKeyValuePairs.put(Constants.CONNECTION_PROPERTY_FACTORY_INITIAL,
-                    jmsSource.getAnnotationAttributeValue
-                            (Constants.CONNECTION_PROPERTY_FACTORY_INITIAL).getStringValue());
-            annotationKeyValuePairs.put(Constants.CONNECTION_PROPERTY_PROVIDE_URL,
-                    jmsSource.getAnnotationAttributeValue
-                            (Constants.CONNECTION_PROPERTY_PROVIDE_URL).getStringValue());
 
-            String serviceId = service.getName();
-            serviceInfoMap.put(serviceId, service);
-            annotationKeyValuePairs.putIfAbsent(Constants.JMS_DESTINATION, serviceId);
-            ServerConnector serverConnector = BallerinaConnectorManager.getInstance()
-                    .createServerConnector(Constants.PROTOCOL_JMS, serviceId, annotationKeyValuePairs);
-            try {
-                serverConnector.start();
-            } catch (ServerConnectorException e) {
-                throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
-                        " deployment", e);
-            }
+        String serviceId = service.getName();
+        serviceInfoMap.put(serviceId, service);
+        annotationKeyValuePairs.putIfAbsent(Constants.JMS_DESTINATION, serviceId);
+        ServerConnector serverConnector = BallerinaConnectorManager.getInstance()
+                .createServerConnector(Constants.PROTOCOL_JMS, serviceId, annotationKeyValuePairs);
+        try {
+            serverConnector.start();
+        } catch (ServerConnectorException e) {
+            throw new BallerinaException("Error when starting to listen to the queue/topic while " + serviceId +
+                    " deployment", e);
         }
     }
 
