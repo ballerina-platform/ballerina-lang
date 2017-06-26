@@ -179,7 +179,6 @@ public class TypeLattice {
         conversionLattice.addVertex(connectorV, false);
         conversionLattice.addVertex(datatableV, false);
 
-//        conversionLattice.addEdge(intV, intV, SAFE, InstructionCodes.NOP);
         conversionLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F);
         conversionLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S);
         conversionLattice.addEdge(intV, booleanV, SAFE, InstructionCodes.I2B);
