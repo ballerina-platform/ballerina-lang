@@ -214,6 +214,16 @@ class SourceView extends EventChannel {
     }
 
     format() {
+        const  validateRes = this._fileEditor.validatorBackend.parse({ 
+            content: this._editor.getSession().getValue()
+        });
+        if ((validateRes.errors && !_.isEmpty(validateRes.errors))
+            || (validateRes.error && !_.isEmpty(validateRes.message))) {
+            // if there are syntax errors or issues with validate service
+            // prevent formatting as AST building is not possible
+            alerts.error(`Cannot format due to syntax errors`);
+            return;
+        }
         const  parserRes = this._fileEditor.parserBackend.parse(
             {
                 name: this._fileEditor.getFile().getName(),
