@@ -67,15 +67,9 @@
     <Match>
         <OR>
             <Package name="org.ballerinalang.core.nativeimpl*"/>
-            <!--<Not>-->
-                <!--<Bug category="SECURITY"/>-->
-            <!--</Not>-->
         </OR>
         <OR>
             <Bug pattern="EI_EXPOSE_REP"/>
-            <!--<Not>-->
-                <!--<Bug category="SECURITY"/>-->
-            <!--</Not>-->
         </OR>
     </Match>
     <Match>
@@ -85,65 +79,47 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.bre.bvm.BLangVMErrors"/>
-        <!--<Or>-->
-            <Method name="createError"/>
-            <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
-        <!--</Or>-->
+        <Method name="createError"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.model.util.XMLUtils"/>
-        <!--<Or>-->
-            <Method name="toJSON"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use end user XML input.  </Note>-->
-        <!--</Or>-->
+        <Method name="toJSON"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use end user XML input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.runtime.ServerConnectorMessageHandler"/>
-        <!--<Or>-->
-            <Method name="handleErrorInboundPath"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="handleErrorInboundPath"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.services.DefaultServerConnectorErrorHandler"/>
-        <!--<Or>-->
-            <Method name="handleError"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="handleError"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.services.dispatchers.file.FileResourceDispatcher"/>
-        <!--<Or>-->
-            <Method name="findResource"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="findResource"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.services.dispatchers.http.HTTPErrorHandler"/>
-        <!--<Or>-->
-            <Method name="handleError"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="handleError"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry"/>
-        <!--<Or>-->
-            <Method name="registerService"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="registerService"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.services.dispatchers.jms.JMSResourceDispatcher"/>
-        <!--<Or>-->
-            <Method name="findResource"/>
-            <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="findResource"/>
+        <!--<Note>XML parsing vulnerable to XXE (XMLStreamReader). This method does not use any end user input.  </Note>-->
     </Match>
     <Match>
         <Class name="org.ballerinalang.util.repository.BuiltinExtendedPackageRepository"/>
-        <!--<Or>-->
-            <Method name="getPackageNamesFromJar"/>
-            <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
-        <!--</Or>-->
+        <Method name="getPackageNamesFromJar"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
     </Match>
 </FindBugsFilter>
