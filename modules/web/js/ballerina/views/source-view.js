@@ -86,6 +86,7 @@ class SourceView extends EventChannel {
         this._gutter = 25;
         this._storage = _.get(args, 'storage');
         this._langserverController = _.get(args, 'langserverClientController');
+        this.inSilentMode = false;
     }
 
     render() {
@@ -144,8 +145,6 @@ class SourceView extends EventChannel {
      * @param {String} content - content for the editor.
     */
     setContent(content) {
-        // avoid triggering change event on format
-        this.inSilentMode = true;
         this._editor.session.setValue(content);
         this.markClean();
     }
