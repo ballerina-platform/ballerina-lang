@@ -1,4 +1,5 @@
 import ballerina.lang.system;
+import ballerina.doc;
 
 @doc:Description {value:"Global level variables defined as 'any'."}
 any stringVal = "string value as any";

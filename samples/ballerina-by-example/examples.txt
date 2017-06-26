@@ -1,8 +1,10 @@
 Hello World
+Parallel Hello World
 Hello World Service
 Value Types
 Constants
 Global Variables
+Functions
 Any Type
 Identifier Literals
 JSON
@@ -13,12 +15,3 @@ Worker
 Worker Interaction
 Fork/Join
 Blob Type
-JMS Message Consumer
-JMS Message Producer
-JMS Client Acknowledgment
-JMS Message Headers
-JMS Message Properties
-Websocket Basic Endpoint
-Websocket Basic Functions
-Websocket Connection store
-Websocket Connection Groups
