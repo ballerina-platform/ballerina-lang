@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
@@ -62,19 +63,23 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         }
 
         let constructedSourceSegment = '';
-        _.forEach(connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotation), (annotationNode) => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                  + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        });
+        connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment, index) => {
+                let annotationAttachmentVisitor;
+                if (index === 0) {
+                    annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this, true);
+                } else {
+                    annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                }
+                annotationAttachment.accept(annotationAttachmentVisitor);
+            });
 
         // Set the line number
         const lineNumber = this.getTotalNumberOfLinesInSource()
             + this.getEndLinesInSegment(constructedSourceSegment) + 1;
         connectorAction.setLineNumber(lineNumber, { doSilently: true });
-        
-        constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
+
+        constructedSourceSegment += this.getIndentation() + 'action' + connectorAction.getWSRegion(1)
             + connectorAction.getActionName()
             + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
             + ')' + connectorActionReturnTypesSource

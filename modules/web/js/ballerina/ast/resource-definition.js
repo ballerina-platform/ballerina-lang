@@ -334,7 +334,7 @@ class ResourceDefinition extends ASTNode {
      */
     getPathAnnotation(ifNotExist = false) {
         let pathAnnotation;
-        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), (annotationAST) => {
+        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
             if (_.isEqual(annotationAST.getPackageName().toLowerCase(), 'http') && _.isEqual(annotationAST.getIdentifier().toLowerCase(), 'path')) {
                 pathAnnotation = annotationAST;
             }
@@ -365,7 +365,7 @@ class ResourceDefinition extends ASTNode {
     getHttpMethodAnnotation() {
         let httpMethodAnnotation;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), (annotationAST) => {
-            if (_.isEqual(annotationAST.getUniqueIdentifier(), 'httpMethod')) {
+            if (annotationAST.isHttpMethod()) {
                 httpMethodAnnotation = annotationAST;
             }
         });

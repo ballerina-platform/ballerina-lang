@@ -17,6 +17,7 @@
  */
 
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 
 /**
  * Visitor for a global variable definition.
@@ -48,13 +49,11 @@ class GlobalVariableDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        const astFactory = globalVariableDefinition.getFactory();
-        for (const annotationNode of globalVariableDefinition.getChildrenOfType(astFactory.isAnnotation)) {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        }
+        globalVariableDefinition.getChildrenOfType(globalVariableDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
+            });
 
         constructedSourceSegment += globalVariableDefinition.getGlobalVariableDefinitionAsString();
 

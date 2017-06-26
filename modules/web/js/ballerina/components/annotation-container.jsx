@@ -142,13 +142,13 @@ class AnnotationContainer extends React.Component {
         this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
 
 
-        const newAnnotation = ASTFactory.createAnnotation({
+        const newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
             fullPackageName: this.state.selectedPackageNameValue,
             packageName: packagePrefix,
-            identifier: suggestionValue,
+            name: suggestionValue,
         });
 
-        this.props.model.parentNode.addChild(newAnnotation);
+        this.props.model.parentNode.addChild(newAnnotationAttachment);
 
         // Resetting the state of the component.
         this.setState({
@@ -423,7 +423,7 @@ class AnnotationContainer extends React.Component {
         };
 
         // Getting the components for the annotation of the current model.
-        const annotations = getComponentForNodeArray(this.props.model.annotations);
+        const annotations = getComponentForNodeArray(this.props.model.getAnnotations());
 
         if (this.state.hasPackageNameSelected) {
             // Input properties for the package name

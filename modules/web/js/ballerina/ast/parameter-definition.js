@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
+// import AnnotationAttachmentVisitor from 'ballerina/visitors/source-gen/annotation-attachment-visitor';
 import VariableDefinition from './variable-definition';
 
 class ParameterDefinition extends VariableDefinition {
@@ -55,11 +56,12 @@ class ParameterDefinition extends VariableDefinition {
     getParameterDefinitionAsString() {
         let argAsString = '';
         // add annotations
-        this.getChildrenOfType(this.getFactory().isAnnotation).forEach((annotationNode, index) => {
-            if (annotationNode.isSupported()) {
-                argAsString += annotationNode.toString();
-            }
-        });
+        // this.getChildrenOfType(this.getFactory().isAnnotationAttachment).forEach(
+        //     (annotationAttachment) => {
+        //         const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+        //         annotationAttachment.accept(annotationAttachmentVisitor);
+        //         argAsString += annotationAttachmentVisitor.getGeneratedSource();
+        //     });
         argAsString += this.getTypeName();
         argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
         argAsString += this.getWSRegion(2);

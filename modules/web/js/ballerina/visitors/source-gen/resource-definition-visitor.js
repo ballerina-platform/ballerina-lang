@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
@@ -51,19 +52,22 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation),
-            (annotationNode) => {
-                if (annotationNode.isSupported()) {
-                    constructedSourceSegment += annotationNode.toString()
-                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+        resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment, index) => {
+                let annotationAttachmentVisitor;
+                if (index === 0) {
+                    annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this, true);
+                } else {
+                    annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
                 }
+                annotationAttachment.accept(annotationAttachmentVisitor);
             });
 
         const lineNumber = this.getTotalNumberOfLinesInSource()
             + this.getEndLinesInSegment(constructedSourceSegment) + 1;
         resourceDefinition.setLineNumber(lineNumber, { doSilently: true });
 
-        constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
+        constructedSourceSegment += this.getIndentation() + 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
                   + resourceDefinition.getWSRegion(1)
                   + '(';

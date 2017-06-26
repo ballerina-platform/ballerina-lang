@@ -60,7 +60,10 @@ class AutoSuggestHtml extends React.Component {
      * @memberOf AutoSuggestHtml
      */
     componentDidMount() {
-        return this.input && this.input.focus();
+        if (!this.props.disableAutoFocus) {
+            return this.input && this.input.focus();
+        }
+        return this.input;
     }
 
     /**
@@ -204,13 +207,16 @@ class AutoSuggestHtml extends React.Component {
             value: this.state.inputValue,
             onChange: this.onChange,
             onKeyDown: (e) => {
-                this.props.onKeyDown(e);
+                if (this.props.onKeyDown) {
+                    this.props.onKeyDown(e);
+                }
                 this.setState({
                     showAllAtStart: false,
                 });
             },
+            onClick: (e) => { console.log('CLICKED'); e.stopPropagation(); },
             onBlur: this.props.onBlur,
-            style: { width: util.getTextWidth(this.state.inputValue, this.props.minWidth, this.props.maxWidth).w + 5 },
+            // style: { width: util.getTextWidth(this.state.inputValue, this.props.minWidth, this.props.maxWidth).w + 5 },
         };
 
         return (
@@ -239,6 +245,7 @@ AutoSuggestHtml.propTypes = {
     minWidth: PropTypes.number,
     maxWidth: PropTypes.number,
     showAllAtStart: PropTypes.bool,
+    disableAutoFocus: PropTypes.bool,
 };
 
 AutoSuggestHtml.defaultProps = {
@@ -250,6 +257,7 @@ AutoSuggestHtml.defaultProps = {
     minWidth: 0,
     maxWidth: 120,
     showAllAtStart: false,
+    disableAutoFocus: false,
 };
 
 export default AutoSuggestHtml;

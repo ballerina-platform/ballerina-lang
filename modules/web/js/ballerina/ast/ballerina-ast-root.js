@@ -82,7 +82,7 @@ class BallerinaASTRoot extends ASTNode {
                     addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isServiceDefinition(child)) {
-                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                const annotations = child.getChildrenOfType(factory.isAnnotationAttachment);
                 const resources = child.getChildrenOfType(factory.isResourceDefinition);
                 _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
@@ -91,7 +91,7 @@ class BallerinaASTRoot extends ASTNode {
                     addImportsForTopLevel(resource, options);
                 });
             } else if (factory.isResourceDefinition(child)) {
-                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                const annotations = child.getChildrenOfType(factory.isAnnotationAttachment);
                 _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
                 });

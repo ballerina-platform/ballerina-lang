@@ -17,17 +17,17 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
-import ASTFactory from './../ast/ballerina-ast-factory';
-import Annotation from './annotation';
-import AnnoationEntry from './../ast/annotations/annotation-entry';
-import AnnotationAttributeDefinition from '../env/annotation-attribute-definition';
-import AutoSuggestHtml from './utils/autosuggest-html';
-import BallerinaEnvironment from '../env/environment';
-import { util } from './../visitors/sizing-utils';
+import AnnotationAttachment from './annotation-attachment';
+import AnnotationAttributeAST from './../ast/annotations/annotation-attribute';
+import AnnotationAttributeBValue from './annotation-attribute-b-value';
+import AnnotationAttributeKey from './annotation-attribute-key';
+import { addAttribute, deleteNode, getArrayValue } from './utils/annotation-button-events';
+import AnnotationHelper from '../env/helpers/annotation-helper';
+import EnvAnnotationDefinition from './../env/annotation-definition';
+import PopoutButton from './popout-button';
 
 /**
- * React component for an annotation entry({@link AnnotationEntry}).
+ * React component for an annoation attribute.
  *
  * @class AnnotationAttribute
  * @extends {React.Component}
@@ -36,507 +36,377 @@ class AnnotationAttribute extends React.Component {
 
     /**
      * Creates an instance of AnnotationAttribute.
-     * @param {any} props React properties for the component
-     *
+     * @param {Object} props React properties.
      * @memberof AnnotationAttribute
      */
     constructor(props) {
         super(props);
 
-        let rightValueLength = 0;
-        if (_.isString(props.model.getRightValue())) {
-            rightValueLength = util.getTextWidth(props.model.getRightValue(), 150, 1000).w + 10;
+        let bValue = '';
+        let hasError = false;
+        const attributeValue = props.model.getValue();
+        if (attributeValue.isBValue()) {
+            const bValueAST = attributeValue.getChildren()[0];
+            bValue = bValueAST.getStringValue();
+            hasError = bValue === undefined || bValue.trim() === '';
         }
 
-        if (!_.isUndefined(props.model.getLeftValue()) || props.model.getLeftValue() === '') {
+        if (props.model.getKey() === undefined || props.model.getKey() === '') {
             this.state = {
-                isLeftValueInEdit: props.model.getLeftValue() === '',
-                isRightValueInEdit: props.model.getRightValue() === '' || props.model.getRightValue() === '""',
-                leftValue: props.model.getLeftValue(),
-                rightValue: props.model.getRightValue(),
-                rightValueLength,
-                setRightValueFocus: false,
+                hasError: true,
+                isBValueEdit: this.props.model.getViewState().isInEdit || false,
+                focusBValueInput: false,
+                bValueText: bValue,
             };
         } else {
             this.state = {
-                isRightValueInEdit: props.model.getRightValue() === '' || props.model.getRightValue() === '""',
-                rightValue: props.model.getRightValue(),
-                rightValueLength,
-                setRightValueFocus: false,
+                hasError,
+                isBValueEdit: this.props.model.getViewState().isInEdit || false,
+                focusBValueInput: false,
+                bValueText: bValue,
             };
         }
 
-        // Binding events.
-        this.deleteAttribute = this.deleteAttribute.bind(this);
-        this.onLeftValueSelected = this.onLeftValueSelected.bind(this);
-        this.onLeftValueClick = this.onLeftValueClick.bind(this);
-        this.addAnnotationEntry = this.addAnnotationEntry.bind(this);
-        this.onRightValueClick = this.onRightValueClick.bind(this);
-        this.onRightValueChange = this.onRightValueChange.bind(this);
+        this.onBValueChange = this.onBValueChange.bind(this);
+        this.onBValueEdit = this.onBValueEdit.bind(this);
+        this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
     }
 
     /**
-     * Focusing on the right side value if this.state.setRightValueFocus is true.
-     *
-     *
-     * @memberof AnnotationAttribute
-     */
-    componentDidMount() {
-        if (this.state.setRightValueFocus) {
-            this.rightValueInput.focus();
-            // eslint-disable-next-line react/no-did-mount-set-state
-            this.setState({
-                setRightValueFocus: false,
-            });
-        }
-    }
-
-    /**
-     * Focusing on the right side value if this.state.setRightValueFocus is true.
-     *
-     * @memberof AnnotationAttribute
+     * @override
      */
     componentDidUpdate() {
-        if (this.state.setRightValueFocus && this.rightValueInput) {
-            this.rightValueInput.focus();
-            // eslint-disable-next-line react/no-did-update-set-state
-            this.setState({
-                setRightValueFocus: false,
-            });
+        if (this.bValueInput && this.state.focusBValueInput) {
+            this.bValueInput.focus();
         }
     }
 
     /**
-     * Event when the left side value is changed
+     * Event when the value is changed.
      *
-     * @param {any} event The actual event.
-     *
+     * @param {Object} e The event.
      * @memberof AnnotationAttribute
      */
-    onLeftValueChange(event) {
+    onBValueChange(e) {
         this.setState({
-            leftValue: event.target.value,
+            bValueText: e.target.value,
+            hasError: e.target.value === '',
         });
     }
 
     /**
-     * Event when the right side value is changed,
+     * Event when the b-value is finished editing.
      *
-     * @param {any} event The actual event.
-     *
+     * @param {Object} event The event.
      * @memberof AnnotationAttribute
      */
-    onRightValueChange(event) {
+    onBValueEditFinished(event) {
         this.setState({
-            rightValue: event.target.value,
-            rightValueLength: util.getTextWidth(event.target.value, 150, 1000).w + 10,
+            isBValueEdit: false,
+            focusBValueInput: false,
         });
-        this.props.model.setRightValue(event.target.value, { doSilently: true });
+        this.props.model.getViewState().isInEdit = false;
+        const attributeValue = this.props.model.getValue();
+        const bValue = attributeValue.getChildren()[0];
+        bValue.setStringValue(event.target.value);
     }
 
     /**
-     * Event for editing a left side value.
+     * Event when the b-value is started to edit.
      *
-     * @param {any} e The actual event.
-     *
+     * @param {boolean} focusInput Whether to focus on the b-value.
      * @memberof AnnotationAttribute
      */
-    onLeftValueClick(e) {
+    onBValueEdit(focusInput) {
         this.setState({
-            isLeftValueInEdit: true,
+            isBValueEdit: true,
+            focusBValueInput: focusInput,
         });
-        e.stopPropagation();
+
+        this.props.model.getViewState().isInEdit = true;
     }
 
     /**
-     * Event for editing a right side value
+     * Renders the annotation attributes of an annotation attachment.
      *
-     * @param {any} e The actual event
-     *
+     * @param {AnnotationAttachment} annotationAttachment The annotation attachment.
+     * @returns {AnnotationAttribute[]}  A component list.
      * @memberof AnnotationAttribute
      */
-    onRightValueClick(e) {
-        this.setState({
-            isRightValueInEdit: true,
-            setRightValueFocus: true,
-        });
-        e.stopPropagation();
-    }
-
-    /**
-     * Event for when left side value is selected.
-     *
-     * @param {Object} event The actual event
-     * @param {string} suggestionValue The selected value.
-     *
-     * @memberof AnnotationAttribute
-     */
-    onLeftValueSelected(event, { suggestionValue }) {
-        if (suggestionValue !== this.props.model.getLeftValue()) {
-            this.props.model.setLeftValue(suggestionValue);
-            const selectedAnnotationAttribute = this.props.annotationAttributes.filter(annotationAttribute =>
-                                                            annotationAttribute.getIdentifier() === suggestionValue)[0];
-
-            const valueType = selectedAnnotationAttribute.getBType();
-            if (BallerinaEnvironment.getTypes().includes(valueType) && !selectedAnnotationAttribute.isArrayType()) {
-                if (valueType === 'string') {
-                    this.props.model.setRightValue('""', { doSilently: true });
-                } else {
-                    this.props.model.setRightValue('', { doSilently: true });
-                }
-            } else if (selectedAnnotationAttribute.isArrayType()) {
-                this.props.model.setRightValue(ASTFactory.createAnnotationEntryArray(), { doSilently: true });
-            } else {
-                let annotationDefinition;
-                for (const packageDefEnv of BallerinaEnvironment.getPackages()) {
-                    if (packageDefEnv.getName() === selectedAnnotationAttribute.getPackagePath()) {
-                        for (const annotationDef of packageDefEnv.getAnnotationDefinitions()) {
-                            if (annotationDef.getName() === selectedAnnotationAttribute.getBType()) {
-                                annotationDefinition = annotationDef;
-                            }
-                        }
-                    }
-                }
-
-                let newAnnotation;
-                if (annotationDefinition) {
-                    newAnnotation = ASTFactory.createAnnotation({
-                        fullPackageName: annotationDefinition.getPackagePath(),
-                        packageName: annotationDefinition.getPackagePath().split('.').pop(),
-                        identifier: annotationDefinition.getName(),
-                    });
-                } else {
-                    newAnnotation = ASTFactory.createAnnotation({ packageName: undefined, identifier: '' });
-                }
-
-                this.props.model.setRightValue(newAnnotation, { doSilently: true });
-            }
-            this.setState({
-                setRightValueFocus: true,
-                isRightValueInEdit: true,
-                leftValue: suggestionValue,
-            });
-        }
-
-        this.setState({
-            isLeftValueInEdit: false,
+    renderAnnotationAttributes(annotationAttachment) {
+        return annotationAttachment.getChildren().map((attribute) => {
+            return (<AnnotationAttribute
+                key={attribute.getID()}
+                model={attribute}
+                annotationDefinitionModel={
+                    AnnotationHelper.getAnnotationDefinition(
+                                            annotationAttachment.getFullPackageName(), annotationAttachment.getName())}
+            />);
         });
     }
 
     /**
-     * Remove icon click event for removing child from a {@link AnnotationEntryArray}.
+     * Rendering the values inside an annotation-attribute-value. This is used for rendering elements inside an arrayed
+     * annotation-attribute-value.
      *
-     * @param {Object} model The model to be moved.
-     *
+     * @param {AnnotationAttributeValue} attributeValue The annotation-attribute-value.
+     * @returns {AnnotationAttributeBValue|AnnotationAttachment|null} The component of the value.
      * @memberof AnnotationAttribute
      */
-    onArrayEntryRemoveIcon(model) {
-        model.getParent().removeChild(model);
-        this.setState(this.state);
-    }
-
-    /**
-     * Gets an array of annotation attribute definitions.
-     *
-     * @param {string} fullPackageName The complete package name.
-     * @param {string} identifier The identifier of the attribute.
-     * @returns {AnnotationAttributeDefinition[]} The annotation attributes.
-     *
-     * @memberof AnnotationAttribute
-     */
-    getAnnotationAttributes(fullPackageName, identifier) {
-        const annotationAttributes = [];
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
-            if (packageDefintion.getName() === fullPackageName) {
-                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    if (annotationDefinition.getName() === identifier) {
-                        for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
-                            annotationAttributes.push(annotationAttribute);
-                        }
-                    }
-                }
-            }
+    renderAnnotationAttributeValue(attributeValue) {
+        if (attributeValue.isBValue()) {
+            const buttons = [];
+            // Delete button.
+            const deleteButton = {
+                icon: 'fw-cancel',
+                text: 'Delete',
+                onClick: () => {
+                    deleteNode(attributeValue);
+                },
+            };
+            buttons.push(deleteButton);
+            return (<li key={attributeValue.getID()}>
+                <ul>
+                    <li>
+                        <AnnotationAttributeBValue model={attributeValue.getChildren()[0]} />
+                        <PopoutButton buttons={buttons} />
+                    </li>
+                </ul>
+            </li>);
+        } else if (attributeValue.isAnnotation()) {
+            return (<li key={attributeValue.getID()}>
+                <AnnotationAttachment model={attributeValue.getChildren()[0]} isNestedAnnotation />
+            </li>);
         }
-
-        return annotationAttributes;
+        // TODO: Implement for arrays ?
+        return (null);
     }
 
     /**
-     * Gets an array of annotation attribute definitions.
+     * Renders the key of an annotation attribute.
      *
-     * @param {any} annotationAST The annotation AST
-     * @param {any} annotationAttributeIdentifier The identifier of the annotation AST.
-     * @returns {AnnotationAttributeDefinition[]} The annotation attributes.
-     *
+     * @returns {AnnotationAttributeKey} Component for the key.
      * @memberof AnnotationAttribute
      */
-    getAnnotationAttributesByAST(annotationAST, annotationAttributeIdentifier) {
-        let packageNameOfAttribute;
-        let annotationDefinitionIdentifier;
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
-            if (packageDefintion.getName() === annotationAST.getFullPackageName()) {
-                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    if (annotationDefinition.getName() === annotationAST.getIdentifier()) {
-                        for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
-                            if (annotationAttribute.getName() === annotationAttributeIdentifier) {
-                                packageNameOfAttribute = packageDefintion.getName();
-                                annotationDefinitionIdentifier = annotationDefinition.getName();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return this.getAnnotationAttributes(packageNameOfAttribute, annotationDefinitionIdentifier);
+    renderKey() {
+        return (<AnnotationAttributeKey
+            attributeModel={this.props.model}
+            annotationDefinitionModel={this.props.annotationDefinitionModel}
+        />);
     }
 
     /**
-     * Getting the list of values for the left side value(key).
+     * Renders the view for an annotation-attribute-value
      *
-     * @returns {string[]} An array of string as suggestions.
-     *
-     * @memberof AnnotationAttribute
-     */
-    getLeftValuesForSuggestions() {
-        let leftValueSuggestions = this.props.annotationAttributes.map(annotationAttribute =>
-                                                                                annotationAttribute.getIdentifier());
-
-        if (ASTFactory.isAnnotation(this.props.model.getParent())) {
-            for (const annotationEntry of this.props.model.getParent().getChildren()) {
-                leftValueSuggestions = leftValueSuggestions.filter(suggestion =>
-                    suggestion !== annotationEntry.getLeftValue() || suggestion === this.props.model.getLeftValue());
-            }
-        }
-
-        return leftValueSuggestions;
-    }
-
-    /**
-     * Event for adding an AST for an arrayed type right value.
-     *
-     *
-     * @memberof AnnotationAttribute
-     */
-    addAnnotationEntry() {
-        const selectedAnnotationAttribute = this.props.annotationAttributes.filter(annotationAttribute =>
-                                            annotationAttribute.getIdentifier() === this.props.model.getLeftValue())[0];
-
-        const valueType = selectedAnnotationAttribute.getBType();
-        const annotationEntryArray = this.props.model.getRightValue();
-        if (BallerinaEnvironment.getTypes().includes(valueType)) {
-            if (valueType === 'string') {
-                annotationEntryArray.addChild(ASTFactory.createAnnotationEntry({ leftValue: '', rightValue: '""' }));
-            } else {
-                annotationEntryArray.addChild(ASTFactory.createAnnotationEntry({ leftValue: '', rightValue: '' }));
-            }
-        } else {
-            const newAnnotation = ASTFactory.createAnnotation({
-                fullPackageName: selectedAnnotationAttribute.getPackagePath(),
-                packageName: selectedAnnotationAttribute.getPackagePath().split('.').pop(),
-                identifier: valueType,
-            });
-
-            const newAnnotationEntry = ASTFactory.createAnnotationEntry({ leftValue: '', rightValue: newAnnotation });
-            annotationEntryArray.addChild(newAnnotationEntry);
-        }
-
-        this.setState(this.state);
-    }
-
-    /**
-     * Event for deleting/removing an attribute.
-     *
-     *
-     * @memberof AnnotationAttribute
-     */
-    deleteAttribute() {
-        this.props.model.parent.removeChild(this.props.model);
-        this.setState(this.state);
-    }
-
-    /**
-     * Rendering the component.
-     *
-     * @returns {ReactElement} JSX markup for annotation entry.
-     *
-     * @memberof AnnotationAttribute
+     * @returns {ReactElement} JSX of the annotation component.
+     * @memberof Annotation
      */
     render() {
-        const model = this.props.model;
-
-        const removeIcon = (<div className="annotation-attribute-remove" onClick={this.deleteAttribute}>
-            <i className="fw fw-cancel" />
-        </div>);
-
-        // Creating the view for the left side value of the annotation entry.
-        let key = (null);
-        if (!ASTFactory.isAnnotationEntryArray(model.getParent())) {
-            if (this.state.isLeftValueInEdit) {
-                key = (<td className="annotation-attribute-key">
-                    <AutoSuggestHtml
-                        items={this.getLeftValuesForSuggestions()}
-                        placeholder={'Identifier'}
-                        initialValue={this.state.leftValue}
-                        showAllAtStart
-                        onSuggestionSelected={this.onLeftValueSelected}
-                    />
-                    <span className="annotation-attribute-separator">:</span>
-                </td>);
-            } else {
-                key = (<td
-                    className="annotation-attribute-key"
-                    onClick={this.onLeftValueClick}
-                >{this.state.leftValue}<span className="annotation-attribute-separator">:</span></td>);
-            }
+        const key = this.renderKey();
+        const attributeValue = this.props.model.getValue();
+        let errorClass;
+        if (this.state.hasError) {
+            errorClass = 'annotation-attribute-error';
         }
+        if (attributeValue.isBValue()) {
+            const buttons = [];
+            // Delete button.
+            const deleteButton = {
+                icon: 'fw-cancel',
+                text: 'Delete',
+                onClick: () => {
+                    deleteNode(this.props.model);
+                },
+            };
+            buttons.push(deleteButton);
 
-        // Creating the view for the right side value of the annotation entry.
-        let value;
-        if (ASTFactory.isAnnotationEntryArray(model.getRightValue())) {
-            const addIcon = (<div className="annotation-attribute-add" onClick={this.addAnnotationEntry}>
-                <i className="fw fw-add" />
-            </div>);
-            // The model is an AnnotationEntryArray
-            if (model.getRightValue().getChildren().length > 0) {
-                const annotationEntries = model.getRightValue().getChildren();
-                const annotationEntryComponents = [];
-
-                let annotationAttributes = [];
-                if (ASTFactory.isAnnotation(model.getParent().getParent())) {
-                    annotationAttributes = this.getAnnotationAttributesByAST(model.getParent().getParent(),
-                                                                                    model.getParent().getLeftValue());
-                }
-
-                for (const annotationEntry of annotationEntries) {
-                    const arrayEntryRemoveIcon = (<div
-                        className="annotation-array-entry-remove"
-                        onClick={() => { this.onArrayEntryRemoveIcon(annotationEntry); }}
+            const bValue = attributeValue.getChildren()[0];
+            if (this.state.isBValueEdit) {
+                return (
+                    <ul
+                        className="attribute-value-bvalue"
                     >
-                        <i className="fw fw-cancel" />
-                    </div>);
-                    annotationEntryComponents.push(<tr key={`annotation-array-entry-row-${annotationEntry.getID()}`}>
-                        <td>
-                            <table className="annotation-array-entry">
-                                <tbody>
-                                    <AnnotationAttribute
-                                        model={annotationEntry}
-                                        annotationAttributes={annotationAttributes}
-                                        removeIcon={arrayEntryRemoveIcon}
-                                    />
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>);
-                }
-
-                // Deciding to have comma except for the last child(The last child of the AnnotationEntryArray)
-                let haveEndingComma = false;
-                if (ASTFactory.isAnnotation(model.getParent())) {
-                    const lengthSameLevelChildren = model.getParent().getChildren().length;
-                    const indexOfCurrentNode = model.getParent().getIndexOfChild(model);
-                    if (indexOfCurrentNode !== lengthSameLevelChildren - 1) {
-                        haveEndingComma = true;
-                    }
-                }
-
-                if (!haveEndingComma) {
-                    value = (<td className="annotation-attribute-value">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>[{addIcon}{removeIcon}</td>
-                                </tr>
-                                {annotationEntryComponents}
-                                <tr>
-                                    <td>]</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>);
-                } else {
-                    value = (<td className="annotation-attribute-value">
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>[{addIcon}{removeIcon}</td>
-                                </tr>
-                                {annotationEntryComponents}
-                                <tr>
-                                    <td>] ,</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>);
-                }
-            } else {
-                value = (<td className="annotation-attribute-value">
-                    [] {addIcon}{removeIcon}
-                </td>);
-            }
-            return <tr>{key}{value}</tr>;
-        } else if (ASTFactory.isAnnotation(model.getRightValue())) {
-            let haveEndingComma = false;
-            if (ASTFactory.isAnnotationEntryArray(model.getParent())) {
-                const lengthSameLevelChildren = model.getParent().getChildren().length;
-                const indexOfCurrentNode = model.getParent().getIndexOfChild(model);
-                if (indexOfCurrentNode !== lengthSameLevelChildren - 1) {
-                    haveEndingComma = true;
-                }
+                        <li className={errorClass}>
+                            {key}
+                            <span className="annotation-attribute-value-wrapper">
+                                <input
+                                    ref={(ref) => { this.bValueInput = ref; }}
+                                    type="text"
+                                    value={this.state.bValueText}
+                                    onChange={this.onBValueChange}
+                                    onBlur={this.onBValueEditFinished}
+                                />
+                            </span>
+                            <PopoutButton buttons={buttons} />
+                        </li>
+                    </ul>
+                );
             }
 
-            value = (<td className="annotation-attribute-value">
-                <Annotation model={model.getRightValue()} haveEndingComma={haveEndingComma} removeIcon={removeIcon} />
-            </td>);
-            return <tr>{key}{value}</tr>;
-        }
-        let endingComma = '';
-        if (ASTFactory.isAnnotationEntryArray(model.getParent()) || ASTFactory.isAnnotation(model.getParent())) {
-            const lengthSameLevelChildren = model.getParent().getChildren().length;
-            const indexOfCurrentNode = model.getParent().getIndexOfChild(model);
-            if (indexOfCurrentNode !== lengthSameLevelChildren - 1) {
-                endingComma = ' ,';
+            if (bValue.getStringValue() === undefined || bValue.getStringValue() === '') {
+                return (
+                    <ul
+                        className="attribute-value-bvalue"
+                    >
+                        <li className={errorClass} onClick={() => this.onBValueEdit(false)}>
+                            {key}
+                            <span className="annotation-attribute-value-wrapper">
+                                {bValue.getStringValue()}
+                            </span>
+                            <PopoutButton buttons={buttons} />
+                        </li>
+                    </ul>
+                );
             }
+            return (
+                <ul
+                    className="attribute-value-bvalue"
+                >
+                    <li className={errorClass}>
+                        {key}
+                        <span className="annotation-attribute-value-wrapper" onClick={() => this.onBValueEdit(true)}>
+                            {bValue.getStringValue()}
+                        </span>
+                        <PopoutButton buttons={buttons} />
+                    </li>
+                </ul>
+            );
+        } else if (attributeValue.isAnnotation()) {
+            const annotationAttachment = attributeValue.getChildren()[0];
+            const packageName = (<span>{annotationAttachment.getPackageName()}</span>);
+            const name = (<span>{annotationAttachment.getName()}</span>);
+            const buttons = [];
+            if (AnnotationHelper.getAnnotationDefinition(annotationAttachment.getFullPackageName(),
+                                    annotationAttachment.getName()).getAnnotationAttributeDefinitions().length > 0) {
+                // Add attribute button
+                const addAttributeButton = {
+                    icon: 'fw-add',
+                    text: 'Add Attribute',
+                    onClick: () => {
+                        addAttribute(annotationAttachment);
+                    },
+                };
+                buttons.push(addAttributeButton);
+            }
+            // Delete button.
+            const deleteButton = {
+                icon: 'fw-cancel',
+                text: 'Delete',
+                onClick: () => {
+                    deleteNode(this.props.model);
+                },
+            };
+            buttons.push(deleteButton);
+            if (annotationAttachment.getChildren().length > 0) {
+                const attributes = this.renderAnnotationAttributes(annotationAttachment);
+                return (
+                    <ul
+                        className="attribute-value-annotation"
+                    >
+                        <li className={errorClass}>
+                            {key}
+                            <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
+                                @{packageName}
+                            </span>
+                            :{name}
+                            <span className="annotations-open-bracket">{'{'}</span>
+                            <PopoutButton buttons={buttons} />
+                        </li>
+                        {attributes}
+                        <li>
+                            <span className="annotations-close-bracket">{'}'}</span>
+                        </li>
+                    </ul>
+                );
+            }
+
+            return (
+                <ul
+                    className="attribute-value-annotation"
+                >
+                    <li className={errorClass}>
+                        {key}
+                        <span className="annotation-attachment-package-name annotation-attribute-value-wrapper">
+                            @{packageName}
+                        </span>
+                        :{name}
+                        <span className="annotations-open-bracket">{'{'}</span>
+                        <span className="annotations-close-bracket">{'}'}</span>
+                        <PopoutButton buttons={buttons} />
+                    </li>
+                </ul>
+            );
+        } else if (attributeValue.isArray()) {
+            const buttons = [];
+            // Delete button.
+            const deleteButton = {
+                icon: 'fw-cancel',
+                text: 'Delete',
+                onClick: () => {
+                    deleteNode(this.props.model);
+                },
+            };
+            const addNewToArray = {
+                icon: 'fw-add',
+                text: 'Add Value',
+                onClick: () => {
+                    attributeValue.addChild(
+                                        getArrayValue(this.props.model.getKey(), this.props.annotationDefinitionModel));
+                },
+            };
+            buttons.push(addNewToArray);
+            buttons.push(deleteButton);
+            if (attributeValue.getChildren().length > 0) {
+                const arrayValues = [];
+                attributeValue.getChildren().forEach((annotationAttributeValue) => {
+                    arrayValues.push(this.renderAnnotationAttributeValue(annotationAttributeValue));
+                });
+                return (
+                    <ul
+                        className="attribute-value-array"
+                    >
+                        <li className={errorClass}>
+                            {key}
+                            <span
+                                className="annotations-attribute-open-square-bracket annotation-attribute-value-wrapper"
+                            >
+                                [
+                            </span>
+                            <PopoutButton buttons={buttons} />
+                        </li>
+                        {arrayValues}
+                        <li>
+                            <span className="annotations-attribute-close-square-bracket">]</span>
+                        </li>
+                    </ul>
+                );
+            }
+
+            return (
+                <ul
+                    className="attribute-value-array"
+                >
+                    <li className={errorClass}>
+                        {key}
+                        <span
+                            className="annotations-attribute-open-square-bracket  annotation-attribute-value-wrapper"
+                        >
+                            [
+                        </span>
+                        <span className="annotations-attribute-close-square-bracket">]</span>
+                        <PopoutButton buttons={buttons} />
+                    </li>
+                </ul>
+            );
         }
 
-        if (this.state.isRightValueInEdit) {
-            value = (<td className="annotation-attribute-value" onClick={this.onRightValueClick}>
-                <input
-                    type="text"
-                    placeholder="value"
-                    value={this.state.rightValue}
-                    onChange={this.onRightValueChange}
-                    onBlur={(event) => {
-                        this.setState({ isRightValueInEdit: false });
-                        this.props.model.setRightValue(event.target.value);
-                    }}
-                    onKeyUp={(event) => {
-                        if (event.key === 'Enter') {
-                            this.props.model.setRightValue(event.target.value);
-                        }
-                    }}
-                    ref={(input) => { this.rightValueInput = input; }}
-                    style={{ width: this.state.rightValueLength }}
-                />
-                {endingComma}{removeIcon}
-            </td>);
-        } else {
-            value = (<td className="annotation-attribute-value"onClick={this.onRightValueClick}>
-                {this.state.rightValue}{endingComma}{removeIcon}</td>);
-        }
-
-        return <tr>{key}{value}</tr>;
+        return (null);
     }
-
 }
 
 AnnotationAttribute.propTypes = {
-    model: PropTypes.instanceOf(AnnoationEntry).isRequired,
-    annotationAttributes: PropTypes.arrayOf(PropTypes.instanceOf(AnnotationAttributeDefinition)),
-};
-
-AnnotationAttribute.defaultProps = {
-    annotationAttributes: [],
+    model: PropTypes.instanceOf(AnnotationAttributeAST).isRequired,
+    annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition).isRequired,
 };
 
 export default AnnotationAttribute;

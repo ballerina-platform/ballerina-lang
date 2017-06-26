@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import ResourceDefinitionVisitor from './resource-definition-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
@@ -50,11 +51,13 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
+
         let constructedSourceSegment = '';
-        _.forEach(serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation),
-            (annotationNode) => {
-                constructedSourceSegment += annotationNode.toString()
-                      + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
             });
 
         const lineNumber = this.getTotalNumberOfLinesInSource()
