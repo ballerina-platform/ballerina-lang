@@ -17,27 +17,61 @@
   -->
 <FindBugsFilter>
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.model.values"/>-->
+    <!--<Package name="org.ballerinalang.model.values"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.wso2.ballerina.interpreter"/>-->
+    <!--<Package name="org.wso2.ballerina.interpreter"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.model.statements"/>-->
+    <!--<Package name="org.ballerinalang.model.statements"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model.expressions"/>-->
+    <!--<Package name="org.ballerinalang.core.model.expressions"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model.types"/>-->
+    <!--<Package name="org.ballerinalang.core.model.types"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.model"/>-->
+    <!--<Package name="org.ballerinalang.core.model"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.interpreter"/>-->
+    <!--<Package name="org.ballerinalang.core.interpreter"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
     <!--<Match>-->
-        <!--<Package name="org.ballerinalang.core.parser"/>-->
+    <!--<Package name="org.ballerinalang.core.parser"/>-->
+    <!--<Not>-->
+    <!--<Bug category="SECURITY"/>-->
+    <!--</Not>-->
     <!--</Match>-->
+    <Match>
+        <Class name="org.ballerinalang.launcher.LauncherUtils"/>
+        <Method name="writePID"/>
+        <!--<Note>Potential Path Traversal (file write). This method does not use any user input parameters.</Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.launcher.Main"/>
+        <Method name="main"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use any user input parameters.</Note>-->
+    </Match>
 </FindBugsFilter>

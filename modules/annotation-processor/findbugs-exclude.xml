@@ -16,7 +16,27 @@
   ~ under the License.
   -->
 <FindBugsFilter>
+
     <Match>
         <Package name="org.ballerinalang.annotation.processors"/>
+        <Not>
+            <Bug category="SECURITY"/>
+        </Not>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.natives.annotation.processor.ConstructProviderClassBuilder"/>
+        <Or>
+            <Method name="getConstructInsertStr"/>
+            <Method name="getConstructInsertStrForAction"/>
+            <Method name="getFunctionConstructInsertStr"/>
+            <!--<Note>Format String Manipulation. This methods do not use end user inputs for format string.</Note>-->
+        </Or>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.natives.annotation.processor.ConstructProviderClassBuilder"/>
+        <Or>
+            <Method name="writeBuiltInBalPackages"/>
+            <!--<Note>Potential Path Traversal (file read).This is not a input parameter (SrcDir) </Note>-->
+        </Or>
     </Match>
 </FindBugsFilter>
