@@ -2438,50 +2438,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             return rType;
         }
         throw getInvalidBinaryOpError(binaryExpr);
-
-//        if (!(rType.equals(lType))) {
-//            TypeCastExpression newExpr;
-//            TypeEdge newEdge;
-//
-//            if (((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
-//                    && binaryExpr.getOperator().equals(Operator.ADD)) || (!(rType.equals(BTypes.typeString)) &&
-//                    !(lType.equals(BTypes.typeString)))) {
-//                newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
-//                if (newEdge != null) { // Implicit cast from right to left
-//                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
-//                            rExpr, lType);
-//                    newExpr.setOpcode(newEdge.getOpcode());
-//                    newExpr.accept(this);
-//                    binaryExpr.setRExpr(newExpr);
-//                    return lType;
-//                } else {
-//                    newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
-//                    if (newEdge != null) { // Implicit cast from left to right
-//                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
-//                                lExpr, rType);
-//                        newExpr.setOpcode(newEdge.getOpcode());
-//                        newExpr.accept(this);
-//                        binaryExpr.setLExpr(newExpr);
-//                        return rType;
-//                    }
-//                }
-//            }
-//            throwInvalidBinaryOpError(binaryExpr);
-//        }
-//        return rType;
     }
 
     private Expression createConversionExpr(BinaryExpression binaryExpr, Expression sExpr,
                                             BType sType, BType tType) {
         TypeEdge newEdge;
-//        newEdge = castLattice.getEdgeFromTypes(sType, tType, null);
-//        if (newEdge != null) {
-//            TypeCastExpression newExpr = new TypeCastExpression(sExpr.getNodeLocation(),
-//                    sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
-//            newExpr.setOpcode(newEdge.getOpcode());
-//            newExpr.accept(this);
-//            return newExpr;
-//        }
         newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sType, tType, null);
         if (newEdge != null) {
             TypeConversionExpr newExpr = new TypeConversionExpr(sExpr.getNodeLocation(),

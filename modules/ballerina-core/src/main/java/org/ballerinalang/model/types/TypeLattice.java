@@ -75,8 +75,6 @@ public class TypeLattice {
         implicitCastLattice.addVertex(stringV, false);
 
         implicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
-//        implicitCastLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F); //todo do we need this? - rajith
-//        implicitCastLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S); //todo do we need this? - rajith
         implicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
         implicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
         implicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
@@ -119,8 +117,6 @@ public class TypeLattice {
 
 //        explicitCastLattice.addEdge(intV, intV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
-//        explicitCastLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F); //todo do we need this? - rajith
-//        explicitCastLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S); //todo do we need this? - rajith
         explicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
 
 //        explicitCastLattice.addEdge(floatV, floatV, SAFE, InstructionCodes.NOP);
@@ -129,7 +125,7 @@ public class TypeLattice {
 
 //        explicitCastLattice.addEdge(stringV, stringV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
-        explicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON); //todo do we need this?
+        explicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
 
 //        explicitCastLattice.addEdge(booleanV, booleanV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
