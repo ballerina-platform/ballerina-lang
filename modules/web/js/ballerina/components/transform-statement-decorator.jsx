@@ -119,6 +119,28 @@ class TransformStatementDecorator extends React.Component {
         }
     }
 
+    getTransformVarJson(args) {
+        let argArray = [];
+        _.forEach(args, argument => {
+            if (BallerinaASTFactory.isVariableDefinitionStatement(argument)) {
+                let arg = {
+                    id : argument.getID(),
+                    type : argument.children[0].getVariableType(),
+                    name : argument.children[0].getVariableName()
+                };
+                argArray.push(arg);
+            } else if (BallerinaASTFactory.isParameterDefinition(argument)) {
+                let arg = {
+                    id : argument.getID(),
+                    type : argument.getTypeName(),
+                    name : argument.getName()
+                };
+                argArray.push(arg);
+            }
+        });
+        return argArray;
+    }
+
     onExpand() {
         self = this;
         this._package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
@@ -189,31 +211,40 @@ class TransformStatementDecorator extends React.Component {
 
         this.predefinedStructs = [];
         let transformIndex = this.props.model.parent.getIndexOfChild(this.props.model);
-        _.forEach(this.props.model.filterChildrenInScope(
-                                     this.props.model.getFactory().isVariableDefinitionStatement), (variableDefStmt) => {
-            let currentIndex = this.props.model.parent.getIndexOfChild(variableDefStmt);
-            let isStruct = false;
-               // Checks struct defined before the transform statement
-            if (currentIndex < transformIndex) {
-                _.forEach(this._package.getStructDefinitions(), (predefinedStruct) => {
-                    if (variableDefStmt.children[0].getVariableType() == predefinedStruct.getStructName()) {
-                        let struct = self.createType(variableDefStmt.children[0].getVariableName(),
-                                                        variableDefStmt.children[0].getVariableType(), predefinedStruct);
-                        self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
-                        self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
-                        isStruct = true;
-                    }
-                });
 
-                if (!isStruct) {
-                    let variableType = {};
-                    variableType.id = variableDefStmt.id;
-                    variableType.name = variableDefStmt.children[0].getVariableName();
-                    variableType.type = variableDefStmt.children[0].getVariableType();
-                    self.predefinedStructs.push(variableType);
-                    self.loadSchemaToComboBox(sourceId, variableType.name, variableType.type);
-                    self.loadSchemaToComboBox(targetId, variableType.name, variableType.type);
+        //getting variables and arguments
+        let variables = this.props.model.filterChildrenInScope(
+                                     this.props.model.getFactory().isVariableDefinitionStatement)
+        let argHolders = this.props.model.filterChildrenInScope(
+                                     this.props.model.getFactory().isArgumentParameterDefinitionHolder)
+        let paramArgs = [];
+        _.forEach(argHolders, argHolder => {
+            _.forEach(argHolder.getChildren(), arg => {
+                paramArgs.push(arg);
+            });
+        });
+
+        let transformVars = this.getTransformVarJson(variables.concat(paramArgs));
+
+        _.forEach(transformVars,(arg) => {
+            let isStruct = false;
+            _.forEach(this._package.getStructDefinitions(), (predefinedStruct) => {
+                if (arg.type == predefinedStruct.getStructName()) {
+                    let struct = self.createType(arg.name, arg.type, predefinedStruct);
+                    self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
+                    self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
+                    isStruct = true;
                 }
+            });
+
+            if (!isStruct) {
+                let variableType = {};
+                variableType.id = arg.id;
+                variableType.name = arg.name;
+                variableType.type = arg.type;
+                self.predefinedStructs.push(variableType);
+                self.loadSchemaToComboBox(sourceId, variableType.name, variableType.type);
+                self.loadSchemaToComboBox(targetId, variableType.name, variableType.type);
             }
         });
         $('.type-mapper-combo').select2();
@@ -342,11 +373,13 @@ class TransformStatementDecorator extends React.Component {
         this.transformOverlayDiv.style.display = 'block';
 
         _.forEach(self.props.model.getInput(), (input) => {
-            self.setSource(input.getExpressionString(), self.predefinedStructs);
+            //trim expression to remove any possible white spaces
+            self.setSource(input.getExpressionString().trim(), self.predefinedStructs);
         });
 
         _.forEach(self.props.model.getOutput(), (output) => {
-            self.setTarget(output.getExpressionString(), self.predefinedStructs);
+            //trim expression to remove any possible white spaces
+            self.setTarget(output.getExpressionString().trim(), self.predefinedStructs);
         });
 
         _.forEach(this.props.model.getChildren(), (statement) => {
