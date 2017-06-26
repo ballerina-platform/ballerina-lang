@@ -221,6 +221,9 @@ public abstract class Table implements FindableProcessor {
 
     protected abstract void connect() throws ConnectionUnavailableException;
 
+    protected abstract void disconnect();
+
+    protected abstract void destroy();
 
     public void shutdown() {
         disconnect();
@@ -228,10 +231,4 @@ public abstract class Table implements FindableProcessor {
         isConnected.set(false);
         isTryingToConnect.set(false);
     }
-
-    protected abstract void disconnect();
-
-    protected abstract void destroy();
-
-
 }

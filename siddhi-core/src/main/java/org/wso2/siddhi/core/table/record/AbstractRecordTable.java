@@ -18,12 +18,14 @@
 
 package org.wso2.siddhi.core.table.record;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.Table;
@@ -40,6 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An abstract implementation of table. Abstract implementation will handle {@link ComplexEventChunk} so that
@@ -47,8 +51,11 @@ import java.util.Map;
  */
 public abstract class AbstractRecordTable extends Table {
 
+    private static final Logger log = Logger.getLogger(AbstractRecordTable.class);
+
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
@@ -305,5 +312,28 @@ public abstract class AbstractRecordTable extends Table {
             }
             return new RecordStoreCompiledCondition(newVariableExpressionExecutorMap, compiledCondition);
         }
+    }
+
+    public abstract void connect() throws ConnectionUnavailableException;
+
+    public void connectWithRetry(ExecutorService executorService) {
+        while (!isConnected.get()) {
+            try {
+                connect();
+                isConnected.set(true);
+            } catch (ConnectionUnavailableException e) {
+                log.error(e.getMessage() + ", Retrying in ", e);
+            }
+        }
+    }
+
+    public abstract void disconnect();
+
+    public abstract void destroy();
+
+    public void shutdown() {
+        isConnected.set(false);
+        disconnect();
+        destroy();
     }
 }

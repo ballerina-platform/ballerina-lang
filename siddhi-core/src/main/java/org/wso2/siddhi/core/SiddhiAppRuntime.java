@@ -268,6 +268,10 @@ public class SiddhiAppRuntime {
             }
         }
 
+        for (Table table : tableMap.values()) {
+            table.shutdown();
+        }
+
         for (EternalReferencedHolder eternalReferencedHolder : siddhiAppContext.getEternalReferencedHolders()) {
             try {
                 eternalReferencedHolder.stop();

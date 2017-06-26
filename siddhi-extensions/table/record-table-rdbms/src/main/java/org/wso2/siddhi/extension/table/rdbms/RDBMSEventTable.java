@@ -280,6 +280,21 @@ public class RDBMSEventTable extends AbstractRecordTable {
         return new RDBMSCompiledCondition(visitor.returnCondition(), visitor.getParameters());
     }
 
+    @Override
+    public void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
     /**
      * Method for looking up a datasource instance through JNDI.
      *
