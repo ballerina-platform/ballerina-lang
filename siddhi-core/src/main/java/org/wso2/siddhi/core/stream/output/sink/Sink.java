@@ -150,7 +150,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
             }
         } else if (isTryingToConnect.get()) {
             LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
-                    "' as its still trying to reconnect!, event dropped '" + payload + "'");
+                    "' as its still trying to reconnect!, events dropped '" + payload + "'");
         } else {
             connectWithRetry();
             publishEvents(payload, transportOptions);

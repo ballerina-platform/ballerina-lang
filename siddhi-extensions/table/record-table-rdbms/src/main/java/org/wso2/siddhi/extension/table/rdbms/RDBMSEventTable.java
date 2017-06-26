@@ -26,6 +26,7 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
@@ -712,5 +713,20 @@ public class RDBMSEventTable extends AbstractRecordTable {
             throw new RDBMSTableException("Dropping event since value for attribute name " + attribute.getName() +
                     "cannot be set: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    protected void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    protected void disconnect() {
+
+    }
+
+    @Override
+    protected void destroy() {
+
     }
 }

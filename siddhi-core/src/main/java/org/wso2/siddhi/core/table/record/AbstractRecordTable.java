@@ -45,7 +45,7 @@ import java.util.Map;
  * An abstract implementation of table. Abstract implementation will handle {@link ComplexEventChunk} so that
  * developer can directly work with event data.
  */
-public abstract class AbstractRecordTable implements Table {
+public abstract class AbstractRecordTable extends Table {
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;

@@ -55,7 +55,7 @@ public class InConditionExpressionExecutor extends ConditionExpressionExecutor {
             } else {
                 finderStateEvent.setEvent(matchingStreamIndex, (StreamEvent) event);
             }
-            return table.contains(finderStateEvent, compiledCondition);
+            return table.containsEvent(finderStateEvent, compiledCondition);
         } finally {
             if (isMatchingEventAStateEvent) {
                 finderStateEvent.setEvent(null);

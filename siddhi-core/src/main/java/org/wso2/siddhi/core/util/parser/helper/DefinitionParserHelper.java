@@ -173,7 +173,7 @@ public class DefinitionParserHelper {
             } else {
                 table = new InMemoryTable();
             }
-            table.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
+            table.initTable(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
                     siddhiAppContext);
             tableMap.putIfAbsent(tableDefinition.getId(), table);
         }
