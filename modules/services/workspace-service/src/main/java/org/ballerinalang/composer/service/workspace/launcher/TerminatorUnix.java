@@ -83,7 +83,7 @@ public class TerminatorUnix implements Terminator {
 
     /**
      * Terminate running ballerina program
-     * @param pid
+     * @param pid - process id
      */
     public void kill(int pid) {
         //todo need to put aditional validation
@@ -98,7 +98,10 @@ public class TerminatorUnix implements Terminator {
             logger.error("Launcher was unable to terminate process:" + pid + ".");
         }
     }
-
+    /**
+     * Terminate running all child processes for a given pid
+     * @param pid - process id
+     */
     private void killChildProcesses(int pid) {
         BufferedReader reader = null;
         try {
