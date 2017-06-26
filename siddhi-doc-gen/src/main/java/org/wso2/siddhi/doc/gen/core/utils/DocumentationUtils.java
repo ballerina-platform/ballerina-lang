@@ -24,7 +24,11 @@ import freemarker.template.TemplateExceptionHandler;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.wso2.siddhi.annotation.*;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
@@ -35,14 +39,32 @@ import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.doc.gen.commons.*;
+import org.wso2.siddhi.doc.gen.commons.ExampleMetaData;
+import org.wso2.siddhi.doc.gen.commons.ExtensionMetaData;
+import org.wso2.siddhi.doc.gen.commons.ExtensionType;
+import org.wso2.siddhi.doc.gen.commons.NamespaceMetaData;
+import org.wso2.siddhi.doc.gen.commons.ParameterMetaData;
+import org.wso2.siddhi.doc.gen.commons.ReturnAttributeMetaData;
+import org.wso2.siddhi.doc.gen.commons.SystemParameterMetaData;
 import org.wso2.siddhi.doc.gen.core.freemarker.FormatDescriptionMethod;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Utility class for getting the meta data for the extension processors in Siddhi
@@ -102,10 +124,12 @@ public class DocumentationUtils {
         try {
             // Adding the generated classes to the class loader
             urls[urlCount - 1] = classesDirectory.toURI().toURL();
+            ClassLoader urlClassLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
 
-            ClassLoader urlClassLoader =
-                    new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
-
+                }
+            });
             // Getting extensions from all the class files in the classes directory
             addExtensionInDirectory(classesDirectory, classesDirectory.getAbsolutePath(), urlClassLoader,
                     namespaceMetaDataList, logger);
@@ -120,11 +144,11 @@ public class DocumentationUtils {
      * Search for class files in the directory and add extensions from them
      * This method recursively searches the sub directories
      *
-     * @param directory The directory from which the extension metadata will be loaded
-     * @param classesDirectoryPath The absolute path to the classes directory in the target folder in the module
-     * @param urlClassLoader The url class loader which should be used for loading the classes
+     * @param directory             The directory from which the extension metadata will be loaded
+     * @param classesDirectoryPath  The absolute path to the classes directory in the target folder in the module
+     * @param urlClassLoader        The url class loader which should be used for loading the classes
      * @param namespaceMetaDataList List of namespace meta data
-     * @param logger The maven logger
+     * @param logger                The maven logger
      * @throws MojoExecutionException If failed to
      */
     private static void addExtensionInDirectory(File directory, String classesDirectoryPath,
@@ -149,11 +173,11 @@ public class DocumentationUtils {
      * Add an extension annotation in a file
      * This first checks if this is a class file and loads the class and adds the annotation if present
      *
-     * @param file The file from which the extension metadata will be loaded
-     * @param classesDirectoryPath The absolute path to the classes directory in the target folder in the module
-     * @param urlClassLoader The url class loader which should be used for loading the classes
+     * @param file                  The file from which the extension metadata will be loaded
+     * @param classesDirectoryPath  The absolute path to the classes directory in the target folder in the module
+     * @param urlClassLoader        The url class loader which should be used for loading the classes
      * @param namespaceMetaDataList List of namespace meta data
-     * @param logger The maven logger
+     * @param logger                The maven logger
      * @throws MojoExecutionException If failed to load class
      */
     private static void addExtensionInFile(File file, String classesDirectoryPath, ClassLoader urlClassLoader,
@@ -315,7 +339,7 @@ public class DocumentationUtils {
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                                          String outputDirectory) throws MojoFailureException {
+                                             String outputDirectory) throws MojoFailureException {
         // Creating the free marker configuration
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
         cfg.setDefaultEncoding("UTF-8");
@@ -341,12 +365,20 @@ public class DocumentationUtils {
 
                 // Generating empty documentation files
                 File file = new File(outputDirectory + File.separator + fileName);
-                file.getParentFile().mkdirs();
-                file.createNewFile();
+                if (!file.getParentFile().exists()) {
+                    if (!file.getParentFile().mkdirs()) {
+                        throw new MojoFailureException("Unable to create directory " + file.getParentFile());
+                    }
+                }
+                if (!file.exists()) {
+                    if (!file.createNewFile()) {
+                        throw new MojoFailureException("Unable to create file " + file.getAbsolutePath());
+                    }
+                }
 
                 // Writing to the documentation file
                 try (OutputStream outputStream = new FileOutputStream(file)) {
-                    try (Writer writer = new OutputStreamWriter(outputStream)) {
+                    try (Writer writer = new OutputStreamWriter(outputStream, Charset.defaultCharset())) {
                         template.process(rootDataModel, writer);
                     }
                 } catch (TemplateException e) {
