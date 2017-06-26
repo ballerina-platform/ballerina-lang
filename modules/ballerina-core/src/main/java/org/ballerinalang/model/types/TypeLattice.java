@@ -115,19 +115,15 @@ public class TypeLattice {
         explicitCastLattice.addVertex(messageV, false);
         explicitCastLattice.addVertex(datatableV, false);
 
-//        explicitCastLattice.addEdge(intV, intV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
         explicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
 
-//        explicitCastLattice.addEdge(floatV, floatV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(floatV, anyV, SAFE, InstructionCodes.F2ANY);
         explicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
 
-//        explicitCastLattice.addEdge(stringV, stringV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
         explicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
 
-//        explicitCastLattice.addEdge(booleanV, booleanV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
         explicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
 
@@ -148,7 +144,6 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, messageV, UNSAFE, InstructionCodes.ANY2MSG);
         explicitCastLattice.addEdge(anyV, datatableV, UNSAFE, InstructionCodes.ANY2DT);
 
-//        explicitCastLattice.addEdge(jsonV, jsonV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, messageV, SAFE, InstructionCodes.ANY2MSG);
 
@@ -157,10 +152,8 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, floatV, UNSAFE, InstructionCodes.JSON2F);
         explicitCastLattice.addEdge(jsonV, booleanV, UNSAFE, InstructionCodes.JSON2B);
 
-//        explicitCastLattice.addEdge(xmlV, xmlV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, anyV, SAFE, InstructionCodes.NOP);
 
-//        explicitCastLattice.addEdge(mapV, mapV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(mapV, anyV, SAFE, InstructionCodes.NOP);
 
         explicitCastLattice.addEdge(datatableV, anyV, SAFE, InstructionCodes.NOP);
