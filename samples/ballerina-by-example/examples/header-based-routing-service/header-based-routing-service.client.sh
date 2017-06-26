@@ -1,6 +1,6 @@
-# To invoke the service, use following client
+# To invoke the service, use following client.
 $ curl -v http://localhost:9090/hbr/route -H "type:location"
-# Server response
+# Server response:
 {
     "name": "Colombo,Sri Lanka",
     "longitude": -556.49,
@@ -8,7 +8,7 @@ $ curl -v http://localhost:9090/hbr/route -H "type:location"
     "altitude": 230,
 }
 $ curl -v http://localhost:9090/hbr/route -H "type:weather"
-# Server response
+# Server response:
 {"coord":{"lon":139.01,"lat":35.02},"weather":[{"id":800,
 "main":"Clear","description":"clear sky","icon":"01n"}],
 "base":"station","main":{"temp":25.51,"clouds":{"all":0},

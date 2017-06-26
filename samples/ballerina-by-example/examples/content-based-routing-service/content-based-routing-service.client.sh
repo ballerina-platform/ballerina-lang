@@ -1,6 +1,6 @@
-# To invoke the service, use following client
+# To invoke the service, use following client.
 $ curl -v http://localhost:9090/cbr/route -d '{"name" : "sanFrancisco"}'
-# Server response
+# Server response:
 {
     "name": "San Francisco Test Station,USA",
     "longitude": -122.43,
@@ -9,7 +9,7 @@ $ curl -v http://localhost:9090/cbr/route -d '{"name" : "sanFrancisco"}'
     "rank": 1
 }
 $ curl -v http://localhost:9090/cbr/route -d '{"name" : "london"}'
-# Server response
+# Server response:
 {
     "name": "London Test Station,England",
     "longitude": -156.49,
