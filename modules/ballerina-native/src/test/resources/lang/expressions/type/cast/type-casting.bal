@@ -2,43 +2,50 @@ import ballerina.lang.errors;
 
 function floattoint(float value)(int) {
     int result;
-    result = (int)value;
+    //float to int should be a conversion
+    result, _ = <int>value;
     return result;
 }
  
 function inttofloat(int value)(float) {
     float result;
-    result = value;
+    //int to float should be a conversion
+    result = <float> value;
     return result;
 }
 
 function stringtoint(string value)(int) {
     int result;
-    result = (int)value;
+    //string to int should be a unsafe conversion
+    result, _ = <int>value;
     return result;
 }
 
 function stringtofloat(string value)(float) {
     float result;
-    result = (float)value;
+    //string to float should be a conversion
+    result, _ = <float>value;
     return result;
 }
 
 function inttostring(int value)(string) {
     string result;
-    result = (string)value;
+    //int to string should be a conversion
+    result = <string>value;
     return result;
 }
 
 function floattostring(float value)(string) {
     string result;
-    result = (string)value;
+    //float to string should be a conversion
+    result = <string>value;
     return result;
 }
 
 function booleantostring(boolean value)(string) {
     string result;
-    result = (string)value;
+    //boolean to string should be a conversion
+    result = <string>value;
     return result;
 }
 
@@ -55,22 +62,30 @@ function intarrtofloatarr()(float[]) {
 }
 
 function testJsonToString(json j) (string) {
-    return (string)j;
+    string value;
+    value, _ = (string)j;
+    return value;
 }
 
 function testJsonToInt() (int){
     json j = 5;
-    return (int)j;
+    int value;
+    value, _ = (int)j;
+    return value;
 }
 
 function testJsonToFloat() (float){
     json j = 7.65;
-    return (float)j;
+    float value;
+    value, _ = (float)j;
+    return value;
 }
 
 function testJsonToBoolean() (boolean){
     json j = true;
-    return (boolean)j;
+    boolean value;
+    value, _ = (boolean)j;
+    return value;
 }
 
 function testStringToJson(string s) (json) {
@@ -109,32 +124,64 @@ function testStructToStruct() (Student) {
 
 function testJsonIntToString() (string) {
     json j = 5;
-    return (int)j; 
+    int value;
+    value, _ = (int)j;
+    return <string> value;
 }
 
 function testBooleanInJsonToInt() (int) {
     json j = true;
-    return (int)j;
+    int value;
+    errors:TypeCastError e;
+    value, e = (int)j;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testIncompatibleJsonToInt() (int) {
     json j = "hello";
-    return (int)j;
+    int value;
+    errors:TypeCastError e;
+    value, e = (int)j;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testIntInJsonToFloat() (float) {
     json j = 7;
-    return (float)j;
+    float value;
+    errors:TypeCastError e;
+    value, e = (float)j;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testIncompatibleJsonToFloat() (float) {
     json j = "hello";
-    return (float)j;
+    float value;
+    errors:TypeCastError e;
+    value, e = (float)j;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testIncompatibleJsonToBoolean() (boolean) {
     json j = "hello";
-    return (boolean)j;
+    boolean value;
+    errors:TypeCastError e;
+    value, e = (boolean)j;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 struct Address {
@@ -144,22 +191,30 @@ struct Address {
 
 function testNullJsonToString() (string) {
     json j;
-    return (string)j;
+    string value;
+    value, _ = (string)j;
+    return value;
 }
 
 function testNullJsonToInt() (int) {
     json j;
-    return (int)j;
+    int value;
+    value, _ = (int)j;
+    return value;
 }
 
 function testNullJsonToFloat() (float) {
     json j;
-    return (float)j;
+    float value;
+    value, _ = (float)j;
+    return value;
 }
 
 function testNullJsonToBoolean() (boolean) {
     json j;
-    return (boolean)j;
+    boolean value;
+    value, _ = (boolean)j;
+    return value;
 }
 
 function testNullStructToStruct() (Student) {
@@ -169,56 +224,108 @@ function testNullStructToStruct() (Student) {
 
 function testAnyIntToJson() (json) {
     any a = 8;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyStringToJson() (json) {
     any a = "Supun";
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyBooleanToJson() (json) {
     any a = true;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyFloatToJson() (json) {
     any a = 8.73;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyMapToJson() (json) {
     map m = {name:"supun"};
     any a = m;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyStructToJson() (json) {
     Address adrs = {city:"CA"};
     any a = adrs;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyNullToJson() (json) {
     any a = null;
-    return (json) a;
+    json value;
+    value, _ = (json) a;
+    return value;
 }
 
 function testAnyJsonToJson() (json) {
     json j = {home:"SriLanka"};
     any a = j;
-    return (json) a;
+    json value;
+    value, _ = (json) a;
+    return value;
 }
 
 function testAnyArrayToJson() (json) {
     any a = [8,4,6];
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testAnyMessageToJson() (json) {
     message m = {};
     any a = m;
-    return (json) a;
+    json value;
+    errors:TypeCastError e;
+    value, e = (json) a;
+    if (e != null) {
+        throw e;
+    }
+    return value;
 }
 
 function testStructAsAnyToStruct() (Person) {
@@ -230,7 +337,8 @@ function testStructAsAnyToStruct() (Person) {
                  marks:[24, 81]
                };
     any a = p1;
-    Person p2 = (Person) a;
+    Person p2;
+    p2, _ = (Person) a;
     return p2;
 }
 
@@ -242,23 +350,34 @@ function testAnyToStruct() (Person) {
                  info:{status:"single"},
                  marks:[24, 81]
                };
-    Person p2 = (Person) a;
+    Person p2;
+    errors:TypeCastError e;
+    p2, e = (Person) a;
+    if (e != null) {
+        throw e;
+    }
     return p2;
 }
 
 function testAnyNullToStruct() (Person) {
     any a;
-    return (Person) a;
+    Person p;
+    p, _ = (Person) a;
+    return p;
 }
 
 function testAnyNullToMap() (map) {
     any a;
-    return (map) a;
+    map value;
+    value, _ = (map) a;
+    return value;
 }
 
 function testAnyNullToXml() (xml) {
     any a;
-    return (xml) a;
+    xml value;
+    value, _ = (xml) a;
+    return value;
 }
 
 function testMapToAny() (any) {

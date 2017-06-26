@@ -34,7 +34,7 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
             if (airlineResponses["ABC_Airline"] != null) {
                 any[] abc;
                 abc,_ = (any[]) airlineResponses["ABC_Airline"];
-                results[0] = (message) abc[0];
+                results[0], _ = (message) abc[0];
                 system:println(results[0]);
                 return results;
             }
@@ -42,7 +42,7 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
             if (airlineResponses["XYZ_Airline"] != null) {
                 any[] xyz;
                 xyz,_ = (any[]) airlineResponses["XYZ_Airline"];
-                results[0] = (message) xyz[0];
+                results[0], _ = (message) xyz[0];
                 system:println(results[0]);
                 return results;
             }

@@ -278,15 +278,15 @@ function testUpdateNestedElement() (json) {
 
 function testEmptyStringToJson() (json) {
     string s = "";
-    return <json> s;
+    return (json) s;
 }
 
 function testJsonStringToJson() (json) {
     string s = "{\"name\", \"supun\"}";
-    return <json> s;
+    return (json) s;
 }
 
 function testStringWithEscapedCharsToJson() (json) {
     string s = "{\\\"name\\\", \"supun\"}";
-    return <json> s;
+    return (json) s;
 }

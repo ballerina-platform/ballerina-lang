@@ -202,7 +202,6 @@ public class TypeLattice {
         conversionLattice.addEdge(stringV, floatV, UNSAFE, InstructionCodes.S2F);
         conversionLattice.addEdge(stringV, intV, UNSAFE, InstructionCodes.S2I);
         conversionLattice.addEdge(stringV, booleanV, UNSAFE, InstructionCodes.S2B);
-        conversionLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON); //todo rm this after add native func
 
         conversionLattice.addEdge(booleanV, stringV, SAFE, InstructionCodes.B2S);
         conversionLattice.addEdge(booleanV, intV, SAFE, InstructionCodes.B2I);
