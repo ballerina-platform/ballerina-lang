@@ -35,7 +35,9 @@ class SourceModifyOperation extends UndoableOperation {
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
         sourceView.undo();
-        file.setContent(sourceView.getContent()).save();
+        file.setContent(sourceView.getContent())
+            .setDirty(true)
+            .save();
     }
 
     prepareUndo(next) {
@@ -57,7 +59,9 @@ class SourceModifyOperation extends UndoableOperation {
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
         sourceView.redo();
-        file.setContent(sourceView.getContent()).save();
+        file.setContent(sourceView.getContent())
+            .setDirty(true)
+            .save();
     }
 
     prepareRedo(next) {
