@@ -3728,8 +3728,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+    private void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
         for (int i = 0; i < expr.length; i++) {
+            String varName = getVarNameFromExpression(expr[i]);
+            if (varName.equals("_")) {
+                continue;
+            }
             ((VariableRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
         }
     }

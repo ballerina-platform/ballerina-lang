@@ -71,6 +71,19 @@ public class VarDeclaredAssignmentStmtTest {
     }
 
     @Test
+    public void testMultipleIntToVarAssignmentWithUnderscore() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testMultipleIntToVarAssignmentWithUnderscore",
+                new BValue[]{});
+        Assert.assertEquals(returns.length, 2);
+
+        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns[1]);
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
+    }
+
+    @Test
     public void testStringToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testStringToVarAssignment",
                 new BValue[]{});
