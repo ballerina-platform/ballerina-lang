@@ -18,6 +18,7 @@ package org.ballerinalang.model.values;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
+import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
@@ -25,7 +26,11 @@ import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
+import org.apache.axiom.om.impl.dom.CommentImpl;
+import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
+import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
@@ -443,12 +448,36 @@ public final class BXMLItem extends BXML<OMNode> {
      */
     @Override
     public BXMLItem copy() {
+        OMNode clonedNode = null;
         switch (nodeType) {
             case ELEMENT:
-                return new BXMLItem(((OMElement) omNode).cloneOMElement());
+                clonedNode = ((OMElement) omNode).cloneOMElement();
+                break;
+            case TEXT:
+                TextImpl text = new TextImpl();
+                text.setTextContent(((OMText) omNode).getText());
+                clonedNode = text;
+                break;
+            case COMMENT:
+                CommentImpl comment = new CommentImpl();
+                comment.setTextContent(((OMComment) omNode).getValue());
+                clonedNode = comment;
+                break;
+            case PI:
+                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
+                pi.setTarget(((OMProcessingInstruction) omNode).getTarget());
+                pi.setValue(((OMProcessingInstruction) omNode).getValue());
+                clonedNode = pi;
+                break;
             default:
-                return new BXMLItem(omNode);
+                clonedNode = omNode;
+                break;
         }
+        
+        // adding the document element as parent, to get xpPaths work
+        OMDocument doc = new OMDocumentImpl();
+        doc.addChild(clonedNode);
+        return new BXMLItem(clonedNode);
     }
     
     // private methods
