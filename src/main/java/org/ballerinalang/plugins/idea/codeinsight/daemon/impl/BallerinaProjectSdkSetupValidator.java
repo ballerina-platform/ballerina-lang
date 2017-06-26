@@ -25,12 +25,14 @@ import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ModuleRootModificationUtil;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +46,7 @@ public class BallerinaProjectSdkSetupValidator implements ProjectSdkSetupValidat
         if (file.getFileType() == BallerinaFileType.INSTANCE) {
             return true;
         }
-        final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
         if (psiFile != null) {
             return psiFile.getLanguage().isKindOf(BallerinaLanguage.INSTANCE);
         }
@@ -64,8 +66,9 @@ public class BallerinaProjectSdkSetupValidator implements ProjectSdkSetupValidat
                     return ProjectBundle.message("module.sdk.not.defined");
                 }
             } else {
-                if (sdk.getSdkType() != BallerinaSdkType.getInstance()) {
-                    return "Ballerina SDK not defined";
+                if (sdk.getSdkType() != BallerinaSdkType.getInstance()
+                        && BallerinaSdkService.getInstance(project).isBallerinaModule(module)) {
+                    return "Ballerina SDK is not defined for Ballerina Module '" + module.getName() + "'";
                 }
             }
         }
@@ -74,11 +77,29 @@ public class BallerinaProjectSdkSetupValidator implements ProjectSdkSetupValidat
 
     @Override
     public void doFix(@NotNull Project project, @NotNull VirtualFile file) {
-        final Sdk projectSdk = ProjectSettingsService.getInstance(project).chooseAndSetSdk();
-        if (projectSdk != null) {
-            final Module module = ModuleUtilCore.findModuleForFile(file, project);
+        // Get the current project SDK.
+        Sdk currentProjectSDK = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (currentProjectSDK != null) {
+            // Get the current module.
+            Module module = ModuleUtilCore.findModuleForFile(file, project);
             if (module != null) {
-                WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
+                // Get the new SDK which needs to be set to the module. Note that this will override the current
+                // project SDK since there is no other way to get the SDK.
+                Sdk newProjectSDK = ProjectSettingsService.getInstance(project).chooseAndSetSdk();
+                // We set the module SDK.
+                ModuleRootModificationUtil.setModuleSdk(module, newProjectSDK);
+                // Update the project SDK to the original SDK.
+                WriteAction.run(() -> ProjectRootManager.getInstance(project).setProjectSdk(currentProjectSDK));
+            }
+        } else {
+            // If the current SDK is null, that means a project SDK is not set. So we choose and set the project SDK.
+            Sdk selectedSDK = ProjectSettingsService.getInstance(project).chooseAndSetSdk();
+            // If the selected SDK is not null, set it as the module SDK as well.
+            if (selectedSDK != null) {
+                final Module module = ModuleUtilCore.findModuleForFile(file, project);
+                if (module != null) {
+                    WriteAction.run(() -> ModuleRootModificationUtil.setSdkInherited(module));
+                }
             }
         }
     }
