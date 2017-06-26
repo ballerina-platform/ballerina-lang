@@ -31,6 +31,8 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * Interface class to represent Tables in Siddhi. There are multiple implementations. Ex: {@link InMemoryTable}. Table
  * will support basic operations of add, delete, update, update or add and contains. *
@@ -55,5 +57,9 @@ public interface Table extends FindableProcessor {
                      AddingStreamEventExtractor addingStreamEventExtractor);
 
     boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
+
+    public void connectWithRetry(ExecutorService executorService);
+
+    public void shutdown();
 
 }
