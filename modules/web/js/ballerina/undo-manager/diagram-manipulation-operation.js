@@ -36,7 +36,9 @@ class DiagramManipulationOperation extends UndoableOperation {
             file = editor.getFile(),
             sourceView = editor.getSourceView();
         sourceView.undo();
-        file.setContent(sourceView.getContent()).save();
+        file.setContent(sourceView.getContent())
+            .setDirty(true)
+            .save();
         let response = editor.parserBackend.parse({ content: sourceView.getContent() });
         if (response.error && !_.isEmpty(response.message)) {
             log.error(`Cannot render updated diagram due to syntax errors : ${  response.message}`);
@@ -52,7 +54,9 @@ class DiagramManipulationOperation extends UndoableOperation {
             file = editor.getFile(),
             sourceView = editor.getSourceView();
         sourceView.redo();
-        file.setContent(sourceView.getContent()).save();
+        file.setContent(sourceView.getContent())
+            .setDirty(true)
+            .save();
         let response = editor.parserBackend.parse({ content: sourceView.getContent() });
         if (response.error && !_.isEmpty(response.message)) {
             log.error(`Cannot render updated diagram due to syntax errors : ${  response.message}`);

@@ -63,9 +63,13 @@ class UndoManager extends EventChannel {
 
     undo() {
         const taskToUndo = this._undoStack.pop();
-        taskToUndo.undo();
-        this._redoStack.push(taskToUndo);
-        this.trigger('updated');
+        taskToUndo.prepareUndo((canContinue) => {
+            if (canContinue) {
+                taskToUndo.undo();
+                this._redoStack.push(taskToUndo);
+                this.trigger('updated');
+            }
+        });
     }
 
     hasRedo() {
@@ -74,9 +78,13 @@ class UndoManager extends EventChannel {
 
     redo() {
         const taskToRedo = this._redoStack.pop();
-        taskToRedo.redo();
-        this._undoStack.push(taskToRedo);
-        this.trigger('updated');
+        taskToRedo.prepareRedo((canContinue) => {
+            if (canContinue) {        
+                taskToRedo.redo();
+                this._undoStack.push(taskToRedo);
+                this.trigger('updated');
+            }
+        });
     }
 }
 
