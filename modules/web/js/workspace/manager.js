@@ -319,7 +319,7 @@ class WorkspaceManager {
 
         if (activeTab instanceof FileTab) {
             const undoManager = activeTab.getUndoManager();
-            if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
+            if (undoManager.hasUndo()) {
                 undoMenuItem.enable();
                 undoMenuItem.addLabelSuffix(
                     undoManager.undoStackTop().getTitle());
@@ -327,7 +327,7 @@ class WorkspaceManager {
                 undoMenuItem.disable();
                 undoMenuItem.clearLabelSuffix();
             }
-            if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
+            if (undoManager.hasRedo()) {
                 redoMenuItem.enable();
                 redoMenuItem.addLabelSuffix(
                     undoManager.redoStackTop().getTitle());

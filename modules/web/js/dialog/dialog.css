@@ -108,6 +108,9 @@ hr.file-dialog-hr {
     margin-top: 8px;
     font-weight: 300;
 }
+.switch-to-source-confirm-dialog .file-dialog{
+     width: 500px;
+}
 .close-confirm-dialog .file-dialog{
     width: 500px;
 }

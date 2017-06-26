@@ -17,7 +17,7 @@
  */
 
 import UndoableOperation from './undoable-operation';
-import alerts from 'alerts';
+import SwitchToSourceViewConfirmDialog from './../../dialog/switch-to-source-confirm-dialog';
 
 /**
  * Class to represent an undoable source modify operation
@@ -32,25 +32,47 @@ class SourceModifyOperation extends UndoableOperation {
     }
 
     undo() {
-        if (!this.getEditor().isInSourceView()) {
-            this.getEditor().activateSourceView();
-            alerts.info('Switched view to undo changes done from source view');
-        }
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
         sourceView.undo();
         file.setContent(sourceView.getContent()).save();
     }
 
-    redo() {
+    prepareUndo(next) {
         if (!this.getEditor().isInSourceView()) {
-            this.getEditor().activateSourceView();
-            alerts.info('Switched view to redo changes done from source view');
+            SwitchToSourceViewConfirmDialog.askConfirmation('undo', (continueUndo) => {
+                if (continueUndo) {
+                    this.getEditor().activateSourceView();
+                    next(true);
+                } else {
+                    next(false);
+                }
+            });
+        } else {
+            next(true);
         }
+    }
+
+    redo() {
         let file = this.getEditor().getFile(),
             sourceView = this.getEditor().getSourceView();
         sourceView.redo();
         file.setContent(sourceView.getContent()).save();
+    }
+
+    prepareRedo(next) {
+        if (!this.getEditor().isInSourceView()) {
+            SwitchToSourceViewConfirmDialog.askConfirmation('redo', (continueRedo) => {
+                if (continueRedo) {
+                    this.getEditor().activateSourceView();
+                    next(true);
+                } else {
+                    next(false);
+                }
+            });
+        } else {
+            next(true);
+        }
     }
 }
 
