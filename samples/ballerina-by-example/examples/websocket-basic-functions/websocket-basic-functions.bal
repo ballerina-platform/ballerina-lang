@@ -1,10 +1,8 @@
-import ballerina.lang.system;
 import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
-import ballerina.doc;
 
-@http:BasePath {value:"/endpoint"}
+@http:BasePath {value:"/functions"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service websocketEndpoint {
 
