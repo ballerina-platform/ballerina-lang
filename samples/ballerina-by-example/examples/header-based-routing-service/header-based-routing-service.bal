@@ -21,7 +21,7 @@ service headerBasedRouting {
      //"post" represent the POST action of HTTP connector. Route payload to relevant service.
        response = http:ClientConnector
                   .post(locationEP,"/v2/594e12271100001f13d6d3a6",m);
-       //If requested resources needed some partial modifications, PATCH method will add them
+       //If requested resources needed some partial modifications, PATCH method will add them.
        http:ClientConnector.patch(locationEP,"/v2/594e12271100001f13d6d3a6",m);
 
    } else {

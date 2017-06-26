@@ -20,16 +20,16 @@ service contentBasedRouting {
    http:ClientConnector.head(locationEP,"/v2/594e018c1100002811d6d39a",m);
    message response = {};
    if (nameString == "sanFrancisco") {
-      //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed
+      //"post" represent the POST action of HTTP connector. Route payload to relevant service as the server accept the entity enclosed.
        response = http:ClientConnector
                     .post(locationEP,"/v2/594e018c1100002811d6d39a",m);
-      //Additionally, If the payload needed to be stored under requested resource path, PUT action will help as follows
+      //Additionally, If the payload needed to be stored under requested resource path, PUT action will help as follows.
        http:ClientConnector.put(locationEP,"/v2/594e018c1100002811d6d39a",m);
    } else {
        response = http:ClientConnector
                     .post(locationEP, "/v2/594e026c1100004011d6d39c", m);
-       //Requested resources can be deleted using DELETE
-        http:ClientConnector
+       //Requested resources can be deleted using DELETE action.
+       http:ClientConnector
                     .delete(locationEP, "/v2/594e026c1100004011d6d39c", m);
    }
    reply response;
