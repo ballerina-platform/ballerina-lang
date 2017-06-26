@@ -10,3 +10,5 @@ struct Time {
     int time;
     Timezone zone;
 }
+
+native function currentTime()(Time);
