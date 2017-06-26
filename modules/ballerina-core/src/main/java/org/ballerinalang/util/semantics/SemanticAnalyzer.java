@@ -2173,10 +2173,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpr.setOpcode(newEdge.getOpcode());
 
             // TODO 0.89 release
-//            if (!newEdge.isSafe() && !isMultiReturn) {
-//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
-//                        sourceType, targetType);
-//            }
+            if (!newEdge.isSafe() && !isMultiReturn) {
+                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
+                        sourceType, targetType);
+            }
 
             if (!isMultiReturn) {
                 typeCastExpr.setTypes(new BType[]{targetType});
@@ -2241,10 +2241,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeConversionExpr.setOpcode(newEdge.getOpcode());
 
             // TODO 0.89 release
-//            if (!newEdge.isSafe() && !isMultiReturn) {
-//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
-//                        sourceType, targetType);
-//            }
+            if (!newEdge.isSafe() && !isMultiReturn) {
+                BLangExceptionHelper.throwSemanticError(typeConversionExpr, SemanticErrors.UNSAFE_CONVERSION_ATTEMPT,
+                        sourceType, targetType);
+            }
 
             if (!isMultiReturn) {
                 typeConversionExpr.setTypes(new BType[]{targetType});
@@ -2404,36 +2404,92 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType rType = rExpr.getType();
         BType lType = lExpr.getType();
 
-        if (!(rType.equals(lType))) {
-            TypeCastExpression newExpr;
-            TypeEdge newEdge;
-
-            if (((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
-                    && binaryExpr.getOperator().equals(Operator.ADD)) || (!(rType.equals(BTypes.typeString)) &&
-                    !(lType.equals(BTypes.typeString)))) {
-                newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
-                if (newEdge != null) { // Implicit cast from right to left
-                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
-                            rExpr, lType);
-                    newExpr.setOpcode(newEdge.getOpcode());
-                    newExpr.accept(this);
-                    binaryExpr.setRExpr(newExpr);
-                    return lType;
-                } else {
-                    newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
-                    if (newEdge != null) { // Implicit cast from left to right
-                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
-                                lExpr, rType);
-                        newExpr.setOpcode(newEdge.getOpcode());
-                        newExpr.accept(this);
-                        binaryExpr.setLExpr(newExpr);
-                        return rType;
-                    }
-                }
-            }
-            throwInvalidBinaryOpError(binaryExpr);
+        if (rType.equals(lType)) {
+            return rType;
         }
-        return rType;
+
+        if ((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
+                && !(binaryExpr.getOperator().equals(Operator.ADD))) {
+            throw getInvalidBinaryOpError(binaryExpr);
+        }
+
+        if ((rType.equals(BTypes.typeString))) {
+            // Implicit cast from left to right
+            Expression newExpr = createConversionExpr(binaryExpr, lExpr, lType, rType);
+            binaryExpr.setLExpr(newExpr);
+            return rType;
+        } else if (lType.equals(BTypes.typeString)) {
+            // Implicit cast from right to left
+            Expression newExpr = createConversionExpr(binaryExpr, rExpr, rType, lType);
+            binaryExpr.setRExpr(newExpr);
+            return lType;
+        }
+
+        if (rType.equals(BTypes.typeInt) && lType.equals(BTypes.typeFloat)) {
+            Expression newExpr = createConversionExpr(binaryExpr, rExpr, rType, lType);
+            binaryExpr.setRExpr(newExpr);
+            return lType;
+        }
+
+        if (lType.equals(BTypes.typeInt) && rType.equals(BTypes.typeFloat)) {
+            Expression newExpr = createConversionExpr(binaryExpr, lExpr, lType, rType);
+            binaryExpr.setLExpr(newExpr);
+            return rType;
+        }
+        throw getInvalidBinaryOpError(binaryExpr);
+
+//        if (!(rType.equals(lType))) {
+//            TypeCastExpression newExpr;
+//            TypeEdge newEdge;
+//
+//            if (((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
+//                    && binaryExpr.getOperator().equals(Operator.ADD)) || (!(rType.equals(BTypes.typeString)) &&
+//                    !(lType.equals(BTypes.typeString)))) {
+//                newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
+//                if (newEdge != null) { // Implicit cast from right to left
+//                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
+//                            rExpr, lType);
+//                    newExpr.setOpcode(newEdge.getOpcode());
+//                    newExpr.accept(this);
+//                    binaryExpr.setRExpr(newExpr);
+//                    return lType;
+//                } else {
+//                    newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
+//                    if (newEdge != null) { // Implicit cast from left to right
+//                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
+//                                lExpr, rType);
+//                        newExpr.setOpcode(newEdge.getOpcode());
+//                        newExpr.accept(this);
+//                        binaryExpr.setLExpr(newExpr);
+//                        return rType;
+//                    }
+//                }
+//            }
+//            throwInvalidBinaryOpError(binaryExpr);
+//        }
+//        return rType;
+    }
+
+    private Expression createConversionExpr(BinaryExpression binaryExpr, Expression sExpr,
+                                            BType sType, BType tType) {
+        TypeEdge newEdge;
+//        newEdge = castLattice.getEdgeFromTypes(sType, tType, null);
+//        if (newEdge != null) {
+//            TypeCastExpression newExpr = new TypeCastExpression(sExpr.getNodeLocation(),
+//                    sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
+//            newExpr.setOpcode(newEdge.getOpcode());
+//            newExpr.accept(this);
+//            return newExpr;
+//        }
+        newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sType, tType, null);
+        if (newEdge != null) {
+            TypeConversionExpr newExpr = new TypeConversionExpr(sExpr.getNodeLocation(),
+                    sExpr.getWhiteSpaceDescriptor(), sExpr, tType);
+            newExpr.setOpcode(newEdge.getOpcode());
+            newExpr.accept(this);
+            return newExpr;
+        }
+        throw getInvalidBinaryOpError(binaryExpr);
     }
 
     private void visitBinaryLogicalExpr(BinaryLogicalExpression expr) {
@@ -2806,6 +2862,19 @@ public class SemanticAnalyzer implements NodeVisitor {
                     SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, binaryExpr.getOperator(), lExprType);
         } else {
             BLangExceptionHelper.throwSemanticError(binaryExpr,
+                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lExprType, rExprType);
+        }
+    }
+
+    private SemanticException getInvalidBinaryOpError(BinaryExpression binaryExpr) {
+        BType lExprType = binaryExpr.getLExpr().getType();
+        BType rExprType = binaryExpr.getRExpr().getType();
+
+        if (lExprType == rExprType) {
+            return BLangExceptionHelper.getSemanticError(binaryExpr,
+                    SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, binaryExpr.getOperator(), lExprType);
+        } else {
+            return BLangExceptionHelper.getSemanticError(binaryExpr,
                     SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lExprType, rExprType);
         }
     }

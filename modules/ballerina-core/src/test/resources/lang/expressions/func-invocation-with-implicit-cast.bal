@@ -1,7 +1,7 @@
 function testImplicitCastInvocation() (string) {
 
     int input = 7;
-    string output = modifyInt(input);
+    string output = modifyInt(<string>input);
     return output;
 }
 
