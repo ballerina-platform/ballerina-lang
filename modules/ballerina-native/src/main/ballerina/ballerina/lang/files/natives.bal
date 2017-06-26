@@ -27,6 +27,11 @@ native function copy (File source, File destination);
 @doc:Param { value:"destination: Location where the File/Directory should be moved to" }
 native function move (File target, File destination);
 
+@doc:Description { value:"Checks whether a file exists"}
+@doc:Param { value:"file: The File struct of witch existence is to be checked" }
+@doc:Return { value:"isExists: Boolean representing whether a file exists" }
+native function exists (File file) (boolean);
+
 @doc:Description { value:"Deletes a file from a given location"}
 @doc:Param { value:"target: File/Directory that should be deleted" }
 native function delete (File target);

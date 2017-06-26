@@ -77,7 +77,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             ServiceInfo service = servicesOnInterface.get(basePath);
             if (service == null) {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
+                throw new BallerinaException("no matching service found for path : " + uriStr);
             }
 
             String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);

@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
@@ -334,9 +333,9 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testBatchUpdate() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBatchUpdate");
-        BArray retValue = (BArray) returns[0];
-        Assert.assertEquals(retValue.get(0).stringValue(), "1");
-        Assert.assertEquals(retValue.get(1).stringValue(), "1");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
     }
 
     @Test(groups = "ConnectorTest")
