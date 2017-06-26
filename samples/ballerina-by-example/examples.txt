@@ -12,5 +12,4 @@ XML
 Worker
 Worker Interaction
 Fork/Join
-
-
+Blob Type
