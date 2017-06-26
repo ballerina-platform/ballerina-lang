@@ -115,17 +115,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public byte[] getBlobArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-
-            byte[] result;
-            if (context.isVMBasedExecutor()) {
-                result = context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
-            } else {
-                throw new BallerinaException("Methods do not support for non VM based executors");
-            }
-            if (result == null) {
-                throw new BallerinaException("argument " + index + " is null");
-            }
-            return result;
+            return context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
