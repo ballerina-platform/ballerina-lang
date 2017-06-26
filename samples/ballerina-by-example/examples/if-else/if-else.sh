@@ -5,5 +5,3 @@ $ $BALLERINA_HOME/bin/ballerina if-else.bal
 a is greater
 This is number 10
 This is zero
-
-# Next example:
