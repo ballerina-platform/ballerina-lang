@@ -3,6 +3,10 @@ grammar Ballerina;
 //todo comment statment
 //todo revisit blockStatement
 
+@lexer::members {
+    boolean isStringExpression = false;
+}
+
 // starting point for parsing a bal file
 compilationUnit
     :   packageDeclaration?
@@ -155,12 +159,12 @@ builtInReferenceTypeName
     |   'map' ('<' typeName '>')?
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
-    |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
+    |   'json' ('<' '{' QuotedStringLiteral|templateLiteral '}' '>')?
     |   'datatable'
     ;
 
 xmlNamespaceName
-    :   QuotedStringLiteral
+    :   QuotedStringLiteral|templateLiteral
     ;
 
 xmlLocalName
@@ -413,6 +417,7 @@ backtickString
 
 expression
     :   simpleLiteral                                   # simpleLiteralExpression
+    |   templateLiteral                                 # templateLiteralExpression
     |   arrayLiteral                                    # arrayLiteralExpression
     |   mapStructLiteral                                # mapStructLiteralExpression
     |   valueTypeName '.' Identifier                    # valueTypeTypeExpression
@@ -434,7 +439,6 @@ expression
     ;
 
 //reusable productions
-
 nameReference
     :   (Identifier ':')? Identifier
     ;
@@ -457,6 +461,11 @@ parameter
 
 fieldDefinition
     :   typeName Identifier ('=' simpleLiteral)? ';'
+    ;
+
+templateLiteral
+    :   StringInterpolationTemplateStart  expression
+                (StringInterpolationTemplateMiddle expression)* StringInterpolationTemplateEnd
     ;
 
 simpleLiteral
@@ -668,6 +677,18 @@ BooleanLiteral
 
 // §3.10.5 String Literals
 
+StringInterpolationTemplateStart
+    :   '"' StringCharacters? '${' {isStringExpression = true;}
+    ;
+
+StringInterpolationTemplateMiddle
+    :  {isStringExpression}? '}' StringCharacters? '${'
+    ;
+
+StringInterpolationTemplateEnd
+    :   {isStringExpression}? '}' StringCharacters? '"' {isStringExpression = false;}
+    ;
+
 QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
@@ -695,7 +716,7 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\]
+    :   ~["\\$]
     |   EscapeSequence
     ;
 
@@ -704,6 +725,7 @@ StringCharacter
 fragment
 EscapeSequence
     :   '\\' [btnfr"'\\]
+    |   '$' [$]
     |   OctalEscape
     |   UnicodeEscape
     ;
