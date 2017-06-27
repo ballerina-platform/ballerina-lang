@@ -59,7 +59,7 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 public class Close extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
-        BConnector bconnector = (BConnector) getArgument(context, 0);
+        BConnector bconnector = (BConnector) getRefArgument(context, 0);
         ConnectorController controller =
                 ConnectorControllerRegistry.getInstance().removeConnectorController(bconnector);
         controller.getAllClientIDs().forEach(

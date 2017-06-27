@@ -62,7 +62,7 @@ import java.util.UUID;
 public class Init extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
-        BConnector bconnector = (BConnector) getArgument(context, 0);
+        BConnector bconnector = (BConnector) getRefArgument(context, 0);
         ConnectorControllerRegistry controllerRegistry = ConnectorControllerRegistry.getInstance();
         if (!controllerRegistry.contains(bconnector)) {
             String remoteUrl = bconnector.getValue(0).stringValue();
