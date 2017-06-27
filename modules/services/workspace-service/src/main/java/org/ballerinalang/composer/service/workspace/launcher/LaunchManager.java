@@ -234,6 +234,7 @@ public class LaunchManager {
     public void processCommand(String json) {
         Gson gson = new Gson();
         CommandDTO command = gson.fromJson(json, CommandDTO.class);
+        MessageDTO message;
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
                 run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
@@ -254,8 +255,13 @@ public class LaunchManager {
             case LauncherConstants.TERMINATE:
                 stopProcess();
                 break;
+            case LauncherConstants.PING:
+                message = new MessageDTO();
+                message.setCode(LauncherConstants.PONG);
+                launchServer.pushMessageToClient(launchSession, message);
+                break;
             default:
-                MessageDTO message = new MessageDTO();
+                message = new MessageDTO();
                 message.setCode(LauncherConstants.INVALID_CMD);
                 message.setMessage(LauncherConstants.MSG_INVALID);
                 launchServer.pushMessageToClient(launchSession, message);
