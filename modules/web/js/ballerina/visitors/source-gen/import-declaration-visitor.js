@@ -29,11 +29,6 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitImportDeclaration(importDeclaration) {
-        /**
-         * set the configuration start for the package definition language construct
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
         let constructedSourceSegment =
           ((importDeclaration.whiteSpace.useDefault) ? this.getIndentation() : '')
           + 'import'
@@ -55,7 +50,19 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     endVisitImportDeclaration(importDeclaration) {
-        this.appendSource(';' + importDeclaration.getWSRegion(4));
+        const nodeIndex = importDeclaration.getNodeIndex(),
+              root = importDeclaration.getParent(),
+              nextNode = _.nth(root.getChildren(), nodeIndex + 1);
+        let tailingWS = importDeclaration.getWSRegion(4);
+        if (!_.isNil(nextNode) && root.getFactory().isImportDeclaration(nextNode)
+                && nextNode.whiteSpace.useDefault) {
+           tailingWS = '\n';
+        } else if (importDeclaration.whiteSpace.useDefault &&
+                        !_.isNil(nextNode) && !root.getFactory().isImportDeclaration(nextNode)
+                        && !nextNode.whiteSpace.useDefault) {
+                tailingWS = '\n\n';
+        }
+        this.appendSource(';' + tailingWS);
 
         this.getParent().appendSource(this.getGeneratedSource());
     }
