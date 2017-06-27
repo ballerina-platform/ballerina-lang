@@ -571,6 +571,14 @@ class ASTNode extends EventChannel {
         }
         return parent.getTopLevelParent();
     }
+
+    /**
+     * Get the index of the node
+     * @returns {number} 
+     */
+    getNodeIndex() {
+        return !_.isNil(this.getParent()) ? this.getParent().getIndexOfChild(this) : -1;
+    }
 }
 
 // Auto generated Id for service definitions (for accordion views)
