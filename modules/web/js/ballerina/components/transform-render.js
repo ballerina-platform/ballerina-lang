@@ -604,13 +604,13 @@ class TransformRender {
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
-        const packageName = func.getPackageName().replace(' ', '');
-        let funcName = _.isEmpty(packageName) ? func.getName() :
-                                  packageName + ' : ' + func.getName();
+        func.meta.packageName = func.meta.packageName.replace(' ', '');
+        let funcName = _.isEmpty(func.meta.packageName) ? func.getName() :
+                                  func.meta.packageName + ' : ' + func.getName();
         const funcText = func.getName();
         // Allow multiple functions to drag and drop without conflicting
         const functionInvocationModelId = reference.getID();
-        func.name = (_.isEmpty(packageName) ? func.getName() : packageName + '-' + func.getName()) +
+        func.name = (_.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + '-' + func.getName()) +
                    functionInvocationModelId;
 
         const id = func.name + this.viewIdSeperator + this.viewId;
