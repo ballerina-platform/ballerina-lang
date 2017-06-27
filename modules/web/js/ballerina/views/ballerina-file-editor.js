@@ -71,6 +71,7 @@ class BallerinaFileEditor extends EventChannel {
         this.toolPalette = _.get(args, 'toolPalette');
         this.messageManager = _.get(args, 'messageManager');
         this.diagramRenderingContext = _.get(args, 'diagramRenderContext');
+        this.application = _.get(args, 'application');
 
         this.setModel(_.get(args, 'model'));
 
@@ -237,6 +238,7 @@ class BallerinaFileEditor extends EventChannel {
             editor: this,
             dragDropManager: this.dragDropManager,
             container: this.toolPaletteContainer,
+            application: this.application,
         }, null);
         ReactDOM.render(toolPalette, this.toolPaletteContainer);
 

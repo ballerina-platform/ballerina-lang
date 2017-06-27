@@ -57,9 +57,18 @@ class ToolsPane extends React.Component {
         return (
             <div>
                 {this.props.constructs &&
-                    <ToolGroupView group={this.props.constructs} key="constructs" showGridStyles />}
+                    <ToolGroupView group={this.props.constructs}
+                                   key="constructs"
+                                   application={this.props.application}
+                                   showGridStyles
+                    />}
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
-                <ToolGroupView group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
+                <ToolGroupView
+                    group={this.props.currentTools}
+                    key="Current Package"
+                    showGridStyles={false}
+                    application={this.props.application}
+                />}
                 <ToolsPanel name="Connectors">
                     {this.props.connectors}
                     <a
@@ -324,6 +333,8 @@ class ToolPaletteView extends React.Component {
                     }
 
                     actionTool.id = `${connector.getName()}-${action.getName()}`;
+                    actionTool._parameters = action.getParameters();
+                    actionTool._returnParams = action.getReturnParams();
                     definitions.push(actionTool);
                 });
             });
@@ -352,6 +363,8 @@ class ToolPaletteView extends React.Component {
                 functionTool.name = functionDef.getName();
                 functionTool.id = functionDef.getName();
                 functionTool.cssClass = 'icon fw fw-function';
+                functionTool._parameters = functionDef.getParameters();
+                functionTool._returnParams = functionDef.getReturnParams();
                 definitions.push(functionTool);
             });
         }
@@ -399,6 +412,7 @@ class ToolPaletteView extends React.Component {
                             group={group}
                             key={`connector${item.getPackageName()}`}
                             showGridStyles={false}
+                            application={this.props.application}
                         />);
                     }
 
@@ -411,6 +425,7 @@ class ToolPaletteView extends React.Component {
                                 group={group}
                                 key={`library${item.getPackageName()}`}
                                 showGridStyles={false}
+                                application={this.props.application}
                             />);
                     }
                 }
@@ -428,7 +443,12 @@ class ToolPaletteView extends React.Component {
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
                         connectors.push(
-                            <ToolGroupView group={group} key={`connector${pkg.getName()}`} showGridStyles={false} />);
+                            <ToolGroupView
+                                group={group}
+                                key={`connector${pkg.getName()}`}
+                                showGridStyles={false}
+                                application={this.props.application}
+                            />);
                     }
                 } else {
                     group = this.package2ToolGroup(pkg, 'functions');
@@ -437,7 +457,12 @@ class ToolPaletteView extends React.Component {
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
                         library.push(
-                            <ToolGroupView group={group} key={`library${pkg.getName()}`} showGridStyles={false} />);
+                            <ToolGroupView
+                                group={group}
+                                key={`library${pkg.getName()}`}
+                                showGridStyles={false}
+                                application={this.props.application}
+                            />);
                     }
                 }
             });

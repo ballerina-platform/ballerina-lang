@@ -33,6 +33,7 @@ import Tab from 'tab/tab';
 import FileTab from 'tab/file-tab';
 import alerts from 'alerts';
 import ServiceClient from './service-client';
+import DocerinaFile from '../docerina/docerina-file';
 
 // workspace manager constructor
 /**
@@ -48,7 +49,7 @@ class WorkspaceManager {
      */
     constructor(application) {
         this.app = application;
-        this._serviceClient = new ServiceClient({ application: this.app });
+        this._serviceClient = new ServiceClient({application: this.app});
 
         if (_.isUndefined(this.app.commandManager)) {
             const error = 'CommandManager is not initialized.';
@@ -77,10 +78,10 @@ class WorkspaceManager {
         this.app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
         this.app.commandManager.registerHandler('open-close-file-confirm-dialog', this.openCloseFileConfirmDialog,
-                                                                                                                this);
+            this);
 
         this.app.commandManager.registerHandler('open-replace-file-confirm-dialog', this.openReplaceFileConfirmDialog,
-                                                                                                                this);
+            this);
 
         // Go to Welcome Page.
         this.app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
@@ -96,6 +97,9 @@ class WorkspaceManager {
 
         // Import a swagger definition.
         this.app.commandManager.registerHandler('import-swagger-def', this.importSwaggerDefinition, this);
+
+        // Open documentation for the given package.
+        this.app.commandManager.registerHandler('open-documentation', this.showDocumentationFor, this);
     }
 
     /**
@@ -131,7 +135,7 @@ class WorkspaceManager {
                 // create a generic tab - without ballerina editor components
                 const tab = this.app.tabController.newTab({
                     tabModel: Tab,
-                    tabOptions: { title: 'welcome-page' },
+                    tabOptions: {title: 'welcome-page'},
                 });
                 // Showing FirstLaunchWelcomePage instead of regularWelcomePage
                 const opts = _.get(this.app.config, 'welcome');
@@ -156,7 +160,7 @@ class WorkspaceManager {
             // Creating a new welcome tab.
             const tab = this.app.tabController.newTab({
                 tabModel: Tab,
-                tabOptions: { title: 'welcome-page' },
+                tabOptions: {title: 'welcome-page'},
             });
             // Showing FirstLaunchWelcomePage instead of regularWelcomePage
             const opts = _.get(this.app.config, 'welcome');
@@ -169,6 +173,25 @@ class WorkspaceManager {
             // Showing existing welcome tab.
             this.app.tabController.setActiveTab(existingWelcomeTab);
         }
+    }
+
+    showDocumentationFor(packageName, functionName) {
+        const tab = this.app.tabController.newTab({
+            tabModel: Tab,
+            tabOptions: {
+                title: 'docs-' + packageName + (functionName ? (':' + functionName) : ''),
+            }
+        });
+
+        const opts = _.get(this.app.config, 'docs');
+        _.set(opts, 'application', this.app);
+        _.set(opts, 'tab', tab);
+        _.set(opts, 'balHome', _.get(this.app.config, 'balHome'));
+        _.set(opts, 'packageName', packageName);
+        _.set(opts, 'functionName', functionName);
+
+        let docerinaFile = new DocerinaFile(opts);
+        docerinaFile.render();
     }
 
     openFileSaveDialog(options) {
@@ -216,8 +239,8 @@ class WorkspaceManager {
                 const config = activeTab.getBallerinaFileEditor().getContent();
 
                 activeFile.setPath(folderPath)
-                          .setName(fileName)
-                          .setContent(config);
+                    .setName(fileName)
+                    .setContent(config);
 
                 const result = this._serviceClient.writeFile(activeFile);
                 if (!_.isNil(fileSavedCallback) && _.isFunction(fileSavedCallback)) {
@@ -236,7 +259,7 @@ class WorkspaceManager {
 
     openSettingsDialog() {
         /* var settingsModal = $(_.get(app, 'config.settings_dialog.selector'));
-        settingsModal.modal('show');*/
+         settingsModal.modal('show');*/
         if (_.isNil(this._openSettingsDialog)) {
             const opts = _.cloneDeep(_.get(this.app.config, 'settings_dialog'));
             _.set(opts, 'application', this.app);
@@ -441,7 +464,7 @@ class WorkspaceManager {
 
     handleCreateNewItemAtPath(data) {
         if (_.isNil(this._newItemDialog)) {
-            this._newItemDialog = new NewItemDialog({ application: this.app });
+            this._newItemDialog = new NewItemDialog({application: this.app});
             this._newItemDialog.render();
         }
         this._newItemDialog.displayWizard(data);
@@ -449,7 +472,7 @@ class WorkspaceManager {
 
     handleRemoveFromDisk(data) {
         if (_.isNil(this._deleteItemWizard)) {
-            this._deleteItemWizard = new DeleteItemDialog({ application: this.app });
+            this._deleteItemWizard = new DeleteItemDialog({application: this.app});
             this._deleteItemWizard.render();
         }
         this._deleteItemWizard.displayWizard(data);

@@ -156,23 +156,50 @@ class ToolView extends React.Component {
      */
     render() {
         const tool = this.props.tool;
+        let toolTip = '';
         if (this.props.toolOrder === 'horizontal') {
+            toolTip = tool.get('name');
             return (
                 <div
                     className="tool-block tool-container"
-                    data-original-title={tool.get('name')}
+                    title={toolTip}
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    id={tool.get('name')}
-                    title={tool.get('name')}
+                    id={toolTip}
                 >
                     <i className={tool.get('cssClass')} />
                     <span className="tool-title-wrap" />
                     <span className="tool-title-wrap">
-                        <p className="tool-title">{tool.get('name')}</p>
+                        <p className="tool-title">{toolTip}</p>
                     </span>
                 </div>
             );
+        }
+        toolTip = tool.get('title');
+        if (tool.get('_parameters')) {
+            toolTip += '(';
+
+            tool.get('_parameters').forEach((param, index) => {
+                if (index !== 0) {
+                    toolTip += ',';
+                }
+
+                toolTip += param.type + ' ' + param.name;
+            });
+
+            toolTip += ')';
+        }
+        if(tool.get('_returnParams')){
+            toolTip += '(';
+            tool.get('_returnParams').forEach((param, index) => {
+                if (index !== 0) {
+                    toolTip += ',';
+                }
+
+                toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
+            });
+
+            toolTip += ')';
         }
         return (
             <div
@@ -184,7 +211,7 @@ class ToolView extends React.Component {
                     className="tool-container-vertical-icon"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={tool.get('title')}
+                    title={toolTip}
                 >
                     <i className={tool.get('cssClass')} />
                 </div>
@@ -192,7 +219,12 @@ class ToolView extends React.Component {
                     className="tool-container-vertical-title"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={tool.get('title')}
+                    title={toolTip}
+                    onClick={() => {
+                        let functionName = tool.get('title') + (tool.parent? tool.parent:"");
+                        this.props.application.commandManager.dispatch("open-documentation",
+                            this.props.group.get("toolGroupName"), functionName);
+                    }}
                 >
                     {tool.get('title')}
                 </div>
