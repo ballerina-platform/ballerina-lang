@@ -93,7 +93,6 @@ class ToolGroupView extends React.Component {
 
         const triggerWhenOpen = (<div className="tool-group-header">
             <a className="tool-group-header-title" onClick={(e)=>{
-                // window.location = "/docs/api/"+toolGroupName+".html";
                 e.stopPropagation();
                 this.props.application.commandManager.dispatch("open-documentation", toolGroupName, null);
             }}>{toolGroupName}</a>
