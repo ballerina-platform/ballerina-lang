@@ -64,8 +64,8 @@ import javax.websocket.Session;
 public class PushText extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
-        BConnector bconnector = (BConnector) getArgument(context, 0);
-        String text = getArgument(context, 1).stringValue();
+        BConnector bconnector = (BConnector) getRefArgument(context, 0);
+        String text = getStringArgument(context, 1);
         TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
         Session session = getSession(context);
         if (session == null) {
