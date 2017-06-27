@@ -284,6 +284,7 @@ class ToolPaletteView extends React.Component {
                 const args = {
                     pkgName: packageName,
                     connectorName: connector.getName(),
+                    fullPackageName: pckg.getName(),
                 };
                 const connTool = {};
                 connTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;

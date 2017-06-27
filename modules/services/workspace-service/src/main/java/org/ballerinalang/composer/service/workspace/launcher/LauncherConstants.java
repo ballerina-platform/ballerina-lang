@@ -39,6 +39,8 @@ public class LauncherConstants {
     public static final String DEBUG_SERVICE = "DEBUG_SERVICE";
     public static final String TERMINATE = "TERMINATE";
     public static final String INVALID_CMD = "INVALID_CMD";
+    public static final String PING = "PING";
+    public static final String PONG = "PONG";
     public static final String MSG_INVALID = "Unsupported command";
     
     

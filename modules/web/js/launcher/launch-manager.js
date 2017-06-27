@@ -159,6 +159,7 @@ class LaunchManager extends EventChannel {
         if (message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED') {
             this.active = false;
             this.trigger('execution-ended');
+            this.channel.close();
         }
         if (message.code === 'DEBUG_PORT') {
             this.debugPort = message.port;
@@ -167,6 +168,16 @@ class LaunchManager extends EventChannel {
         if (message.code === 'EXIT') {
             this.active = false;
             this.trigger('session-ended');
+            // close the current channel.
+            this.channel.close();
+        }
+        if (message.code === 'PONG') {
+            // if a pong message is received we will ignore.
+            return;
+        }
+        if (message.code === 'INVALID_CMD') {
+            // ignore and return.
+            return;
         }
         Console.println(message);
     }

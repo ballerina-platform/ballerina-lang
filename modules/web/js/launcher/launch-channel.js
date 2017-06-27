@@ -23,6 +23,7 @@ import log from 'log';
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
+const WS_PING_INTERVAL = 15000;
 
 /**
  * Connect to Launcher backend
@@ -86,6 +87,7 @@ class LaunchChannel extends EventChannel {
      * @memberof LaunchChannel
      */
     onClose(event) {
+        clearInterval(this.ping);
         this.launcher.active = false;
         this.launcher.trigger('session-terminated');
         let reason;
@@ -107,6 +109,7 @@ class LaunchChannel extends EventChannel {
      * @memberof LaunchChannel
      */
     onError() {
+        clearInterval(this.ping);
         this.launcher.active = false;
         this.launcher.trigger('session-error');
     }
@@ -118,6 +121,27 @@ class LaunchChannel extends EventChannel {
     onOpen() {
         this.launcher.active = true;
         this.trigger('connected');
+        this.startPing();
+    }
+
+    /**
+     * start a ping for the websocket.
+     *
+     * @memberof LaunchChannel
+     */
+    startPing() {
+        this.ping = setInterval(() => {
+            this.sendMessage({ command: 'PING' });
+        }, WS_PING_INTERVAL);
+    }
+
+    /**
+     * Close websocket channel.
+     *
+     * @memberof LaunchChannel
+     */
+    close() {
+        clearInterval(this.ping);
     }
 }
 
