@@ -302,7 +302,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Define the constant in the package scope
         currentScope.define(symbolName, constDef);
 
-        constDef.getRhsExpr().accept(this);
+        Expression rExpr = constDef.getRhsExpr();
+        rExpr.accept(this);
+
+        // Check whether the right-hand type can be assigned to the left-hand type.
+        AssignabilityResult result = performAssignabilityCheck(bType, rExpr);
+        if (!result.assignable) {
+            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
+                    rExpr.getType(), bType);
+        }
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
