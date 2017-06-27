@@ -67,4 +67,8 @@ public class AssignStmt extends AbstractStatement {
         this.isDeclaredWithVar = isDeclaredWithVar;
     }
 
+    @Override
+    public StatementType getType() {
+        return StatementType.ASSIGN;
+    }
 }

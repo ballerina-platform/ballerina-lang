@@ -45,6 +45,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         super(location);
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
+        this.type = StatementType.BLOCK;
     }
 
     public Statement[] getStatements() {
@@ -107,6 +108,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         }
 
         public void addStmt(Statement statement) {
+            statement.setParent(blockStmt);
             statementList.add(statement);
         }
 

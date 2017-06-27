@@ -44,5 +44,10 @@ public class FunctionInvocationStmt extends AbstractStatement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementType getType() {
+        return StatementType.FUNCTION_INVOCATION;
+    }
 }
 

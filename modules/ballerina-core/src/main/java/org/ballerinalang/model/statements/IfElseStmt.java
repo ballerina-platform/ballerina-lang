@@ -71,6 +71,11 @@ public class IfElseStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementType getType() {
+        return StatementType.IF_ELSE;
+    }
+
     /**
      * Represent an else if block of an if statement.
      */
@@ -144,13 +149,24 @@ public class IfElseStmt extends AbstractStatement {
         }
 
         public IfElseStmt build() {
-            return new IfElseStmt(
+            IfElseStmt ifElseStmt = new IfElseStmt(
                     location,
                     whiteSpaceDescriptor,
                     ifCondition,
                     thenBody,
                     elseIfBlockList.toArray(new ElseIfBlock[elseIfBlockList.size()]),
                     elseBody);
+            thenBody.setParent(ifElseStmt);
+            thenBody.setType(StatementType.THEN_BLOCK);
+            elseIfBlockList.forEach(elseIfBlock -> {
+                elseIfBlock.getElseIfBody().setParent(ifElseStmt);
+                elseIfBlock.getElseIfBody().setType(StatementType.ELSE_IF_BLOCK);
+            });
+            if (elseBody != null) {
+                elseBody.setParent(ifElseStmt);
+                elseBody.setType(StatementType.ELSE_BLOCK);
+            }
+            return ifElseStmt;
         }
 
         public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {

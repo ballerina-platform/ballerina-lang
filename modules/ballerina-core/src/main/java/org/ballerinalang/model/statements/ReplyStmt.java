@@ -45,4 +45,9 @@ public class ReplyStmt extends AbstractStatement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementType getType() {
+        return StatementType.REPLY;
+    }
 }

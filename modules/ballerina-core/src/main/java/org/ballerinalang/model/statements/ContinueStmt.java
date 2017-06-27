@@ -37,4 +37,8 @@ public class ContinueStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementType getType() {
+        return StatementType.CONTINUE;
+    }
 }

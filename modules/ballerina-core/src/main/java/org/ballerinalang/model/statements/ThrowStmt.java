@@ -46,6 +46,11 @@ public class ThrowStmt extends AbstractStatement {
     }
 
     @Override
+    public StatementType getType() {
+        return StatementType.THROW;
+    }
+
+    @Override
     public boolean isAlwaysReturns() {
         return true;
     }

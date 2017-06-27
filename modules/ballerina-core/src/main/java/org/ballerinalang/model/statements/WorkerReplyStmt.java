@@ -97,6 +97,11 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
     }
 
     @Override
+    public StatementType getType() {
+        return StatementType.WORKER_REPLY;
+    }
+
+    @Override
     public String getName() {
         return null;
     }
