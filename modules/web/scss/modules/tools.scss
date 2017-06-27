@@ -18,6 +18,10 @@ body {
         
         & > a {
             color: $tool-group-header-text-color;
+
+            &:hover {
+                color: $brand-primary;
+            }
         }
     }
     

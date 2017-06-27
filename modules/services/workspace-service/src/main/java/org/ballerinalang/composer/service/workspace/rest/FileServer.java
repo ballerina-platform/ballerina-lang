@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -49,28 +49,34 @@ public class FileServer {
     public Response handleGet(@Context Request request) {
 
         String rawUri = request.getUri();
-        String rawUriPath;
+        String rawUriPath = "";
 
         if (rawUri.trim().length() == 0 || rawUri.endsWith("/")) {
-            rawUriPath = rawUri + "index.html";
+            rawUriPath = contextRoot + rawUri + "index.html";
+        } else if (rawUri.trim().length() >= 0 && rawUri.startsWith("/docs")) {
+            if (contextRoot.endsWith("/resources/composer/web")) {
+                int index = contextRoot.indexOf("/resources/composer/web");
+                String home = contextRoot.substring(0, index);
+                rawUriPath = home + rawUri.trim();
+            }
         } else {
             int uriPathEndIndex = rawUri.indexOf('?');
             if (uriPathEndIndex != -1) {
                 // handling query Params.
-                rawUriPath = rawUri.substring(0, uriPathEndIndex);
+                rawUriPath = contextRoot + rawUri.substring(0, uriPathEndIndex);
             } else {
-                rawUriPath = rawUri;
+                rawUriPath = contextRoot + rawUri;
             }
         }
 
         if (log.isDebugEnabled()) {
-            log.debug(" Requesting path [" + rawUriPath + "] mapped to file path [" + contextRoot + rawUriPath + "]");
+            log.debug(" Requesting path [" + rawUriPath + "] mapped to file path [" + rawUriPath + "]");
         }
-        File file = new File(contextRoot + rawUriPath);
+        File file = new File(rawUriPath);
         if (file.exists()) {
             return Response.ok(file).build();
         }
-        log.error(" File not found [" + contextRoot + rawUriPath + "], Requesting path [" + rawUriPath + "] ");
+        log.error(" File not found [" + rawUriPath + "], Requesting path [" + rawUriPath + "] ");
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 

@@ -72,6 +72,9 @@ let config = {
                 image: 'preview_websocket',
             }],
     },
+    docs: {
+        container: ".docs",
+    },
     // you can overide service urls by uncommenting the following.
     // if the following are not set they will be taken automatically from the composer file server.
     /* services: {
