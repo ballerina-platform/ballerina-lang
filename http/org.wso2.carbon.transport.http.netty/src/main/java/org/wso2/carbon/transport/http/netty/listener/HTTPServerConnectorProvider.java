@@ -73,7 +73,6 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
         ListenerConfiguration config = buildListenerConfig(s, properties);
 
-        trpConfig.getListenerConfigurations().add(config);
         createServerConnectorController(trpConfig);
 
         HTTPServerConnector connector = new HTTPServerConnector(config.getId());
