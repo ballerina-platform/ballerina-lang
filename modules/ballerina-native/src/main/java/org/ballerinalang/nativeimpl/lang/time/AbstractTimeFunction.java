@@ -46,6 +46,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     public static final String TIME_PACKAGE = "ballerina.lang.time";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
+    public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
 
     private StructInfo timeStructInfo;
     private StructInfo zoneStructInfo;
@@ -84,19 +85,11 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     }
 
     String getFormattedtString(BStruct timeStruct, String pattern) {
-        long timeData = timeStruct.getIntField(0);
-        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
-        ZoneId zoneId;
         String formattedString;
-        if (zoneData != null) {
-            String zoneIdName = zoneData.getStringField(0);
-            zoneId = ZoneId.of(zoneIdName);
-        } else {
-            zoneId = ZoneId.systemDefault();
-        }
         try {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(zoneId);
-            formattedString = dateTimeFormatter.format(Instant.ofEpochMilli(timeData));
+            ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+            formattedString =  dateTime.format(dateTimeFormatter);
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for parsing " + pattern);
         }
@@ -104,6 +97,30 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     }
 
     String getDefaultString(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
+    int getYear(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getYear();
+    }
+
+    int getMonth(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getMonthValue();
+    }
+
+    int getDay(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getDayOfMonth();
+    }
+
+    private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
+        ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
+        if (dateTime != null) {
+            return dateTime;
+        }
         long timeData = timeStruct.getIntField(0);
         BStruct zoneData = (BStruct) timeStruct.getRefField(0);
         ZoneId zoneId;
@@ -113,8 +130,9 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         } else {
             zoneId = ZoneId.systemDefault();
         }
-        ZonedDateTime dateTime = Instant.ofEpochMilli(timeData).atZone(zoneId);
-        return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        dateTime = Instant.ofEpochMilli(timeData).atZone(zoneId);
+        timeStruct.addNativeData(KEY_ZONED_DATETIME, dateTime);
+        return dateTime;
     }
 
     private BStruct createCurrentTimeZone(Context context) {

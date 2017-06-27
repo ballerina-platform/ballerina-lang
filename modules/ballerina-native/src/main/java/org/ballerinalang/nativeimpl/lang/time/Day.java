@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,27 +29,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Tiime to ISO 8601 formatted string.
+ * Get the year value for the given time.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "toString",
+        functionName = "day",
         args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
                           structPackage = "ballerina.lang.time")},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the default string representation of the Time.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string) ",
-        value = "String representation of the time in ISO 8601 standard")})
-public class ToString extends AbstractTimeFunction {
+        value = "Get the day value of the given the Time.")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
+        value = "Day of the given time value")})
+public class Day extends AbstractTimeFunction {
+
     @Override
     public BValue[] execute(Context context) {
-
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BString(getDefaultString(timeStruct))};
+        return new BValue[]{new BInteger(getDay(timeStruct))};
     }
 }

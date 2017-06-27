@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Tiime to string in the given format.
+ * Convert a Time to string in the given format.
  *
  * @since 0.8.9
  */
@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Get the default string representation of the Time.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string) ",
         value = "String representation of the time in ISO 8601 standard")})
 public class Format extends AbstractTimeFunction {
 

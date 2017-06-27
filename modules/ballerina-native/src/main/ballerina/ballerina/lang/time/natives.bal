@@ -20,3 +20,9 @@ native function parse(string data, string format) (Time);
 native function toString(Time time)(string);
 
 native function format(Time time, string format)(string);
+
+native function year(Time time)(int);
+
+native function month(Time time)(int);
+
+native function day(Time time)(int);
