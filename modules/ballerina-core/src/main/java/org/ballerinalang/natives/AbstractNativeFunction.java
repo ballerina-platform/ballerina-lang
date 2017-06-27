@@ -107,9 +107,9 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public int getIntArgument(Context context, int index) {
+    public long getIntArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            return (int) context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+            return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
