@@ -95,11 +95,10 @@ class PackageDefinition extends React.Component {
     }
 
     handleAddGlobal(value) {
-        const match = this.globalDecRegex.exec(value);
-
-        if (match && match[1] && match[2] && match[3]) {
-            this.props.model.parent.addConstantDefinition(match[1], match[2], match[3]);
-        }
+        value += ';\n';
+        const parsedJSON = this.context.editor.parserBackend.parse({content: value});
+        // 0 th object of parsedJSON.root is a packageDeclaration. Next should be global var or const.
+        this.props.model.parent.addGlobal(parsedJSON.root[1])
     }
 
     handleAddImport(value) {
@@ -117,16 +116,6 @@ class PackageDefinition extends React.Component {
         this.props.model.parent.deleteImport(value);
     }
 
-    handleGlobalsBadgeClick() {
-        this.props.model.viewState.globalsExpanded = !this.props.model.viewState.globalsExpanded;
-        this.context.editor.trigger('update-diagram');
-    }
-
-    handleImportsBadgeClick() {
-        this.props.model.viewState.importsExpanded = !this.props.model.viewState.importsExpanded;
-        this.context.editor.trigger('update-diagram');
-    }
-
     handlePackageIconClick() {
         this.setState({ packageDefExpanded: true });
         if (!this.state.packageDefValue) {
@@ -135,12 +124,12 @@ class PackageDefinition extends React.Component {
     }
 
     static getDisplayValue(globalDef) {
-        if(BallerinaASTFactory.isVariableDefinitionStatement(globalDef)){
-            return globalDef.getStatementString();
+        if(BallerinaASTFactory.isGlobalVariableDefinition(globalDef)){
+            return globalDef.getGlobalVariableDefinitionAsString();
         }
 
         if(BallerinaASTFactory.isConstantDefinition(globalDef)){
-            return globalDef.getConstantDefinitionAsString()
+            return globalDef.getConstantDefinitionAsString();
         }
     }
 
@@ -180,7 +169,7 @@ class PackageDefinition extends React.Component {
         const astRoot = this.props.model.parent;
         const imports = astRoot.children.filter(c => c.constructor.name === 'ImportDeclaration');
         const globals = astRoot.children.filter(
-            c => c.constructor.name === 'ConstantDefinition' || c.constructor.name === 'VariableDefinitionStatement');
+            c => c.constructor.name === 'ConstantDefinition' || c.constructor.name === 'GlobalVariableDefinition');
 
         const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
@@ -286,7 +275,7 @@ class PackageDefinition extends React.Component {
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
                             addText={'+ Add Global'}
-                            onAddNewValue={this.props.model.parent.addGlobalFromString.bind(this.props.model.parent)}
+                            onAddNewValue={this.handleAddGlobal.bind(this)}
                             newValuePlaceholder={'int a'}
                             onDeleteClick={this.handleDeleteGlobal}
                             getValue={PackageDefinition.getDisplayValue}

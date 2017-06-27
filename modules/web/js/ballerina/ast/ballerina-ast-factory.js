@@ -70,6 +70,7 @@ import unaryExpression from './expressions/unary-expression';
 import connectorAction from './connector-action';
 import structDefinition from './struct-definition';
 import constantDefinition from './constant-definition';
+import globalVariableDefinition from './global-variable-definition';
 import variableDefinitionStatement from './statements/variable-definition-statement';
 import workerInvocationStatement from './statements/worker-invocation-statement';
 import referenceTypeInitExpression from './expressions/reference-type-init-expression';
@@ -689,6 +690,15 @@ BallerinaASTFactory.createArrayMapAccessExpression = function (args) {
  */
 BallerinaASTFactory.createConstantDefinition = function (args) {
     return new constantDefinition(args);
+};
+
+/**
+ * creates a GlobalVariableDefinition instance
+ * @param {Object} args - Arguments for creating a new constant definition.
+ * @returns {globalVariableDefinition}
+ */
+BallerinaASTFactory.createGlobalVariableDefinition = function (args) {
+    return new globalVariableDefinition(args);
 };
 
 /**
@@ -1404,6 +1414,15 @@ BallerinaASTFactory.isConstantDefinition = function (child) {
 };
 
 /**
+ * instanceof check for globalVariableDefinition
+ * @param {ASTNode} child - The ast node.
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isGlobalVariableDefinition = function (child) {
+    return child instanceof globalVariableDefinition;
+};
+
+/**
  * instanceof check for Annotation definition.
  * @param {ASTNode} child - The ast node.
  * @return {boolean} - true if same type, else false
@@ -1725,6 +1744,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'constant_definition':
         node = BallerinaASTFactory.createConstantDefinition();
+        break;
+    case 'global_variable_definition':
+        node = BallerinaASTFactory.createGlobalVariableDefinition();
         break;
     case 'struct_definition':
         node = BallerinaASTFactory.createStructDefinition();

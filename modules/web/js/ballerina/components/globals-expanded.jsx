@@ -63,12 +63,9 @@ export default class GlobalExpanded extends React.Component {
 
     /**
      * renders an ExpressionEditor in the add new variable area.
-     * @param {string} value - Initial value.
-     * @param {object} options - options to be sent to ExpressionEditor.
+     * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
      */
-    openEditor(value, bBox) {
-        console.log(this.props.model);
-
+    openEditor(bBox) {
         const options = {
             propertyType: 'text',
             key: 'If condition',
@@ -79,13 +76,7 @@ export default class GlobalExpanded extends React.Component {
 
         const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
 
-        if (value && options) {
-            new ExpressionEditor(
-                bBox,
-                s => {},
-                options,
-                packageScope).render(this.context.container);
-        }
+        new ExpressionEditor(bBox, s => {} /*no-op*/, options, packageScope).render(this.context.container);
     }
 
     render() {
@@ -148,7 +139,7 @@ export default class GlobalExpanded extends React.Component {
                 <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="add-global-button-background"
                       />
                 <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="global-definition-decorator" />
-                <g onClick={e => {this.openEditor('co', textBoxBBox)}}>
+                <g onClick={e => {this.openEditor(textBoxBBox)}}>
                     <rect
                         x={bBox.x + 7} y={lastGlobalElementY + 7} height={globalInputHeight - 14} width={globalDeclarationWidth - 14}
                         className="add-global-button"
