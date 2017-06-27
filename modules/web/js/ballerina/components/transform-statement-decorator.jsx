@@ -428,36 +428,7 @@ class TransformStatementDecorator extends React.Component {
                     this.drawConnection(statement.getID(), source, target);
                 });
             } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
-                const func = this.getFunctionDefinition(rightExpression);
-                if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' + rightExpression.getFunctionName() + '" cannot be found');
-                    return;
-                }
-                this.mapper.addFunction(func, statement, statement.getParent().removeChild.bind(statement.getParent()));
-
-                if (func.getParameters().length !== rightExpression.getChildren().length) {
-                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-                } else {
-                    const funcTarget = this.getConnectionProperties('target', rightExpression);
-                    _.forEach(rightExpression.getChildren(), (expression, i) => {
-                        const target = this.getConnectionProperties('target', func.getParameters()[i]);
-                        _.merge(target, funcTarget); // merge parameter props with function props
-                        const source = this.getConnectionProperties('source', expression);
-                        this.drawConnection(rightExpression.getID(), source, target);
-                    });
-                }
-
-                if (func.getReturnParams().length !== leftExpressions.getChildren().length) {
-                    alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-                } else {
-                    const funcSource = this.getConnectionProperties('source', rightExpression);
-                    _.forEach(leftExpressions.getChildren(), (expression, i) => {
-                        const source = this.getConnectionProperties('source', func.getReturnParams()[i]);
-                        _.merge(source, funcSource); // merge parameter props with function props
-                        const target = this.getConnectionProperties('target', expression);
-                        this.drawConnection(rightExpression.getID(), source, target);
-                    });
-                }
+                this.drawFunctionInvocationExpression(leftExpressions, rightExpression, statement);
             } else {
                 log.error('Invalid expression type in transform statement body');
             }
@@ -466,6 +437,70 @@ class TransformStatementDecorator extends React.Component {
         } else {
             log.error('Invalid statement type in transform statement');
         }
+    }
+
+    drawInnerFunctionInvocationExpression(parent, functionInvocationExpression, statement) {
+        const func = this.getFunctionDefinition(functionInvocationExpression);
+        if (_.isUndefined(func)) {
+            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            return;
+        }
+
+        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        } else {
+            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+            _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
+                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, statement, i);
+                } else {
+                    const target = this.getConnectionProperties('target', func.getParameters()[i]);
+                    _.merge(target, funcTarget); // merge parameter props with function props
+                    const source = this.getConnectionProperties('source', expression);
+                    this.drawConnection(functionInvocationExpression.getID(), source, target);
+                }
+            });
+        }
+
+        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
+    }
+
+    drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
+        const func = this.getFunctionDefinition(functionInvocationExpression);
+        if (_.isUndefined(func)) {
+            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            return;
+        }
+
+        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        } else {
+            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+            _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
+                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, statement, i);
+                } else {
+                    const target = this.getConnectionProperties('target', func.getParameters()[i]);
+                    _.merge(target, funcTarget); // merge parameter props with function props
+                    const source = this.getConnectionProperties('source', expression);
+                    this.drawConnection(functionInvocationExpression.getID(), source, target);
+                }
+            });
+        }
+
+        if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
+            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        } else {
+            const funcSource = this.getConnectionProperties('source', functionInvocationExpression);
+            _.forEach(argumentExpressions.getChildren(), (expression, i) => {
+                const source = this.getConnectionProperties('source', func.getReturnParams()[i]);
+                _.merge(source, funcSource); // merge parameter props with function props
+                const target = this.getConnectionProperties('target', expression);
+                this.drawConnection(functionInvocationExpression.getID(), source, target);
+            });
+        }
+
+        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
     }
 
     getConnectionProperties(type, expression) {
