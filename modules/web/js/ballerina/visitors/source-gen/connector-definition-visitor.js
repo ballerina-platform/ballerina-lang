@@ -57,20 +57,9 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
                 }
             });
 
-        let argumentsSrc = '';
-        _.forEach(connectorDefinition.getArguments(), (argument, index) => {
-            argumentsSrc += (index !== 0 && argument.whiteSpace.useDefault) ? ' ' : '';
-            argumentsSrc += argument.getWSRegion(0) + argument.getTypeName();
-            argumentsSrc += argument.getWSRegion(1) + argument.getName();
-            argumentsSrc += argument.getWSRegion(2);
-            if (connectorDefinition.getArguments().length - 1 !== index) {
-                argumentsSrc += ',';
-            }
-        });
-
         constructedSourceSegment += 'connector'
           + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
-          + connectorDefinition.getWSRegion(1) + '(' + argumentsSrc + ')'
+          + connectorDefinition.getWSRegion(1) + '(' + connectorDefinition.getArgumentsAsString() + ')'
           + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
