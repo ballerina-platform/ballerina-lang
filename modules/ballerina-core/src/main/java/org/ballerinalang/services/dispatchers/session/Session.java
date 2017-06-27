@@ -66,9 +66,16 @@ public interface Session {
     /**
      * Get last accessed time
      *
-     * @return Time.
+     * @return Time in milliseconds.
      */
     Long getLastAccessedTime();
+
+    /**
+     * Get session creation time
+     *
+     * @return Time in milliseconds.
+     */
+    Long getCreationTime();
 
     /**
      * Get attribute name list
@@ -87,9 +94,16 @@ public interface Session {
     /**
      * Get max inactive time duration
      *
-     * @return Time duration.
+     * @return Time duration in seconds.
      */
     int getMaxInactiveInterval();
+
+    /**
+     * Set max inactive time duration
+     *
+     * @param maxInactiveInterval is the session max inactive time in seconds
+     */
+    void setMaxInactiveInterval(int maxInactiveInterval);
 
     /**
      * check validity
@@ -119,4 +133,11 @@ public interface Session {
      * @return  session path
      */
     String getPath();
+
+    /**
+     * Get session status
+     *
+     * @return  session status
+     */
+    boolean isNew();
 }

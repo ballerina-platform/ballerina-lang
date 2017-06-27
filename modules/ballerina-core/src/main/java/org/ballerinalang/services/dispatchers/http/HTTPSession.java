@@ -98,8 +98,18 @@ public class HTTPSession implements Session, Serializable {
     }
 
     @Override
+    public Long getCreationTime() {
+        return createTime;
+    }
+
+    @Override
     public int getMaxInactiveInterval() {
         return maxInactiveInterval;
+    }
+
+    @Override
+    public void setMaxInactiveInterval(int maxInactiveInterval) {
+        this.maxInactiveInterval = maxInactiveInterval;
     }
 
     @Override

@@ -41,11 +41,7 @@ public class SessionManager {
      */
     private static final int DEFAULT_MAX_ACTIVE_SESSIONS = 100_000;
 
-    /**
-     * The default maximum inactive interval, in minutes, for Sessions created by
-     * this Manager.
-     */
-    private static final int DEFAULT_MAX_INACTIVE_INTERVAL = 15;  // In minutes
+    private static final int DEFAULT_MAX_INACTIVE_INTERVAL = 900;  // In seconds
 
     /**
      * The session id length of Sessions created by this Manager.
@@ -68,7 +64,7 @@ public class SessionManager {
                         sessionMap.values().parallelStream()
                                 .filter(session ->
                                         (System.currentTimeMillis() - session.getLastAccessedTime() >=
-                                                session.getMaxInactiveInterval() * 60 * 1000))
+                                                session.getMaxInactiveInterval() * 1000))
                                 .forEach(Session::invalidate),
                 30, 30, TimeUnit.SECONDS);
     }
