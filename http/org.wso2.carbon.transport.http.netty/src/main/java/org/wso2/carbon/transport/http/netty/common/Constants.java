@@ -170,9 +170,9 @@ public final class Constants {
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
 
     //HTTP server connector creation parameters
-    public static final String HTTP_HOST = "Host";
-    public static final String HTTP_PORT = "Port";
-    public static final String HTTP_SCHEMA = "Schema";
+    public static final String HTTP_HOST = "host";
+    public static final String HTTP_PORT = "port";
+    public static final String HTTP_SCHEMA = "schema";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
     public static final String HTTP_KEY_STORE_PASS = "keyStorePass";
     public static final String HTTP_CERT_PASS = "certPass";
