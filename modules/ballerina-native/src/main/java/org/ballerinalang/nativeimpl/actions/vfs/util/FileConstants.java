@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.vfs;
+package org.ballerinalang.nativeimpl.actions.vfs.util;
 
 /**
  * Constants for vfs client connector.
  */
-public class Constants {
+public class FileConstants {
     public static final String VFS_CONNECTOR_NAME = "vfs";
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String PROPERTY_URI = "uri";

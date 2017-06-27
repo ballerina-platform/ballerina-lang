@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -41,7 +42,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
         actionName = "write",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = FileConstants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "blob", type = TypeEnum.BLOB),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
@@ -62,11 +63,11 @@ public class Write extends AbstractVfsAction {
         CarbonMessage byteMessage = new BinaryCarbonMessage(ByteBuffer.wrap(content), true);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
-        propertyMap.put(Constants.PROPERTY_URI, destination.getStringField(0));
-        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_WRITE);
+        propertyMap.put(FileConstants.PROPERTY_URI, destination.getStringField(0));
+        propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_WRITE);
         try {
             //Getting the sender instance and sending the message.
-            BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
+            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.VFS_CONNECTOR_NAME)
                                      .send(byteMessage, null, propertyMap);
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);

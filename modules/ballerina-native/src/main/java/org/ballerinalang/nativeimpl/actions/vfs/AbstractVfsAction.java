@@ -17,6 +17,7 @@ package org.ballerinalang.nativeimpl.actions.vfs;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -49,7 +50,7 @@ public abstract class AbstractVfsAction extends AbstractNativeAction {
         BalConnectorCallback callback = new BalConnectorCallback(context);
         try {
             //Getting the sender instance and sending the message.
-            BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
+            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.VFS_CONNECTOR_NAME)
                                      .send(message, callback, propertyMap);
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);

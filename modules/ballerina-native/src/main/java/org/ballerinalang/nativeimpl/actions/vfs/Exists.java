@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -39,7 +40,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
         actionName = "exists",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = FileConstants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files") },
@@ -61,8 +62,8 @@ public class Exists extends AbstractVfsAction {
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
-        propertyMap.put(Constants.PROPERTY_URI, pathString);
-        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_EXISTS);
+        propertyMap.put(FileConstants.PROPERTY_URI, pathString);
+        propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_EXISTS);
         CarbonMessage responseMessage = executeCallbackAction(null, propertyMap, context);
         boolean b = Boolean.parseBoolean(((TextCarbonMessage) responseMessage).getText());
         context.getControlStackNew().currentFrame.returnValues[0] = new BBoolean(b);

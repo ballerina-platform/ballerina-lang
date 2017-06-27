@@ -4,6 +4,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -21,7 +22,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.vfs",
         actionName = "createFile",
-        connectorName = Constants.CONNECTOR_NAME,
+        connectorName = FileConstants.CONNECTOR_NAME,
         args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files"),
@@ -44,14 +45,14 @@ public class CreateFile extends AbstractVfsAction {
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         String pathString = file.getStringField(0);
-        propertyMap.put(Constants.PROPERTY_URI, pathString);
-        propertyMap.put(Constants.PROPERTY_ACTION, Constants.ACTION_CREATE);
-        if (type.equalsIgnoreCase(Constants.TYPE_FOLDER)) {
-            propertyMap.put(Constants.PROPERTY_FOLDER, Boolean.TRUE.toString());
+        propertyMap.put(FileConstants.PROPERTY_URI, pathString);
+        propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_CREATE);
+        if (type.equalsIgnoreCase(FileConstants.TYPE_FOLDER)) {
+            propertyMap.put(FileConstants.PROPERTY_FOLDER, Boolean.TRUE.toString());
         }
         try {
             //Getting the sender instance and sending the message.
-            BallerinaConnectorManager.getInstance().getClientConnector(Constants.VFS_CONNECTOR_NAME)
+            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.VFS_CONNECTOR_NAME)
                                      .send(null, null, propertyMap);
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
