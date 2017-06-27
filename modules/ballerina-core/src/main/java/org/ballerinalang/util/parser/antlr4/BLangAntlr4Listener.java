@@ -1138,7 +1138,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitContinueStatement(ContinueStatementContext ctx) {
-
+        if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getContinueStatementWS(tokenStream, ctx);
+            }
+            modelBuilder.createContinueStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        }
     }
 
     @Override
