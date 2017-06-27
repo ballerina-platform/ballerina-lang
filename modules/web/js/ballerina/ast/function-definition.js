@@ -111,13 +111,15 @@ class FunctionDefinition extends CallableDefinition {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        const argsStringArray = [];
-        const args = this.getArguments();
-        _.forEach(args, (arg) => {
-            argsStringArray.push(arg.getParameterDefinitionAsString());
+        let argsString = '';
+        this.getArguments().forEach((arg, index) => {
+            if (index !=0 ) {
+                argsString += ',';
+                argsString += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
+            }
+            argsString += arg.getParameterDefinitionAsString();
         });
-
-        return _.join(argsStringArray, ', ');
+        return argsString;
     }
 
     /**
