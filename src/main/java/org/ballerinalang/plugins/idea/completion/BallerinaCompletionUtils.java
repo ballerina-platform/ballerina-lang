@@ -552,7 +552,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get imported packages
      */
-    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file,
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         String typeText = "package";
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
@@ -575,32 +576,34 @@ public class BallerinaCompletionUtils {
             packageNameNode = packageNameNodes.get(packageNameNodes.size() - 1);
 
             AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
+            LookupElementBuilder builder;
             if (aliasNode != null) {
-                LookupElementBuilder builder = LookupElementBuilder.create(aliasNode.getText())
-                        .withTailText("(" + packagePath + ")", true)
-                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
-                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                builder = LookupElementBuilder.create(aliasNode.getText());
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             } else {
-                LookupElementBuilder builder = LookupElementBuilder.create(packageNameNode.getText())
-                        .withTailText("(" + packagePath + ")", true)
-                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
-                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+                builder = LookupElementBuilder.create(packageNameNode.getText());
             }
+            builder = builder.withTailText("(" + packagePath + ")", true)
+                    .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
+                    .withInsertHandler(insertHandler);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+
         }
     }
 
     private static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet,
-                                                          @NotNull PsiFile file) {
+                                                          @NotNull PsiFile file,
+                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
         // Get all imported packages in the current file.
         Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
         // Get all packages in the resolvable scopes (project and libraries).
         List<PsiDirectory> directories = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         // Iterate through all available  packages.
         for (PsiDirectory directory : directories) {
-            // Set the default insert handler to auto popup insert handler.
-            InsertHandler<LookupElement> insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandler == null) {
+                // Set the default insert handler to auto popup insert handler.
+                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            }
             // Suggest a package name for the directory.
             // Eg: ballerina/lang/system -> ballerina.lang.system
             String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
@@ -856,10 +859,15 @@ public class BallerinaCompletionUtils {
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
-                           boolean withFunctions, boolean withConnectors, boolean withStructs) {
+                           boolean withFunctions, boolean withConnectors, boolean withStructs,
+                           InsertHandler<LookupElement>... insertHandlers) {
         if (withPackages) {
-            addAllImportedPackagesAsLookups(resultSet, file);
-            addAllUnImportedPackagesAsLookups(resultSet, file);
+            InsertHandler<LookupElement> insertHandler = PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandlers.length >= 1) {
+                insertHandler = insertHandlers[0];
+            }
+            addAllImportedPackagesAsLookups(resultSet, file, insertHandler);
+            addAllUnImportedPackagesAsLookups(resultSet, file, insertHandler);
         }
         if (withFunctions) {
             addFunctionsAsLookups(resultSet, file);

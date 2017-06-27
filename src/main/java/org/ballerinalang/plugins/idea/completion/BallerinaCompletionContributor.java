@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.completion;
 
+import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
@@ -254,6 +255,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      */
     private void handlePackageNameNode(@NotNull CompletionParameters parameters,
                                        @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
         PsiElement superParent = parent.getParent();
@@ -266,6 +268,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // If the parent is not an AliasNode and is inside the ImportDeclarationNode, we need to suggest
             // packages.
             addImportSuggestions(resultSet, element);
+        } else {
+            InsertHandler<LookupElement>[] insertHandlers = (InsertHandler<LookupElement>[]) (new InsertHandler[]{new
+                    BasicInsertHandler()});
+            addLookups(resultSet, originalFile, true, false, false, false, insertHandlers);
         }
     }
 
@@ -644,8 +650,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             }
                             addTypeNamesAsLookups(resultSet);
                         }
-                    } else if (isExpressionSeparator(elementType)) {
-                        // Eg: int a = 10 + t<caret>
+                    } else if (isExpressionSeparator(elementType)||elementType == BallerinaTypes.LPAREN) {
+                        // Eg: int a = 10 +
+                        // Eg: system:println(<caret>)
                         addLookups(resultSet, originalFile, true, true, true, false);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else {
@@ -745,8 +752,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
                 addTypeNamesAsLookups(resultSet);
             }
-        } else if (isExpressionSeparator(elementType)) {
+        } else if (isExpressionSeparator(elementType)||elementType == BallerinaTypes.LPAREN) {
             // Eg: int a = 10 +
+            // Eg: system:println(<caret>)
             addLookups(resultSet, originalFile, true, true, true, false);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else {

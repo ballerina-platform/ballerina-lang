@@ -99,6 +99,8 @@ public class BallerinaTypes {
     public static RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_valueTypeName);
     public static RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(BallerinaParser.RULE_actionInvocation);
     public static RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_xmlNamespaceName);
+    public static RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(BallerinaParser.RULE_sourceNotation);
+    public static RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_packageName);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);

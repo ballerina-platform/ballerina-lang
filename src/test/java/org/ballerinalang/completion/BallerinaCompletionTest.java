@@ -1202,6 +1202,15 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
                 "TEST");
     }
 
+    public void testServiceSourceNotation() {
+        doTest("import org.test; service<<caret>> S {}", "test");
+    }
+
+    public void testServiceSourceNotationAutoCompletion() {
+        doCheckResult("test.bal", "import org.test; service<t<caret>> S {}",
+                "import org.test; service<test> S {}", null);
+    }
+
     /**
      * Test resource level lookups.
      */

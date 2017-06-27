@@ -9,3 +9,7 @@ service echo {
         reply m;
     }
 }
+
+service<http> echo2 {
+
+}

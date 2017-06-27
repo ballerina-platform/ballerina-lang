@@ -47,7 +47,11 @@ definition
     ;
 
 serviceDefinition
-    :   'service' Identifier '{' serviceBody '}'
+    :   'service' sourceNotation? Identifier '{' serviceBody '}'
+    ;
+
+sourceNotation
+    :   '<' packageName '>'
     ;
 
 serviceBody
