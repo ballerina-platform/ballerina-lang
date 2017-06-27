@@ -252,7 +252,7 @@ class TransformStatementDecorator extends React.Component {
         $('#btn-add-source').click((e) => {
             let currentSelection = $('#' + sourceId).val();
             let inputDef = BallerinaASTFactory
-                                    .createVariableReferenceExpression({ variableName: currentSelection });
+                                    .createSimpleVariableReferenceExpression({ variableName: currentSelection });
             if (self.setSource(currentSelection, self.predefinedStructs, self.props.model, inputDef.id)) {
                 let inputs = self.props.model.getInput();
                 inputs.push(inputDef);
@@ -263,7 +263,7 @@ class TransformStatementDecorator extends React.Component {
         $('#btn-add-target').click((e) => {
             let currentSelection = $('#' + targetId).val();
             let outDef = BallerinaASTFactory
-                                    .createVariableReferenceExpression({ variableName: currentSelection });
+                                    .createSimpleVariableReferenceExpression({ variableName: currentSelection });
             if (self.setTarget(currentSelection, self.predefinedStructs, self.props.model, outDef.id)) {
                 let outputs = self.props.model.getOutput();
                 outputs.push(outDef);
@@ -296,7 +296,7 @@ class TransformStatementDecorator extends React.Component {
                     sourceExpression = self.getStructAccessNode(connection.sourceStruct, connection.sourceProperty);
                 } else {
                     sourceExpression = BallerinaASTFactory
-                                                 .createVariableReferenceExpression({variableName: sourceStruct.name});
+                                                 .createSimpleVariableReferenceExpression({variableName: sourceStruct.name});
                 }
             }
             if(targetStruct != null){
@@ -304,7 +304,7 @@ class TransformStatementDecorator extends React.Component {
                     targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
                 } else {
                     targetExpression = BallerinaASTFactory
-                                                .createVariableReferenceExpression({variableName: targetStruct.name});
+                                                .createSimpleVariableReferenceExpression({variableName: targetStruct.name});
                 }
             }
 
@@ -417,7 +417,7 @@ class TransformStatementDecorator extends React.Component {
             const rightExpression = statement.getChildren()[1].getChildren()[0];
 
             if (BallerinaASTFactory.isFieldAccessExpression(rightExpression) ||
-                  BallerinaASTFactory.isVariableReferenceExpression(rightExpression)) {
+                  BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
                 _.forEach(leftExpressions.getChildren(), (expression) => {
                     const target = this.getConnectionProperties('target', expression);
                     const source = this.getConnectionProperties('source', rightExpression);
@@ -483,7 +483,7 @@ class TransformStatementDecorator extends React.Component {
                 con[type + 'Struct'] = packageName + '-' + expression.getFunctionName();
             }
             con[type + 'Id'] = expression.getID();
-        } else if (BallerinaASTFactory.isVariableReferenceExpression(expression)) {
+        } else if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
             con[type + 'Struct'] = expression.getVariableName();
             const varRef = _.find(self.predefinedStructs, { name: expression.getVariableName() });
             if (!_.isUndefined(varRef)) {
@@ -779,7 +779,7 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         let structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
         let structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
             basicLiteralValue: property });
-        let structName = BallerinaASTFactory.createVariableReferenceExpression();
+        let structName = BallerinaASTFactory.createSimpleVariableReferenceExpression();
 
         structName.setVariableName(name);
         structExpression.addChild(structName);

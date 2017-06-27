@@ -49,10 +49,10 @@ class BlockStatement extends ASTNode {
         const variableDefStmt = ballerinaASTFactory.createVariableDefinitionStatement(args);
         const leftStatement = ballerinaASTFactory.createLeftOperandExpression(args);
         leftStatement.setLeftOperandExpressionString('');
-        const variableReferenceExpression = ballerinaASTFactory.createVariableReferenceExpression(args);
+        const simpleVariableReferenceExpression = ballerinaASTFactory.createSimpleVariableReferenceExpression(args);
         const variableDefinition = ballerinaASTFactory.createVariableDefinition(args);
-        variableReferenceExpression.addChild(variableDefinition);
-        leftStatement.addChild(variableReferenceExpression);
+        simpleVariableReferenceExpression.addChild(variableDefinition);
+        leftStatement.addChild(simpleVariableReferenceExpression);
         variableDefStmt.addChild(leftStatement);
         const index = _.findLastIndex(this.getChildren(), (child) => {
             return ballerinaASTFactory.isVariableDefinitionStatement(child);

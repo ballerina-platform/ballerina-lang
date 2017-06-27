@@ -20,8 +20,8 @@ import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
 
 /**
- * Constructor for VariableReferenceExpression
- * @param {Object} args - Arguments to create the VariableReferenceExpression
+ * Constructor for ReferenceTypeInitExpression
+ * @param {Object} args - Arguments to create the ReferenceTypeInitExpression
  * @constructor
  */
 class ReferenceTypeInitExpression extends Expression {

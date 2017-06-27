@@ -50,7 +50,7 @@ import resourceParameter from './resource-parameter';
 import assignmentStatement from './statements/assignment-statement';
 import functionInvocationStatement from './statements/function-invocation-statement';
 import functionInvocationExpression from './expressions/function-invocation-expression';
-import variableReferenceExpression from './expressions/variable-reference-expression';
+import SimpleVariableReferenceExpression from './expressions/simple-variable-reference-expression';
 import actionInvocationStatement from './statements/action-invocation-statement';
 import actionInvocationExpression from './expressions/action-invocation-expression';
 import returnType from './return-type';
@@ -430,12 +430,12 @@ BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
 };
 
 /**
- * creates VariableReferenceExpression
+ * creates SimpleVariableReferenceExpression
  * @param {Object} args
- * @returns {VariableReferenceExpression}
+ * @returns {SimpleVariableReferenceExpression}
  */
-BallerinaASTFactory.createVariableReferenceExpression = function (args) {
-    return new variableReferenceExpression(args);
+BallerinaASTFactory.createSimpleVariableReferenceExpression = function (args) {
+    return new SimpleVariableReferenceExpression(args);
 };
 
 /**
@@ -1296,12 +1296,12 @@ BallerinaASTFactory.isNullLiteralExpression = function (child) {
 };
 
 /**
- * instanceof check for VariableReferenceExpression
- * @param child
+ * instanceof check for SimpleVariableReferenceExpression
+ * @param node
  * @returns {boolean}
  */
-BallerinaASTFactory.isVariableReferenceExpression = function (child) {
-    return child instanceof variableReferenceExpression;
+BallerinaASTFactory.isSimpleVariableReferenceExpression = function (node) {
+    return node instanceof SimpleVariableReferenceExpression;
 };
 
 /**
@@ -1621,8 +1621,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'function_invocation_expression':
         node = BallerinaASTFactory.createFunctionInvocationExpression();
         break;
-    case 'variable_reference_expression':
-        node = BallerinaASTFactory.createVariableReferenceExpression();
+    case 'simple_variable_reference_expression':
+        node = BallerinaASTFactory.createSimpleVariableReferenceExpression();
         break;
     case 'action_invocation_expression':
         node = BallerinaASTFactory.createActionInvocationExpression();

@@ -32,7 +32,7 @@ class FieldAccessExpression extends Expression {
 
     /**
      * A FieldAccessExpression can have either 1 or 2 child/children. First one being a
-     * {@link VariableReferenceExpression} and the 2nd being {@link FieldAccessExpression} or another expression
+     * {@link SimpleVariableReferenceExpression} and the 2nd being {@link FieldAccessExpression} or another expression
      * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
      * @return {string}
      * @override

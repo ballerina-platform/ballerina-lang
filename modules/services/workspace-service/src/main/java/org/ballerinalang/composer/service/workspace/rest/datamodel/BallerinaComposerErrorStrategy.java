@@ -94,11 +94,10 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
             errorTokens.add(createError(line, position, msg));
         }
     }
-    
-    
-    private String getSourceLocation(Parser parser, int line, int position) {
-        return parser.getSourceName() + ":" + line + ":" + position + ": ";
-    }
+
+//    private String getSourceLocation(Parser parser, int line, int position) {
+//        return parser.getSourceName() + ":" + line + ":" + position + ": ";
+//    }
     
     private SyntaxError createError(int line, int position, String message) {
         return new SyntaxError(line, position, message);

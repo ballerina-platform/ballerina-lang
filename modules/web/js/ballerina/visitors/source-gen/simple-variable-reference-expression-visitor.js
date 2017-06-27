@@ -18,19 +18,19 @@
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import VariableDefinitionVisitor from './variable-definition-visitor';
 
-class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+class SimpleVariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisitor {
 
-    canVisitVariableReferenceExpression() {
+    canVisitSimpleVariableReferenceExpression() {
         return true;
     }
 
-    beginVisitVariableReferenceExpression() {
+    beginVisitSimpleVariableReferenceExpression() {
     }
 
-    visitVariableReferenceExpression() {
+    visitSimpleVariableReferenceExpression() {
     }
 
-    endVisitVariableReferenceExpression(expression) {
+    endVisitSimpleVariableReferenceExpression(expression) {
         if (expression.getVariableName()) {
             this.appendSource(expression.getVariableName());
         }
@@ -43,4 +43,4 @@ class VariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisi
     }
 }
 
-export default VariableReferenceExpressionVisitor;
+export default SimpleVariableReferenceExpressionVisitor;
