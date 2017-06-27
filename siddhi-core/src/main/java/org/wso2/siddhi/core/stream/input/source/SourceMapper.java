@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Convert custom input from {@link Source} to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
@@ -56,7 +57,7 @@ public abstract class SourceMapper implements SourceEventListener {
         return inputEventHandler.getInputHandler();
     }
 
-    public void onEvent(Object eventObject) {
+    public void onEvent(Object eventObject, Map<String, String> transportParameters) {
         try {
             if (eventObject != null) {
                 mapAndProcess(eventObject, inputEventHandler);

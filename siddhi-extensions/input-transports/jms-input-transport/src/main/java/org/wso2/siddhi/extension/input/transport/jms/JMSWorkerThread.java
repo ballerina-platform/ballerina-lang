@@ -48,7 +48,7 @@ public class JMSWorkerThread implements Runnable {
         try {
             if (carbonMessage.getClass() == TextCarbonMessage.class) {
                 String event = ((TextCarbonMessage) carbonMessage).getText();
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             } else if (carbonMessage.getClass() == MapCarbonMessage.class) {
                 Map<String, String> event = new HashMap<>();
                 MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) carbonMessage;
@@ -57,7 +57,7 @@ public class JMSWorkerThread implements Runnable {
                     String key = mapNames.nextElement();
                     event.put(key, mapCarbonMessage.getValue(key));
                 }
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             } else {
                 throw new JMSInputAdaptorRuntimeException("The message type of the JMS message" +
                         carbonMessage.getClass() + " is not supported!");

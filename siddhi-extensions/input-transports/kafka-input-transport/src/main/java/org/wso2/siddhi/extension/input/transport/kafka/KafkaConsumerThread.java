@@ -134,7 +134,7 @@ public class KafkaConsumerThread implements Runnable {
                                 .partition());
                     }
                     topicOffsetMap.get(record.topic()).put(record.partition(), record.offset());
-                    sourceEventListener.onEvent(event);
+                    sourceEventListener.onEvent(event, null);
                 }
                 try {
                     consumerLock.lock();

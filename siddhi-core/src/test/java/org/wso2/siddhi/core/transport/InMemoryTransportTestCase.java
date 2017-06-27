@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
@@ -349,5 +350,91 @@ public class InMemoryTransportTestCase {
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriptionWSO2);
         InMemoryBroker.unsubscribe(subscriptionIBM);
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void inMemoryTestCase3() throws InterruptedException {
+        log.info("Test inMemory 3");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='Foo', @map(type='passThrough', @attributes(symbol='symbol'))) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void inMemoryTestCase4() throws InterruptedException {
+        log.info("Test inMemory 4");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='Foo', @map(type='passThrough', @attributes('symbol','price'))) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+    }
+
+    @Test
+    public void inMemoryTestCase5() throws InterruptedException {
+        log.info("Test inMemory 5");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='Foo', @map(type='passThrough', @attributes(symbol='symbol'," +
+                "volume='volume',price='price'))) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+    }
+
+    @Test
+    public void inMemoryTestCase6() throws InterruptedException {
+        log.info("Test inMemory 6");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(type='inMemory', topic='Foo', @map(type='trpPassThrough', @attributes(symbol='trp:symbol'," +
+                "volume='volume',price='trp:price'))) " +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='inMemory', topic='{{symbol}}', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        siddhiAppRuntime.getName();
     }
 }

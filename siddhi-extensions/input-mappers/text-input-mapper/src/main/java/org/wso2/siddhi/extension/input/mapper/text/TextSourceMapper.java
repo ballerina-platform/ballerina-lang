@@ -115,7 +115,7 @@ public class TextSourceMapper extends SourceMapper {
                     // Use the same order as provided by the user
                     position = i;
                 }
-                String[] mappingComponents = attributeMapping.getMapping().split("\\[");
+                String[] mappingComponents = attributeMapping.getPayloadMapping().split("\\[");
                 String regex = optionHolder.validateAndGetStaticValue(mappingComponents[0]);
                 int index = Integer.parseInt(mappingComponents[1].substring(0, mappingComponents[1].length() - 1));
                 this.mappingPositions[i] = new MappingPositionData(position, regex, index);

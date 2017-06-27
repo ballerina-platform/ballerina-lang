@@ -20,6 +20,8 @@ package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.Map;
+
 /**
  * Listener interface to be used by following component to get the events received by {@link Source}s. Source will
  * trigger onEvent() of listener after receiving events.
@@ -28,5 +30,5 @@ public interface SourceEventListener {
 
     StreamDefinition getStreamDefinition();
 
-    void onEvent(Object eventObject);
+    void onEvent(Object eventObject, Map<String, String> transportParameters);
 }

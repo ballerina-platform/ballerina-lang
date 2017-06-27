@@ -77,7 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -292,7 +291,8 @@ public class DefinitionParserHelper {
                     OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
                             sourceMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
-                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation),
+                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder,
+                            getAttributeMappings(mapAnnotation, mapType, streamDefinition),
                             siddhiAppContext.getSiddhiContext().getConfigManager().generateConfigReader
                                     (mapperExtension.getNamespace(), mapperExtension.getName()));
                     source.init(sourceOptionHolder, sourceMapper, siddhiAppContext.getSiddhiContext()
@@ -406,15 +406,15 @@ public class DefinitionParserHelper {
                                     destinationOptHolders, configReader);
 
                             ((DistributedTransport) sink).init(streamDefinition, sinkType,
-                                                               transportOptionHolder, sinkConfigReader, sinkMapper,
-                                                               mapType, mapOptionHolder,
-                                                               payload, mapperConfigReader, siddhiAppContext,
-                                                               destinationOptHolders,
-                                                               sinkAnnotation, distributionStrategy,
-                                                               supportedDynamicOptions);
+                                    transportOptionHolder, sinkConfigReader, sinkMapper,
+                                    mapType, mapOptionHolder,
+                                    payload, mapperConfigReader, siddhiAppContext,
+                                    destinationOptHolders,
+                                    sinkAnnotation, distributionStrategy,
+                                    supportedDynamicOptions);
                         } else {
                             sink.init(streamDefinition, sinkType, transportOptionHolder, sinkConfigReader, sinkMapper,
-                                      mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
+                                    mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
                         }
 
                         // Setting the output group determiner
@@ -500,18 +500,52 @@ public class DefinitionParserHelper {
         };
     }
 
-    private static List<AttributeMapping> getAttributeMappings(Annotation mapAnnotation) {
+    private static List<AttributeMapping> getAttributeMappings(Annotation mapAnnotation, String mapType,
+                                                               StreamDefinition streamDefinition) {
         List<AttributeMapping> mappings = new ArrayList<>();
         List<Annotation> attributeAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_ATTRIBUTES);
         if (attributeAnnotations.size() > 0) {
-            mappings.addAll(
-                    attributeAnnotations
-                            .get(0)
-                            .getElements()
-                            .stream()
-                            .map(element -> new AttributeMapping(element.getKey(), element.getValue()))
-                            .collect(Collectors.toList())
-            );
+            Map<String, String> elementMap = new HashMap<>();
+            List<String> elementList = new ArrayList<>();
+            Boolean attributesNameDefined = null;
+            for (Element element : attributeAnnotations.get(0).getElements()) {
+                if (element.getKey() == null) {
+                    if (attributesNameDefined != null && attributesNameDefined) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                    }
+                    attributesNameDefined = false;
+                    elementList.add(element.getValue());
+                } else {
+                    if (attributesNameDefined != null && !attributesNameDefined) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                    }
+                    attributesNameDefined = true;
+                    elementMap.put(element.getKey(), element.getValue());
+                }
+            }
+            if (elementMap.size() > 0) {
+                for (Attribute attribute : streamDefinition.getAttributeList()) {
+                    String value = elementMap.get(attribute.getName());
+                    if (value == null) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', attribute '" + attribute.getName() + "' is not mapped.");
+                    }
+                    mappings.add(new AttributeMapping(attribute.getName(), elementMap.get(attribute.getName())));
+                }
+            } else {
+                List<Attribute> attributeList = streamDefinition.getAttributeList();
+                if (elementList.size() != attributeList.size()) {
+                    throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                            streamDefinition.getId() + "', '" + elementList.size() + "' mapping is provided but" +
+                            " expected attributes are '" + attributeList.size() + "'.");
+                }
+                for (int i = 0; i < attributeList.size(); i++) {
+                    Attribute attribute = attributeList.get(i);
+                    mappings.add(new AttributeMapping(attribute.getName(), elementList.get(i)));
+                }
+            }
         }
         return mappings;
     }

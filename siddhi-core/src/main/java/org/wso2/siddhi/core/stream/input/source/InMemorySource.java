@@ -63,7 +63,7 @@ public class InMemorySource extends Source {
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             }
 
             @Override

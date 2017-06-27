@@ -159,7 +159,7 @@ public class JsonSourceMapper extends SourceMapper {
                 } else {
                     position = i;
                 }
-                this.mappingPositions[i] = new MappingPositionData(position, attributeMapping.getMapping());
+                this.mappingPositions[i] = new MappingPositionData(position, attributeMapping.getPayloadMapping());
             }
         } else {
             for (int i = 0; i < attributesSize; i++) {

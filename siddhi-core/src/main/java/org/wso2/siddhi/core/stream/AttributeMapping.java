@@ -19,42 +19,41 @@
 package org.wso2.siddhi.core.stream;
 
 /**
- * Holder object to store mapping information for a given Siddhi {@link org.wso2.siddhi.query.api.definition.Attribute}
+ * Holder object to store payloadMapping information for a given Siddhi
+ * {@link org.wso2.siddhi.query.api.definition.Attribute}
  */
 public class AttributeMapping {
-    private String mapping;
     private String rename;
-
-    public AttributeMapping(String mapping) {
-        this.mapping = mapping;
-    }
+    private String payloadMapping = null;
+    private String transportMapping = null;
 
     public AttributeMapping(String rename, String mapping) {
         this.rename = rename;
-        this.mapping = mapping;
+        if (mapping.trim().startsWith("trp:")) {
+            this.transportMapping = mapping.trim().substring(4);
+        } else {
+            this.payloadMapping = mapping;
+        }
     }
 
-    public String getMapping() {
-        return mapping;
-    }
-
-    public void setMapping(String mapping) {
-        this.mapping = mapping;
+    public String getPayloadMapping() {
+        return payloadMapping;
     }
 
     public String getRename() {
         return rename;
     }
 
-    public void setRename(String rename) {
-        this.rename = rename;
+    public String getTransportMapping() {
+        return transportMapping;
     }
 
     @Override
     public String toString() {
         return "AttributeMapping{" +
-                "mapping='" + mapping + '\'' +
-                ", rename='" + rename + '\'' +
+                "rename='" + rename + '\'' +
+                ", payloadMapping='" + payloadMapping + '\'' +
+                ", transportMapping='" + transportMapping + '\'' +
                 '}';
     }
 
@@ -69,17 +68,21 @@ public class AttributeMapping {
 
         AttributeMapping that = (AttributeMapping) o;
 
-        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) {
+        if (rename != null ? !rename.equals(that.rename) : that.rename != null) {
             return false;
         }
-        return !(rename != null ? !rename.equals(that.rename) : that.rename != null);
-
+        if (payloadMapping != null ? !payloadMapping.equals(that.payloadMapping) : that.payloadMapping != null) {
+            return false;
+        }
+        return transportMapping != null ? transportMapping.equals(that.transportMapping) : that.transportMapping ==
+                null;
     }
 
     @Override
     public int hashCode() {
-        int result = mapping != null ? mapping.hashCode() : 0;
-        result = 31 * result + (rename != null ? rename.hashCode() : 0);
+        int result = rename != null ? rename.hashCode() : 0;
+        result = 31 * result + (payloadMapping != null ? payloadMapping.hashCode() : 0);
+        result = 31 * result + (transportMapping != null ? transportMapping.hashCode() : 0);
         return result;
     }
 }

@@ -183,10 +183,10 @@ public class XmlSourceMapper extends SourceMapper {
                 if (attributeTypeMap.containsKey(attributeMapping.getRename())) {
                     AXIOMXPath axiomxPath;
                     try {
-                        axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
+                        axiomxPath = new AXIOMXPath(attributeMapping.getPayloadMapping());
                     } catch (JaxenException e) {
                         throw new SiddhiAppValidationException("Error occurred when building XPath from: " +
-                                attributeMapping.getMapping() + ", mapped to attribute: " +
+                                attributeMapping.getPayloadMapping() + ", mapped to attribute: " +
                                 attributeMapping.getRename());
                     }
                     for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
@@ -195,7 +195,7 @@ public class XmlSourceMapper extends SourceMapper {
                         } catch (JaxenException e) {
                             throw new SiddhiAppValidationException(
                                     "Error occurred when adding namespace: " + entry.getKey()
-                                    + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
+                                    + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getPayloadMapping());
                         }
                     }
                     xPathMap.put(attributeMapping.getRename(), axiomxPath);
