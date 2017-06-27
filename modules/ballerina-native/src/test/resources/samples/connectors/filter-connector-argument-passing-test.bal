@@ -1,7 +1,7 @@
 import ballerina.lang.system;
 
 function testArgumentPassing(string var1)(int) {
-    TestConnector testConnector = create TestConnector(var1) with FilterConnector("Chanaka");
+    TestConnector testConnector = create TestConnector(var1) with FilterConnector(500);
     message request = {};
     int value;
     value = TestConnector.action1(testConnector, request);
@@ -13,7 +13,7 @@ function testArgumentPassing(string var1)(int) {
 connector TestConnector(string param1) {
 
     action action1(TestConnector testConnector, message msg) (int){
-        system:println("Worker in action test started " + param1);
+        system:println("Action1 in test connector started " + param1);
           return 100;
     }
 
@@ -25,10 +25,10 @@ connector TestConnector(string param1) {
 }
 
 
-connector FilterConnector<TestConnector>(string param1) {
+connector FilterConnector<TestConnector>(int param1) {
 
     action action1(FilterConnector testConnector, message msg) {
-          system:println("Worker in filter connector test started within filter connector" + param1);
+          system:println("Action1 in filter connector started " + param1);
     }
 
     action action2(FilterConnector testConnector, message msg) {

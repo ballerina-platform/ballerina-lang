@@ -858,7 +858,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, false);
     }
 
     @Override
@@ -1052,7 +1052,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAssignmentStmtWS(tokenStream, ctx);
         }
-        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        boolean isVarDeclaration = false;
+        if (ctx.getChild(0).getText().equals("var")) {
+            isVarDeclaration = true;
+        }
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, isVarDeclaration);
     }
 
     @Override

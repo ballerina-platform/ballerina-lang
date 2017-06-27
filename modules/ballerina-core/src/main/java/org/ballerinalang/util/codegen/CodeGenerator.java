@@ -311,7 +311,7 @@ public class CodeGenerator implements NodeVisitor {
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
-            
+
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : service.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -320,7 +320,7 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), gvIndexes);
                 GlobalVarLocation globalVarLocation = new GlobalVarLocation(fieldIndex);
                 varDef.setMemoryLocation(globalVarLocation);
-                
+
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -330,8 +330,8 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
             localVarAttribInfo.setLocalVariables(localVarInfo);
             serviceInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
-            
-            
+
+
             // Create the init function info
             createFunctionInfoEntries(new Function[]{service.getInitFunction()});
             serviceInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(service.getInitFunction().getName()));
@@ -443,7 +443,7 @@ public class CodeGenerator implements NodeVisitor {
             }
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
-            
+
             // Assign field indexes for Connector variables
             for (VariableDefStmt varDefStmt : connectorDef.getVariableDefStmts()) {
                 VariableDef varDef = varDefStmt.getVariableDef();
@@ -453,7 +453,7 @@ public class CodeGenerator implements NodeVisitor {
                 int fieldIndex = getNextIndex(fieldType.getTag(), fieldIndexes);
                 ConnectorVarLocation connectorVarLocation = new ConnectorVarLocation(fieldIndex);
                 varDef.setMemoryLocation(connectorVarLocation);
-                
+
                 localVarInfo.add(getLocalVarAttributeInfo(varDef));
             }
 
@@ -463,7 +463,7 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
             localVarAttribInfo.setLocalVariables(localVarInfo);
             connectorInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
-            
+
             connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
             connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
@@ -572,7 +572,7 @@ public class CodeGenerator implements NodeVisitor {
             AnnotationAttributeInfo annotationsAttribute = getAnnotationAttributeInfo(annotationAttachments);
             currentServiceInfo.addAttributeInfo(AttributeInfo.ANNOTATIONS_ATTRIBUTE, annotationsAttribute);
         }
-        
+
         for (Resource resource : service.getResources()) {
             resource.accept(this);
         }
@@ -675,7 +675,6 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(VariableDef variableDef) {
-
     }
 
     @Override
@@ -729,6 +728,12 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        if (assignStmt.isDeclaredWithVar()) {
+            for (Expression expr : assignStmt.getLExprs()) {
+                assignVariableDefMemoryLocation(((VariableRefExpr) expr).getVariableDef());
+            }
+        }
+
         // Evaluate the rhs expression
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr == null) {
@@ -1443,6 +1448,7 @@ public class CodeGenerator implements NodeVisitor {
 
             ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
             actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
+            actionRefCPEntryFilter.setFilterAction(true);
             int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
             int actionCallIndexFilter = getCallableUnitCallCPIndex(filterActionIExpr);
 
@@ -1453,6 +1459,13 @@ public class CodeGenerator implements NodeVisitor {
             } else {
                 emit(InstructionCodes.ACALL, actionRefCPIndexFilter, actionCallIndexFilter);
             }
+            for (int i = 0; i < maxRegIndexes.length; i++) {
+                if (maxRegIndexes[i] < regIndexes[i]) {
+                    maxRegIndexes[i] = regIndexes[i];
+                }
+            }
+
+            resetIndexes(regIndexes);
         }
 
         String pkgPath = actionIExpr.getPackagePath();
@@ -1682,6 +1695,13 @@ public class CodeGenerator implements NodeVisitor {
         // Generate code for filterConnectors if there are any
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getReferenceConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
+            for (int i = 0; i < maxRegIndexes.length; i++) {
+                if (maxRegIndexes[i] < regIndexes[i]) {
+                    maxRegIndexes[i] = regIndexes[i];
+                }
+            }
+
+            resetIndexes(regIndexes);
             visit(filterConnectorInitExpr);
             //connectorDef.setFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
         }
@@ -2707,6 +2727,17 @@ public class CodeGenerator implements NodeVisitor {
         }
         
         return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
+    }
+
+    private void assignVariableDefMemoryLocation(VariableDef variableDef) {
+        MemoryLocation memoryLocation = variableDef.getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation || memoryLocation instanceof WorkerVarLocation) {
+            int lvIndex = getNextIndex(variableDef.getType().getTag(), lvIndexes);
+            MemoryLocation stackVarLocation = new StackVarLocation(lvIndex);
+            variableDef.setMemoryLocation(stackVarLocation);
+            LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
+            currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
+        }
     }
 
     /**

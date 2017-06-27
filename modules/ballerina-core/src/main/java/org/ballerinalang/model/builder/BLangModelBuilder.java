@@ -233,12 +233,13 @@ public class BLangModelBuilder {
     }
 
     public void addImplicitImportPackages() {
-        if (!"ballerina.lang.errors".equals(currentPackagePath)) {
-            ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
-            error.setImplicitImport(true);
-            bFileBuilder.addImportPackage(error);
-            importPkgMap.put(error.getName(), error);
+        if ("ballerina.lang.errors".equals(currentPackagePath) || "ballerina.doc".equals(currentPackagePath)) {
+            return;
         }
+        ImportPackage error = new ImportPackage(null, null, "ballerina.lang.errors", "@error");
+        error.setImplicitImport(true);
+        bFileBuilder.addImportPackage(error);
+        importPkgMap.put(error.getName(), error);
     }
 
     public void addImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor,
@@ -1133,12 +1134,16 @@ public class BLangModelBuilder {
         addToBlockStmt(commentStmt);
     }
 
-    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void createAssignmentStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                     boolean isVarDeclaration) {
         Expression rExpr = exprStack.pop();
         List<Expression> lExprList = exprListStack.pop();
 
         AssignStmt assignStmt = new AssignStmt(location, lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         assignStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        if (isVarDeclaration) {
+            assignStmt.setDeclaredWithVar(true);
+        }
         addToBlockStmt(assignStmt);
     }
 

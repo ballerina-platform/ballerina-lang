@@ -54,8 +54,7 @@ slf4j-api-1.7.22.jar                                                            
 slf4j-jdk14-1.7.22.jar                                                          bundle         mit       2131      
 snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755     
 staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754     
-tapestry-json-5.4.1.wso2v1.jar                                                  bundle         apache2   11753     
-xml-resolver-1.2.jar                                                            jarinbundle    apache2   431       
+xml-resolver-1.2.jar                                                            jarinbundle    apache2   431
 
 
 

@@ -58,6 +58,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private static final String CLASS_NAME = "className";
     private static final String PACKAGE_NAME = "packageName";
+    private static final String IS_SYSTEM_PKG_REPO =  "isSystemPkgRepository";
     private static final String PACKAGE_PROVIDER_CLASS = "pkgRepositoryClass";
     private static final String SOURCE_DIR = "srcDir";
     private static final String TARGET_DIR = "targetDir";
@@ -107,7 +108,32 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         // generating the native ballerina files
         generateConstructProviderClass(options, srcDir);
 
+        generateBuiltinPackageRepositoryClass(options);
+
         return true;
+    }
+
+    /**
+     * Generate the builtin package repository provider class.
+     *
+     * @param options Annotation processor options
+     */
+    private void generateBuiltinPackageRepositoryClass(Map<String, String> options) {
+        Filer filer = processingEnv.getFiler();
+        String pkgRepositoryClass = options.get(PACKAGE_PROVIDER_CLASS);
+        if (pkgRepositoryClass == null || pkgRepositoryClass.equals("")) {
+            //should be specified in maven current build module pom.xml
+            return;
+        }
+        //TODO remove interface SystemPackageRepository with proper way
+        String isSystemPkgRepoStr = options.get(IS_SYSTEM_PKG_REPO);
+        boolean isSystemPkgRepo = false;
+        if (isSystemPkgRepoStr != null && isSystemPkgRepoStr.equals("true")) {
+            isSystemPkgRepo = true;
+        }
+        BuiltinPackageRepositoryClassBuilder pkgRepoProviderClassBuilder =
+                new BuiltinPackageRepositoryClassBuilder(filer, pkgRepositoryClass, isSystemPkgRepo);
+        pkgRepoProviderClassBuilder.build();
     }
 
     /**
@@ -129,26 +155,10 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             throw new BallerinaException("package name for the generated construct-provider must be specified.");
         }
 
-        String pkgRepositoryClass = options.get(PACKAGE_PROVIDER_CLASS);
         ConstructProviderClassBuilder constructProviderClassBuilder =
-                new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir, pkgRepositoryClass);
+                new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir);
         constructProviderClassBuilder.addNativePackages(nativePackages);
         constructProviderClassBuilder.build();
-    }
-
-    /**
-     * Generate the built-in ballerina files.
-     *
-     * @param srcDir Path to the ballerina source directory
-     */
-    public void generateNativeBalFiles(Map<String, String> options, String srcDir) {
-        String targetDir = options.get(TARGET_DIR);
-        if (targetDir == null) {
-            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
-        }
-        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(srcDir, targetDir);
-        nativeBallerinaFileBuilder.addNativePackages(nativePackages);
-        nativeBallerinaFileBuilder.build();
     }
 
     /**
