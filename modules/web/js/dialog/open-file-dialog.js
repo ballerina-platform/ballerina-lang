@@ -157,6 +157,18 @@ const OpenFileDialog = Backbone.View.extend(
                 }
             });
 
+            // Open file on enter key press.
+            openConfigModal.keyup((e) => {
+                if (e.keyCode === 13) {
+                    const _location = location.val();
+                    if (_.isEmpty(_location)) {
+                        openFileWizardError.text('Invalid Value for Location.');
+                        openFileWizardError.show();
+                        return;
+                    }
+                    openConfiguration({ location });
+                }
+            });
 
             fileOpen.find('button').filter('#openButton').click(() => {
                 const _location = location.val();
