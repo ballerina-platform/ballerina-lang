@@ -12,3 +12,11 @@ struct Time {
 }
 
 native function currentTime()(Time);
+
+native function createTime(int timeValue, string zoneId)(Time);
+
+native function parse(string data, string format) (Time);
+
+native function toString(Time time)(string);
+
+native function format(Time time, string format)(string);

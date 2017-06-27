@@ -19,32 +19,37 @@ package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the current local time with local timezone information.
+ * Convert a Tiime to ISO 8601 formatted string.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "currentTime",
-        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.lang.time")},
+        functionName = "toString",
+        args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
+                          structPackage = "ballerina.lang.time")},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Get the current local time.")})
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "Get the default string representation of the Time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
-        value = "The Time struct")})
-public class CurrentTime extends  AbstractTimeFunction {
-
+        value = "String representation of the time in ISO 8601 standard")})
+public class ToString extends AbstractTimeFunction {
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[]{createCurrentTime(context)};
+
+        BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
+        return new BValue[]{new BString(getDefaultString(timeStruct))};
     }
 }

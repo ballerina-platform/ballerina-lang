@@ -25,11 +25,18 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.zone.ZoneRulesException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Contains utility methods for time related functions.
@@ -49,13 +56,100 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return createBStruct(getTimeStructInfo(context), currentTime, currentTimezone);
     }
 
-    BStruct createCurrentTimeZone(Context context) {
+    BStruct createTime(Context context, long timeValue, String zoneId) {
+        BStruct timezone;
+        if (zoneId.isEmpty()) {
+            timezone = createCurrentTimeZone(context);
+        } else {
+            timezone = createTimeZone(context, zoneId);
+        }
+        return createBStruct(getTimeStructInfo(context), timeValue, timezone);
+    }
+
+    BStruct parseTime(Context context, String dateValue, String pattern) {
+        long milliSeconds;
+        BStruct timezone;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateValue, formatter);
+            milliSeconds = zonedDateTime.toInstant().toEpochMilli();
+            ZoneId zoneId = zonedDateTime.getZone();
+            timezone = createTimeZone(context, zoneId);
+        } catch (DateTimeParseException e) {
+            throw new BallerinaException("parse date " + dateValue + " for the format " + pattern  + " failed ");
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaException("invalid pattern for parsing " + pattern);
+        }
+        return createBStruct(getTimeStructInfo(context), milliSeconds, timezone);
+    }
+
+    String getFormattedtString(BStruct timeStruct, String pattern) {
+        long timeData = timeStruct.getIntField(0);
+        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
+        ZoneId zoneId;
+        String formattedString;
+        if (zoneData != null) {
+            String zoneIdName = zoneData.getStringField(0);
+            zoneId = ZoneId.of(zoneIdName);
+        } else {
+            zoneId = ZoneId.systemDefault();
+        }
+        try {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern).withZone(zoneId);
+            formattedString = dateTimeFormatter.format(Instant.ofEpochMilli(timeData));
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaException("invalid pattern for parsing " + pattern);
+        }
+        return formattedString;
+    }
+
+    String getDefaultString(BStruct timeStruct) {
+        long timeData = timeStruct.getIntField(0);
+        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
+        ZoneId zoneId;
+        if (zoneData != null) {
+            String zoneIdName = zoneData.getStringField(0);
+            zoneId = ZoneId.of(zoneIdName);
+        } else {
+            zoneId = ZoneId.systemDefault();
+        }
+        ZonedDateTime dateTime = Instant.ofEpochMilli(timeData).atZone(zoneId);
+        return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
+    private BStruct createCurrentTimeZone(Context context) {
         //Get zone id
         ZoneId zoneId = ZoneId.systemDefault();
         String zoneIdName = zoneId.toString();
         //Get offset in seconds
         ZoneOffset o = OffsetDateTime.now().getOffset();
         int offset = o.getTotalSeconds();
+        return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
+    }
+
+    private BStruct createTimeZone(Context context, String zoneIdValue) {
+        String zoneIdName;
+        try {
+            ZoneId zoneId = ZoneId.of(zoneIdValue);
+            zoneIdName = zoneId.toString();
+            //Get offset in seconds
+            TimeZone tz = TimeZone.getTimeZone(zoneId);
+            int offsetInMills  = tz.getOffset(new Date().getTime());
+            int offset = offsetInMills / 1000;
+            return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
+        } catch (ZoneRulesException e) {
+            throw new BallerinaException("invalid zone id " + zoneIdValue);
+        }
+
+    }
+
+    private BStruct createTimeZone(Context context, ZoneId zoneId) {
+        //Get zone id
+        String zoneIdName = zoneId.toString();
+        //Get offset in seconds
+        TimeZone tz = TimeZone.getTimeZone(zoneId);
+        int offsetInMills  = tz.getOffset(new Date().getTime());
+        int offset = offsetInMills / 1000;
         return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
     }
 

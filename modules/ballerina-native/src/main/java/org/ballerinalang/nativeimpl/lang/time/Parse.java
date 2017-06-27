@@ -20,31 +20,36 @@ package org.ballerinalang.nativeimpl.lang.time;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the current local time with local timezone information.
+ * Get the Time for the given string.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "currentTime",
+        functionName = "parse",
+        args = {@Argument(name = "dateString", type = TypeEnum.STRING),
+                @Argument(name = "patter", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Time",
                                   structPackage = "ballerina.lang.time")},
         isPublic = true
 )
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Get the current local time.")})
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "Create a Time struct with given string and the matching pattern information.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
         value = "The Time struct")})
-public class CurrentTime extends  AbstractTimeFunction {
+public class Parse extends  AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return new BValue[]{createCurrentTime(context)};
+        String dateString = getStringArgument(context, 0);
+        String pattern = getStringArgument(context, 1);
+        return new BValue[] { parseTime(context, dateString, pattern) };
     }
 }
