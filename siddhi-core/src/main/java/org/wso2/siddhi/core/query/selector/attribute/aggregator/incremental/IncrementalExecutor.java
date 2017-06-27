@@ -51,6 +51,7 @@ public class IncrementalExecutor implements Executor {
     private List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails;
     private List<Variable> groupByVariables;
     private ExpressionExecutor timeStampExecutor;
+    private List<ExpressionExecutor> genericExpressionExecutors;
     private GroupByKeyGenerator groupByKeyGenerator;
     private int bufferCount;
     private StreamEventPool streamEventPool;
@@ -73,7 +74,8 @@ public class IncrementalExecutor implements Executor {
             Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String aggregatorName,
             List<CompositeAggregator> compositeAggregators,
             List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails, List<Variable> groupByVariables,
-            VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator, int bufferCount,
+            VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator,
+            List<ExpressionExecutor> genericExpressionExecutors, int bufferCount,
             StreamEventPool streamEventPool) {
         this.duration = duration;
         this.child = child;
@@ -91,6 +93,7 @@ public class IncrementalExecutor implements Executor {
         } else {
             isGroupBy = false;
         }
+        this.genericExpressionExecutors = genericExpressionExecutors;
         this.bufferCount = bufferCount;
         this.streamEventPool = streamEventPool;
 
@@ -289,8 +292,11 @@ public class IncrementalExecutor implements Executor {
         BaseIncrementalAggregatorStore runningBaseAggregator = runningBaseAggregatorCollection.get(groupedByKey);
         if (runningBaseAggregator == null) {
             runningBaseAggregator = new BaseIncrementalAggregatorStore(startTimeOfAggregates, groupedByKey,
-                    basicExecutorDetails.size());
+                    genericExpressionExecutors.size(), basicExecutorDetails.size());
             runningBaseAggregatorCollection.put(groupedByKey, runningBaseAggregator);
+        }
+        for (int i = 0; i< genericExpressionExecutors.size(); i++) {
+            runningBaseAggregator.setGenericValues(genericExpressionExecutors.get(i).execute(event), i);
         }
         for (int i = 0; i < basicExecutorDetails.size(); i++) {
             runningBaseAggregator.setBaseIncrementalValue(basicExecutorDetails.get(i).getExecutor().execute(event), i);
@@ -303,7 +309,7 @@ public class IncrementalExecutor implements Executor {
         BaseIncrementalAggregatorStore bufferedBaseAggregator = bufferedBaseAggregatorCollection.get(groupedByKey);
         if (bufferedBaseAggregator == null) {
             bufferedBaseAggregator = new BaseIncrementalAggregatorStore(timeStamp, groupedByKey,
-                    basicExecutorsOfBufferedEvents.size()); // TODO: 6/13/17 use
+                    basicExecutorsOfBufferedEvents.size(), genericExpressionExecutors.size()); // TODO: 6/13/17 use
             // timeStamp or
             // actualExpiry -
             // 1000?
@@ -405,6 +411,10 @@ public class IncrementalExecutor implements Executor {
                     i++;
                 }
             }
+            for (Object genericValues : baseAggregateToDispatch.getValue().getGenericValues()) {
+                streamEvent.getOnAfterWindowData()[i] = genericValues;
+                i++;
+            }
             for (Object baseIncrementalValue : baseAggregateToDispatch.getValue().getBaseIncrementalValues()) {
                 streamEvent.getOnAfterWindowData()[i] = baseIncrementalValue;
                 i++;
@@ -424,11 +434,13 @@ public class IncrementalExecutor implements Executor {
     private class BaseIncrementalAggregatorStore {
         private long timeStamp; // This is the starting timeStamp of aggregates
         private String key;
+        private Object[] genericValues;
         private Object[] baseIncrementalValues;
 
-        private BaseIncrementalAggregatorStore(long timeStamp, String key, int numberOfBaseValues) {
+        private BaseIncrementalAggregatorStore(long timeStamp, String key, int numberOfGenericValues, int numberOfBaseValues) {
             this.timeStamp = timeStamp;
             this.key = key;
+            genericValues = new Object[numberOfGenericValues];
             baseIncrementalValues = new Object[numberOfBaseValues];
         }
 
@@ -440,12 +452,20 @@ public class IncrementalExecutor implements Executor {
             return this.key;
         }
 
+        public void setGenericValues(Object genericValue, int position) {
+            genericValues[position] = genericValue;
+        }
+
         public void setBaseIncrementalValue(Object baseValue, int position) {
             baseIncrementalValues[position] = baseValue;
         }
 
+        public Object[] getGenericValues() {
+            return this.genericValues;
+        }
+
         public Object[] getBaseIncrementalValues() {
-            return baseIncrementalValues;
+            return this.baseIncrementalValues;
         }
     }
 }

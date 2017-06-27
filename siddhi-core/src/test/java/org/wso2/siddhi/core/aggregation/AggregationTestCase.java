@@ -79,9 +79,9 @@ public class AggregationTestCase {
         String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int, timestamp long);";
         String query = " define aggregation test " +
                 "from cseEventStream " +
-                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1 " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity % volume) as mult  " +
                 "group by symbol "+
-                "aggregate by timestamp every sec...min ;";
+                "aggregate every sec...min ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -91,10 +91,10 @@ public class AggregationTestCase {
         inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
         Thread.sleep(2000);
         inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289952000L}); // TODO: 5/18/17 check with null later
-        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 56, 1496289952000L});
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289952000L});
         Thread.sleep(2000);
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496289954000L});
-        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 56, 1496289954000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289954000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
         Thread.sleep(2000);
         executionPlanRuntime.shutdown();
 
