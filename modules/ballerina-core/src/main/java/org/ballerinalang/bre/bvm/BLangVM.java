@@ -2309,7 +2309,11 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+            if (callerSF.getRefLocalVars()[i] instanceof BMessage) {
+                calleeSF.getRefLocalVars()[i] = ((BMessage) callerSF.getRefLocalVars()[i]).clone();
+            } else {
+                calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+            }
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
@@ -2317,6 +2321,44 @@ public class BLangVM {
         }
 
 
+    }
+
+    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
+                                           int[] argRegs, BType[] paramTypes) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+        int blobRegIndex = -1;
+
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
+                    break;
+                case TypeTags.STRING_TAG:
+                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
+                    break;
+                default:
+                    if (callerSF.refRegs[argReg] instanceof BMessage) {
+                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
+                    } else {
+                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
+                    }
+            }
+        }
     }
 
 
