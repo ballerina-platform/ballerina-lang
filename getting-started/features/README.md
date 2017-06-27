@@ -1,12 +1,32 @@
 # Features
 
-## Auto Imports
+## Running Ballerina programs 
 
-Auto import feature adds import declarations on the fly. All you have to do is selecting the package name from the lookup list and the package declaration will be automatically added.
+You can run Ballerina main/service programs with only few clicks. You don't have to add or change any configurations.
+
+![alt text](images/RunConfig.gif)
+
+## Debugging Ballerina programs 
+
+You can debug Ballerina main/service programs with only few clicks as well.
+
+![alt text](images/DebugSupport.gif)
+
+## Import packages on the fly
+
+This feature adds import declarations on the fly. All you need to do is selecting the package name from the lookup list and the package declaration will be added automatically.
 
 ![alt text](images/AutoImports.gif)
 
-## Parameter Info
+## Auto import unambiguous packages
+
+When we copy and paste some Ballerina codes, this feature will automatically import unambiguous imports. Then we can manually import any packages with ambiguity using clicking on the package name and pressing `Alt + Enter` keys.
+
+**Note:** Please note that this feature is disabled by default since this might cause issues if the file contain grammar mistakes. You can enable it by selecting the **Add unambiguous imports on the fly** CheckBox in **Settings -> Languages and Frameworks -> Ballerina -> Auto Imports**.
+
+![alt text](images/AutoImports2.gif)
+
+## Parameter Infomation
 
 You can view the required parameters of a functions, actions, etc by pressing `Ctrl`+`P`.
 
@@ -18,19 +38,19 @@ You can view the documentation of a functions, actions, etc by pressing `Ctrl`+`
 
 ![alt text](images/QuickDocumentation.gif)
 
-## Struct Fields suggestions
+## Struct fields suggestions
 
 Struct fields are suggested inside struct initializing braces and after the dot operator. Multi level struct field access is available.
 
 ![alt text](images/StructFields.gif)
 
-## Annotation Fields completion
+## Annotation fields suggestions
 
 Annotation field names will be suggested inside annotation attachments.
 
 ![alt text](images/AnnotationFields.gif)
 
-## Array length
+## Array length field suggestion
 
 Array length property is now available. This is an array dimension aware suggestion.
 
@@ -54,12 +74,6 @@ You can reformat the Ballerina codes by pressing `Ctrl`+`Alt`+`L`.
 
 ![alt text](images/Formatting.gif)
 
-## Running Ballerina applications 
-
-You can run Ballerina main without adding/changing any run configurations.
-
-![alt text](images/RunConfig.gif)
-
 ## Path/Query Parameter validation
 
 Path/Query parameter validation is available to improve usability.
@@ -71,7 +85,6 @@ Path/Query parameter validation is available to improve usability.
 Package inspection is available to improve usability. This will suggest to add the package name if no package name is present. If an incorrect package name is present, it will suggest to change the package name. You can view these suggestions using `Alt`+`Enter`.
 
 ![alt text](images/PackageFix.gif)
-
 
 ## File Templates
 
