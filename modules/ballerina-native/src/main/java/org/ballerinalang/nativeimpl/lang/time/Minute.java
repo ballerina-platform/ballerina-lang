@@ -29,27 +29,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the day value for the given time.
+ * Get the minute value for the given time.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "day",
+        functionName = "minute",
         args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
                           structPackage = "ballerina.lang.time")},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the day value of the given the Time.")})
+        value = "Get the minute value of the given the Time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Day of the given time value")})
-public class Day extends AbstractTimeFunction {
+        value = "Minute of the given time value")})
+public class Minute extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getDay(timeStruct))};
+        return new BValue[]{new BInteger(getMinute(timeStruct))};
     }
 }

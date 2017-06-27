@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the year value for the given time.
+ * Get the month value for the given time.
  *
  * @since 0.8.9
  */

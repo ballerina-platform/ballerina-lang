@@ -29,27 +29,37 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the day value for the given time.
+ * Get the hour, minute, second and millisecond value for the given time.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "day",
+        functionName = "time",
         args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
                           structPackage = "ballerina.lang.time")},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+        returnType = {@ReturnType(type = TypeEnum.INT),
+                      @ReturnType(type = TypeEnum.INT),
+                      @ReturnType(type = TypeEnum.INT),
+                      @ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the day value of the given the Time.")})
+        value = "Get the month value of the given the Time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Day of the given time value")})
-public class Day extends AbstractTimeFunction {
+        value = "Hour of the given time value")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
+        value = "Minute of the given time value")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
+        value = "Second of the given time value")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
+        value = "MilliSecond of the given time value")})
+public class Time extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return new BValue[]{new BInteger(getDay(timeStruct))};
+        return getBValues(new BInteger(getHour(timeStruct)), new BInteger(getMinute(timeStruct)),
+                new BInteger(getSecond(timeStruct)), new BInteger(getMilliSecond(timeStruct)));
     }
 }

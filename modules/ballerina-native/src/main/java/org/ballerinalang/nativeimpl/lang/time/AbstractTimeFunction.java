@@ -116,6 +116,27 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return dateTime.getDayOfMonth();
     }
 
+    int getHour(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getHour();
+    }
+
+    int getMinute(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getMinute();
+    }
+
+    int getSecond(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getSecond();
+    }
+
+    int getMilliSecond(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        int milliSeconds = dateTime.getNano() / 1000000;
+        return milliSeconds;
+    }
+
     private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
