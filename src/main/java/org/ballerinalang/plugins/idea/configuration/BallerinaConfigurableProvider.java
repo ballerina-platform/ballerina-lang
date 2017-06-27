@@ -22,6 +22,7 @@ import com.intellij.openapi.options.ConfigurableProvider;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
+import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,8 +41,9 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
     public Configurable createConfigurable() {
         //        Configurable projectSettingsConfigurable = new BallerinaProjectSettingsConfigurable(myProject);
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
+        Configurable autoImportConfigurable = new BallerinaAutoImportConfigurable(myProject, false);
         // Todo: sdkConfigurable needed?
-        return new BallerinaCompositeConfigurable(librariesConfigurable);
+        return new BallerinaCompositeConfigurable(librariesConfigurable, autoImportConfigurable);
     }
 
     private static class BallerinaCompositeConfigurable extends SearchableConfigurable.Parent.Abstract {
