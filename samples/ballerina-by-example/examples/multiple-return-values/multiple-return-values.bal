@@ -1,27 +1,30 @@
 import ballerina.lang.system;
 import ballerina.doc;
 
-@doc:Description {value:"The (int, int) in this function indicates that it returns 2 int values."}
-function getInts () (int, int) {
-    return 2, 3;
-}
-
-@doc:Description {value:"This function returns 3 values: 2 integers and a string."}
-function newVals () (int, int, string) {
-    return 5, 8, "Hello World!";
+@doc:Description {value:"Here's a function which returns 2 int values."}
+function divideBy10 (int d) (int, int) {
+    return d / 10, d % 10;
 }
 
 function main (string[] args) {
-    int a;
-    int b;
-    string c;
+    int q;
+    int r;
+    //Multiple variable assignment
+    q, r = divideBy10(24);
+    system:println("24/10: " + "quotient=" + q + " " +
+                   "reminder=" + r);
 
-    // The returned values can be assigned to individual variables.
-    a, b = getInts();
-    system:println(a + " " + b);
+    //To ignore a particular return value in a multiple assignment statement, use '_'.
+    q, _ = divideBy10(57);
+    system:println("57/10: " + "quotient=" + q);
 
-    // If a particular value returned is not needed, it can be ignored by using '_'.
-    a, _, c = newVals();
-    system:println(a + " " + b + " " + c);
+    _, r = divideBy10(9);
+    system:println("05/10: " + "reminder=" + r);
+
+    //Multiple assignment with 'var' allows you to define the variable then and there.
+    //Variable type is inferred from the right-hand side.
+    var q1, r1 = divideBy10(102);
+    system:println("24/10: " + "quotient=" + q1 + " " +
+                   "reminder=" + r1);
 }
 

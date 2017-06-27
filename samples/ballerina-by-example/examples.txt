@@ -5,6 +5,8 @@ Value Types
 Constants
 Global Variables
 Functions
+Multiple Return Values
+Named Returns
 Any Type
 Identifier Literals
 JSON

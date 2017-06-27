@@ -1,11 +1,8 @@
-# To run the program, put the code in `named-returns.bal`
-# and use `$BALLERINA_HOME/bin/ballerina`.
-
-$ ${BALLERINA_HOME}/bin/ballerina named-returns.bal
-x=3, y=2
-Default int return value: <0>
-Default float return value: <0.0>
-Default boolean return value: <false>
-Default string return value: <>
-x=8, y=13
+$ ballerina run main named-returns.bal
+93/10: quotient=9 reminder=3
+93/5: quotient=9 reminder=3
+a: 0
+b: 0.0
+c: false
+d:
 
