@@ -41,7 +41,15 @@ public class ErrorLogFormatter extends Formatter {
         // Add logger name
         sBuilder.append(' ');
         sBuilder.append('[');
-        sBuilder.append(record.getLoggerName().substring("ballerina.".length()));
+
+        String loggerName = record.getLoggerName();
+
+        if(loggerName.length() <= "ballerina.".length()) {
+            sBuilder.append(".");
+        } else {
+            sBuilder.append(loggerName.substring("ballerina.".length()));
+        }
+        
         sBuilder.append(']');
 
         // Add log message
