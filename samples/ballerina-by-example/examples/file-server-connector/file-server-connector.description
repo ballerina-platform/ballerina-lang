@@ -1,0 +1,2 @@
+//File Server Connector can be used to listen to a local or remote file destination. Here is an example we print out
+//the contents of all the file(s) in a particular destination
