@@ -138,6 +138,8 @@
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider" order="first"/>
+        <editorNotificationProvider
+                implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <!-- run application -->
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
