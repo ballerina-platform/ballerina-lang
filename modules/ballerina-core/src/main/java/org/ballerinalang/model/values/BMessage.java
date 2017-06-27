@@ -226,7 +226,11 @@ public final class BMessage implements BRefType<CarbonMessage> {
         if (this.isAlreadyRead()) {
             return this.value.getMessageDataSource().getMessageAsString();
         }
-        return MessageUtils.getStringFromInputStream(this.value.getInputStream());
+        String stringValue = MessageUtils.getStringFromInputStream(this.value.getInputStream());
+        StringDataSource stringDataSource = new StringDataSource(stringValue, this.value.getOutputStream());
+        this.value.setMessageDataSource(stringDataSource);
+        setAlreadyRead(true);
+        return stringValue;
     }
 
     @Override
