@@ -112,6 +112,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementType;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -1360,12 +1361,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        checkParent(breakStmt);
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
-
+        checkParent(continueStmt);
     }
 
     @Override
@@ -3590,6 +3591,24 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
+    private static void checkParent(Statement stmt) {
+        Statement parent = stmt.getParent();
+        StatementType childStmtType = stmt.getType();
+        while (StatementType.ROOT_BLOCK != parent.getType()) {
+            if (StatementType.WHILE_BLOCK == parent.getType() &&
+                    (StatementType.BREAK == childStmtType || StatementType.CONTINUE == childStmtType)) {
+                return;
+            } else if (StatementType.TRANSACTION_BLOCK == parent.getType()) {
+                if (StatementType.BREAK == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.BREAK_USED_IN_TRANSACTION);
+                } else if (StatementType.CONTINUE == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
+                }
+            }
+            parent = parent.getParent();
         }
     }
 
