@@ -2,8 +2,8 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/groupInfo"}
-service oddEvenHttpService {
+@http:config {basePath:"/groupInfo"}
+service<http> oddEvenHttpService {
 
     string evenWebSocketConnectionGroupName = "evenGroup";
     string oddWebSocketConnectionGroupName = "oddGroup";
