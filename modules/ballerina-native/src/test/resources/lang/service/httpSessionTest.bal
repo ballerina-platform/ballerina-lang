@@ -240,5 +240,98 @@ service sample2 {
         reply m;
     }
 
+    @http:GET{}
+    @http:Path{value:"/id1"}
+    resource id1 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        string id = httpsession:getId(ses);
+        messages:setStringPayload(m, id);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/id2"}
+    resource id2 (message m) {
+
+        httpsession:Session ses = httpsession:getSessionWithParam(m,false);
+        string id = httpsession:getId(ses);
+        messages:setStringPayload(m, id);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new1"}
+    resource new1 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        boolean stat = httpsession:isNew(ses);
+        messages:setStringPayload(m, stat);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new2"}
+    resource new2 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        int time = httpsession:getCreationTime(ses);
+        messages:setStringPayload(m, time);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new3"}
+    resource new3 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:invalidate(ses);
+        int time = httpsession:getCreationTime(ses);
+        messages:setStringPayload(m, time);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new4"}
+    resource new4 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        int time = httpsession:getLastAccessedTime(ses);
+        messages:setStringPayload(m, time);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new5"}
+    resource new5 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:invalidate(ses);
+        int time = httpsession:getLastAccessedTime(ses);
+        messages:setStringPayload(m, time);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new6"}
+    resource new6 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        int time = httpsession:getMaxInactiveInterval(ses);
+        httpsession:setMaxInactiveInterval(ses, 60);
+        messages:setStringPayload(m, time);
+        reply m;
+    }
+
+    @http:GET{}
+    @http:Path{value:"/new7"}
+    resource new7 (message m) {
+
+        httpsession:Session ses = httpsession:getSession(m);
+        httpsession:invalidate(ses);
+        httpsession:setMaxInactiveInterval(ses, 89);
+        messages:setStringPayload(m, "done");
+        reply m;
+    }
 
 }
