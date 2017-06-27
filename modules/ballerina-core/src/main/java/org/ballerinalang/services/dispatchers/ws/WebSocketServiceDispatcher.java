@@ -80,8 +80,8 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     private String findWebSocketUpgradePath(ServiceInfo service) {
         AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
                 Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
-        AnnotationAttachmentInfo basePathAnnotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_BASE_PATH);
+        AnnotationAttachmentInfo config = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_CONFIG);
 
         if (websocketUpgradePathAnnotation != null &&
                 websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
@@ -89,14 +89,14 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
                     .VALUE_ATTRIBUTE).getStringValue();
             if (value != null && !value.trim().isEmpty()) {
 
-                if (basePathAnnotation == null ||
-                        basePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) == null ||
-                        basePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue()
+                if (config == null ||
+                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH) == null ||
+                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue()
                                 .trim().isEmpty()) {
                     throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
                 }
-                String basePath = refactorUri(basePathAnnotation.getAnnotationAttributeValue(Constants
-                        .VALUE_ATTRIBUTE).getStringValue());
+                String basePath = refactorUri(config.getAnnotationAttributeValue(Constants
+                        .ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue());
                 String websocketUpgradePath = refactorUri(value);
                 return refactorUri(basePath.concat(websocketUpgradePath));
             }

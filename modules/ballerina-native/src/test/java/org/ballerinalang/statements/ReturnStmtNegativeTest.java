@@ -28,7 +28,7 @@ public class ReturnStmtNegativeTest {
 
     @Test(description = "Test return statement in resource",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "return-in-resource.bal:5: return statement " +
+            expectedExceptionsMessageRegExp = "return-in-resource.bal:7: return statement " +
                     "cannot be used in a resource definition")
     public void testReturnInResource() {
         BTestUtils.getProgramFile("lang/statements/returnstmt/return-in-resource.bal");

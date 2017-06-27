@@ -51,7 +51,7 @@ public class VariableScopeTest {
     }
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:10: undefined symbol 'b'")
+          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:12: undefined symbol 'b'")
     public void testResourceScope() {
         BTestUtils.getProgramFile("lang/statements/variable-resource-scope.bal");
     }

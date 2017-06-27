@@ -201,7 +201,7 @@ public class AnnotationTest {
     
     @Test(description = "Test an invalid service annotation",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "invalid-service-annotation.bal:3: incompatible types: expected " +
+            expectedExceptionsMessageRegExp = "invalid-service-annotation.bal:4: incompatible types: expected " +
                 "'string', found 'int'")
     public void testInvalidServiceAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-service-annotation.bal");
@@ -209,7 +209,7 @@ public class AnnotationTest {
     
     @Test(description = "Test an invalid resource annotation",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "invalid-resource-annotation.bal:11: incompatible types: expected " +
+            expectedExceptionsMessageRegExp = "invalid-resource-annotation.bal:12: incompatible types: expected " +
                 "'string', found 'int'")
     public void testInvalidResourceAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-resource-annotation.bal");

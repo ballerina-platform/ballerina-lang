@@ -87,11 +87,11 @@ public class HTTPServicesRegistry {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_BASE_PATH);
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
 
         if (annotationInfo != null) {
             AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
+                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
             if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
                     !annotationAttributeValue.getStringValue().trim().isEmpty()) {
                 basePath = annotationAttributeValue.getStringValue();
@@ -159,55 +159,46 @@ public class HTTPServicesRegistry {
      * @return  propMap with required properties
      */
     private Map<String, String> getInterfaceProp(ServiceInfo service) {
-        AnnotationAttachmentInfo portAnnotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_PORT);
-        if (portAnnotationInfo == null) {
+        AnnotationAttachmentInfo configInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+        if (configInfo == null) {
             return null;
         }
-        AnnotationAttributeValue portAttrVal = portAnnotationInfo.getAnnotationAttributeValue
-                (Constants.VALUE_ATTRIBUTE);
-        if (portAttrVal == null || portAttrVal.getStringValue() == null ||
-                portAttrVal.getStringValue().trim().isEmpty()) {
+        AnnotationAttributeValue portAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_PORT);
+        if (portAttrVal == null || portAttrVal.getIntValue() < 0) {
             return null;
         }
         Map<String, String> propMap = new HashMap<>();
-        propMap.put(Constants.ANNOTATION_NAME_PORT, portAttrVal.getStringValue());
+        propMap.put(Constants.ANNOTATION_ATTRIBUTE_PORT, Long.toString(portAttrVal.getIntValue()));
 
-        AnnotationAttachmentInfo hostAnnotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_HOST);
-        if (hostAnnotationInfo != null) {
-            AnnotationAttributeValue hostAttrVal = hostAnnotationInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
-            if (hostAttrVal != null && hostAttrVal.getStringValue() != null &&
-                    !hostAttrVal.getStringValue().trim().isEmpty()) {
-                propMap.put(Constants.ANNOTATION_NAME_HOST, hostAttrVal.getStringValue());
-            }
+        AnnotationAttributeValue hostAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_HOST);
+        if (hostAttrVal != null && hostAttrVal.getStringValue() != null &&
+                !hostAttrVal.getStringValue().trim().isEmpty()) {
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, hostAttrVal.getStringValue());
         }
 
-        AnnotationAttachmentInfo schemaAnnotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_SCHEMA);
-        if (schemaAnnotationInfo != null) {
-            AnnotationAttributeValue schemaAttrVal = schemaAnnotationInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
-            if (schemaAttrVal != null && schemaAttrVal.getStringValue() != null &&
-                    !schemaAttrVal.getStringValue().trim().isEmpty()) {
-                propMap.put(Constants.ANNOTATION_NAME_SCHEMA, schemaAttrVal.getStringValue());
-            }
+        AnnotationAttributeValue schemaAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_SCHEMA);
+        if (schemaAttrVal != null && schemaAttrVal.getStringValue() != null &&
+                !schemaAttrVal.getStringValue().trim().isEmpty()) {
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEMA, schemaAttrVal.getStringValue());
         }
 
-        AnnotationAttachmentInfo keyStoreAnnotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_KEY_STORE);
-        if (keyStoreAnnotationInfo != null) {
-            AnnotationAttributeValue keyStoreFileAttrVal = keyStoreAnnotationInfo.getAnnotationAttributeValue
-                    (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
+        AnnotationAttributeValue keyStoreFileAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
+        if (keyStoreFileAttrVal != null && keyStoreFileAttrVal.getStringValue() != null &&
+                !keyStoreFileAttrVal.getStringValue().trim().isEmpty()) {
             propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
-            AnnotationAttributeValue keyStorePassAttrVal = keyStoreAnnotationInfo.getAnnotationAttributeValue
+            AnnotationAttributeValue keyStorePassAttrVal = configInfo.getAnnotationAttributeValue
                     (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS);
             propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
-            AnnotationAttributeValue certPassAttrVal = keyStoreAnnotationInfo.getAnnotationAttributeValue
+            AnnotationAttributeValue certPassAttrVal = configInfo.getAnnotationAttributeValue
                     (Constants.ANNOTATION_ATTRIBUTE_CERT_PASS);
             propMap.put(Constants.ANNOTATION_ATTRIBUTE_CERT_PASS, certPassAttrVal.getStringValue());
         }
+
         return propMap;
     }
 
@@ -219,10 +210,10 @@ public class HTTPServicesRegistry {
      */
     private String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANNOTATION_NAME_SCHEMA) != null ?
-                propMap.get(Constants.ANNOTATION_NAME_SCHEMA) : Constants.PROTOCOL_HTTP);
+        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEMA) != null ?
+                propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEMA) : Constants.PROTOCOL_HTTP);
         iName.append("_");
-        iName.append(propMap.get(Constants.ANNOTATION_NAME_PORT));
+        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
         return iName.toString();
     }
 

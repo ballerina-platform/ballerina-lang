@@ -10,26 +10,15 @@ annotation Path attach resource {
     string value;
 }
 
-annotation Host attach service {
-    string value;
-}
-
-annotation Port attach service {
-    string value;
-}
-
-annotation Schema attach service {
-    string value;
-}
-
-annotation Keystore attach service {
+annotation config attach service {
+    string host;
+    int port;
+    string basePath;
+    string schema;
     string keyStoreFile;
     string keyStorePass;
     string certPass;
-}
-
-annotation BasePath attach service {
-    string value;
+    string version;
 }
 
 annotation PathParam attach parameter {

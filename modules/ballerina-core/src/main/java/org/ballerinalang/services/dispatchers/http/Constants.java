@@ -59,16 +59,16 @@ public class Constants {
     public static final String HTTP_METHOD_HEAD = "HEAD";
 
     /* Annotations */
-    public static final String ANNOTATION_NAME_SOURCE = "Source";
-    public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_NAME_HOST = "Host";
-    public static final String ANNOTATION_NAME_PORT = "Port";
-    public static final String ANNOTATION_NAME_SCHEMA = "Schema";
-    public static final String ANNOTATION_NAME_KEY_STORE = "Keystore";
+    public static final String ANNOTATION_NAME_CONFIG = "config";
+    public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
+    public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
+    public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
+    public static final String ANNOTATION_ATTRIBUTE_SCHEMA = "schema";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_PASS = "keyStorePass";
     public static final String ANNOTATION_ATTRIBUTE_CERT_PASS = "certPass";
+    public static final String ANNOTATION_ATTRIBUTE_VERSION = "version";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
