@@ -32,12 +32,12 @@ class UndoableOperation extends EventChannel {
         this.setEditor(_.get(args, 'editor', undefined));
     }
 
-    canUndo() {
-        return true;
+    prepareUndo(next) {
+        next(true);
     }
 
-    canRedo() {
-        return true;
+    prepareRedo(next) {
+        next(true);
     }
 
     getTitle() {

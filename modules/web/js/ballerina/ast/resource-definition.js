@@ -118,7 +118,8 @@ class ResourceDefinition extends ASTNode {
 
         _.forEach(params, (parameter, index) => {
             if (index != 0) {
-                paramsAsString += ((parameter.whiteSpace.useDefault) ? ', ' : ',');
+                paramsAsString += ((parameter.whiteSpace.useDefault) ? ', ' 
+                            : (',' + parameter.getWSRegion(0)));
             }
             paramsAsString += parameter.getParameterDefinitionAsString();
         });

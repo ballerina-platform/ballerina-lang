@@ -81,8 +81,7 @@ class Console extends EventChannel {
      */
     println(message) {
         const specialCharsEscapedStr = _.escape(message.message);
-        this.console.append(`<span class="${message.type}">${specialCharsEscapedStr}<span>`);
-        this.console.append('<br />');
+        this.console.append(`<div class="${message.type}"><pre>${specialCharsEscapedStr}</pre></div>`);
         // todo need a proper fix
         this.console.scrollTop(100000);
     }

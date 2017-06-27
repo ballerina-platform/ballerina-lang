@@ -170,9 +170,19 @@ table.debug-frames {
 
 #console{
     height: calc(100% - 25px );
-    padding: 5px 10px !important;
+    padding: 10px;
     overflow: auto;
     font-family: "Lucida Console", Monaco, monospace;
+}
+
+#console pre{
+    padding: inherit;
+    color: inherit;
+    background-color: inherit;
+    font-family: inherit;
+    line-height: 1.8;
+    margin: 0;
+    font-size: inherit;
 }
 
 #console .INFO { color: #03a9f4 !important; }

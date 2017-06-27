@@ -106,6 +106,7 @@
 
         & .thumbnail-wrapper {
           padding: 0;
+          min-height: 205px;
 
           & > .thumbnail {
             background-color: $welcome-tile-view-wrapper-bgcolor;

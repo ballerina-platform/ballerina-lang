@@ -111,13 +111,15 @@ class FunctionDefinition extends CallableDefinition {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        const argsStringArray = [];
-        const args = this.getArguments();
-        _.forEach(args, (arg) => {
-            argsStringArray.push(arg.getParameterDefinitionAsString());
+        let argsString = '';
+        this.getArguments().forEach((arg, index) => {
+            if (index !=0 ) {
+                argsString += ',';
+                argsString += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
+            }
+            argsString += arg.getParameterDefinitionAsString();
         });
-
-        return _.join(argsStringArray, ', ');
+        return argsString;
     }
 
     /**
@@ -161,12 +163,16 @@ class FunctionDefinition extends CallableDefinition {
      * @return {string} - Return types separated by comma.
      */
     getReturnTypesAsString() {
-        const returnTypes = [];
-        _.forEach(this.getReturnParameterDefinitionHolder().getChildren(), (returnType) => {
-            returnTypes.push(returnType.getParameterDefinitionAsString());
+        let returnTypesString = '';
+        this.getReturnTypes().forEach((returnType, index) => {
+            if (index != 0) {
+                returnTypesString += ',';
+                returnTypesString += (returnType.whiteSpace.useDefault ? ' '
+                                : returnType.getWSRegion(0));
+            }
+            returnTypesString += returnType.getParameterDefinitionAsString();
         });
-
-        return _.join(returnTypes, ', ');
+        return returnTypesString;
     }
 
     /**

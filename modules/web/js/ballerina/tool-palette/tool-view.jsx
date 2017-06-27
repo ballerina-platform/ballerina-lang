@@ -120,10 +120,7 @@ class ToolView extends React.Component {
      * @memberof Tool
      */
     createCloneCallback() {
-        let icon = this.props.tool.icon;
-        const iconSize = '50px';
-        d3.select(icon).attr('width', iconSize).attr('height', iconSize);
-        icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
+        const icon = $(`<i class="${this.props.tool.get('cssClass')}" style="font-size:50px" />`).get(0);
         return () => {
             const div = this.createContainerForDraggable();
             div.node().appendChild(icon);
@@ -159,7 +156,6 @@ class ToolView extends React.Component {
      */
     render() {
         const tool = this.props.tool;
-        const icon = tool.icon;
         let toolTip = '';
         if (this.props.toolOrder === 'horizontal') {
             toolTip = tool.get('name');
@@ -171,15 +167,14 @@ class ToolView extends React.Component {
                     data-toggle="tooltip"
                     id={toolTip}
                 >
-                    <i className={tool.get('cssClass')}/>
-                    <span className="tool-title-wrap"/>
+                    <i className={tool.get('cssClass')} />
+                    <span className="tool-title-wrap" />
                     <span className="tool-title-wrap">
                         <p className="tool-title">{toolTip}</p>
                     </span>
                 </div>
             );
         }
-
         toolTip = tool.get('title');
         if (tool.get('_parameters')) {
             toolTip += '(';
@@ -194,14 +189,23 @@ class ToolView extends React.Component {
 
             toolTip += ')';
         }
+        if(tool.get('_returnParams')){
+            toolTip += '(';
+            tool.get('_returnParams').forEach((param, index) => {
+                if (index !== 0) {
+                    toolTip += ',';
+                }
 
+                toolTip += param.type + ' ' + (param.name ? param.name : param.type.substr(0, 1));
+            });
+
+            toolTip += ')';
+        }
         return (
             <div
                 id={`${tool.id}-tool`}
                 className={`tool-block tool-container-vertical ${tool.get('classNames')}`}
-                ref={(c) => {
-                    this.tool = c;
-                }}
+                ref={(c) => { this.tool = c; }}
             >
                 <div
                     className="tool-container-vertical-icon"
@@ -209,7 +213,7 @@ class ToolView extends React.Component {
                     data-toggle="tooltip"
                     title={toolTip}
                 >
-                    <img src={icon.getAttribute('src')} className="tool-image" alt={tool.get('name')}/>
+                    <i className={tool.get('cssClass')} />
                 </div>
                 <div
                     className="tool-container-vertical-title"

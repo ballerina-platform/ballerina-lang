@@ -86,6 +86,7 @@ class SourceView extends EventChannel {
         this._gutter = 25;
         this._storage = _.get(args, 'storage');
         this._langserverController = _.get(args, 'langserverClientController');
+        this.inSilentMode = false;
     }
 
     render() {
@@ -144,8 +145,6 @@ class SourceView extends EventChannel {
      * @param {String} content - content for the editor.
     */
     setContent(content) {
-        // avoid triggering change event on format
-        this.inSilentMode = true;
         this._editor.session.setValue(content);
         this.markClean();
     }
@@ -215,6 +214,16 @@ class SourceView extends EventChannel {
     }
 
     format() {
+        const  validateRes = this._fileEditor.validatorBackend.parse({ 
+            content: this._editor.getSession().getValue()
+        });
+        if ((validateRes.errors && !_.isEmpty(validateRes.errors))
+            || (validateRes.error && !_.isEmpty(validateRes.message))) {
+            // if there are syntax errors or issues with validate service
+            // prevent formatting as AST building is not possible
+            alerts.error(`Cannot format due to syntax errors`);
+            return;
+        }
         const  parserRes = this._fileEditor.parserBackend.parse(
             {
                 name: this._fileEditor.getFile().getName(),
