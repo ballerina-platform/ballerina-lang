@@ -27,6 +27,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.impl.LaterInvocator;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -35,16 +37,20 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
+import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -138,6 +144,18 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
     @Override
     public boolean isAvailable(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement,
                                @NotNull PsiElement endElement) {
+        // We only perform this action on Ballerina modules since this might cause issues in other modules.
+        Module module = ModuleUtil.findModuleForFile(file.getVirtualFile(), file.getProject());
+        boolean isBallerinaModule = BallerinaSdkService.isBallerinaModule(module);
+        if (!isBallerinaModule) {
+            return false;
+        }
+        // If the file contain error elements, do not perform auto import. Since this might affect badly to the user
+        // experience.
+        Collection<PsiErrorElement> errorElements = PsiTreeUtil.findChildrenOfType(file, PsiErrorElement.class);
+        if (!errorElements.isEmpty()) {
+            return false;
+        }
         if (!(startElement instanceof PackageNameNode)) {
             return false;
         }
@@ -177,13 +195,14 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
 
         // autoimport on trying to fix
         if (packagesToImport.size() == 1) {
-            // Todo - CodeInsightSettings.getInstance().isAddUnambiguousImportsOnTheFly()
-            if (!LaterInvocator.isInModalContext() && (ApplicationManager.getApplication().isUnitTestMode() ||
-                    DaemonListeners.canChangeFileSilently(file))) {
-                if (reference == null || reference.resolve() == null) {
-                    performImport(file, firstPackageToImport);
+            if (BallerinaCodeInsightSettings.getInstance().isAddUnambiguousImportsOnTheFly()) {
+                if (!LaterInvocator.isInModalContext() && (ApplicationManager.getApplication().isUnitTestMode() ||
+                        DaemonListeners.canChangeFileSilently(file))) {
+                    if (reference == null || reference.resolve() == null) {
+                        performImport(file, firstPackageToImport);
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
@@ -195,7 +214,9 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
             if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint(true)) {
                 return false;
             }
-            // Todo - if(!CodeInsightSettings.getInstance().isShowImportPopup()){return false;}
+            if (!BallerinaCodeInsightSettings.getInstance().isShowImportPopup()) {
+                return false;
+            }
             TextRange referenceRange = element.getTextRange();
             String message = ShowAutoImportPass.getMessage(packagesToImport.size() > 1,
                     ContainerUtil.getFirstItem(packagesToImport)

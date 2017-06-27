@@ -220,9 +220,11 @@ public class BallerinaSdkUtil {
 
     @NotNull
     public static Collection<Module> getBallerinaModules(@NotNull Project project) {
-        if (project.isDefault()) return Collections.emptyList();
-        BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
-        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isBallerinaModule);
+        if (project.isDefault()) {
+            return Collections.emptyList();
+        }
+        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(),
+                BallerinaSdkService::isBallerinaModule);
     }
 
     @Nullable

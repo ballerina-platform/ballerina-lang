@@ -405,6 +405,17 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // If the object is a type of ExpressionListNode, cast the object.
         if (o instanceof ExpressionListNode) {
             element = ((ExpressionListNode) o);
+        } else if (o instanceof NameReferenceNode) {
+            PsiElement parent = ((NameReferenceNode) o).getParent();
+            ExpressionListNode expressionListNode = PsiTreeUtil.getChildOfType(parent, ExpressionListNode.class);
+            if (expressionListNode == null) {
+                context.setCurrentParameter(0);
+                return;
+            }
+            PsiElement[] children = expressionListNode.getChildren();
+            int index = children.length / 2;
+            context.setCurrentParameter(index);
+            return;
         } else {
             context.setCurrentParameter(0);
             return;
@@ -462,6 +473,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
     @Override
     public void updateUI(Object p, @NotNull ParameterInfoUIContext context) {
+        updatePresentation(p, context);
+    }
+
+    public static String updatePresentation(Object p, @NotNull ParameterInfoUIContext context) {
         // This method contains the logic which we use to show the parameters in the popup.
         // The object should be of type ParameterListNode. This method will be called for each element we set using the
         // context.setItemsToShow() in showParameterInfo method.
@@ -499,18 +514,19 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
             // Call setupUIComponentPresentation with necessary arguments.
-            context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
+            return context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
                     context.getDefaultParameterColor());
         } else if (p.equals("Empty")) {
             // This will be called if there are no arguments in the method.
             // Todo - change how to identify no parameter situation
             // We set the "no.parameters" message to the popup.
-            context.setupUIComponentPresentation(CodeInsightBundle.message("parameter.info.no.parameters"), 0, 0,
+            return context.setupUIComponentPresentation(CodeInsightBundle.message("parameter.info.no.parameters"), 0, 0,
                     false, false, false,
                     context.getDefaultParameterColor());
         } else {
             // Disable the popup for other types.
             context.setUIComponentEnabled(false);
+            return null;
         }
     }
 

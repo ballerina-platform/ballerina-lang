@@ -53,7 +53,7 @@ public class WebSocketClient {
     private WebSocketClientHandler handler;
     private final Map<String, String> headers;
     private final String url;
-    private EventLoopGroup group;
+    private final EventLoopGroup group = new NioEventLoopGroup();
 
     public WebSocketClient(String url) {
         this.url = url;
@@ -97,7 +97,6 @@ public class WebSocketClient {
             sslCtx = null;
         }
 
-        group = new NioEventLoopGroup();
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
         headers.forEach(httpHeaders::add);
         try {
@@ -130,9 +129,10 @@ public class WebSocketClient {
             isDone = handler.handshakeFuture().sync().isSuccess();
         } catch (Exception e) {
             LOGGER.debug("Handshake unsuccessful : " + e.getMessage(), e);
+            group.shutdownGracefully();
             return false;
         }
-        LOGGER.debug("WebSocket Handshake successful : " + isDone);
+        LOGGER.debug("WebSocket Handshake successful: {}", isDone);
         return isDone;
     }
 
@@ -157,7 +157,9 @@ public class WebSocketClient {
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
-        channel.closeFuture().sync();
+        if (channel != null) {
+            channel.closeFuture().sync();
+        }
         group.shutdownGracefully();
     }
 }

@@ -73,6 +73,8 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final BallerinaDebuggerEditorsProvider myEditorsProvider;
     private final BallerinaBreakpointHandler myBreakPointHandler;
     private final BallerinaWebSocketConnector myConnector;
+    private boolean isDisconnected = false;
+
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
 
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
@@ -112,7 +114,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public void sessionInitialized() {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            while (true) {
+            while (!isDisconnected) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -166,6 +168,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void stop() {
+        isDisconnected = true;
         myConnector.sendCommand(Command.STOP);
         myConnector.close();
     }

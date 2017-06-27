@@ -91,7 +91,7 @@ public class BallerinaSdkService extends SimpleModificationTracker {
     }
 
     @Contract("null -> false")
-    public boolean isBallerinaModule(@Nullable Module module) {
+    public static boolean isBallerinaModule(@Nullable Module module) {
         return module != null && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
     }
 
