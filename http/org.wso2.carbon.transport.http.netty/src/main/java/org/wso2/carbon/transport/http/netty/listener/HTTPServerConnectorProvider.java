@@ -35,6 +35,8 @@ import java.util.Set;
  */
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
+    private ServerConnectorController serverConnectorController;
+
     public HTTPServerConnectorProvider() {
         super(Constants.PROTOCOL_NAME);
     }
@@ -43,8 +45,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
         List<ServerConnector> connectors = new ArrayList<>();
 
-        ServerConnectorController serverConnectorController = new ServerConnectorController(trpConfig);
-        serverConnectorController.start();
+        createServerConnectorController(trpConfig);
 
         Set<ListenerConfiguration> listenerConfigurationSet = trpConfig.getListenerConfigurations();
 
@@ -68,6 +69,54 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
     @Override
     public ServerConnector createConnector(String s, Map<String, String> properties) {
-        return null;
+        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
+
+        ListenerConfiguration config = buildListenerConfig(s, properties);
+
+        trpConfig.getListenerConfigurations().add(config);
+        createServerConnectorController(trpConfig);
+
+        HTTPServerConnector connector = new HTTPServerConnector(config.getId());
+        connector.setListenerConfiguration(config);
+        connector.setServerConnectorController(serverConnectorController);
+        if (config.isBindOnStartup()) {
+            serverConnectorController.bindInterface(connector);
+        }
+        return connector;
+    }
+
+    /**
+     * Helper method to initialize server connector controller for the provider.
+     *
+     * @param trpConfig to be used for initialization
+     */
+    private synchronized void createServerConnectorController(TransportsConfiguration trpConfig) {
+        if (serverConnectorController == null) {
+            serverConnectorController = new ServerConnectorController(trpConfig);
+            serverConnectorController.start();
+        }
+    }
+
+    /**
+     * Method to build listener configuration using provided properties map.
+     *
+     * @param id            Listener id
+     * @param properties    Property map
+     * @return              listener config
+     */
+    private ListenerConfiguration buildListenerConfig(String id, Map<String, String> properties) {
+        String host = properties.get(Constants.HTTP_HOST) != null ?
+                properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
+        int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
+        ListenerConfiguration config = new ListenerConfiguration(id, host, port);
+        String schema = properties.get(Constants.HTTP_SCHEMA);
+        if (schema != null && schema.equals("https")) {
+            config.setScheme(schema);
+            config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));
+            config.setKeyStorePass(properties.get(Constants.HTTP_KEY_STORE_PASS));
+            config.setCertPass(properties.get(Constants.HTTP_CERT_PASS));
+            //todo fill truststore stuff
+        }
+        return config;
     }
 }

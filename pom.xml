@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.carbon.transport</groupId>
     <artifactId>org.wso2.carbon.transport.parent</artifactId>
-    <version>4.4.5-SNAPSHOT</version>
+    <version>4.4.7-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
