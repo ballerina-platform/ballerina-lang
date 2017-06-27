@@ -146,14 +146,16 @@ class ConnectorAction extends ASTNode {
      * @return {string} - Return types.
      */
     getReturnTypesAsString() {
-        const returnTypes = [];
-        _.forEach(this.getReturnTypes(), (returnTypeChild, index) => {
-            let returnTypeTxt = (index !== 0 && returnTypeChild.whiteSpace.useDefault) ? ' ' : '';
-            returnTypeTxt += returnTypeChild.getParameterDefinitionAsString();
-            returnTypes.push(returnTypeTxt);
+        let returnTypesString = '';
+        this.getReturnTypes().forEach((returnType, index) => {
+            if (index !== 0) {
+                returnTypesString += ',';
+            }
+            returnTypesString += (returnType.whiteSpace.useDefault && index !== 0 ? ' '
+                                : returnType.getWSRegion(0));
+            returnTypesString += returnType.getParameterDefinitionAsString();
         });
-
-        return _.join(returnTypes, ',');
+        return returnTypesString;
     }
 
     /**
@@ -254,16 +256,15 @@ class ConnectorAction extends ASTNode {
      * @return {string} - Arguments as string.
      */
     getArgumentsAsString() {
-        let argsAsString = '';
-        const args = this.getArguments();
-        _.forEach(args, (argument, index) => {
-            argsAsString += argument.getTypeName() + ' ';
-            argsAsString += argument.getName();
-            if (args.length - 1 !== index) {
-                argsAsString += ' , ';
+        let argsString = '';
+        this.getArguments().forEach((arg, index) => {
+            if (index != 0 ) {
+                argsString += ',';
             }
+            argsString += (arg.whiteSpace.useDefault && index !== 0 ? ' ' : arg.getWSRegion(0))
+            argsString += arg.getParameterDefinitionAsString();
         });
-        return argsAsString;
+        return argsString;
     }
 
     /**
