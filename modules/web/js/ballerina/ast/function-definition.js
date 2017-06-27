@@ -163,12 +163,16 @@ class FunctionDefinition extends CallableDefinition {
      * @return {string} - Return types separated by comma.
      */
     getReturnTypesAsString() {
-        const returnTypes = [];
-        _.forEach(this.getReturnParameterDefinitionHolder().getChildren(), (returnType) => {
-            returnTypes.push(returnType.getParameterDefinitionAsString());
+        let returnTypesString = '';
+        this.getReturnTypes().forEach((returnType, index) => {
+            if (index != 0) {
+                returnTypesString += ',';
+                returnTypesString += (returnType.whiteSpace.useDefault ? ' '
+                                : returnType.getWSRegion(0));
+            }
+            returnTypesString += returnType.getParameterDefinitionAsString();
         });
-
-        return _.join(returnTypes, ', ');
+        return returnTypesString;
     }
 
     /**

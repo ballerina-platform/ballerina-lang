@@ -34,24 +34,24 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitFunctionDefinition(functionDefinition) {
-        /**
-         * set the configuration start for the function definition language construct
-         * If we need to add additional parameters which are dynamically added to the configuration start
-         * that particular source generation has to be constructed here
-         */
         const useDefaultWS = functionDefinition.whiteSpace.useDefault;
+        // handle preceding indentation
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
-        const functionReturnTypes = functionDefinition.getReturnTypesAsString();
+        // generate source fragement for return types
         let functionReturnTypesSource;
-        if (!_.isEmpty(functionReturnTypes)) {
-            functionReturnTypesSource = '(' + functionDefinition.getWSRegion(5)
-                                                                + functionDefinition.getReturnTypesAsString() + ')';
+        if (!_.isEmpty(functionDefinition.getReturnTypes())) {
+            const prependSpace = _.first(functionDefinition.getReturnTypes()).whiteSpace.useDefault;
+            // if there were no return types before, return type wrapper shold be prepended with a space 
+            functionReturnTypesSource = ( prependSpace ? ' ' : functionDefinition.getWSRegion(4));
+            functionReturnTypesSource += '(' + functionDefinition.getWSRegion(5)
+                                            + functionDefinition.getReturnTypesAsString() + ')';
         }
 
         let constructedSourceSegment = '';
+        // generate source for annotation attachmments
         _.forEach(functionDefinition.getChildrenOfType(functionDefinition.getFactory().isAnnotation),
             (annotationNode) => {
                 if (annotationNode.isSupported()) {
@@ -59,24 +59,22 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
                         + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
                 }
             });
-        constructedSourceSegment += ((functionDefinition.isNative() ? 'native'
-                                                                            + functionDefinition.getWSRegion(0) : ''));
+        // start creating complete source for function def
+        constructedSourceSegment += ((functionDefinition.isNative() 
+                    ? 'native' + functionDefinition.getWSRegion(0) : ''));
         constructedSourceSegment += 'function' + functionDefinition.getWSRegion(1)
-            + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2)
-                                                                            + '(' + functionDefinition.getWSRegion(3)
-            + functionDefinition.getArgumentsAsString() + ')';
-        constructedSourceSegment += (!_.isNil(functionReturnTypesSource)
-            ? (functionDefinition.getWSRegion(4) + functionReturnTypesSource) : '');
-        constructedSourceSegment += functionDefinition.getWSRegion(6) +
-            (functionDefinition.isNative() ? '' : '{') + functionDefinition.getWSRegion(7);
+                    + functionDefinition.getFunctionName() + functionDefinition.getWSRegion(2)
+                    + '(' + functionDefinition.getWSRegion(3)
+                    + functionDefinition.getArgumentsAsString() + ')';
+        constructedSourceSegment += (!_.isNil(functionReturnTypesSource) ? functionReturnTypesSource : '');
+        constructedSourceSegment += functionDefinition.getWSRegion(6)
+                    + (functionDefinition.isNative() ? '' : '{') + functionDefinition.getWSRegion(7);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
         this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit FunctionDefinition');
     }
 
     visitFunctionDefinition() {
-        log.debug('Visit FunctionDefinition');
     }
 
     endVisitFunctionDefinition(functionDefinition) {
@@ -85,7 +83,6 @@ class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
         this.appendSource((functionDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit FunctionDefinition');
     }
 
     visitStatement(statement) {
