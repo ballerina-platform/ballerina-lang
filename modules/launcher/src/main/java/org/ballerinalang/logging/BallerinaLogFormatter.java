@@ -24,6 +24,11 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * A custom log formatter for formatting ballerina.log file
+ *
+ * @since 0.89
+ */
 public class BallerinaLogFormatter extends Formatter {
 
     private static final String format = BLogManager.getLogManager().getProperty(
@@ -70,7 +75,7 @@ public class BallerinaLogFormatter extends Formatter {
         }
         return String.format(format,
                              new Date(record.getMillis()),
-                             record.getLevel().getLocalizedName().toLowerCase(),
+                             record.getLevel().getLocalizedName(),
                              source,
                              record.getMessage());
     }

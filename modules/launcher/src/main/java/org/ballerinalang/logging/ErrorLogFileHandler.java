@@ -21,6 +21,11 @@ package org.ballerinalang.logging;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 
+/**
+ * A custom file handler for handling the error log
+ *
+ * @since 0.89
+ */
 public class ErrorLogFileHandler extends FileHandler {
     public ErrorLogFileHandler() throws IOException, SecurityException {
     }

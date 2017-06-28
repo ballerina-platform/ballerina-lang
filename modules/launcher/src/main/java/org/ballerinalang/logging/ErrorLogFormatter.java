@@ -24,6 +24,11 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/**
+ * A custom formatter for formatting error log file
+ *
+ * @since 0.89
+ */
 public class ErrorLogFormatter extends Formatter {
 
     private static final String format = BLogManager.getLogManager().getProperty(
@@ -69,7 +74,7 @@ public class ErrorLogFormatter extends Formatter {
         }
         return String.format(format,
                              new Date(record.getMillis()),
-                             record.getLevel().getLocalizedName().toLowerCase(),
+                             record.getLevel().getLocalizedName(),
                              source,
                              record.getMessage());
     }

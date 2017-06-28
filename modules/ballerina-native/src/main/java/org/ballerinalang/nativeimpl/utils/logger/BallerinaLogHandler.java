@@ -22,6 +22,11 @@ import org.ballerinalang.bre.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class is responsible for selecting the appropriate logger for a particular log statement.
+ *
+ * @since 0.89
+ */
 public class BallerinaLogHandler {
     private static final Logger ballerinaRootLogger = LoggerFactory.getLogger("ballerina");
 
@@ -30,7 +35,7 @@ public class BallerinaLogHandler {
                 ctx.getControlStackNew().getStack()[ctx.getControlStackNew().fp - 1].getCallableUnitInfo()
                         .getPackageInfo().getPkgPath();
 
-        if (packageDirPath == "." || packageDirPath == null) {
+        if (".".equals(packageDirPath) || packageDirPath == null) {
             return ballerinaRootLogger;
         } else {
             // TODO: Refactor this later

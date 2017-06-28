@@ -21,14 +21,11 @@ package org.ballerinalang.nativeimpl.utils.logger;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.lang.system.LogUtil;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Native function ballerina.model.utils:logger.
