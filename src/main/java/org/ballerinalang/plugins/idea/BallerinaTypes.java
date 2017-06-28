@@ -139,6 +139,7 @@ public class BallerinaTypes {
     public static TokenIElementType TRANSACTION = tokenIElementTypes.get(BallerinaLexer.TRANSACTION);
     public static TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
     public static TokenIElementType TYPEMAPPER = tokenIElementTypes.get(BallerinaLexer.TYPEMAPPER);
+    public static TokenIElementType VAR = tokenIElementTypes.get(BallerinaLexer.VAR);
     public static TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
     public static TokenIElementType XML = tokenIElementTypes.get(BallerinaLexer.XML);

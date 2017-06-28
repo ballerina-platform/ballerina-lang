@@ -52,6 +52,7 @@ import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
@@ -70,6 +71,7 @@ import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
@@ -753,6 +755,38 @@ public class BallerinaPsiImplUtil {
                 checkAndAddVariable(element, results, nameIdentifier);
             }
         }
+
+        Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(context,
+                AssignmentStatementNode.class);
+
+        for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
+            if (!assignmentStatementNode.isVar()) {
+                continue;
+            }
+
+            VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
+                    VariableReferenceListNode.class);
+            if (variableReferenceListNode == null) {
+                continue;
+            }
+
+            VariableReferenceNode[] variableReferenceNodes = PsiTreeUtil.getChildrenOfType(variableReferenceListNode,
+                    VariableReferenceNode.class);
+            if (variableReferenceNodes == null) {
+                continue;
+            }
+
+            for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
+
+                IdentifierPSINode identifierNode = PsiTreeUtil.findChildOfType(variableReferenceNode,
+                        IdentifierPSINode.class);
+                if (identifierNode != null) {
+                    checkAndAddVariable(element, results, identifierNode);
+                }
+            }
+
+        }
+
         // If the context is not null, get variables from parent context as well.
         // Ex:- If the current context is function body, we need to get parameters from function definition which is
         // the parent context.
@@ -1211,6 +1245,41 @@ public class BallerinaPsiImplUtil {
                     "//structDefinition/Identifier");
             if (definition != null) {
                 return definition;
+            }
+
+            Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(scopeNode,
+                    AssignmentStatementNode.class);
+
+            for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
+                if (!assignmentStatementNode.isVar()) {
+                    continue;
+                }
+
+                VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType
+                        (assignmentStatementNode,
+                                VariableReferenceListNode.class);
+                if (variableReferenceListNode == null) {
+                    continue;
+                }
+
+                VariableReferenceNode[] variableReferenceNodes = PsiTreeUtil.getChildrenOfType
+                        (variableReferenceListNode,
+                                VariableReferenceNode.class);
+                if (variableReferenceNodes == null) {
+                    continue;
+                }
+
+                for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
+
+                    IdentifierPSINode identifierNode = PsiTreeUtil.findChildOfType(variableReferenceNode,
+                            IdentifierPSINode.class);
+                    if (identifierNode != null && identifierNode.getTextOffset() < element.getTextOffset()) {
+
+                        if (element.getText().equals(identifierNode.getText())) {
+                            return identifierNode;
+                        }
+                    }
+                }
             }
         } else {
 

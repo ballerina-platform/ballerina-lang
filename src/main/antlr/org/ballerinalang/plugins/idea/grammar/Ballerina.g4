@@ -259,7 +259,7 @@ connectorInitExpression
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
+    :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
@@ -481,6 +481,7 @@ TRANSACTION     : 'transaction';
 TRANSFORM       : 'transform';
 TRY             : 'try';
 TYPEMAPPER      : 'typemapper';
+VAR             : 'var';
 WHILE           : 'while';
 WORKER          : 'worker';
 

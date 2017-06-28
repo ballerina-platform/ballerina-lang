@@ -90,6 +90,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(TIMEOUT).spaceIf(true)
                 .after(TRY).spaceIf(true)
                 .after(TYPEMAPPER).spaceIf(true)
+                .after(VAR).spaceIf(true)
                 .after(WHILE).spaceIf(true)
                 .after(WORKER).spaceIf(true)
                 .before(SEMI).spaceIf(false)

@@ -31,6 +31,7 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
@@ -70,11 +71,22 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
+        boolean isDefinition = def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
                 || def instanceof StructDefinitionNode || def instanceof VariableDefinitionNode
                 || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionNode
                 || def instanceof ConstantDefinitionNode || def instanceof ParameterNode
-                || def instanceof FieldDefinitionNode;
+                || def instanceof FieldDefinitionNode || def instanceof AssignmentStatementNode;
+        if (isDefinition) {
+            return true;
+        }
+        if (def instanceof IdentifierPSINode) {
+            AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(def,
+                    AssignmentStatementNode.class);
+            if (assignmentStatementNode != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @NotNull
@@ -297,7 +309,8 @@ public class NameReference extends BallerinaElementReference {
                     || definitionElement instanceof ConstantDefinitionNode
                     || definitionElement instanceof VariableDefinitionNode
                     || definitionElement instanceof GlobalVariableDefinitionNode
-                    || definitionElement instanceof AnnotationDefinitionNode) {
+                    || definitionElement instanceof AnnotationDefinitionNode
+                    || definitionElement instanceof IdentifierPSINode) {
                 PsiFile containingFile = myElement.getContainingFile();
                 PsiDirectory myDirectory = containingFile.getContainingDirectory();
                 PsiDirectory definitionDirectory = definitionElement.getContainingFile().getContainingDirectory();
@@ -469,6 +482,11 @@ public class NameReference extends BallerinaElementReference {
             } else if (definitionElement instanceof FunctionDefinitionNode
                     || definitionElement instanceof AnnotationDefinitionNode) {
                 return isValid((PsiNameIdentifierOwner) definitionElement, refName);
+            } else if (definitionElement instanceof IdentifierPSINode) {
+                if (myElement.equals(definitionElement)) {
+                    return false;
+                }
+                return true;
             }
         }
         return false;

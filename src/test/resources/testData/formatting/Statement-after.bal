@@ -25,4 +25,6 @@ function test () {
 
     string s = (int)a;
 
+    var a, b = getValues();
+
 }
