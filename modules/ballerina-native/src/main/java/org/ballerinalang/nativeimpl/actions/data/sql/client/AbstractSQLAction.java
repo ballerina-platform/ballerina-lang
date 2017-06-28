@@ -80,7 +80,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
             stmt = getPreparedStatement(conn, datasource, query);
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, query, stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
                     getColumnDefinitions(rs));
@@ -98,7 +98,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = getDatabaseConnection(context, datasource, isInTransaction);
             stmt = conn.prepareStatement(query);
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, query, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
@@ -130,7 +130,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             }
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, query, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStackNew().getCurrentFrame().returnValues[0] = updatedCount;
@@ -157,9 +157,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
            conn = getDatabaseConnection(context, datasource, isInTransaction);
             stmt = getPreparedCall(conn, datasource, query, parameters);
-            createProcessedStatement(conn, stmt, parameters);
+            createProcessedStatement(conn, query, stmt, parameters);
             rs = executeStoredProc(stmt);
-            setOutParameters(stmt, parameters);
+            setOutParameters(stmt, query, parameters);
             if (rs != null) {
                 BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
                         getColumnDefinitions(rs));
@@ -184,7 +184,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             int paramArrayCount = (int) parameters.size();
             for (int index = 0; index < paramArrayCount; index++) {
                 BRefValueArray params = (BRefValueArray) parameters.get(index);
-                createProcessedStatement(conn, stmt, params);
+                createProcessedStatement(conn, query, stmt, params);
                 stmt.addBatch();
             }
             int[] updatedCount = stmt.executeBatch();
@@ -220,7 +220,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private PreparedStatement getPreparedStatement(Connection conn, SQLDatasource datasource, String query)
             throws SQLException {
         PreparedStatement stmt;
-        boolean mysql = datasource.getDatabaseName().contains("mysql");
+        boolean mysql = datasource.getDatabaseName().contains(Constants.MYSQL);
         /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
            Following properties are set to stream the results back one row at a time.*/
         if (mysql) {
@@ -240,12 +240,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private CallableStatement getPreparedCall(Connection conn, SQLDatasource datasource, String query,
                                               BRefValueArray parameters) throws SQLException {
         CallableStatement stmt;
-        boolean mysql = datasource.getDatabaseName().contains("mysql");
+        boolean mysql = datasource.getDatabaseName().contains(Constants.MYSQL);
         if (mysql) {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
                statements that have output parameters */
-            if (!hasOutParams(parameters)) {
+            if (!hasOutParams(query, parameters)) {
                 stmt.setFetchSize(Integer.MIN_VALUE);
             }
         } else {
@@ -313,9 +313,15 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return generatedKeys;
     }
 
-    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BRefValueArray params) {
-        int paramCount = (int) params.size();
-        for (int index = 0; index < paramCount; index++) {
+    private void createProcessedStatement(Connection conn, String query, PreparedStatement stmt,
+            BRefValueArray params) {
+        long queryParaCount = query.chars().filter(ch -> ch == Constants.QUESTION_MARK).count();
+        int paramArraySize = (int) params.size();
+        if (queryParaCount > paramArraySize) {
+            throw new BallerinaException(
+                    "insuffient parameters in the array required: " + queryParaCount + " found: " + paramArraySize);
+        }
+        for (int index = 0; index < queryParaCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             String sqlType = paramValue.getStringField(0);
             BValue value = paramValue.getRefField(0);
@@ -394,9 +400,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
-    private void setOutParameters(CallableStatement stmt, BRefValueArray params) {
-        int paramCount = (int) params.size();
-        for (int index = 0; index < paramCount; index++) {
+    private void setOutParameters(CallableStatement stmt, String query, BRefValueArray params) {
+        long queryParaCount = query.chars().filter(ch -> ch == Constants.QUESTION_MARK).count();
+        int paramArraySize = (int) params.size();
+        if (queryParaCount > paramArraySize) {
+            throw new BallerinaException(
+                    "insuffient parameters in the array: required: " + queryParaCount + " found: " + paramArraySize);
+        }
+        for (int index = 0; index < queryParaCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             String sqlType = paramValue.getStringField(0);
             int direction = (int) paramValue.getIntField(0);
@@ -520,9 +531,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
-    private boolean hasOutParams(BRefValueArray params) {
-        int paramCount = (int) params.size();
-        for (int index = 0; index < paramCount; index++) {
+    private boolean hasOutParams(String query, BRefValueArray params) {
+        long queryParaCount = query.chars().filter(ch -> ch == Constants.QUESTION_MARK).count();
+        int paramArraySize = (int) params.size();
+        if (queryParaCount > paramArraySize) {
+            throw new BallerinaException(
+                    "insuffient parameters in the array: required: " + queryParaCount + " found: " + paramArraySize);
+        }
+        for (int index = 0; index < queryParaCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             int direction = (int) paramValue.getIntField(0);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {

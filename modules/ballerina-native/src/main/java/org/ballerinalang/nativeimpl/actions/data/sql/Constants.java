@@ -93,4 +93,7 @@ public final class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String DATASOURCE_KEY = "datasource_key";
+
+    public static final String MYSQL = "mysql";
+    public static final char QUESTION_MARK = '?';
 }

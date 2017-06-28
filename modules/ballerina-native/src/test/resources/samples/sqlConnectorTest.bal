@@ -921,3 +921,24 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
     sql:ClientConnector.close(testDB);
     return;
 }
+
+function testInsertTableDataWithOneParametersArray () (int, int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
+    sql:Parameter para3 = {sqlType:"integer", value: 333, direction:0};
+    sql:Parameter para4 = {sqlType:"double", value:5000.75, direction:0};
+    sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
+
+    int insertCount1 = sql:ClientConnector.update (testDB, "Insert into Customers
+        (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
+
+    int insertCount2 = sql:ClientConnector.update (testDB, "Insert into Customers
+        (firstName,lastName,registrationID) values (?,?,?)", parameters);
+
+    sql:ClientConnector.close (testDB);
+    return insertCount1, insertCount2;
+}
