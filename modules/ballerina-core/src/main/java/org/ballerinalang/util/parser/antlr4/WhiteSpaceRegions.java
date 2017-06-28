@@ -191,13 +191,20 @@ public class WhiteSpaceRegions {
     // whitespace regions in a while statement
     public static final int WHILE_STMT_PRECEDING_WHITESPACE = 0;
     public static final int WHILE_STMT_WHILE_KEYWORD_TO_CONDITION_WRAPPER = 1;
-    public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 2;
-    public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 3;
+    public static final int WHILE_STMT_CONDITION_WRAPPER_CONDITION_START = 2;
+    public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 3;
+    public static final int WHILE_STMT_BODY_START_TO_FIRST_TOKEN = 4;
+    public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in break statement
     public static final int BREAK_STMT_PRECEDING_WHITESPACE = 0;
     public static final int BREAK_STMT_BREAK_KEYWORD_TO_END = 1;
     public static final int BREAK_STMT_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in continue statement
+    public static final int CONTINUE_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int CONTINUE_STMT_CONTINUE_KEYWORD_TO_END = 1;
+    public static final int CONTINUE_STMT_END_TO_NEXT_TOKEN = 2;
 
     // whitespace regions in try clause
     public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;

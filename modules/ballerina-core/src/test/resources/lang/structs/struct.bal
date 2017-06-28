@@ -106,3 +106,8 @@ function getStructNegativeValues()(int, int, float, float) {
     NegativeValTest tmp = {};
     return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
 }
+
+function getStruct() (Person) {
+    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", lname:"ccc", age:50}};
+    return p1;
+}
