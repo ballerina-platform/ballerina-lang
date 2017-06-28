@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,37 +28,30 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the hour, minute, second and millisecond value for the given time.
+ * Get the Time with the given time value and zone info.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "time",
+        functionName = "toTimezone",
         args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
-                          structPackage = "ballerina.lang.time")},
-        returnType = {@ReturnType(type = TypeEnum.INT),
-                      @ReturnType(type = TypeEnum.INT),
-                      @ReturnType(type = TypeEnum.INT),
-                      @ReturnType(type = TypeEnum.INT)},
+                          structPackage = "ballerina.lang.time"),
+                @Argument(name = "zoneId", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.STRUCT, structType = "Time",
+                                  structPackage = "ballerina.lang.time")},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the month value of the given the Time.")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Hour of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Minute of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Second of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "MilliSecond of the given time value")})
-public class Time extends AbstractTimeFunction {
+        value = "Create a Time struct with given timestamp and timezone information.")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
+        value = "The Time struct")})
+public class ToTimezone extends  AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getHour(timeStruct)), new BInteger(getMinute(timeStruct)),
-                new BInteger(getSecond(timeStruct)), new BInteger(getMilliSecond(timeStruct)));
+        String zoneId = getStringArgument(context, 0);
+        return new BValue[] { changeTimezone(context, timeStruct, zoneId) };
     }
 }

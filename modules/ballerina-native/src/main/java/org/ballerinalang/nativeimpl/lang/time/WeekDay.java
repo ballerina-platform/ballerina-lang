@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -29,34 +29,27 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the year,month and date value for the given time.
+ * Get the week day of the given time.
  *
  * @since 0.8.9
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "date",
+        functionName = "weekday",
         args = {@Argument(name = "time", type = TypeEnum.STRUCT, structType = "Time",
                           structPackage = "ballerina.lang.time")},
-        returnType = {@ReturnType(type = TypeEnum.INT),
-                      @ReturnType(type = TypeEnum.INT),
-                      @ReturnType(type = TypeEnum.INT)},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the month value of the given the Time.")})
+        value = "Get the week day value of the given the Time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Year of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Month of the given time value")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
-        value = "Date of the given time value")})
-public class Date extends AbstractTimeFunction {
+        value = "Week Day of the given time value")})
+public class WeekDay extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BStruct timeStruct = ((BStruct) getRefArgument(context, 0));
-        return getBValues(new BInteger(getYear(timeStruct)), new BInteger(getMonth(timeStruct)),
-                new BInteger(getDay(timeStruct)));
+        return new BValue[]{new BString(getWeekDay(timeStruct))};
     }
 }

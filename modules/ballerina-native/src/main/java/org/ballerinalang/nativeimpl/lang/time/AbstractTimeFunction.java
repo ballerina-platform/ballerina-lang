@@ -67,6 +67,16 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return createBStruct(getTimeStructInfo(context), timeValue, timezone);
     }
 
+    BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
+            int milliSecond, String zoneID) {
+        int nanoSecond = milliSecond * 1000000;
+        ZoneId zoneId = ZoneId.of(zoneID);
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
+        BStruct timezone = createTimeZone(context, zoneId);
+        long timeValue = zonedDateTime.toInstant().toEpochMilli();
+        return createBStruct(getTimeStructInfo(context), timeValue , timezone);
+    }
+
     BStruct parseTime(Context context, String dateValue, String pattern) {
         long milliSeconds;
         BStruct timezone;
@@ -101,6 +111,37 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
+    BStruct addDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
+            long minutes, long seconds, long milliSeconds) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        long nanoSeconds = milliSeconds * 1000000;
+        dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
+                .plusSeconds(seconds).plusNanos(nanoSeconds);
+        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
+        String zoneIdName = zoneData.getStringField(0);
+        long mSec = dateTime.toInstant().toEpochMilli();
+        return createTime(context, mSec, zoneIdName);
+    }
+
+    BStruct subtractDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
+            long minutes, long seconds, long milliSeconds) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        long nanoSeconds = milliSeconds * 1000000;
+        dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
+                .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
+        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
+        String zoneIdName = zoneData.getStringField(0);
+        long mSec = dateTime.toInstant().toEpochMilli();
+        return createTime(context, mSec, zoneIdName);
+    }
+
+    BStruct changeTimezone(Context context, BStruct timeStruct, String zoneId) {
+        BStruct timezone = createTimeZone(context, zoneId);
+        timeStruct.setRefField(0, timezone);
+        return timeStruct;
+    }
+
+
     int getYear(BStruct timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getYear();
@@ -133,8 +174,12 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
 
     int getMilliSecond(BStruct timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
-        int milliSeconds = dateTime.getNano() / 1000000;
-        return milliSeconds;
+        return dateTime.getNano() / 1000000;
+    }
+
+    String getWeekDay(BStruct timeStruct) {
+        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+        return dateTime.getDayOfWeek().toString();
     }
 
     private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
