@@ -148,7 +148,9 @@ class ConnectorDefinition extends React.Component {
                             globals={variables}
                             onCollapse={this.handleVarialblesBadgeClick}
                             title="Variables"
-                            onAddNewValue={this.handleAddVariable}
+                            model={this.props.model}
+                            onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
+                            newValuePlaceholder={'nnn'}
                             onDeleteClick={this.handleDeleteVariable}
                             addText={'+ Add Variable'}
                             getValue={g => (g.getStatementString())}

@@ -45,6 +45,8 @@ class ASTVisitor extends EventChannel {
             return this.canVisitImportDeclaration(node);
         } else if (ASTFactory.isConstantDefinition(node)) {
             return this.canVisitConstantDefinition(node);
+        } else if (ASTFactory.isGlobalVariableDefinition(node)) {
+            return this.canVisitGlobalVariableDefinition(node);
         } else if (ASTFactory.isWorkerDeclaration(node)) {
             return this.canVisitWorkerDeclaration(node);
         } else if (ASTFactory.isConnectorDeclaration(node)) {
@@ -102,6 +104,8 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitImportDeclaration(node);
         } else if (ASTFactory.isConstantDefinition(node)) {
             return this.beginVisitConstantDefinition(node);
+        } else if (ASTFactory.isGlobalVariableDefinition(node)) {
+            return this.beginVisitGlobalVariableDefinition(node);
         } else if (ASTFactory.isWorkerDeclaration(node)) {
             return this.beginVisitWorkerDeclaration(node);
         } else if (ASTFactory.isConnectorDeclaration(node)) {
@@ -159,6 +163,8 @@ class ASTVisitor extends EventChannel {
             return this.visitImportDeclaration(node);
         } else if (ASTFactory.isConstantDefinition(node)) {
             return this.visitConstantDefinition(node);
+        } else if (ASTFactory.isGlobalVariableDefinition(node)) {
+            return this.visitGlobalVariableDefinition(node);
         } else if (ASTFactory.isWorkerDeclaration(node)) {
             return this.visitWorkerDeclaration(node);
         } else if (ASTFactory.isConnectorDeclaration(node)) {
@@ -216,6 +222,8 @@ class ASTVisitor extends EventChannel {
             return this.endVisitImportDeclaration(node);
         } else if (ASTFactory.isConstantDefinition(node)) {
             return this.endVisitConstantDefinition(node);
+        } else if (ASTFactory.isGlobalVariableDefinition(node)) {
+            return this.endVisitGlobalVariableDefinition(node);
         } else if (ASTFactory.isWorkerDeclaration(node)) {
             return this.endVisitWorkerDeclaration(node);
         } else if (ASTFactory.isConnectorDeclaration(node)) {
@@ -431,6 +439,19 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitConstantDefinition(constantDefinition) {
+    }
+
+    canVisitGlobalVariableDefinition(globalVariableDefinition) {
+        return false;
+    }
+
+    beginVisitGlobalVariableDefinition(globalVariableDefinition) {
+    }
+
+    visitGlobalVariableDefinition(globalVariableDefinition) {
+    }
+
+    endVisitGlobalVariableDefinition(globalVariableDefinition) {
     }
 
     canVisitWorkerDeclaration(importDeclaration) {

@@ -168,7 +168,9 @@ class ServiceDefinition extends React.Component {
                             onCollapse={this.handleVarialblesBadgeClick}
                             title="Variables"
                             addText={'+ Add Variable'}
-                            onAddNewValue={this.handleAddVariable}
+                            model={this.props.model}
+                            onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
+                            newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteVariable}
                             getValue={g => (g.getStatementString())}
                         /> :
