@@ -756,41 +756,83 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitCommentStatement(BallerinaParser.CommentStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code structFieldIdentifier}
+	 * Enter a parse tree produced by the {@code xmlAttribVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
+	void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code structFieldIdentifier}
+	 * Exit a parse tree produced by the {@code xmlAttribVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
+	void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code simpleVariableIdentifier}
+	 * Enter a parse tree produced by the {@code simpleVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void enterSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx);
+	void enterSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code simpleVariableIdentifier}
+	 * Exit a parse tree produced by the {@code simpleVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx);
+	void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code mapArrayVariableIdentifier}
+	 * Enter a parse tree produced by the {@code fieldVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void enterMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
+	void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code mapArrayVariableIdentifier}
+	 * Exit a parse tree produced by the {@code fieldVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 */
-	void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
+	void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code mapArrayVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code mapArrayVariableReference}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 */
+	void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void enterField(BallerinaParser.FieldContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void exitField(BallerinaParser.FieldContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#index}.
+	 * @param ctx the parse tree
+	 */
+	void enterIndex(BallerinaParser.IndexContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#index}.
+	 * @param ctx the parse tree
+	 */
+	void exitIndex(BallerinaParser.IndexContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#xmlAttrib}.
+	 * @param ctx the parse tree
+	 */
+	void enterXmlAttrib(BallerinaParser.XmlAttribContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#xmlAttrib}.
+	 * @param ctx the parse tree
+	 */
+	void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree

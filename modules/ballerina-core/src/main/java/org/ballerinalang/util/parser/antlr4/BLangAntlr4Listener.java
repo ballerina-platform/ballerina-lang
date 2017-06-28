@@ -1139,7 +1139,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitContinueStatement(ContinueStatementContext ctx) {
-
+        if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getContinueStatementWS(tokenStream, ctx);
+            }
+            modelBuilder.createContinueStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        }
     }
 
     @Override
@@ -1340,7 +1346,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
         // Here the expression is only a message reference
-        //modelBuilder.createVarRefExpr();
+        //modelBuilder.createSimpleVarRefExpr();
         if (ctx.exception == null) {
             WhiteSpaceDescriptor whiteSpaceDescriptor = null;
             if (isVerboseMode) {
@@ -1453,62 +1459,102 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) {
+    public void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) {
-        if (ctx.exception != null || ctx.getChild(0) == null) {
-            return;
-        }
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
-        }
-        modelBuilder.createFieldRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void enterSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
+    public void enterSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
+    public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
-        }
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
+//        }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
+        modelBuilder.createSimpleVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
     }
 
     @Override
-    public void enterMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+    public void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+    public void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        int dimensions = (ctx.getChildCount() - 1) / 3;
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
+//        }
+
+        String fieldName = ctx.field().Identifier().getText();
+        modelBuilder.createFieldBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, fieldName);
+    }
+
+    @Override
+    public void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
+
+    }
+
+    @Override
+    public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
         }
 
-        NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createMapArrayVarRefExpr(currentLocation, whiteSpaceDescriptor,
-                nameReference, dimensions);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
+//        }
+
+        modelBuilder.createIndexBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterField(BallerinaParser.FieldContext ctx) {
+
+    }
+
+    @Override
+    public void exitField(BallerinaParser.FieldContext ctx) {
+
+    }
+
+    @Override
+    public void enterIndex(BallerinaParser.IndexContext ctx) {
+
+    }
+
+    @Override
+    public void exitIndex(BallerinaParser.IndexContext ctx) {
+
+    }
+
+    @Override
+    public void enterXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
+
+    }
+
+    @Override
+    public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
 

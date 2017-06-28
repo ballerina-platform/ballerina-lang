@@ -24,6 +24,7 @@ import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * {@code MapType} represents a map.
@@ -138,7 +139,23 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
 
     @Override
     public String stringValue() {
-        return null;
+        StringJoiner sj = new StringJoiner(",", "{", "}");
+        String key;
+        BValue value;
+        String stringValue;
+        for (int i = 0; i < size; i++) {
+            key = "\"" + (String) values[i].getKey() + "\"";
+            value = values[i].getValue();
+            if (value == null) {
+                stringValue = null;
+            } else if (value instanceof BString) {
+                stringValue = "\"" + value.stringValue() + "\"";
+            } else {
+                stringValue = value.stringValue();
+            }
+            sj.add(key + ":" + stringValue);
+        }
+        return sj.toString();
     }
 
     @Override

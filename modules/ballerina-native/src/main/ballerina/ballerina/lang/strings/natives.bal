@@ -82,16 +82,16 @@ native function toLowerCase (string s) (string);
 @doc:Return { value:"boolean: True if the string starts with the prefix; false otherwise" }
 native function hasPrefix (string mainString, string prefix) (boolean);
 
-@doc:Description { value:"Replaces all instances of the replacePattern with the replaceWith string and returns the result"}
+@doc:Description { value:"Replaces each substring of the mainString that matches the given regular expression with the given replacement"}
 @doc:Param { value:"mainString: The original string argument" }
-@doc:Param { value:"replacePattern: The pattern to search for " }
+@doc:Param { value:"replacePattern: The regular expression to search for" }
 @doc:Param { value:"replaceWith: The replacement string" }
 @doc:Return { value:"string: The derived string" }
 native function replaceAll (string mainString, string replacePattern, string replaceWith) (string);
 
-@doc:Description { value:"Replaces the replacePattern string with the replaceWith string and returns the result"}
+@doc:Description { value:"Replaces all instances of the replacePattern string with the replaceWith string and returns the result"}
 @doc:Param { value:"mainString: The original string argument" }
-@doc:Param { value:"replacePattern: The pattern to search for " }
+@doc:Param { value:"replacePattern: The pattern to search for" }
 @doc:Param { value:"replaceWith: The replacement string" }
 @doc:Return { value:"string: The derived string" }
 native function replace (string mainString, string replacePattern, string replaceWith) (string);

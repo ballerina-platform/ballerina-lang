@@ -33,7 +33,8 @@ function testStructOfStruct() (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
     
-    string country = (string) dpt.employees[0].adrs["country"];
+    string country;
+    country, _ = (string) dpt.employees[0].adrs["country"];
     return country;
 }
 
@@ -105,4 +106,9 @@ struct NegativeValTest {
 function getStructNegativeValues()(int, int, float, float) {
     NegativeValTest tmp = {};
     return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
+}
+
+function getStruct() (Person) {
+    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", lname:"ccc", age:50}};
+    return p1;
 }

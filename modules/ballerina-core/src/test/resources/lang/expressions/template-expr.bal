@@ -48,7 +48,13 @@ function testMapVariableAccessInJSONInit()(json) {
     map myMap;
 
     myMap = {"stirngVal" : "value0" , "intVal" : 1};
-    msg = {"val1":(string)myMap["stirngVal"],"val2": (int)myMap["intVal"]};
+    //with new cast change, have to do the casting outside if it is a unsafe cast, hence moved the cast expression
+    //outside the json init
+    string val2;
+    int intVal;
+    val2, _ = (string)myMap["stirngVal"];
+    intVal, _ = (int)myMap["intVal"];
+    msg = {"val1":val2,"val2": intVal};
     return msg;
 }
 

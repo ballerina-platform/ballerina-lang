@@ -24,7 +24,7 @@ function intToAny (int value) (any) {
 
 function floatToInt (float value) (int) {
     int result;
-    result = <int>value;
+    result, _ = <int>value;
     return result;
 }
 
@@ -48,19 +48,19 @@ function floatToAny (float value) (any) {
 
 function stringToInt(string value)(int) {
     int result;
-    result = <int>value;
+    result, _ = <int>value;
     return result;
 }
 
 function stringToFloat(string value)(float) {
     float result;
-    result = <float>value;
+    result, _ = <float>value;
     return result;
 }
 
 function stringToBoolean(string value)(boolean) {
     boolean result;
-    result = <boolean>value;
+    result, _ = <boolean>value;
     return result;
 }
 
@@ -103,31 +103,41 @@ function blobToAny(blob value)(any) {
 function anyToInt () (int) {
     int i = 5;
     any a = i;
-    return (int)a;
+    int value;
+    value, _ = (int)a;
+    return value;
 }
 
 function anyToFloat () (float) {
     float f = 5.0;
     any a = f;
-    return (float)a;
+    float value;
+    value, _ = (float)a;
+    return value;
 }
 
 function anyToString () (string) {
     string s = "test";
     any a = s;
-    return (string)a;
+    string value;
+    value, _ = (string)a;
+    return value;
 }
 
 function anyToBoolean () (boolean) {
     boolean b;
     any a = b;
-    return (boolean)a;
+    boolean value;
+    value, _ = (boolean)a;
+    return value;
 }
 
 function anyToBlob (blob data) (blob) {
     blob b = data;
     any a = b;
-    return (blob)a;
+    blob value;
+    value, _ = (blob)a;
+    return value;
 }
 
 function booleanappendtostring(boolean value)(string) {

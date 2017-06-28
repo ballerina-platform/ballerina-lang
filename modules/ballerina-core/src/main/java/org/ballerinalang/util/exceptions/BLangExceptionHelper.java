@@ -65,6 +65,17 @@ public class BLangExceptionHelper {
         String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
         return new SemanticException(location + errorMsg);
     }
+
+    public static SemanticException getSemanticError(Node node, SemanticErrors semanticError,
+                                                     Object... params) {
+        NodeLocation nodeLocation = node.getNodeLocation();
+        //todo NodeLocation toString with below
+        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
+
+
+        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
+        return new SemanticException(location + errorMsg);
+    }
     
     public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
         return MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);

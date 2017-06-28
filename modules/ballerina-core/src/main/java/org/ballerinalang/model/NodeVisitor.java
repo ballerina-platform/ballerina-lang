@@ -21,19 +21,15 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthExpression;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
-import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
@@ -50,13 +46,16 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -136,6 +135,8 @@ public interface NodeVisitor {
 
     void visit(BreakStmt breakStmt);
 
+    void visit(ContinueStmt continueStmt);
+
     void visit(TryCatchStmt tryCatchStmt);
 
     void visit(ThrowStmt throwStmt);
@@ -198,14 +199,6 @@ public interface NodeVisitor {
     
     void visit(TypeConversionExpr typeConversionExpression);
 
-    void visit(ArrayMapAccessExpr arrayMapAccessExpr);
-
-    void visit(ArrayLengthExpression arrayLengthExpression);
-    
-    void visit(FieldAccessExpr structAttributeAccessExpr);
-    
-    void visit(JSONFieldAccessExpr jsonPathExpr);
-
     void visit(ArrayInitExpr arrayInitExpr);
 
     void visit(RefTypeInitExpr refTypeInitExpr);
@@ -222,7 +215,11 @@ public interface NodeVisitor {
 
     void visit(KeyValueExpr keyValueExpr);
 
-    void visit(VariableRefExpr variableRefExpr);
+    void visit(SimpleVarRefExpr simpleVarRefExpr);
+
+    void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr);
+
+    void visit(IndexBasedVarRefExpr indexBasedVarRefExpr);
 
     void visit(NullLiteral nullLiteral);
 }

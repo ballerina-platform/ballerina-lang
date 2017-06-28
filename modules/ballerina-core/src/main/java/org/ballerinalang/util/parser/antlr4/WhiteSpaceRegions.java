@@ -205,6 +205,11 @@ public class WhiteSpaceRegions {
     public static final int BREAK_STMT_BREAK_KEYWORD_TO_END = 1;
     public static final int BREAK_STMT_END_TO_NEXT_TOKEN = 2;
 
+    // whitespace regions in continue statement
+    public static final int CONTINUE_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int CONTINUE_STMT_CONTINUE_KEYWORD_TO_END = 1;
+    public static final int CONTINUE_STMT_END_TO_NEXT_TOKEN = 2;
+
     // whitespace regions in try clause
     public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;
     public static final int TRY_CLAUSE_TRY_KEYWORD_TO_BODY_START = 1;
