@@ -6,8 +6,10 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
 function main(string[] args) {
+    //This program, retrieves a list of open PRs for a given github repo and tweets the number of open PR’s using a client connector.
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");
+    //a simple command line parameter validation.
     int argumentLength = args.length;
     if (argumentLength < 4) {
         system:println("Incorrect number of arguments");
@@ -44,6 +46,7 @@ function main(string[] args) {
     }
     
 }
+//a utility function that generates the authorization header value needed to access the twitter API.
 function constructOAuthHeader(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret, string tweetMessage)(string ) {
     string timeStamp = strings:valueOf(system:epochTime());
     string nonceString = utils:getRandomString();

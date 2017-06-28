@@ -6,6 +6,7 @@ import ballerina.lang.messages;
 
 @http:BasePath {value:"/cbr"}
 service contentBasedRouting {
+    //this service routes the request to a backend based on a value sent in as part of the HTTP body.
     
     @http:POST{}
     @http:Path {value:"/"}

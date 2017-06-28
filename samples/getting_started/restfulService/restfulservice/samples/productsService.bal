@@ -7,11 +7,13 @@ import ballerina.net.http;
 
 @http:BasePath{value:"/productsservice"}
 service productmgt {
+    //instantiates a map of json objects using the utility method populateSampleProducts.
     map productsMap = populateSampleProducts();
 
     @http:GET{}
     @http:Path {value:"/{id}"}
     resource product(message m, @http:PathParam{value:"id"} string prodId) {
+        // retrieves a value from the map using the prodId which is passed in as a path param as the key. The retrieved value is explicitly cast into a json object.
         json payload = (json) productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
@@ -22,7 +24,9 @@ service productmgt {
     @http:POST{}
     @http:Path {value:"/"}
     resource addProduct (message m) {
+        //getJsonPayload is a function in the messages package that retrieves a json object attached to a message object.
         json jsonReq = messages:getJsonPayload(m);
+        //the value of the ID object of the json is retrieved and used as the key to add the request into the map.
         string productId = jsons:getString(jsonReq, "$.Product.ID");
         productsMap[productId] = jsonReq;
         json payload = {"Status":"Product is successfully added."};

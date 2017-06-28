@@ -6,6 +6,9 @@ import ballerina.lang.system;
 
 @http:BasePath {value:"/ABCBank"}
 service ATMLocator {
+    //This service acts as an orchestrator, it extrapolates data from the client request, prepares the request payload for the first service call.
+    //With the response from the first service call, it prepares the request payload for the second call.
+    //Once the response from the second service call is received, it responds back to the client.
     
     @http:POST{}
     resource locator (message m) {

@@ -4,6 +4,8 @@ import ballerina.net.http;
 
 @http:BasePath {value:"/ecommerceservice"}
 service Ecommerce {
+    //Based on the HTTP method of the request, a backend service is invoked and resultant response is returned to the client.
+    //Path parameters are passed into the resource block using the PathParam annotation.
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
     
     @http:GET{}
