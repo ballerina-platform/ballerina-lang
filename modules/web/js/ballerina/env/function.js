@@ -31,6 +31,7 @@ class Function {
         this._id = _.get(args, 'id', '');
         this._parameters = _.get(args, 'parameters', []);
         this._returnParams = _.get(args, 'returnParams', []);
+        this._fullPackageName = _.get(args, 'fullPackageName', '.');
     }
 
    /**
@@ -48,6 +49,32 @@ class Function {
     getName() {
         return this._name;
     }
+
+    /**
+    * sets the package name
+    * @param {string} name
+    */
+    setFullPackageName(fullPackageName) {
+        this._fullPackageName = fullPackageName;
+    }
+
+   /**
+    * returns the full package name
+    * @returns {string}
+    */
+    getFullPackageName() {
+        return this._fullPackageName;
+    }
+
+    /**
+     * get package name
+     * @returns {string}
+     * @memberof Function
+     */
+    getPackageName() {
+        return _.last(_.split(this.getFullPackageName(), '.'));
+    }
+
 
    /**
     * sets the id

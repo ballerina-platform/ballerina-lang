@@ -418,6 +418,7 @@ class Package {
         _.each(jsonNode.functions, (functionNode) => {
             const functionDef = BallerinaEnvFactory.createFunction();
             functionDef.initFromJson(functionNode);
+            functionDef.setFullPackageName(this.getName());
             this.addFunctionDefinitions(functionDef);
         });
 
