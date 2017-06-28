@@ -140,7 +140,11 @@ public class FileServiceDispatcher implements ServiceDispatcher {
             }
             value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_URI);
             if (value != null) {
-                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_URI, value.getStringValue());
+                String uri = value.getStringValue();
+                if (!uri.contains("://")) {
+                    uri = new File(uri).getAbsolutePath();
+                }
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_URI, uri);
             }
             value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_THROTTLE);
             if (value != null) {
