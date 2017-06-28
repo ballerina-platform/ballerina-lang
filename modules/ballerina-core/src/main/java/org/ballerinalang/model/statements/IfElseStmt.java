@@ -157,14 +157,11 @@ public class IfElseStmt extends AbstractStatement {
                     elseIfBlockList.toArray(new ElseIfBlock[elseIfBlockList.size()]),
                     elseBody);
             thenBody.setParent(ifElseStmt);
-            thenBody.setType(StatementType.THEN_BLOCK);
             elseIfBlockList.forEach(elseIfBlock -> {
                 elseIfBlock.getElseIfBody().setParent(ifElseStmt);
-                elseIfBlock.getElseIfBody().setType(StatementType.ELSE_IF_BLOCK);
             });
             if (elseBody != null) {
                 elseBody.setParent(ifElseStmt);
-                elseBody.setType(StatementType.ELSE_BLOCK);
             }
             return ifElseStmt;
         }

@@ -547,7 +547,6 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
             this.join.joinBlock = this.joinBlock;
             if (this.join.joinBlock != null) {
                 this.join.joinBlock.setParent(forkJoinStmt);
-                this.join.joinBlock.setType(StatementType.JOIN_BLOCK);
             }
             this.join.joinCount = this.joinCount;
             this.join.joinResult = this.joinResult;
@@ -557,7 +556,6 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
             this.timeout.timeoutBlock = this.timeoutBlock;
             if (this.timeout.timeoutBlock != null) {
                 this.timeout.timeoutBlock.setParent(forkJoinStmt);
-                this.timeout.timeoutBlock.setType(StatementType.TIMEOUT_BLOCK);
             }
             this.timeout.timeoutExpression = this.timeoutExpression;
             this.timeout.timeoutResult = this.timeoutResult;

@@ -22,7 +22,6 @@ package org.ballerinalang.model.statements;
  */
 public enum StatementType {
 
-    BLOCK(0),
     COMMENT(1),
     ASSIGN(2),
     VARIABLE_DEF(3),

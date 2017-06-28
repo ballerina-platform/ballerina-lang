@@ -24,6 +24,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,6 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         super(location);
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
-        this.type = StatementType.BLOCK;
     }
 
     public Statement[] getStatements() {
@@ -53,6 +53,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     }
 
     public void setStatements(Statement[] statements) {
+        Arrays.stream(statements).forEach(statement -> statement.setParent(this));
         this.statements = statements;
     }
 
@@ -112,8 +113,9 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             statementList.add(statement);
         }
 
-        public BlockStmt build() {
+        public BlockStmt build(StatementType type) {
             this.blockStmt.statements = statementList.toArray(new Statement[statementList.size()]);
+            blockStmt.setType(type);
             return blockStmt;
         }
     }

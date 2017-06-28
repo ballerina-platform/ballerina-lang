@@ -255,14 +255,11 @@ public class TryCatchStmt extends AbstractStatement {
                     catchBlock.toArray(new CatchBlock[0]),
                     finallyBlock);
             tryBlock.setParent(tryCatchStmt);
-            tryBlock.setType(StatementType.TRY_BLOCK);
             catchBlock.forEach(catchBlock1 -> {
                 catchBlock1.getCatchBlockStmt().setParent(tryCatchStmt);
-                catchBlock1.getCatchBlockStmt().setType(StatementType.CATCH_BLOCK);
             });
             if (finallyBlock != null) {
                 finallyBlock.getFinallyBlockStmt().setParent(tryCatchStmt);
-                finallyBlock.getFinallyBlockStmt().setType(StatementType.FINALLY_BLOCK);
             }
             return tryCatchStmt;
         }

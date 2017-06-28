@@ -217,15 +217,12 @@ public class TransactionStmt extends AbstractStatement {
             TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
                     abortedBlock, committedBlock);
             transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-            ((BlockStmt) transactionBlock).setType(StatementType.TRANSACTION_BLOCK);
             transactionBlock.setParent(transactionStmt);
             if (abortedBlock != null) {
                 abortedBlock.getAbortedBlockStmt().setParent(transactionStmt);
-                abortedBlock.getAbortedBlockStmt().setType(StatementType.ABORTED_BLOCK);
             }
             if (committedBlock != null) {
                 committedBlock.getCommittedBlockStmt().setParent(transactionStmt);
-                committedBlock.getCommittedBlockStmt().setType(StatementType.COMMITTED_BLOCK);
             }
             return transactionStmt;
         }

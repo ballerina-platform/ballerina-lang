@@ -87,7 +87,6 @@ public class WhileStmt extends AbstractStatement {
         public WhileStmt build() {
             WhileStmt whileStmt = new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
             whileBody.setParent(whileStmt);
-            whileBody.setType(StatementType.WHILE_BLOCK);
             return whileStmt;
         }
     }

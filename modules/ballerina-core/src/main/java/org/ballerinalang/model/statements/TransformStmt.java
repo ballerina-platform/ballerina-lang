@@ -99,7 +99,6 @@ public class TransformStmt extends AbstractStatement {
             TransformStmt transformStmt = new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs,
                     transformBody);
             transformBody.setParent(transformStmt);
-            transformBody.setType(StatementType.TRANSFORM_BLOCK);
             return transformStmt;
         }
     }
