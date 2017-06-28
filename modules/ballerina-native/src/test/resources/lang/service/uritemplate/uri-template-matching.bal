@@ -161,8 +161,8 @@ service<http> echo44 {
     }
 }
 
-@http:BasePath {value:"/echo55"}
-service echo55 {
+@http:config {basePath:"/echo55"}
+service<http> echo55 {
     @http:Path {value:"/foo/bar"}
     resource echo1 (message m, string foo) {
         message response = {};
