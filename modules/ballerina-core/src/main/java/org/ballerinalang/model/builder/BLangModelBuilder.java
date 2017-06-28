@@ -78,6 +78,7 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -148,7 +149,7 @@ public class BLangModelBuilder {
 
     // Builds user defined annotations.
     protected AnnotationDef.AnnotationDefBuilder annotationDefBuilder;
-    
+
     protected Stack<AnnotationAttachment.AnnotationBuilder> annonAttachmentBuilderStack = new Stack<>();
     protected Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
@@ -164,7 +165,7 @@ public class BLangModelBuilder {
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
-    
+
     protected Stack<List<KeyValueExpr>> mapStructKVListStack = new Stack<>();
     protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
@@ -182,7 +183,7 @@ public class BLangModelBuilder {
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
-    
+
     protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -273,7 +274,7 @@ public class BLangModelBuilder {
                 symbolName, currentScope, exprStack.pop());
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
-        
+
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
     }
@@ -342,7 +343,7 @@ public class BLangModelBuilder {
         if (defaultValueAvailable) {
             defaultValExpr = exprStack.pop();
         }
-        
+
         if (currentScope instanceof StructDef) {
             VariableDef fieldDef = new VariableDef(location, null, identifier, typeName, symbolName, currentScope);
             VariableRefExpr fieldRefExpr = new VariableRefExpr(location, null, identifier.getName());
@@ -414,7 +415,7 @@ public class BLangModelBuilder {
 
     /**
      * Start an annotation definition.
-     * 
+     *
      * @param location Location of the annotation definition in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      */
@@ -423,10 +424,10 @@ public class BLangModelBuilder {
         annotationDefBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentScope = annotationDefBuilder.getCurrentScope();
     }
-    
+
     /**
      * Creates a {@code AnnotationDef}.
-     * 
+     *
      * @param location Location of this {@code AnnotationDef} in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param name Name of the {@code AnnotationDef}
@@ -440,20 +441,20 @@ public class BLangModelBuilder {
         validateIdentifier(name, location);
         annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
-        
+
         getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
-        
+
         AnnotationDef annotationDef = annotationDefBuilder.build();
         bFileBuilder.addAnnotationDef(annotationDef);
-        
+
         // Close annotation scope
         currentScope = annotationDef.getEnclosingScope();
         currentStructBuilder = null;
     }
-    
+
     /**
      * Add a target to the annotation.
-     * 
+     *
      * @param location Location of the target in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attachmentPoint Point to which this annotation can be attached
@@ -470,7 +471,7 @@ public class BLangModelBuilder {
 
     /**
      * Create a literal type attribute value.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      */
@@ -486,10 +487,10 @@ public class BLangModelBuilder {
         annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location,
                 whiteSpaceDescriptor));
     }
-    
+
     /**
      * Create an annotation type attribute value.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      */
@@ -498,10 +499,10 @@ public class BLangModelBuilder {
         SimpleTypeName valueType = new SimpleTypeName(value.getName(), value.getPkgName(), value.getPkgPath());
         annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType, location, whiteSpaceDescriptor));
     }
-    
+
     /**
      * Create an array type attribute value.
-     * 
+     *
      * @param location Location of the value in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      */
@@ -795,11 +796,11 @@ public class BLangModelBuilder {
         Expression rExpr = exprStack.pop();
         checkArgExprValidity(location, rExpr);
 
-        TypeConversionExpr typeConversionExpression = new TypeConversionExpr(location, 
+        TypeConversionExpr typeConversionExpression = new TypeConversionExpr(location,
                 whiteSpaceDescriptor, typeName, rExpr);
         exprStack.push(typeConversionExpression);
     }
-    
+
     public void createArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                     boolean argsAvailable) {
         List<Expression> argExprList;
@@ -1156,11 +1157,13 @@ public class BLangModelBuilder {
     }
 
     public void createBreakStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        BreakStmt.BreakStmtBuilder breakStmtBuilder = new BreakStmt.BreakStmtBuilder();
-        breakStmtBuilder.setNodeLocation(location);
-        breakStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        BreakStmt breakStmt = breakStmtBuilder.build();
+        BreakStmt breakStmt = new BreakStmt(location, whiteSpaceDescriptor);
         addToBlockStmt(breakStmt);
+    }
+
+    public void createContinueStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        ContinueStmt continueStmt = new ContinueStmt(location, whiteSpaceDescriptor);
+        addToBlockStmt(continueStmt);
     }
 
     public void startTransformStmt(NodeLocation location) {

@@ -96,6 +96,7 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -192,9 +193,10 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
-    private Stack<List<Instruction>> breakInstructions = new Stack<>();
-    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
+    private Stack<Instruction> breakInstructions = new Stack<>();
+    private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
+    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -882,7 +884,7 @@ public class CodeGenerator implements NodeVisitor {
             // restore.
             finallyBlocks = original;
         }
-        
+
         emit(InstructionCodes.RET);
     }
 
@@ -890,29 +892,32 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         Expression conditionExpr = whileStmt.getCondition();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, nextIP());
-
+        continueInstructions.push(gotoInstruction);
         conditionExpr.accept(this);
         Instruction ifInstruction = new Instruction(InstructionCodes.BR_FALSE,
                 conditionExpr.getTempOffset(), -1);
         emit(ifInstruction);
 
-        breakInstructions.push(new ArrayList<>());
+        Instruction breakGotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
+        breakInstructions.push(breakGotoInstruction);
         whileStmt.getBody().accept(this);
 
         emit(gotoInstruction);
         int nextIP = nextIP();
         ifInstruction.setOperand(1, nextIP);
-        List<Instruction> brkInstructions = breakInstructions.pop();
-        for (Instruction instruction : brkInstructions) {
-            instruction.setOperand(0, nextIP);
-        }
+        breakGotoInstruction.setOperand(0, nextIP);
+        breakInstructions.pop();
+        continueInstructions.pop();
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
-        Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
-        emit(gotoInstruction);
-        breakInstructions.peek().add(gotoInstruction);
+        emit(breakInstructions.peek());
+    }
+
+    @Override
+    public void visit(ContinueStmt continueStmt) {
+        emit(continueInstructions.peek());
     }
 
     @Override
@@ -1551,7 +1556,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    
+
     // Init expressions
 
     @Override
@@ -2632,7 +2637,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
         }
-        
+
         return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
     }
 
