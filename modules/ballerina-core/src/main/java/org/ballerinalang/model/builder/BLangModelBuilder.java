@@ -606,7 +606,6 @@ public class BLangModelBuilder {
 
         SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
                 nameReference.pkgName, nameReference.pkgPath);
-        simpleVarRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         exprStack.push(simpleVarRefExpr);
     }
 

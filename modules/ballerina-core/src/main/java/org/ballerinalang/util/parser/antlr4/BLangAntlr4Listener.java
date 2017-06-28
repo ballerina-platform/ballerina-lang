@@ -1516,16 +1516,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
-//        }
-
         NodeLocation currentLocation = getCurrentLocation(ctx);
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createSimpleVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
+        // simple variable ref whitespaces are already captured through name ref
+        modelBuilder.createSimpleVarRefExpr(currentLocation, nameReference.getWhiteSpaceDescriptor(), nameReference);
     }
 
     @Override
@@ -1539,9 +1534,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
-//        }
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFieldBasedVarRedWS(tokenStream, ctx);
+        }
 
         String fieldName = ctx.field().Identifier().getText();
         modelBuilder.createFieldBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, fieldName);
@@ -1559,9 +1554,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
-//        }
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getIndexBasedVarRefWS(tokenStream, ctx);
+        }
 
         modelBuilder.createIndexBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }

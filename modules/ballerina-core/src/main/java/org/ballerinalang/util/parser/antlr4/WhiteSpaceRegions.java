@@ -412,4 +412,16 @@ public class WhiteSpaceRegions {
 
     public static final int JOIN_WORKER_PRECEDING_WHITESPACE = 0;
     public static final int JOIN_WORKER_END_TO_NEXT_TOKEN = 1;
+
+    // whitespace regions in an index based var ref expression
+    public static final int INDEX_VAR_REF_EXPR_PRECEDING_WHITESPACE = 0;
+    public static final int INDEX_VAR_REF_EXPR_VAR_REF_TO_INDEX_EXPR_WRAPPER = 1;
+    public static final int INDEX_VAR_REF_EXPR_INDEX_EXPR_WRAPPER_TO_INDEX_EXPR_START = 2;
+    public static final int INDEX_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in an field based var ref expression
+    public static final int FIELD_VAR_REF_EXPR_PRECEDING_WHITESPACE = 0;
+    public static final int FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR= 1;
+    public static final int FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START = 2;
+    public static final int FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
 }
