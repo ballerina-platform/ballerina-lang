@@ -428,6 +428,9 @@ class TransformStatementDecorator extends React.Component {
                     this.drawConnection(statement.getID(), source, target);
                 });
             } else if (BallerinaASTFactory.isFunctionInvocationExpression(rightExpression)) {
+                // draw the function nodes first to fix issues related to rendering arrows with function nodes
+                // not yet drawn in nested cases. TODO : introduce a pooling mechanism to avoid this.
+                this.drawFunctionDefinitionNodes(rightExpression, statement);
                 this.drawFunctionInvocationExpression(leftExpressions, rightExpression, statement);
             } else {
                 log.error('Invalid expression type in transform statement body');
@@ -439,6 +442,50 @@ class TransformStatementDecorator extends React.Component {
         }
     }
 
+    drawFunctionDefinitionNodes(functionInvocationExpression, statement) {
+        const func = this.getFunctionDefinition(functionInvocationExpression);
+        if (_.isUndefined(func)) {
+            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            return;
+        }
+
+        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        } else {
+            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+            _.forEach(functionInvocationExpression.getChildren(), (expression) => {
+                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                    this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
+                }
+            });
+        }
+
+        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
+    }
+
+    drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
+        const func = this.getFunctionDefinition(functionInvocationExpression);
+            if (_.isUndefined(func)) {
+                alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+                return;
+        }
+
+        if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
+            alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
+        } else {
+            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+            _.forEach(functionInvocationExpression.getChildren(), (expression) => {
+                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                    this.drawInnerFunctionDefinitionNodes(functionInvocationExpression, expression, statement);
+                }
+            });
+        }
+
+        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parent));
+    }
+
+
+
     drawInnerFunctionInvocationExpression(functionInvocationExpression, parentFunctionInvocationExpression,
                                                       parentFunctionDefinition, parentParameterIndex) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
@@ -446,8 +493,6 @@ class TransformStatementDecorator extends React.Component {
             alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
-
-        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parent));
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
@@ -476,6 +521,8 @@ class TransformStatementDecorator extends React.Component {
 
             this.drawConnection(functionInvocationExpression.getID(), funcSource1, funcTarget1);
         }
+
+        //TODO : draw function node here when connection pooling for nested functions is implemented.
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
@@ -484,8 +531,6 @@ class TransformStatementDecorator extends React.Component {
             alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
-
-        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
@@ -514,6 +559,8 @@ class TransformStatementDecorator extends React.Component {
                 this.drawConnection(functionInvocationExpression.getID(), source, target);
             });
         }
+
+        //TODO : draw function node here when connection pooling for nested functions is implemented.
     }
 
     getConnectionProperties(type, expression) {
