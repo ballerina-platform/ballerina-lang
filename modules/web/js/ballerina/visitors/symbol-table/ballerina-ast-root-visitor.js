@@ -142,9 +142,6 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         const self = this;
         connectorDefinition.on('tree-modified', (modifiedData) => {
-            const attributeName = modifiedData.data.attributeName;
-            const newValue = modifiedData.data.newValue;
-            const oldValue = modifiedData.data.oldValue;
             if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin)) {
                 self.updateConnectorDefinition(connector, modifiedData);
             }
