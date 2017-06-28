@@ -6,6 +6,15 @@ annotation GET attach resource {
 annotation POST attach resource {
 }
 
+annotation PUT attach resource {
+}
+
+annotation DELETE attach resource {
+}
+
+annotation HEAD attach resource {
+}
+
 annotation Path attach resource {
     string value;
 }
