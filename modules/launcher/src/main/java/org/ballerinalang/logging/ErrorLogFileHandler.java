@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.utils.logger;
+package org.ballerinalang.logging;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
