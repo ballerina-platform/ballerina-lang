@@ -15,16 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.composer.service.workspace.suggetions;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
-import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -33,7 +29,6 @@ import java.util.ArrayList;
  */
 public class SuggestionsFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(SuggestionsFilter.class);
     private ResolveCommandExecutor resolveCommandExecutor = new ResolveCommandExecutor();
 
     /**
@@ -47,35 +42,6 @@ public class SuggestionsFilter {
             return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
         } else {
             return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
-        }
-    }
-
-    /**
-     * Filter out the suggestion criteria
-     * @param dataModel - Suggestion filter data model
-     * @return {@link int} - suggestion criteria
-     */
-    public int filterSuggestionCriteria(SuggestionsFilterDataModel dataModel) {
-//        ParserRuleContext currentContext = dataModel.getContext();
-        TokenStream tokenStream = dataModel.getTokenStream();
-        Token nextToken = null;
-        int currentTokenIndex = dataModel.getTokenIndex();
-        int nextTokenIndex = currentTokenIndex + 1;
-        boolean invalid = true;
-
-        while (invalid) {
-            if (tokenStream.get(nextTokenIndex).getChannel() == Token.DEFAULT_CHANNEL) {
-                nextToken = tokenStream.get(nextTokenIndex);
-                invalid = false;
-            } else {
-                nextTokenIndex++;
-            }
-        }
-
-        if (nextToken != null && nextToken.getText().equals(":")) {
-            return LangServerConstants.FUNCTION_INVOCATION_CRITERIA;
-        } else {
-            return LangServerConstants.INVALID_CRITERIA;
         }
     }
 }

@@ -19,7 +19,6 @@
 package org.ballerinalang.composer.service.workspace.suggetions;
 
 import org.ballerinalang.composer.service.workspace.langserver.CompletionItemAccumulator;
-import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
 import org.ballerinalang.model.BallerinaFile;
@@ -59,20 +58,9 @@ public class AutoCompleteSuggesterTest {
         capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
         SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
 
-
-
         ArrayList completionItem = new ArrayList<>();
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         CompletionItemAccumulator jsonModelBuilder = new CompletionItemAccumulator(completionItem, position);
         dm.getBallerinaFile().accept(jsonModelBuilder);
-
-//        for (Object symbol : completionItem) {
-//            if (symbol instanceof SymbolName) {
-//                CompletionItem completionItem1 = new CompletionItem();
-//                completionItem1.setLabel(((SymbolName) symbol).getName());
-//                completionItems.add(completionItem1);
-//            }
-//        }
 
         SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
         suggestionsFilter.getCompletionItems(dm, completionItem);

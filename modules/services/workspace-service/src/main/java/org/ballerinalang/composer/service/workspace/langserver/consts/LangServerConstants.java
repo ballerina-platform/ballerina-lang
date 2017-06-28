@@ -16,7 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.consts;
 
-
 /**
  * Language Server constants.
  */

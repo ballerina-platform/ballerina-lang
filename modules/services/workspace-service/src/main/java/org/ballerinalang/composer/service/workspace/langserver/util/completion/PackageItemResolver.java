@@ -18,7 +18,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.completion;
 
-import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
@@ -69,15 +68,5 @@ public class PackageItemResolver {
         } else {
             return new ArrayList<>();
         }
-    }
-
-    /**
-     * Get the connectors in the package
-     * @param packageName - package name
-     * @return {@link List} connectors in the package
-     */
-    public List<Connector> getConnectors(String packageName) {
-        ModelPackage mPackage = this.ballerinaProgramContentProvider.getAllPackages().get(packageName);
-        return mPackage.getConnectors();
     }
 }

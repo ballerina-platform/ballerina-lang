@@ -400,23 +400,8 @@ public class LangServerManager {
 
                 CompletionItemAccumulator jsonModelBuilder = new CompletionItemAccumulator(symbols, position);
                 dm.getBallerinaFile().accept(jsonModelBuilder);
-
-//                for (Object symbol : symbols) {
-//                    if (symbol instanceof SymbolName) {
-//                        CompletionItem completionItem = new CompletionItem();
-//                        completionItem.setLabel(((SymbolName) symbol).getName());
-//                        completionItems.add(completionItem);
-//                    }
-//                }
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
                 completionItems = suggestionsFilter.getCompletionItems(dm, symbols);
-//                for (Object symbol : cis) {
-//                    if (symbol instanceof SymbolName) {
-//                        CompletionItem completionItem = new CompletionItem();
-//                        completionItem.setLabel(((SymbolName) symbol).getName());
-//                        completionItems.add(completionItem);
-//                    }
-//                }
             } catch (IOException e) {
                 this.sendErrorResponse(LangServerConstants.INTERNAL_ERROR_LINE,
                         LangServerConstants.INTERNAL_ERROR, message, null);
