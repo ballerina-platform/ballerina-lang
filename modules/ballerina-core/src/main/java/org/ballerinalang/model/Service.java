@@ -52,7 +52,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     // BLangSymbol related attributes
     protected Identifier identifier;
     protected String protocolPkgName;
-    protected String protocolPkg;
+    protected String protocolPkgPath;
     protected String pkgPath;
     protected SymbolName symbolName;
 
@@ -160,8 +160,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return protocolPkgName;
     }
 
-    public String getProtocolPkg() {
-        return protocolPkg;
+    public String getProtocolPkgPath() {
+        return protocolPkgPath;
     }
 
     @Override
@@ -242,7 +242,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
             this.service.identifier = this.identifier;
             this.service.protocolPkgName = this.protocolPkgName;
-            this.service.protocolPkg = this.protocolPkg;
+            this.service.protocolPkgPath = this.protocolPkgPath;
             this.service.pkgPath = this.pkgPath;
             this.service.symbolName = new SymbolName(identifier.getName(), pkgPath);
 

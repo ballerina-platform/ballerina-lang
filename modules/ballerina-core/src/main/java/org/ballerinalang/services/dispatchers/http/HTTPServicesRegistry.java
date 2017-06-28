@@ -23,7 +23,9 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
 import org.ballerinalang.util.codegen.AnnotationAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.ServerConnector;
@@ -102,7 +104,7 @@ public class HTTPServicesRegistry {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
 
-        Map<String, String> propMap = getInterfaceProp(service);
+        Map<String, String> propMap = buildServerConnectorProperties(service);
 
         //If port annotation is present in the service, then create a listener interface with schema and port
         if (propMap != null) {
@@ -135,9 +137,8 @@ public class HTTPServicesRegistry {
             //whether existing interface also has same parameters (schema, keystores etc). If not throw and error
             Map<String, String> existingMap = listenerPropMap.get(listenerInterface);
             if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
-                //TODO get the error from error msgs
-                throw new BallerinaException(
-                        "Listener interface :" + listenerInterface + " already exists with different parameters");
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
+                        propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
             }
         }
         if (servicesOnInterface.containsKey(basePath)) {
@@ -158,7 +159,7 @@ public class HTTPServicesRegistry {
      * @param service from which annotations are retrieved
      * @return  propMap with required properties
      */
-    private Map<String, String> getInterfaceProp(ServiceInfo service) {
+    private Map<String, String> buildServerConnectorProperties(ServiceInfo service) {
         AnnotationAttachmentInfo configInfo = service.getAnnotationAttachmentInfo(Constants
                 .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
         if (configInfo == null) {

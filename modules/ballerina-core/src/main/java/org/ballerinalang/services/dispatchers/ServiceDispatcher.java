@@ -38,7 +38,7 @@ public interface ServiceDispatcher {
     /**
      * Get the protocol package of the server connector.
      *
-     * @return protocolPkg
+     * @return protocolPkgPath
      */
     String getProtocolPackage();
 

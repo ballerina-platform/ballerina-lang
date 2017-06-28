@@ -307,7 +307,7 @@ public class CodeGenerator implements NodeVisitor {
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
             ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex,
-                    service.getProtocolPkgName(), service.getProtocolPkg());
+                    service.getProtocolPkgName(), service.getProtocolPkgPath());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();

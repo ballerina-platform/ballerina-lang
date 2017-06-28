@@ -1023,11 +1023,11 @@ public class BLangModelBuilder {
 
     public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
                               String protocolPkgName) {
-        String protocolPkg = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
+        String protocolPkgPath = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setProtocolPkgName(protocolPkgName);
-        currentCUGroupBuilder.setProtocolPkg(protocolPkg);
+        currentCUGroupBuilder.setProtocolPkgPath(protocolPkgPath);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
