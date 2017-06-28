@@ -300,6 +300,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
             });
             const expression = leftOperandExpression + ' = ' + functionInvokeString;
             variableDefinitionStatement.setStatementFromString(expression);
+            variableDefinitionStatement.getRightExpression().setFullPackageName(_.get(args, 'fullPackageName'));
             variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
             return variableDefinitionStatement;
         }
