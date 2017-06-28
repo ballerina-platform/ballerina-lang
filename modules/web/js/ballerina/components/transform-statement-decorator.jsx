@@ -439,12 +439,15 @@ class TransformStatementDecorator extends React.Component {
         }
     }
 
-    drawInnerFunctionInvocationExpression(parent, functionInvocationExpression, statement) {
+    drawInnerFunctionInvocationExpression(functionInvocationExpression, parentFunctionInvocationExpression,
+                                                      parentFunctionDefinition, parentParameterIndex) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
+
+        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parent));
 
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
@@ -462,7 +465,17 @@ class TransformStatementDecorator extends React.Component {
             });
         }
 
-        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
+        if (parent !== undefined) {
+            const funcSource1 = this.getConnectionProperties('source', functionInvocationExpression);
+            const funcSourceParam1 = this.getConnectionProperties('source', func.getReturnParams()[0]);
+            _.merge(funcSource1, funcSourceParam1); // merge parameter props with function props
+
+            const funcTarget1 = this.getConnectionProperties('target', parentFunctionInvocationExpression);
+            const funcTargetParam1 = this.getConnectionProperties('target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
+            _.merge(funcTarget1, funcTargetParam1); // merge parameter props with function props
+
+            this.drawConnection(functionInvocationExpression.getID(), funcSource1, funcTarget1);
+        }
     }
 
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
@@ -472,13 +485,15 @@ class TransformStatementDecorator extends React.Component {
             return;
         }
 
+        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
+
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, statement, i);
+                    this.drawInnerFunctionInvocationExpression(expression, functionInvocationExpression, func, i);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
@@ -499,8 +514,6 @@ class TransformStatementDecorator extends React.Component {
                 this.drawConnection(functionInvocationExpression.getID(), source, target);
             });
         }
-
-        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
     }
 
     getConnectionProperties(type, expression) {
