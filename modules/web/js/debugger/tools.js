@@ -85,11 +85,15 @@ class Tools extends EventChannel {
                         data-action="StepOver"  title="Step Over ( Alt + O )">
                         <i class="fw fw-stepover " />
                     </button>
-                    <button type="button" class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
-                        data-action="StepIn"  title="Step In ( Alt + I )">
+                    <button 
+                        type="button" 
+                        class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                        data-action="StepIn"  
+                        title="Step In ( Alt + I )">
                         <i class="fw fw-stepin " />
                     </button>
-                    <button type="button" class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
+                    <button type="button" 
+                        class="btn btn-default btn-debug-action pull-left <% if (!navigation) { %>disabled<%}%>"
                         data-action="StepOut"  title="Step Out ( Alt + U )">
                         <i class="fw fw-stepout " />
                     </button>
@@ -254,7 +258,11 @@ class Tools extends EventChannel {
         $('.debug-connection-group').removeClass('has-error');
         $('.debug-connection-error').addClass('hide');
         const debugUrl = `ws://${$('#debugUrl').val()}/debug`;
-        DebugManager.connect(debugUrl);
+        try {
+            DebugManager.connect(debugUrl);
+        } catch (error) {
+            this.connectionError();
+        }
     }
 
     /**
