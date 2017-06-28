@@ -914,32 +914,33 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
-    public static WhiteSpaceDescriptor getStructFieldIdentifierWS(CommonTokenStream tokenStream,
-                                                                  BallerinaParser.StructFieldIdentifierContext ctx) {
-        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_FIELD_IDENTIFIER_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_FIELD_IDENTIFIER_FOLLOWING_WHITESPACE,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
-        return ws;
-    }
-
-    public static WhiteSpaceDescriptor getSimpleVariableIdentifierWS(CommonTokenStream tokenStream,
-                                                                 BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        return getNameRefWS(tokenStream, ctx.nameReference());
-    }
-
-    public static WhiteSpaceDescriptor getMapArrayVarIdentifierWS(CommonTokenStream tokenStream,
-                                                              BallerinaParser.MapArrayVariableIdentifierContext ctx) {
-        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_EXP_OPENING_SQUARE_BRACE_PRECEDING,
-                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_FOLLOWING_WHITESPACE,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
-        return ws;
-    }
+//    public static WhiteSpaceDescriptor getStructFieldIdentifierWS(CommonTokenStream tokenStream,
+//                                                                  BallerinaParser.StructFieldIdentifierContext ctx) {
+//        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+//        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_FIELD_IDENTIFIER_PRECEDING_WHITESPACE,
+//                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+//        ws.addWhitespaceRegion(WhiteSpaceRegions.STRUCT_FIELD_IDENTIFIER_FOLLOWING_WHITESPACE,
+//                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+//        return ws;
+//    }
+//
+//    public static WhiteSpaceDescriptor getSimpleVariableIdentifierWS(CommonTokenStream tokenStream,
+//
+// BallerinaParser.SimpleVariableIdentifierContext ctx) {
+//        return getNameRefWS(tokenStream, ctx.nameReference());
+//    }
+//
+//    public static WhiteSpaceDescriptor getMapArrayVarIdentifierWS(CommonTokenStream tokenStream,
+//                                                              BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+//        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+//        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_PRECEDING_WHITESPACE,
+//                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+//        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_EXP_OPENING_SQUARE_BRACE_PRECEDING,
+//                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+//        ws.addWhitespaceRegion(WhiteSpaceRegions.MAP_ARR_VAR_ID_FOLLOWING_WHITESPACE,
+//                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+//        return ws;
+//    }
 
     public static WhiteSpaceDescriptor getBacktickStringWS(CommonTokenStream tokenStream,
                                                            BallerinaParser.BacktickStringContext ctx) {

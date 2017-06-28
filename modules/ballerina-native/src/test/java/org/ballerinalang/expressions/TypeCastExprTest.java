@@ -632,8 +632,8 @@ public class TypeCastExprTest {
 
     @Test(description = "Test returning a mismatching error when casting",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types for" +
-            " 'err': expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
+            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
+                    "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
         BTestUtils.getProgramFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
     }
