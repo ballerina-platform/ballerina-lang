@@ -63,7 +63,7 @@ import leftOperandExpression from './statements/left-operand-expression';
 import rightOperandExpression from './statements/right-operand-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
-import arrayMapAccessExpression from './expressions/array-map-access-expression';
+import indexBasedVarRefExpression from './expressions/index-based-variable-reference-expression';
 import keyValueExpression from './expressions/key-value-expression';
 import binaryExpression from './expressions/binary-expression';
 import unaryExpression from './expressions/unary-expression';
@@ -76,7 +76,7 @@ import referenceTypeInitExpression from './expressions/reference-type-init-expre
 import arrayInitExpression from './expressions/array-init-expression';
 import workerReplyStatement from './statements/worker-reply-statement';
 import structType from './struct-type';
-import fieldAccessExpression from './expressions/field-access-expression';
+import fieldBasedVarRefExpression from './expressions/field-based-variable-reference-expression';
 import blockStatement from './statements/block-statement';
 import typeCastExpression from './expressions/type-cast-expression';
 import typeConversionExpression from './expressions/type-conversion-expression';
@@ -455,11 +455,11 @@ BallerinaASTFactory.createReturnStatement = function (args) {
 };
 
 /**
- * creates FieldAccessExpression
+ * creates FieldBasedVarRefExpression
  * @param args
  */
-BallerinaASTFactory.createFieldAccessExpression = function (args) {
-    return new fieldAccessExpression(args);
+BallerinaASTFactory.createFieldBasedVarRefExpression = function (args) {
+    return new fieldBasedVarRefExpression(args);
 };
 
 /**
@@ -674,12 +674,12 @@ BallerinaASTFactory.createConnectorInitExpression = function (args) {
 };
 
 /**
- * creates ArrayMapAccessExpression
+ * creates IndexBasedVarRefExpression
  * @param {Object} args - Arguments for creating a new instance creation.
- * @returns {ArrayMapAccessExpression}
+ * @returns {IndexBasedVarRefExpression}
  */
-BallerinaASTFactory.createArrayMapAccessExpression = function (args) {
-    return new arrayMapAccessExpression(args);
+BallerinaASTFactory.createIndexBasedVarRefExpression = function (args) {
+    return new indexBasedVarRefExpression(args);
 };
 
 /**
@@ -1034,12 +1034,12 @@ BallerinaASTFactory.isExpression = function (child) {
 };
 
 /**
- * instanceof check for StructFieldAccessExpression
+ * instanceof check for FieldBasedVarRefExpression
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isFieldAccessExpression = function (child) {
-    return child instanceof fieldAccessExpression;
+BallerinaASTFactory.isFieldBasedVarRefExpression = function (child) {
+    return child instanceof fieldBasedVarRefExpression;
 };
 
 /**
@@ -1359,12 +1359,12 @@ BallerinaASTFactory.isConnectorInitExpression = function (child) {
 };
 
 /**
- * instanceof check for arrayMapAccessExpression
+ * instanceof check for IndexBasedVarRefExpression
  * @param {ASTNode} child - The ast node.
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
-    return child instanceof arrayMapAccessExpression;
+BallerinaASTFactory.isIndexBasedVarRefExpression = function (child) {
+    return child instanceof indexBasedVarRefExpression;
 };
 
 /**
@@ -1714,8 +1714,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'connector_init_expr':
         node = BallerinaASTFactory.createConnectorInitExpression();
         break;
-    case 'array_map_access_expression':
-        node = BallerinaASTFactory.createArrayMapAccessExpression();
+    case 'index_based_variable_reference_expression':
+        node = BallerinaASTFactory.createIndexBasedVarRefExpression();
         break;
     case 'connector':
         node = BallerinaASTFactory.createConnectorDefinition();
@@ -1738,8 +1738,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'type_conversion_expression':
         node = BallerinaASTFactory.createTypeConversionExpression();
         break;
-    case 'field_access_expression':
-        node = BallerinaASTFactory.createFieldAccessExpression();
+    case 'field_based_variable_reference_expression':
+        node = BallerinaASTFactory.createFieldBasedVarRefExpression();
         break;
     case 'block_statement':
         node = BallerinaASTFactory.createBlockStatement();

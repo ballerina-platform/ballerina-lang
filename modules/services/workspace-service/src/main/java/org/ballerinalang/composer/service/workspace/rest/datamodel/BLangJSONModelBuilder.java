@@ -1603,7 +1603,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
         JsonObject fieldBasedVarRefExprObj = new JsonObject();
         fieldBasedVarRefExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .FIELD_BASED_FIELD_ACCESS_EXPRESSION);
+                .FIELD_BASED_VAR_REF_EXPRESSION);
         this.addWhitespaceDescriptor(fieldBasedVarRefExprObj, fieldBasedVarRefExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (fieldBasedVarRefExpr.getVarRefExpr() != null) {
@@ -1622,7 +1622,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
         JsonObject indexBasedVarRefExprObj = new JsonObject();
         indexBasedVarRefExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .INDEX_BASED_FIELD_ACCESS_EXPRESSION);
+                .INDEX_BASED_VAR_REF_EXPRESSION);
         this.addWhitespaceDescriptor(indexBasedVarRefExprObj, indexBasedVarRefExpr.getWhiteSpaceDescriptor());
         tempJsonArrayRef.push(new JsonArray());
         if (indexBasedVarRefExpr.getVarRefExpr() != null) {

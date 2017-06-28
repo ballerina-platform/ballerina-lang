@@ -271,9 +271,9 @@ public class BLangJSONModelConstants {
 
     public static final String STRUCT_DEFINITION = "struct_definition";
 
-    public static final String INDEX_BASED_FIELD_ACCESS_EXPRESSION = "index_based_field_access_expression";
+    public static final String INDEX_BASED_VAR_REF_EXPRESSION = "index_based_variable_reference_expression";
 
-    public static final String FIELD_BASED_FIELD_ACCESS_EXPRESSION = "field_based_field_access_expression";
+    public static final String FIELD_BASED_VAR_REF_EXPRESSION = "field_based_variable_reference_expression";
 
     public static final String FIELD_NAME = "field_name";
 
