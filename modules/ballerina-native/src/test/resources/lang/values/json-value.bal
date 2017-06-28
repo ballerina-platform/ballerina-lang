@@ -1,6 +1,8 @@
 function testGetFromNull() (string) {
     json j2 = { age:43, name:null };
-    return (string)j2.name.fname;
+    string value;
+    value, _ = (string)j2.name.fname;
+    return value;
 }
 
 function testAddToNull() (json) {

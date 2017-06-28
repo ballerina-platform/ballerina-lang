@@ -160,8 +160,8 @@ public class BMapValueTest   {
     }
 
     @Test(description = "Testing map value access in binary expression", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "map-value-invalid3.bal:3: invalid operation: " +
-                    "operator \\+ not defined on 'any'")
+            expectedExceptionsMessageRegExp = "map-value-invalid3.bal:3: invalid operation: incompatible " +
+                    "types 'any' and 'int'")
     void testInvalidGrammar3() {
         BTestUtils.getProgramFile("lang/values/map-value-invalid3.bal");
     }

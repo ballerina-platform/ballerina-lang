@@ -35,8 +35,8 @@ function testForkJoinAllOfSpecific(message m)(message[]) {
             any[] xyz;
             abc,_ = (any[]) airlineResponses["ABC_Airline"];
             xyz,_ = (any[]) airlineResponses["XYZ_Airline"];
-            results[0] = (message) abc[0];
-            results[1] = (message) xyz[0];
+            results[0], _ = (message) abc[0];
+            results[1], _ = (message) xyz[0];
             system:println(results[0]);
             system:println(results[1]);
             return results;

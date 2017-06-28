@@ -66,7 +66,8 @@ function testArrayGrowth () (int) {
 
     int count = 0;
     while (count < 20) {
-        int intValue = <int>value;
+        int intValue;
+        intValue, _ = <int>value;
 
         ar[intValue] = 1;
         value = value * 1.7;
