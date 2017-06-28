@@ -173,8 +173,13 @@ public class ServerConnectorMessageHandler {
         calleeSF.setRefLocalVars(refLocalVars);
 
         // Execute workers
+        // Pass the incoming message variable into the worker invocations
+        // Fix #2623
+        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(resourceInfo,
+                defaultWorkerInfo, -1, new int[0]);
+        callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
-        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnagled()) {
