@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -68,6 +69,12 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         //Assert.assertEquals((returns[1]).stringValue(), "Asia/Colombo");
         //Assert.assertEquals(((BInteger) returns[2]).intValue(), 19800);
+    }
+
+    @Test(description = "Test create time with no zone info provided.")
+    public void testCreateTimeWithNullZone() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateTimeWithNullZone");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
     @Test(description = "Test parsing a given time string to time.")
@@ -155,5 +162,30 @@ public class TimeTest {
     public void testManualTimeCreate() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreate");
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid pattern for parsing test.*")
+    public void testParseTimenvalidPattern() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testParseTimenvalidPattern");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*parse date 2017-06-26T09:46:22.444-0500 for the format "
+                  + "yyyy-MM-dd failed.*")
+    public void testParseTimenFormatMismatch() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testParseTimenFormatMismatch");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
+    public void testFormatTimeInvalidPattern() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFormatTimeInvalidPattern");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid timezone id test.*")
+    public void testCreateTimeWithInvalidZoneID() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateTimeWithInvalidZoneID");
     }
 }

@@ -32,6 +32,13 @@ function testCreateTimeWithNoZone () (int timeValue, string zoneId, int zoneoffs
     return;
 }
 
+function testCreateTimeWithNullZone () (int year) {
+    time:Time timeStruct = time:createDateTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    timeStruct.zone = null;
+    year = time:year(timeStruct);
+    return;
+}
+
 function testCreateDateTime () (string timeString) {
     time:Time timeStruct = time:createDateTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
     timeString = time:toString(timeStruct);
@@ -120,5 +127,32 @@ function testManualTimeCreate () (string timeString) {
     return;
 }
 
+function testParseTimenvalidPattern () (int timeValue, string zoneId, int zoneoffset) {
+    time:Time timeStruct = time:parse("2017-06-26T09:46:22.444-0500", "test");
+    timeValue = timeStruct.time;
+    zoneId = timeStruct.zone.zoneId;
+    zoneoffset = timeStruct.zone.zoneOffset;
+    return;
+}
 
+function testParseTimenFormatMismatch () (int timeValue, string zoneId, int zoneoffset) {
+    time:Time timeStruct = time:parse("2017-06-26T09:46:22.444-0500", "yyyy-MM-dd");
+    timeValue = timeStruct.time;
+    zoneId = timeStruct.zone.zoneId;
+    zoneoffset = timeStruct.zone.zoneOffset;
+    return;
+}
 
+function testFormatTimeInvalidPattern () (string timeString) {
+    time:Time timeStruct = time:createTime(1498488382444, "America/Panama");
+    timeString = time:format(timeStruct, "test");
+    return;
+}
+
+function testCreateTimeWithInvalidZoneID () (int timeValue, string zoneId, int zoneoffset) {
+    time:Time timeStruct = time:createTime(1498488382000, "test");
+    timeValue = timeStruct.time;
+    zoneId = timeStruct.zone.zoneId;
+    zoneoffset = timeStruct.zone.zoneOffset;
+    return;
+}

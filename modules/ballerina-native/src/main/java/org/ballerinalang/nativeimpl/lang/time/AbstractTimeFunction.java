@@ -101,7 +101,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
             formattedString =  dateTime.format(dateTimeFormatter);
         } catch (IllegalArgumentException e) {
-            throw new BallerinaException("invalid pattern for parsing " + pattern);
+            throw new BallerinaException("invalid pattern for formatting " + pattern);
         }
         return formattedString;
     }
@@ -222,7 +222,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             int offset = offsetInMills / 1000;
             return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
         } catch (ZoneRulesException e) {
-            throw new BallerinaException("invalid zone id " + zoneIdValue);
+            throw new BallerinaException("invalid timezone id " + zoneIdValue);
         }
 
     }
