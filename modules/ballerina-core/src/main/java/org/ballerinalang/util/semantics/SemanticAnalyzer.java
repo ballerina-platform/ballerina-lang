@@ -2173,7 +2173,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (newEdge != null) {
             typeCastExpr.setOpcode(newEdge.getOpcode());
 
-            // TODO 0.89 release
             if (!newEdge.isSafe() && !isMultiReturn) {
                 BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
                         sourceType, targetType);
@@ -2241,7 +2240,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (newEdge != null) {
             typeConversionExpr.setOpcode(newEdge.getOpcode());
 
-            // TODO 0.89 release
             if (!newEdge.isSafe() && !isMultiReturn) {
                 BLangExceptionHelper.throwSemanticError(typeConversionExpr, SemanticErrors.UNSAFE_CONVERSION_ATTEMPT,
                         sourceType, targetType);
@@ -2833,10 +2831,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType rExprType = binaryExpr.getRExpr().getType();
 
         if (lExprType == rExprType) {
-            return BLangExceptionHelper.getSemanticError(binaryExpr,
+            return BLangExceptionHelper.getSemanticError(binaryExpr.getNodeLocation(),
                     SemanticErrors.INVALID_OPERATION_OPERATOR_NOT_DEFINED, binaryExpr.getOperator(), lExprType);
         } else {
-            return BLangExceptionHelper.getSemanticError(binaryExpr,
+            return BLangExceptionHelper.getSemanticError(binaryExpr.getNodeLocation(),
                     SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, lExprType, rExprType);
         }
     }
