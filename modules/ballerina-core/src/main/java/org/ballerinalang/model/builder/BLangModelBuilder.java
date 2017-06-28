@@ -309,10 +309,9 @@ public class BLangModelBuilder {
     /**
      * Start a struct builder.
      *
-     * @param location Location of the struct definition in the source bal file
      */
-    public void startStructDef(NodeLocation location) {
-        currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
+    public void startStructDef() {
+        currentStructBuilder = new StructDef.StructBuilder(null, currentScope);
         currentScope = currentStructBuilder.getCurrentScope();
     }
 
@@ -366,7 +365,8 @@ public class BLangModelBuilder {
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param name Name of the {@link StructDef}
      */
-    public void addStructDef(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void addStructDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentStructBuilder.setNodeLocation(location);
         currentStructBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentStructBuilder.setIdentifier(new Identifier(name));
         currentStructBuilder.setPackagePath(currentPackagePath);
@@ -384,13 +384,12 @@ public class BLangModelBuilder {
 
     // Annotations
 
-    public void startAnnotationAttachment(NodeLocation location) {
+    public void startAnnotationAttachment() {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
-        annotationBuilder.setNodeLocation(location);
         annonAttachmentBuilderStack.push(annotationBuilder);
     }
 
-    public void createAnnotationKeyValue(WhiteSpaceDescriptor whiteSpaceDescriptor, String key) {
+    public void createAnnotationKeyValue(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String key) {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
         if (whiteSpaceDescriptor != null) {
             WhiteSpaceDescriptor existingDescriptor = annotationAttributeValues.peek().getWhiteSpaceDescriptor();
@@ -399,6 +398,7 @@ public class BLangModelBuilder {
                         .getWhiteSpaceRegions().putAll(whiteSpaceDescriptor.getWhiteSpaceRegions());
             }
         }
+        annotationBuilder.setNodeLocation(location);
         annotationBuilder.addAttributeNameValuePair(key, annotationAttributeValues.pop());
     }
 
@@ -416,11 +416,10 @@ public class BLangModelBuilder {
     /**
      * Start an annotation definition.
      *
-     * @param location Location of the annotation definition in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      */
-    public void startAnnotationDef(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(location, currentScope);
+    public void startAnnotationDef(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(null, currentScope);
         annotationDefBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentScope = annotationDefBuilder.getCurrentScope();
     }
@@ -441,6 +440,7 @@ public class BLangModelBuilder {
         validateIdentifier(name, location);
         annotationDefBuilder.setIdentifier(new Identifier(name));
         annotationDefBuilder.setPackagePath(currentPackagePath);
+        annotationDefBuilder.setNodeLocation(location);
 
         getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
 
@@ -859,22 +859,29 @@ public class BLangModelBuilder {
 
     // Functions, Actions and Resources
 
-    public void startCallableUnitBody(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startCallableUnitBody() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void endCallableUnitBody() {
+    public void endCallableUnitBody(NodeLocation location) {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
+        BlockStmt blockStmt = blockStmtBuilder.build();
+        currentCUBuilder.setBody(blockStmt);
+        currentScope = blockStmt.getEnclosingScope();
+    }
+
+    public void setCallableUnitBody() {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void startFunctionDef(NodeLocation location) {
+    public void startFunctionDef() {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
-        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
@@ -890,11 +897,13 @@ public class BLangModelBuilder {
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
-    public void addFunction(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, boolean isNative) {
+    public void addFunction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                            boolean isNative) {
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
+        currentCUBuilder.setNodeLocation(location);
 
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
@@ -905,9 +914,8 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void startTypeMapperDef(NodeLocation location) {
+    public void startTypeMapperDef() {
         currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
-        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
@@ -917,6 +925,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setNative(isNative);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        currentCUBuilder.setNodeLocation(location);
         addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
 
         getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
@@ -929,7 +938,7 @@ public class BLangModelBuilder {
 
     public void startResourceDef() {
         if (currentScope instanceof BlockStmt) {
-            endCallableUnitBody();
+            setCallableUnitBody();
         }
 //        currentWorker.push("default");
         currentCUBuilder = new Resource.ResourceBuilder(currentScope);
@@ -981,18 +990,18 @@ public class BLangModelBuilder {
 //        currentWorker.push(name);
     }
 
-    public void startActionDef(NodeLocation location) {
+    public void startActionDef() {
         // TODO Check whether the following if block is needed anymore.
         if (currentScope instanceof BlockStmt) {
-            endCallableUnitBody();
+            setCallableUnitBody();
         }
         currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
-        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
-    public void addAction(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, boolean isNative,
-                          int annotationCount) {
+    public void addAction(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                          boolean isNative, int annotationCount) {
+        currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUBuilder.setIdentifier(new Identifier(name));
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -1010,19 +1019,18 @@ public class BLangModelBuilder {
 
     // Services and Connectors
 
-    public void startServiceDef(NodeLocation location) {
+    public void startServiceDef() {
         currentCUGroupBuilder = new Service.ServiceBuilder(currentScope);
-        currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
     }
 
-    public void startConnectorDef(NodeLocation location) {
+    public void startConnectorDef() {
         currentCUGroupBuilder = new BallerinaConnectorDef.BallerinaConnectorDefBuilder(currentScope);
-        currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
     }
 
-    public void createService(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
@@ -1036,7 +1044,8 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+        currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
@@ -1126,8 +1135,8 @@ public class BLangModelBuilder {
         addToBlockStmt(replyStmt);
     }
 
-    public void startWhileStmt(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startWhileStmt() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
@@ -1145,6 +1154,7 @@ public class BLangModelBuilder {
 
         // Get the statement block at the top of the block statement stack and set as the while body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt blockStmt = blockStmtBuilder.build();
         whileStmtBuilder.setWhileBody(blockStmt);
 
@@ -1166,8 +1176,8 @@ public class BLangModelBuilder {
         addToBlockStmt(continueStmt);
     }
 
-    public void startTransformStmt(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startTransformStmt() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
@@ -1180,6 +1190,7 @@ public class BLangModelBuilder {
 
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt blockStmt = blockStmtBuilder.build();
         transformStmtBuilder.setTransformBody(blockStmt);
 
@@ -1199,27 +1210,26 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(transformStmt);
     }
 
-    public void startIfElseStmt(NodeLocation location) {
+    public void startIfElseStmt() {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = new IfElseStmt.IfElseStmtBuilder();
-        ifElseStmtBuilder.setNodeLocation(location);
         ifElseStmtBuilderStack.push(ifElseStmtBuilder);
     }
 
-    public void startIfClause(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startIfClause() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void startElseIfClause(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startElseIfClause() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor, NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
         if (whiteSpaceDescriptor != null) {
             WhiteSpaceDescriptor ws = ifElseStmtBuilder.getWhiteSpaceDescriptor();
@@ -1234,16 +1244,18 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setIfCondition(condition);
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt blockStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setThenBody(blockStmt);
 
         currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void addElseIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addElseIfClause(WhiteSpaceDescriptor whiteSpaceDescriptor, NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt elseIfStmtBlock = blockStmtBuilder.build();
 
         Expression condition = exprStack.pop();
@@ -1254,14 +1266,14 @@ public class BLangModelBuilder {
         currentScope = elseIfStmtBlock.getEnclosingScope();
     }
 
-    public void startElseClause(NodeLocation location) {
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+    public void startElseClause() {
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
         currentScope = blockStmtBuilder.getCurrentScope();
     }
 
-    public void addElseClause(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addElseClause(WhiteSpaceDescriptor whiteSpaceDescriptor, NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
         if (whiteSpaceDescriptor != null) {
             WhiteSpaceDescriptor ws = ifElseStmtBuilder.getWhiteSpaceDescriptor();
@@ -1272,25 +1284,26 @@ public class BLangModelBuilder {
             ws.addChildDescriptor(ELSE_CLAUSE, whiteSpaceDescriptor);
         }
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);
 
         currentScope = elseStmt.getEnclosingScope();
     }
 
-    public void addIfElseStmt() {
+    public void addIfElseStmt(NodeLocation location) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
+        ifElseStmtBuilder.setNodeLocation(location);
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
     }
 
 
-    public void startTryCatchStmt(NodeLocation location) {
+    public void startTryCatchStmt() {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = new TryCatchStmt.TryCatchStmtBuilder();
-        tryCatchStmtBuilder.setLocation(location);
         tryCatchStmtBuilderStack.push(tryCatchStmtBuilder);
 
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
 
         currentScope = blockStmtBuilder.getCurrentScope();
@@ -1306,7 +1319,7 @@ public class BLangModelBuilder {
         currentScope = tryBlock.getEnclosingScope();
     }
 
-    public void startCatchClause(NodeLocation location) {
+    public void startCatchClause() {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Staring parsing catch clause.
@@ -1314,7 +1327,7 @@ public class BLangModelBuilder {
         tryCatchStmtBuilder.addCatchBlock(catchBlock);
         currentScope = catchBlock;
 
-        BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(catchBlockBuilder);
 
         currentScope = catchBlockBuilder.getCurrentScope();
@@ -1331,6 +1344,7 @@ public class BLangModelBuilder {
         }
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
+        catchBlockBuilder.setLocation(nodeLocation);
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
@@ -1343,7 +1357,7 @@ public class BLangModelBuilder {
         tryCatchStmtBuilder.setLastCatchBlockStmt(catchBlock);
     }
 
-    public void startFinallyBlock(NodeLocation location) {
+    public void startFinallyBlock() {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Start Parsing finally clause.
@@ -1351,13 +1365,13 @@ public class BLangModelBuilder {
         tryCatchStmtBuilder.setFinallyBlock(finallyBlock);
         currentScope = finallyBlock;
 
-        BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(finallyBlockStmtBuilder);
 
         currentScope = finallyBlockStmtBuilder.getCurrentScope();
     }
 
-    public void addFinallyBlock(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addFinallyBlock(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
         if (whiteSpaceDescriptor != null) {
             WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
@@ -1368,12 +1382,13 @@ public class BLangModelBuilder {
             ws.addChildDescriptor(FINALLY_CLAUSE, whiteSpaceDescriptor);
         }
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
+        catchBlockBuilder.setLocation(location);
         BlockStmt finallyBlock = catchBlockBuilder.build();
         currentScope = finallyBlock.getEnclosingScope();
         tryCatchStmtBuilder.setFinallyBlockStmt(finallyBlock);
     }
 
-    public void addTryCatchStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addTryCatchStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.pop();
         if (whiteSpaceDescriptor != null) {
             WhiteSpaceDescriptor ws = tryCatchStmtBuilder.getWhiteSpaceDescriptor();
@@ -1383,6 +1398,7 @@ public class BLangModelBuilder {
             }
             ws.addChildDescriptor(TRY_CLAUSE, whiteSpaceDescriptor);
         }
+        tryCatchStmtBuilder.setLocation(location);
         TryCatchStmt tryCatchStmt = tryCatchStmtBuilder.build();
         addToBlockStmt(tryCatchStmt);
     }
@@ -1399,19 +1415,18 @@ public class BLangModelBuilder {
         errorMsgs.add(errMsg);
     }
 
-    public void startForkJoinStmt(NodeLocation nodeLocation) {
+    public void startForkJoinStmt() {
         //blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = new ForkJoinStmt.ForkJoinStmtBuilder(currentScope);
-        forkJoinStmtBuilder.setNodeLocation(nodeLocation);
         forkJoinStmtBuilderStack.push(forkJoinStmtBuilder);
         currentScope = forkJoinStmtBuilder.currentScope;
         forkJoinScope = currentScope;
         workerStack.push(new ArrayList<>());
     }
 
-    public void startJoinClause(NodeLocation nodeLocation) {
+    public void startJoinClause() {
         currentScope = forkJoinStmtBuilderStack.peek().getJoin();
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
+        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
     public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
@@ -1419,6 +1434,7 @@ public class BLangModelBuilder {
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
@@ -1458,9 +1474,9 @@ public class BLangModelBuilder {
         forkJoinStmtBuilder.addJoinWorker(workerName);
     }
 
-    public void startTimeoutClause(NodeLocation nodeLocation) {
+    public void startTimeoutClause() {
         currentScope = forkJoinStmtBuilderStack.peek().getTimeout();
-        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
+        blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
     public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
@@ -1468,6 +1484,7 @@ public class BLangModelBuilder {
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setLocation(location);
         BlockStmt timeoutStmt = blockStmtBuilder.build();
         forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
         forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
@@ -1487,7 +1504,7 @@ public class BLangModelBuilder {
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
 
-    public void endForkJoinStmt() {
+    public void endForkJoinStmt(NodeLocation location) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.pop();
 
         List<Worker> workerList = workerStack.pop();
@@ -1495,6 +1512,7 @@ public class BLangModelBuilder {
             forkJoinStmtBuilder.setWorkers(workerList.toArray(new Worker[workerList.size()]));
         }
         //forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
+        forkJoinStmtBuilder.setNodeLocation(location);
         ForkJoinStmt forkJoinStmt = forkJoinStmtBuilder.build();
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
@@ -1543,11 +1561,10 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-    public void startTransactionStmt(NodeLocation location) {
+    public void startTransactionStmt() {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = new TransactionStmt.TransactionStmtBuilder();
-        transactionStmtBuilder.setLocation(location);
         transactionStmtBuilderStack.push(transactionStmtBuilder);
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(blockStmtBuilder);
         currentScope = blockStmtBuilder.getCurrentScope();
     }
@@ -1561,47 +1578,50 @@ public class BLangModelBuilder {
         currentScope = transactionBlock.getEnclosingScope();
     }
 
-    public void startAbortedClause(NodeLocation location) {
+    public void startAbortedClause() {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Staring parsing aborted clause.
         TransactionStmt.AbortedBlock abortedBlock = new TransactionStmt.AbortedBlock(currentScope);
         transactionStmtBuilder.setAbortedBlock(abortedBlock);
         currentScope = abortedBlock;
-        BlockStmt.BlockStmtBuilder abortedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder abortedBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(abortedBlockBuilder);
         currentScope = abortedBlockBuilder.getCurrentScope();
     }
 
-    public void addAbortedClause() {
+    public void addAbortedClause(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
+        abortedBlockBuilder.setLocation(location);
         BlockStmt abortedBlock = abortedBlockBuilder.build();
         currentScope = abortedBlock.getEnclosingScope();
         transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
     }
 
-    public void startCommittedClause(NodeLocation location) {
+    public void startCommittedClause() {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Staring parsing committed clause.
         TransactionStmt.CommittedBlock committedBlock = new TransactionStmt.CommittedBlock(currentScope);
         transactionStmtBuilder.setCommittedBlock(committedBlock);
         currentScope = committedBlock;
-        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(location, currentScope);
+        BlockStmt.BlockStmtBuilder committedBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(committedBlockBuilder);
         currentScope = committedBlockBuilder.getCurrentScope();
     }
 
-    public void addCommittedClause() {
+    public void addCommittedClause(NodeLocation location) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
+        committedBlockBuilder.setLocation(location);
         BlockStmt committedBlock = committedBlockBuilder.build();
         currentScope = committedBlock.getEnclosingScope();
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }
 
-    public void addTransactionStmt(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public void addTransactionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.pop();
         transactionStmtBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        transactionStmtBuilder.setLocation(location);
         TransactionStmt transactionStmt = transactionStmtBuilder.build();
         addToBlockStmt(transactionStmt);
     }
@@ -1922,6 +1942,7 @@ public class BLangModelBuilder {
      */
     public static class NameReference {
         private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private NodeLocation location;
         private String pkgName;
         private String name;
         private String pkgPath;
@@ -1946,6 +1967,14 @@ public class BLangModelBuilder {
 
         public void setPkgPath(String pkgPath) {
             this.pkgPath = pkgPath;
+        }
+
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
+        }
+
+        public NodeLocation getNodeLocation() {
+            return location;
         }
 
         public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
