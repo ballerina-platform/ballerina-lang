@@ -76,11 +76,18 @@ class StructDefinition extends React.Component {
         this.validateIdentifierName(identifier);
         this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
     }
+    addQuotesToString(dataType, value) {
+        if (dataType === 'string' && !/".*?"$/.test(value)) {
+            return `"${value}"`;
+        }
+        return value;
+    }
     /**
      * Create new variable definition and reset input form
      */
     createNew() {
-        this.addVariableDefinitionStatement(this.state.newType, this.state.newIdentifier, this.state.newValue);
+        const { newType, newValue, newIdentifier } = this.state;
+        this.addVariableDefinitionStatement(newType, newIdentifier, this.addQuotesToString(newType, newValue));
         this.setState({
             newType: '',
             newIdentifier: '',
@@ -195,7 +202,7 @@ class StructDefinition extends React.Component {
     /**
      *  Render content operations
      *
-     * @param {Object} { x, y, w, h } - Dimenitions to render
+     * @param {Object} { x, y, w, h } - Dimensions to render
      * @param {Number} columnSize - Width of the column
      * @returns {Object} - React node
      */
@@ -335,19 +342,19 @@ class StructDefinition extends React.Component {
                                 };
 
                                 const defaultValueBox = {
-                                    x: coDimensions.x + columnSize * 2,
+                                    x: coDimensions.x + (columnSize * 2),
                                     y,
                                     width: columnSize + submitButtonWidth,
                                     height: DesignerDefaults.structDefinitionStatement.height,
                                 };
 
-                                return (<g key={i} className="struct-definition-statement">
+                                return (<g key={child.getIdentifier()} className="struct-definition-statement">
 
                                     <g className="struct-variable-definition-type" >
                                         <rect {...typeCellbox} className="struct-added-value-wrapper" />
                                         <text
                                             x={panelPadding + coDimensions.x}
-                                            y={y + DesignerDefaults.structDefinitionStatement.height / 2 + 3}
+                                            y={y + (DesignerDefaults.structDefinitionStatement.height / 2) + 3}
                                             className="struct-variable-definition-type-text"
                                         > {type} </text>
                                     </g>
