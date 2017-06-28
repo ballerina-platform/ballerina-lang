@@ -89,6 +89,7 @@ class BallerinaFileEditor extends EventChannel {
         this._isInSourceView = false;
         this._isInSwaggerView = false;
         this.deserializer = BallerinaASTDeserializer;
+        this.isTransformActive = false;
         this.init();
     }
 
@@ -133,7 +134,7 @@ class BallerinaFileEditor extends EventChannel {
         });
 
         this._model.on('import-new-package', (packageString) => {
-            this.trigger('update-tool-patette');
+            this.trigger('update-tool-palette');
         });
     }
 
@@ -679,6 +680,28 @@ class BallerinaFileEditor extends EventChannel {
         this._sourceViewBtn.click();
     }
 
+    /**
+     * set transform view state.
+     * @param {any} state transform activate state.
+     * @memberof BallerinaFileEditor
+     */
+    setTransformState(state) {
+        const oldState = this.isTransformActive;
+        this.isTransformActive = state;
+        if (oldState !== state) {
+            this.trigger('update-tool-palette');
+        }
+    }
+
+    /**
+     * get transform view state.
+     *
+     * @returns {boolean} true if transform is active false if it is inactive.
+     * @memberof BallerinaFileEditor
+     */
+    getTransformState() {
+        return this.isTransformActive;
+    }
 }
 
 
