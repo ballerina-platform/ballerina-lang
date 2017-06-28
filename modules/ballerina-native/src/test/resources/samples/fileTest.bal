@@ -12,6 +12,12 @@ function testMove(string sourcePath, string destPath) {
     files:move(source, dest);
 }
 
+function testExists(string targetPath) (boolean) {
+    files:File target = {path : targetPath};
+    boolean b = files:exists(target);
+    return b;
+}
+
 function testDelete(string targetPath) {
     files:File target = {path : targetPath};
     files:delete(target);

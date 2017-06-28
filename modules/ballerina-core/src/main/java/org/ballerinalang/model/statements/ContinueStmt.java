@@ -22,11 +22,12 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
- * An {@code BreakStmt} represents a break statement.
+ * An {@code ContinueStmt} represents a continue statement.
  */
-public class BreakStmt extends AbstractStatement {
+public class ContinueStmt extends AbstractStatement {
 
-    public BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+
+    public ContinueStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocations);
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
