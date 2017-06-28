@@ -2075,8 +2075,8 @@ public class BLangVM {
 
         //populateArgumentValuesForWorker(expressions, arguments);
         if (workerDataChannel != null) {
-            workerDataChannel.putData(arguments);
             workerDataChannel.setTypes(types);
+            workerDataChannel.putData(arguments);
         } else {
             BArray<BValue> bArray = new BArray<>(BValue.class);
             for (int j = 0; j < arguments.length; j++) {
