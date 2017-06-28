@@ -59,7 +59,7 @@ public class CloseConnectionGroup extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionGroupName = getArgument(context, 0).stringValue();
+        String connectionGroupName = getStringArgument(context, 0);
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
         List<Session> sessions = connectionManager.getInstance().getConnectionGroup(connectionGroupName);
         if (sessions == null) {

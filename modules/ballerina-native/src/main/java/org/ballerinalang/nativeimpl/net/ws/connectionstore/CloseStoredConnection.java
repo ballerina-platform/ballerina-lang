@@ -59,7 +59,7 @@ public class CloseStoredConnection extends AbstractNativeFunction {
             throw new BallerinaException("This function is only working with services");
         }
 
-        String connectionName = getArgument(context, 0).stringValue();
+        String connectionName = getStringArgument(context, 0);
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
 
         Session session = connectionManager.getStoredConnection(connectionName);
