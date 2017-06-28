@@ -107,7 +107,7 @@ class PackageDefinition extends React.Component {
     }
 
     handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.removeConstantDefinition(deletedGlobal.getID());
+        this.props.model.parent.removeChild(deletedGlobal);
     }
 
     handleDeleteImport(value) {
