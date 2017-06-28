@@ -2,9 +2,9 @@ package ballerina.net.file;
 
 annotation FileSource attach service {
     string protocol;
-    string fileURI;
+    string path;
     string pollingInterval;
-    string seek;
+    string startPosition;
     string maxLinesPerPoll;
 }
 annotation OnUpdate attach resource{

@@ -135,17 +135,17 @@ public class FileServiceDispatcher implements ServiceDispatcher {
             if (value != null) {
                 elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_PROTOCOL, value.getStringValue());
             }
-            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_SEEK);
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_START_POSTION);
             if (value != null) {
-                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_SEEK, value.getStringValue());
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_START_POSTION, value.getStringValue());
             }
-            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_URI);
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_PATH);
             if (value != null) {
                 String uri = value.getStringValue();
                 if (!uri.contains("://")) {
                     uri = new File(uri).getAbsolutePath();
                 }
-                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_URI, uri);
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_PATH, uri);
             }
             value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL);
             if (value != null) {

@@ -33,8 +33,8 @@ public class Constants {
     public static final String ANNOTATION_NAME_ON_UPDATE = "OnUpdate";
     public static final String ANNOTATION_NAME_ON_ROTATE = "OnRotate";
     public static final String ANNOTATION_ATTRIBUTE_PROTOCOL = "protocol";
-    public static final String ANNOTATION_ATTRIBUTE_URI = "fileURI";
+    public static final String ANNOTATION_ATTRIBUTE_PATH = "path";
     public static final String ANNOTATION_ATTRIBUTE_POLLING_INTERVAL = "pollingInterval";
-    public static final String ANNOTATION_ATTRIBUTE_SEEK = "seek";
+    public static final String ANNOTATION_ATTRIBUTE_START_POSTION = "startPosition";
     public static final String ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL = " maxLinesPerPoll";
 }
