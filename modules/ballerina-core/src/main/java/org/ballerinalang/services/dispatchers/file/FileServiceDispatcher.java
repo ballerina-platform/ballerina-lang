@@ -32,6 +32,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -146,9 +147,9 @@ public class FileServiceDispatcher implements ServiceDispatcher {
                 }
                 elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_URI, uri);
             }
-            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_THROTTLE);
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL);
             if (value != null) {
-                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_THROTTLE, value.getStringValue());
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL, value.getStringValue());
             }
             String serviceName = service.getName();
             ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
