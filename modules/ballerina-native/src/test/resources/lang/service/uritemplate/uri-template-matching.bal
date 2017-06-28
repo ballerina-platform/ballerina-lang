@@ -160,3 +160,14 @@ service echo44 {
         reply response;
     }
 }
+
+@http:BasePath {value:"/echo55"}
+service echo55 {
+    @http:Path {value:"/foo/bar"}
+    resource echo1 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo55":"echo55"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+}
