@@ -89,6 +89,7 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -925,6 +926,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(breakObject, breakStmt.getNodeLocation());
         this.addWhitespaceDescriptor(breakObject, breakStmt.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(breakObject);
+    }
+
+    @Override
+    public void visit(ContinueStmt continueStmt) {
+        JsonObject continueObject = new JsonObject();
+        continueObject.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.CONTINUE_STATEMENT);
+        this.addPosition(continueObject, continueStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(continueObject, continueStmt.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.peek().add(continueObject);
     }
 
     @Override
