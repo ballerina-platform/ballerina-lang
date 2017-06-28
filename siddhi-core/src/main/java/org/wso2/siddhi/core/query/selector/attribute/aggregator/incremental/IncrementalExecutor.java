@@ -191,13 +191,13 @@ public class IncrementalExecutor implements Executor {
                 long copyOfEmitTime = nextEmitTime;
                 nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timeStamp, this.duration);
                 startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timeStamp, this.duration);
-                dispatchEvents(copyOfEmitTime);
+                dispatchEvents(copyOfEmitTime, timeStamp);
                 if (event.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
-                    // Send TIMER event to next executor
+                    // Send TIMER event to next executor.
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(ComplexEvent.Type.TIMER);
                     timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timeStamp,
-                            this.duration, this.bufferCount)); // TODO: 6/16/17 correct?
+                            this.duration, this.bufferCount));
                     timerStreamEventChunk.add(timerEvent);
                     getNextExecutor().execute(timerStreamEventChunk);
                     timerStreamEventChunk.clear();
@@ -244,7 +244,7 @@ public class IncrementalExecutor implements Executor {
         return null;
     }
 
-    private void processAggregates(ComplexEventChunk complexEventChunk, long timeStamp) {
+    private void    processAggregates(ComplexEventChunk complexEventChunk, long timeStamp) {
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
@@ -315,13 +315,16 @@ public class IncrementalExecutor implements Executor {
             // 1000?
             bufferedBaseAggregatorCollection.put(groupedByKey, bufferedBaseAggregator);
         }
+        for (int i = 0; i< genericExpressionExecutors.size(); i++) {
+            bufferedBaseAggregator.setGenericValues(genericExpressionExecutors.get(i).execute(event), i);
+        }
         for (int i = 0; i < basicExecutorsOfBufferedEvents.size(); i++) {
             bufferedBaseAggregator
                     .setBaseIncrementalValue(basicExecutorsOfBufferedEvents.get(i).getExecutor().execute(event), i);
         }
     }
 
-    private void dispatchEvents(long copyOfEmitTime) {
+    private void dispatchEvents(long copyOfEmitTime, long currentTimeStamp) {
 
         if (isRoot) {
             // Clone base executors and add to basicExecutorsOfBufferedEvents
@@ -344,14 +347,15 @@ public class IncrementalExecutor implements Executor {
                 // This would remove all values corresponding to key equal to or less than
                 // "EmitTimeOfLastEventToRemove"
                 ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>) basicExecutorsOfBufferedEvents)
-                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(copyOfEmitTime,
+                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true)
                         .clear();
 
                 // Remove oldest base aggregator collections from bufferedBaseAggregatorMap
                 // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
-                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch = ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
-                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(copyOfEmitTime,
+                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch =
+                        ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
+                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true);
 
                 // Send oldest base aggregator collection to next executor
@@ -362,16 +366,17 @@ public class IncrementalExecutor implements Executor {
                             .entrySet()) {
                         sendToNextExecutor(baseAggregatesToDispatch.getValue());
                     }
+                    mapOfBaseAggregatesToDispatch.clear();
                 }
 
             } else {
                 // Remove oldest base executors from basicExecutorsOfBufferedEvents
                 basicExecutorsOfBufferedEvents.remove(IncrementalTimeConverterUtil
-                        .getEmitTimeOfLastEventToRemove(copyOfEmitTime, this.duration, this.bufferCount));
+                        .getEmitTimeOfLastEventToRemove(currentTimeStamp, this.duration, this.bufferCount));
 
                 // Remove oldest base aggregator collection from bufferedBaseAggregatorMap
                 Map<String, BaseIncrementalAggregatorStore> baseAggregatesToDispatch = bufferedBaseAggregatorMap
-                        .remove(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(copyOfEmitTime,
+                        .remove(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount));
 
                 // Send oldest base aggregator collection to next executor
@@ -383,17 +388,17 @@ public class IncrementalExecutor implements Executor {
             }
             // Send RESET event to groupByExecutor
             // TODO: 6/2/17 call reset method (can't reset since GroupByAggregationAttributeExecutor is called)
-            for (AggregationParser.ExpressionExecutorDetails basicExecutor : basicExecutorDetails) {
+            for (AggregationParser.ExpressionExecutorDetails basicExecutor : this.basicExecutorDetails) {
                 basicExecutor.getExecutor().execute(resetEvent);
             }
         } else {
-            // Send RESET event to groupByExecutor
-            for (AggregationParser.ExpressionExecutorDetails basicExecutor : basicExecutorDetails) {
-                basicExecutor.getExecutor().execute(resetEvent);
-            }
             sendToNextExecutor(runningBaseAggregatorCollection);
             // Reset running base aggregator collection
             resetAggregatorStore();
+            // Send RESET event to groupByExecutor
+            for (AggregationParser.ExpressionExecutorDetails basicExecutor : this.basicExecutorDetails) {
+                basicExecutor.getExecutor().execute(resetEvent);
+            }
         }
     }
 

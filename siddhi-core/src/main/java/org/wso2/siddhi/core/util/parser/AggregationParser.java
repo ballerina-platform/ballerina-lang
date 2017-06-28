@@ -278,16 +278,6 @@ public class AggregationParser {
             // Executors of new meta
             List<VariableExpressionExecutor> executorsOfNewMeta = new ArrayList<>();
 
-            // Base incremental expression executors created using new meta
-            List<ExpressionExecutorDetails> baseExpressionExecutors = new ArrayList<>();
-            ExpressionExecutor expressionExecutor;
-            for (int i = 0; i < baseIncrementalAggregators.size(); i++) {
-                expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(i), newMeta, 0,
-                        tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
-                baseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
-                        finalListOfIncrementalAttributes.get(i).getName()));
-            }
-
             // Timestamp executor created for newMeta. The timeStamp would be retrieved using this
             // executor in runtime.
             VariableExpressionExecutor timeStampExecutor = (VariableExpressionExecutor) ExpressionParser
@@ -326,12 +316,21 @@ public class AggregationParser {
             IncrementalExecutor child = null;
             IncrementalExecutor root;
             for (int i = incrementalDurations.size() - 1; i >= 0; i--) {
-                List<ExpressionExecutorDetails> clonedExpressionExecutors = new ArrayList<>();
+                // Base incremental expression executors created using new meta
+                List<ExpressionExecutorDetails> baseExpressionExecutors = new ArrayList<>();
+                ExpressionExecutor expressionExecutor;
+                for (int j = 0; j < baseIncrementalAggregators.size(); j++) {
+                    expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(j), newMeta, 0,
+                            tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
+                    baseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
+                            finalListOfIncrementalAttributes.get(j).getName()));
+                }
+                /*List<ExpressionExecutorDetails> clonedExpressionExecutors = new ArrayList<>();
                 // Each incremental executor needs its own expression executors. Hence cloning.
                 clonedExpressionExecutors.addAll(baseExpressionExecutors.stream().map(ExpressionExecutorDetails::clone)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()));*/
                 root = new IncrementalExecutor(incrementalDurations.get(i), child, newMeta, tableMap,
-                        executionPlanContext, aggregatorName, compositeAggregators, clonedExpressionExecutors,
+                        executionPlanContext, aggregatorName, compositeAggregators, baseExpressionExecutors,
                         groupByVariables, timeStampExecutor, groupByKeyGenerator, genericExpressionExecutors,
                         bufferSize, streamEventPool);
                 child = root;

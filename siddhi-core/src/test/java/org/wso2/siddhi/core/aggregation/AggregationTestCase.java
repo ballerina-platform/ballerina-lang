@@ -81,7 +81,7 @@ public class AggregationTestCase {
                 "from cseEventStream " +
                 "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity % volume) as mult  " +
                 "group by symbol "+
-                "aggregate every sec...min ;";
+                "aggregate by timestamp every sec...min ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
 
@@ -96,6 +96,8 @@ public class AggregationTestCase {
         inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289954000L});
         inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
         Thread.sleep(2000);
+        inputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289956000L});
+        inputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289956000L});
         executionPlanRuntime.shutdown();
 
     }
