@@ -255,13 +255,17 @@ having
 query_output
     :INSERT output_event_type? INTO target
     |DELETE target (FOR output_event_type)? ON expression
-    |UPDATE OR INSERT INTO target (FOR output_event_type)? SET update_set ON expression
-    |UPDATE target (FOR output_event_type)? SET update_set ON expression
+    |UPDATE OR INSERT INTO target (FOR output_event_type)? set_clause? ON expression
+    |UPDATE target (FOR output_event_type)? set_clause? ON expression
     |RETURN output_event_type?
     ;
 
-update_set
-    : (dereferencing_attribute '=' expression)+
+set_clause
+    : SET set_assignment (',' set_assignment)*
+    ;
+
+set_assignment
+    : attribute_reference '=' expression
     ;
 
 output_event_type
@@ -330,12 +334,8 @@ stream_reference
     ;
 
 attribute_reference
-    : dereferencing_attribute
-    | attribute_name
-    ;
-
-dereferencing_attribute
     : hash1='#'? name1=name ('['attribute_index1=attribute_index']')? (hash2='#' name2=name ('['attribute_index2=attribute_index']')?)? '.'  attribute_name
+    | attribute_name
     ;
 
 attribute_index
