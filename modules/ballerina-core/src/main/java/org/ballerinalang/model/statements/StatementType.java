@@ -19,6 +19,8 @@ package org.ballerinalang.model.statements;
 
 /**
  * Represents Ballerina Statement Type.
+ *
+ * @since 0.89
  */
 public enum StatementType {
 
@@ -56,7 +58,7 @@ public enum StatementType {
     FINALLY_BLOCK(40),
     JOIN_BLOCK(41),
     TIMEOUT_BLOCK(42),
-    TRANSFORM_BLOCK(42),
+    TRANSFORM_BLOCK(43),
 
     ;
     private final int key;
