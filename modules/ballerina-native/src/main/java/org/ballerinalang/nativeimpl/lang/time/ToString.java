@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert a Tiime to ISO 8601 formatted string.
+ * Convert a Time to ISO 8601 formatted string.
  *
  * @since 0.8.9
  */

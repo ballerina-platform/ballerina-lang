@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Get the Time with the given time value and zone info.
+ * Change the timezone associated with the given time.
  *
  * @since 0.8.9
  */
@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Create a Time struct with given timestamp and timezone information.")})
+        value = "Change the timezone associated with the given time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
         value = "The Time struct")})
 public class ToTimezone extends  AbstractTimeFunction {

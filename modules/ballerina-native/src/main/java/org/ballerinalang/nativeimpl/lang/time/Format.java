@@ -43,9 +43,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the default string representation of the Time.")})
+        value = "Get the string representation of the Time according to the given format.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string) ",
-        value = "String representation of the time in ISO 8601 standard")})
+        value = "String representation of the time in the given format")})
 public class Format extends AbstractTimeFunction {
 
     @Override

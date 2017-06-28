@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Subtract given durations to the time.
+ * Create a time from the given time components.
  *
  * @since 0.8.9
  */

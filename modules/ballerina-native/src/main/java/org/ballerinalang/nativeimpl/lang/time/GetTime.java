@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Get the month value of the given the Time.")})
+        value = "Get the hour, minute, second and millisecond values of the given the Time.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
         value = "Hour of the given time value")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int) ",
