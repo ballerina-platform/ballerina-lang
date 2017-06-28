@@ -36,37 +36,6 @@ public class BallerinaLogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-//        StringBuilder sBuilder = new StringBuilder();
-//
-//        // Add timestamp
-//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS O").withZone(
-//                ZoneId.systemDefault());
-//        sBuilder.append(dtf.format(Instant.ofEpochMilli(record.getMillis())));
-//
-//        // Add log level
-//        sBuilder.append(' ');
-//        sBuilder.append(record.getLevel().getLocalizedName().toLowerCase());
-//
-//        // Add logger name
-//        sBuilder.append(' ');
-//        sBuilder.append('[');
-//
-//        String loggerName = record.getLoggerName();
-//
-//        if(loggerName.length() <= "ballerina.".length()) {
-//            sBuilder.append(".");
-//        } else {
-//            sBuilder.append(loggerName.substring("ballerina.".length()));
-//        }
-//
-//        sBuilder.append(']');
-//
-//        // Add log message
-//        sBuilder.append(" - ");
-//        sBuilder.append(record.getMessage());
-//
-//        sBuilder.append(System.lineSeparator());
-
         String source;
         if (record.getLoggerName().length() <= "ballerina.".length()) {
             source = ".";
