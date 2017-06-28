@@ -308,11 +308,12 @@ class ToolPaletteView extends React.Component {
      *
      * @param {any} pckg package to be converted.
      * @param {string} [mode='both' | 'connectors' | 'functions' ] include connectors or functions.
+     * @param {boolean} [transform=false]  
      * @returns {ToolGroup}
      *
      * @memberof ToolPaletteView
      */
-    package2ToolGroup(pckg, mode = 'both') {
+    package2ToolGroup(pckg, mode = 'both', transform = false) {
         const withConnectors = (mode === 'both' || mode === 'connectors');
         const withFunctions = (mode === 'both' || mode === 'functions');
         const definitions = [];
@@ -424,7 +425,7 @@ class ToolPaletteView extends React.Component {
         const environment = this.props.editor.getEnvironment();
         // get the current package
         const currentPackage = this.props.editor.generateCurrentPackage();
-        let currentTools = this.package2ToolGroup(currentPackage);
+        let currentTools = this.package2ToolGroup(currentPackage,'both',this.props.editor.getTransformState());
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -453,7 +454,7 @@ class ToolPaletteView extends React.Component {
                         />);
                     }
 
-                    group = this.package2ToolGroup(pkg, 'functions');
+                    group = this.package2ToolGroup(pkg, 'functions',this.props.editor.getTransformState());
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -492,7 +493,7 @@ class ToolPaletteView extends React.Component {
                             />);
                     }
                 } else {
-                    group = this.package2ToolGroup(pkg, 'functions');
+                    group = this.package2ToolGroup(pkg, 'functions', this.props.editor.getTransformState());
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
 
                     if (group !== undefined && !_.isEmpty(group.tools)) {
