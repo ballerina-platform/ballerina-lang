@@ -6,8 +6,10 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
 function main(string[] args) {
+    //This program, retrieves medium feed for wso2 and tweets the title of the top most of post using the http client connector.
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     http:ClientConnector mediumEP = create http:ClientConnector("https://medium.com");
+    //a simple command line parameter validation.
     int argumentLength = args.length;
     if (argumentLength < 4) {
         system:println("Incorrect number of arguments");
@@ -32,6 +34,7 @@ function main(string[] args) {
     }
     
 }
+//a utility function that generates the authorization header value needed to access the twitter API.
 function constructOAuthHeader(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret, string tweetMessage)(string ) {
     string timeStamp = strings:valueOf(system:epochTime());
     string nonceString = utils:getRandomString();

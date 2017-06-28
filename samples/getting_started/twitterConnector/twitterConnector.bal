@@ -6,6 +6,7 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.utils;
 connector Twitter(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
+    //this program tweets a user defined value using an inline twitter connector defined to have a single action, tweet.
     http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
     action tweet(Twitter t, string msg)(message ) {
         message request = {};
