@@ -68,8 +68,8 @@ public class TryCatchStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.TRY_CATCH;
+    public StatementKind getKind() {
+        return StatementKind.TRY_CATCH;
     }
 
     /**

@@ -143,8 +143,8 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.WORKER_INVOCATION;
+    public StatementKind getKind() {
+        return StatementKind.WORKER_INVOCATION;
     }
 }
 

@@ -53,8 +53,8 @@ public class WhileStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.WHILE;
+    public StatementKind getKind() {
+        return StatementKind.WHILE;
     }
 
     /**

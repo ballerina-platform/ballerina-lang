@@ -38,7 +38,7 @@ public class ContinueStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.CONTINUE;
+    public StatementKind getKind() {
+        return StatementKind.CONTINUE;
     }
 }

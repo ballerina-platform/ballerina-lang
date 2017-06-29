@@ -37,7 +37,7 @@ public class BreakStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.BREAK;
+    public StatementKind getKind() {
+        return StatementKind.BREAK;
     }
 }

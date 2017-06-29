@@ -47,7 +47,7 @@ public class ReplyStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.REPLY;
+    public StatementKind getKind() {
+        return StatementKind.REPLY;
     }
 }

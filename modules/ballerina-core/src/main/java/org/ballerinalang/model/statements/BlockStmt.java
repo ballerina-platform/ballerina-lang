@@ -41,6 +41,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private StatementKind kind;
 
     private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
@@ -87,6 +88,15 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
+    protected void setType(StatementKind statementKind) {
+        this.kind = statementKind;
+    }
+
+    @Override
+    public StatementKind getKind() {
+        return this.kind;
+    }
+
     /**
      * Builds a {@code BlockStmt}.
      *
@@ -113,9 +123,9 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             statementList.add(statement);
         }
 
-        public BlockStmt build(StatementType type) {
+        public BlockStmt build(StatementKind kind) {
             this.blockStmt.statements = statementList.toArray(new Statement[statementList.size()]);
-            blockStmt.setType(type);
+            blockStmt.setType(kind);
             return blockStmt;
         }
     }

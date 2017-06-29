@@ -44,7 +44,7 @@ public class ActionInvocationStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.ACTION_INVOCATION;
+    public StatementKind getKind() {
+        return StatementKind.ACTION_INVOCATION;
     }
 }

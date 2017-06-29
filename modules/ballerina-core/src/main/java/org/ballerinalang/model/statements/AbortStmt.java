@@ -39,7 +39,7 @@ public class AbortStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.ABORT;
+    public StatementKind getKind() {
+        return StatementKind.ABORT;
     }
 }

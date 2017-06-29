@@ -61,7 +61,7 @@ public class VariableDefStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.VARIABLE_DEF;
+    public StatementKind getKind() {
+        return StatementKind.VARIABLE_DEF;
     }
 }

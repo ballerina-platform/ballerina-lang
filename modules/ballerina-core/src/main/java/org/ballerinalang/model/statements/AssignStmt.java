@@ -68,7 +68,7 @@ public class AssignStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.ASSIGN;
+    public StatementKind getKind() {
+        return StatementKind.ASSIGN;
     }
 }

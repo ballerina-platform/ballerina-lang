@@ -38,7 +38,5 @@ public interface Statement extends Node {
 
     Statement getParent();
 
-    void setType(StatementType statementType);
-
-    StatementType getType();
+    StatementKind getKind();
 }

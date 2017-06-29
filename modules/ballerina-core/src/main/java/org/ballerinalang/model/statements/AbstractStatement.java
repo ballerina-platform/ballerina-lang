@@ -34,7 +34,6 @@ public abstract class AbstractStatement implements Statement {
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected boolean alwaysReturns;
     protected Statement parent;
-    protected StatementType type;
 
     public AbstractStatement(NodeLocation location) {
         this.location = location;
@@ -75,13 +74,4 @@ public abstract class AbstractStatement implements Statement {
         return this.parent;
     }
 
-    @Override
-    public void setType(StatementType statementType) {
-        this.type = statementType;
-    }
-
-    @Override
-    public StatementType getType() {
-        return this.type;
-    }
 }

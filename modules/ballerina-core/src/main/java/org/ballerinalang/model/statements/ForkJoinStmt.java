@@ -237,8 +237,8 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.FORK_JOIN;
+    public StatementKind getKind() {
+        return StatementKind.FORK_JOIN;
     }
 
     /**

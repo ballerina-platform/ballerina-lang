@@ -72,8 +72,8 @@ public class IfElseStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.IF_ELSE;
+    public StatementKind getKind() {
+        return StatementKind.IF_ELSE;
     }
 
     /**

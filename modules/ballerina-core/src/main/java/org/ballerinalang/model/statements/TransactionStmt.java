@@ -65,8 +65,8 @@ public class TransactionStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.TRANSACTION;
+    public StatementKind getKind() {
+        return StatementKind.TRANSACTION;
     }
 
     /**

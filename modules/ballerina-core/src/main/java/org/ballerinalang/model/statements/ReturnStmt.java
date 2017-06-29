@@ -50,8 +50,8 @@ public class ReturnStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.RETURN;
+    public StatementKind getKind() {
+        return StatementKind.RETURN;
     }
 
     @Override

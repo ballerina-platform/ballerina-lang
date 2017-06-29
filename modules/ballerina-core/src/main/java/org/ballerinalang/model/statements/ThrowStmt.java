@@ -46,8 +46,8 @@ public class ThrowStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.THROW;
+    public StatementKind getKind() {
+        return StatementKind.THROW;
     }
 
     @Override

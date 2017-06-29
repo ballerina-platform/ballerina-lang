@@ -46,8 +46,8 @@ public class FunctionInvocationStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.FUNCTION_INVOCATION;
+    public StatementKind getKind() {
+        return StatementKind.FUNCTION_INVOCATION;
     }
 }
 

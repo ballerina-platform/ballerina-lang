@@ -18,11 +18,11 @@
 package org.ballerinalang.model.statements;
 
 /**
- * Represents Ballerina Statement Type.
+ * Represents Ballerina Statement Kinds.
  *
  * @since 0.89
  */
-public enum StatementType {
+public enum StatementKind {
 
     COMMENT(1),
     ASSIGN(2),
@@ -45,7 +45,7 @@ public enum StatementType {
     TRANSFORM(19),
 
     // Blocks
-    ROOT_BLOCK(30),
+    CALLABLE_UNIT_BLOCK(30),
     TRANSACTION_BLOCK(31),
     COMMITTED_BLOCK(32),
     ABORTED_BLOCK(33),
@@ -63,7 +63,7 @@ public enum StatementType {
     ;
     private final int key;
 
-    StatementType(int key) {
+    StatementKind(int key) {
         this.key = key;
     }
 

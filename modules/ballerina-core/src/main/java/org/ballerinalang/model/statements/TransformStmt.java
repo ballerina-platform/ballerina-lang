@@ -51,8 +51,8 @@ public class TransformStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.TRANSFORM;
+    public StatementKind getKind() {
+        return StatementKind.TRANSFORM;
     }
 
     public Expression[] getOutputExprs() {

@@ -101,7 +101,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
-import org.ballerinalang.model.statements.StatementType;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -875,7 +875,7 @@ public class CodeGenerator implements NodeVisitor {
                 emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
-        generateFinallyInstructions(returnStmt, StatementType.ROOT_BLOCK);
+        generateFinallyInstructions(returnStmt, StatementKind.CALLABLE_UNIT_BLOCK);
 
         emit(InstructionCodes.RET);
     }
@@ -904,13 +904,13 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-        generateFinallyInstructions(breakStmt, StatementType.WHILE_BLOCK);
+        generateFinallyInstructions(breakStmt, StatementKind.WHILE_BLOCK);
         emit(breakInstructions.peek());
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
-        generateFinallyInstructions(continueStmt, StatementType.WHILE_BLOCK);
+        generateFinallyInstructions(continueStmt, StatementKind.WHILE_BLOCK);
         emit(continueInstructions.peek());
     }
 
@@ -1123,7 +1123,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
-        generateFinallyInstructions(abortStmt, StatementType.TRANSACTION_BLOCK);
+        generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
     }
 
@@ -2632,11 +2632,11 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    private void generateFinallyInstructions(Statement statement, StatementType scope) {
+    private void generateFinallyInstructions(Statement statement, StatementKind scope) {
         int[] regIndexesOriginal = this.regIndexes.clone();
         Statement parent = statement;
-        while (scope != parent.getType()) {
-            if (StatementType.TRY_BLOCK == parent.getType() || StatementType.CATCH_BLOCK == parent.getType()) {
+        while (scope != parent.getKind()) {
+            if (StatementKind.TRY_BLOCK == parent.getKind() || StatementKind.CATCH_BLOCK == parent.getKind()) {
                 TryCatchStmt.FinallyBlock finallyBlock = ((TryCatchStmt) parent.getParent()).getFinallyBlock();
                 if (finallyBlock != null) {
                     resetIndexes(this.regIndexes);

@@ -112,7 +112,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
-import org.ballerinalang.model.statements.StatementType;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -267,7 +267,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(pkgInitFuncStmtBuilder.build(StatementType.ROOT_BLOCK));
+        functionBuilder.setBody(pkgInitFuncStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
         BallerinaFunction initFunction = functionBuilder.buildFunction();
         initFunction.setReturnParamTypes(new BType[0]);
         bLangPackage.setInitFunction(initFunction);
@@ -3147,7 +3147,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setNodeLocation(structDef.getNodeLocation());
             functionBuilder.setIdentifier(new Identifier(structDef + ".<init>"));
             functionBuilder.setPkgPath(structDef.getPackagePath());
-            functionBuilder.setBody(blockStmtBuilder.build(StatementType.ROOT_BLOCK));
+            functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
             structDef.setInitFunction(functionBuilder.buildFunction());
         }
 
@@ -3220,7 +3220,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(blockStmtBuilder.build(StatementType.ROOT_BLOCK));
+        functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
         connectorDef.setInitFunction(functionBuilder.buildFunction());
     }
 
@@ -3247,7 +3247,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(blockStmtBuilder.build(StatementType.ROOT_BLOCK));
+        functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
         service.setInitFunction(functionBuilder.buildFunction());
     }
 
@@ -3596,15 +3596,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private static void checkParent(Statement stmt) {
         Statement parent = stmt;
-        StatementType childStmtType = stmt.getType();
-        while (StatementType.ROOT_BLOCK != parent.getType()) {
-            if (StatementType.WHILE_BLOCK == parent.getType() &&
-                    (StatementType.BREAK == childStmtType || StatementType.CONTINUE == childStmtType)) {
+        StatementKind childStmtType = stmt.getKind();
+        while (StatementKind.CALLABLE_UNIT_BLOCK != parent.getKind()) {
+            if (StatementKind.WHILE_BLOCK == parent.getKind() &&
+                    (StatementKind.BREAK == childStmtType || StatementKind.CONTINUE == childStmtType)) {
                 return;
-            } else if (StatementType.TRANSACTION_BLOCK == parent.getType()) {
-                if (StatementType.BREAK == childStmtType) {
+            } else if (StatementKind.TRANSACTION_BLOCK == parent.getKind()) {
+                if (StatementKind.BREAK == childStmtType) {
                     BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.BREAK_USED_IN_TRANSACTION);
-                } else if (StatementType.CONTINUE == childStmtType) {
+                } else if (StatementKind.CONTINUE == childStmtType) {
                     BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
                 }
             }

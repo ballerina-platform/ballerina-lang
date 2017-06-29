@@ -43,7 +43,7 @@ public class CommentStmt extends AbstractStatement {
     }
 
     @Override
-    public StatementType getType() {
-        return StatementType.COMMENT;
+    public StatementKind getKind() {
+        return StatementKind.COMMENT;
     }
 }
