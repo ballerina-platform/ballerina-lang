@@ -105,7 +105,7 @@ class PackageDefinition extends React.Component {
             return;
         }
 
-        this.props.model.parent.addGlobal(parsedJSON.root[1])
+        this.props.model.parent.addGlobal(parsedJSON.root[1]);
     }
 
     handleAddImport(value) {
