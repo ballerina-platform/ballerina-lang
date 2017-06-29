@@ -513,7 +513,12 @@ class ASTNode extends EventChannel {
     }
 
     getChildWSRegion(childId, regionId) {
-        const region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
+        let region;
+        if (!_.isNil(_.get(this.getWhiteSpaceDescriptor().children, childId))) {
+            region = _.get(_.get(this.getWhiteSpaceDescriptor().children, childId).regions, regionId);
+        } else {
+            region = _.get(this.getWhiteSpaceDescriptor().regions, regionId);
+        }
         return (!_.isNil(region)) ? region : '';
     }
 
