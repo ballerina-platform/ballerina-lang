@@ -35,8 +35,7 @@ class CompleterFactory {
     static getSourceViewCompleter(langserverController) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                const completions = [{ name: 'hello1', value: 'typess.row ', meta: 'type' },
-                    { name: 'hello2', value: 'typess.row ', meta: 'type' }];
+                const completions = [];
                 const cursorPosition = editor.getCursorPosition();
                 const options = {
                     textDocument: editor.getValue(),
@@ -51,7 +50,8 @@ class CompleterFactory {
                             {
                                 caption: completionItem.label,
                                 snippet: completionItem.insertText,
-                                meta: 'type',
+                                meta: completionItem.detail,
+                                score: completionItem.sortText,
                             });
                     });
                     callback(null, completions);

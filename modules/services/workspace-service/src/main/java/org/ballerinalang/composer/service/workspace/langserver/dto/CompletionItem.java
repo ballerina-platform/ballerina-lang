@@ -28,7 +28,8 @@ public class CompletionItem {
 
     private String documentation;
 
-    private String sortText;
+    // Here we keep an integer value as a text, since the ace editor expects a score
+    private int sortText;
 
     private String insertText;
 
@@ -66,11 +67,11 @@ public class CompletionItem {
         this.documentation = documentation;
     }
 
-    public String getSortText() {
+    public int getSortText() {
         return sortText;
     }
 
-    public void setSortText(String sortText) {
+    public void setSortText(int sortText) {
         this.sortText = sortText;
     }
 
