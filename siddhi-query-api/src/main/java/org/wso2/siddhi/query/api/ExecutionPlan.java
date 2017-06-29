@@ -130,19 +130,18 @@ public class ExecutionPlan {
         } else if (triggerDefinition.getId() == null) {
             throw new ExecutionPlanValidationException("Trigger Id should not be null for Trigger Definition");
         }
-        StreamDefinition streamDefinition = StreamDefinition.id(triggerDefinition.getId()).attribute(SiddhiConstants
-                .TRIGGERED_TIME, Attribute.Type.LONG);
+        StreamDefinition streamDefinition = StreamDefinition.id(triggerDefinition.getId())
+                .attribute(SiddhiConstants.TRIGGERED_TIME, Attribute.Type.LONG);
         try {
             checkDuplicateDefinition(streamDefinition);
         } catch (DuplicateDefinitionException e) {
-            throw new DuplicateDefinitionException("Trigger '" + triggerDefinition.getId() + "' cannot be defined as," +
-                    " " + e.getMessage(), e);
+            throw new DuplicateDefinitionException(
+                    "Trigger '" + triggerDefinition.getId() + "' cannot be defined as," + " " + e.getMessage(), e);
         }
         if (triggerDefinitionMap.containsKey(triggerDefinition.getId())) {
-            throw new DuplicateDefinitionException("Trigger Definition with same Id '" +
-                    triggerDefinition.getId() + "' already exist '" + triggerDefinitionMap.get(triggerDefinition
-                    .getId()) +
-                    "', hence cannot add '" + triggerDefinition + "'");
+            throw new DuplicateDefinitionException("Trigger Definition with same Id '" + triggerDefinition.getId()
+                    + "' already exist '" + triggerDefinitionMap.get(triggerDefinition.getId())
+                    + "', hence cannot add '" + triggerDefinition + "'");
         }
         this.triggerDefinitionMap.put(triggerDefinition.getId(), triggerDefinition);
         this.streamDefinitionMap.put(streamDefinition.getId(), streamDefinition);
@@ -151,31 +150,28 @@ public class ExecutionPlan {
 
     private void checkDuplicateDefinition(AbstractDefinition definition) {
         TableDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
-        if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof
-                StreamDefinition)) {
-            throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
-                    definition.getId() + "' already exist : " + existingTableDefinition +
-                    ", hence cannot add " + definition);
+        if (existingTableDefinition != null
+                && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
+            throw new DuplicateDefinitionException("Table Definition with same Stream Id '" + definition.getId()
+                    + "' already exist : " + existingTableDefinition + ", hence cannot add " + definition);
         }
         StreamDefinition existingStreamDefinition = streamDefinitionMap.get(definition.getId());
-        if (existingStreamDefinition != null && (!existingStreamDefinition.equals(definition) || definition
-                instanceof TableDefinition)) {
-            throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" +
-                    definition.getId() + "' already exist : " + existingStreamDefinition +
-                    ", hence cannot add " + definition);
+        if (existingStreamDefinition != null
+                && (!existingStreamDefinition.equals(definition) || definition instanceof TableDefinition)) {
+            throw new DuplicateDefinitionException("Stream Definition with same Stream Id '" + definition.getId()
+                    + "' already exist : " + existingStreamDefinition + ", hence cannot add " + definition);
         }
         WindowDefinition existingWindowDefinition = windowDefinitionMap.get(definition.getId());
-        if (existingWindowDefinition != null && (!existingWindowDefinition.equals(definition) || definition
-                instanceof WindowDefinition)) {
-            throw new DuplicateDefinitionException("Stream Definition with same Window Id '" +
-                    definition.getId() + "' already exist : " + existingWindowDefinition +
-                    ", hence cannot add " + definition);
+        if (existingWindowDefinition != null
+                && (!existingWindowDefinition.equals(definition) || definition instanceof WindowDefinition)) {
+            throw new DuplicateDefinitionException("Stream Definition with same Window Id '" + definition.getId()
+                    + "' already exist : " + existingWindowDefinition + ", hence cannot add " + definition);
         }
         AggregationDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
-        if (existingAggregationDefinition != null && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
-            throw new DuplicateDefinitionException("Aggregate Definition with same Aggregate Id '" +
-                    definition.getId() + "' already exist : " + existingAggregationDefinition +
-                    ", hence cannot add " + definition);
+        if (existingAggregationDefinition != null
+                && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)) {
+            throw new DuplicateDefinitionException("Aggregate Definition with same Aggregate Id '" + definition.getId()
+                    + "' already exist : " + existingAggregationDefinition + ", hence cannot add " + definition);
         }
     }
 
@@ -184,14 +180,14 @@ public class ExecutionPlan {
             throw new ExecutionPlanValidationException("Query should not be null");
         }
         String name = null;
-        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants
-                .ANNOTATION_ELEMENT_NAME, query.getAnnotations());
+        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO,
+                SiddhiConstants.ANNOTATION_ELEMENT_NAME, query.getAnnotations());
         if (element != null) {
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses " +
-                    "its name=" + name);
+            throw new ExecutionPlanValidationException(
+                    "Cannot add Query as another Execution Element already uses " + "its name=" + name);
         }
         executionElementNameList.add(name);
         this.executionElementList.add(query);
@@ -203,14 +199,14 @@ public class ExecutionPlan {
             throw new ExecutionPlanValidationException("Partition should not be null");
         }
         String name = null;
-        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants
-                .ANNOTATION_ELEMENT_NAME, partition.getAnnotations());
+        Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO,
+                SiddhiConstants.ANNOTATION_ELEMENT_NAME, partition.getAnnotations());
         if (element != null) {
             name = element.getValue();
         }
         if (name != null && executionElementNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Partition as another Execution Element already " +
-                    "uses its name=" + name);
+            throw new ExecutionPlanValidationException(
+                    "Cannot add Partition as another Execution Element already " + "uses its name=" + name);
         }
         executionElementNameList.add(name);
         this.executionElementList.add(partition);
@@ -250,18 +246,12 @@ public class ExecutionPlan {
         return aggregationDefinitionMap;
     }
 
-
     @Override
     public String toString() {
-        return "ExecutionPlan{" +
-                "streamDefinitionMap=" + streamDefinitionMap +
-                ", tableDefinitionMap=" + tableDefinitionMap +
-                ", windowDefinitionMap=" + windowDefinitionMap +
-                ", aggregationDefinitionMap=" + aggregationDefinitionMap +
-                ", executionElementList=" + executionElementList +
-                ", executionElementNameList=" + executionElementNameList +
-                ", annotations=" + annotations +
-                '}';
+        return "ExecutionPlan{" + "streamDefinitionMap=" + streamDefinitionMap + ", tableDefinitionMap="
+                + tableDefinitionMap + ", windowDefinitionMap=" + windowDefinitionMap + ", aggregationDefinitionMap="
+                + aggregationDefinitionMap + ", executionElementList=" + executionElementList
+                + ", executionElementNameList=" + executionElementNameList + ", annotations=" + annotations + '}';
     }
 
     @Override
@@ -278,23 +268,24 @@ public class ExecutionPlan {
         if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) {
             return false;
         }
-        if (executionElementList != null ? !executionElementList.equals(that.executionElementList) : that
-                .executionElementList != null) {
+        if (executionElementList != null ? !executionElementList.equals(that.executionElementList)
+                : that.executionElementList != null) {
             return false;
         }
-        if (executionElementNameList != null ? !executionElementNameList.equals(that.executionElementNameList) : that
-                .executionElementNameList != null) {
+        if (executionElementNameList != null ? !executionElementNameList.equals(that.executionElementNameList)
+                : that.executionElementNameList != null) {
             return false;
         }
-        if (streamDefinitionMap != null ? !streamDefinitionMap.equals(that.streamDefinitionMap) : that
-                .streamDefinitionMap != null) {
+        if (streamDefinitionMap != null ? !streamDefinitionMap.equals(that.streamDefinitionMap)
+                : that.streamDefinitionMap != null) {
             return false;
         }
-        if (tableDefinitionMap != null ? !tableDefinitionMap.equals(that.tableDefinitionMap) : that
-                .tableDefinitionMap != null) {
+        if (tableDefinitionMap != null ? !tableDefinitionMap.equals(that.tableDefinitionMap)
+                : that.tableDefinitionMap != null) {
             return false;
         }
-        if(aggregationDefinitionMap != null ? !aggregationDefinitionMap.equals(this.aggregationDefinitionMap) :  that.aggregationDefinitionMap != null){
+        if (aggregationDefinitionMap != null ? !aggregationDefinitionMap.equals(that.aggregationDefinitionMap)
+                : that.aggregationDefinitionMap != null) {
             return false;
         }
 
@@ -330,10 +321,9 @@ public class ExecutionPlan {
 
     private void checkDuplicateFunctionExist(FunctionDefinition functionDefinition) {
         if (this.functionDefinitionMap.get(functionDefinition.getId()) != null) {
-            throw new DuplicateDefinitionException("The function definition with the same id exists " +
-                    functionDefinition.getId());
+            throw new DuplicateDefinitionException(
+                    "The function definition with the same id exists " + functionDefinition.getId());
         }
     }
-
 
 }

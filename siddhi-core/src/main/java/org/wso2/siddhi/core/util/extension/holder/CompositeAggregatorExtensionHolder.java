@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Comp
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holder to store {@link CompositeAggregator} Extensions.
+ */
 public class CompositeAggregatorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = CompositeAggregator.class;
 

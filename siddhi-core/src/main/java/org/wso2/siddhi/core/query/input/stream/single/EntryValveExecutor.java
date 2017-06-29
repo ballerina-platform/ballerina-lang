@@ -19,21 +19,18 @@
 package org.wso2.siddhi.core.query.input.stream.single;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 
-/*
- * Entry point to incremental executor
+/**
+ * Entry point to incremental executors
  */
 public class EntryValveExecutor implements Executor, Schedulable {
     private Executor next;
     private ThreadBarrier threadBarrier;
     private ExecutionPlanContext executionPlanContext;
-    private IncrementalExecuteStreamReceiver receiver;
 
     public EntryValveExecutor(ExecutionPlanContext executionPlanContext) {
         this.executionPlanContext = executionPlanContext;
@@ -105,14 +102,5 @@ public class EntryValveExecutor implements Executor, Schedulable {
     @Override
     public void process(ComplexEventChunk complexEventChunk) {
         execute(complexEventChunk);
-    }
-
-    /**
-     * Set receiver
-     *
-     * @param receiver Receiver which must be called when a timer event arrives
-     */
-    public void setReceiver(IncrementalExecuteStreamReceiver receiver) {
-        this.receiver = receiver;
     }
 }

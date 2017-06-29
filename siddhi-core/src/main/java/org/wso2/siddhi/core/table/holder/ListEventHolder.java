@@ -53,9 +53,8 @@ public class ListEventHolder extends LinkedList<StreamEvent> implements EventHol
         }
     }
 
-
-    public void addIncrementalEvent(long timeStamp, Object[] addingEvent){
-        //This method is used only for writing data
+    public void addIncrementalEvent(long timeStamp, Object[] addingEvent) {
+        // This method is used only for writing data
         // to tables in incremental aggregator. // TODO: 5/29/17 need to change? change-if instance of ListEventHolder
         StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
         if (eventConverter instanceof ZeroStreamEventConverter) {

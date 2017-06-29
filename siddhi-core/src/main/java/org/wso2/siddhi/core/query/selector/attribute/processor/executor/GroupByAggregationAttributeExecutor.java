@@ -37,9 +37,8 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
     public GroupByAggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                               ExpressionExecutor[] attributeExpressionExecutors,
-                                               ConfigReader configReader, ExecutionPlanContext executionPlanContext,
-                                               String queryName) {
+            ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+            ExecutionPlanContext executionPlanContext, String queryName) {
         super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
         this.configReader = configReader;
     }
@@ -54,13 +53,15 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
             return aOutput;
         }
         String key = QuerySelector.getThreadLocalGroupByKey();
-        if (key==null){
-            key = IncrementalExecutor.getThreadLocalGroupByKey(); // TODO: 5/30/17 this is a hack to get local key in incremental processing
+        if (key == null) {
+            key = IncrementalExecutor.getThreadLocalGroupByKey(); // TODO: 5/30/17 this is a hack to get local key in
+                                                                  // incremental processing
         }
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
-            currentAttributeAggregator.initAggregator(attributeExpressionExecutors, executionPlanContext, configReader);
+            currentAttributeAggregator.initAggregator(attributeExpressionExecutors,
+                    executionPlanContext, configReader);
             currentAttributeAggregator.start();
             aggregatorMap.put(key, currentAttributeAggregator);
         }
@@ -69,8 +70,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                                                       attributeExpressionExecutors, configReader, executionPlanContext,
-                                                       queryName);
+                attributeExpressionExecutors, configReader, executionPlanContext, queryName);
     }
 
     @Override

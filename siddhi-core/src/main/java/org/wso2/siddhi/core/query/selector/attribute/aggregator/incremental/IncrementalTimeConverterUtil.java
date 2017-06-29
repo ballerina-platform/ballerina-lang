@@ -23,6 +23,9 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.time.Instant;
 
+/**
+ * Performs time conversions related to incremental aggregation
+ */
 public class IncrementalTimeConverterUtil {
 
     public static long getNextEmitTime(long currentTime, TimePeriod.Duration duration) {
@@ -67,13 +70,13 @@ public class IncrementalTimeConverterUtil {
             int bufferCount) {
         switch (duration) {
         case SECONDS:
-            return currentEmitTime - bufferCount * 1000;
+            return currentEmitTime - bufferCount * 1000L;
         case MINUTES:
-            return currentEmitTime - bufferCount * 60000;
+            return currentEmitTime - bufferCount * 60000L;
         case HOURS:
-            return currentEmitTime - bufferCount % 3600000;
+            return currentEmitTime - bufferCount % 3600000L;
         case DAYS:
-            return currentEmitTime - bufferCount % 86400000;
+            return currentEmitTime - bufferCount % 86400000L;
         case MONTHS:
             return getEmitTimeOfLastEventToRemoveForMonth(currentEmitTime, bufferCount);
         case YEARS:

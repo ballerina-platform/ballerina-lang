@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 
 public class AggregationTestCase {
 
-    static final Logger log = Logger.getLogger(AggregationTestCase.class);
+    static final Logger LOG = Logger.getLogger(AggregationTestCase.class);
     private volatile int count;
     private volatile boolean eventArrived;
 
@@ -39,10 +39,11 @@ public class AggregationTestCase {
 
     @Test
     public void externalTimeTest() throws InterruptedException {
-        log.info("Incremental Processing: externalTimeTest");
+        LOG.info("Incremental Processing: externalTimeTest");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int, timestamp long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
+                "price2 float, volume long , quantity int, timestamp long);";
         String query = " define aggregation test " + "from cseEventStream "
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate by timestamp every sec...year ;";
@@ -108,10 +109,11 @@ public class AggregationTestCase {
 
     @Test
     public void eventTimeTest() throws InterruptedException {
-        log.info("Incremental Processing: eventTimeTest");
+        LOG.info("Incremental Processing: eventTimeTest");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int, timestamp long);";
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
+                "price2 float, volume long , quantity int, timestamp long);";
         String query = " define aggregation test " + "from cseEventStream "
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate every sec...hour ;";
@@ -136,7 +138,6 @@ public class AggregationTestCase {
         inputHandler.send(new Object[] { "IBM", 900f, null, 200L, 60, 1496289956000L });
         inputHandler.send(new Object[] { "IBM", 500f, null, 200L, 7, 1496289956000L });
         Thread.sleep(60000);
-
 
         inputHandler.send(new Object[] { "IBM", 400f, null, 200L, 9, 1496290016000L });
         Thread.sleep(60000);

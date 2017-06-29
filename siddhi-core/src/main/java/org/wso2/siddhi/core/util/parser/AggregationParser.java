@@ -355,9 +355,6 @@ public class AggregationParser {
             IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = new IncrementalExecuteStreamReceiver(
                     singleInputStream.getStreamId(), latencyTracker, aggregatorName);
 
-            // Set receiver to entry valve
-            entryValveExecutor.setReceiver(incrementalExecuteStreamReceiver);
-
             aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, newMeta,
                     incrementalExecuteStreamReceiver);
             assert child != null; // Child won't be null if incremental durations are given
@@ -473,7 +470,7 @@ public class AggregationParser {
             return this.executorName;
         }
 
-        public ExpressionExecutorDetails clone() {
+        public ExpressionExecutorDetails copy() {
             return new ExpressionExecutorDetails(executor, executorName);
         }
     }

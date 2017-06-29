@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,34 +20,37 @@ package org.wso2.siddhi.query.api.definition;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Aggregation Definition API
+ */
 public class AggregationDefinition extends AbstractDefinition {
 
-    private InputStream inputStream = null;
-    private Selector selector = null;
+    private static final long serialVersionUID = 6106269076155338045L;
+    private transient InputStream inputStream = null;
+    private transient Selector selector = null;
     private Variable aggregateAttribute = null;
-    private TimePeriod timePeriod = null;
-//    private Annotation annotation = null; // TODO: 5/9/17 list of annotations?
-    private List<Annotation> annotations = new ArrayList<>();
-
+    private transient TimePeriod timePeriod = null;
+    // private Annotation annotation = null; // TODO: 5/9/17 list of annotations?
+    private transient List<Annotation> annotations = new ArrayList<>();
 
     protected AggregationDefinition(String id) {
         super(id);
     }
 
     public AggregationDefinition select(BasicSelector selector) {
-//        if(selector.getHavingExpression()!=null){
-//            throw new OperationNotSupportedException ("Having condition cannot be added for Aggregate Definition," +
-//                    " but found in '"+id+"'");
-//        }
+        // if(selector.getHavingExpression()!=null){
+        // throw new OperationNotSupportedException ("Having condition cannot be added for Aggregate Definition," +
+        // " but found in '"+id+"'");
+        // }
         this.selector = selector;
         return this;
     }
@@ -98,16 +101,30 @@ public class AggregationDefinition extends AbstractDefinition {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         AggregationDefinition that = (AggregationDefinition) o;
 
-        if (!inputStream.equals(that.inputStream)) return false;
-        if (selector != null ? !selector.equals(that.selector) : that.selector != null) return false;
-        if (!aggregateAttribute.equals(that.aggregateAttribute)) return false;
-        if (timePeriod != null ? !timePeriod.equals(that.timePeriod) : that.timePeriod != null) return false;
+        if (!inputStream.equals(that.inputStream)) {
+            return false;
+        }
+        if (selector != null ? !selector.equals(that.selector) : that.selector != null) {
+            return false;
+        }
+        if (!aggregateAttribute.equals(that.aggregateAttribute)) {
+            return false;
+        }
+        if (timePeriod != null ? !timePeriod.equals(that.timePeriod) : that.timePeriod != null) {
+            return false;
+        }
         return annotations != null ? annotations.equals(that.annotations) : that.annotations == null;
     }
 
@@ -120,5 +137,10 @@ public class AggregationDefinition extends AbstractDefinition {
         result = 31 * result + (timePeriod != null ? timePeriod.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         return result;
+    }
+
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        annotations = (List<Annotation>) stream.readObject();
     }
 }

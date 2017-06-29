@@ -19,12 +19,12 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
 
+/**
+ * Count incremental aggregation
+ */
 @Extension(
         name = "count",
         namespace = "incrementalAggregator",
@@ -54,20 +54,21 @@ public class CountIncrementalAttributeAggregator extends CompositeAggregator {
         this.incrementalAttributes = new Attribute[] { count };
         this.initialValues = new Expression[] { countInitialValue };
 
-        if (!((incrementalAttributes.length == initialValues.length)
-                && (initialValues.length == getIncrementalAggregators().length))) {
-            // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
-            // For each incremental attribute, an initial value and base incremental aggregator must be defined
-        }
+        assert incrementalAttributes.length == initialValues.length;
     }
 
     @Override
     public Object aggregate(Object... results) {
-        if (results == null || results.length != 1) {
-            // TODO: 3/3/17 exception
+        if (results == null) {
+            throw new ArithmeticException("Cannot calculate count since count base aggregate expected "
+                    + "for calculation. Expected 1 base value (count). However, received no base values");
         }
-        Long count = (Long) results[0];
-        return count;
+        if (results.length != 2) {
+            throw new ArithmeticException("Cannot calculate count since count base aggregate expected "
+                    + "for calculation. Expected 1 base value (count). However, received " + results.length
+                    + " values");
+        }
+        return results[0];
     }
 
     @Override

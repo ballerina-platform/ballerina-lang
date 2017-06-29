@@ -35,7 +35,16 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.util.List;
 
-import static org.wso2.siddhi.core.util.SiddhiConstants.*;
+import static org.wso2.siddhi.core.util.SiddhiConstants.BEFORE_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.HAVING_STATE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.ON_AFTER_WINDOW_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STATE_OUTPUT_DATA_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_INDEX_IN_TYPE;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_ATTRIBUTE_TYPE_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.STREAM_EVENT_CHAIN_INDEX;
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+
 
 /**
  * Utility class for aggregateParser to help with AggregationRuntime
@@ -62,16 +71,12 @@ public class AggregationDefinitionParserHelper {
                         .getOutputStreamDefinition().getAttributeList()
                         .indexOf(variableExpressionExecutor.getAttribute());
                 continue;
-            } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) { // for
-                                                                                                    // VariableExpressionExecutor
-                                                                                                    // on Event table
+            } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) {
+                // for VariableExpressionExecutor on Event table
                 continue;
             } else if (metaComplexEvent instanceof MetaStateEvent
-                    && streamEventChainIndex >= ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents().length) { // for
-                                                                                                                    // VariableExpressionExecutor
-                                                                                                                    // on
-                                                                                                                    // Event
-                                                                                                                    // table
+                    && streamEventChainIndex >= ((MetaStateEvent) metaComplexEvent).getMetaStreamEvents().length) {
+                // for VariableExpressionExecutor on Event table
                 continue;
             }
 
@@ -131,7 +136,8 @@ public class AggregationDefinitionParserHelper {
         }
         StreamEventPool originalStreamEventPool = new StreamEventPool(originalMetaStreamEvent, 5);
         StreamEventPool newStreamEventPool = new StreamEventPool(newMetaStreamEvent, 5);
-        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = aggregationRuntime.getIncrementalExecuteStreamReceiver();
+        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver =
+                aggregationRuntime.getIncrementalExecuteStreamReceiver();
         incrementalExecuteStreamReceiver.setNewMetaStreamEvent(newMetaStreamEvent);
         incrementalExecuteStreamReceiver.setOriginalMetaStreamEvent(originalMetaStreamEvent);
         incrementalExecuteStreamReceiver.setExpressionExecutors(metaExecutors);
@@ -143,17 +149,5 @@ public class AggregationDefinitionParserHelper {
         incrementalExecuteStreamReceiver.setLockWrapper(lockWrapper);
         incrementalExecuteStreamReceiver.init();
         incrementalExecuteStreamReceiver.setNext(aggregationRuntime.getExecutor());
-
-//        Executor executor = aggregationRuntime.getExecutor(); // TODO: 6/13/17 correct?
-//        executor.setToLast(executor);
-
-        // TODO: 5/17/17 should we chain executors as in QueryParserHelper? If so following must be corrected
-        /*
-         * Executor executor = aggregationRuntime.getIncrementalExecutor();
-         * executor.setToLast(((IncrementalExecutor)executor).child);
-         * 
-         * aggregationRuntime.getIncrementalExecutor().setNextExecutor(executor);
-         */
-
     }
 }

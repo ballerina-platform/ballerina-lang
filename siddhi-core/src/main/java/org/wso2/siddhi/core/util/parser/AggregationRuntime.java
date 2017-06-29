@@ -8,19 +8,13 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Exec
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 
 public class AggregationRuntime {
-    private final ExecutionPlanContext executionPlanContext;
-    private AggregationDefinition aggregationDefinition;
     private StreamRuntime streamRuntime;
-    private MetaComplexEvent metaComplexEvent;
     private IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver;
 
     private Executor entryValveExecutor;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, ExecutionPlanContext executionPlanContext,
                               StreamRuntime streamRuntime, MetaComplexEvent metaComplexEvent, IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver) {
-        this.aggregationDefinition = aggregationDefinition;
-        this.executionPlanContext = executionPlanContext;
-        this.metaComplexEvent = metaComplexEvent;
         this.streamRuntime = streamRuntime;
         this.incrementalExecuteStreamReceiver = incrementalExecuteStreamReceiver;
     }

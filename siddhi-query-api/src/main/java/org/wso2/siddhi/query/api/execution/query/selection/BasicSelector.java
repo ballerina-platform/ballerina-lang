@@ -22,6 +22,9 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.List;
 
+/**
+ * Basic Selector API
+ */
 public class BasicSelector extends Selector {
 
     public BasicSelector select(String rename, Expression expression) {

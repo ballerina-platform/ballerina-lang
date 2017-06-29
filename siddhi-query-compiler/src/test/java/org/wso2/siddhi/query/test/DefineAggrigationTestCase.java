@@ -30,55 +30,45 @@ import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 public class DefineAggrigationTestCase {
 
-
     @Test
-    public void Test1() throws SiddhiParserException {
+    public void test1() throws SiddhiParserException {
 
-        AggregationDefinition aggregationDefinitionQuery = SiddhiCompiler.parseAggregationDefinition(
-                "define aggregation StockAggregation " +
-                        "from StockStream " +
-                        "select StockStream.timestamp as timestamp, StockStream.symbol as symbol, " +
-                        "       StockStream.price as price " +
-                        "   group by StockStream.symbol " +
-                        "aggregate by timestamp " +
-                        "every seconds ... days ;");
+        AggregationDefinition aggregationDefinitionQuery = SiddhiCompiler
+                .parseAggregationDefinition("define aggregation StockAggregation " + "from StockStream "
+                        + "select StockStream.timestamp as timestamp, StockStream.symbol as symbol, "
+                        + "       StockStream.price as price " + "   group by StockStream.symbol "
+                        + "aggregate by timestamp " + "every seconds ... days ;");
 
-
-        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregation").from(
-                InputStream.stream("StockStream")).
-                select(Selector.basicSelector().
-                        select("timestamp", Expression.variable("timestamp").ofStream("StockStream")).
-                        select("symbol", Expression.variable("symbol").ofStream("StockStream")).
-                        select("price", Expression.variable("price").ofStream("StockStream")).
-                        groupBy(Expression.variable("symbol").ofStream("StockStream"))
-                ).aggregateBy(Expression.variable("timestamp")).
-                every(TimePeriod.range(TimePeriod.Duration.SECONDS, TimePeriod.Duration.DAYS));
+        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregation")
+                .from(InputStream.stream("StockStream"))
+                .select(Selector.basicSelector()
+                        .select("timestamp", Expression.variable("timestamp").ofStream("StockStream"))
+                        .select("symbol", Expression.variable("symbol").ofStream("StockStream"))
+                        .select("price", Expression.variable("price").ofStream("StockStream"))
+                        .groupBy(Expression.variable("symbol").ofStream("StockStream")))
+                .aggregateBy(Expression.variable("timestamp"))
+                .every(TimePeriod.range(TimePeriod.Duration.SECONDS, TimePeriod.Duration.DAYS));
 
         Assert.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
     }
 
     @Test
-    public void Test2() throws SiddhiParserException {
+    public void test2() throws SiddhiParserException {
 
-        AggregationDefinition aggregationDefinitionQuery = SiddhiCompiler.parseAggregationDefinition(
-                "define aggregation StockAggregationDefinition " +
-                        "from StockStream " +
-                        "select StockStream.timestamp, StockStream.symbol as symbol, " +
-                        "       StockStream.price as price " +
-                        "   group by StockStream.symbol " +
-                        "aggregate by timestamp " +
-                        "every seconds, minutes, hours ;");
+        AggregationDefinition aggregationDefinitionQuery = SiddhiCompiler
+                .parseAggregationDefinition("define aggregation StockAggregationDefinition " + "from StockStream "
+                        + "select StockStream.timestamp, StockStream.symbol as symbol, "
+                        + "       StockStream.price as price " + "   group by StockStream.symbol "
+                        + "aggregate by timestamp " + "every seconds, minutes, hours ;");
 
-
-        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregationDefinition").from(
-                InputStream.stream("StockStream")).select(
-                Selector.basicSelector().
-                        select(Expression.variable("timestamp").ofStream("StockStream")).
-                        select("symbol", Expression.variable("symbol").ofStream("StockStream")).
-                        select("price", Expression.variable("price").ofStream("StockStream")).
-                        groupBy(Expression.variable("symbol").ofStream("StockStream"))
-        ).aggregateBy(Expression.variable("timestamp")).every(
-                TimePeriod.interval(TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
+        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregationDefinition")
+                .from(InputStream.stream("StockStream"))
+                .select(Selector.basicSelector().select(Expression.variable("timestamp").ofStream("StockStream"))
+                        .select("symbol", Expression.variable("symbol").ofStream("StockStream"))
+                        .select("price", Expression.variable("price").ofStream("StockStream"))
+                        .groupBy(Expression.variable("symbol").ofStream("StockStream")))
+                .aggregateBy(Expression.variable("timestamp")).every(TimePeriod.interval(TimePeriod.Duration.SECONDS,
+                        TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
 
         Assert.assertEquals(aggregationDefinition, aggregationDefinitionQuery);
 

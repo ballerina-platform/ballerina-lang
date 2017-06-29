@@ -142,7 +142,8 @@ public class ExecutionPlanRuntimeBuilder {
                 executionPlanContext);
     }
 
-    public void defineAggregation(AggregationDefinition aggregationDefinition, ExecutionPlanContext executionPlanContext) {
+    public void defineAggregation(AggregationDefinition aggregationDefinition,
+                                  ExecutionPlanContext executionPlanContext) {
         DefinitionParserHelper.validateDefinition(aggregationDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap, aggregationDefinitionConcurrentMap);
         aggregationDefinitionConcurrentMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
@@ -157,8 +158,10 @@ public class ExecutionPlanRuntimeBuilder {
                 getEventSinkMap(),
                 getLockSynchronizer());
 
-        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = aggregationRuntime.getIncrementalExecuteStreamReceiver();
-        streamJunctionMap.get(incrementalExecuteStreamReceiver.getStreamId()).subscribe(incrementalExecuteStreamReceiver);
+        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver =
+                aggregationRuntime.getIncrementalExecuteStreamReceiver();
+        streamJunctionMap.get(incrementalExecuteStreamReceiver.getStreamId()).
+                subscribe(incrementalExecuteStreamReceiver);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {

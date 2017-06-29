@@ -56,11 +56,9 @@ public class InMemoryTable implements Table, Snapshotable {
     private EventHolder eventHolder;
     private String elementId;
 
-
     @Override
-    public void init(TableDefinition tableDefinition,
-                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+            StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
@@ -88,11 +86,11 @@ public class InMemoryTable implements Table, Snapshotable {
 
     }
 
-    public void add(long timeStamp, Object [] addingEvent) { //used only in incremental aggregator TODO: 5/29/17 change?
+    public void add(long timeStamp, Object[] addingEvent) { // used only in incremental aggregator TODO: 5/29/17 change?
         try {
             readWriteLock.writeLock().lock();
             if (eventHolder instanceof ListEventHolder) {
-                ((ListEventHolder)eventHolder).addIncrementalEvent(timeStamp, addingEvent);
+                ((ListEventHolder) eventHolder).addIncrementalEvent(timeStamp, addingEvent);
             }
         } finally {
             readWriteLock.writeLock().unlock();
@@ -111,7 +109,7 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+            UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
             ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
@@ -123,13 +121,11 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-                            UpdateAttributeMapper[] updateAttributeMappers,
-                            AddingStreamEventExtractor addingStreamEventExtractor) {
+            UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
-                    (updateOrAddingEventChunk,
-                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(
+                    updateOrAddingEventChunk, eventHolder, updateAttributeMappers, addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -163,13 +159,11 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
+            ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
+            Map<String, Table> tableMap, String queryName) {
+        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder, executionPlanContext,
+                variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
-
 
     @Override
     public Map<String, Object> currentState() {

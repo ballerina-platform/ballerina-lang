@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -36,10 +37,18 @@ import org.wso2.siddhi.core.util.parser.AggregationParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+/**
+ * Incremental executor class which is responsible for performing incremental aggregation
+ */
 public class IncrementalExecutor implements Executor {
+    static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
     private TimePeriod.Duration duration; // TODO: 6/16/17 remove unnecessary fields
     private IncrementalExecutor child;
     private MetaStreamEvent metaEvent;
@@ -125,7 +134,7 @@ public class IncrementalExecutor implements Executor {
         while (streamEventChunk.hasNext()) {
             StreamEvent event = (StreamEvent) streamEventChunk.next();
 
-            System.out.println(this.duration + "..." + event.getType());
+            LOG.info(this.duration + "..." + event.getType());
 
             // Create new chunk to hold one stream event only
             ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<>(event, event,
@@ -173,7 +182,7 @@ public class IncrementalExecutor implements Executor {
                     for (Object z : x.getValue().getBaseIncrementalValues()) {
                         a = a.concat(z.toString() + "___");
                     }
-                    System.out.println(this.duration + "...." + isRoot + "..." + x.getValue().getKey() + "...." + a);
+                    LOG.info(this.duration + "...." + isRoot + "..." + x.getValue().getKey() + "...." + a);
 
                 }
 
@@ -224,7 +233,8 @@ public class IncrementalExecutor implements Executor {
                     if (actualEmitTimeForEvent == nextEmitTime) {
                         updateRunningBaseAggregatorCollection(groupedByKey, event);
                     } else {
-                        Map<String, BaseIncrementalAggregatorStore> bufferedBaseAggregatorCollection = bufferedBaseAggregatorMap
+                        Map<String, BaseIncrementalAggregatorStore> bufferedBaseAggregatorCollection
+                                = bufferedBaseAggregatorMap
                                 .get(actualEmitTimeForEvent);
                         if (bufferedBaseAggregatorCollection != null) {
                             updateBufferedBaseAggregatorCollection(groupedByKey, event,
@@ -287,7 +297,7 @@ public class IncrementalExecutor implements Executor {
         if (isRoot) {
             // Clone base executors and add to basicExecutorsOfBufferedEvents
             List<AggregationParser.ExpressionExecutorDetails> bufferedBasicExecutorDetails = basicExecutorDetails
-                    .stream().map(AggregationParser.ExpressionExecutorDetails::clone).collect(Collectors.toList());
+                    .stream().map(AggregationParser.ExpressionExecutorDetails::copy).collect(Collectors.toList());
             basicExecutorsOfBufferedEvents.put(copyOfEmitTime, bufferedBasicExecutorDetails);
             // Add current base aggregator collection to buffer
             bufferedBaseAggregatorMap.put(copyOfEmitTime, runningBaseAggregatorCollection);
@@ -311,7 +321,8 @@ public class IncrementalExecutor implements Executor {
 
                 // Remove oldest base aggregator collections from bufferedBaseAggregatorMap
                 // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
-                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch = ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
+                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch =
+                        ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
                         .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true);
 
@@ -319,8 +330,8 @@ public class IncrementalExecutor implements Executor {
                 if (mapOfBaseAggregatesToDispatch != null) {
                     // Null check is done, since if the buffer is not filled yet,
                     // there's no requirement to send oldest event
-                    for (Map.Entry<Long, Map<String, BaseIncrementalAggregatorStore>> baseAggregatesToDispatch : mapOfBaseAggregatesToDispatch
-                            .entrySet()) {
+                    for (Map.Entry<Long, Map<String, BaseIncrementalAggregatorStore>>
+                            baseAggregatesToDispatch : mapOfBaseAggregatesToDispatch.entrySet()) {
                         sendToNextExecutor(baseAggregatesToDispatch.getValue());
                     }
                     mapOfBaseAggregatesToDispatch.clear();
@@ -384,7 +395,7 @@ public class IncrementalExecutor implements Executor {
             }
             newComplexEventChunk = new ComplexEventChunk<>(streamEvent, streamEvent, false);
             inMemoryTable.add(baseAggregateToDispatch.getValue().getTimeStamp(), streamEvent.getOnAfterWindowData());
-            System.out.println(inMemoryTable.getElementId() + "........" + inMemoryTable.currentState());
+            LOG.info(inMemoryTable.getElementId() + "........" + inMemoryTable.currentState());
             // TODO: 6/13/17 table may not always be there?
             if (getNextExecutor() != null) {
                 getNextExecutor().execute(newComplexEventChunk);

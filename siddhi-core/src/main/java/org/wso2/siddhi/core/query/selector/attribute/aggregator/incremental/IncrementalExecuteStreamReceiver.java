@@ -27,17 +27,18 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverterFactory;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.input.stream.state.PreStateProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
-import org.wso2.siddhi.core.util.parser.helper.AggregationDefinitionParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * IncrementalExecuteStreamReceiver is the entry point to Siddhi aggregate definition (Incremental Processing)
+ * The initial mapping to base values of base incremental aggregators is performed herewith.
+ */
 public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver {
 
     // TODO: 5/16/17 Copy of ProcessStreamReceiver. Change where necessary
@@ -49,12 +50,10 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
     private MetaStreamEvent originalMetaStreamEvent;
     private StreamEventPool originalStreamEventPool;
     private StreamEventPool newStreamEventPool;
-    protected List<PreStateProcessor> stateProcessors = new ArrayList<PreStateProcessor>();
-    protected int stateProcessorsSize;
     protected LatencyTracker latencyTracker;
     protected LockWrapper lockWrapper;
-    protected ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
-    protected boolean batchProcessingAllowed;
+    private ComplexEventChunk<StreamEvent> batchingStreamEventChunk = new ComplexEventChunk<StreamEvent>(false);
+    private boolean batchProcessingAllowed;
     private SiddhiDebugger siddhiDebugger;
     private String aggregatorName;
     private List<ExpressionExecutor> metaValueRetrievers;
@@ -74,7 +73,8 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
     }
 
     public IncrementalExecuteStreamReceiver clone(String key) {
-        IncrementalExecuteStreamReceiver processStreamReceiver = new IncrementalExecuteStreamReceiver(streamId + key, latencyTracker, aggregatorName);
+        IncrementalExecuteStreamReceiver processStreamReceiver = new IncrementalExecuteStreamReceiver(streamId + key,
+                latencyTracker, aggregatorName);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }
@@ -153,7 +153,6 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
         execute(new ComplexEventChunk<>(firstEvent, currentEvent, this.batchProcessingAllowed));
     }
 
-
     @Override
     public void receive(Event event, boolean endOfBatch) {
         StreamEvent borrowedEvent = originalStreamEventPool.borrowEvent();
@@ -168,7 +167,8 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
         }
         if (streamEventChunk != null) {
             if (siddhiDebugger != null) {
-                siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN, streamEventChunk.getFirst());
+                siddhiDebugger.checkBreakPoint(aggregatorName, SiddhiDebugger.QueryTerminal.IN,
+                        streamEventChunk.getFirst());
             }
             execute(streamEventChunk);
         }
@@ -176,6 +176,7 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
 
     @Override
     public void receive(long timestamp, Object[] data) {
+        // TODO: 6/29/17 Fix other receive methods similarly
         // Convert data using the original meta
         StreamEvent borrowedOriginalEvent = originalStreamEventPool.borrowEvent();
         streamEventConverter.convertData(timestamp, data, borrowedOriginalEvent);
@@ -188,7 +189,7 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
                 borrowedNewEvent.getOnAfterWindowData()[i] = expressionExecutor.execute(borrowedOriginalEvent);
                 i++;
             }
-        } else if (newMetaStreamEvent.getOnAfterWindowData().size() == metaValueRetrievers.size() +1 ) {
+        } else if (newMetaStreamEvent.getOnAfterWindowData().size() == metaValueRetrievers.size() + 1) {
             // User has not defined the timeStamp
             borrowedNewEvent.getOnAfterWindowData()[0] = System.currentTimeMillis();
             int i = 1;
@@ -198,8 +199,8 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
             }
             if (isFirstEvent) {
                 // Scheduling must be done only for system time based events
-                scheduler.notifyAt(IncrementalTimeConverterUtil.getNextEmitTime(
-                        (Long) borrowedNewEvent.getOnAfterWindowData()[0], minSchedulingTime));
+                scheduler.notifyAt(IncrementalTimeConverterUtil
+                        .getNextEmitTime((Long) borrowedNewEvent.getOnAfterWindowData()[0], minSchedulingTime));
                 isFirstEvent = false;
             }
         } else {
@@ -253,11 +254,6 @@ public class IncrementalExecuteStreamReceiver implements StreamJunction.Receiver
 
     public void init() {
         streamEventConverter = StreamEventConverterFactory.constructEventConverter(originalMetaStreamEvent);
-    }
-
-    public void addStatefulProcessor(PreStateProcessor stateProcessor) {
-        stateProcessors.add(stateProcessor);
-        stateProcessorsSize = stateProcessors.size();
     }
 
     public void setExpressionExecutors(List<ExpressionExecutor> metaValueRetrievers) {
