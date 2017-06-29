@@ -103,7 +103,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * */
     validateInput(input) {
         const splitedExpression = input.split(' ');
-        return splitedExpression.length > 1;
+        return splitedExpression.length > 0;
     }
 
     /**

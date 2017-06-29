@@ -94,6 +94,7 @@ class LifeLine extends React.Component {
         const centerX = bBox.x + (bBox.w / 2);
         const y2 = bBox.h + bBox.y;
         const titleBoxH = lifeLine.head.height;
+        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w , titleBoxH);
 
         const actionBbox = new SimpleBBox();
         actionBbox.w = (3 * DesignerDefaults.actionBox.width - 14) / 4;
