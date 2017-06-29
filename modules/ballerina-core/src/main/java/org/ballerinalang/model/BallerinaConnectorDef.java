@@ -19,6 +19,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
@@ -57,6 +58,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private ParameterDef[] parameterDefs;
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
+    private NamespaceDeclarationStmt[] namespaceDclrStmts;
     private int sizeOfConnectorMem;
 
     private BallerinaFunction initFunction;
@@ -119,7 +121,10 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     public int getSizeOfConnectorMem() {
         return sizeOfConnectorMem;
     }
-
+    
+    public NamespaceDeclarationStmt[] getNamespaceDclrStmts() {
+        return namespaceDclrStmts;
+    }
 
     // Methods in Node interface
 
@@ -262,6 +267,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
             this.connectorDef.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);
             this.connectorDef.isNative = this.isNative;
+            this.connectorDef.namespaceDclrStmts = this.namespaceDclrStmtList.toArray(new NamespaceDeclarationStmt[0]);
             return connectorDef;
         }
     }

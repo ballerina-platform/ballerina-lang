@@ -58,6 +58,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -224,7 +225,9 @@ public class BLangVM {
         StructureType structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
-
+        BXML xmlVal;
+        BXMLAttributes xmlAttrs;
+        
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
         TypeCPEntry typeCPEntry;
@@ -1295,6 +1298,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
+                case InstructionCodes.XMLATTR2MAP:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -1421,6 +1425,60 @@ public class BLangVM {
                     break;
                 case InstructionCodes.RET:
                     handleReturn();
+                    break;
+                case InstructionCodes.XMLATTRSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    xmlVal.setAttribute(sf.stringRegs[j], sf.stringRegs[j + 1], sf.stringRegs[j + 2], 
+                            sf.stringRegs[k]);
+                    break;
+                case InstructionCodes.XMLATTRLOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    sf.stringRegs[k] = xmlVal.getAttribute(sf.stringRegs[j], sf.stringRegs[j + 1], 
+                            sf.stringRegs[j + 2]);
+                    break;
+                case InstructionCodes.XML2ATTRS:
+                    i = operands[0];
+                    j = operands[1];
+
+                    xmlVal = (BXML) sf.refRegs[i];
+                    if (xmlVal == null) {
+                        sf.refRegs[j] = null;
+                        break;
+                    }
+                    
+                    sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                    break;
+                case InstructionCodes.S2QNAME:
+                    i = operands[0];
+                    j = operands[1];
+                    String qNameStr = sf.stringRegs[i];
+
+                    if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
+                        // local part
+                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
+                        // namespaceUri
+                        sf.stringRegs[j + 1] = qNameStr.substring(1, qNameStr.indexOf('}'));
+                    } else {
+                        sf.stringRegs[j] = qNameStr;
+                        sf.stringRegs[j + 1] = "";
+                    }
+
+                    // prefix
+                    sf.stringRegs[j + 2] = "";
                     break;
                 default:
                     throw new UnsupportedOperationException();
@@ -1786,6 +1844,24 @@ public class BLangVM {
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
                     handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
+                }
+                break;
+            case InstructionCodes.XMLATTR2MAP:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                
+                bRefType = sf.refRegs[i];
+                if (bRefType == null) {
+                    sf.refRegs[j] = null;
+                    break;
+                }
+
+                try {
+                    sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
+                } catch (BallerinaException e) {
+                    sf.refRegs[j] = null;
+                    handleTypeConversionError(sf, k, TypeConstants.XML_ATTRIBUTES_TNAME, TypeConstants.MAP_TNAME);
                 }
                 break;
             default:

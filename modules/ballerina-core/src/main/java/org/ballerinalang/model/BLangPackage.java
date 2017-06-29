@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.natives.NativePackageProxy;
@@ -53,7 +54,8 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected Function mainFunction;
     protected TypeMapper[] typeMappers;
     protected AnnotationDef[] annotationDefs;
-
+    protected NamespaceDeclarationStmt[] namespaceDclrStmts;
+    
     private BallerinaFunction initFunction;
 
     protected List<BLangPackage> dependentPkgs = new ArrayList<>();
@@ -189,6 +191,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     public void setInitFunction(BallerinaFunction initFunction) {
         this.initFunction = initFunction;
+    }
+
+    public NamespaceDeclarationStmt[] getNamespaceDclrStmt() {
+        return namespaceDclrStmts;
     }
 
     // Methods in the SymbolScope interface
@@ -385,6 +391,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
         public void setBallerinaFileList(List<BallerinaFile> ballerinaFileList) {
             this.ballerinaFileList = ballerinaFileList;
+        }
+        
+        public void addNamespaceDeclarationStmt(NamespaceDeclaration namespaceDclr) {
+            this.compilationUnitList.add(namespaceDclr);
         }
 
         public BLangPackage build() {

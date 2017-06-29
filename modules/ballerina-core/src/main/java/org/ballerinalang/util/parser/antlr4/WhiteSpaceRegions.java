@@ -381,6 +381,13 @@ public class WhiteSpaceRegions {
     public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
     public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
     public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
+    
+    // whitespace regions in a import declaration
+    public static final int NAMESPACE_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START = 0;
+    public static final int NAMESPACE_DEC_PKG_NAME_END_TO_NEXT = 1;
+    public static final int NAMESPACE_DEC_AS_KEYWORD_TO_IDENTIFIER = 2;
+    public static final int NAMESPACE_DEC_IDENTIFIER_TO_IMPORT_DEC_END = 3;
+    public static final int NAMESPACE_DEC_END_TO_NEXT_TOKEN = 4;
 
     public static final int FORK_PRECEDING_WHITESPACE = 0;
     public static final int FORK_KEYWORD_TO_BODY_START = 1;

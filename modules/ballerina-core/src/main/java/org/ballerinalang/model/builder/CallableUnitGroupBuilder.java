@@ -28,6 +28,7 @@ import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class CallableUnitGroupBuilder {
     protected List<Resource> resourceList = new ArrayList<>();
     protected List<BallerinaAction> actionList = new ArrayList<>();
     protected List<VariableDefStmt> variableDefStmtList = new ArrayList<>();
+    protected List<NamespaceDeclarationStmt> namespaceDclrStmtList = new ArrayList<>();
 
     SymbolScope getCurrentScope() {
         return currentScope;
@@ -113,4 +115,9 @@ public class CallableUnitGroupBuilder {
     public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
+    
+    public void addNamespaceDeclarationStmt(NamespaceDeclarationStmt namespaceDclrStmt) {
+        this.namespaceDclrStmtList.add(namespaceDclrStmt);
+    }
+
 }

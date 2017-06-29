@@ -113,6 +113,11 @@ public enum SemanticErrors {
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    CONFLICT_WITH_PKG_IMPORT("conflict.with.pkg.import", "SEMANTIC_0095"),
+    CONFLICT_WITH_NAMESPACE_DCLR("conflict.with.namespace.dclr", "SEMANTIC_0096"),
+    XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0097"),
+    XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0098"),
+    UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0099"),
     ;
 
     private String errorMsgKey;

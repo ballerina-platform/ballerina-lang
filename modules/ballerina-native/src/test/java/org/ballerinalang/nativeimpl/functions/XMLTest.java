@@ -20,16 +20,19 @@ package org.ballerinalang.nativeimpl.functions;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.XMLUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -43,13 +46,17 @@ import javax.xml.namespace.QName;
 public class XMLTest {
 
     private ProgramFile programFile;
+    private ProgramFile xmlAttrProgFile;
+    ProgramFile namespaceProgFile;
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
     private static final String s2 = "<person><name>Jack</name></person>";
     private static String l1;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/xmlTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/xml/xmlTest.bal");
+        xmlAttrProgFile = BTestUtils.getProgramFile("samples/xml/xmlAttributeTest.bal");
+        namespaceProgFile = BTestUtils.getProgramFile("samples/xml/xmlNamespaceTest.bal");
     }
 
     @Test
@@ -331,7 +338,7 @@ public class XMLTest {
     }
 
     @Test
-    public void testAddAttribute() {
+    public void testAddAttributeWithXPath() {
         BValue[] args = {new BXMLItem(s2), new BString("/person/name"), new BString("id"), new BString("person123")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "addAttribute", args);
 
@@ -639,74 +646,6 @@ public class XMLTest {
     }
     
     @Test
-    public void testSetAttribute() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetAttribute");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<book xmlns:ns0=\"http://sample/com\" ns0:id=\"1234\">Book1" +
-                "</book>");
-    }
-    
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
-                    "attribute to xml: Cannot create an unprefixed attribute with a namespace.*")
-    public void testSetAttributeWithoutPrefix() {
-        BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutPrefix");
-    }
-    
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
-                    "attribute to xml: Cannot create a prefixed attribute with an empty namespace name.*")
-    public void testSetAttributeWithoutNamspaceUri() {
-        BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutNamspaceUri");
-    }
-    
-    @Test
-    public void testSetAttributeWithoutNamspaceAndPrefix() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutNamspaceAndPrefix");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<book id=\"1234\">Book1</book>");
-    }
-    
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to set " +
-                    "attribute to xml: localname of the attribute cannot be empty.*")
-    public void testSetAttributeWithoutLocalName() {
-        BLangFunctions.invokeNew(programFile, "testSetAttributeWithoutLocalName");
-    }
-    
-    @Test
-    public void testGetAttribute() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetAttribute");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "1234");
-    }
-    
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to get attribute " +
-                    "from xml: atribute not found: \\{http://sample/com\\}status.*")
-    public void testGetNonExistingAttribute() {
-        BLangFunctions.invokeNew(programFile, "testGetNonExistingAttribute");
-    }
-    
-    @Test
-    public void testGetAttributeWithoutNamespace() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testGetAttributeWithoutNamespace");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "789");
-    }
-    
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to get attribute " +
-                    "from xml: localname of the attribute cannot be empty.*")
-    public void testGetAttributeWithoutLocalname() {
-        BLangFunctions.invokeNew(programFile, "testGetAttributeWithoutLocalname");
-    }
-    
-    @Test
     public void testStrip() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testStrip");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -801,5 +740,238 @@ public class XMLTest {
                 "<bookId>Updated Book ID</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
         Assert.assertEquals(returns[1].stringValue(), "<!-- comment about the book--><bookName>Book1</bookName>" +
                 "<bookId>001</bookId><bookAuthor>Author01</bookAuthor><?word document=\"book.doc\" ?>");
+    }
+
+    @Test
+    public void testAddAttributeWithString() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithString");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"bar1\" ns0Kf5j:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
+    }
+    
+    @Test(expectedExceptions = {BLangRuntimeException.class}, 
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: localname of the " +
+            "attribute cannot be empty.*")
+    public void testAddAttributeWithoutLocalname() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
+    }
+    
+    @Test
+    public void testAddAttributeWithEmptyNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithEmptyNamespace");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" foo1=\"bar\"/>");
+    }
+    
+    @Test
+    public void testAddNamespaceAsAttribute1() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddNamespaceAsAttribute");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
+            "xmlns:ns4=\"http://wso2.com\"/>");
+        
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<root xmlns=\"http://ballerinalang.org/\" " +
+            "xmlns:ns3=\"http://sample.com/wso2/f\" xmlns:ns4=\"http://wso2.com\"/>");
+    }
+    
+    @Test
+    public void testAddAttributeWithQName() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithQName");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>");
+    }
+    
+    @Test
+    public void testUpdateAttributeWithString() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithString");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns4=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0Kf5j=\"http://sample.com/wso2/e\" foo1=\"newbar1\" ns0Kf5j:foo2=\"newbar2\" " +
+                "ns4:foo3=\"bar3\"/>");
+    }
+    
+    @Test
+    public void testUpdateNamespaceAsAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateNamespaceAsAttribute");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://wso2.com\"/>");
+        
+        Assert.assertTrue(returns[1] instanceof BXML);
+        Assert.assertEquals(returns[1].stringValue(), "<root xmlns=\"http://ballerinalang.org/\" " +
+            "xmlns:ns3=\"http://wso2.com\"/>");
+    }
+    
+    @Test
+    public void testUpdateAttributeWithQName() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUpdateAttributeWithQName");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"newbar1\" ns3:foo2=\"newbar2\"/>");
+    }
+    
+    @Test
+    public void testGetAttributeWithString() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeWithString");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "bar1");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "bar2");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "");
+    }
+    
+    @Test
+    public void testGetAttributeWithoutLocalname() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeWithoutLocalname");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "");
+    }
+    
+    @Test
+    public void testGetAttributeWithEmptyNamespace() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeWithEmptyNamespace");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "bar1");
+    }
+    
+    @Test
+    public void testGetNamespaceAsAttribute() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetNamespaceAsAttribute");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "http://sample.com/wso2/f");
+    }
+    
+    @Test
+    public void testGetAttributeWithQName() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeWithQName");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "bar1");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "bar2");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "");
+    }
+    
+    @Test
+    public void testUsingQNameAsString() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUsingQNameAsString");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a1}wso2");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a1}ballerina");
+    }
+    
+    @Test
+    public void testGetAttributesAsMap() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributesAsMap");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
+                "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+        
+        Assert.assertTrue(returns[1] instanceof BMap);
+        Assert.assertEquals(returns[1].stringValue(), "{\"{http://sample.com/default/namepsace}ns0\":" +
+                "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "bar1");
+        
+        Assert.assertTrue(returns[3] instanceof BString);
+        Assert.assertEquals(returns[3].stringValue(), "bar1");
+    }
+    
+    @Test
+    public void testNamespaceDclr() {
+        BValue[] returns = BLangFunctions.invokeNew(namespaceProgFile, "testNamespaceDclr");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/b1}foo");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
+    }
+    
+    @Test
+    public void testInnerScopeNamespaceDclr() {
+        BValue[] returns = BLangFunctions.invokeNew(namespaceProgFile, "testInnerScopeNamespaceDclr");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
+        
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a3}foo");
+        
+        Assert.assertTrue(returns[2] instanceof BString);
+        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/a2}foo");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "attributeMapInvalidUse.bal:6: incompatible types: 'xml-attributes' " +
+            "cannot be assigned to 'map'")
+    public void testXMlAttributesMapInvalidUsage() {
+        ProgramFile xmlAttributeMapInvalidUsage = BTestUtils.getProgramFile("samples/xml/attributeMapInvalidUse.bal");
+        BLangFunctions.invokeNew(xmlAttributeMapInvalidUsage, "testXMlAttributesMapInvalidUsage");
+    }
+    
+    @Test
+    public void testXMLAttributesToAny() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testXMLAttributesToAny");
+        Assert.assertTrue(returns[0] instanceof BXMLAttributes);
+        Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
+            "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "namespaceConflictWithPkgImport.bal:6: package import already exists " +
+            "with the name 'x'")
+    public void testNamespaceConflictWithPkgImport() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/namespaceConflictWithPkgImport.bal");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "pkgImportConflictWithNamespace.bal:4: namespace already exists with " +
+            "the name 'x'")
+    public void testPkgImportConflictWithNamespace() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/pkgImportConflictWithNamespace.bal");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "getAttributesFromNonXml.bal:4: incompatible types: expected 'xml', " +
+            "found 'map'")
+    public void testGetAttributesFromNonXml() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/getAttributesFromNonXml.bal");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "updateAttributeMap.bal:3: xml attributes cannot be updated as a " +
+            "collection. update attributes one at a time")
+    public void testUpdateAttributeMap() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/updateAttributeMap.bal");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "updateQname.bal:4: cannot assign values to an xml qualified name")
+    public void testUpdateQname() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/updateQname.bal");
+    }
+    
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "undefinedNamespace.bal:8: undefined namespace 'ns0'")
+    public void testUndefinedNamespace() {
+        ProgramFile xmlAttributeMapInvalidUsage =
+                BTestUtils.getProgramFile("samples/xml/undefinedNamespace.bal");
     }
 }

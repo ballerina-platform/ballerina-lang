@@ -19,6 +19,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
@@ -58,7 +59,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private Resource[] resources;
     private URITemplate uriTemplate;
     private VariableDefStmt[] variableDefStmts;
-
+    private NamespaceDeclarationStmt[] namespaceDclrStmts;
+    
     private BallerinaFunction initFunction;
 
     // Scope related variables
@@ -118,6 +120,10 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     public void setBLangProgram(BLangProgram bLangProgram) {
         this.bLangProgram = bLangProgram;
+    }
+
+    public NamespaceDeclarationStmt[] getNamespaceDclrStmts() {
+        return namespaceDclrStmts;
     }
 
     // Methods in Node interface
@@ -239,6 +245,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
             this.service.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);
+            this.service.namespaceDclrStmts = this.namespaceDclrStmtList.toArray(new NamespaceDeclarationStmt[0]);
             return service;
         }
     }
