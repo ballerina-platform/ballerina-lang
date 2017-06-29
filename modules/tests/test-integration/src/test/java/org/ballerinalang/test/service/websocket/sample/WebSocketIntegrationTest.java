@@ -20,7 +20,9 @@ public class WebSocketIntegrationTest extends IntegrationTestCase {
 
     protected void shutDownAllClients(WebSocketClient[] wsClients) throws InterruptedException {
         for (WebSocketClient client: wsClients) {
-            client.shutDown();
+            if (client.isOpen()) {
+                client.shutDown();
+            }
         }
     }
 }
