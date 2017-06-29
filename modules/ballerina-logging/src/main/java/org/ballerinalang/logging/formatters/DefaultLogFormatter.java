@@ -26,14 +26,14 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting the ballerina.log file
+ * A custom log formatter for formatting log files other than ballerina.log, error.log and bre.log
  *
  * @since 0.89
  */
-public class BallerinaLogFormatter extends Formatter {
+public class DefaultLogFormatter extends Formatter {
 
     private static final String format = BLogManager.getLogManager().getProperty(
-            BallerinaLogFormatter.class.getCanonicalName() + ".format");
+            DefaultLogFormatter.class.getCanonicalName() + ".format");
 
     @Override
     public String format(LogRecord record) {

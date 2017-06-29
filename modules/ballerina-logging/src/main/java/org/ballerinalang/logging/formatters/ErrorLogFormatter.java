@@ -18,7 +18,8 @@
 
 package org.ballerinalang.logging.formatters;
 
-import org.ballerinalang.launcher.BLogManager;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.logging.util.BLogLevelMapper;
 
 import java.util.Date;
 import java.util.logging.Formatter;
@@ -32,7 +33,7 @@ import java.util.logging.LogRecord;
 public class ErrorLogFormatter extends Formatter {
 
     private static final String format = BLogManager.getLogManager().getProperty(
-            "org.ballerinalang.logging.formatters.ErrorLogFormatter.format");
+            ErrorLogFormatter.class.getCanonicalName() + ".format");
 
     @Override
     public String format(LogRecord record) {
