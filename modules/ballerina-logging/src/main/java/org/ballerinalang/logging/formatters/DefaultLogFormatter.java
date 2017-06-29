@@ -21,6 +21,8 @@ package org.ballerinalang.logging.formatters;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.logging.util.BLogLevelMapper;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -37,16 +39,21 @@ public class DefaultLogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        String source;
-        if (record.getLoggerName().length() <= "ballerina.".length()) {
-            source = ".";
-        } else {
-            source = record.getLoggerName().substring("ballerina.".length());
+        String source = record.getLoggerName();
+        String ex = "";
+
+        if (record.getThrown() != null) {
+            StringWriter stringWriter = new StringWriter();
+            stringWriter.append('\n');
+            record.getThrown().printStackTrace(new PrintWriter(stringWriter));
+            ex = stringWriter.toString();
         }
+
         return String.format(format,
                              new Date(record.getMillis()),
                              BLogLevelMapper.mapLevel(record.getLevel()),
                              source,
-                             record.getMessage());
+                             record.getMessage(),
+                             ex);
     }
 }
