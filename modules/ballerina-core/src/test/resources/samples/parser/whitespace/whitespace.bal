@@ -30,6 +30,8 @@ native function testNativeFunction (message m, int i) (message);
 
 function testBalFunction (message m, int i)
                             (message)  {
+  fork{worker a{} }     join (all a , b ) (map v ) { }
+   timeout(3000)(map v){}
 
 
 }
