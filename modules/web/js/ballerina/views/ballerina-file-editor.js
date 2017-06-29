@@ -136,6 +136,10 @@ class BallerinaFileEditor extends EventChannel {
         this._model.on('import-new-package', (packageString) => {
             this.trigger('update-tool-palette');
         });
+
+        this._model.on('breakpoints-updated', () => {
+            this.trigger('breakpoints-updated');
+        });
     }
 
     setId(id) {
@@ -603,7 +607,7 @@ class BallerinaFileEditor extends EventChannel {
     /**
      * find line numbers which has debugpoints in source view
     */
-    _showSourceViewBreakPoints() {
+    showSourceViewBreakPoints() {
         const breakpoints = this.getBreakpoints();
         this._sourceView.setBreakpoints(breakpoints);
     }

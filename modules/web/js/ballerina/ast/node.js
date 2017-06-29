@@ -47,6 +47,14 @@ class ASTNode extends EventChannel {
             }
         });
 
+        this.on('breakpoints-updated', function (event) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('breakpoints-updated', event);
+            } else {
+                log.debug('Cannot find the parent node to propagate tree modified event up.');
+            }
+        });
+
         this._generateUniqueIdentifiers = undefined;
         this.whiteSpace = {};
         this.whiteSpace.defaultDescriptor = {};
@@ -443,12 +451,14 @@ class ASTNode extends EventChannel {
      */
     addBreakpoint() {
         this.isBreakpoint = true;
+        this.trigger('breakpoints-updated');
     }
     /**
      * Removes isBreakpoint atribute to node
      */
     removeBreakpoint() {
         this.isBreakpoint = false;
+        this.trigger('breakpoints-updated');
     }
     /**
      * Sets isDebugHit atribute to node

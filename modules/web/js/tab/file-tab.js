@@ -242,7 +242,7 @@ class FileTab extends Tab {
         }, this);
 
         fileEditor.on('source-view-activated', () => {
-            fileEditor.showDesignViewBreakpoints();
+            fileEditor.showSourceViewBreakPoints();
         });
 
         fileEditor.on('add-breakpoint', function (row) {
