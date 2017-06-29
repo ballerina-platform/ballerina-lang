@@ -108,7 +108,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
                 properties.get(Constants.HTTP_HOST) : Constants.HTTP_DEFAULT_HOST;
         int port = Integer.parseInt(properties.get(Constants.HTTP_PORT));
         ListenerConfiguration config = new ListenerConfiguration(id, host, port);
-        String schema = properties.get(Constants.HTTP_SCHEMA);
+        String schema = properties.get(Constants.HTTP_SCHEME);
         if (schema != null && schema.equals("https")) {
             config.setScheme(schema);
             config.setKeyStoreFile(properties.get(Constants.HTTP_KEY_STORE_FILE));

@@ -172,7 +172,7 @@ public final class Constants {
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";
-    public static final String HTTP_SCHEMA = "schema";
+    public static final String HTTP_SCHEME = "scheme";
     public static final String HTTP_KEY_STORE_FILE = "keyStoreFile";
     public static final String HTTP_KEY_STORE_PASS = "keyStorePass";
     public static final String HTTP_CERT_PASS = "certPass";
