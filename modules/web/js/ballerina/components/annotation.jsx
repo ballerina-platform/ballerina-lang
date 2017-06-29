@@ -287,7 +287,7 @@ class Annotation extends React.Component {
         const model = this.props.model;
 
         let removeIcon = (null);
-        if (!_.isUndefined(this.props.removeIcon)) {
+        if (!_.isNil(this.props.removeIcon)) {
             removeIcon = this.props.removeIcon;
         } else {
             removeIcon = (<div className="annotation-remove" onClick={this.deleteAnnotation}>
