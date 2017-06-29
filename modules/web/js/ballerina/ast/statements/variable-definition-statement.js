@@ -131,6 +131,24 @@ class VariableDefinitionStatement extends Statement {
     }
 
     /**
+     * Get left hand expression
+     * @returns {Expression}
+     * @memberof VariableDefinitionStatement
+     */
+    getLeftExpression() {
+        return this.getChildren()[0];
+    }
+
+    /**
+     * Get right hand expression
+     * @returns {Expression}
+     * @memberof VariableDefinitionStatement
+     */
+    getRightExpression() {
+        return this.getChildren()[1];
+    }
+
+    /**
      * Set the variable definition statement string
      * @param {string} stmtString - variable definition statement string
      * @param {function} callback - callback function

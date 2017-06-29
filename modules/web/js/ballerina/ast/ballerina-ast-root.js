@@ -56,8 +56,20 @@ class BallerinaASTRoot extends ASTNode {
 
         const addImportsForTopLevel = function (child, options) {
             if (factory.isAssignmentStatement(child)) {
+                // TODO : use the same check for variable def stmt when right expression
+                // is refactored to directly contain the expression.
                 if (child.getRightExpression() !== undefined) {
                     const expression = child.getRightExpression().getChildren()[0];
+                    if (expression
+                         && (factory.isFunctionInvocationExpression(expression)
+                              || factory.isActionInvocationExpression(expression))
+                         && expression.getFullPackageName()) {
+                        addImport(expression.getFullPackageName(), options);
+                    }
+                }
+            } else if (factory.isVariableDefinitionStatement(child)) {
+                if (child.getRightExpression() !== undefined) {
+                    const expression = child.getRightExpression();
                     if (expression
                          && (factory.isFunctionInvocationExpression(expression)
                               || factory.isActionInvocationExpression(expression))

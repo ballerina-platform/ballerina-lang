@@ -604,12 +604,13 @@ class TransformRender {
  * @param {function} onFunctionRemove call back function for function remove
  */
     addFunction(func, reference, onFunctionRemove) {
-        func.meta.packageName = func.meta.packageName.replace(' ', '');
-        funcName = _.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + ' : ' + func.getName();
+        const packageName = func.getPackageName().replace(' ', '');
+        let funcName = _.isEmpty(packageName) ? func.getName() :
+                                  packageName + ' : ' + func.getName();
         const funcText = func.getName();
-    // Allow multiple functions to drag and drop without conflicting
-        const functionInvocationModelId = reference.getChildren()[1].getChildren()[0].getID();
-        func.name = (_.isEmpty(func.meta.packageName) ? func.getName() : func.meta.packageName + '-' + func.getName()) +
+        // Allow multiple functions to drag and drop without conflicting
+        const functionInvocationModelId = reference.getID();
+        func.name = (_.isEmpty(packageName) ? func.getName() : packageName + '-' + func.getName()) +
                    functionInvocationModelId;
 
         const id = func.name + this.viewIdSeperator + this.viewId;
@@ -617,7 +618,7 @@ class TransformRender {
             this.references.push({ name: id, refObj: reference });
             const newFunc = $('<div>').attr('id', id).addClass('func');
             const self = this;
-            var funcName = $('<div>');
+            funcName = $('<div>');
             const funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
             const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
             const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');

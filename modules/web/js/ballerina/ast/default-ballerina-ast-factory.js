@@ -255,6 +255,42 @@ DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args)
     return BallerinaASTFactory.createAssignmentStatement(args);
 };
 
+DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement = function (args) {
+    const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+    const opts = {
+        functionName: _.get(args, 'functionDef._name'),
+        packageName: _.get(args, 'packageName'),
+        fullPackageName: _.get(args, 'fullPackageName'),
+    };
+    const funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(opts);
+    if (!_.isNil(args) && _.has(args, 'functionDef')) {
+        let functionInvokeString = '';
+        if (!_.isNil(args.packageName)) {
+            functionInvokeString += args.packageName + ':';
+        }
+        functionInvokeString += args.functionDef.getName() + '(';
+        if (!_.isEmpty(args.functionDef.getParameters())) {
+            args.functionDef.getParameters().forEach((param, index) => {
+                if (index !== 0) {
+                    functionInvokeString += ', ';
+                }
+                functionInvokeString += param.name;
+            });
+        }
+        functionInvokeString += ')';
+        funcInvocationExpression.setExpressionFromString(functionInvokeString);
+
+        // fragment parser does not have access to full package name. Hence, setting it here.
+        funcInvocationExpression.setFullPackageName(_.get(args, 'fullPackageName'));
+        const leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+        const rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+        rightOp.addChild(funcInvocationExpression);
+        assignmentStmt.addChild(leftOp);
+        assignmentStmt.addChild(rightOp);
+    }
+    return assignmentStmt;
+};
+
 /**
  * creates FunctionInvocationStatement
  * @param {object} args - argument to be passed in to factory methods.
@@ -300,6 +336,7 @@ DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = functio
             });
             const expression = leftOperandExpression + ' = ' + functionInvokeString;
             variableDefinitionStatement.setStatementFromString(expression);
+            variableDefinitionStatement.getRightExpression().setFullPackageName(_.get(args, 'fullPackageName'));
             variableDefinitionStatement.accept(new EnableDefaultWSVisitor());
             return variableDefinitionStatement;
         }

@@ -93,6 +93,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             }
         });
         functionDef.setReturnParams(returnTypes);
+        functionDef.setFullPackageName(this.getPackage().getName());
 
         this.getPackage().addFunctionDefinitions(functionDef);
 
