@@ -421,7 +421,7 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in an field based var ref expression
     public static final int FIELD_VAR_REF_EXPR_PRECEDING_WHITESPACE = 0;
-    public static final int FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR= 1;
+    public static final int FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR = 1;
     public static final int FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START = 2;
     public static final int FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
 }
