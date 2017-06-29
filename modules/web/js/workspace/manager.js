@@ -34,6 +34,7 @@ import FileTab from 'tab/file-tab';
 import alerts from 'alerts';
 import ServiceClient from './service-client';
 import DocerinaFile from '../docerina/docerina-file';
+import ExportDiagram from 'dialog/export-diagram-dialog';
 
 // workspace manager constructor
 /**
@@ -100,6 +101,9 @@ class WorkspaceManager {
 
         // Open documentation for the given package.
         this.app.commandManager.registerHandler('open-documentation', this.showDocumentationFor, this);
+
+        // Open Export Diagram
+        this.app.commandManager.registerHandler('export-diagram', this.exportDiagram, this);
     }
 
     /**
@@ -222,6 +226,41 @@ class WorkspaceManager {
                         this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
                     }, this);
                 }
+            }
+        }
+    }
+
+    /**
+     * Export Diagram as a SVG file.
+     *
+     * @param {object} options - config for the export diagram dialog.
+     * */
+    exportDiagram(options) {
+        if (this.app.isElectronMode()) {
+            //TODO: Support export in Electron mode.
+        } else {
+            if (_.isNil(this._exportDiagram)) {
+                this._exportDiagram = new ExportDiagram(this.app);
+            }
+            this._exportDiagram.render();
+
+            if (!_.isNil(options) && _.isFunction(options.callback)) {
+                let isSaved = false;
+                this._exportDiagram.once('export-completed', (success) => {
+                    isSaved = success;
+                }, this);
+                this._exportDiagram.once('unloaded', () => {
+                    options.callback(isSaved);
+                }, this);
+            }
+
+            this._exportDiagram.show();
+            const activeTab = this.app.tabController.getActiveTab();
+            if (!_.isNil(activeTab) && _.isFunction(activeTab.getFile)) {
+                const activeFile = activeTab.getFile();
+                this._exportDiagram.once('loaded', function () {
+                    this._exportDiagram.setDiagramPath(activeTab, activeFile.getPath(), activeFile.getName());
+                }, this);
             }
         }
     }
