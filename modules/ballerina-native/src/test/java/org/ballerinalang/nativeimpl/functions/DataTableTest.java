@@ -120,7 +120,7 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        Assert.assertEquals((returns[2]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
+        Assert.assertEquals((returns[2]).stringValue(), "wso2 ballerina binary test.");
     }
 
     @SuppressWarnings("unchecked")
@@ -281,6 +281,12 @@ public class DataTableTest {
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
+    }
+
+    @Test(description = "Check getByIndex methods for primitive types.")
+    public void testBlobInsert() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBlobInsert");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @AfterSuite

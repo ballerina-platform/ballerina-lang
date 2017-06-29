@@ -2502,41 +2502,6 @@ public class BLangVM {
         }
     }
 
-    public static void prepareStructureTypeFromNativeAction(StructureType structureType) {
-        BType[] fieldTypes = structureType.getFieldTypes();
-        BValue[] memoryBlock = structureType.getMemoryBlock();
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < fieldTypes.length; i++) {
-            BType paramType = fieldTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    structureType.setIntField(++longRegIndex, ((BInteger) memoryBlock[i]).intValue());
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    structureType.setFloatField(++doubleRegIndex, ((BFloat) memoryBlock[i]).floatValue());
-                    break;
-                case TypeTags.STRING_TAG:
-                    structureType.setStringField(++stringRegIndex, memoryBlock[i].stringValue());
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    structureType.setBooleanField(++booleanRegIndex,
-                            ((BBoolean) memoryBlock[i]).booleanValue() ? 1 : 0);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    structureType.setBlobField(++blobRegIndex, ((BBlob) memoryBlock[i]).blobValue());
-                    break;
-                default:
-                    structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
-            }
-        }
-    }
-
     private boolean checkCast(BType sourceType, BType targetType) {
         if (sourceType.equals(targetType)) {
             return true;
