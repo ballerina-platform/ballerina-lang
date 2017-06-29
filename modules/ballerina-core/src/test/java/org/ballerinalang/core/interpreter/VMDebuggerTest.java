@@ -65,8 +65,6 @@ public class VMDebuggerTest {
         DebugRunner debugRunner = new DebugRunner();
         Context bContext = debugRunner.setup(debugSessionObserver, breakPoints);
 
-        debugRunner.run();
-
         bContext.getDebugInfoHolder().releaseLock();
 
         for (int i = 0; i <= expectedPoints.length; i++) {
@@ -76,7 +74,7 @@ public class VMDebuggerTest {
                         "Unexpected halt position for debug step " + (i + 1));
                 executeDebuggerCmd(bContext, debugCommand[i]);
             } else {
-//                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
+                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
             }
         }
     }
@@ -197,7 +195,7 @@ public class VMDebuggerTest {
             programFile = new BLangProgramLoader().loadMainProgramFile(path, Paths.get(sourceFilePath));
 
 
-            bContext = new Context();
+            bContext = new Context(programFile);
             bContext.setDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
@@ -231,16 +229,9 @@ public class VMDebuggerTest {
             bContext.getDebugInfoHolder().setDebugSessionObserver(debugSessionObserver);
             bContext.getDebugInfoHolder().addDebugPoints(new ArrayList<>(Arrays.asList(breakPoints)));
             bContext.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
-            return bContext;
-        }
-
-        private void startDebug() {
             DebuggerExecutor executor = new DebuggerExecutor(programFile, bContext);
             (new Thread(executor)).start();
-        }
-
-        public void run() {
-            startDebug();
+            return bContext;
         }
     }
 
@@ -270,6 +261,7 @@ public class VMDebuggerTest {
         @Override
         public void notifyExit() {
             isExit = true;
+            executionSem.release();
         }
 
         @Override

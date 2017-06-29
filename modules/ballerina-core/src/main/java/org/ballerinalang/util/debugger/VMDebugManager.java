@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
@@ -31,7 +32,6 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 
-import static java.lang.Thread.sleep;
 
 /**
  * {@code VMDebugManager} Manages debug sessions and handle debug related actions.
@@ -46,9 +46,7 @@ public class VMDebugManager {
 
     private VMDebugServer debugServer;
     
-    private boolean debugEnagled;
-
-    private volatile boolean done;
+    private boolean debugEnabled;
 
     /**
      * Object to hold debug session related context.
@@ -57,8 +55,6 @@ public class VMDebugManager {
     private VMDebugSession debugSession;
 
     private static VMDebugManager debugManagerInstance = null;
-
-    private boolean waitingForClient;
 
     private Context mainThreadContext;
 
@@ -94,27 +90,17 @@ public class VMDebugManager {
         }
     }
 
-    public void mainInit(DebuggerExecutor debuggerExecutor, Context mainThreadContext) {
+    public void mainInit(ProgramFile programFile, Context mainThreadContext) {
         this.mainThreadContext = mainThreadContext;
+        mainThreadContext.setDebugInfoHolder(new DebugInfoHolder());
+        mainThreadContext.setDebugEnabled(true);
+        DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, mainThreadContext);
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         executor.submit(debuggerExecutor);
         // start the debug server if it is not started yet.
         if (this.debugServer == null) {
             this.debugServer = new VMDebugServer();
             this.debugServer.startServer();
-        }
-    }
-
-    /**
-     *  Wait till client connection establish.
-     */
-    public void waitTillClientConnect() {
-        this.waitingForClient = true;
-        //suspend the current thread till client connects.
-        try {
-            executionSem.acquire();
-        } catch (InterruptedException e) {
-            //todo proper error handling
         }
     }
 
@@ -162,12 +148,8 @@ public class VMDebugManager {
             case DebugConstants.CMD_START:
                 // Client needs to explicitly start the execution once connected.
                 // This will allow client to set the breakpoints before starting the execution.
-                if (this.waitingForClient) {
-                    executionSem.release();
-                    this.waitingForClient = false;
-                    sendAcknowledge(this.debugSession, "Debug started.");
-                    holder.resume();
-                }
+                sendAcknowledge(this.debugSession, "Debug started.");
+                holder.resume();
                 break;
             default:
                 MessageDTO message = new MessageDTO();
@@ -197,11 +179,10 @@ public class VMDebugManager {
      *  Hold on to main thread while debugger finishes execution.
      */
     public void holdON() {
+        //suspend the current thread till debugging process finishes
         try {
-            while (!done) {
-                sleep(100);
-            }
-            notifyExit(debugSession);
+            executionSem.acquire();
+            debugSession.notifyExit();
         } catch (InterruptedException e) {
             // Do nothing probably someone wants to shutdown the thread.
             Thread.currentThread().interrupt();
@@ -224,16 +205,16 @@ public class VMDebugManager {
         this.debugSession.addContext(threadId, bContext);
     }
 
-    public boolean isDebugEnagled() {
-        return debugEnagled;
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
-    public void setDebugEnagled(boolean debugEnagled) {
-        this.debugEnagled = debugEnagled;
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void releaseExecutionLock() {
+        this.executionSem.release();
     }
 
     public boolean isDebugSessionActive() {
