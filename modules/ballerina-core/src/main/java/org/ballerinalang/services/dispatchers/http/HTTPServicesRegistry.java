@@ -181,10 +181,10 @@ public class HTTPServicesRegistry {
         }
 
         AnnotationAttributeValue schemaAttrVal = configInfo.getAnnotationAttributeValue
-                (Constants.ANNOTATION_ATTRIBUTE_SCHEMA);
+                (Constants.ANNOTATION_ATTRIBUTE_SCHEME);
         if (schemaAttrVal != null && schemaAttrVal.getStringValue() != null &&
                 !schemaAttrVal.getStringValue().trim().isEmpty()) {
-            propMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEMA, schemaAttrVal.getStringValue());
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEME, schemaAttrVal.getStringValue());
         }
 
         AnnotationAttributeValue keyStoreFileAttrVal = configInfo.getAnnotationAttributeValue
@@ -211,8 +211,8 @@ public class HTTPServicesRegistry {
      */
     private String buildInterfaceName(Map<String, String> propMap) {
         StringBuilder iName = new StringBuilder();
-        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEMA) != null ?
-                propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEMA) : Constants.PROTOCOL_HTTP);
+        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) != null ?
+                propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) : Constants.PROTOCOL_HTTP);
         iName.append("_");
         iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
         return iName.toString();

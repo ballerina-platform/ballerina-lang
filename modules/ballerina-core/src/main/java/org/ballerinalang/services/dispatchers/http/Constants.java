@@ -64,7 +64,7 @@ public class Constants {
     public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
     public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
     public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
-    public static final String ANNOTATION_ATTRIBUTE_SCHEMA = "schema";
+    public static final String ANNOTATION_ATTRIBUTE_SCHEME = "scheme";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
     public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_PASS = "keyStorePass";
     public static final String ANNOTATION_ATTRIBUTE_CERT_PASS = "certPass";

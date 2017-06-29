@@ -113,6 +113,7 @@ public enum SemanticErrors {
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
     ;
 
     private String errorMsgKey;

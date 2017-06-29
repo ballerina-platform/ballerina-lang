@@ -50,6 +50,10 @@ public class DispatcherRegistry {
         return serviceDispatchers.get(protocolPackageMap.get(protocolPkg));
     }
 
+    public boolean protocolPkgExist(String protocolPkgPath) {
+        return protocolPackageMap.containsKey(protocolPkgPath);
+    }
+
     public Map<String, ServiceDispatcher> getServiceDispatchers() {
         return serviceDispatchers;
     }

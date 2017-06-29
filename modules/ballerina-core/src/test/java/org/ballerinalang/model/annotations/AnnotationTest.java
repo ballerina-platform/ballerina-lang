@@ -21,8 +21,11 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.util.TestHTTPServiceDispatcher;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -37,6 +40,8 @@ public class AnnotationTest {
 
     @BeforeClass
     public void setup() {
+        ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
+        DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
         bLangProgram = BTestUtils.parseBalFile("lang/annotations/foo/");
     }
 
