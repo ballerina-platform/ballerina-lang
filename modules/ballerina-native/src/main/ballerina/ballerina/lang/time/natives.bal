@@ -2,7 +2,7 @@ package ballerina.lang.time;
 
 import ballerina.doc;
 
-@doc:Description {value:"Ballerina Timezone struct represents the time zone information associated with a particular time."}
+@doc:Description {value:"Ballerina Timezone struct represents the timezone information associated with a particular time."}
 @doc:Field {value:"zoneId: Zone short ID or offset string."}
 @doc:Field {value:"zoneOffset: The offset in seconds."}
 struct Timezone {
@@ -10,19 +10,19 @@ struct Timezone {
     int zoneOffset;
 }
 
-@doc:Description {value:"Ballerina Time struct represents a particular time with its associated time zone."}
+@doc:Description {value:"Ballerina Time struct represents a particular time with its associated timezone."}
 @doc:Field {value:"time: Time value as milliseconds since epoch."}
-@doc:Field {value:"zone: The time zone of the time."}
+@doc:Field {value:"zone: The time   zone of the time."}
 struct Time {
     int time;
     Timezone zone;
 }
 
-@doc:Description {value:"Returns the current time value with the system default time zone."}
+@doc:Description {value:"Returns the current time value with the system default timezone."}
 @doc:Return {value:"ballerina.lang.time:Time: Time struct containing the time and zone information."}
 native function currentTime()(Time);
 
-@doc:Description {value:"Returns the the date and time components and time zone."}
+@doc:Description {value:"Returns the the date and time components and timezone."}
 @doc:Param {value:"year : The year representation"}
 @doc:Param {value:"month : The month-of-year to represent, from 1 (January) to 12 (December)"}
 @doc:Param {value:"date : The day-of-month to represent, from 1 to 31"}
@@ -30,7 +30,7 @@ native function currentTime()(Time);
 @doc:Param {value:"minute : The minute-of-hour to represent, from 0 to 59"}
 @doc:Param {value:"second : The second-of-minute to represent, from 0 to 59"}
 @doc:Param {value:"milliSecond : The milli-of-second to represent, from 0 to 999"}
-@doc:Param {value:"zoneId : The zone id of the required time zone"}
+@doc:Param {value:"zoneId : The zone id of the required timezone"}
 @doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information."}
 native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                             string zoneId)(Time);
@@ -131,8 +131,8 @@ native function addDuration(Time timeData, int years, int months, int days, int 
 native function subtractDuration(Time timeData, int years, int months, int days, int hours, int minutes, int seconds,
                              int milliSeconds)(Time);
 
-@doc:Description {value:"Change the time zone of the given time."}
-@doc:Param {value:"time : The time struct which needs to change the time zone information"}
-@doc:Param {value:"format : The new time zone id"}
-@doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information after the conversionq    ."}
+@doc:Description {value:"Change the timezone of the given time."}
+@doc:Param {value:"time : The time struct which needs to change the timezone information"}
+@doc:Param {value:"format : The new timezone id"}
+@doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information after the conversion."}
 native function toTimezone(Time timeData, string zoneId)(Time);
