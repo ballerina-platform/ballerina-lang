@@ -78,6 +78,10 @@ class BinaryExpression extends Expression {
         let expressionString = '';
         expressionString += (!_.isNil(this.getLeftExpression()))
                 ? this.getLeftExpression().getExpressionString() : '';
+        // default tailing whitespace of expressions is emtpy - hence we need to
+        // append a space here
+        expressionString += (!_.isNil(this.getLeftExpression()) && this.getLeftExpression().whiteSpace.useDefault)
+                                ? ' ' : '';
         expressionString += this._operator + this.getWSRegion(2);
         expressionString += (!_.isNil(this.getRightExpression()))
                 ? this.getRightExpression().getExpressionString() : '';
