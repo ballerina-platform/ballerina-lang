@@ -36,6 +36,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,11 +51,13 @@ public class SQLDataIterator implements DataIterator {
     private Connection conn;
     private Statement stmt;
     private ResultSet rs;
+    private Calendar utcCalendar;
 
-    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
+    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
+        this.utcCalendar = utcCalendar;
     }
 
     @Override
@@ -159,9 +162,9 @@ public class SQLDataIterator implements DataIterator {
             case Types.DATE:
                 return getBString(rs.getDate(columnName));
             case Types.TIME:
-                return getBString(rs.getTime(columnName));
+                return getBString(rs.getTime(columnName, utcCalendar));
             case Types.TIMESTAMP:
-                return getBString(rs.getTimestamp(columnName));
+                return getBString(rs.getTimestamp(columnName, utcCalendar));
             case Types.BINARY:
                 return getBString(rs.getBinaryStream(columnName));
             }

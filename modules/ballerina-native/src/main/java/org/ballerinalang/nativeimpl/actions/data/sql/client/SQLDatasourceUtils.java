@@ -403,7 +403,8 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setTimeStampValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+    public static void setTimeStampValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType,
+            Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
             if (value instanceof BInteger) {
@@ -417,13 +418,13 @@ public class SQLDatasourceUtils {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTimestamp(index + 1, val);
+                    stmt.setTimestamp(index + 1, val, utcCalendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTimestamp(index + 1, val);
+                    stmt.setTimestamp(index + 1, val, utcCalendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -436,7 +437,8 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+    public static void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType,
+            Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
             if (value instanceof BInteger) {
@@ -450,13 +452,13 @@ public class SQLDatasourceUtils {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTime(index + 1, val);
+                    stmt.setTime(index + 1, val, utcCalendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTime(index + 1, val);
+                    stmt.setTime(index + 1, val, utcCalendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -1060,7 +1062,10 @@ public class SQLDatasourceUtils {
                 String rest = source.substring(19);
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
-                timeZoneOffSet = offsetData[1];
+                int calculatedtimeZoneOffSet = offsetData[1];
+                if (calculatedtimeZoneOffSet != -1) {
+                    timeZoneOffSet = calculatedtimeZoneOffSet;
+                }
                 calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
@@ -1079,7 +1084,7 @@ public class SQLDatasourceUtils {
 
     private static int[] getTimeZoneWithMilliSeconds(String fractionStr) {
         int miliSecond = 0;
-        int timeZoneOffSet = 0;
+        int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
             int milliSecondPartLength = 0;
             if (fractionStr.endsWith("Z")) { //timezone is given as Z
