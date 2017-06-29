@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.antlr.v4.runtime.tree.Tree;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -75,8 +74,7 @@ public class IncrementalExecutor implements Executor {
             List<CompositeAggregator> compositeAggregators,
             List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails, List<Variable> groupByVariables,
             VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator,
-            List<ExpressionExecutor> genericExpressionExecutors, int bufferCount,
-            StreamEventPool streamEventPool) {
+            List<ExpressionExecutor> genericExpressionExecutors, int bufferCount, StreamEventPool streamEventPool) {
         this.duration = duration;
         this.child = child;
         this.metaEvent = metaEvent;
@@ -104,24 +102,6 @@ public class IncrementalExecutor implements Executor {
         bufferedBaseAggregatorMap = new TreeMap<>();
         basicExecutorsOfBufferedEvents = new TreeMap<>();
         timerStreamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
-
-        /*
-         * EntryValveProcessor entryValveProcessor = new EntryValveProcessor(this.executionPlanContext){
-         * 
-         * @Override
-         * public void process(ComplexEventChunk complexEventChunk) {
-         * executionPlanContext.getThreadBarrier().pass();
-         * execute(complexEventChunk);
-         * }
-         * };
-         * Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(),
-         * entryValveProcessor, this.executionPlanContext);
-         * LockWrapper lockWrapper = new LockWrapper(aggregatorName);
-         * lockWrapper.setLock(new ReentrantLock());
-         * scheduler.init(lockWrapper, aggregatorName);
-         * scheduler.setStreamEventPool(new StreamEventPool((MetaStreamEvent) metaEvent,5));
-         * setScheduler(scheduler);
-         */
     }
 
     public void setRoot() {
@@ -135,27 +115,6 @@ public class IncrementalExecutor implements Executor {
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
-
-    /*
-     * public List<Object> calculateAggregators(String groupBy) {
-     * // TODO: 5/11/17 This returns the actual aggregate by using base aggregates (eg. avg=sum/count)
-     * List<Object> aggregatorValues = new ArrayList<>();
-     * for (CompositeAggregator compositeAggregator : this.compositeAggregators) {
-     * // key will be attribute name + function name, examples price+ave, age+count etc
-     * ConcurrentMap<String, Object> baseAggregatorValues = this.storeAggregatorFunctions.get(groupBy);
-     * Expression[] baseAggregators = compositeAggregator.getBaseAggregators();
-     * Object[] expressionValues = new Object[baseAggregators.length];
-     * for (int i = 0; i < baseAggregators.length; i++) {
-     * Expression aggregator = baseAggregators[i];
-     * String functionName = ((AttributeFunction) aggregator).getName();
-     * String attributeName = compositeAggregator.getAttributeName();
-     * expressionValues[i] = baseAggregatorValues.get(functionName + attributeName);
-     * }
-     * aggregatorValues.add(compositeAggregator.aggregate(expressionValues));
-     * }
-     * return aggregatorValues;
-     * }
-     */
 
     public void resetAggregatorStore() {
         this.runningBaseAggregatorCollection = new HashMap<>();
@@ -194,6 +153,8 @@ public class IncrementalExecutor implements Executor {
                 dispatchEvents(copyOfEmitTime, timeStamp);
                 if (event.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
                     // Send TIMER event to next executor.
+                    // TODO: 6/29/17 This must be corrected. Timer events must be sent only after sending atleast 1
+                    // event to next
                     StreamEvent timerEvent = streamEventPool.borrowEvent();
                     timerEvent.setType(ComplexEvent.Type.TIMER);
                     timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timeStamp,
@@ -244,7 +205,7 @@ public class IncrementalExecutor implements Executor {
         return null;
     }
 
-    private void    processAggregates(ComplexEventChunk complexEventChunk, long timeStamp) {
+    private void processAggregates(ComplexEventChunk complexEventChunk, long timeStamp) {
         synchronized (this) {
             while (complexEventChunk.hasNext()) {
                 ComplexEvent event = complexEventChunk.next();
@@ -295,7 +256,7 @@ public class IncrementalExecutor implements Executor {
                     genericExpressionExecutors.size(), basicExecutorDetails.size());
             runningBaseAggregatorCollection.put(groupedByKey, runningBaseAggregator);
         }
-        for (int i = 0; i< genericExpressionExecutors.size(); i++) {
+        for (int i = 0; i < genericExpressionExecutors.size(); i++) {
             runningBaseAggregator.setGenericValues(genericExpressionExecutors.get(i).execute(event), i);
         }
         for (int i = 0; i < basicExecutorDetails.size(); i++) {
@@ -309,13 +270,10 @@ public class IncrementalExecutor implements Executor {
         BaseIncrementalAggregatorStore bufferedBaseAggregator = bufferedBaseAggregatorCollection.get(groupedByKey);
         if (bufferedBaseAggregator == null) {
             bufferedBaseAggregator = new BaseIncrementalAggregatorStore(timeStamp, groupedByKey,
-                    basicExecutorsOfBufferedEvents.size(), genericExpressionExecutors.size()); // TODO: 6/13/17 use
-            // timeStamp or
-            // actualExpiry -
-            // 1000?
+                    basicExecutorsOfBufferedEvents.size(), genericExpressionExecutors.size());
             bufferedBaseAggregatorCollection.put(groupedByKey, bufferedBaseAggregator);
         }
-        for (int i = 0; i< genericExpressionExecutors.size(); i++) {
+        for (int i = 0; i < genericExpressionExecutors.size(); i++) {
             bufferedBaseAggregator.setGenericValues(genericExpressionExecutors.get(i).execute(event), i);
         }
         for (int i = 0; i < basicExecutorsOfBufferedEvents.size(); i++) {
@@ -335,7 +293,7 @@ public class IncrementalExecutor implements Executor {
             bufferedBaseAggregatorMap.put(copyOfEmitTime, runningBaseAggregatorCollection);
             // Reset running base aggregator collection
             resetAggregatorStore();
-            if (isExternalTimeStampBased) { // TODO: 6/26/17 test this logic!
+            if (isExternalTimeStampBased) {
                 // When external timestamp is used, there could be instances where events which
                 // were supposed to have expired earlier, still remain in the buffer, due to
                 // events not arriving at the end of each duration period (e.g. For sec window
@@ -353,8 +311,7 @@ public class IncrementalExecutor implements Executor {
 
                 // Remove oldest base aggregator collections from bufferedBaseAggregatorMap
                 // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
-                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch =
-                        ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
+                NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch = ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
                         .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true);
 
@@ -403,7 +360,8 @@ public class IncrementalExecutor implements Executor {
     }
 
     private void sendToNextExecutor(Map<String, BaseIncrementalAggregatorStore> baseAggregatesToDispatch) {
-        ComplexEventChunk<StreamEvent> newComplexEventChunk = new ComplexEventChunk<>();
+        InMemoryTable inMemoryTable = ((InMemoryTable) tableMap.get(aggregatorName + "_" + this.duration.toString()));
+        ComplexEventChunk<StreamEvent> newComplexEventChunk;
         for (Map.Entry<String, BaseIncrementalAggregatorStore> baseAggregateToDispatch : baseAggregatesToDispatch
                 .entrySet()) {
             StreamEvent streamEvent = streamEventPool.borrowEvent();
@@ -424,15 +382,13 @@ public class IncrementalExecutor implements Executor {
                 streamEvent.getOnAfterWindowData()[i] = baseIncrementalValue;
                 i++;
             }
-            newComplexEventChunk.add(streamEvent);
-            InMemoryTable inMemoryTable = ((InMemoryTable) tableMap
-                    .get(aggregatorName + "_" + this.duration.toString()));
+            newComplexEventChunk = new ComplexEventChunk<>(streamEvent, streamEvent, false);
             inMemoryTable.add(baseAggregateToDispatch.getValue().getTimeStamp(), streamEvent.getOnAfterWindowData());
-            // TODO: 6/13/17 table may not always be there?
             System.out.println(inMemoryTable.getElementId() + "........" + inMemoryTable.currentState());
-        }
-        if (getNextExecutor() != null) {
-            getNextExecutor().execute(newComplexEventChunk);
+            // TODO: 6/13/17 table may not always be there?
+            if (getNextExecutor() != null) {
+                getNextExecutor().execute(newComplexEventChunk);
+            }
         }
     }
 
@@ -442,7 +398,8 @@ public class IncrementalExecutor implements Executor {
         private Object[] genericValues;
         private Object[] baseIncrementalValues;
 
-        private BaseIncrementalAggregatorStore(long timeStamp, String key, int numberOfGenericValues, int numberOfBaseValues) {
+        private BaseIncrementalAggregatorStore(long timeStamp, String key, int numberOfGenericValues,
+                int numberOfBaseValues) {
             this.timeStamp = timeStamp;
             this.key = key;
             genericValues = new Object[numberOfGenericValues];

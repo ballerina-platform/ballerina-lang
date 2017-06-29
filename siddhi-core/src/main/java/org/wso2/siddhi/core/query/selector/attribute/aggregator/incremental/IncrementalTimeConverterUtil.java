@@ -65,9 +65,6 @@ public class IncrementalTimeConverterUtil {
 
     public static long getEmitTimeOfLastEventToRemove(long currentEmitTime, TimePeriod.Duration duration,
             int bufferCount) {
-        // TODO: 6/21/17 get emit time like this. return array of size. then iterate through
-        // basicExecutorsOfBufferedEvents to see if any key = or is less than this. all such events
-        // must be dispatched
         switch (duration) {
         case SECONDS:
             return currentEmitTime - bufferCount * 1000;
@@ -99,7 +96,11 @@ public class IncrementalTimeConverterUtil {
         } else {
             // For any other month, the 1st day of next month must be considered
             Integer nextMonth = Integer.parseInt(timeAsString[1]) + 1;
-            startTimeOfNextMonth = timeAsString[0] + "-" + nextMonth.toString() + "-01T00:00:00Z";
+            String nextMonthAsString = nextMonth.toString();
+            if (nextMonthAsString.length() == 1) {
+                nextMonthAsString = "0".concat(nextMonthAsString);
+            }
+            startTimeOfNextMonth = timeAsString[0] + "-" + nextMonthAsString + "-01T00:00:00Z";
             return Instant.parse(startTimeOfNextMonth).toEpochMilli();
         }
     }
@@ -143,9 +144,13 @@ public class IncrementalTimeConverterUtil {
             yearOfLastEventToRemove = Integer.parseInt(timeAsString[0]) - noOfYearsToReduce;
             monthOfLastEventToRemove = givenMonth - bufferCount;
         }
+        String monthOfLastEventToRemoveAsString = monthOfLastEventToRemove.toString();
+        if (monthOfLastEventToRemoveAsString.length() == 1) {
+            monthOfLastEventToRemoveAsString = "0".concat(monthOfLastEventToRemoveAsString);
+        }
         return Instant
-                .parse(yearOfLastEventToRemove.toString() + "-" + monthOfLastEventToRemove.toString()
-                        + "-01T00:00:00Z").toEpochMilli();
+                .parse(yearOfLastEventToRemove.toString() + "-" + monthOfLastEventToRemoveAsString + "-01T00:00:00Z")
+                .toEpochMilli();
 
     }
 
@@ -156,4 +161,3 @@ public class IncrementalTimeConverterUtil {
         return Instant.parse(yearOfLastEventToRemove.toString() + "-01-01T00:00:00Z").toEpochMilli();
     }
 }
-
