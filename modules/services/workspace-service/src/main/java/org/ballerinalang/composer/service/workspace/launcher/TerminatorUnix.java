@@ -54,7 +54,7 @@ public class TerminatorUnix implements Terminator {
      */
     public void terminate() {
         String cmd = command.getCommandIdentifier();
-        int processID = -1;
+        int processID;
         String[] findProcessCommand = getFindProcessCommand(cmd);
         BufferedReader reader = null;
         try {
@@ -62,12 +62,14 @@ public class TerminatorUnix implements Terminator {
             findProcess.waitFor();
             reader = new BufferedReader(new InputStreamReader(findProcess.getInputStream(), Charset.defaultCharset()));
 
-            String line = "";
+            String line;
             while ((line = reader.readLine()) != null) {
                 try {
                     processID = Integer.parseInt(line);
+                    killChildProcesses(processID);
                     kill(processID);
                 } catch (Throwable e) {
+                    logger.error("Launcher was unable to kill process " + line + ".");
                 }
             }
         } catch (Throwable e) {
@@ -81,7 +83,7 @@ public class TerminatorUnix implements Terminator {
 
     /**
      * Terminate running ballerina program
-     * @param pid
+     * @param pid - process id
      */
     public void kill(int pid) {
         //todo need to put aditional validation
@@ -89,18 +91,32 @@ public class TerminatorUnix implements Terminator {
             return;
         }
         String killCommand = String.format("kill -9 %d", pid);
-        BufferedReader reader = null;
         try {
             Process kill = Runtime.getRuntime().exec(killCommand);
             kill.waitFor();
-            reader = new BufferedReader(new InputStreamReader(kill.getInputStream(), Charset.defaultCharset()));
-
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                System.out.print(line);
-            }
         } catch (Throwable e) {
             logger.error("Launcher was unable to terminate process:" + pid + ".");
+        }
+    }
+    /**
+     * Terminate running all child processes for a given pid
+     * @param pid - process id
+     */
+    private void killChildProcesses(int pid) {
+        BufferedReader reader = null;
+        try {
+            Process findChildProcess = Runtime.getRuntime().exec(String.format("pgrep -P %d", pid));
+            findChildProcess.waitFor();
+            reader = new BufferedReader(new InputStreamReader(findChildProcess.getInputStream(),
+                        Charset.defaultCharset()));
+            String line;
+            int childProcessID;
+            while ((line = reader.readLine()) != null) {
+                childProcessID = Integer.parseInt(line);
+                kill(childProcessID);
+            }
+        } catch (Throwable e) {
+            logger.error("Launcher was unable to find parent for process:" + pid + ".");
         } finally {
             if (reader != null) {
                 IOUtils.closeQuietly(reader);

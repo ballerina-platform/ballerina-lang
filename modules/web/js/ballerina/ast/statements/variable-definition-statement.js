@@ -119,7 +119,7 @@ class VariableDefinitionStatement extends Statement {
         if ((!_.has(parsedJson, 'error')
                || !_.has(parsedJson, 'syntax_errors'))) {
             const child = this.getFactory().createFromJson(parsedJson);
-            this.initFromJson(child);
+            child.initFromJson(parsedJson);
             this.children[1] = child;
             this.trigger('tree-modified', {
                 origin: this,

@@ -71,6 +71,12 @@ public class BLangJSONModelConstants {
 
     public static final String CONSTANT_DEFINITION_VALUE = "constant_definition_value";
 
+    public static final String GLOBAL_VARIABLE_DEFINITION = "global_variable_definition";
+
+    public static final String GLOBAL_VARIABLE_DEFINITION_BTYPE = "global_variable_definition_btype";
+
+    public static final String GLOBAL_VARIABLE_DEFINITION_IDENTIFIER = "global_variable_definition_identifier";
+
     public static final String SERVICE_DEFINITION = "service_definition";
 
     public static final String ANNOTATION_DEFINITION = "annotation_definition";
@@ -178,6 +184,8 @@ public class BLangJSONModelConstants {
     public static final String RETURN_STATEMENT = "return_statement";
 
     public static final String BREAK_STATEMENT = "break_statement";
+
+    public static final String CONTINUE_STATEMENT = "continue_statement";
 
     public static final String ABORT_STATEMENT = "abort_statement";
 

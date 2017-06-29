@@ -23,6 +23,7 @@ import log from 'log';
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
+const WS_PING_INTERVAL = 15000;
 
 /**
  * Handles websocket communitation with debugger backend
@@ -83,6 +84,7 @@ class Channel extends EventChannel {
      * @memberof Channel
      */
     onClose(event) {
+        clearInterval(this.ping);
         this.debugger.active = false;
         this.debugger.trigger('session-terminated');
         let reason;
@@ -94,9 +96,9 @@ class Channel extends EventChannel {
         } else if (event.code === WS_SSL_CODE) {
             reason = 'Certificate Issue';
         } else {
-            reason = `Unknown reason :${event.code}`;
+            reason = `Debug socket close with reason :${event.code}`;
         }
-        log.error(reason);
+        log.debug(reason);
     }
     /**
      * Handles websocket onError event
@@ -104,6 +106,7 @@ class Channel extends EventChannel {
      * @memberof Channel
      */
     onError() {
+        clearInterval(this.ping);
         this.debugger.active = false;
         this.debugger.trigger('session-error');
     }
@@ -115,6 +118,27 @@ class Channel extends EventChannel {
     onOpen() {
         this.debugger.active = true;
         this.debugger.trigger('session-started');
+        this.startPing();
+    }
+
+    /**
+     * start a ping for the websocket.
+     *
+     * @memberof LaunchChannel
+     */
+    startPing() {
+        this.ping = setInterval(() => {
+            this.sendMessage({ command: 'PING' });
+        }, WS_PING_INTERVAL);
+    }
+
+    /**
+     * Close websocket channel.
+     *
+     * @memberof LaunchChannel
+     */
+    close() {
+        clearInterval(this.ping);
     }
 }
 

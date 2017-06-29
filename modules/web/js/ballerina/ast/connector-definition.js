@@ -239,6 +239,31 @@ class ConnectorDefinition extends ASTNode {
         }
     }
 
+    addVariableDefinitionFromString(variableDefString) {
+        if(!variableDefString){
+            return;
+        }
+
+        const varDefStatement = this.getFactory().createVariableDefinitionStatement();
+        varDefStatement.setStatementFromString(variableDefString, ({isValid, response}) => {
+            if(!isValid) {
+                return;
+            }
+            // Get the index of the last variable definition statement.
+            let index = _.findLastIndex(this.getChildren(), (child) => {
+                return this.getFactory().isVariableDefinitionStatement(child);
+            });
+
+            if (index === -1) {
+                index = _.findLastIndex(this.getChildren(), child => {
+                    return this.getFactory().isConnectorDeclaration(child);
+                });
+            }
+
+            this.addChild(varDefStatement, index + 1);
+        });
+    }
+
     /**
      * Removes an existing variable definition statement.
      * @param {string} modelID - The model ID of variable definition statement.

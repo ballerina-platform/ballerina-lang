@@ -71,7 +71,12 @@ class ToolGroupView extends React.Component {
                 children.push(<div className="tool-separator" key="tool-separator" />);
             } else {
                 children.push(
-                    <ToolView tool={element} key={element.get('title')} toolOrder={group.get('toolOrder')} />);
+                    <ToolView tool={element}
+                              group={group}
+                              key={element.get('title')}
+                              toolOrder={group.get('toolOrder')}
+                              application={this.props.application}
+                    />);
             }
         }, this);
 
@@ -79,12 +84,18 @@ class ToolGroupView extends React.Component {
         const toolGroupName = group.get('toolGroupName').replace('org.wso2.ballerina.connectors.', '');
 
         const trigger = (<div className="tool-group-header">
-            <a className="tool-group-header-title">{toolGroupName}</a>
+            <a className="tool-group-header-title" onClick={(e)=>{
+                e.stopPropagation();
+                this.props.application.commandManager.dispatch("open-documentation",toolGroupName,null);
+            }}>{toolGroupName}</a>
             <span className="collapse-icon fw fw-down" />
         </div>);
 
         const triggerWhenOpen = (<div className="tool-group-header">
-            <a className="tool-group-header-title">{toolGroupName}</a>
+            <a className="tool-group-header-title" onClick={(e)=>{
+                e.stopPropagation();
+                this.props.application.commandManager.dispatch("open-documentation", toolGroupName, null);
+            }}>{toolGroupName}</a>
             <span className="collapse-icon fw fw-up" />
         </div>);
 

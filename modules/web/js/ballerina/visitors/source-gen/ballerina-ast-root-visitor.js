@@ -24,6 +24,8 @@ import ImportDeclarationVisitor from './import-declaration-visitor';
 import ConnectorDefinitionVisitor from './connector-definition-visitor';
 import StructDefinitionVisitor from './struct-definition-visitor';
 import ConstantDefinitionVisitor from './constant-definition-visitor';
+import GlobalVariableDefinitionVisitor from './global-variable-definition-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
 class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
 
@@ -73,6 +75,11 @@ class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
     visitConstantDefinition(constantDefinition) {
         const constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
         constantDefinition.accept(constantDefinitionVisitor);
+    }
+
+    visitGlobalVariableDefinition(globalVariableDefinition) {
+        const globalVariableDefinitionVisitor = new GlobalVariableDefinitionVisitor(this);
+        globalVariableDefinition.accept(globalVariableDefinitionVisitor);
     }
 }
 

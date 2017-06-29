@@ -31,22 +31,22 @@ import java.util.List;
  *
  */
 public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
-    
+
     public static final String EOF = "'<EOF>'";
-    
+
     public List<SyntaxError> getErrorTokens() {
         return errorTokens;
     }
-    
+
     public void setErrorTokens(List<SyntaxError> errorTokens) {
         this.errorTokens = errorTokens;
     }
-    
+
     List<SyntaxError> errorTokens = new ArrayList<SyntaxError>();
-    
+
     public BallerinaComposerErrorStrategy() {
     }
-    
+
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
         Token missingSymbol = getMissingSymbol(parser);
@@ -60,7 +60,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
             errorTokens.add(createError(line, position, msg));
         }
     }
-    
+
     @Override
     public void reportMissingToken(Parser parser) {
         Token token = parser.getCurrentToken();
@@ -72,7 +72,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
         String msg = "missing " + missingToken + " before " + getTokenErrorDisplay(token);
         errorTokens.add(createError(line, position, msg));
     }
-    
+
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
         Token token = parser.getCurrentToken();
@@ -83,7 +83,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
             errorTokens.add(createError(line, position, msg));
         }
     }
-    
+
     @Override
     public void reportUnwantedToken(Parser parser) {
         Token token = parser.getCurrentToken();
@@ -95,12 +95,8 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
         }
     }
 
-//    private String getSourceLocation(Parser parser, int line, int position) {
-//        return parser.getSourceName() + ":" + line + ":" + position + ": ";
-//    }
-    
     private SyntaxError createError(int line, int position, String message) {
         return new SyntaxError(line, position, message);
     }
-    
+
 }

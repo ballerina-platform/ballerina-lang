@@ -279,9 +279,10 @@ class TransformStatementDecorator extends React.Component {
             self.mapper.reposition(self.mapper);
         });
 
-        span.onclick = function () {
+        span.onclick =  () => {
             document.getElementById('transformOverlay').style.display = 'none';
             $(transformOverlay).remove();
+            this.context.editor.setTransformState(false);
         };
 
         let onConnectionCallback = function(connection) {
@@ -401,6 +402,9 @@ class TransformStatementDecorator extends React.Component {
                 _.remove(functionInvocationExpression.getChildren());
             }
         });
+
+        // update the tool palette.
+        this.context.editor.setTransformState(true);
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -894,6 +898,7 @@ TransformStatementDecorator.propTypes = {
 };
 
 TransformStatementDecorator.contextTypes = {
+     editor: PropTypes.instanceOf(Object).isRequired,
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 container: PropTypes.instanceOf(Object).isRequired,
 	 renderingContext: PropTypes.instanceOf(Object).isRequired,

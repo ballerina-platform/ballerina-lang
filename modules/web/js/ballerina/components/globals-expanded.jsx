@@ -23,6 +23,7 @@ import SuggestionsText from './suggestions-text';
 import GlobalItem from './global-item';
 import EditableText from './editable-text';
 import BallerinaEnvironment from '../env/environment';
+import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import { variablesPane as variablesPaneDefaults } from '../configs/designer-defaults';
 
 export default class GlobalExpanded extends React.Component {
@@ -58,6 +59,24 @@ export default class GlobalExpanded extends React.Component {
 
     handleAddGlobalClick() {
         this.setState({ editing: true });
+    }
+
+    /**
+     * renders an ExpressionEditor in the add new variable area.
+     * @param {Object} bBox - bounding box ExpressionEditor should be rendered.
+     */
+    openEditor(bBox) {
+        const options = {
+            propertyType: 'text',
+            key: 'If condition',
+            model: this.props.model,
+            getterMethod: () => this.props.newValuePlaceholder,
+            setterMethod: this.props.onAddNewValue,
+        };
+
+        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+
+        new ExpressionEditor(bBox, s => {} /*no-op*/, options, packageScope).render(this.context.container);
     }
 
     render() {
@@ -117,19 +136,10 @@ export default class GlobalExpanded extends React.Component {
                     x={bBox.x + globalDeclarationWidth - iconSize - 6} y={topBarBbox.y + (topBarHeight - iconSize) / 2}
                 />
                 {globalElements}
-                <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="add-global-button-background" />
-                <EditableText
-                    x={bBox.x + 5} y={lastGlobalElementY + globalHeight / 2 + 6}
-                    height={globalInputHeight - 10} width={globalDeclarationWidth - 10}
-                    onBlur={this.handleAddGlobalBlur}
-                    editing={this.state.editing}
-                    onChange={this.onChange}
-                    onKeyDown={this.onKeyDown}
-                >
-                    {this.state.value}
-                </EditableText>
+                <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="add-global-button-background"
+                      />
                 <rect x={bBox.x} y={lastGlobalElementY} height={globalInputHeight} width={globalDeclarationWidth} className="global-definition-decorator" />
-                <g onClick={this.handleAddGlobalClick}>
+                <g onClick={e => {this.openEditor(textBoxBBox)}}>
                     <rect
                         x={bBox.x + 7} y={lastGlobalElementY + 7} height={globalInputHeight - 14} width={globalDeclarationWidth - 14}
                         className="add-global-button"
@@ -140,3 +150,8 @@ export default class GlobalExpanded extends React.Component {
         );
     }
 }
+
+GlobalExpanded.contextTypes = {
+    container: PropTypes.instanceOf(Object).isRequired,
+    renderingContext: PropTypes.instanceOf(Object).isRequired,
+};

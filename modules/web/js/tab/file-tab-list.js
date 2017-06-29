@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
 import TabList from './tab-list';
@@ -26,9 +25,8 @@ const FileTabList = TabList.extend(
     /** @lends FileTabList.prototype */
     {
         /**
-         * @augments FileTabList
-         * @constructs
-         * @class FileTabList represents service tab list.
+         * Initialize the FileTabList
+         * @param {object} options - list of options
          */
         initialize(options) {
             _.set(options, 'tabModel', FileTab);
@@ -103,7 +101,6 @@ const FileTabList = TabList.extend(
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
-            $('[data-toggle="tooltip"]').tooltip();
         },
 
         removeTab(tab) {
@@ -172,7 +169,6 @@ const FileTabList = TabList.extend(
             if (tab instanceof FileTab) {
                 tab.updateHeader();
             }
-            $('[data-toggle="tooltip"]').tooltip();
             return tab;
         },
         getBrowserStorage() {
@@ -199,7 +195,7 @@ const FileTabList = TabList.extend(
             if (!_.isEmpty(this._tabs)) {
                 const currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
                 let prevTabIndex = 0;
-                if (currentActiveIndex == 0) {
+                if (currentActiveIndex === 0) {
                     prevTabIndex = this._tabs.length - 1;
                 } else {
                     prevTabIndex = currentActiveIndex - 1;
@@ -215,6 +211,7 @@ const FileTabList = TabList.extend(
                     const tabFile = tab.getFile();
                     return _.isEqual(tabFile.getPath(), file.getPath()) && _.isEqual(tabFile.getName(), file.getName());
                 }
+                return undefined;
             });
         },
     });

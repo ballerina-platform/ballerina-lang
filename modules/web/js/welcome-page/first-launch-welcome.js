@@ -74,9 +74,9 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
             sampleName: sample.name,
             isFile: sample.isFile,
             clickEventCallback: () => {
-                // convert paths to platform specific paths 
-                const sampleFile = sample.path.split('/').join(pathSeperator),
-                      sampleFolder = sample.folder.split('/').join(pathSeperator);
+                // convert paths to platform specific paths
+                const sampleFile = sample.path.split('/').join(pathSeperator);
+                const sampleFolder = (sample.folder) ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
                     commandManager.dispatch('open-file', ballerinaHome + sampleFile);
                 } else {

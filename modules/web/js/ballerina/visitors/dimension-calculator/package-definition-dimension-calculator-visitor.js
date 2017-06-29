@@ -123,7 +123,7 @@ class PackageDefinitionDimensionCalculatorVisitor {
 
         if (viewState.globalsExpanded) {
             const globals = astRoot.children.filter(
-                c => ASTFactory.isConstantDefinition(c));
+                child => ASTFactory.isConstantDefinition(child) || ASTFactory.isGlobalVariableDefinition(child));
 
             height += topGutter + topBarHeight + importInputHeight +
                 (globals.length * packageDefinition.importDeclaration.itemHeight);

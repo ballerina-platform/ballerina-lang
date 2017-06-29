@@ -223,6 +223,7 @@ class FileTab extends Tab {
             viewOptions: ballerinaEditorOptions,
             backendEndpointsOptions,
             debugger: DebugManager,
+            application: this.app,
         });
 
         // change tab header class to match look and feel of source view

@@ -87,6 +87,7 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -926,6 +927,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(ContinueStmt continueStmt) {
+        JsonObject continueObject = new JsonObject();
+        continueObject.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.CONTINUE_STATEMENT);
+        this.addPosition(continueObject, continueStmt.getNodeLocation());
+        this.addWhitespaceDescriptor(continueObject, continueStmt.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.peek().add(continueObject);
+    }
+
+    @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         JsonObject tryCatchStmtObj = new JsonObject();
         tryCatchStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants
@@ -1679,7 +1689,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         constantDefinitionDefine.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
-        
+
         tempJsonArrayRef.peek().add(constantDefinitionDefine);
     }
 
@@ -1790,7 +1800,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             annotationDefObj.addProperty(BLangJSONModelConstants.ANNOTATION_ATTACHMENT_POINTS, StringUtil
                     .join(annotationDef.getAttachmentPoints(), ","));
         }
-        
+
         tempJsonArrayRef.push(new JsonArray());
         if (annotationDef.getAnnotations() != null) {
             for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
@@ -1845,7 +1855,31 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(GlobalVariableDef globalVariableDef) {
+        JsonObject globalVarDef = new JsonObject();
+        this.addPosition(globalVarDef, globalVariableDef.getNodeLocation());
+        this.addWhitespaceDescriptor(globalVarDef, globalVariableDef.getWhiteSpaceDescriptor());
+        globalVarDef.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
+                .GLOBAL_VARIABLE_DEFINITION);
+        tempJsonArrayRef.push(new JsonArray());
 
+        globalVarDef.addProperty(BLangJSONModelConstants.GLOBAL_VARIABLE_DEFINITION_BTYPE,
+                globalVariableDef.getTypeName().getName());
+        globalVarDef.addProperty(BLangJSONModelConstants.GLOBAL_VARIABLE_DEFINITION_IDENTIFIER,
+                globalVariableDef.getIdentifier().getName());
+        globalVarDef.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE,
+                globalVariableDef.getTypeName().isArrayType());
+        globalVarDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
+                globalVariableDef.getTypeName().getPackageName());
+
+        VariableDefStmt varDefStmt = globalVariableDef.getVariableDefStmt();
+
+        if (varDefStmt.getRExpr() != null) {
+            varDefStmt.getRExpr().accept(this);
+        }
+        globalVarDef.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(globalVarDef);
     }
 
     private void addPosition(JsonObject jsonObj, NodeLocation nodeLocation) {

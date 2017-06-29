@@ -18,6 +18,10 @@ body {
         
         & > a {
             color: $tool-group-header-text-color;
+
+            &:hover {
+                color: $brand-primary;
+            }
         }
     }
     
@@ -60,6 +64,8 @@ body {
         }
         
         &.tool-group-body-list {
+            margin-left: -4px;
+
             & .tool-container {
                 height: 28px;
                 text-align: left;
@@ -72,7 +78,7 @@ body {
                 & .tool-title {
                     margin-top: -1px;
                     vertical-align: text-top;
-                    margin-left: 2px;
+                    margin-left: 8px;
                     font-size: 0.94em;
                 }
             }

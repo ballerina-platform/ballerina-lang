@@ -18,7 +18,7 @@
 
 class BrowserStorage {
 
-    constuctor(name) {
+    constructor(name) {
         this.name = name;
     }
 

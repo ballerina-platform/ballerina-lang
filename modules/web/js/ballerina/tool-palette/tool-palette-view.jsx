@@ -57,9 +57,18 @@ class ToolsPane extends React.Component {
         return (
             <div>
                 {this.props.constructs &&
-                    <ToolGroupView group={this.props.constructs} key="constructs" showGridStyles />}
+                    <ToolGroupView group={this.props.constructs}
+                                   key="constructs"
+                                   application={this.props.application}
+                                   showGridStyles
+                    />}
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
-                <ToolGroupView group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
+                <ToolGroupView
+                    group={this.props.currentTools}
+                    key="Current Package"
+                    showGridStyles={false}
+                    application={this.props.application}
+                />}
                 <ToolsPanel name="Connectors">
                     {this.props.connectors}
                     <a
@@ -72,6 +81,40 @@ class ToolsPane extends React.Component {
                         More
               </a>
                 </ToolsPanel>
+                <ToolsPanel name="Libraries">
+                    {this.props.library}
+                    <a
+                        role="button"
+                        tabIndex="-1"
+                        className="tool-palette-add-button"
+                        onClick={() => this.changePane('library')}
+                    >
+                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
+                        More
+                    </a>
+                    <br />
+                </ToolsPanel>
+            </div>
+        );
+    }
+}
+
+class TransformPane extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.changePane = this.changePane.bind(this);
+    }
+
+    changePane(type) {
+        this.props.changePane(type);
+    }
+
+    render() {
+        return (
+            <div>
+                {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
+                <ToolGroupView group={this.props.currentTools} key="Current Package" showGridStyles={false} />}
                 <ToolsPanel name="Libraries">
                     {this.props.library}
                     <a
@@ -204,7 +247,7 @@ class ToolPaletteView extends React.Component {
             }
             this.forceUpdate();
         });
-        this.editor.on('update-tool-patette', () => {
+        this.editor.on('update-tool-palette', () => {
             this.forceUpdate();
         });
     }
@@ -265,11 +308,12 @@ class ToolPaletteView extends React.Component {
      *
      * @param {any} pckg package to be converted.
      * @param {string} [mode='both' | 'connectors' | 'functions' ] include connectors or functions.
+     * @param {boolean} [transform=false]  
      * @returns {ToolGroup}
      *
      * @memberof ToolPaletteView
      */
-    package2ToolGroup(pckg, mode = 'both') {
+    package2ToolGroup(pckg, mode = 'both', transform = false) {
         const withConnectors = (mode === 'both' || mode === 'connectors');
         const withFunctions = (mode === 'both' || mode === 'functions');
         const definitions = [];
@@ -284,6 +328,7 @@ class ToolPaletteView extends React.Component {
                 const args = {
                     pkgName: packageName,
                     connectorName: connector.getName(),
+                    fullPackageName: pckg.getName(),
                 };
                 const connTool = {};
                 connTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createConnectorDeclaration;
@@ -323,6 +368,8 @@ class ToolPaletteView extends React.Component {
                     }
 
                     actionTool.id = `${connector.getName()}-${action.getName()}`;
+                    actionTool._parameters = action.getParameters();
+                    actionTool._returnParams = action.getReturnParams();
                     definitions.push(actionTool);
                 });
             });
@@ -351,6 +398,8 @@ class ToolPaletteView extends React.Component {
                 functionTool.name = functionDef.getName();
                 functionTool.id = functionDef.getName();
                 functionTool.cssClass = 'icon fw fw-function';
+                functionTool._parameters = functionDef.getParameters();
+                functionTool._returnParams = functionDef.getReturnParams();
                 definitions.push(functionTool);
             });
         }
@@ -366,6 +415,9 @@ class ToolPaletteView extends React.Component {
     }
 
     render() {
+        // assigned the state to local variable.
+        let state = this.state.tab;
+
         const searching = this.state.search.length > 0;
         // get the model
         const model = this.props.editor.getModel();
@@ -373,7 +425,7 @@ class ToolPaletteView extends React.Component {
         const environment = this.props.editor.getEnvironment();
         // get the current package
         const currentPackage = this.props.editor.generateCurrentPackage();
-        let currentTools = this.package2ToolGroup(currentPackage);
+        let currentTools = this.package2ToolGroup(currentPackage,'both',this.props.editor.getTransformState());
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -386,7 +438,7 @@ class ToolPaletteView extends React.Component {
         const connectors = [];
         const library = [];
 
-        if (this.state.tab === 'tools') {
+        if (state === 'tools') {
             imports.forEach((item) => {
                 const pkg = environment.getPackageByName(item.getPackageName());
                 if (!_.isNil(pkg)) {
@@ -398,10 +450,11 @@ class ToolPaletteView extends React.Component {
                             group={group}
                             key={`connector${item.getPackageName()}`}
                             showGridStyles={false}
+                            application={this.props.application}
                         />);
                     }
 
-                    group = this.package2ToolGroup(pkg, 'functions');
+                    group = this.package2ToolGroup(pkg, 'functions',this.props.editor.getTransformState());
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -410,10 +463,15 @@ class ToolPaletteView extends React.Component {
                                 group={group}
                                 key={`library${item.getPackageName()}`}
                                 showGridStyles={false}
+                                application={this.props.application}
                             />);
                     }
                 }
             });
+            // if the tab state is tool we will see if the transform is opened.
+            if (this.props.editor.getTransformState()) {
+                state = 'transform';
+            }
         } else {
             const filterOutList = imports.map(item => item.getPackageName());
             filterOutList.push('Current Package');
@@ -421,22 +479,32 @@ class ToolPaletteView extends React.Component {
             const packages = environment.getFilteredPackages(filterOutList);
             packages.forEach((pkg) => {
                 let group;
-                if (this.state.tab === 'connectors') {
+                if (state === 'connectors') {
                     group = this.package2ToolGroup(pkg, 'connectors');
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
                         connectors.push(
-                            <ToolGroupView group={group} key={`connector${pkg.getName()}`} showGridStyles={false} />);
+                            <ToolGroupView
+                                group={group}
+                                key={`connector${pkg.getName()}`}
+                                showGridStyles={false}
+                                application={this.props.application}
+                            />);
                     }
                 } else {
-                    group = this.package2ToolGroup(pkg, 'functions');
+                    group = this.package2ToolGroup(pkg, 'functions', this.props.editor.getTransformState());
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
 
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
                         library.push(
-                            <ToolGroupView group={group} key={`library${pkg.getName()}`} showGridStyles={false} />);
+                            <ToolGroupView
+                                group={group}
+                                key={`library${pkg.getName()}`}
+                                showGridStyles={false}
+                                application={this.props.application}
+                            />);
                     }
                 }
             });
@@ -461,16 +529,23 @@ class ToolPaletteView extends React.Component {
                     autoHide // Hide delay in ms
                     autoHideTimeout={1000}
                 >
-                    {this.state.tab === 'tools' && <ToolsPane
+                    {state === 'tools' && <ToolsPane
                         constructs={constructs}
                         currentTools={currentTools}
                         connectors={connectors}
                         library={library}
                         changePane={this.changePane}
                     />}
-                    {this.state.tab === 'connectors' &&
+                    {state === 'transform' && <TransformPane
+                        constructs={constructs}
+                        currentTools={currentTools}
+                        connectors={connectors}
+                        library={library}
+                        changePane={this.changePane}
+                    />}
+                    {state === 'connectors' &&
                     <ConnectorPane connectors={connectors} changePane={this.changePane} />}
-                    {this.state.tab === 'library' &&
+                    {state === 'library' &&
                     <LibraryPane library={library} changePane={this.changePane} />}
                 </Scrollbars>
             </div>
