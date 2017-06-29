@@ -2393,7 +2393,6 @@ public class BLangVM {
 
     private void handleReturn() {
         StackFrame currentSF = controlStack.popFrame();
-        context.setError(null);
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
@@ -2440,7 +2439,6 @@ public class BLangVM {
             nativeFunction.executeNative(context);
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
             handleError();
             return;
         }
@@ -2490,7 +2488,6 @@ public class BLangVM {
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
             handleError();
             return;
         }
@@ -2947,6 +2944,7 @@ public class BLangVM {
             }
 
             controlStack.popFrame();
+            context.setError(currentFrame.errorThrown);
             if (controlStack.getCurrentFrame() == null) {
                 break;
             }

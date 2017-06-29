@@ -47,7 +47,8 @@ function arrayLengthAccessTestMapInitializerCase(int x, int y) (int) {
     arr[1] = y;
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":arr.length};
-    int length = (int) tempMap["length"];
+    int length;
+    length, _ = (int) tempMap["length"];
     return length;
 }
 
