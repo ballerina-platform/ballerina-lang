@@ -177,9 +177,10 @@ public final class BArray<V extends BValue> implements BRefType {
         }
 
         if (bucketIndex >= arrayBucket.length) {
+            int newLength = (DEFAULT_ARRAY_BUCKET_SIZE > (bucketIndex - arrayBucket.length)) ?
+                    (arrayBucket.length + DEFAULT_ARRAY_BUCKET_SIZE) : (bucketIndex + DEFAULT_ARRAY_BUCKET_SIZE);
             // We have to create new arrayBucket
-            arrayBucket = Arrays.copyOf(arrayBucket, arrayBucket.length + DEFAULT_ARRAY_BUCKET_SIZE);
-
+            arrayBucket = Arrays.copyOf(arrayBucket, newLength);
         }
 
         if (bucketIndex > lastBucketIndex) {
