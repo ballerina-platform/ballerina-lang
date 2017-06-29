@@ -199,8 +199,9 @@ public class VMDebugManager {
     public void holdON() {
         try {
             while (!done) {
-                    sleep(100);
+                sleep(100);
             }
+            notifyExit(debugSession);
         } catch (InterruptedException e) {
             // Do nothing probably someone wants to shutdown the thread.
             Thread.currentThread().interrupt();
