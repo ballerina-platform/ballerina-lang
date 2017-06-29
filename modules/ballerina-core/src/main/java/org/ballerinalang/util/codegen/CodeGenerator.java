@@ -725,7 +725,10 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : assignStmt.getLExprs()) {
-                assignVariableDefMemoryLocation(((SimpleVarRefExpr) expr).getVariableDef());
+                // non resolved VariableDef == '_' ignored variable ref underscore syntax
+                if (((SimpleVarRefExpr) expr).getVariableDef() != null) {
+                    assignVariableDefMemoryLocation(((SimpleVarRefExpr) expr).getVariableDef());
+                }
             }
         }
 
@@ -1999,7 +2002,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    
+
     // Private methods
 
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {

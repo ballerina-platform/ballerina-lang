@@ -2581,7 +2581,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (lExpr instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) lExpr).getVarName().equals("_")) {
                 continue;
             }
-            
+
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.INCOMPATIBLE_TYPES, returnType, lExpr.getType());
@@ -2602,7 +2602,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                if (!varNameSet.add(varName)) {
+                if (!varName.equals("_") && !varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
                 }
@@ -3578,8 +3578,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+    private void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
         for (int i = 0; i < expr.length; i++) {
+            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
+                continue;
+            }
             ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
         }
     }
