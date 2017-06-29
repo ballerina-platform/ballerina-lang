@@ -38,6 +38,8 @@ import java.util.Arrays;
 
 /**
  * BLangVMInterceptors is utility class for invoking an interceptor using Ballerina VM.
+ *
+ * @since 0.89
  */
 public interface BLangVMInterceptors {
 
