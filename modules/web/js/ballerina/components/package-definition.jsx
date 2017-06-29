@@ -46,6 +46,7 @@ class PackageDefinition extends React.Component {
         this.handleAddGlobal = this.handleAddGlobal.bind(this);
         this.handleDeleteGlobal = this.handleDeleteGlobal.bind(this);
         this.handlePackageIconClick = this.handlePackageIconClick.bind(this);
+        this.onPackageInputKeyDown = this.onPackageInputKeyDown.bind(this);
     }
 
     onPackageClick() {
@@ -77,16 +78,6 @@ class PackageDefinition extends React.Component {
         this.context.editor.trigger('update-diagram');
     }
 
-    onPackageInputBlur() {
-        if (!this.state.packageDefValue || this.state.packageDefValue.trim().length === 0) {
-            this.setState({
-                packageDefExpanded: false,
-                packageNameEditing: false,
-            });
-        }
-        this.props.model.setPackageName(this.state.packageDefValue);
-        this.setState({ packageNameEditing: false });
-    }
 
     onPackageInputChange(e) {
         this.setState({ packageDefValue: e.target.value });
@@ -127,6 +118,12 @@ class PackageDefinition extends React.Component {
         this.setState({ packageDefExpanded: true });
         if (!this.state.packageDefValue) {
             this.setState({ packageNameEditing: true });
+        }
+    }
+
+    onPackageInputKeyDown(e) {
+        if (e.keyCode === 13) {
+            this.onPackageInputBlur(e);
         }
     }
 
@@ -231,9 +228,11 @@ class PackageDefinition extends React.Component {
                                 x={bBox.x + headerHeight}
                                 y={bBox.y + (headerHeight / 2)}
                                 width={packageDefTextWidth - 5}
+                                placeholder="Package Name (eg: org.ballerinalang)"
                                 onBlur={() => {
                                     this.onPackageInputBlur();
                                 }}
+                                onKeyDown={this.onPackageInputKeyDown}
                                 onClick={() => {
                                     this.onPackageClick();
                                 }}
