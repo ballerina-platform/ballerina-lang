@@ -602,7 +602,7 @@ class TransformRender {
  * @param {object} reference AST model reference
  * @param {function} onFunctionRemove call back function for function remove
  */
-    addFunction(func, reference, onFunctionRemove) {
+    addFunction(func, reference, onFunctionRemove, removeReference = reference) {
         const packageName = func.getPackageName().replace(' ', '');
         let funcName = _.isEmpty(packageName) ? func.getName() :
                                   packageName + ' : ' + func.getName();
@@ -637,7 +637,7 @@ class TransformRender {
             });
 
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
-            this.onRemove(id, func, onFunctionRemove, reference);
+            this.onRemove(id, func, onFunctionRemove, removeReference);
 
             _.forEach(func.getParameters(), (parameter) => {
                 const property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
