@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core;
 
 import com.lmax.disruptor.ExceptionHandler;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.debugger.SiddhiDebugger;
@@ -32,7 +31,6 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -90,15 +88,15 @@ public class SiddhiAppRuntime {
     private SiddhiDebugger siddhiDebugger;
 
     public SiddhiAppRuntime(Map<String, AbstractDefinition> streamDefinitionMap,
-                                Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
-                                Map<String, QueryRuntime> queryProcessorMap,
-                                Map<String, StreamJunction> streamJunctionMap,
-                                Map<String, Table> tableMap,
-                                Map<String, List<Source>> eventSourceMap,
-                                Map<String, List<Sink>> eventSinkMap,
-                                Map<String, PartitionRuntime> partitionMap,
-                                SiddhiAppContext siddhiAppContext,
-                                Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
+                            Map<String, AbstractDefinition> tableDefinitionMap, InputManager inputManager,
+                            Map<String, QueryRuntime> queryProcessorMap,
+                            Map<String, StreamJunction> streamJunctionMap,
+                            Map<String, Table> tableMap,
+                            Map<String, List<Source>> eventSourceMap,
+                            Map<String, List<Sink>> eventSinkMap,
+                            Map<String, PartitionRuntime> partitionMap,
+                            SiddhiAppContext siddhiAppContext,
+                            Map<String, SiddhiAppRuntime> siddhiAppRuntimeMap) {
         this.streamDefinitionMap = streamDefinitionMap;
         this.tableDefinitionMap = tableDefinitionMap;
         this.inputManager = inputManager;
@@ -121,13 +119,12 @@ public class SiddhiAppRuntime {
 
         for (Map.Entry<String, List<Sink>> sinkEntries : eventSinkMap.entrySet()) {
             addCallback(sinkEntries.getKey(),
-                    new SinkCallback(sinkEntries.getValue(),
-                            streamDefinitionMap.get(sinkEntries.getKey())));
+                    new SinkCallback(sinkEntries.getValue(), streamDefinitionMap.get(sinkEntries.getKey())));
         }
         for (Map.Entry<String, List<Source>> sourceEntries : eventSourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, siddhiAppContext));
+                source.getMapper().setInputHandler(inputHandler);
             }
         }
     }

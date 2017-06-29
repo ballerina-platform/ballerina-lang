@@ -38,15 +38,17 @@ public abstract class Source implements Snapshotable {
     private String elementId;
     private boolean tryConnect = false;
 
-    public void init(OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    public final void init(OptionHolder transportOptionHolder, SourceMapper sourceMapper,
+                           String[] transportPropertyNames, ConfigReader configReader,
+                           SiddhiAppContext siddhiAppContext) {
         this.mapper = sourceMapper;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
-        init(sourceMapper, transportOptionHolder, configReader, siddhiAppContext);
+        init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
-            configReader, SiddhiAppContext siddhiAppContext);
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                              String[] transportPropertyNames, ConfigReader configReader,
+                              SiddhiAppContext siddhiAppContext);
 
     public abstract void connect() throws ConnectionUnavailableException;
 
@@ -68,7 +70,7 @@ public abstract class Source implements Snapshotable {
         // TODO: 2/9/17 Implement exponential retry
     }
 
-    public SourceMapper getMapper() {
+    public final SourceMapper getMapper() {
         return mapper;
     }
 
@@ -79,7 +81,7 @@ public abstract class Source implements Snapshotable {
     }
 
     @Override
-    public String getElementId() {
+    public final String getElementId() {
         return elementId;
     }
 }

@@ -46,8 +46,8 @@ public class TCPSource extends Source {
     private StreamDefinition streamDefinition;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, SiddhiAppContext
-            siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
                 siddhiAppContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());

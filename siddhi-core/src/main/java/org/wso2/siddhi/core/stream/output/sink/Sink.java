@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -41,24 +42,25 @@ public abstract class Sink implements SinkListener, Snapshotable {
     private boolean tryConnect = false;
     private String elementId;
     private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private ThreadLocal<DynamicOptions> trpDynamicOptions;
 
-    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
-                     ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
-                     OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
-                     SiddhiAppContext siddhiAppContext) {
+    public final void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder,
+                           ConfigReader sinkConfigReader, SinkMapper sinkMapper, String mapType,
+                           OptionHolder mapOptionHolder, String payload, ConfigReader mapperConfigReader,
+                           SiddhiAppContext siddhiAppContext) {
         this.type = type;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
-            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, mapperConfigReader,
-                            siddhiAppContext);
+            sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, this,
+                    mapperConfigReader, siddhiAppContext);
             this.mapper = sinkMapper;
         }
 
     }
 
-    public void initOnlyTransport(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
-                                  ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
+    public final void initOnlyTransport(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
+                                        ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
     }
@@ -75,11 +77,34 @@ public abstract class Sink implements SinkListener, Snapshotable {
      *
      * @param outputStreamDefinition containing stream definition bind to the {@link Sink}
      * @param optionHolder           Option holder containing static and dynamic options related to the {@link Sink}
-     * @param sinkConfigReader  this hold the {@link Sink} extensions configuration reader.
-     * @param siddhiAppContext {@link SiddhiAppContext} of the parent siddhi app.
+     * @param sinkConfigReader       this hold the {@link Sink} extensions configuration reader.
+     * @param siddhiAppContext       {@link SiddhiAppContext} of the parent siddhi app.
      */
     protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
                                  ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext);
+
+    @Override
+    public final void publish(Object payload) throws ConnectionUnavailableException {
+        try {
+            DynamicOptions dynamicOptions = trpDynamicOptions.get();
+            trpDynamicOptions.remove();
+            publish(payload, dynamicOptions);
+        } finally {
+            trpDynamicOptions.remove();
+        }
+
+    }
+
+    /**
+     * Sending events via output transport
+     *
+     * @param payload          payload of the event
+     * @param transportOptions one of the event constructing the payload
+     * @throws ConnectionUnavailableException throw when connections are unavailable.
+     */
+    public abstract void publish(Object payload, DynamicOptions transportOptions)
+            throws ConnectionUnavailableException;
+
 
     /**
      * Will be called to connect to the backend before events are published
@@ -98,11 +123,11 @@ public abstract class Sink implements SinkListener, Snapshotable {
      */
     public abstract void destroy();
 
-    public String getType() {
+    public final String getType() {
         return type;
     }
 
-    public SinkMapper getMapper() {
+    public final SinkMapper getMapper() {
         return mapper;
     }
 
@@ -138,7 +163,11 @@ public abstract class Sink implements SinkListener, Snapshotable {
     }
 
     @Override
-    public String getElementId() {
+    public final String getElementId() {
         return elementId;
+    }
+
+    void setTrpDynamicOptions(ThreadLocal<DynamicOptions> trpDynamicOptions) {
+        this.trpDynamicOptions = trpDynamicOptions;
     }
 }

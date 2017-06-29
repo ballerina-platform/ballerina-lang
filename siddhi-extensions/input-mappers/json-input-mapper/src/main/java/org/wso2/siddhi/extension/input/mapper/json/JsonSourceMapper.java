@@ -33,10 +33,11 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
+import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.source.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -138,7 +139,8 @@ public class JsonSourceMapper extends SourceMapper {
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
-                     List<AttributeMapping> attributeMappingList, ConfigReader configReader) {
+                     List<AttributeMapping> attributeMappingList, ConfigReader configReader, SiddhiAppContext
+                                 siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
         attributesSize = this.streamDefinition.getAttributeList().size();
@@ -152,14 +154,14 @@ public class JsonSourceMapper extends SourceMapper {
                     DEFAULT_ENCLOSING_ELEMENT);
             for (int i = 0; i < attributeMappingList.size(); i++) {
                 AttributeMapping attributeMapping = attributeMappingList.get(i);
-                String attributeName = attributeMapping.getRename();
+                String attributeName = attributeMapping.getName();
                 int position;
                 if (attributeName != null) {
                     position = this.streamDefinition.getAttributePosition(attributeName);
                 } else {
                     position = i;
                 }
-                this.mappingPositions[i] = new MappingPositionData(position, attributeMapping.getPayloadMapping());
+                this.mappingPositions[i] = new MappingPositionData(position, attributeMapping.getMapping());
             }
         } else {
             for (int i = 0; i < attributesSize; i++) {
