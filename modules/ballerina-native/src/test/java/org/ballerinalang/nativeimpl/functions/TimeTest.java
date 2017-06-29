@@ -152,16 +152,22 @@ public class TimeTest {
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
     }
 
-    @Test(description = "Test changing the timezone.")
+    @Test(description = "Test changing the timezone with a time already having a timezone.")
     public void testToTimezoneWithDateTime() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToTimezoneWithDateTime");
         Assert.assertEquals((returns[0]).stringValue(), "2016-03-01T20:16:22.444+0530");
     }
 
-    @Test(description = "Test changing the timezone.")
+    @Test(description = "Test Time struct create with struct initialization.")
     public void testManualTimeCreate() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreate");
         Assert.assertEquals((returns[0]).stringValue(), "2017-06-26T09:46:22-05:00");
+    }
+
+    @Test(description = "Test Time struct create with struct initialization with no zone information.")
+    public void testManualTimeCreateWithNoZine() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreateWithNoZine");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

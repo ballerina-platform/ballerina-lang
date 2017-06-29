@@ -127,6 +127,12 @@ function testManualTimeCreate () (string timeString) {
     return;
 }
 
+function testManualTimeCreateWithNoZine () (int year) {
+    time:Time time = {time:1498488382555};
+    year = time:year(time);
+    return;
+}
+
 function testParseTimenvalidPattern () (int timeValue, string zoneId, int zoneoffset) {
     time:Time timeStruct = time:parse("2017-06-26T09:46:22.444-0500", "test");
     timeValue = timeStruct.time;
