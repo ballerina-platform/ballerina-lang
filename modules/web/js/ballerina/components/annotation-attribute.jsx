@@ -84,10 +84,9 @@ class AnnotationAttribute extends React.Component {
     componentDidMount() {
         if (this.state.setRightValueFocus) {
             this.rightValueInput.focus();
-            this.onUpdate(() => {
-                this.setState({
-                    setRightValueFocus: false,
-                });
+            // eslint-disable-next-line react/no-did-mount-set-state
+            this.setState({
+                setRightValueFocus: false,
             });
         }
     }
@@ -100,10 +99,9 @@ class AnnotationAttribute extends React.Component {
     componentDidUpdate() {
         if (this.state.setRightValueFocus && this.rightValueInput) {
             this.rightValueInput.focus();
-            this.onUpdate(() => {
-                this.setState({
-                    setRightValueFocus: false,
-                });
+            // eslint-disable-next-line react/no-did-update-set-state
+            this.setState({
+                setRightValueFocus: false,
             });
         }
     }
@@ -132,7 +130,6 @@ class AnnotationAttribute extends React.Component {
         this.setState({
             rightValue: event.target.value,
             rightValueLength: util.getTextWidth(event.target.value, 150, 1000).w + 10,
-
         });
         this.props.model.setRightValue(event.target.value, { doSilently: true });
     }
@@ -215,9 +212,9 @@ class AnnotationAttribute extends React.Component {
                 this.props.model.setRightValue(newAnnotation, { doSilently: true });
             }
             this.setState({
+                setRightValueFocus: true,
                 isRightValueInEdit: true,
                 leftValue: suggestionValue,
-                setRightValueFocus: true,
             });
         }
 
@@ -381,6 +378,7 @@ class AnnotationAttribute extends React.Component {
                         items={this.getLeftValuesForSuggestions()}
                         placeholder={'Identifier'}
                         initialValue={this.state.leftValue}
+                        showAllAtStart
                         onSuggestionSelected={this.onLeftValueSelected}
                     />
                     <span className="annotation-attribute-separator">:</span>
@@ -508,7 +506,15 @@ class AnnotationAttribute extends React.Component {
                     placeholder="value"
                     value={this.state.rightValue}
                     onChange={this.onRightValueChange}
-                    onBlur={() => { this.setState({ isRightValueInEdit: false }); }}
+                    onBlur={(event) => {
+                        this.setState({ isRightValueInEdit: false });
+                        this.props.model.setRightValue(event.target.value);
+                    }}
+                    onKeyUp={(event) => {
+                        if (event.key === 'Enter') {
+                            this.props.model.setRightValue(event.target.value);
+                        }
+                    }}
                     ref={(input) => { this.rightValueInput = input; }}
                     style={{ width: this.state.rightValueLength }}
                 />
