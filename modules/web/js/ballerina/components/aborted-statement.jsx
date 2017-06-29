@@ -81,7 +81,7 @@ class AbortedStatement extends React.Component {
     /**
      * Get block statement decorator for aborted statement.
      * @param {object} utilities utilities for BlockStatementDecorator.
-     * @return {ReactElement} View of a BlockStatementDecorator.
+     * @return {object} View of a BlockStatementDecorator.
      * */
     getBlockStatementDecorator(utilities) {
         const model = this.props.model;
@@ -90,6 +90,7 @@ class AbortedStatement extends React.Component {
         const children = getComponentForNodeArray(model.getChildren());
         if (utilities) {
             return (<BlockStatementDecorator
+                model={model}
                 dropTarget={model}
                 bBox={bBox}
                 titleWidth={titleWidth}
@@ -100,6 +101,7 @@ class AbortedStatement extends React.Component {
             </BlockStatementDecorator>);
         }
         return (<BlockStatementDecorator
+            model={model}
             dropTarget={model}
             bBox={bBox}
             titleWidth={titleWidth}
@@ -112,7 +114,7 @@ class AbortedStatement extends React.Component {
     /**
      * Renders the view for a aborted statement.
      *
-     * @returns {ReactElement} The view.
+     * @returns {object} The view.
      *
      * @memberof AbortedStatement
      */
