@@ -231,7 +231,7 @@ public class BLangJSONModelConstants {
 
     public static final String LESS_THAN_EXPRESSION = "less_than_expression";
 
-    public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
+    public static final String SIMPLE_VARIABLE_REFERENCE_EXPRESSION = "simple_variable_reference_expression";
 
     public static final String VARIABLE_REFERENCE_TYPE = "variable_reference_type";
 
@@ -279,7 +279,11 @@ public class BLangJSONModelConstants {
 
     public static final String STRUCT_DEFINITION = "struct_definition";
 
-    public static final String FIELD_ACCESS_EXPRESSION = "field_access_expression";
+    public static final String INDEX_BASED_VAR_REF_EXPRESSION = "index_based_variable_reference_expression";
+
+    public static final String FIELD_BASED_VAR_REF_EXPRESSION = "field_based_variable_reference_expression";
+
+    public static final String FIELD_NAME = "field_name";
 
     public static final String STRUCT_NAME = "struct_name";
 

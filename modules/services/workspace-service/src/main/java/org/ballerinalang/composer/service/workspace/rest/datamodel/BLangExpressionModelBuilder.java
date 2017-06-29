@@ -42,20 +42,16 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthExpression;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
-import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
@@ -72,7 +68,9 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -572,10 +570,10 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
     
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
+    public void visit(SimpleVarRefExpr simpleVarRefExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append(variableRefExpr.getSymbolName().getName());
+        buffer.append(simpleVarRefExpr.getSymbolName().getName());
     }
 
     @Override
@@ -633,21 +631,31 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         //TODO
     }
 
-    @Override
-    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        //TODO
-    }
+//    @Override
+//    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
+//        //TODO
+//    }
 
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
-
-    }
+//    @Override
+//    public void visit(ArrayLengthExpression arrayLengthExpression) {
+//
+//    }
 
     @Override
     public void visit(KeyValueExpr keyValueExpr) {
         //TODO
     }
-    
+
+    @Override
+    public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
+
+    }
+
+    @Override
+    public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
+
+    }
+
     @Override
     public void visit(StructDef structDef) {
         //TODO
@@ -678,10 +686,10 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         
     }
 
-    @Override
-    public void visit(FieldAccessExpr fieldAccessExpr) {
-        //TODO
-    }
+//    @Override
+//    public void visit(FieldAccessExpr fieldAccessExpr) {
+//        //TODO
+//    }
 
     @Override
     public void visit(ModExpression modExpression) {
@@ -718,8 +726,8 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     }
 
-    @Override
-    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
-
-    }
+//    @Override
+//    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
+//
+//    }
 }

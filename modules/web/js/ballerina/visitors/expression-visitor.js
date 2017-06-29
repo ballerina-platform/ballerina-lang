@@ -49,17 +49,17 @@ class ExpressionVisitor extends ASTVisitor {
     endVisitRightOperandExpression(expression) {
     }
 
-    canVisitVariableReferenceExpression(expression) {
+    canVisitSimpleVariableReferenceExpression(expression) {
         return false;
     }
 
-    beginVisitVariableReferenceExpression(expression) {
+    beginVisitSimpleVariableReferenceExpression(expression) {
     }
 
-    visitVariableReferenceExpression(expression) {
+    visitSimpleVariableReferenceExpression(expression) {
     }
 
-    endVisitVariableReferenceExpression(expression) {
+    endVisitSimpleVariableReferenceExpression(expression) {
     }
 
     canVisitTypeCastExpression(expression) {
@@ -92,8 +92,8 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     visitExpression(node) {
-        if (ASTFactory.isVariableReferenceExpression(node)) {
-            return this.visitVariableReferenceExpression(node);
+        if (ASTFactory.isSimpleVariableReferenceExpression(node)) {
+            return this.visitSimpleVariableReferenceExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.visitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
@@ -109,8 +109,8 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     canVisitExpression(node) {
-        if (ASTFactory.isVariableReferenceExpression(node)) {
-            return this.canVisitVariableReferenceExpression(node);
+        if (ASTFactory.isSimpleVariableReferenceExpression(node)) {
+            return this.canVisitSimpleVariableReferenceExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.canVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
@@ -126,8 +126,8 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     beginVisitExpression(node) {
-        if (ASTFactory.isVariableReferenceExpression(node)) {
-            this.beginVisitVariableReferenceExpression(node);
+        if (ASTFactory.isSimpleVariableReferenceExpression(node)) {
+            this.beginVisitSimpleVariableReferenceExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             this.beginVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {
@@ -143,8 +143,8 @@ class ExpressionVisitor extends ASTVisitor {
      * @param node {ASTNode}
      */
     endVisitExpression(node) {
-        if (ASTFactory.isVariableReferenceExpression(node)) {
-            return this.endVisitVariableReferenceExpression(node);
+        if (ASTFactory.isSimpleVariableReferenceExpression(node)) {
+            return this.endVisitSimpleVariableReferenceExpression(node);
         } else if (ASTFactory.isTypeCastExpression(node)) {
             return this.endVisitTypeCastExpression(node);
         } else if (ASTFactory.isTypeConversionExpression(node)) {

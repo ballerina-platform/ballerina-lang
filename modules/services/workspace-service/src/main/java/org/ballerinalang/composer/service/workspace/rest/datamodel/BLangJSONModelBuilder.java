@@ -52,20 +52,16 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthExpression;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
-import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
@@ -82,7 +78,9 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -1466,31 +1464,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-        JsonObject variableRefObj = new JsonObject();
-        this.addPosition(variableRefObj, variableRefExpr.getNodeLocation());
-        this.addWhitespaceDescriptor(variableRefObj, variableRefExpr.getWhiteSpaceDescriptor());
-        variableRefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
-        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
-                variableRefExpr.getSymbolName().getName());
-        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableRefExpr.getSymbolName().getName());
-        variableRefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableRefExpr.getPkgName());
-        if (variableRefExpr.getVariableDef() != null) {
-            tempJsonArrayRef.push(new JsonArray());
-            variableRefExpr.getVariableDef().accept(this);
-            variableRefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
-                    variableRefExpr.getVariableDef().getIdentifier().isLiteral());
-            variableRefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-        } else if (StringUtils.containsWhitespace(variableRefExpr.getSymbolName().getName())) {
-            variableRefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL, true);
-        }
-        tempJsonArrayRef.peek().add(variableRefObj);
-
-    }
-
-    @Override
     public void visit(NullLiteral nullLiteral) {
         JsonObject nullLiteralObj = new JsonObject();
         nullLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
@@ -1612,6 +1585,68 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(SimpleVarRefExpr simpleVarRefExpr) {
+        JsonObject simpleVarRefExprObj = new JsonObject();
+        this.addPosition(simpleVarRefExprObj, simpleVarRefExpr.getNodeLocation());
+        this.addWhitespaceDescriptor(simpleVarRefExprObj, simpleVarRefExpr.getWhiteSpaceDescriptor());
+        simpleVarRefExprObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+                BLangJSONModelConstants.SIMPLE_VARIABLE_REFERENCE_EXPRESSION);
+        simpleVarRefExprObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
+                                        simpleVarRefExpr.getSymbolName().getName());
+        simpleVarRefExprObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME,
+                                        simpleVarRefExpr.getSymbolName().getName());
+        simpleVarRefExprObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, simpleVarRefExpr.getPkgName());
+        if (simpleVarRefExpr.getVariableDef() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            simpleVarRefExpr.getVariableDef().accept(this);
+            simpleVarRefExprObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
+                                            simpleVarRefExpr.getVariableDef().getIdentifier().isLiteral());
+            simpleVarRefExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+        } else if (StringUtils.containsWhitespace(simpleVarRefExpr.getSymbolName().getName())) {
+            simpleVarRefExprObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL, true);
+        }
+        tempJsonArrayRef.peek().add(simpleVarRefExprObj);
+    }
+
+    @Override
+    public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
+        JsonObject fieldBasedVarRefExprObj = new JsonObject();
+        fieldBasedVarRefExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
+                .FIELD_BASED_VAR_REF_EXPRESSION);
+        this.addWhitespaceDescriptor(fieldBasedVarRefExprObj, fieldBasedVarRefExpr.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.push(new JsonArray());
+        if (fieldBasedVarRefExpr.getVarRefExpr() != null) {
+            fieldBasedVarRefExpr.getVarRefExpr().accept(this);
+        }
+        if (fieldBasedVarRefExpr.getFieldName() != null) {
+            fieldBasedVarRefExprObj.addProperty(BLangJSONModelConstants.FIELD_NAME,
+                                                fieldBasedVarRefExpr.getFieldName());
+        }
+        fieldBasedVarRefExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(fieldBasedVarRefExprObj);
+    }
+
+    @Override
+    public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
+        JsonObject indexBasedVarRefExprObj = new JsonObject();
+        indexBasedVarRefExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
+                .INDEX_BASED_VAR_REF_EXPRESSION);
+        this.addWhitespaceDescriptor(indexBasedVarRefExprObj, indexBasedVarRefExpr.getWhiteSpaceDescriptor());
+        tempJsonArrayRef.push(new JsonArray());
+        if (indexBasedVarRefExpr.getVarRefExpr() != null) {
+            indexBasedVarRefExpr.getVarRefExpr().accept(this);
+        }
+        if (indexBasedVarRefExpr.getIndexExpr() != null) {
+            indexBasedVarRefExpr.getIndexExpr().accept(this);
+        }
+        indexBasedVarRefExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(indexBasedVarRefExprObj);
+    }
+
+    @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
         JsonObject connectorInitExprObj = new JsonObject();
         this.addPosition(connectorInitExprObj, connectorInitExpr.getNodeLocation());
@@ -1658,57 +1693,52 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.peek().add(constantDefinitionDefine);
     }
 
-    @Override
-    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        JsonObject arrayMapAccessExprObj = new JsonObject();
-        this.addPosition(arrayMapAccessExprObj, arrayMapAccessExpr.getNodeLocation());
-        this.addWhitespaceDescriptor(arrayMapAccessExprObj, arrayMapAccessExpr.getWhiteSpaceDescriptor());
-        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION);
-        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
-                arrayMapAccessExpr.getSymbolName().getName());
-
-        tempJsonArrayRef.push(new JsonArray());
-
-        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
-        for (Expression indexExpr : indexExprs) {
-            indexExpr.accept(this);
-        }
-        arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
-    }
-
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
-
-    }
+//    @Override
+//    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
+//        JsonObject arrayMapAccessExprObj = new JsonObject();
+//        this.addPosition(arrayMapAccessExprObj, arrayMapAccessExpr.getNodeLocation());
+//        this.addWhitespaceDescriptor(arrayMapAccessExprObj, arrayMapAccessExpr.getWhiteSpaceDescriptor());
+//        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+//                BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION);
+//        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
+//                arrayMapAccessExpr.getSymbolName().getName());
+//
+//        tempJsonArrayRef.push(new JsonArray());
+//
+//        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
+//        for (Expression indexExpr : indexExprs) {
+//            indexExpr.accept(this);
+//        }
+//        arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+//        tempJsonArrayRef.pop();
+//        tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
+//    }
 
     @Override
     public void visit(StructInitExpr structInitExpr) {
         // TODO
     }
 
-    @Override
-    public void visit(FieldAccessExpr fieldAccessExpr) {
-
-        JsonObject fieldAccessObj = new JsonObject();
-        fieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-                .FIELD_ACCESS_EXPRESSION);
-        fieldAccessObj.addProperty(BLangJSONModelConstants.IS_ARRAY_EXPRESSION,
-                fieldAccessExpr.isArrayIndexExpr());
-        this.addWhitespaceDescriptor(fieldAccessObj, fieldAccessExpr.getWhiteSpaceDescriptor());
-        tempJsonArrayRef.push(new JsonArray());
-        if (fieldAccessExpr.getVarRef() != null) {
-            fieldAccessExpr.getVarRef().accept(this);
-        }
-        if (fieldAccessExpr.getFieldExpr() != null) {
-            fieldAccessExpr.getFieldExpr().accept(this);
-        }
-        fieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(fieldAccessObj);
-    }
+//    @Override
+//    public void visit(FieldAccessExpr fieldAccessExpr) {
+//
+//        JsonObject fieldAccessObj = new JsonObject();
+//        fieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
+//                .FIELD_ACCESS_EXPRESSION);
+//        fieldAccessObj.addProperty(BLangJSONModelConstants.IS_ARRAY_EXPRESSION,
+//                fieldAccessExpr.isArrayIndexExpr());
+//        this.addWhitespaceDescriptor(fieldAccessObj, fieldAccessExpr.getWhiteSpaceDescriptor());
+//        tempJsonArrayRef.push(new JsonArray());
+//        if (fieldAccessExpr.getVarRef() != null) {
+//            fieldAccessExpr.getVarRef().accept(this);
+//        }
+//        if (fieldAccessExpr.getFieldExpr() != null) {
+//            fieldAccessExpr.getFieldExpr().accept(this);
+//        }
+//        fieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+//        tempJsonArrayRef.pop();
+//        tempJsonArrayRef.peek().add(fieldAccessObj);
+//    }
 
     @Override
     public void visit(StructDef ballerinaStruct) {
@@ -1890,12 +1920,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             wsDescriptor.add(BLangJSONModelConstants.CHILD_DESCRIPTORS, children);
         }
         return wsDescriptor;
-    }
-
-
-    @Override
-    public void visit(JSONFieldAccessExpr jsonFieldAccessExpr) {
-
     }
 
     @Override

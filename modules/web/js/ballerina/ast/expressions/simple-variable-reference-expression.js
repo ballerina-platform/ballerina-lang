@@ -20,13 +20,14 @@ import Expression from './expression';
 import FragmentUtils from '../../utils/fragment-utils';
 
 /**
- * Constructor for VariableReferenceExpression
- * @param {Object} args - Arguments to create the VariableReferenceExpression
+ * Constructor for SimpleVariableReferenceExpression
+ * @param {Object} args - Arguments to create the SimpleVariableReferenceExpression
  * @constructor
  */
-class VariableReferenceExpression extends Expression {
+class SimpleVariableReferenceExpression extends Expression {
     constructor(args) {
-        super('VariableReferenceExpression');
+        super(args);
+        this.type = 'SimpleVariableReferenceExpression';
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
@@ -87,9 +88,10 @@ class VariableReferenceExpression extends Expression {
     }
 
     /**
-     * initialize VariableReferenceExpression from json object
+     * initialize SimpleVariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.variable_reference_name, jsonNode.package_name] - Variable name of the VariableReferenceExpression
+     * @param {string} [jsonNode.variable_reference_name] variable name of the SimpleVariableReferenceExpression
+     * @param {string} [jsonNode.package_name] package name of SimpleVariableReferenceExpression
      */
     initFromJson(jsonNode) {
         this.getChildren().length = 0;
@@ -114,7 +116,7 @@ class VariableReferenceExpression extends Expression {
             const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                    || !_.has(parsedJson, 'syntax_errors'))
-                   && _.isEqual(parsedJson.type, 'variable_reference_expression')) {
+                   && _.isEqual(parsedJson.type, 'simple_variable_reference_expression')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
                     callback({ isValid: true });
@@ -138,4 +140,4 @@ class VariableReferenceExpression extends Expression {
 
 }
 
-export default VariableReferenceExpression;
+export default SimpleVariableReferenceExpression;

@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import ASTFactory from '../../ast/ballerina-ast-factory';
 import FunctionInvocationVisitor from './function-invocation-visitor';
-import VariableReferenceExpressionVisitor from './variable-reference-expression-visitor';
+import SimpleVariableReferenceExpressionVisitor from './simple-variable-reference-expression-visitor';
 import ReferenceTypeInitExpressionVisitor from './reference-type-init-expression-visitor';
 import TypeCastExpressionVisitor from './type-cast-expression-visitor';
 import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
@@ -29,8 +29,8 @@ class ExpressionViewFactory {
         const expression = _.get(args, 'model');
         if (ASTFactory.isFunctionInvocation(expression)) {
             return new FunctionInvocationVisitor(_.get(args, 'parent'));
-        } else if (ASTFactory.isVariableReferenceExpression(expression)) {
-            return new VariableReferenceExpressionVisitor(_.get(args, 'parent'));
+        } else if (ASTFactory.isSimpleVariableReferenceExpression(expression)) {
+            return new SimpleVariableReferenceExpressionVisitor(_.get(args, 'parent'));
         } else if (ASTFactory.isReferenceTypeInitExpression(expression)) {
             return new ReferenceTypeInitExpressionVisitor(_.get(args, 'parent'));
         } else if (ASTFactory.isTypeCastExpression(expression)) {
