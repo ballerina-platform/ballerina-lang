@@ -39,8 +39,6 @@ class PackageDefinition extends React.Component {
             packageNameEditing: false,
         };
 
-        this.globalDecRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-
         this.handleImportsBadgeClick = this.handleImportsBadgeClick.bind(this);
         this.handleGlobalsBadgeClick = this.handleGlobalsBadgeClick.bind(this);
         this.handleAddImport = this.handleAddImport.bind(this);
@@ -109,7 +107,7 @@ class PackageDefinition extends React.Component {
     }
 
     handleDeleteGlobal(deletedGlobal) {
-        this.props.model.parent.removeConstantDefinition(deletedGlobal.getID());
+        this.props.model.parent.removeChild(deletedGlobal);
     }
 
     handleDeleteImport(value) {
@@ -276,7 +274,7 @@ class PackageDefinition extends React.Component {
                             title={'Globals'}
                             addText={'+ Add Global'}
                             onAddNewValue={this.handleAddGlobal.bind(this)}
-                            newValuePlaceholder={'int a'}
+                            newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
                             getValue={PackageDefinition.getDisplayValue}
                         /> :

@@ -42,8 +42,6 @@ class ConnectorDefinition extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-        this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
@@ -61,21 +59,6 @@ class ConnectorDefinition extends React.Component {
         // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
             || nodeFactory.isConnectorAction(nodeBeingDragged);
-    }
-
-    /**
-     * Adds variable to the model.
-     *
-     * @param {string} value Variable name.
-     * @memberof ConnectorDefinition
-     */
-    handleAddVariable(value) {
-        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-        const match = variableDefRegex.exec(value);
-
-        if (match && match[1] && match[2] && match[3]) {
-            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3]);
-        }
     }
 
     /**
@@ -108,7 +91,6 @@ class ConnectorDefinition extends React.Component {
         const bBox = model.viewState.bBox;
         const viewState = model.getViewState();
         const components = viewState.components;
-        this.variableDefRegex = /const\s+(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // Not 100% accurate
         const variables = model.filterChildren(child => BallerinaASTFactory.isVariableDefinitionStatement(child));
 
         // get the connector name
@@ -150,7 +132,7 @@ class ConnectorDefinition extends React.Component {
                             title="Variables"
                             model={this.props.model}
                             onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
-                            newValuePlaceholder={'nnn'}
+                            newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteVariable}
                             addText={'+ Add Variable'}
                             getValue={g => (g.getStatementString())}

@@ -43,8 +43,6 @@ class ServiceDefinition extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-        this.handleAddVariable = this.handleAddVariable.bind(this);
         this.handleDeleteVariable = this.handleDeleteVariable.bind(this);
         this.handleVarialblesBadgeClick = this.handleVarialblesBadgeClick.bind(this);
     }
@@ -70,20 +68,6 @@ class ServiceDefinition extends React.Component {
           // Panel's drop zone is for resource defs and connector declarations only.
         return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
               || nodeFactory.isResourceDefinition(nodeBeingDragged);
-    }
-
-    /**
-     * Adds new variable definition statement to the model.
-     *
-     * @param {string} value The value of the variable.
-     * @memberof ServiceDefinition
-     */
-    handleAddVariable(value) {
-        const variableDefRegex = /\s*(int|string|boolean)\s+([a-zA-Z0-9_]+)\s*=\s*(.*)/g; // This is not 100% accurate
-        const match = variableDefRegex.exec(value);
-        if (match && match[1] && match[2] && match[3]) {
-            this.props.model.addVariableDefinitionStatement(match[1], match[2], match[3]);
-        }
     }
 
     /**
