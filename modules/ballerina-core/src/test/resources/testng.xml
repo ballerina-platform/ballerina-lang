@@ -79,6 +79,7 @@ under the License.
     <test name="ballerina-constant-access-test-suite">
         <classes>
             <class name="org.ballerinalang.model.constant.ConstantAccessTest" />
+            <class name="org.ballerinalang.model.constant.ConstantAssignmentTest" />
         </classes>
     </test>
 
