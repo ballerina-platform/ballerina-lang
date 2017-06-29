@@ -18,9 +18,7 @@
 package org.ballerinalang.nativeimpl.lang.time;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -54,7 +52,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     BStruct createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
         BStruct currentTimezone = createCurrentTimeZone(context);
-        return createBStruct(getTimeStructInfo(context), currentTime, currentTimezone);
+        return BLangVMStructs.createBStruct(getTimeStructInfo(context), currentTime, currentTimezone);
     }
 
     BStruct createTime(Context context, long timeValue, String zoneId) {
@@ -64,7 +62,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         } else {
             timezone = createTimeZone(context, zoneId);
         }
-        return createBStruct(getTimeStructInfo(context), timeValue, timezone);
+        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue, timezone);
     }
 
     BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
@@ -74,7 +72,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         BStruct timezone = createTimeZone(context, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return createBStruct(getTimeStructInfo(context), timeValue , timezone);
+        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue , timezone);
     }
 
     BStruct parseTime(Context context, String dateValue, String pattern) {
@@ -91,7 +89,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for parsing " + pattern);
         }
-        return createBStruct(getTimeStructInfo(context), milliSeconds, timezone);
+        return BLangVMStructs.createBStruct(getTimeStructInfo(context), milliSeconds, timezone);
     }
 
     String getFormattedtString(BStruct timeStruct, String pattern) {
@@ -208,7 +206,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         //Get offset in seconds
         ZoneOffset o = OffsetDateTime.now().getOffset();
         int offset = o.getTotalSeconds();
-        return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
+        return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
     }
 
     private BStruct createTimeZone(Context context, String zoneIdValue) {
@@ -220,7 +218,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             TimeZone tz = TimeZone.getTimeZone(zoneId);
             int offsetInMills  = tz.getOffset(new Date().getTime());
             int offset = offsetInMills / 1000;
-            return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
+            return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
         } catch (ZoneRulesException e) {
             throw new BallerinaException("invalid timezone id " + zoneIdValue);
         }
@@ -234,7 +232,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         TimeZone tz = TimeZone.getTimeZone(zoneId);
         int offsetInMills  = tz.getOffset(new Date().getTime());
         int offset = offsetInMills / 1000;
-        return createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
+        return BLangVMStructs.createBStruct(getTimeZoneStructInfo(context), zoneIdName, offset);
     }
 
     private StructInfo getTimeZoneStructInfo(Context context) {
@@ -253,42 +251,5 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
             timeStructInfo = timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
         }
         return timeStructInfo;
-    }
-
-    private BStruct createBStruct(StructInfo structInfo, Object... values) {
-        BStruct bStruct = new BStruct(structInfo.getType());
-        bStruct.setFieldTypes(structInfo.getFieldTypes());
-        bStruct.init(structInfo.getFieldCount());
-
-        int longRegIndex = -1;
-        int stringRegIndex = -1;
-        int refRegIndex = -1;
-        for (int i = 0; i < structInfo.getFieldTypes().length; i++) {
-            BType paramType = structInfo.getFieldTypes()[i];
-            if (values.length < i + 1) {
-                break;
-            }
-            switch (paramType.getTag()) {
-            case TypeTags.INT_TAG:
-                if (values[i] != null) {
-                    if (values[i] instanceof Integer) {
-                        bStruct.setIntField(++longRegIndex, (Integer) values[i]);
-                    } else if (values[i] instanceof Long) {
-                        bStruct.setIntField(++longRegIndex, (Long) values[i]);
-                    }
-                }
-                break;
-            case TypeTags.STRING_TAG:
-                if (values[i] != null && values[i] instanceof String) {
-                    bStruct.setStringField(++stringRegIndex, (String) values[i]);
-                }
-                break;
-            default:
-                if (values[i] != null && (values[i] instanceof BRefType)) {
-                    bStruct.setRefField(++refRegIndex, (BRefType) values[i]);
-                }
-            }
-        }
-        return bStruct;
     }
 }

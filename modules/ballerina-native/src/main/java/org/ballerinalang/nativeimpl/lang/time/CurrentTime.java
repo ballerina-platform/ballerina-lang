@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Get the current local time with local timezone information.
  *
- * @since 0.8.9
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",

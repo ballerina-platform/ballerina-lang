@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Get the year value for the given time.
  *
- * @since 0.8.9
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",

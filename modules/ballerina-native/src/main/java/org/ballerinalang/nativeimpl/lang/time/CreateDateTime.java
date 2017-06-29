@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Create a time from the given time components.
  *
- * @since 0.8.9
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",

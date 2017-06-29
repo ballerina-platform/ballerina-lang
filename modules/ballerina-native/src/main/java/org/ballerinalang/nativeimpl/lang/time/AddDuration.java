@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Add given durations to the time.
  *
- * @since 0.8.9
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
