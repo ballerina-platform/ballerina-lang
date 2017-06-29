@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native function ballerina.model.utils:logger.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.utils.logger",
