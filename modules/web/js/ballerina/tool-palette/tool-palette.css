@@ -20,6 +20,14 @@
     background: #eee;
     margin: 5px 8px 0px 8px;
 }
+.tool-group-header .fw.fw-document {
+    display: none;
+}
+
+.tool-group-header:hover .fw.fw-document{
+    display: inline-block;
+    margin-right: 10px;
+}
 
 .tool-group-header-title{
     padding:5px;
@@ -119,7 +127,6 @@
 
 
 .tool-container-vertical {
-    width: 100%;
     height: 25px;
     margin: 3px;
     cursor: pointer;
@@ -143,6 +150,16 @@
     white-space: nowrap;
     text-align: center;
     float: left;
+}
+
+
+.tool-container-vertical .fw.fw-document{
+    display: none;
+}
+
+.tool-container-vertical:hover .fw.fw-document{
+    margin-right: 20px;
+    display: inline-block;
 }
 
 .tool-title {
