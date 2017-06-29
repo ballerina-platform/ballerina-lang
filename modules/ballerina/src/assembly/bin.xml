@@ -141,7 +141,6 @@
                 <include>org.apache.ws.commons.axiom:axiom-impl</include>
                 <include>org.apache.ws.commons.axiom:axiom-dom</include>
                 <include>jaxen:jaxen</include>
-                <include>org.wso2.orbit.org.apache.tapestry:tapestry-json</include>
                 <include>org.apache.geronimo.specs:geronimo-activation_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</include>
                 <include>org.apache.james:apache-mime4j-core</include>
