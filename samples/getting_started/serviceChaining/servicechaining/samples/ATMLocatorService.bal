@@ -4,8 +4,8 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
 
-@http:BasePath {value:"/ABCBank"}
-service ATMLocator {
+@http:config {basePath:"/ABCBank"}
+service<http> ATMLocator {
     
     @http:POST{}
     resource locator (message m) {

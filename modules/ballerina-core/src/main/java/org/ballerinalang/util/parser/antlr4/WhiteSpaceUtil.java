@@ -42,6 +42,8 @@ public class WhiteSpaceUtil {
     public static final String KEYWORD_AS = "as";
     public static final String OPENING_CURLY_BRACE = "{";
     public static final String CLOSING_CURLY_BRACE = "}";
+    public static final String LEFT_ANGLE_BRACKET = "<";
+    public static final String RIGHT_ANGLE_BRACKET = ">";
     public static final String SYMBOL_COLON = ":";
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
@@ -124,10 +126,18 @@ public class WhiteSpaceUtil {
     public static WhiteSpaceDescriptor getServiceDefinitionWS(CommonTokenStream tokenStream,
                                                               BallerinaParser.ServiceDefinitionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER,
-                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_SERVICE_KEYWORD_TO_LEFT_ANGLE_BRACKET,
+                getWhitespaceToLeft(tokenStream, getFirstTokenWithText(ctx.children,
+                        LEFT_ANGLE_BRACKET).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_LEFT_ANGLE_BRACKET_TO_IDENTIFIER, getWhitespaceToRight
+                (tokenStream, getFirstTokenWithText(ctx.children, LEFT_ANGLE_BRACKET).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_IDENTIFIER_TO_RIGHT_ANGLE_BRACKET, getWhitespaceToLeft
+                (tokenStream, getFirstTokenWithText(ctx.children, RIGHT_ANGLE_BRACKET).getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_RIGHT_ANGLE_BRACKET_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children,
+                        RIGHT_ANGLE_BRACKET).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_IDENTIFIER_TO_BODY_START,
-                getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.Identifier(1).getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_BODY_START_TO_FIRST_CHILD,
                 getWhitespaceToRight(tokenStream, ctx.serviceBody().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.SERVICE_DEF_END_TO_NEXT_TOKEN,

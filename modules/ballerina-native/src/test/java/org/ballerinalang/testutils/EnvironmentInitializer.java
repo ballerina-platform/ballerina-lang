@@ -20,10 +20,6 @@ package org.ballerinalang.testutils;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.Service;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
@@ -40,29 +36,6 @@ import java.nio.file.Paths;
  * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
  */
 public class EnvironmentInitializer {
-
-    public static BLangProgram setup(String sourcePath) {
-        // Initialize server connectors before starting the test cases
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-
-        // Load constructors
-        BuiltInNativeConstructLoader.loadConstructs();
-
-        BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
-
-        for (BLangPackage servicePackage : bLangProgram.getPackages()) {
-            bLangProgram.addServicePackage(servicePackage);
-            for (Service service : servicePackage.getServices()) {
-                service.setBLangProgram(bLangProgram);
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                        dispatcher.serviceRegistered(service));
-            }
-        }
-
-        return bLangProgram;
-    }
-
 
     public static ProgramFile setupProgramFile(String sourcePath) {
         // Initialize server connectors before starting the test cases

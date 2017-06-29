@@ -136,6 +136,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
@@ -353,6 +354,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
             annotationAttachment.accept(this);
+        }
+
+        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
+            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
+                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
         }
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
@@ -2304,7 +2310,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
 
-        // If this is a multi-value return conversion expression, set the return types. 
+        // If this is a multi-value return conversion expression, set the return types.
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr,
@@ -2361,7 +2367,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
-        // If this is a multi-value return conversion expression, set the return types. 
+        // If this is a multi-value return conversion expression, set the return types.
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
