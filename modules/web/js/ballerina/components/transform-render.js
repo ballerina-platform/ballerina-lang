@@ -617,7 +617,7 @@ class TransformRender {
             this.references.push({ name: id, refObj: reference });
             const newFunc = $('<div>').attr('id', id).addClass('func');
             const self = this;
-            funcName = $('<div>');
+            funcName = $('<div/>').addClass('function-header');
             const funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
             const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
             const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
