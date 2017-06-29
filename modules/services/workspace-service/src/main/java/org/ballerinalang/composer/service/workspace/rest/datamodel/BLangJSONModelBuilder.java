@@ -209,6 +209,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(Service service) {
         JsonObject serviceObj = new JsonObject();
         serviceObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.SERVICE_DEFINITION);
+        serviceObj.addProperty(BLangJSONModelConstants.SERVICE_PROTOCOL_PKG_NAME, service.getProtocolPkgName());
+        serviceObj.addProperty(BLangJSONModelConstants.SERVICE_PROTOCOL_PKG_PATH, service.getPackagePath());
         serviceObj.addProperty(BLangJSONModelConstants.SERVICE_NAME, service.getSymbolName().getName());
         this.addPosition(serviceObj, service.getNodeLocation());
         this.addWhitespaceDescriptor(serviceObj, service.getWhiteSpaceDescriptor());

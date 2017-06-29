@@ -49,16 +49,18 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
                       + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
             });
         constructedSourceSegment += 'service' + serviceDefinition.getWSRegion(0)
+              + '<' + serviceDefinition.getWSRegion(1) + serviceDefinition.getProtocolPkgName()
+              + serviceDefinition.getWSRegion(2) + '>' + serviceDefinition.getWSRegion(3)
               + serviceDefinition.getServiceName()
-              + serviceDefinition.getWSRegion(1) + '{'
-              + serviceDefinition.getWSRegion(2);
+              + serviceDefinition.getWSRegion(4) + '{'
+              + serviceDefinition.getWSRegion(5);
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
     endVisitServiceDefinition(serviceDefinition) {
         this.outdent();
-        this.appendSource('}' + serviceDefinition.getWSRegion(3));
+        this.appendSource('}' + serviceDefinition.getWSRegion(6));
         this.appendSource((serviceDefinition.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());

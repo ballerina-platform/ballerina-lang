@@ -91,6 +91,10 @@ public class BLangJSONModelConstants {
 
     public static final String SERVICE_NAME = "service_name";
 
+    public static final String SERVICE_PROTOCOL_PKG_NAME =  "service_protocol_package_name";
+
+    public static final String SERVICE_PROTOCOL_PKG_PATH =  "service_protocol_package_path";
+
     public static final String RESOURCE_DEFINITION = "resource_definition";
 
     public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
