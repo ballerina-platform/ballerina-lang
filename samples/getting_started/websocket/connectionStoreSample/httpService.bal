@@ -16,7 +16,7 @@ service<http> dataService {
 
     @http:GET {}
     @http:Path {value:"/rm/{id}"}
-    resource deleteConnection (message m, @http:PathParam {value:"id"} string id) {
+    resource removeConnection (message m, @http:PathParam {value:"id"} string id) {
         ws:removeStoredConnection(id);
         message res = {};
         messages:setStringPayload(res, "done");
@@ -25,7 +25,7 @@ service<http> dataService {
 
     @http:GET {}
     @http:Path {value:"/close/{id}"}
-    resource deleteConnection (message m, @http:PathParam {value:"id"} string id) {
+    resource closeConnection (message m, @http:PathParam {value:"id"} string id) {
         ws:closeStoredConnection(id);
         message res = {};
         messages:setStringPayload(res, "done");

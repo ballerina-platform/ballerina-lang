@@ -17,9 +17,10 @@ service<ws> websocketEchoServer {
         string stringPayload = messages:getStringPayload(m);
         if ("closeMe" == stringPayload) {
             ws:closeConnection(); // Close connection from server side
+        } else {
+            ws:pushText(stringPayload);
+            system:println("client: " + messages:getStringPayload(m));
         }
-        ws:pushText();
-        system:println("client: " + messages:getStringPayload(m));
     }
 
     @ws:OnClose {}
