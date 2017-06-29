@@ -31,9 +31,9 @@ class AnnotationAttributeDefinition extends React.Component {
         this.model = this.props.model;
         this.bBox = this.props.model.viewState.bBox;
         this.state = {
-            inputValue: this.props.model.getAttributeStatementString(),
+            inputValue: this.props.model.getAttributeStatementString().replace(';', ''),
             editing: false,
-            editValue: this.props.model.getAttributeStatementString(),
+            editValue: this.props.model.getAttributeStatementString().replace(';', ''),
         };
         this.setAnnotationAttributeDefinition = this.setAnnotationAttributeDefinition.bind(this);
     }
@@ -42,11 +42,11 @@ class AnnotationAttributeDefinition extends React.Component {
      * Render Edit mode for attribute definition.
      * */
     onClickVariableTextBox() {
-        this.setState({ editing: true, editValue: this.props.model.getAttributeStatementString() });
+        this.setState({ editing: true, editValue: this.props.model.getAttributeStatementString().replace(';', '') });
     }
 
     onInputBlur(e) {
-        this.setState({ editing: false, editValue: this.props.model.getAttributeStatementString() });
+        this.setState({ editing: false, editValue: this.props.model.getAttributeStatementString().replace(';', '') });
     }
 
     onInputChange(e) {
@@ -70,7 +70,9 @@ class AnnotationAttributeDefinition extends React.Component {
                     }
                 }
             }
-            this.setState({ editing: false, editValue: this.props.model.getAttributeStatementString() });
+            this.setState({
+                editing: false, editValue: this.props.model.getAttributeStatementString().replace(';', '')
+            });
         }
     }
 
@@ -130,7 +132,7 @@ class AnnotationAttributeDefinition extends React.Component {
                 model.setAttributeValue(defaultValue);
 
                 this.setState({
-                    inputValue: this.props.model.getAttributeStatementString(),
+                    inputValue: this.props.model.getAttributeStatementString().replace(';', ''),
                 });
             } else {
                 const errorString = 'Annotation Attribute Cannot be Empty';
@@ -197,7 +199,9 @@ class AnnotationAttributeDefinition extends React.Component {
                         height={this.bBox.h}
                         labelClass={'annotation-attribute-wrapper-text'}
                         inputClass={'annotation-attribute-input-text-box'}
-                        displayText={util.getTextWidth(this.props.model.getAttributeStatementString()).text}
+                        displayText={
+                            util.getTextWidth(this.props.model.getAttributeStatementString().replace(';', '')).text
+                        }
                         onKeyDown={(e) => {
                             this.onKeyDown(e);
                         }}
