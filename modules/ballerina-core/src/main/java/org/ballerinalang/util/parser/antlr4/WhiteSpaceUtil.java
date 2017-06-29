@@ -1256,4 +1256,32 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
+
+    public static WhiteSpaceDescriptor getFieldBasedVarRedWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.FieldVariableReferenceContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR,
+                getWhitespaceToLeft(tokenStream, ctx.field().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START,
+                getWhitespaceToRight(tokenStream, ctx.field().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getIndexBasedVarRefWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.MapArrayVariableReferenceContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_VAR_REF_TO_INDEX_EXPR_WRAPPER,
+                getWhitespaceToLeft(tokenStream, ctx.index().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_INDEX_EXPR_WRAPPER_TO_INDEX_EXPR_START,
+                getWhitespaceToRight(tokenStream, ctx.index().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
 }
