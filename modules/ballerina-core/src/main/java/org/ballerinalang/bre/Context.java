@@ -52,7 +52,7 @@ public class Context {
     private Session currentSession = null;
 
     private int startIP;
-    private BStruct errorThrown;
+    private BStruct unhandledError;
 
     // TODO : Temporary solution to make non-blocking working.
     public boolean initFunction = false;
@@ -140,11 +140,18 @@ public class Context {
     }
 
     public BStruct getError() {
-        return errorThrown;
+        if (controlStackNew.currentFrame != null) {
+            return controlStackNew.currentFrame.getErrorThrown();
+        }
+        return this.unhandledError;
     }
 
     public void setError(BStruct error) {
-        this.errorThrown = error;
+        if (controlStackNew.currentFrame != null) {
+            controlStackNew.currentFrame.setErrorThrown(error);
+        } else {
+            this.unhandledError = error;
+        }
     }
 
     public int getStartIP() {

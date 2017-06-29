@@ -10,7 +10,8 @@ service Banklocator {
     resource product (message m) {
         message response = {};
         json jsonRequest = messages:getJsonPayload(m);
-        string zipCode = <string> jsonRequest.BranchLocator.ZipCode;
+        string zipCode;
+        zipCode, _ = (string) jsonRequest.BranchLocator.ZipCode;
         json payload = {};
         if (zipCode == "95999") {
             payload = {"ABCBank": {"BranchCode":"123"}};

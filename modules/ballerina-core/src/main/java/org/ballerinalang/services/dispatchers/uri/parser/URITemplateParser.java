@@ -18,10 +18,9 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 public class URITemplateParser {
 
@@ -40,8 +39,9 @@ public class URITemplateParser {
         }
 
         if (!"/".equals(template)) {
-            for (String segment : template.split("/")) {
-
+            String[] segments = template.split("/");
+            for (int currentElement = 0; currentElement < segments.length; currentElement++) {
+                String segment = segments[currentElement];
                 boolean expression = false;
                 int startIndex = 0;
                 int maxIndex = segment.length() - 1;
@@ -84,6 +84,11 @@ public class URITemplateParser {
                             throw new URITemplateException("Illegal closing brace detected");
                         }
                         break;
+
+                    case '*':
+                        if (pointerIndex == 0 && currentElement != segments.length - 1) {
+                            throw new URITemplateException("/* is only allowed at the end of the Path");
+                        }
 
                     default:
                         if (pointerIndex == maxIndex) {

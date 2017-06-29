@@ -314,6 +314,17 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
+    @Test(description = "Test suitable method with URL. /echo55/foo ")
+    public void testWrongPath() {
+        String path = "/echo55/foo";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
+        Assert.assertEquals(trueResponse, 404, "Method not found");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);

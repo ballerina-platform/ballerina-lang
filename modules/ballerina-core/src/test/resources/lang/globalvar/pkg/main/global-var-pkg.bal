@@ -2,7 +2,7 @@ package lang.globalvar.pkg.main;
 
 import lang.globalvar.pkg.variable;
 
-float glbVarFloat = (int)variable:glbVarAny;
+float glbVarFloat = <float> variable:glbVarAnyInt;
 
 any glbVarAny = getAnyGlobalVar();
 
@@ -14,7 +14,7 @@ function getGlobalVars() (int, string, float, any) {
 
 
 function changeGlobalVar(int addVal) (float) {
-    variable:glbVarFloatChange = 77 + addVal;
+    variable:glbVarFloatChange = 77 + <float> addVal;
     float value = variable:glbVarFloatChange;
     return value;
 }

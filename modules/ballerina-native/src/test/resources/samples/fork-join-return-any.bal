@@ -23,11 +23,11 @@ function testForkJoinReturnAnyType()(int, string) {
         any[] t1;
         t1,_ = (any[]) results["W1"];
         system:println("After any array cast");
-        p = (int) t1[0];
-        q = (string) t1[1];
+        p, _ = (int) t1[0];
+        q, _ = (string) t1[1];
         t1,_ = (any[]) results["W2"];
-        r = (string) t1[0];
-        t = (float) t1[1];
+        r, _ = (string) t1[0];
+        t, _ = (float) t1[1];
         system:println(p);
         system:println(r);
         system:println(q);
