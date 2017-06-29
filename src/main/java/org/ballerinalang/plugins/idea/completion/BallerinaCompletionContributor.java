@@ -54,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
@@ -175,6 +176,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleWorkerReferenceNode(parameters, resultSet);
         } else if (parent instanceof JoinConditionNode) {
             handleJoinConditionNode(parameters, resultSet);
+        } else if (parent instanceof FieldNode) {
+            handleFieldNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -186,6 +189,24 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFileLevelKeywordsAsLookups(resultSet, false, true);
             }
         }
+    }
+
+    private void handleFieldNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        int offset = parameters.getOffset();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, offset);
+        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                prevElement.getTextOffset());
+        if (previousNonEmptyElement instanceof LeafPsiElement &&
+                ((LeafPsiElement) previousNonEmptyElement).getElementType() == BallerinaTypes.RBRACK) {
+            if (resolveElementAndSuggestArrayLength(parameters, resultSet, previousNonEmptyElement)) {
+                return;
+            }
+            return;
+        }
+        // Eg: person.<caret>
+        PsiElement structReference = originalFile.findElementAt(prevElement.getTextOffset() - 1);
+        addStructFields(parameters, resultSet, structReference, null, false, false);
     }
 
     private void handleJoinConditionNode(CompletionParameters parameters, CompletionResultSet resultSet) {
@@ -650,7 +671,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             }
                             addTypeNamesAsLookups(resultSet);
                         }
-                    } else if (isExpressionSeparator(elementType)||elementType == BallerinaTypes.LPAREN) {
+                    } else if (isExpressionSeparator(elementType) || elementType == BallerinaTypes.LPAREN) {
                         // Eg: int a = 10 +
                         // Eg: system:println(<caret>)
                         addLookups(resultSet, originalFile, true, true, true, false);
@@ -752,7 +773,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
                 addTypeNamesAsLookups(resultSet);
             }
-        } else if (isExpressionSeparator(elementType)||elementType == BallerinaTypes.LPAREN) {
+        } else if (isExpressionSeparator(elementType) || elementType == BallerinaTypes.LPAREN) {
             // Eg: int a = 10 +
             // Eg: system:println(<caret>)
             addLookups(resultSet, originalFile, true, true, true, false);
@@ -1290,7 +1311,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiElement parentNode = resolvedElement.getParent();
             if (parentNode instanceof VariableDefinitionNode || parentNode instanceof ParameterNode
                     || parentNode instanceof GlobalVariableDefinitionNode) {
-                suggestArrayLength(resultSet, parentNode, parent);
+                VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(parent,
+                        VariableReferenceNode.class, false, ExpressionNode.class);
+                if (variableReferenceNode != null) {
+                    suggestArrayLength(resultSet, parentNode, variableReferenceNode);
+                } else {
+                    suggestArrayLength(resultSet, parentNode, parent);
+                }
             }
         }
         return false;

@@ -50,7 +50,7 @@ public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightF
     }
 
     public void testServiceWithoutPackageRunConfiguration() {
-        PsiFile file = myFixture.configureByText("a.bal", "<caret>\nservice main {}");
+        PsiFile file = myFixture.configureByText("a.bal", "<caret>\nservice<http> main {}");
         PsiElement element = file.findElementAt(myFixture.getCaretOffset());
         assertNotNull(element);
         ConfigurationContext configurationContext = new ConfigurationContext(element);
@@ -81,7 +81,7 @@ public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightF
     }
 
     public void testServiceWithPackageRunConfiguration() {
-        PsiFile file = myFixture.addFileToProject("org/test/a.bal", "package org.test; <caret>\nservice main {}");
+        PsiFile file = myFixture.addFileToProject("org/test/a.bal", "package org.test; <caret>\nservice<http> main {}");
         myFixture.configureFromExistingVirtualFile(file.getVirtualFile());
         PsiElement element = file.findElementAt(myFixture.getCaretOffset());
         assertNotNull(element);
@@ -118,7 +118,7 @@ public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightF
     }
 
     public void testServiceWithoutPackageRunConfigurationFromContext() {
-        PsiFile file = myFixture.configureByText("a.bal", "service <caret>main {}");
+        PsiFile file = myFixture.configureByText("a.bal", "service<http> <caret>main {}");
         PsiElement element = file.findElementAt(myFixture.getCaretOffset());
         assertNotNull(element);
         ConfigurationContext configurationContext = new ConfigurationContext(element);
@@ -162,7 +162,7 @@ public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightF
     }
 
     public void testServiceWithPackageRunConfigurationFromContext() {
-        PsiFile file = myFixture.addFileToProject("org/test/a.bal", "package org.test;\nservice <caret>main {}");
+        PsiFile file = myFixture.addFileToProject("org/test/a.bal", "package org.test;\nservice<http> <caret>main {}");
         myFixture.configureFromExistingVirtualFile(file.getVirtualFile());
         PsiElement element = file.findElementAt(myFixture.getCaretOffset());
         assertNotNull(element);

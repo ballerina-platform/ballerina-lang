@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -58,6 +59,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +77,8 @@ public class NameReference extends BallerinaElementReference {
                 || def instanceof StructDefinitionNode || def instanceof VariableDefinitionNode
                 || def instanceof AnnotationDefinitionNode || def instanceof GlobalVariableDefinitionNode
                 || def instanceof ConstantDefinitionNode || def instanceof ParameterNode
-                || def instanceof FieldDefinitionNode || def instanceof AssignmentStatementNode;
+                || def instanceof FieldDefinitionNode || def instanceof AssignmentStatementNode
+                || def instanceof FieldNode;
         if (isDefinition) {
             return true;
         }
@@ -177,6 +180,15 @@ public class NameReference extends BallerinaElementReference {
                     }
                 }
             }
+//            else if (prevSibling == null) {
+//                PsiReference reference = myElement.getReference();
+//                if (reference != null) {
+//                    PsiElement resolvedResult = reference.resolve();
+//                    if (resolvedResult != null) {
+//                        results.add(new PsiElementResolveResult(resolvedResult));
+//                    }
+//                }
+//            }
             return results.toArray(new ResolveResult[results.size()]);
         }
         // Get the last PackageNameNode because we only need to resolve the corresponding package.
@@ -310,7 +322,8 @@ public class NameReference extends BallerinaElementReference {
                     || definitionElement instanceof VariableDefinitionNode
                     || definitionElement instanceof GlobalVariableDefinitionNode
                     || definitionElement instanceof AnnotationDefinitionNode
-                    || definitionElement instanceof IdentifierPSINode) {
+                    || definitionElement instanceof IdentifierPSINode
+                    || definitionElement instanceof FieldNode) {
                 PsiFile containingFile = myElement.getContainingFile();
                 PsiDirectory myDirectory = containingFile.getContainingDirectory();
                 PsiDirectory definitionDirectory = definitionElement.getContainingFile().getContainingDirectory();

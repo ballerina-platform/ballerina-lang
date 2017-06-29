@@ -47,7 +47,7 @@ definition
     ;
 
 serviceDefinition
-    :   'service' sourceNotation? Identifier '{' serviceBody '}'
+    :   'service' sourceNotation Identifier '{' serviceBody '}'
     ;
 
 sourceNotation
@@ -227,7 +227,10 @@ transformStatement
     ;
 
 transformStatementBody
-    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement | commentStatement)*
+    :   (expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    |   commentStatement)*
     ;
 
 expressionAssignmentStatement
@@ -337,13 +340,22 @@ commentStatement
     ;
 
 variableReference
-    :   nameReference                               # simpleVariableIdentifier// simple identifier
-    |   mapArrayVariableReference                   # mapArrayVariableIdentifier// arrays and map reference
-    |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
+    :   nameReference                               # simpleVariableReference
+    |   variableReference index                     # mapArrayVariableReference
+    |   variableReference field                     # fieldVariableReference
+    |   variableReference xmlAttrib                 # xmlAttribVariableReference
     ;
 
-mapArrayVariableReference
-    :   nameReference ('['expression']')+
+field
+    : '.' Identifier
+    ;
+
+index
+    : '[' expression ']'
+    ;
+
+xmlAttrib
+    : '@[' expression ']'
     ;
 
 expressionList

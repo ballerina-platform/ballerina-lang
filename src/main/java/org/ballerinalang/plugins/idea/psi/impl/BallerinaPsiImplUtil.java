@@ -60,6 +60,7 @@ import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -1211,7 +1212,7 @@ public class BallerinaPsiImplUtil {
             return null;
         }
 
-        PsiReference reference = prevSibling.getReference();
+        PsiReference reference = prevSibling.findReferenceAt(prevSibling.getContainingFile().getTextOffset());
         if (reference == null) {
             return null;
         }
@@ -1282,6 +1283,14 @@ public class BallerinaPsiImplUtil {
                 }
             }
         } else {
+
+            PsiElement elementParent = element.getParent();
+            if (elementParent instanceof FieldNode) {
+                PsiElement prevSibling = elementParent.getPrevSibling();
+                if (prevSibling != null) {
+                    return BallerinaPsiImplUtil.resolveField(element, prevSibling);
+                }
+            }
 
             VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
                     VariableReferenceNode.class);

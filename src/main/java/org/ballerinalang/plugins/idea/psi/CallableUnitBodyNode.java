@@ -35,7 +35,7 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode
+        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof FieldNode
                 || element.getParent() instanceof StatementNode) {
             FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(element,
                     FunctionInvocationNode.class);

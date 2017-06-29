@@ -80,6 +80,9 @@ public class BallerinaTypes {
             ruleIElementTypes.get(BallerinaParser.RULE_transformStatementBody);
     public static RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(BallerinaParser.RULE_xmlLocalName);
     public static RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(BallerinaParser.RULE_nameReference);
+    public static RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(BallerinaParser.RULE_variableReference);
+    public static RuleIElementType INDEX = ruleIElementTypes.get(BallerinaParser.RULE_index);
+    public static RuleIElementType FIELD = ruleIElementTypes.get(BallerinaParser.RULE_field);
 
     public static RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(BallerinaParser.RULE_parameterList);
     public static RuleIElementType ANNOTATION_ATTACHMENT =

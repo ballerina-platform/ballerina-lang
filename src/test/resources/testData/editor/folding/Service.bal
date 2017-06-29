@@ -2,7 +2,7 @@ import <fold text='...'>ballerina.lang.messages;
 import ballerina.net.http;</fold>
 
 @http:BasePath {value:"/hello"}
-service helloWorld <fold text='{...}'>{
+service<http> helloWorld <fold text='{...}'>{
     //comment
     @http:GET {}
     resource sayHello (message m) <fold text='{...}'>{

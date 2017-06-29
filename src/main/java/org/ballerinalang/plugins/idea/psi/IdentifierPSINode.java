@@ -104,6 +104,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_statement:
                     return new StatementReference(this);
                 case RULE_nameReference:
+                case RULE_field:
                     return new NameReference(this);
                 case RULE_variableReference:
                 case RULE_parameter:

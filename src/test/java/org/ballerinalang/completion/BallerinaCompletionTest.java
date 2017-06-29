@@ -1136,11 +1136,11 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("any");
         expectedLookups.add("resource");
-        doTest("service S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testServiceBodyAfterAnnotation() {
-        doTest("service S{ @http:GET {} <caret>}", "resource");
+        doTest("service<http> S{ @http:GET {} <caret>}", "resource");
     }
 
     public void testServiceAnnotation() {
@@ -1223,7 +1223,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testResourceAnnotationWithImports() {
-        doCheckResult("test.bal", "import org.test; service S{<caret>}", null, '@', "test");
+        doCheckResult("test.bal", "import org.test; service<http> S{<caret>}", null, '@', "test");
     }
 
     public void testResourceAnnotationWithImportsNoAnnotationDefinitions() {
@@ -1239,41 +1239,41 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {} " +
                 "annotation TEST2 attach service {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null, "TEST");
+        doCheckResult("test.bal", "import org.test; service<http> S{@test:<caret>}", null, null, "TEST");
     }
 
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:T<caret>}",
-                "import org.test; service S{@test:TEST {}}", null);
+        doCheckResult("test.bal", "import org.test; service<http> S{@test:T<caret>}",
+                "import org.test; service<http> S{@test:TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>}", null, '@', "TEST");
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{<caret>}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{@T<caret>}",
-                "annotation TEST attach resource {} service S{@TEST {}}", null);
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{@T<caret>}",
+                "annotation TEST attach resource {} service<http> S{@TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFile() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{<caret>}", null, '@', "TEST");
+        doCheckResult("test.bal", "service<http> S{<caret>}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFileAutoComplete() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{@T<caret>}", "service S{@TEST {}}", null);
+        doCheckResult("test.bal", "service<http> S{@T<caret>}", "service<http> S{@TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{<caret>} service R{}", null, '@', "TEST");
+        doCheckResult("test.bal", "service<http> S{<caret>} service R{}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>} service R{}", null, '@',
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{<caret>} service R{}", null, '@',
                 "TEST");
     }
 
@@ -1289,7 +1289,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("any");
-        doTest("service S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testResourceParamWithImports() {
@@ -1298,17 +1298,18 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
         expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(<caret>)",
+        doTest("import org.test; service<http> S { resource R(<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testResourceParamWithoutImportsAutoCompletion() {
-        doCheckResult("test.bal", "service S { resource R(st<caret>)", "service S { resource R(string )", null);
+        doCheckResult("test.bal", "service<http> S { resource R(st<caret>)", "service<http> S { resource R(string )",
+                null);
     }
 
     public void testResourceParamWithImportsAutoCompletion() {
-        doCheckResult("test.bal", "import org.test; service S { resource R(te<caret>)",
-                "import org.test; service S { resource R(test:)", null);
+        doCheckResult("test.bal", "import org.test; service<http> S { resource R(te<caret>)",
+                "import org.test; service<http> S { resource R(test:)", null);
     }
 
     public void testCaretAfterResourceParamWithoutImports() {
@@ -1316,7 +1317,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("any");
-        doTest("service S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups
+                .size()]));
     }
 
     public void testCaretBeforeResourceParamWithoutImports() {
@@ -1324,7 +1326,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("any");
-        doTest("service S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups
+                .size()]));
     }
 
     public void testCaretAfterResourceParamWithImports() {
@@ -1333,7 +1336,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
         expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(string s,<caret>)",
+        doTest("import org.test; service<http> S { resource R(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1343,7 +1346,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
         expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(<caret>string s)",
+        doTest("import org.test; service<http> S { resource R(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 

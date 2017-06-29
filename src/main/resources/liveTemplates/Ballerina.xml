@@ -1,15 +1,6 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$ ($ARGS$) {&#10;    $END$&#10;}"
-              description="Function template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
-        <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
-        <context>
-            <option name="BALLERINA_FILE" value="true"/>
-        </context>
-    </template>
-
-    <template name="funr" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
+    <template name="fun" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
               description="Function template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -35,7 +26,7 @@
         </context>
     </template>
 
-    <template name="ser" value="$ANNOTATION$&#10;service$NOTATION$ $NAME$ {&#10;    $END$&#10;}"
+    <template name="ser" value="$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ {&#10;    $END$&#10;}"
               description="Service Template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
