@@ -74,25 +74,17 @@ public class TypeLattice {
         implicitCastLattice.addVertex(floatV, false);
         implicitCastLattice.addVertex(stringV, false);
 
-        implicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
-
-        implicitCastLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F);
-        implicitCastLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S);
         implicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
-
-        implicitCastLattice.addEdge(floatV, stringV, SAFE, InstructionCodes.F2S);
         implicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
+        implicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
+        implicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
+        implicitCastLattice.addEdge(nullV, jsonV, SAFE, InstructionCodes.NULL2JSON);
 
         implicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
         implicitCastLattice.addEdge(floatV, anyV, SAFE, InstructionCodes.F2ANY);
         implicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
         implicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
         implicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
-
-        implicitCastLattice.addEdge(booleanV, stringV, SAFE, InstructionCodes.B2S);
-        implicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
-
-        implicitCastLattice.addEdge(nullV, jsonV, SAFE, InstructionCodes.NULL2JSON);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -123,30 +115,15 @@ public class TypeLattice {
         explicitCastLattice.addVertex(messageV, false);
         explicitCastLattice.addVertex(datatableV, false);
 
-        explicitCastLattice.addEdge(intV, intV, SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F);
-        explicitCastLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S);
-        explicitCastLattice.addEdge(intV, booleanV, SAFE, InstructionCodes.I2B);
         explicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
         explicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
 
-        explicitCastLattice.addEdge(floatV, floatV, SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(floatV, stringV, SAFE, InstructionCodes.F2S);
-        explicitCastLattice.addEdge(floatV, booleanV, SAFE, InstructionCodes.F2B);
-        explicitCastLattice.addEdge(floatV, intV, UNSAFE, InstructionCodes.F2I);
         explicitCastLattice.addEdge(floatV, anyV, SAFE, InstructionCodes.F2ANY);
         explicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
 
-        explicitCastLattice.addEdge(stringV, stringV, SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(stringV, floatV, UNSAFE, InstructionCodes.S2F);
-        explicitCastLattice.addEdge(stringV, intV, UNSAFE, InstructionCodes.S2I);
         explicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
         explicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
 
-        explicitCastLattice.addEdge(booleanV, booleanV, SAFE, InstructionCodes.NOP);
-        explicitCastLattice.addEdge(booleanV, stringV, SAFE, InstructionCodes.B2S);
-        explicitCastLattice.addEdge(booleanV, intV, SAFE, InstructionCodes.B2I);
-        explicitCastLattice.addEdge(booleanV, floatV, SAFE, InstructionCodes.B2F);
         explicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
         explicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
 
@@ -167,7 +144,6 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, messageV, UNSAFE, InstructionCodes.ANY2MSG);
         explicitCastLattice.addEdge(anyV, datatableV, UNSAFE, InstructionCodes.ANY2DT);
 
-        explicitCastLattice.addEdge(jsonV, jsonV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(jsonV, anyV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(anyV, messageV, SAFE, InstructionCodes.ANY2MSG);
 
@@ -176,10 +152,8 @@ public class TypeLattice {
         explicitCastLattice.addEdge(jsonV, floatV, UNSAFE, InstructionCodes.JSON2F);
         explicitCastLattice.addEdge(jsonV, booleanV, UNSAFE, InstructionCodes.JSON2B);
 
-        explicitCastLattice.addEdge(xmlV, xmlV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(xmlV, anyV, SAFE, InstructionCodes.NOP);
 
-        explicitCastLattice.addEdge(mapV, mapV, SAFE, InstructionCodes.NOP);
         explicitCastLattice.addEdge(mapV, anyV, SAFE, InstructionCodes.NOP);
 
         explicitCastLattice.addEdge(datatableV, anyV, SAFE, InstructionCodes.NOP);
@@ -205,34 +179,22 @@ public class TypeLattice {
         conversionLattice.addVertex(connectorV, false);
         conversionLattice.addVertex(datatableV, false);
 
-        conversionLattice.addEdge(intV, intV, SAFE, InstructionCodes.NOP);
         conversionLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F);
         conversionLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S);
         conversionLattice.addEdge(intV, booleanV, SAFE, InstructionCodes.I2B);
-        conversionLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
 
-        conversionLattice.addEdge(floatV, floatV, SAFE, InstructionCodes.NOP);
         conversionLattice.addEdge(floatV, stringV, SAFE, InstructionCodes.F2S);
         conversionLattice.addEdge(floatV, booleanV, SAFE, InstructionCodes.F2B);
         conversionLattice.addEdge(floatV, intV, UNSAFE, InstructionCodes.F2I);
-        conversionLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
 
-        conversionLattice.addEdge(stringV, stringV, SAFE, InstructionCodes.NOP);
         conversionLattice.addEdge(stringV, floatV, UNSAFE, InstructionCodes.S2F);
         conversionLattice.addEdge(stringV, intV, UNSAFE, InstructionCodes.S2I);
         conversionLattice.addEdge(stringV, booleanV, UNSAFE, InstructionCodes.S2B);
-        conversionLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
 
-        conversionLattice.addEdge(booleanV, booleanV, SAFE, InstructionCodes.NOP);
         conversionLattice.addEdge(booleanV, stringV, SAFE, InstructionCodes.B2S);
         conversionLattice.addEdge(booleanV, intV, SAFE, InstructionCodes.B2I);
         conversionLattice.addEdge(booleanV, floatV, SAFE, InstructionCodes.B2F);
-        conversionLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
 
-        conversionLattice.addEdge(jsonV, stringV, UNSAFE, InstructionCodes.JSON2S);
-        conversionLattice.addEdge(jsonV, intV, UNSAFE, InstructionCodes.JSON2I);
-        conversionLattice.addEdge(jsonV, floatV, UNSAFE, InstructionCodes.JSON2F);
-        conversionLattice.addEdge(jsonV, booleanV, UNSAFE, InstructionCodes.JSON2B);
         conversionLattice.addEdge(jsonV, xmlV, UNSAFE, InstructionCodes.JSON2XML);
 
         conversionLattice.addEdge(xmlV, jsonV, UNSAFE, InstructionCodes.XML2JSON);

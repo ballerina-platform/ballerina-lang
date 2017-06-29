@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.model.expressions.variablerefs;
 
 import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.NodeLocation;
@@ -23,34 +23,32 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.expressions.AbstractExpression;
 import org.ballerinalang.model.types.BType;
 
 /**
- * {@code VariableRefExpr} represents a variable reference in Ballerina.
+ * {@code SimpleVarRefExpr} represents a variable reference expression with just the variable name.
+ * e.g. name;
  *
- * @since 0.8.0
+ * @since 0.89
  */
-public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
+public class SimpleVarRefExpr extends AbstractExpression implements VariableReferenceExpr {
     private String varName;
     private String pkgName;
     private String pkgPath;
+
     private SymbolName symbolName;
     private VariableDef variableDef;
     private boolean isLHSExpr;
 
-    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName) {
-        super(location, whiteSpaceDescriptor);
-        this.varName = varName;
-        this.symbolName = new SymbolName(varName);
-    }
+    // Parent in the node tree
+    private VariableReferenceExpr parentVarRefExpr;
 
-    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SymbolName symbolName) {
-        super(location, whiteSpaceDescriptor);
-        this.symbolName = symbolName;
-    }
-
-    public VariableRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String varName,
-                           String pkgName, String pkgPath) {
+    public SimpleVarRefExpr(NodeLocation location,
+                            WhiteSpaceDescriptor whiteSpaceDescriptor,
+                            String varName,
+                            String pkgName,
+                            String pkgPath) {
         super(location, whiteSpaceDescriptor);
         this.varName = varName;
         this.pkgName = pkgName;
@@ -58,37 +56,26 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         this.symbolName = new SymbolName(varName, pkgPath);
     }
 
-    @Override
+    public SimpleVarRefExpr(NodeLocation location,
+                            WhiteSpaceDescriptor whiteSpaceDescriptor,
+                            String varName) {
+        this(location, whiteSpaceDescriptor, varName, null, null);
+    }
+
     public String getVarName() {
         return varName;
     }
 
-    @Override
     public String getPkgName() {
         return pkgName;
     }
 
-    @Override
     public String getPkgPath() {
         return pkgPath;
     }
 
     public SymbolName getSymbolName() {
         return symbolName;
-    }
-
-    @Override
-    public boolean isLHSExpr() {
-        return isLHSExpr;
-    }
-
-    @Override
-    public void setLHSExpr(boolean lhsExpr) {
-        this.isLHSExpr = lhsExpr;
-    }
-
-    public BType getType() {
-        return variableDef.getType();
     }
 
     public MemoryLocation getMemoryLocation() {
@@ -101,6 +88,30 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
 
     public void setVariableDef(VariableDef variableDef) {
         this.variableDef = variableDef;
+    }
+
+    public BType getType() {
+        return variableDef.getType();
+    }
+
+    @Override
+    public boolean isLHSExpr() {
+        return isLHSExpr;
+    }
+
+    @Override
+    public void setLHSExpr(boolean lhsExpr) {
+        this.isLHSExpr = lhsExpr;
+    }
+
+    @Override
+    public VariableReferenceExpr getParentVarRefExpr() {
+        return parentVarRefExpr;
+    }
+
+    @Override
+    public void setParentVarRefExpr(VariableReferenceExpr varRefExpr) {
+        this.parentVarRefExpr = varRefExpr;
     }
 
     @Override

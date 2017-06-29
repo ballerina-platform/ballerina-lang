@@ -10,7 +10,8 @@ service Bankinfo {
     resource product (message m) {
         message response = {};
         json jsonRequest = messages:getJsonPayload(m);
-        string branchCode = <string> jsonRequest.BranchInfo.BranchCode;
+        string branchCode;
+        branchCode, _ = (string) jsonRequest.BranchInfo.BranchCode;
         json payload = {};
         if (branchCode == "123") {
             payload = {"ABC Bank": {"Address": "111 River Oaks Pkwy, San Jose, CA 95999"}};

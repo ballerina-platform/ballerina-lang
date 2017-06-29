@@ -77,11 +77,14 @@ function testNullArrayAccess() (string) {
 
 function testNullMapAccess() (string) {
     map marks;
-    return (string) marks["maths"];
+    string value;
+    value, _ = (string) marks["maths"];
+    return value;
 }
 
 function testCastingNull(any j) (xml) {
-    xml x = (xml) j;
+    xml x;
+    x, _ = (xml) j;
 
     return x;
 }
@@ -138,9 +141,11 @@ function testNullInForkJoin() (message, message) {
     } join (all) (map allReplies) {
         any[] temp;
         temp, _ = (any[])allReplies["foo"];
-        message m1 = (message) temp[0];
+        message m1;
+        m1, _ = (message) temp[0];
         temp,_ = (any[])allReplies["bar"];
-        message m2 = (message) temp[0];
+        message m2;
+        m2, _ = (message) temp[0];
         return m1,m2;
     } timeout (30000) (map msgs) {
         return null, null;

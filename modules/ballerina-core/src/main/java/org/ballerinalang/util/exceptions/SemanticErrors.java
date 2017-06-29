@@ -102,7 +102,7 @@ public enum SemanticErrors {
     WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
     INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
     CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
-    
+    CONTINUE_STMT_NOT_ALLOWED_HERE("continue.stmt.not.allowed.here", "SEMANTIC_0079"),
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),

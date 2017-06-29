@@ -98,6 +98,10 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             blockStmt = new BlockStmt(location, enclosingScope);
         }
 
+        public void setLocation(NodeLocation location) {
+            blockStmt.setLocation(location);
+        }
+
         public SymbolScope getCurrentScope() {
             return blockStmt;
         }

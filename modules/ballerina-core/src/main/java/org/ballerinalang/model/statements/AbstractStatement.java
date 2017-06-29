@@ -42,6 +42,10 @@ public abstract class AbstractStatement implements Statement {
         return location;
     }
 
+    public void setLocation(NodeLocation location) {
+        this.location = location;
+    }
+
     public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
