@@ -137,7 +137,14 @@ define(([], function () {
                 },
                 disabled: false,
             },
-
+            {
+                id: 'export-diagram',
+                label: 'Export Diagram',
+                command: {
+                    id: 'export-diagram',
+                },
+                disabled: false,
+            }
         ],
 
     };
