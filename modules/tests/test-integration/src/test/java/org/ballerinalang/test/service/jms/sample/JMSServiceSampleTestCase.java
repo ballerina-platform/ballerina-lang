@@ -79,7 +79,10 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
 
         String serviceSampleDir = ballerinaServer.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
 
-        String[] receiverArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsReceiver.bal"};
+        //Adding temporary echo service so the server start can be monitored using that. (since this is a jms service
+        //there won't be any http port openings, hence current logic cannot identify whether server is started or not)
+        String[] receiverArgs = {serviceSampleDir + File.separator + "jms" + File.separator + "jmsReceiver.bal",
+                serviceSampleDir + File.separator + "echoService" + File.separator + "echoService.bal"};
 
         ballerinaServer.setArguments(receiverArgs);
 

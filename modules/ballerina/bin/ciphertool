@@ -146,26 +146,10 @@ if [ "$CMD" = "--debug" ]; then
   echo "Please start the remote debugging client to continue..."
 fi
 
-BALLERINA_XBOOTCLASSPATH=""
-for f in "$BALLERINA_HOME"/bre/lib/bootstrap/xboot/*.jar
-do
-    if [ "$f" != "$BALLERINA_HOME/bre/lib/bootstrap/xboot/*.jar" ];then
-        BALLERINA_XBOOTCLASSPATH="$BALLERINA_XBOOTCLASSPATH":$f
-    fi
-done
-
-JAVA_ENDORSED_DIRS="$BALLERINA_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
-
 BALLERINA_CLASSPATH=""
-if [ -e "$BALLERINA_HOME/bre/lib/bootstrap/tools.jar" ]; then
-    BALLERINA_CLASSPATH="$JAVA_HOME/lib/tools.jar"
-fi
-
-for f in "$BALLERINA_HOME"/bre/lib/bootstrap/*.jar
+for j in "$BALLERINA_HOME"/bre/lib/bootstrap/tools/ciphertool/*.jar
 do
-    if [ "$f" != "$BALLERINA_HOME/bre/lib/bootstrap/*.jar" ];then
-        BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$f
-    fi
+    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
 
 for j in "$BALLERINA_HOME"/bre/lib/*.jar
@@ -177,10 +161,7 @@ done
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   BALLERINA_HOME=`cygpath --absolute --windows "$BALLERINA_HOME"`
-  CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-  JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   BALLERINA_CLASSPATH=`cygpath --path --windows "$BALLERINA_CLASSPATH"`
-  BALLERINA_XBOOTCLASSPATH=`cygpath --path --windows "$BALLERINA_XBOOTCLASSPATH"`
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
@@ -191,20 +172,9 @@ fi
 #   cd "$BALLERINA_HOME"
 
 $JAVACMD \
-	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
-	-Xms256m -Xmx1024m \
-	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
-	$JAVA_OPTS \
-	-classpath "$BALLERINA_CLASSPATH" \
-	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
-	-Dballerina.home=$BALLERINA_HOME \
-	-Dballerina.version=${project.version} \
-	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
-	-Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
-	-Dtransports.netty.conf="$BALLERINA_HOME/bre/conf/netty-transports.yml" \
-	-Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
-	-Denable.nonblocking=false \
-	-Djava.security.egd=file:/dev/./urandom \
-	-Dfile.encoding=UTF8 \
-	org.ballerinalang.launcher.Main "$@"
+    $JAVA_OPTS \
+    -Dballerina.home=$BALLERINA_HOME \
+    -classpath "$BALLERINA_CLASSPATH" \
+    -Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
+    -Dfile.encoding=UTF8 \
+    org.wso2.carbon.secvault.ciphertool.CipherToolInitializer -configPath $BALLERINA_HOME/bre/conf/deployment.yaml $*

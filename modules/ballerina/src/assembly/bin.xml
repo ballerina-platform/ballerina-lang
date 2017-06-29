@@ -97,6 +97,18 @@
             <fileMode>644</fileMode>
         </file>
         <file>
+            <source>bin/ciphertool</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </file>
+        <file>
+            <source>bin/ciphertool.bat</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
             <source>LICENSE.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
@@ -131,6 +143,9 @@
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.jms</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
+                <include>org.wso2.carbon.config:org.wso2.carbon.config</include>
+                <include>org.wso2.carbon.secvault:org.wso2.carbon.secvault</include>
+                <include>org.wso2.carbon.utils:carbon-utils</include>
                 <include>org.apache.commons.wso2:commons-vfs2</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
@@ -167,6 +182,14 @@
                 <include>javax.jms:javax.jms-api</include>
                 <include>javax.transaction:javax.transaction-api</include>
                 <include>org.atomikos.wso2:atomikos</include>
+            </includes>
+        </dependencySet>
+
+        <!-- Cipher tool specific artifacts -->
+        <dependencySet>
+            <outputDirectory>bre/lib/bootstrap/tools/ciphertool</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon.secvault:org.wso2.carbon.secvault.ciphertool:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
