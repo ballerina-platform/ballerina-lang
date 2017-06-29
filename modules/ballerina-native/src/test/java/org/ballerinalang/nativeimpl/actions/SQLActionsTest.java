@@ -444,6 +444,14 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test(groups = "ConnectorTest")
+    public void testInsertTableDataWithOneParametersArray() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testInsertTableDataWithOneParametersArray");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
