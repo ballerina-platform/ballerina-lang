@@ -10,7 +10,7 @@ package org.ballerinalang.plugins.idea.grammar;
 // starting point for parsing a bal file
 compilationUnit
     :   packageDeclaration?
-        importDeclaration*
+        (importDeclaration | namespaceDeclaration)*
         (annotationAttachment* definition)*
         EOF
     ;
@@ -220,6 +220,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   namespaceDeclaration
     ;
 
 transformStatement
@@ -355,7 +356,7 @@ index
     ;
 
 xmlAttrib
-    : '@[' expression ']'
+    : '@' ('[' expression ']')?
     ;
 
 expressionList
@@ -382,6 +383,10 @@ abortStatement
 
 actionInvocation
     :   nameReference '.' Identifier '(' expressionList? ')'
+    ;
+
+namespaceDeclaration
+    :   'xmlns' QuotedStringLiteral ('as' Identifier)? ';'
     ;
 
 backtickString
@@ -496,6 +501,7 @@ TYPEMAPPER      : 'typemapper';
 VAR             : 'var';
 WHILE           : 'while';
 WORKER          : 'worker';
+XMLNS           : 'xmlns';
 
 BOOLEAN         : 'boolean';
 INT             : 'int';

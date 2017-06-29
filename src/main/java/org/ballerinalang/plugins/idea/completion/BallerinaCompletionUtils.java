@@ -92,6 +92,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder ANNOTATION;
     private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
+    private static final LookupElementBuilder XMLNS;
 
     // Any type
     private static final LookupElementBuilder ANY;
@@ -156,6 +157,7 @@ public class BallerinaCompletionUtils {
         ANNOTATION = createKeywordLookupElement("annotation");
         ATTACH = createKeywordLookupElement("attach");
         PARAMETER = createKeywordLookupElement("parameter");
+        XMLNS = createKeywordLookupElement("xmlns");
 
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
 
@@ -271,6 +273,7 @@ public class BallerinaCompletionUtils {
      */
     static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
         addAnyTypeAsLookup(resultSet);
+        addXmlnsAsLookup(resultSet);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
     }
@@ -284,6 +287,9 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
     }
 
+    private static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
+    }
     /**
      * Adds value types as lookups.
      *
@@ -333,6 +339,7 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
     }
 
     /**

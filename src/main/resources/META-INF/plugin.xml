@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.8</version>
+    <version>0.8.7</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
@@ -17,7 +17,7 @@
         <li>Worker suggestion support in code completion.</li>
         <li>Add worker to the structure view.</li>
       </ul>
-      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/9?closed=1">View all changes and bug fixes.</a>
+      <a href="https://github.com/ballerinalang/plugin-intellij/milestone/8?closed=1">View all changes and bug fixes.</a>
     ]]>
     </change-notes>
 
