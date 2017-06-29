@@ -284,9 +284,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ConstDef constDef) {
         SimpleTypeName typeName = constDef.getTypeName();
-        BType bType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
-        constDef.setType(bType);
-        if (!BTypes.isValueType(bType)) {
+        BType lhsType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
+        constDef.setType(lhsType);
+        if (!BTypes.isValueType(lhsType)) {
             BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
         }
 
@@ -303,11 +303,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = constDef.getRhsExpr();
         rExpr.accept(this);
 
-        // Check whether the right-hand type can be assigned to the left-hand type.
-        AssignabilityResult result = performAssignabilityCheck(bType, rExpr);
-        if (!result.assignable) {
-            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INCOMPATIBLE_ASSIGNMENT,
-                    rExpr.getType(), bType);
+        // Check type assignability
+        AssignabilityResult result = performAssignabilityCheck(lhsType, rExpr);
+        if (result.expression != null) {
+            constDef.setRhsExpr(result.expression);
+        } else if (!result.assignable) {
+            BLangExceptionHelper.throwSemanticError(constDef,
+                    SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(), lhsType);
         }
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
