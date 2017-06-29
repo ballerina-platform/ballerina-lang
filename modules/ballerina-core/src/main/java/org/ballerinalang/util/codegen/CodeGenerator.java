@@ -55,8 +55,6 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthExpression;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
@@ -65,13 +63,11 @@ import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
-import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
@@ -83,19 +79,22 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -121,6 +120,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -139,7 +139,6 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,9 +191,10 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
-    private Stack<List<Instruction>> breakInstructions = new Stack<>();
-    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
+    private Stack<Instruction> breakInstructions = new Stack<>();
+    private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
+    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -725,7 +725,7 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : assignStmt.getLExprs()) {
-                assignVariableDefMemoryLocation(((VariableRefExpr) expr).getVariableDef());
+                assignVariableDefMemoryLocation(((SimpleVarRefExpr) expr).getVariableDef());
             }
         }
 
@@ -748,19 +748,19 @@ public class CodeGenerator implements NodeVisitor {
         for (int i = 0; i < lhsExprs.length; i++) {
             rhsExprRegIndex = rhsExprRegIndexes[i];
             Expression lExpr = lhsExprs[i];
-
-            if (lExpr instanceof VariableRefExpr) {
-                if (((VariableRefExpr) lExpr).getVarName().equals("_")) {
+            if (lExpr instanceof SimpleVarRefExpr) {
+                if (((SimpleVarRefExpr) lExpr).getVarName().equals("_")) {
                     continue;
                 }
                 varAssignment = true;
                 lExpr.accept(this);
                 varAssignment = false;
-            } else if (lExpr instanceof ArrayMapAccessExpr) {
+
+            } else if (lExpr instanceof IndexBasedVarRefExpr) {
                 arrayMapAssignment = true;
                 lExpr.accept(this);
                 arrayMapAssignment = false;
-            } else if (lExpr instanceof FieldAccessExpr) {
+            } else if (lExpr instanceof FieldBasedVarRefExpr) {
                 structAssignment = true;
                 lExpr.accept(this);
                 structAssignment = false;
@@ -882,7 +882,7 @@ public class CodeGenerator implements NodeVisitor {
             // restore.
             finallyBlocks = original;
         }
-        
+
         emit(InstructionCodes.RET);
     }
 
@@ -890,29 +890,32 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         Expression conditionExpr = whileStmt.getCondition();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, nextIP());
-
+        continueInstructions.push(gotoInstruction);
         conditionExpr.accept(this);
         Instruction ifInstruction = new Instruction(InstructionCodes.BR_FALSE,
                 conditionExpr.getTempOffset(), -1);
         emit(ifInstruction);
 
-        breakInstructions.push(new ArrayList<>());
+        Instruction breakGotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
+        breakInstructions.push(breakGotoInstruction);
         whileStmt.getBody().accept(this);
 
         emit(gotoInstruction);
         int nextIP = nextIP();
         ifInstruction.setOperand(1, nextIP);
-        List<Instruction> brkInstructions = breakInstructions.pop();
-        for (Instruction instruction : brkInstructions) {
-            instruction.setOperand(0, nextIP);
-        }
+        breakGotoInstruction.setOperand(0, nextIP);
+        breakInstructions.pop();
+        continueInstructions.pop();
     }
 
     @Override
     public void visit(BreakStmt breakStmt) {
-        Instruction gotoInstruction = new Instruction(InstructionCodes.GOTO, 0);
-        emit(gotoInstruction);
-        breakInstructions.peek().add(gotoInstruction);
+        emit(breakInstructions.peek());
+    }
+
+    @Override
+    public void visit(ContinueStmt continueStmt) {
+        emit(continueInstructions.peek());
     }
 
     @Override
@@ -1059,43 +1062,25 @@ public class CodeGenerator implements NodeVisitor {
             rhsExprRegIndex = rhsExprRegIndexes[i];
             Expression lExpr = lhsExprs[i];
 
-            if (lExpr instanceof VariableRefExpr) {
+            if (lExpr instanceof SimpleVarRefExpr) {
                 varAssignment = true;
                 lExpr.accept(this);
                 varAssignment = false;
-            } else if (lExpr instanceof ArrayMapAccessExpr) {
+            } else if (lExpr instanceof IndexBasedVarRefExpr) {
                 arrayMapAssignment = true;
                 lExpr.accept(this);
                 arrayMapAssignment = false;
-            } else if (lExpr instanceof FieldAccessExpr) {
+            } else if (lExpr instanceof FieldBasedVarRefExpr) {
                 structAssignment = true;
                 lExpr.accept(this);
                 structAssignment = false;
             }
         }
-//        int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
-//
-//        String workerName = workerReplyStmt.getWorkerName();
-//        UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
-//        int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
-//
-//        // Find the package info entry of the function and from the package info entry find the function info entry
-//        String pkgPath = workerReplyStmt.getPackagePath();
-//        PackageInfo workerPackageInfo = programFile.getPackageInfo(pkgPath);
-//        WorkerInfo workerInfo = workerPackageInfo.getWorkerInfo(workerName);
-//
-//        WorkerDataChannelRefCPEntry funcRefCPEntry = new WorkerDataChannelRefCPEntry(pkgCPIndex, workerNameCPIndex);
-//        funcRefCPEntry.setWorkerInfo(workerInfo);
-//        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-//        int funcCallIndex = getCallableUnitCallCPIndex(workerReplyStmt);
-//        emit(InstructionCodes.WRKREPLY, funcRefCPIndex, funcCallIndex);
-
     }
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
         getForkJoinCPIndex(forkJoinStmt);
-
     }
 
     @Override
@@ -1142,7 +1127,6 @@ public class CodeGenerator implements NodeVisitor {
         ErrorTableEntry errorTableEntry = new ErrorTableEntry(startIP, endIP, errorTargetIP, 0, -1);
         currentPkgInfo.addErrorTableEntry(errorTableEntry);
         errorTableEntry.setPackageInfo(currentPkgInfo);
-
     }
 
     @Override
@@ -1551,7 +1535,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    
+
     // Init expressions
 
     @Override
@@ -1687,7 +1671,7 @@ public class CodeGenerator implements NodeVisitor {
 
         for (Expression expr : structInitExpr.getArgExprs()) {
             KeyValueExpr keyValueExpr = (KeyValueExpr) expr;
-            VariableRefExpr varRefExpr = (VariableRefExpr) keyValueExpr.getKeyExpr();
+            SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) keyValueExpr.getKeyExpr();
             int fieldIndex = ((StructVarLocation) varRefExpr.getMemoryLocation()).getStructMemAddrOffset();
 
             Expression valueExpr = keyValueExpr.getValueExpr();
@@ -1700,7 +1684,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // Initialize default values in a struct definition
         for (VariableDefStmt fieldDefStmt : structDef.getFieldDefStmts()) {
-            VariableRefExpr varRefExpr = (VariableRefExpr) fieldDefStmt.getLExpr();
+            SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) fieldDefStmt.getLExpr();
             if (fieldDefStmt.getRExpr() == null || initializedFieldNameList.contains(varRefExpr.getVarName())) {
                 continue;
             }
@@ -1790,149 +1774,26 @@ public class CodeGenerator implements NodeVisitor {
     // Variable reference expressions
 
     @Override
-    public void visit(FieldAccessExpr fieldAccessExpr) {
-        FieldAccessExpr childSFAccessExpr = fieldAccessExpr;
-
-        while (true) {
-            boolean isAssignment = childSFAccessExpr.getFieldExpr() == null && structAssignment;
-
-            int regIndex = -1;
-            if (childSFAccessExpr instanceof JSONFieldAccessExpr) {
-                Expression varRef = childSFAccessExpr.getVarRef();
-                int jsonValueRegIndex = regIndexes[REF_OFFSET];
-                varRef.accept(this);
-
-                if (varRef.getType() == BTypes.typeString) {
-                    if (isAssignment) {
-                        emit(InstructionCodes.JSONSTORE, jsonValueRegIndex, varRef.getTempOffset(), rhsExprRegIndex);
-                    } else {
-                        regIndex = ++regIndexes[REF_OFFSET];
-                        emit(InstructionCodes.JSONLOAD, jsonValueRegIndex, varRef.getTempOffset(), regIndex);
-                    }
-                } else if (varRef.getType() == BTypes.typeInt) {
-                    // JSON array access
-                    if (isAssignment) {
-                        emit(InstructionCodes.JSONASTORE, jsonValueRegIndex, varRef.getTempOffset(), rhsExprRegIndex);
-                    } else {
-                        regIndex = ++regIndexes[REF_OFFSET];
-                        emit(InstructionCodes.JSONALOAD, jsonValueRegIndex, varRef.getTempOffset(), regIndex);
-                    }
-                } else {
-                    throw new BallerinaException("Invalid json access field type: " + varRef.getType());
-                }
-
-            } else {
-                //handle ArrayLengthExpression separately, once done break out of the loop
-                //if not handle other cases
-                if (childSFAccessExpr.getVarRef() instanceof ArrayLengthExpression) {
-                    childSFAccessExpr.getVarRef().accept(this);
-                    fieldAccessExpr.setTempOffset(childSFAccessExpr.getVarRef().getTempOffset());
-                    break;
-                }
-
-                ReferenceExpr referenceExpr = (ReferenceExpr) childSFAccessExpr.getVarRef();
-                if (referenceExpr instanceof VariableRefExpr) {
-                    varAssignment = isAssignment;
-                    referenceExpr.accept(this);
-                    varAssignment = false;
-
-                } else if (referenceExpr instanceof ArrayMapAccessExpr) {
-                    arrayMapAssignment = isAssignment;
-                    referenceExpr.accept(this);
-                    arrayMapAssignment = false;
-                }
-                regIndex = referenceExpr.getTempOffset();
-            }
-
-            if (isAssignment || childSFAccessExpr.getFieldExpr() == null) {
-                fieldAccessExpr.setTempOffset(regIndex);
-                break;
-            }
-            childSFAccessExpr = childSFAccessExpr.getFieldExpr();
-        }
-    }
-
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
-        int arrayLengthIndex = ++regIndexes[INT_OFFSET];
-        arrayLengthExpression.setTempOffset(arrayLengthIndex);
-        emit(InstructionCodes.ARRAYLEN, arrayLengthExpression.getRExpr().getTempOffset(), arrayLengthIndex);
-    }
-
-    @Override
-    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        Expression arrayMapVarExpr = arrayMapAccessExpr.getRExpr();
-        arrayMapVarExpr.accept(this);
-
-        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
-        if (arrayMapVarExpr.getType() == BTypes.typeMap) {
-            // This is a map access expression
-            Expression indexExpr = indexExprs[0];
-            indexExpr.accept(this);
-
-            if (arrayMapAssignment) {
-                emit(InstructionCodes.MAPSTORE, arrayMapVarExpr.getTempOffset(),
-                        indexExpr.getTempOffset(), rhsExprRegIndex);
-            } else {
-                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
-                emit(InstructionCodes.MAPLOAD, arrayMapVarExpr.getTempOffset(),
-                        indexExpr.getTempOffset(), mapValueRegIndex);
-                arrayMapAccessExpr.setTempOffset(mapValueRegIndex);
-            }
-            return;
-        }
-
-        // This is an array access expression
-        for (int i = indexExprs.length - 1; i >= 0; i--) {
-            // Here we assume that the array reference is stored in the current reference register;
-            int arrayRegIndex = regIndexes[REF_OFFSET];
-
-            Expression indexExpr = indexExprs[i];
-            indexExpr.accept(this);
-
-            if (i == 0) {
-                if (arrayMapAssignment) {
-                    int opcode = getOpcode(arrayMapAccessExpr.getType().getTag(), InstructionCodes.IASTORE);
-                    emit(opcode, arrayRegIndex, indexExpr.getTempOffset(), rhsExprRegIndex);
-                } else {
-                    OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayMapAccessExpr.getType().getTag(),
-                            InstructionCodes.IALOAD, regIndexes);
-                    arrayMapAccessExpr.setTempOffset(opcodeAndIndex.index);
-                    emit(opcodeAndIndex.opcode, arrayRegIndex, indexExpr.getTempOffset(), opcodeAndIndex.index);
-                }
-            } else {
-                // reg, index, reg
-                emit(InstructionCodes.RALOAD, arrayRegIndex,
-                        indexExpr.getTempOffset(), ++regIndexes[REF_OFFSET]);
-            }
-        }
-    }
-
-    @Override
-    public void visit(JSONFieldAccessExpr jsonPathExpr) {
-
-    }
-
-    @Override
-    public void visit(VariableRefExpr variableRefExpr) {
+    public void visit(SimpleVarRefExpr simpleVarRefExpr) {
         int opcode;
         int exprRegIndex;
+        boolean variableStore = varAssignment && simpleVarRefExpr.getParentVarRefExpr() == null;
 
-        MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
+        MemoryLocation memoryLocation = simpleVarRefExpr.getVariableDef().getMemoryLocation();
         if (memoryLocation instanceof StackVarLocation) {
             int lvIndex = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-            if (varAssignment) {
-                opcode = getOpcode(variableRefExpr.getType().getTag(),
+            if (variableStore) {
+                opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.ISTORE);
 
                 emit(opcode, rhsExprRegIndex, lvIndex);
             } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.ILOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
                 emit(opcode, lvIndex, exprRegIndex);
-                variableRefExpr.setTempOffset(exprRegIndex);
+                simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
         } else if (memoryLocation instanceof StructVarLocation) {
@@ -1942,18 +1803,18 @@ public class CodeGenerator implements NodeVisitor {
             //  reference register index.
             int structRegIndex = regIndexes[REF_OFFSET];
 
-            if (varAssignment) {
-                opcode = getOpcode(variableRefExpr.getType().getTag(),
+            if (variableStore) {
+                opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IFIELDSTORE);
                 emit(opcode, structRegIndex, fieldIndex, rhsExprRegIndex);
             } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IFIELDLOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
 
                 emit(opcode, structRegIndex, fieldIndex, exprRegIndex);
-                variableRefExpr.setTempOffset(exprRegIndex);
+                simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
         } else if (memoryLocation instanceof ConnectorVarLocation) {
@@ -1966,40 +1827,179 @@ public class CodeGenerator implements NodeVisitor {
             // The connector is always the first parameter of the action
             emit(InstructionCodes.RLOAD, 0, connectorRegIndex);
 
-            if (varAssignment) {
-                opcode = getOpcode(variableRefExpr.getType().getTag(),
+            if (variableStore) {
+                opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IFIELDSTORE);
                 emit(opcode, connectorRegIndex, fieldIndex, rhsExprRegIndex);
             } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IFIELDLOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
 
                 emit(opcode, connectorRegIndex, fieldIndex, exprRegIndex);
-                variableRefExpr.setTempOffset(exprRegIndex);
+                simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
 
         } else if (memoryLocation instanceof GlobalVarLocation) {
             int gvIndex = ((GlobalVarLocation) memoryLocation).getStaticMemAddrOffset();
 
-            if (varAssignment) {
-                opcode = getOpcode(variableRefExpr.getType().getTag(),
+            if (variableStore) {
+                opcode = getOpcode(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IGSTORE);
 
                 emit(opcode, rhsExprRegIndex, gvIndex);
             } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(variableRefExpr.getType().getTag(),
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(simpleVarRefExpr.getType().getTag(),
                         InstructionCodes.IGLOAD, regIndexes);
                 opcode = opcodeAndIndex.opcode;
                 exprRegIndex = opcodeAndIndex.index;
                 emit(opcode, gvIndex, exprRegIndex);
-                variableRefExpr.setTempOffset(exprRegIndex);
+                simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
         }
     }
 
+    @Override
+    public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
+        boolean variableStore = structAssignment && fieldBasedVarRefExpr.getParentVarRefExpr() == null;
+        String fieldName = fieldBasedVarRefExpr.getFieldName();
+        VariableReferenceExpr varRefExpr = fieldBasedVarRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+        int varRefRegIndex = varRefExpr.getTempOffset();
 
+        // Type of the varRefExpr can be either Struct, Map, JSON, Array
+        BType varRefType = varRefExpr.getType();
+        if (varRefType instanceof StructDef) {
+            int opcode;
+            int fieldValRegIndex;
+            VariableDef fieldDef = fieldBasedVarRefExpr.getFieldDef();
+            int fieldIndex = ((StructVarLocation) fieldDef.getMemoryLocation()).getStructMemAddrOffset();
+            if (variableStore) {
+                opcode = getOpcode(fieldDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
+                emit(opcode, varRefRegIndex, fieldIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(fieldDef.getType().getTag(),
+                        InstructionCodes.IFIELDLOAD, regIndexes);
+                opcode = opcodeAndIndex.opcode;
+                fieldValRegIndex = opcodeAndIndex.index;
+
+                emit(opcode, varRefRegIndex, fieldIndex, fieldValRegIndex);
+                fieldBasedVarRefExpr.setTempOffset(fieldValRegIndex);
+            }
+
+        } else if (varRefType == BTypes.typeMap) {
+            BasicLiteral indexLiteral = new BasicLiteral(fieldBasedVarRefExpr.getNodeLocation(), null,
+                    new BString(fieldName));
+            indexLiteral.setType(BTypes.typeString);
+            indexLiteral.accept(this);
+            int indexValueRegIndex = indexLiteral.getTempOffset();
+
+            if (variableStore) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
+                fieldBasedVarRefExpr.setTempOffset(mapValueRegIndex);
+            }
+
+        } else if (varRefType == BTypes.typeJSON) {
+            BasicLiteral indexLiteral = new BasicLiteral(fieldBasedVarRefExpr.getNodeLocation(), null,
+                    new BString(fieldName));
+            indexLiteral.setType(BTypes.typeString);
+            indexLiteral.accept(this);
+            int indexValueRegIndex = indexLiteral.getTempOffset();
+
+            if (variableStore) {
+                emit(InstructionCodes.JSONSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int jsonValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.JSONLOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
+                fieldBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
+            }
+        } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
+            int lengthValRegIndex = ++regIndexes[INT_OFFSET];
+            emit(InstructionCodes.ARRAYLEN, varRefRegIndex, lengthValRegIndex);
+            fieldBasedVarRefExpr.setTempOffset(lengthValRegIndex);
+        }
+    }
+
+    @Override
+    public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
+        boolean variableStore = arrayMapAssignment && indexBasedVarRefExpr.getParentVarRefExpr() == null;
+        VariableReferenceExpr varRefExpr = indexBasedVarRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+        int varRefRegIndex = varRefExpr.getTempOffset();
+
+        Expression indexExpr = indexBasedVarRefExpr.getIndexExpr();
+        indexExpr.accept(this);
+        int indexValueRegIndex = indexExpr.getTempOffset();
+
+        // Type of the varRefExpr can be either Array, Map, JSON.
+        BType varRefType = varRefExpr.getType();
+        if (varRefType instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) varRefType;
+            if (variableStore) {
+                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
+                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
+                        InstructionCodes.IALOAD, regIndexes);
+                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
+                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
+            }
+
+        } else if (varRefType == BTypes.typeMap) {
+            if (variableStore) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
+                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
+            }
+
+        } else if (varRefType == BTypes.typeJSON) {
+            int jsonValueRegIndex;
+            if (indexExpr.getType() == BTypes.typeString) {
+                if (variableStore) {
+                    emit(InstructionCodes.JSONSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+                } else {
+                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
+                    emit(InstructionCodes.JSONLOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
+                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
+                }
+            } else if (indexExpr.getType() == BTypes.typeInt) {
+                // JSON array access
+                if (variableStore) {
+                    emit(InstructionCodes.JSONASTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+                } else {
+                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
+                    emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
+                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
+                }
+            }
+
+        } else if (varRefType instanceof StructDef) {
+            int opcode;
+            int fieldValRegIndex;
+            VariableDef fieldDef = indexBasedVarRefExpr.getFieldDef();
+            int fieldIndex = ((StructVarLocation) fieldDef.getMemoryLocation()).getStructMemAddrOffset();
+            if (variableStore) {
+                opcode = getOpcode(fieldDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
+                emit(opcode, varRefRegIndex, fieldIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(fieldDef.getType().getTag(),
+                        InstructionCodes.IFIELDLOAD, regIndexes);
+                opcode = opcodeAndIndex.opcode;
+                fieldValRegIndex = opcodeAndIndex.index;
+
+                emit(opcode, varRefRegIndex, fieldIndex, fieldValRegIndex);
+                indexBasedVarRefExpr.setTempOffset(fieldValRegIndex);
+            }
+        }
+    }
+
+    
     // Private methods
 
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
@@ -2198,14 +2198,6 @@ public class CodeGenerator implements NodeVisitor {
         int exprIndex = ++regIndexes[BOOL_OFFSET];
         binaryExpr.setTempOffset(exprIndex);
         emit(opcode, lExpr.getTempOffset(), rExpr.getTempOffset(), exprIndex);
-    }
-
-    // TODO Remove this method.
-    private boolean isNullCheckAvailable(BinaryExpression expr) {
-        if (expr.getLExpr().getType() == BTypes.typeNull || expr.getRExpr().getType() == BTypes.typeNull) {
-            return true;
-        }
-        return false;
     }
 
     private int emit(int opcode, int... operands) {
@@ -2632,7 +2624,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
         }
-        
+
         return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
     }
 

@@ -27,10 +27,6 @@ struct ResultSetTestAlias {
 struct ResultObject {
     blob BLOB_TYPE;
     string CLOB_TYPE;
-    string TIME_TYPE;
-    string DATE_TYPE;
-    string TIMESTAMP_TYPE;
-    string DATETIME_TYPE;
     blob BINARY_TYPE;
 }
 
@@ -52,7 +48,6 @@ struct ResultDates {
     string TIMESTAMP_TYPE;
     string DATETIME_TYPE;
 }
-
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
@@ -86,7 +81,8 @@ function testToJson () (json) {
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    json result = <json>dt;
+    json result;
+    result, _ = <json>dt;
     return result;
 }
 
@@ -98,7 +94,8 @@ function testToXml () (xml) {
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
                boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -111,7 +108,8 @@ function toXmlComplex () (xml) {
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
                 float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                 from MixTypes where row_id =1", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -148,15 +146,14 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
     return;
 }
 
-function testGetComplexTypes () (string blobValue, string clob, string time, string date, string timestamp,
-                                 string datetime, string binary) {
+function testGetComplexTypes () (string blobValue, string clob, string binary) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type,
-              timestamp_type, datetime_type, binary_type from ComplexTypes where row_id = 1", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type,
+                  binary_type from ComplexTypes where row_id = 1", parameters);
     ResultObject rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);
@@ -165,10 +162,6 @@ function testGetComplexTypes () (string blobValue, string clob, string time, str
         blob blobData = rs.BLOB_TYPE;
         blobValue = blobs:toString(blobData, "UTF-8");
         clob = rs.CLOB_TYPE;
-        time = rs.TIME_TYPE;
-        date = rs.DATE_TYPE;
-        timestamp = rs.TIMESTAMP_TYPE;
-        datetime = rs.DATETIME_TYPE;
         blob binaryData = rs.BINARY_TYPE;
         binary = blobs:toString(binaryData, "UTF-8");
     }
@@ -210,7 +203,8 @@ function testJsonWithNull () (json) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    json result = <json>dt;
+    json result;
+    result, _ = <json>dt;
     return result;
 }
 
@@ -222,7 +216,8 @@ function testXmlWithNull () (xml) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
                boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -237,7 +232,8 @@ function testToXmlWithinTransaction () (string, int) {
             sql:Parameter[] parameters = [];
             datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
                 WHERE row_id = 1", parameters);
-            xml xmlResult = <xml>dt;
+            xml xmlResult;
+            xmlResult, _ = <xml>dt;
             result = xmls:toString(xmlResult);
         } aborted {
             returnValue = -1;
@@ -259,7 +255,8 @@ function testToJsonWithinTransaction () (string, int) {
             sql:Parameter[] parameters = [];
             datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
                 WHERE row_id = 1", parameters);
-            json jsonResult = <json>dt;
+            json jsonResult;
+            jsonResult, _ = <json>dt;
             result = jsons:toString(jsonResult);
         } aborted {
             returnValue = -1;

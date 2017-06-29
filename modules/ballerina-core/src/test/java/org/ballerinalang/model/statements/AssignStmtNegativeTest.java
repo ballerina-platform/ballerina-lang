@@ -34,8 +34,8 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "repeated-var-multivalue-1.bal:6: 'a' is repeated on the " +
-                    "left side of assignment")
+            expectedExceptionsMessageRegExp = "repeated-var-multivalue-1.bal:2: 'a' " +
+                    "is repeated on the left side of assignment")
     public void testRepeatedVariableInAssignment1() {
         BTestUtils.getProgramFile("lang/statements/assignment/repeated-var-multivalue-1.bal");
     }
@@ -66,15 +66,15 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-types-mismatch-1.bal:6: cannot assign string to " +
-                    "'a' \\(type int\\) in multiple assignment")
+            expectedExceptionsMessageRegExp = "assign-types-mismatch-1.bal:6: incompatible types: " +
+                    "'string' cannot be assigned to 'int'")
     public void testAssignTypeMismatch1() {
         BTestUtils.getProgramFile("lang/statements/assignment/assign-types-mismatch-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-types-mismatch-2.bal:6: cannot assign string to " +
-                    "'name' \\(type int\\) in multiple assignment")
+            expectedExceptionsMessageRegExp = "assign-types-mismatch-2.bal:6: incompatible types: " +
+                    "'string' cannot be assigned to 'int'")
     public void testAssignTypeMismatch2() {
         BTestUtils.getProgramFile("lang/statements/assignment/assign-types-mismatch-2.bal");
     }

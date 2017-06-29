@@ -116,6 +116,14 @@ public class TryCatchThrowStmtTest {
 
     }
 
+    @Test(description = "Test function call in finally block when error there is a error thrown.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: test.*")
+    public void testMethodCallInFinally() {
+        BValue[] args = {};
+        BLangFunctions.invokeNew(programFile, "testMethodCallInFinally", args);
+    }
+
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*redeclared symbol 'e'.*")
     public void testDuplicateExceptionVariable() {
         BTestUtils.getProgramFile("lang/errors/duplicate-var-try-catch.bal");

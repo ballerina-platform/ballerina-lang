@@ -19,6 +19,7 @@ package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -200,7 +201,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startServiceDef(getCurrentLocation(ctx));
+        modelBuilder.startServiceDef();
     }
 
     @Override
@@ -213,7 +214,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getServiceDefinitionWS(tokenStream, ctx);
         }
-        modelBuilder.createService(whiteSpaceDescriptor, serviceName);
+        modelBuilder.createService(getCurrentLocation(ctx), whiteSpaceDescriptor, serviceName);
     }
 
     @Override
@@ -256,7 +257,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
+        modelBuilder.startCallableUnitBody();
     }
 
     @Override
@@ -265,7 +266,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.endCallableUnitBody();
+        modelBuilder.endCallableUnitBody(getCurrentLocation(ctx));
     }
 
     @Override
@@ -274,7 +275,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startFunctionDef(getCurrentLocation(ctx));
+        modelBuilder.startFunctionDef();
     }
 
     @Override
@@ -289,7 +290,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionDefWS(tokenStream, ctx);
         }
-        modelBuilder.addFunction(whiteSpaceDescriptor, functionName, isNative);
+        modelBuilder.addFunction(getCurrentLocation(ctx), whiteSpaceDescriptor, functionName, isNative);
     }
 
     @Override
@@ -308,7 +309,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startConnectorDef(getCurrentLocation(ctx));
+        modelBuilder.startConnectorDef();
     }
 
     @Override
@@ -322,7 +323,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
         }
-        modelBuilder.createConnector(whiteSpaceDescriptor, connectorName);
+        modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName);
     }
 
     @Override
@@ -339,7 +340,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startActionDef(getCurrentLocation(ctx));
+        modelBuilder.startActionDef();
     }
 
     @Override
@@ -362,7 +363,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getActionDefWS(tokenStream, ctx);
         }
-        modelBuilder.addAction(whiteSpaceDescriptor, actionName, isNative, annotationCount);
+        modelBuilder.addAction(getCurrentLocation(ctx), whiteSpaceDescriptor, actionName, isNative, annotationCount);
     }
 
     @Override
@@ -371,7 +372,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startStructDef(getCurrentLocation(ctx));
+        modelBuilder.startStructDef();
     }
 
     @Override
@@ -385,7 +386,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getStructDefWS(tokenStream, ctx);
         }
-        modelBuilder.addStructDef(whiteSpaceDescriptor, structName);
+        modelBuilder.addStructDef(getCurrentLocation(ctx), whiteSpaceDescriptor, structName);
     }
 
     @Override
@@ -408,7 +409,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             whiteSpaceDescriptor = new WhiteSpaceDescriptor();
             whiteSpaceDescriptor.addChildDescriptor(ATTACHMENT_POINTS, new WhiteSpaceDescriptor());
         }
-        modelBuilder.startAnnotationDef(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        modelBuilder.startAnnotationDef(whiteSpaceDescriptor);
     }
 
     @Override
@@ -477,7 +478,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startTypeMapperDef(getCurrentLocation(ctx));
+        modelBuilder.startTypeMapperDef();
     }
 
     @Override
@@ -510,14 +511,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
+            modelBuilder.startCallableUnitBody();
         }
     }
 
     @Override
     public void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.endCallableUnitBody();
+            modelBuilder.endCallableUnitBody(getCurrentLocation(ctx));
         }
     }
 
@@ -546,14 +547,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             isWorkerStarted = true;
             modelBuilder.startWorkerUnit();
-            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
+            modelBuilder.startCallableUnitBody();
         }
     }
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
         if (ctx.exception == null && ctx.workerDefinition().Identifier() != null) {
-            modelBuilder.endCallableUnitBody();
+            modelBuilder.endCallableUnitBody(getCurrentLocation(ctx));
 
             String workerName = ctx.workerDefinition().Identifier().getText();
             WhiteSpaceDescriptor whiteSpaceDescriptor = null;
@@ -611,6 +612,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         // This is 'any' type
         SimpleTypeName typeName = new SimpleTypeName(ctx.getChild(0).getText());
+        typeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getTypeNameWS(tokenStream, ctx);
             typeName.setWhiteSpaceDescriptor(ws);
@@ -635,6 +637,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
             SimpleTypeName typeName = new SimpleTypeName(nameReference.getName(),
                     nameReference.getPackageName(), nameReference.getPackagePath());
+            typeName.setNodeLocation(getCurrentLocation(ctx));
 
             if (isVerboseMode) {
                 WhiteSpaceDescriptor ws = WhiteSpaceUtil.getRefTypeNameWS(tokenStream, ctx);
@@ -658,6 +661,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String valueTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(valueTypeName);
+        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getValueTypeNameWS(tokenStream, ctx);
             simpleTypeName.setWhiteSpaceDescriptor(ws);
@@ -678,6 +682,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String builtInRefTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(builtInRefTypeName);
+        simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
             simpleTypeName.setWhiteSpaceDescriptor(ws);
@@ -710,7 +715,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startAnnotationAttachment(getCurrentLocation(ctx));
+        modelBuilder.startAnnotationAttachment();
     }
 
     @Override
@@ -760,7 +765,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAnnotationAttributeWS(tokenStream, ctx);
         }
-        modelBuilder.createAnnotationKeyValue(whiteSpaceDescriptor, key);
+        modelBuilder.createAnnotationKeyValue(getCurrentLocation(ctx), whiteSpaceDescriptor, key);
     }
 
     @Override
@@ -811,7 +816,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startTransformStmt(getCurrentLocation(ctx));
+        modelBuilder.startTransformStmt();
     }
 
     @Override
@@ -1035,21 +1040,21 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startIfElseStmt(getCurrentLocation(ctx));
+            modelBuilder.startIfElseStmt();
         }
     }
 
     @Override
     public void exitIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addIfElseStmt();
+            modelBuilder.addIfElseStmt(getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void enterIfClause(BallerinaParser.IfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startIfClause(getCurrentLocation(ctx));
+            modelBuilder.startIfClause();
         }
     }
 
@@ -1060,14 +1065,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getIfClauseWS(tokenStream, ctx);
             }
-            modelBuilder.addIfClause(whiteSpaceDescriptor);
+            modelBuilder.addIfClause(whiteSpaceDescriptor, getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void enterElseIfClause(BallerinaParser.ElseIfClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startElseIfClause(getCurrentLocation(ctx));
+            modelBuilder.startElseIfClause();
         }
     }
 
@@ -1081,13 +1086,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getElseIfClauseWS(tokenStream, ctx);
         }
-        modelBuilder.addElseIfClause(whiteSpaceDescriptor);
+        modelBuilder.addElseIfClause(whiteSpaceDescriptor, getCurrentLocation(ctx));
     }
 
     @Override
     public void enterElseClause(BallerinaParser.ElseClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startElseClause(getCurrentLocation(ctx));
+            modelBuilder.startElseClause();
         }
     }
 
@@ -1098,7 +1103,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getElseClauseWS(tokenStream, ctx);
             }
-            modelBuilder.addElseClause(whiteSpaceDescriptor);
+            modelBuilder.addElseClause(whiteSpaceDescriptor, getCurrentLocation(ctx));
         }
     }
 
@@ -1116,7 +1121,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startWhileStmt(getCurrentLocation(ctx));
+        modelBuilder.startWhileStmt();
     }
 
     @Override
@@ -1138,7 +1143,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitContinueStatement(ContinueStatementContext ctx) {
-
+        if (ctx.exception == null) {
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getContinueStatementWS(tokenStream, ctx);
+            }
+            modelBuilder.createContinueStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+        }
     }
 
     @Override
@@ -1159,29 +1170,41 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startForkJoinStmt(getCurrentLocation(ctx));
+            modelBuilder.startForkJoinStmt();
         }
     }
 
     @Override
     public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endForkJoinStmt();
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getForkJoinStatementWS(tokenStream, ctx);
+        }
+        modelBuilder.endForkJoinStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
     public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startJoinClause(getCurrentLocation(ctx));
+            modelBuilder.startJoinClause();
         }
     }
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endJoinClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor joinWhiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            joinWhiteSpaceDescriptor = WhiteSpaceUtil.getJoinClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.endJoinClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText(),
+                joinWhiteSpaceDescriptor);
+
     }
 
     public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
@@ -1191,10 +1214,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx));
-            for (TerminalNode t : ctx.Identifier()) {
-                modelBuilder.createJoinWorkers(t.getText());
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
+            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
+                    whiteSpaceDescriptor);
+            enterJoinWorkers(ctx.Identifier());
         }
     }
 
@@ -1206,26 +1232,45 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createAllJoinCondition("all");
-            for (TerminalNode t : ctx.Identifier()) {
-                modelBuilder.createJoinWorkers(t.getText());
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
+            modelBuilder.createAllJoinCondition("all", whiteSpaceDescriptor);
+            enterJoinWorkers(ctx.Identifier());
         }
 
+    }
+
+    private void enterJoinWorkers(List<TerminalNode> identifiers) {
+        for (TerminalNode t : identifiers) {
+            WhiteSpaceDescriptor workerWhiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                workerWhiteSpaceDescriptor = WhiteSpaceUtil.getJoinWorkerWS(tokenStream, t);
+            }
+            modelBuilder.createJoinWorkers(t.getText(), workerWhiteSpaceDescriptor);
+        }
     }
 
     @Override
     public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTimeoutClause(getCurrentLocation(ctx));
+            modelBuilder.startTimeoutClause();
         }
     }
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endTimeoutClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTimeoutClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.endTimeoutClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText(),
+                whiteSpaceDescriptor);
+
     }
 
     @Override
@@ -1233,7 +1278,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startTryCatchStmt(getCurrentLocation(ctx));
+        modelBuilder.startTryCatchStmt();
     }
 
     @Override
@@ -1245,7 +1290,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getTryClauseWS(tokenStream, ctx);
         }
-        modelBuilder.addTryCatchStmt(whiteSpaceDescriptor);
+        modelBuilder.addTryCatchStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -1265,7 +1310,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startCatchClause(getCurrentLocation(ctx));
+        modelBuilder.startCatchClause();
     }
 
     @Override
@@ -1286,7 +1331,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        modelBuilder.startFinallyBlock(getCurrentLocation(ctx));
+        modelBuilder.startFinallyBlock();
     }
 
     @Override
@@ -1298,7 +1343,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFinallyClauseWS(tokenStream, ctx);
         }
-        modelBuilder.addFinallyBlock(whiteSpaceDescriptor);
+        modelBuilder.addFinallyBlock(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -1339,7 +1384,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
         // Here the expression is only a message reference
-        //modelBuilder.createVarRefExpr();
+        //modelBuilder.createSimpleVarRefExpr();
         if (ctx.exception == null) {
             WhiteSpaceDescriptor whiteSpaceDescriptor = null;
             if (isVerboseMode) {
@@ -1452,62 +1497,102 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) {
+    public void enterXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) {
-        if (ctx.exception != null || ctx.getChild(0) == null) {
-            return;
-        }
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
-        }
-        modelBuilder.createFieldRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void enterSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
+    public void enterSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
+    public void exitSimpleVariableReference(BallerinaParser.SimpleVariableReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
-        }
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
+//        }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
+        modelBuilder.createSimpleVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
     }
 
     @Override
-    public void enterMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+    public void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
+
     }
 
     @Override
-    public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+    public void exitFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        int dimensions = (ctx.getChildCount() - 1) / 3;
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
+//        }
+
+        String fieldName = ctx.field().Identifier().getText();
+        modelBuilder.createFieldBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, fieldName);
+    }
+
+    @Override
+    public void enterMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
+
+    }
+
+    @Override
+    public void exitMapArrayVariableReference(BallerinaParser.MapArrayVariableReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
         }
 
-        NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createMapArrayVarRefExpr(currentLocation, whiteSpaceDescriptor,
-                nameReference, dimensions);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+//        if (isVerboseMode) {
+//            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
+//        }
+
+        modelBuilder.createIndexBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterField(BallerinaParser.FieldContext ctx) {
+
+    }
+
+    @Override
+    public void exitField(BallerinaParser.FieldContext ctx) {
+
+    }
+
+    @Override
+    public void enterIndex(BallerinaParser.IndexContext ctx) {
+
+    }
+
+    @Override
+    public void exitIndex(BallerinaParser.IndexContext ctx) {
+
+    }
+
+    @Override
+    public void enterXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
+
+    }
+
+    @Override
+    public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
 
@@ -1569,7 +1654,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTransactionStatement(BallerinaParser.TransactionStatementContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTransactionStmt(getCurrentLocation(ctx));
+            modelBuilder.startTransactionStmt();
         }
     }
 
@@ -1580,7 +1665,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (isVerboseMode) {
                 whiteSpaceDescriptor = WhiteSpaceUtil.getTransactionWS(tokenStream, ctx);
             }
-            modelBuilder.addTransactionStmt(whiteSpaceDescriptor);
+            modelBuilder.addTransactionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 
@@ -1600,28 +1685,28 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startAbortedClause(getCurrentLocation(ctx));
+            modelBuilder.startAbortedClause();
         }
     }
 
     @Override
     public void exitAbortedClause(BallerinaParser.AbortedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addAbortedClause();
+            modelBuilder.addAbortedClause(getCurrentLocation(ctx));
         }
     }
 
     @Override
     public void enterCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCommittedClause(getCurrentLocation(ctx));
+            modelBuilder.startCommittedClause();
         }
     }
 
     @Override
     public void exitCommittedClause(BallerinaParser.CommittedClauseContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.addCommittedClause();
+            modelBuilder.addCommittedClause(getCurrentLocation(ctx));
         }
     }
 
@@ -1926,6 +2011,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             nameReference.setWhiteSpaceDescriptor(WhiteSpaceUtil.getNameRefWS(tokenStream, ctx));
         }
+        nameReference.setNodeLocation(getCurrentLocation(ctx));
 
         nameReferenceStack.push(nameReference);
     }
@@ -2100,7 +2186,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected NodeLocation getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
-        return new NodeLocation(packageDirPath, fileName, lineNo);
+        int startLineNumber = ctx.getStart().getLine();
+        int startColumn = ctx.getStart().getCharPositionInLine();
+        int stopLineNumber = -1;
+        int stopColumn = -1;
+        Token stop = ctx.getStop();
+        if (stop != null) {
+            stopLineNumber = stop.getLine();
+            stopColumn = stop.getCharPositionInLine();
+        }
+        return new NodeLocation(packageDirPath, fileName, lineNo, startLineNumber, startColumn, stopLineNumber,
+                stopColumn);
     }
 
     protected int getNoOfArgumentsInList(ParserRuleContext ctx) {

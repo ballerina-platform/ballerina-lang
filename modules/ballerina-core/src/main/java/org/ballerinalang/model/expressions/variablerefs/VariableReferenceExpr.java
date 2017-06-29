@@ -15,36 +15,25 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.expressions;
+package org.ballerinalang.model.expressions.variablerefs;
 
-import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.expressions.Expression;
 
 /**
- * {@code ReferenceExpr} represents a variable reference in Ballerina.
+ * {@code VariableReferenceExpr} represents variable reference expression.
  *
- * @since 1.0.0
+ * @see SimpleVarRefExpr
+ * @see IndexBasedVarRefExpr
+ * @see FieldBasedVarRefExpr
+ * @since 0.89
  */
-public interface ReferenceExpr extends Expression {
-
-    /**
-     * Return the name of the variable reference.
-     *
-     * @return  variable name
-     */
-    String getVarName();
-
-    /**
-     * Get the symbol name of the reference expression.
-     * 
-     * @return  Symbolic name
-     */
-    SymbolName getSymbolName();
+public interface VariableReferenceExpr extends Expression {
 
     boolean isLHSExpr();
 
     void setLHSExpr(boolean lhsExpr);
 
-    String getPkgName();
+    VariableReferenceExpr getParentVarRefExpr();
 
-    String getPkgPath();
+    void setParentVarRefExpr(VariableReferenceExpr varRefExpr);
 }

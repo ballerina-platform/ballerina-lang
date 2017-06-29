@@ -300,6 +300,10 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             return whiteSpaceDescriptor;
         }
 
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
+        }
+
         /**
          * Build the annotation definition.
          *
