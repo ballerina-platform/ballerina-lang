@@ -352,12 +352,15 @@ class TransformStatementDecorator extends React.Component {
                 self.props.model.removeChild(assignmentStmt);
             } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
                 // Connection source is not a struct and target is a struct.
-                // Source could be a function node.
+                // Source is a function node.
                 const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
-                let expression = _.find(assignmentStmtSource.getRightExpression().getChildren()[0].getChildren(), (child) => {
+
+                // get the function invocation expression for nested and single cases.
+                const funcInvocationExpression = self.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+                let expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                     return (child.getExpressionString() === targetExpression.getExpressionString());
                 });
-                assignmentStmtSource.getRightExpression().getChildren()[0].removeChild(expression);
+                funcInvocationExpression.removeChild(expression);
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                 // Connection target is not a struct and source is a struct.
                 // Target could be a function node.
@@ -634,13 +637,26 @@ class TransformStatementDecorator extends React.Component {
     findEnclosingAssignmentStatement(id) {
         let assignmentStmts = self.props.model.getChildren();
         return _.find(assignmentStmts, (assignmentStmt) => {
-            let found = _.find(assignmentStmt.getRightExpression().getChildren(), (expression) => {
-                return (expression.getID() === id);
-            });
-            if (found !== undefined) {
+            let expression = this.findFunctionInvocationById(assignmentStmt.getRightExpression(), id);
+            if (expression !== undefined) {
                 return assignmentStmt;
             }
         });
+    }
+
+    findFunctionInvocationById(expression, id) {
+        let found = expression.getChildById(id);
+        if (found !== undefined) {
+            return found;
+        } else {
+            _.forEach(expression.getChildren(), (child) => {
+                found = this.findFunctionInvocationById(child, id);
+                if (found !== undefined) {
+                    return found;
+                }
+            });
+            return found;
+        }
     }
 
     createComplexProp(structName, expression)    {
