@@ -191,13 +191,20 @@ public class WhiteSpaceRegions {
     // whitespace regions in a while statement
     public static final int WHILE_STMT_PRECEDING_WHITESPACE = 0;
     public static final int WHILE_STMT_WHILE_KEYWORD_TO_CONDITION_WRAPPER = 1;
-    public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 2;
-    public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 3;
+    public static final int WHILE_STMT_CONDITION_WRAPPER_CONDITION_START = 2;
+    public static final int WHILE_STMT_CONDITION_WRAPPER_TO_BODY_START = 3;
+    public static final int WHILE_STMT_BODY_START_TO_FIRST_TOKEN = 4;
+    public static final int WHILE_STMT_END_TO_NEXT_TOKEN = 5;
 
     // whitespace regions in break statement
     public static final int BREAK_STMT_PRECEDING_WHITESPACE = 0;
     public static final int BREAK_STMT_BREAK_KEYWORD_TO_END = 1;
     public static final int BREAK_STMT_END_TO_NEXT_TOKEN = 2;
+
+    // whitespace regions in continue statement
+    public static final int CONTINUE_STMT_PRECEDING_WHITESPACE = 0;
+    public static final int CONTINUE_STMT_CONTINUE_KEYWORD_TO_END = 1;
+    public static final int CONTINUE_STMT_END_TO_NEXT_TOKEN = 2;
 
     // whitespace regions in try clause
     public static final int TRY_CLAUSE_PRECEDING_WHITESPACE = 0;
@@ -374,4 +381,35 @@ public class WhiteSpaceRegions {
     public static final int ABORT_STMT_PRECEDING_WHITESPACE = 0;
     public static final int ABORT_STMT_ABORT_KEYWORD_TO_END = 1;
     public static final int ABORT_STMT_END_TO_NEXT_TOKEN = 2;
+
+    public static final int FORK_PRECEDING_WHITESPACE = 0;
+    public static final int FORK_KEYWORD_TO_BODY_START = 1;
+    public static final int FORK_START_TO_FIRST_CHILD = 2;
+    public static final int FORK_BODY_END_TO_NEXT_TOKEN = 3;
+
+    public static final int JOIN_PRECEDING_WHITESPACE = 0;
+    public static final int JOIN_KEYWORD_TO_BODY_START = 1;
+    public static final int JOIN_CONDITION_WRAPPER_END_TO_PARAM_WRAPPER = 2;
+    public static final int JOIN_PARAM_TYPE_TO_PARAM_IDENTIFIER = 3;
+    public static final int JOIN_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END = 4;
+    public static final int JOIN_PARAM_WRAPPER_END_TO_JOIN_START = 5;
+    public static final int JOIN_START_TO_FIRST_CHILD = 6;
+    public static final int JOIN_BODY_END_TO_NEXT_TOKEN = 7;
+
+    public static final int TIMEOUT_PRECEDING_WHITESPACE = 0;
+    public static final int TIMEOUT_KEYWORD_TO_BODY_START = 1;
+    public static final int TIMEOUT_CONDITION_WRAPPER_START_TO_CONDITION = 2;
+    public static final int TIMEOUT_CONDITION_WRAPPER_END_TO_PARAM_WRAPPER = 3;
+    public static final int TIMEOUT_PARAM_TYPE_TO_PARAM_IDENTIFIER = 4;
+    public static final int TIMEOUT_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END = 5;
+    public static final int TIMEOUT_PARAM_WRAPPER_END_TO_TIMEOUT_START = 6;
+    public static final int TIMEOUT_START_TO_FIRST_CHILD = 7;
+    public static final int TIMEOUT_BODY_END_TO_NEXT_TOKEN = 8;
+
+    public static final int JOIN_CONDITION_WRAPPER_TO_JOIN_CONDITION = 0;
+    public static final int JOIN_CONDITION_TYPE_TO_JOIN_CONDITION_COUNT = 1;
+    public static final int JOIN_CONDITION_END_TO_CONDITION_WRAPPER_END = 2;
+
+    public static final int JOIN_WORKER_PRECEDING_WHITESPACE = 0;
+    public static final int JOIN_WORKER_END_TO_NEXT_TOKEN = 1;
 }

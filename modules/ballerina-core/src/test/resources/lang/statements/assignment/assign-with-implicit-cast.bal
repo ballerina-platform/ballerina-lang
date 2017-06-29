@@ -1,11 +1,12 @@
 function testIntCastFloatStmt(int a) (float) {
     float x;
-    x = a;
+    //Cannot directly assign int to float, need to convert
+    x = <float> a;
     return x;
 }
 
 function testBinaryExpressionIntAndFloatStmt(int a) (float) {
     float x;
-    x = a;
+    x = <float> a;
     return x + a;
 }

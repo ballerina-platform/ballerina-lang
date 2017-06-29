@@ -87,7 +87,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             ServiceInfo service = servicesOnInterface.get(basePath);
             if (service == null) {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
+                throw new BallerinaException("no matching service found for path : " + uriStr);
             }
 
             String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
@@ -125,7 +125,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);
             } catch (URITemplateException e) {
-                log.error("Failed to parse URIs", e);
+                throw new BallerinaException(e.getMessage());
             }
         }
 

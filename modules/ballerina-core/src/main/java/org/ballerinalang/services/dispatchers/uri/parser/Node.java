@@ -105,6 +105,9 @@ public abstract class Node {
     }
 
     public ResourceInfo getResource(CarbonMessage carbonMessage) {
+        if (this.resource == null) {
+            return null;
+        }
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : this.resource) {
             if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
@@ -117,7 +120,7 @@ public abstract class Node {
             throw new BallerinaException();
         }
         return resource;
-        }
+    }
 
     public void setResource(ResourceInfo newResource) {
         if (isFirstTraverse) {
