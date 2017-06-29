@@ -399,7 +399,6 @@ class TransformRender {
             }
 
             this.jsPlumbInstance.connect({
-                anchor: ['Continuous', { faces: ['right', 'left'] }],
                 source: sourceId,
                 target: targetId,
                 parameters: { id: connection.id },
@@ -698,7 +697,7 @@ class TransformRender {
  */
     addSource(element, self, maxConnections) {
         const connectionConfig = {
-            anchor: ['Continuous', { faces: ['right'] }],
+            anchor: ['Right'],
         };
         if (maxConnections) {
             connectionConfig.maxConnections = 1;
@@ -734,7 +733,7 @@ class TransformRender {
     addTarget(element, self) {
         self.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
-            anchor: ['Continuous', { faces: ['left'] }],
+            anchor: ['Left'],
             beforeDrop(params) {
             // Checks property types are equal
                 const isValidTypes = self.getPropertyType(params.sourceId).toLowerCase()
