@@ -176,20 +176,18 @@
 }
 .search-bar{
     width: 100%;
-    border-bottom: 1px solid #e4e4e4;
-    padding:10px;
 }
 .search-input{
     background-color: #f0f0f0;
-    font-size: 12px;
-    padding:5px;
-    border: 1px solid #d9d9d9;
+    font-size: 14px;
+    padding:6px 6px 5px;
+    border: 0px solid #d9d9d9;
     width: 100%;
 }
 .searchIcon{
     position: absolute;
     right: 17px;
-    top: 18px;
+    top: 9px;
     color: #7b7b7b;
 }
 
