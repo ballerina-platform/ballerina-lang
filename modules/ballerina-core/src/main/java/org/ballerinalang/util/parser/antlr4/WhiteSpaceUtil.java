@@ -457,6 +457,9 @@ public class WhiteSpaceUtil {
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_BODY_START,
                 getWhitespaceToRight(tokenStream, ctx.workerDefinition().Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, OPENING_CURLY_BRACE)
+                        .getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;

@@ -150,7 +150,8 @@ public class WhiteSpaceRegions {
     public static final int WORKER_DEC_PRECEDING_WHITESPACE = 0;
     public static final int WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER = 1;
     public static final int WORKER_DEC_IDENTIFIER_TO_BODY_START = 2;
-    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 3;
+    public static final int WORKER_DEC_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions of a type name
     public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
