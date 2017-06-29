@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getComponentForNodeArray } from './utils';
+import {getComponentForNodeArray} from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
 import CommitedStatementAST from './../ast/statements/committed-statement';
 
@@ -29,10 +29,14 @@ import CommitedStatementAST from './../ast/statements/committed-statement';
  */
 class CommittedStatement extends React.PureComponent {
 
+    constructor(props) {
+        super(props);
+    }
+
     /**
      * Renders view for a commit statement.
      *
-     * @returns {ReactElement} The view.
+     * @returns {object} The view.
      * @memberof CommittedStatement
      */
     render() {
@@ -41,6 +45,7 @@ class CommittedStatement extends React.PureComponent {
         const titleWidth = model.viewState.titleWidth;
         const children = getComponentForNodeArray(model.getChildren());
         return (<BlockStatementDecorator
+            model={model}
             dropTarget={model}
             bBox={bBox}
             titleWidth={titleWidth}

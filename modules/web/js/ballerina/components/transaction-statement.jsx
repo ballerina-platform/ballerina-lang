@@ -71,16 +71,22 @@ class TransactionStatement extends React.Component {
         // If utilities available add utilities to the block statement.
         if (utilities) {
             return (<BlockStatementDecorator
-                dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-                title={'Transaction'} model={model.parent}
+                dropTarget={model}
+                bBox={bBox}
+                titleWidth={titleWidth}
+                title={'Transaction'}
+                model={model.parent}
                 utilities={utilities}
             >
                 {children}
             </BlockStatementDecorator>);
         }
         return (<BlockStatementDecorator
-            dropTarget={model} bBox={bBox} titleWidth={titleWidth}
-            title={'Transaction'} model={model.parent}
+            dropTarget={model}
+            bBox={bBox}
+            titleWidth={titleWidth}
+            title={'Transaction'}
+            model={model.parent}
         >
             {children}
         </BlockStatementDecorator>);
