@@ -136,18 +136,18 @@ class Tools extends EventChannel {
             e.stopPropagation();
             this.appArgsDialog.modal('show');
         });
-
-        $('#form-run-application-with-args').submit((e) => {
+        const self = this;
+        $('#form-run-application-with-args').submit(function (e) {
             e.preventDefault();
             const newArgs = $(this).serializeArray().map(input => input.value)
                                 .join(' ')
                                 .trim();
-            const activeTab = this.application.tabController.getActiveTab();
+            const activeTab = self.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
-                const id = activeTab.getFile().id;
-                this.application.browserStorage.put(`launcher-app-configs-${id}`, newArgs);
+                const uniqueId = self.getFileUniqueId(activeTab.getFile());
+                self.application.browserStorage.put(`launcher-app-configs-${uniqueId}`, newArgs);
             }
-            this.appArgsDialog.modal('hide');
+            self.appArgsDialog.modal('hide');
         });
 
         const wrapper = $('#form-run-application-with-args .input_fields_wrap');
@@ -167,8 +167,8 @@ class Tools extends EventChannel {
             $('#form-run-application-with-args .removable').remove();
             const activeTab = this.application.tabController.getActiveTab();
             if (activeTab && activeTab.getFile()) {
-                const { id } = activeTab.getFile();
-                const argsString = this.application.browserStorage.get(`launcher-app-configs-${id}`) || '';
+                const uniqueId = this.getFileUniqueId(activeTab.getFile());
+                const argsString = this.application.browserStorage.get(`launcher-app-configs-${uniqueId}`) || '';
                 const currentArgs = argsString.split(' ');
                 _.each(currentArgs, (arg, i) => {
                     if (i === 0) {
@@ -188,6 +188,19 @@ class Tools extends EventChannel {
             $('.debug-connection-error').addClass('hide');
             this.connectionDialog.modal('show');
         });
+    }
+    /**
+     *
+     *
+     * @param {File} file - file instance
+     * @returns string - unique id of the file
+     * @memberof Tools
+     */
+    getFileUniqueId(file) {
+        const name = file.getName();
+        const path = file.getPath();
+        const uniqueId = encodeURI(`${path}/${name}`);
+        return uniqueId;
     }
     /**
      * @description renders debugger toolbar
