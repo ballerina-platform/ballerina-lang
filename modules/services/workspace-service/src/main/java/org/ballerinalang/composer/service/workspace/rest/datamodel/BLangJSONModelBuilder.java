@@ -1693,52 +1693,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.peek().add(constantDefinitionDefine);
     }
 
-//    @Override
-//    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-//        JsonObject arrayMapAccessExprObj = new JsonObject();
-//        this.addPosition(arrayMapAccessExprObj, arrayMapAccessExpr.getNodeLocation());
-//        this.addWhitespaceDescriptor(arrayMapAccessExprObj, arrayMapAccessExpr.getWhiteSpaceDescriptor());
-//        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-//                BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION);
-//        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
-//                arrayMapAccessExpr.getSymbolName().getName());
-//
-//        tempJsonArrayRef.push(new JsonArray());
-//
-//        Expression[] indexExprs = arrayMapAccessExpr.getIndexExprs();
-//        for (Expression indexExpr : indexExprs) {
-//            indexExpr.accept(this);
-//        }
-//        arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-//        tempJsonArrayRef.pop();
-//        tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
-//    }
-
     @Override
     public void visit(StructInitExpr structInitExpr) {
         // TODO
     }
-
-//    @Override
-//    public void visit(FieldAccessExpr fieldAccessExpr) {
-//
-//        JsonObject fieldAccessObj = new JsonObject();
-//        fieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants
-//                .FIELD_ACCESS_EXPRESSION);
-//        fieldAccessObj.addProperty(BLangJSONModelConstants.IS_ARRAY_EXPRESSION,
-//                fieldAccessExpr.isArrayIndexExpr());
-//        this.addWhitespaceDescriptor(fieldAccessObj, fieldAccessExpr.getWhiteSpaceDescriptor());
-//        tempJsonArrayRef.push(new JsonArray());
-//        if (fieldAccessExpr.getVarRef() != null) {
-//            fieldAccessExpr.getVarRef().accept(this);
-//        }
-//        if (fieldAccessExpr.getFieldExpr() != null) {
-//            fieldAccessExpr.getFieldExpr().accept(this);
-//        }
-//        fieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-//        tempJsonArrayRef.pop();
-//        tempJsonArrayRef.peek().add(fieldAccessObj);
-//    }
 
     @Override
     public void visit(StructDef ballerinaStruct) {

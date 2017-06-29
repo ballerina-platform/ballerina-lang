@@ -16,19 +16,27 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
 
+/**
+ * Class to represent filed based variable reference expression
+ */
 class FieldBasedVariableReferenceExpression extends Expression {
-    constructor(args) {
+    /**
+     * construct the expression
+     */
+    constructor() {
         super('FieldBasedVariableReferenceExpression');
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
+            2: '',
+            3: '',
         };
     }
-/**
+
+    /**
      * Init from json node
      * There are a signle property and a child expression expected
      * eg. a.b or a.aa.b
@@ -37,7 +45,7 @@ class FieldBasedVariableReferenceExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.getChildren().length = 0
+        this.getChildren().length = 0;
         this.setFieldName(jsonNode.field_name);
         if (!_.isNil(jsonNode.children) && !_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childNode) => {
@@ -50,6 +58,7 @@ class FieldBasedVariableReferenceExpression extends Expression {
 
     /**
      * @see initFromJson docs
+     * @returns {Expression} begining expression
      */
     getVarRefExpr() {
         return this.children[0];
@@ -57,6 +66,7 @@ class FieldBasedVariableReferenceExpression extends Expression {
 
     /**
      * @see initFromJson docs
+     * @returns {string} field name
      */
     getFieldName() {
         return this._fieldName;
@@ -64,14 +74,19 @@ class FieldBasedVariableReferenceExpression extends Expression {
 
     /**
      * @see initFromJson docs
+     * @param {string} fieldName Name of the field
      */
     setFieldName(fieldName) {
         this._fieldName = fieldName;
     }
 
+    /**
+     * Generate expression string
+     * @returns {string} expression string
+     */
     getExpressionString() {
         const varRefString = this.getVarRefExpr().getExpressionString();
-        return `${varRefString}.${this.getFieldName()}`;
+        return `${varRefString}.${this.getWSRegion(2)}${this.getFieldName()}${this.getWSRegion(3)}`;
     }
 
     /**
