@@ -24,6 +24,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from './arrow-decorator';
 import BackwardArrowDecorator from './backward-arrow-decorator';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Variable Definition Statement Decorator.
@@ -108,9 +109,10 @@ class VariableDefinitionStatement extends React.Component {
         this.statementBox.x = bBox.x;
 
         const arrowStartPointX = bBox.getRight();
-        const arrowStartPointY = this.statementBox.y + this.statementBox.h / 2;
+        const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
-        const actionInvocation = !_.isNil(model.getChildren()[1]) ? model.getChildren()[1] : undefined;
+        const actionInvocation = (!_.isNil(model.getChildren()[1])
+            && ASTFactory.isActionInvocationExpression(model.getChildren()[1])) ? model.getChildren()[1] : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
