@@ -127,4 +127,10 @@ under the License.
             <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
         </classes>
     </test>
+
+    <test name="ballerina-interceptor-test-suite">
+        <classes>
+            <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
+        </classes>
+    </test>
 </suite>
