@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.time",
-        functionName = "createDateTime",
+        functionName = "createTime",
         args = {@Argument(name = "years", type = TypeEnum.INT),
                 @Argument(name = "months", type = TypeEnum.INT),
                 @Argument(name = "days", type = TypeEnum.INT),
@@ -50,7 +50,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
          value = "Create a time from the given components.")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
          value = "The Time struct")})
-public class CreateDateTime extends AbstractTimeFunction {
+public class CreateTime extends AbstractTimeFunction {
 
     @Override
     public BValue[] execute(Context context) {

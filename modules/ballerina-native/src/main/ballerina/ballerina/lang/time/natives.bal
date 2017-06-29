@@ -32,7 +32,7 @@ native function currentTime()(Time);
 @doc:Param {value:"milliSecond : The milli-of-second to represent, from 0 to 999"}
 @doc:Param {value:"zoneId : The zone id of the required time zone"}
 @doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information."}
-native function createDateTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
+native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                             string zoneId)(Time);
 
 @doc:Description {value:"Retuns the time  for the given string representation based on the given format string."}

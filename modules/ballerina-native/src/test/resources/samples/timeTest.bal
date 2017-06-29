@@ -36,14 +36,14 @@ function testCreateTimeWithNoZone () (int timeValue, string zoneId, int zoneoffs
 }
 
 function testCreateTimeWithNullZone () (int year) {
-    time:Time timeStruct = time:createDateTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    time:Time timeStruct = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
     timeStruct.zone = null;
     year = time:year(timeStruct);
     return;
 }
 
 function testCreateDateTime () (string timeString) {
-    time:Time timeStruct = time:createDateTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
+    time:Time timeStruct = time:createTime(2017, 3, 28, 23, 42, 45, 554, "America/Panama");
     timeString = time:toString(timeStruct);
     return;
 }
