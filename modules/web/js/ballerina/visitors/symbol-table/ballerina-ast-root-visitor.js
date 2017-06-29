@@ -156,10 +156,14 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                 connector.addAction(connectorAction);
 
                 child.on('tree-modified', (modifiedData) => {
+                    if (_.isNil(modifiedData.data)) {
+                        return;
+                    }
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
+                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin)
+                        && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
                 });
@@ -177,7 +181,8 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
                     const attributeName = modifiedData.data.attributeName;
                     const newValue = modifiedData.data.newValue;
                     const oldValue = modifiedData.data.oldValue;
-                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
+                    if (BallerinaASTFactory.isConnectorAction(modifiedData.origin)
+                        && _.isEqual(attributeName, 'action_name')) {
                         self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                     }
                 });
@@ -269,7 +274,6 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
 
         const attributeName = modifiedData.data.attributeName;
         const newValue = modifiedData.data.newValue;
-        const oldValue = modifiedData.data.oldValue;
         switch (attributeName) {
         case 'connector_name':
             connectorDefinition.setName(newValue);
