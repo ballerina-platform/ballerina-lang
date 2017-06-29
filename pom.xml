@@ -89,6 +89,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-logging</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
@@ -212,6 +217,7 @@
         <module>modules/ballerina-native</module>
         <module>modules/annotation-processor</module>
         <module>modules/ballerina-samples</module>
+        <module>modules/ballerina-logging</module>
     </modules>
 
 </project>

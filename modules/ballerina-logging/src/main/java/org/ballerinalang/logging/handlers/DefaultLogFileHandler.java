@@ -26,7 +26,7 @@ import java.util.logging.FileHandler;
  *
  * @since 0.89
  */
-public class DefaultLogFileHandler extends FileHandler{
+public class DefaultLogFileHandler extends FileHandler {
     public DefaultLogFileHandler() throws IOException, SecurityException {
     }
 }
