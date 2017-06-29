@@ -17,7 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 import BlockStatementDecorator from './block-statement-decorator';
 import CommitedStatementAST from './../ast/statements/committed-statement';
 
@@ -25,14 +25,9 @@ import CommitedStatementAST from './../ast/statements/committed-statement';
  * React component for committed statement.
  *
  * @class CommittedStatement
- * @extends {React.PureComponent}
+ * @extends {React.Component}
  */
-class CommittedStatement extends React.PureComponent {
-
-    constructor(props) {
-        super(props);
-    }
-
+class CommittedStatement extends React.Component {
     /**
      * Renders view for a commit statement.
      *
