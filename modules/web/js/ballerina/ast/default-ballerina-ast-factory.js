@@ -33,6 +33,8 @@ const DefaultBallerinaASTFactory = {};
  */
 DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
     const serviceDef = BallerinaASTFactory.createServiceDefinition(args);
+    serviceDef.setProtocolPkgName('http');
+    serviceDef.setProtocolPkgPath('ballerina.net.http');
     const resourceDef = DefaultBallerinaASTFactory.createResourceDefinition(args);
     serviceDef.addChild(resourceDef, undefined, undefined, undefined, true);
     serviceDef.accept(new EnableDefaultWSVisitor());
