@@ -24,7 +24,6 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
-import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -66,24 +65,19 @@ import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayLengthExpression;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.BinaryLogicalExpression;
-import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FieldAccessExpr;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
-import org.ballerinalang.model.expressions.JSONFieldAccessExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
@@ -95,19 +89,22 @@ import org.ballerinalang.model.expressions.NotEqualExpression;
 import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
@@ -124,7 +121,6 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -139,13 +135,14 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.InstructionCodes;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
+import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangPrograms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,11 +176,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
     private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
 
     private List completionItems;
-    private Position position;
+    private org.ballerinalang.composer.service.workspace.langserver.dto.Position position;
 
     private SymbolScope closestScope;
 
-    public CompletionItemAccumulator(List completionItems, Position position) {
+    public CompletionItemAccumulator(List completionItems,
+                                     org.ballerinalang.composer.service.workspace.langserver.dto.Position position) {
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
         currentScope = globalScope;
         this.nativeScope = BLangPrograms.populateNativeScope();
@@ -316,8 +314,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
         constDef.setMemoryLocation(memLocation);
 
         // Insert constant initialization stmt to the package init function
-        VariableRefExpr varRefExpr = new VariableRefExpr(constDef.getNodeLocation(),
-                constDef.getWhiteSpaceDescriptor(), constDef.getName());
+        SimpleVarRefExpr varRefExpr = new SimpleVarRefExpr(constDef.getNodeLocation(),
+                constDef.getWhiteSpaceDescriptor(), constDef.getName(), null, null);
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
                 new Expression[]{varRefExpr}, constDef.getRhsExpr());
@@ -1069,7 +1067,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         varDef.setType(lhsType);
 
         // Mark the this variable references as LHS expressions
-        ((ReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
+        ((VariableReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
 
         // Check whether this variable is already defined, if not define it.
         SymbolName symbolName = new SymbolName(varDef.getName(), currentPkg);
@@ -1108,7 +1106,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         Expression rExpr = assignStmt.getRExpr();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
-            checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
         }
 
@@ -1134,27 +1131,29 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     private void checkAndSetClosestScope(Node node) {
-        org.ballerinalang.model.values.Position start = node.getNodeLocation().getStartPosition();
-        org.ballerinalang.model.values.Position stop = new org.ballerinalang.model.values.Position();
+        int startLineNumber = node.getNodeLocation().startLineNumber;
+        int startColumn = node.getNodeLocation().startColumn;
+
+        Position stop = new Position();
         getStopPosition(node, stop);
 
-        if (position.getLine() > start.getLineNumber()) {
-            if (stop.getLineNumber() != -1 && stop.getColumn() != -1) {
-                if (position.getLine() < stop.getLineNumber()) {
+        if (position.getLine() > startLineNumber) {
+            if (stop.lineNumber != -1 && stop.column != -1) {
+                if (position.getLine() < stop.lineNumber) {
                     closestScope = currentScope;
-                } else if (position.getLine() == stop.getLineNumber()) {
-                    if (position.getCharacter() <= stop.getColumn()) {
+                } else if (position.getLine() == stop.lineNumber) {
+                    if (position.getCharacter() <= stop.column) {
                         closestScope = currentScope;
                     }
                 }
             }
-        } else if (position.getLine() == start.getLineNumber()) {
-            if (position.getCharacter() >= start.getColumn()) {
-                if (stop.getLineNumber() != -1 && stop.getColumn() != -1) {
-                    if (position.getLine() < stop.getLineNumber()) {
+        } else if (position.getLine() == startLineNumber) {
+            if (position.getCharacter() >= startColumn) {
+                if (stop.lineNumber != -1 && stop.column != -1) {
+                    if (position.getLine() < stop.lineNumber) {
                         closestScope = currentScope;
-                    } else if (position.getLine() == stop.getLineNumber()) {
-                        if (position.getCharacter() <= stop.getColumn()) {
+                    } else if (position.getLine() == stop.lineNumber) {
+                        if (position.getCharacter() <= stop.column) {
                             closestScope = currentScope;
                         }
                     }
@@ -1182,11 +1181,17 @@ public class CompletionItemAccumulator implements NodeVisitor {
         closeScope();
     }
 
-    private void getStopPosition(Node node, org.ballerinalang.model.values.Position stopPosition) {
+    private static class Position {
+        int lineNumber;
+        int column;
+    }
+
+    private void getStopPosition(Node node, Position stopPosition) {
         NodeLocation location = node.getNodeLocation();
         if (location != null) {
-            org.ballerinalang.model.values.Position stop = location.getStopPosition();
-            if (stop.getLineNumber() == -1) {
+            int stopLineNumber = location.stopLineNumber;
+            int stopColumn = location.stopColumn;
+            if (stopLineNumber == -1) {
                 if (node instanceof SymbolScope) {
                     SymbolScope enclosingScope = ((SymbolScope) node).getEnclosingScope();
                     if (enclosingScope instanceof Node) {
@@ -1195,8 +1200,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
                     }
                 }
             } else {
-                stopPosition.setLineNumber(stop.getLineNumber());
-                stopPosition.setColumn(stop.getColumn());
+                stopPosition.lineNumber = stopLineNumber;
+                stopPosition.column = stopColumn;
             }
         }
         return;
@@ -1255,6 +1260,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     @Override
+    public void visit(ContinueStmt continueStmt) {
+
+    }
+
+    @Override
     public void visit(TryCatchStmt tryCatchStmt) {
         checkAndSetClosestScope(tryCatchStmt);
         tryCatchStmt.getTryBlock().accept(this);
@@ -1275,7 +1285,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(throwStmt);
         throwStmt.getExpr().accept(this);
         BType expressionType = null;
-        if (throwStmt.getExpr() instanceof VariableRefExpr && throwStmt.getExpr().getType() instanceof StructDef) {
+        if (throwStmt.getExpr() instanceof SimpleVarRefExpr && throwStmt.getExpr().getType() instanceof StructDef) {
             expressionType = throwStmt.getExpr().getType();
         } else if (throwStmt.getExpr() instanceof FunctionInvocationExpr) {
             FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
@@ -1494,8 +1504,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // This function/action has named return parameters.
             Expression[] returnExprs = new Expression[returnParamsOfCU.length];
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                VariableRefExpr variableRefExpr = new VariableRefExpr(returnStmt.getNodeLocation(),
-                        returnStmt.getWhiteSpaceDescriptor(), returnParamsOfCU[i].getSymbolName());
+                SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(returnStmt.getNodeLocation(),
+                        returnStmt.getWhiteSpaceDescriptor(), returnParamsOfCU[i].getSymbolName().getName(), null,
+                        returnParamsOfCU[i].getSymbolName().getPkgPath());
                 visit(variableRefExpr);
                 returnExprs[i] = variableRefExpr;
             }
@@ -1574,8 +1585,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
 
         if (bLangSymbol instanceof VariableDef) {
+            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+                throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
+            }
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
-            VariableRefExpr variableRefExpr = new VariableRefExpr(actionIExpr.getNodeLocation(), null, symbolName);
+            SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(),
+                    null, name, null, pkgPath);
             exprs[0] = variableRefExpr;
             for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
                 exprs[i + 1] = actionIExpr.getArgExprs()[i];
@@ -1585,6 +1601,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             actionIExpr.setConnectorName(varDef.getTypeName().getName());
             actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
             actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
+        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
+            throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_ACTION_INVOCATION);
         }
 
         Expression[] exprs = actionIExpr.getArgExprs();
@@ -1699,28 +1718,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     @Override
-    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        checkAndSetClosestScope(arrayMapAccessExpr);
-        // Here we assume that rExpr of arrays access expression is always a variable reference expression.
-        // This according to the grammar
-        VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
-        arrayMapVarRefExpr.accept(this);
-
-        handleArrayType(arrayMapAccessExpr);
-    }
-
-    @Override
-    public void visit(FieldAccessExpr fieldAccessExpr) {
-        checkAndSetClosestScope(fieldAccessExpr);
-        visitField(fieldAccessExpr, currentScope);
-    }
-
-    @Override
-    public void visit(JSONFieldAccessExpr jsonFieldExpr) {
-
-    }
-
-    @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         checkAndSetClosestScope(refTypeInitExpr);
         visitMapJsonInitExpr(refTypeInitExpr);
@@ -1824,7 +1821,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
      */
     @Override
     public void visit(StructInitExpr structInitExpr) {
-        checkAndSetClosestScope(structInitExpr);
         BType inheritedType = structInitExpr.getInheritedType();
         structInitExpr.setType(inheritedType);
         Expression[] argExprs = structInitExpr.getArgExprs();
@@ -1836,11 +1832,25 @@ public class CompletionItemAccumulator implements NodeVisitor {
         for (Expression argExpr : argExprs) {
             KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
             Expression keyExpr = keyValueExpr.getKeyExpr();
+            if (!(keyExpr instanceof SimpleVarRefExpr)) {
+                throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                        SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
+            }
 
-            VariableRefExpr varRefExpr = (VariableRefExpr) keyExpr;
+            SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) keyExpr;
             //TODO fix properly package conflict
             BLangSymbol varDefSymbol = structDef.resolveMembers(new SymbolName(varRefExpr.getSymbolName().getName(),
                     structDef.getPackagePath()));
+
+            if (varDefSymbol == null) {
+                throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, varRefExpr.getVarName(), structDef.getName());
+            }
+
+            if (!(varDefSymbol instanceof VariableDef)) {
+                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                        SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, varDefSymbol.getSymbolName());
+            }
 
             VariableDef varDef = (VariableDef) varDefSymbol;
             varRefExpr.setVariableDef(varDef);
@@ -1862,13 +1872,126 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr varRefExpr) {
-        checkAndSetClosestScope(varRefExpr);
-        SymbolName symbolName = varRefExpr.getSymbolName();
+    public void visit(SimpleVarRefExpr simpleVarRefExpr) {
+        // Resolve package path from the give package name
+        if (simpleVarRefExpr.getPkgName() != null && simpleVarRefExpr.getPkgPath() == null) {
+            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
+                    SemanticErrors.UNDEFINED_PACKAGE_NAME, simpleVarRefExpr.getPkgName(),
+                    simpleVarRefExpr.getPkgName() + ":" + simpleVarRefExpr.getVarName());
+        }
 
+        SymbolName symbolName = simpleVarRefExpr.getSymbolName();
         // Check whether this symName is declared
         BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
-        varRefExpr.setVariableDef((VariableDef) varDefSymbol);
+
+        if (!(varDefSymbol instanceof VariableDef)) {
+            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
+                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
+        }
+
+        simpleVarRefExpr.setVariableDef((VariableDef) varDefSymbol);
+    }
+
+    @Override
+    public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
+        String fieldName = fieldBasedVarRefExpr.getFieldName();
+        VariableReferenceExpr varRefExpr = fieldBasedVarRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+
+        // Type of the varRefExpr can be either Struct, Map, JSON, Array
+        BType varRefType = varRefExpr.getType();
+        if (varRefType instanceof StructDef) {
+            StructDef structDef = (StructDef) varRefType;
+            BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
+            if (fieldSymbol == null) {
+                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
+            }
+            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            fieldBasedVarRefExpr.setFieldDef(fieldDef);
+            fieldBasedVarRefExpr.setType(fieldDef.getType());
+
+        } else if (varRefType == BTypes.typeMap) {
+            fieldBasedVarRefExpr.setType(((BMapType) varRefType).getElementType());
+
+        } else if (varRefType == BTypes.typeJSON) {
+            fieldBasedVarRefExpr.setType(BTypes.typeJSON);
+
+        } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
+            if (fieldBasedVarRefExpr.isLHSExpr()) {
+                //cannot assign a value to array length
+                throw BLangExceptionHelper.getSemanticError(fieldBasedVarRefExpr.getNodeLocation(),
+                        SemanticErrors.CANNOT_ASSIGN_VALUE_ARRAY_LENGTH);
+
+            }
+            fieldBasedVarRefExpr.setType(BTypes.typeInt);
+
+        } else {
+            throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefType);
+            // TODO Implement .type expression
+        }
+    }
+
+    @Override
+    public void visit(IndexBasedVarRefExpr indexBasedVarRefExpr) {
+        Expression indexExpr = indexBasedVarRefExpr.getIndexExpr();
+        indexExpr.accept(this);
+
+        VariableReferenceExpr varRefExpr = indexBasedVarRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+
+        // Type of the varRefExpr can be either Array, Map, JSON, Struct.
+        BType varRefType = varRefExpr.getType();
+        if (varRefType instanceof BArrayType) {
+            if (indexExpr.getType() != BTypes.typeInt) {
+                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                        SemanticErrors.NON_INTEGER_ARRAY_INDEX, indexExpr.getType());
+            }
+            BArrayType arrayType = (BArrayType) varRefType;
+            indexBasedVarRefExpr.setType(arrayType.getElementType());
+
+        } else if (varRefType == BTypes.typeMap) {
+            if (indexExpr.getType() != BTypes.typeString) {
+                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                        SemanticErrors.NON_STRING_MAP_INDEX, indexExpr.getType());
+            }
+            BMapType mapType = (BMapType) varRefType;
+            indexBasedVarRefExpr.setType(mapType.getElementType());
+
+        } else if (varRefType == BTypes.typeJSON) {
+            if (indexExpr.getType() != BTypes.typeInt && indexExpr.getType() != BTypes.typeString) {
+                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                        SemanticErrors.INCOMPATIBLE_TYPES, "string or int", varRefExpr.getType());
+            }
+            indexBasedVarRefExpr.setType(BTypes.typeJSON);
+
+        } else if (varRefType instanceof StructDef) {
+            if (indexExpr.getType() != BTypes.typeString) {
+                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                        SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, varRefExpr.getType());
+            }
+
+            if (!(indexExpr instanceof BasicLiteral)) {
+                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                        SemanticErrors.DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT);
+            }
+
+            String fieldName = ((BasicLiteral) indexExpr).getBValue().stringValue();
+            StructDef structDef = (StructDef) varRefType;
+            BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
+            if (fieldSymbol == null) {
+                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
+                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
+            }
+            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            indexBasedVarRefExpr.setFieldDef(fieldDef);
+            indexBasedVarRefExpr.setType(fieldDef.getType());
+
+        } else {
+            throw BLangExceptionHelper.getSemanticError(indexBasedVarRefExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefType);
+        }
     }
 
     @Override
@@ -1987,33 +2110,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         currentScope = currentScope.getEnclosingScope();
     }
 
-    private void handleArrayType(ArrayMapAccessExpr arrayMapAccessExpr) {
-        ReferenceExpr arrayMapVarRefExpr = (ReferenceExpr) arrayMapAccessExpr.getRExpr();
-
-        // Handle the arrays type
-        if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
-            // Check the type of the index expression
-            for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
-                visitSingleValueExpr(indexExpr);
-            }
-            // Set type of the arrays access expression
-            BType expectedType = arrayMapVarRefExpr.getType();
-            for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
-                expectedType = ((BArrayType) expectedType).getElementType();
-            }
-            arrayMapAccessExpr.setType(expectedType);
-
-        } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
-            // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
-            visitSingleValueExpr(indexExpr);
-            // Set type of the map access expression
-            BMapType typeOfMap = (BMapType) arrayMapVarRefExpr.getType();
-            arrayMapAccessExpr.setType(typeOfMap.getElementType());
-
-        }
-    }
-
     private void visitBinaryExpr(BinaryExpression expr) {
         visitSingleValueExpr(expr.getLExpr());
         visitSingleValueExpr(expr.getRExpr());
@@ -2095,63 +2191,54 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
     }
 
-    private String getVarNameFromExpression(Expression expr) {
-        if (expr instanceof ArrayMapAccessExpr) {
-            return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
-        } else if (expr instanceof FieldAccessExpr) {
-            return getVarNameFromExpression(((FieldAccessExpr) expr).getVarRef());
-        } else {
-            return ((VariableRefExpr) expr).getSymbolName().getName();
-        }
-    }
-
     private void checkForConstAssignment(AssignStmt assignStmt, Expression lExpr) {
     }
 
-    private void checkForMultiAssignmentErrors(AssignStmt assignStmt, Expression[] lExprs,
-                                               CallableUnitInvocationExpr rExpr) {
-        BType[] returnTypes = rExpr.getTypes();
+    private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
+        // Handle special case for assignment statement declared with var
+        if (assignStmt.isDeclaredWithVar()) {
+            // This set data structure is used to check for repeated variable names in the assignment statement
+            for (Expression expr : lExprs) {
+                if (!(expr instanceof SimpleVarRefExpr)) {
+                    throw BLangExceptionHelper.getSemanticError(assignStmt.getNodeLocation(),
+                            SemanticErrors.INVALID_VAR_ASSIGNMENT);
+                }
 
-        //cannot assign string to b (type int) in multiple assignment
+                SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
+                String varName = refExpr.getVarName();
 
-        for (int i = 0; i < lExprs.length; i++) {
-            Expression lExpr = lExprs[i];
-            String varName = getVarNameFromExpression(lExpr);
-            if ("_".equals(varName)) {
-                continue;
-            }
+                Identifier identifier = new Identifier(varName);
+                SymbolName symbolName = new SymbolName(identifier.getName());
+                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                        refExpr.getWhiteSpaceDescriptor(), identifier,
+                        null, symbolName, currentScope);
 
-            BType lhsType = lExprs[i].getType();
-            BType rhsType = returnTypes[i];
-
-            // Check whether the right-hand type can be assigned to the left-hand type.
-            if (isAssignableTo(lhsType, rhsType)) {
-                continue;
+                // Check whether this variable is already defined, if not define it.
+                SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
+                currentScope.define(varDefSymName, variableDef);
+                // Set memory location
+                setMemoryLocation(variableDef);
             }
         }
-    }
 
-    private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
-
+        int ignoredVarCount = 0;
         for (Expression lExpr : lExprs) {
-            String varName = getVarNameFromExpression(lExpr);
-            if (varName.equals("_")) {
+            if (lExpr instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) lExpr).getVarName().equals("_")) {
+                ignoredVarCount++;
                 continue;
             }
 
             // First mark all left side ArrayMapAccessExpr. This is to skip some processing which is applicable only
             // for right side expressions.
-            ((ReferenceExpr) lExpr).setLHSExpr(true);
-            if (lExpr instanceof ArrayMapAccessExpr) {
-                ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
-            } else if (lExpr instanceof FieldAccessExpr) {
-                ((FieldAccessExpr) lExpr).setLHSExpr(true);
-            }
-
+            ((VariableReferenceExpr) lExpr).setLHSExpr(true);
             lExpr.accept(this);
 
             // Check whether someone is trying to change the values of a constant
             checkForConstAssignment(assignStmt, lExpr);
+        }
+        if (ignoredVarCount == lExprs.length) {
+            throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                    assignStmt.getNodeLocation(), SemanticErrors.IGNORED_ASSIGNMENT));
         }
     }
 
@@ -2218,190 +2305,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
                     ": undefined worker '" + workerInvocationStmt.getCallableUnitName() + "'");
         }
         workerInvocationStmt.setCallableUnit(worker);
-    }
-
-    private void visitField(FieldAccessExpr fieldAccessExpr, SymbolScope enclosingScope) {
-        ReferenceExpr varRefExpr = (ReferenceExpr) fieldAccessExpr.getVarRef();
-
-        BLangSymbol fieldSymbol;
-        SymbolName symbolName = new SymbolName(varRefExpr.getVarName(), varRefExpr.getPkgPath());
-        //TODO resolve package path conflict
-        if (enclosingScope instanceof StructDef) {
-            fieldSymbol = ((StructDef) enclosingScope).resolveMembers(new SymbolName(symbolName.getName(),
-                    ((StructDef) enclosingScope).getPackagePath()));
-        } else {
-            fieldSymbol = enclosingScope.resolve(symbolName);
-        }
-
-        VariableDef varDef = (VariableDef) fieldSymbol;
-        BType exprType = varDef.getType();
-
-        /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
-         * errors of arrays/map accesses, used in this field.
-         * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
-         * treating them as individual arrays/map variables.
-         */
-
-        if (varRefExpr instanceof ArrayMapAccessExpr) {
-            Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();
-            if (rExpr instanceof VariableRefExpr) {
-                ((VariableRefExpr) rExpr).setVariableDef(varDef);
-            }
-            if (exprType instanceof BArrayType) {
-                exprType = ((BArrayType) varDef.getType()).getElementType();
-            }
-            handleArrayType((ArrayMapAccessExpr) varRefExpr);
-        } else {
-            ((VariableRefExpr) varRefExpr).setVariableDef(varDef);
-        }
-
-        // Go to the child field
-        FieldAccessExpr fieldExpr = fieldAccessExpr.getFieldExpr();
-        if (fieldExpr == null) {
-            return;
-        }
-
-        if (exprType instanceof StructDef) {
-            visitStructAccessExpr(fieldExpr, exprType);
-        } else if (exprType instanceof BJSONType) {
-            visitJSONAccessExpr(fieldAccessExpr, fieldExpr);
-        } else if (exprType instanceof BMapType) {
-            visitMapAccessExpr(fieldAccessExpr, varRefExpr, fieldExpr, enclosingScope);
-        } else if (exprType instanceof BArrayType) {
-            visitArrayAccessExpr(fieldAccessExpr, varRefExpr, fieldExpr, exprType, enclosingScope);
-        }
-    }
-
-    /**
-     * Visit a struct and its fields and semantically validate the field expression.
-     *
-     * @param fieldExpr field expression to validate
-     * @param exprType  Struct definition
-     */
-    private void visitStructAccessExpr(FieldAccessExpr fieldExpr, BType exprType) {
-        Expression fieldVar = fieldExpr.getVarRef();
-
-        // Field of a struct is always a variable reference.
-        if (fieldVar instanceof BasicLiteral) {
-            String varName = ((BasicLiteral) fieldVar).getBValue().stringValue();
-            VariableRefExpr varRef = new VariableRefExpr(fieldVar.getNodeLocation(), fieldVar.getWhiteSpaceDescriptor(),
-                    varName);
-            fieldExpr.setVarRef(varRef);
-            fieldExpr.setIsStaticField(true);
-        }
-
-        visitField(fieldExpr, ((StructDef) exprType));
-    }
-
-    /**
-     * Visits a JSON access expression. Rewrites the tree by replacing the {@link FieldAccessExpr}
-     * with a {@link JSONFieldAccessExpr}.
-     *
-     * @param parentExpr Current expression
-     * @param fieldExpr  Field access expression of the current expression
-     */
-    private void visitJSONAccessExpr(FieldAccessExpr parentExpr, FieldAccessExpr fieldExpr) {
-        if (fieldExpr == null) {
-            return;
-        }
-
-        FieldAccessExpr currentFieldExpr;
-        FieldAccessExpr nextFieldExpr = fieldExpr.getFieldExpr();
-        if (fieldExpr instanceof JSONFieldAccessExpr) {
-            currentFieldExpr = fieldExpr;
-        } else {
-            Expression varRefExpr = fieldExpr.getVarRef();
-            varRefExpr.accept(this);
-
-            currentFieldExpr = new JSONFieldAccessExpr(fieldExpr.getNodeLocation(), fieldExpr.getWhiteSpaceDescriptor(),
-                    varRefExpr, nextFieldExpr);
-        }
-        parentExpr.setFieldExpr(currentFieldExpr);
-        visitJSONAccessExpr(currentFieldExpr, nextFieldExpr);
-    }
-
-    /**
-     * Visits a map access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an
-     * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
-     *
-     * @param parentExpr     Current expression
-     * @param varRefExpr     VariableRefExpression of the current expression
-     * @param fieldExpr      Field access expression of the current expression
-     * @param enclosingScope Enclosing scope
-     */
-    private void visitMapAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
-                                    SymbolScope enclosingScope) {
-        Expression fieldVar = fieldExpr.getVarRef();
-
-        Expression indexExpr[] = new Expression[]{fieldVar};
-
-        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
-        builder.setVarName(varRefExpr.getVarName());
-        builder.setPkgName(varRefExpr.getPkgName());
-        builder.setPkgPath(varRefExpr.getPkgPath());
-        builder.setIndexExprs(indexExpr);
-        builder.setArrayMapVarRefExpr(varRefExpr);
-        builder.setNodeLocation(fieldExpr.getNodeLocation());
-        ArrayMapAccessExpr accessExpr = builder.build();
-
-        parentExpr.setFieldExpr(fieldExpr.getFieldExpr());
-        parentExpr.setVarRef(accessExpr);
-        accessExpr.setLHSExpr(parentExpr.isLHSExpr());
-        visitField(parentExpr, enclosingScope);
-    }
-
-    /**
-     * Visits an array access expression. Rewrites the tree by replacing the {@link FieldAccessExpr} with an
-     * {@link ArrayMapAccessExpr}. Then revisits the rewritten branch, and check for semantic.
-     *
-     * @param parentExpr     Current expression
-     * @param varRefExpr     VariableRefExpression of the current expression
-     * @param fieldExpr      Field access expression of the current expression
-     * @param exprType       Type to which the expression evaluates
-     * @param enclosingScope Enclosing scope
-     */
-    private void visitArrayAccessExpr(FieldAccessExpr parentExpr, ReferenceExpr varRefExpr, FieldAccessExpr fieldExpr,
-                                      BType exprType, SymbolScope enclosingScope) {
-
-        if (fieldExpr.getVarRef() instanceof BasicLiteral) {
-            String value = ((BasicLiteral) fieldExpr.getVarRef()).getBValue().stringValue();
-            if (value.equals("length")) {
-
-                ArrayLengthExpression arrayLengthExpr = new ArrayLengthExpression(
-                        parentExpr.getNodeLocation(), null, varRefExpr);
-                arrayLengthExpr.setType(BTypes.typeInt);
-                FieldAccessExpr childFAExpr = new FieldAccessExpr(parentExpr.getNodeLocation(),
-                        null, arrayLengthExpr, null);
-                parentExpr.setFieldExpr(childFAExpr);
-                return;
-            }
-        }
-
-        int dimensions = ((BArrayType) exprType).getDimensions();
-        List<Expression> indexExprs = new ArrayList<>();
-
-        for (int i = 0; i < dimensions; i++) {
-            if (fieldExpr == null) {
-                break;
-            }
-            indexExprs.add(fieldExpr.getVarRef());
-            fieldExpr = fieldExpr.getFieldExpr();
-        }
-        Collections.reverse(indexExprs);
-
-        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
-        builder.setVarName(varRefExpr.getVarName());
-        builder.setPkgName(varRefExpr.getPkgName());
-        builder.setPkgPath(varRefExpr.getPkgPath());
-        builder.setIndexExprs(indexExprs.toArray(new Expression[0]));
-        builder.setArrayMapVarRefExpr(varRefExpr);
-        builder.setNodeLocation(parentExpr.getNodeLocation());
-
-        ArrayMapAccessExpr accessExpr = builder.build();
-        parentExpr.setFieldExpr(fieldExpr);
-        parentExpr.setVarRef(accessExpr);
-        accessExpr.setLHSExpr(parentExpr.isLHSExpr());
-        visitField(parentExpr, enclosingScope);
     }
 
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
@@ -2776,8 +2679,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
             Expression keyExpr = keyValueExpr.getKeyExpr();
 
             // In maps and json, key is always a string literal.
-            if (keyExpr instanceof VariableRefExpr) {
-                BString key = new BString(((VariableRefExpr) keyExpr).getVarName());
+            if (keyExpr instanceof SimpleVarRefExpr) {
+                BString key = new BString(((SimpleVarRefExpr) keyExpr).getVarName());
                 keyExpr = new BasicLiteral(keyExpr.getNodeLocation(), keyExpr.getWhiteSpaceDescriptor(),
                         new SimpleTypeName(TypeConstants.STRING_TNAME),
                         key);
@@ -2955,9 +2858,5 @@ public class CompletionItemAccumulator implements NodeVisitor {
      * @since 0.88
      */
     static class AssignabilityResult {
-    }
-
-    @Override
-    public void visit(ArrayLengthExpression arrayLengthExpression) {
     }
 }
