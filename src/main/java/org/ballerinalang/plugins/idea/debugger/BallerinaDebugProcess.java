@@ -27,7 +27,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -57,9 +56,11 @@ import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
 
 import javax.swing.event.HyperlinkListener;
 
@@ -219,14 +220,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
         String code = message.getCode();
         if (Response.DEBUG_HIT.name().equals(code)) {
-            XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(message.getLocation());
-            BallerinaSuspendContext context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
-            XDebugSession session = getSession();
-            if (breakpoint == null) {
-                session.positionReached(context);
-            } else {
-                session.breakpointReached(breakpoint, null, context);
-            }
+            ApplicationManager.getApplication().runReadAction(() -> {
+                XBreakpoint<BallerinaBreakpointProperties> breakpoint = findBreakPoint(message.getLocation());
+                BallerinaSuspendContext context = new BallerinaSuspendContext(BallerinaDebugProcess.this, message);
+                XDebugSession session = getSession();
+                if (breakpoint == null) {
+                    session.positionReached(context);
+                } else {
+                    session.breakpointReached(breakpoint, null, context);
+                }
+            });
         } else if (Response.EXIT.name().equals(code) || Response.COMPLETE.name().equals(code)) {
             getSession().stop();
         }
@@ -260,8 +263,15 @@ public class BallerinaDebugProcess extends XDebugProcess {
             VirtualFile file = breakpointPosition.getFile();
             int line = breakpointPosition.getLine() + 1;
 
-            // Todo - get relative package path
-            if (file.getName().equals(fileName) && line == lineNumber) {
+            Project project = getSession().getProject();
+            String filePath = file.getName();
+            String packageName = BallerinaUtil.suggestPackageNameForFile(project, file);
+            if (!packageName.isEmpty()) {
+                filePath = packageName.replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+                filePath += (Matcher.quoteReplacement(File.separator) + file.getName());
+            }
+
+            if (filePath.equals(fileName) && line == lineNumber) {
                 return breakpoint;
             }
         }
@@ -350,13 +360,9 @@ public class BallerinaDebugProcess extends XDebugProcess {
                                 PackageDeclarationNode.class);
                         if (packageDeclarationNode != null) {
                             name = BallerinaUtil.suggestPackageNameForFile(project, file);
-                            // We need to escape the file separator in the Windows. Otherwise the debug hits wont be
-                            // identified by the debug server.
-                            if (SystemInfo.isWindows) {
-                                name = name.replaceAll("\\.", "\\\\\\\\") + "\\\\";
-                            } else {
-                                name = name.replaceAll("\\.", "/") + "/";
-                            }
+                            // We don't need to use '\' instead of '/' here since the debug server will convert it to
+                            // proper separator character.
+                            name = name.replaceAll("\\.", "/") + "/";
                         }
                         name += file.getName();
 
