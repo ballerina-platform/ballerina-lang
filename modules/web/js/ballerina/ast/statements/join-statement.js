@@ -36,6 +36,25 @@ class JoinStatement extends Statement {
         const parameterDefinition = this.getFactory().createParameterDefinition({ typeName: 'map', name: 'm' });
         this._joinParameter = _.get(args, 'joinParam', parameterDefinition);
         this._joinCount = _.get(args, 'joinCount');
+
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: ' ',
+            4: ' ',
+            5: ' ',
+            6: '\n',
+            7: '\n',
+        };
+
+        this.whiteSpace.defaultDescriptor.children = {
+            joinCondition: {
+                0: '',
+                1: '',
+                2: '',
+            },
+        };
     }
 
     /**
@@ -84,8 +103,23 @@ class JoinStatement extends Statement {
      * @return {string} join condition string
      */
     getJoinConditionString() {
-        return (this._joinType === 'any' ? 'some ' + this._joinCount : this._joinType)
-            + ' ' + this._joinWorkers.join(',');
+        const workerWS = _.get(this.getWhiteSpaceDescriptor(), 'children.joinWorkers.children', {});
+        let workers = '';
+        for (let i = 0; i < this._joinWorkers.length; i++) {
+            const workerName = this._joinWorkers[i];
+            const workerW = workerWS[workerName].regions;
+            workers += workerW[0] + workerName;
+            if (i < this._joinWorkers.length - 1) {
+                workers += workerW[1] + ',';
+            }
+        }
+        let condition;
+        if (this._joinType === 'any') {
+            condition = 'some' + this.getChildWSRegion('joinCondition', 1) + this._joinCount + workers;
+        } else {
+            condition = this._joinType + workers;
+        }
+        return condition;
     }
 
     /**

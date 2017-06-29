@@ -28,6 +28,12 @@ class ForkJoinStatement extends Statement {
      */
     constructor() {
         super('ForkJoinStatement');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: '\n',
+            3: '\n',
+        };
     }
 
     /**

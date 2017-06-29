@@ -1,1 +1,1 @@
-{"type":"join_statement","join_type":"any","join_count":1,"join_workers":["Worker1","Worker2"]}
+{"type":"join_statement","whitespace_descriptor":{"regions":{"0":"","1":"","2":"","3":" ","4":"","5":"","6":"","7":""},"children":{"joinWorkers":{"regions":{},"children":{"Worker1":{"regions":{"0":" ","1":""}},"Worker2":{"regions":{"0":" ","1":""}}}},"joinCondition":{"regions":{"0":"","1":" ","2":""}}}},"join_type":"any","join_count":1,"join_workers":["Worker1","Worker2"]}
