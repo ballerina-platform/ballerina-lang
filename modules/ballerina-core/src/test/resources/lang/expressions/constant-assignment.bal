@@ -1,7 +1,7 @@
 
-const int a = 10;
+const string a = "sam";
 	
 function constantAssignment() {
 	// Following line is invalid.
-	a = 6;
+	a = "mad";
 }
