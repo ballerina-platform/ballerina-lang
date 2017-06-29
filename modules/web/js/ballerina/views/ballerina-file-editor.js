@@ -315,6 +315,8 @@ class BallerinaFileEditor extends EventChannel {
             this._designViewBtn.show();
             this._sourceViewBtn.hide();
             $(this._transformPopUp).remove();
+            this.setTransformState(false);
+            this.trigger('update-tool-palette');
             this.setActiveView('source');
 
             return true;
@@ -458,6 +460,8 @@ class BallerinaFileEditor extends EventChannel {
             this._designViewBtn.show();
             this._sourceViewBtn.show();
             $(this._transformPopUp).remove();
+            this.setTransformState(false);
+            this.trigger('update-tool-palette');
             this.setActiveView('swagger');
         } catch (err) {
             log.error(err);
