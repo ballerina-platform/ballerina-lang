@@ -1,0 +1,2 @@
+// Ballerina supports "`var`" declaration of variables in assignment statements.
+// Variables declared as "`var`" can take any type as per RHS of assignment.
