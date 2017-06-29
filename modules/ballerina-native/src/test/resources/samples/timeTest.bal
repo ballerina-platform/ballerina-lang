@@ -9,7 +9,7 @@ function testCurrentTime () (int timeValue, string zoneId, int zoneoffset) {
 }
 
 function testCreateTimeWithZoneID () (int timeValue, string zoneId, int zoneoffset) {
-    time:Timezone zoneValue = {zoneId:"America/Panama", zoneOffset:-18000};
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time timeStruct = {time:1498488382000, zone:zoneValue};
     timeValue = timeStruct.time;
     zoneId = timeStruct.zone.zoneId;
@@ -122,6 +122,14 @@ function testToTimezone () (string timeString) {
     return;
 }
 
+function testToTimezoneWithInvalidZone () (string timeString) {
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1456876583555, zone:zoneValue};
+    timeStruct = time:toTimezone(timeStruct, "test");
+    timeString = time:format(timeStruct, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    return;
+}
+
 function testToTimezoneWithDateTime () (string timeString) {
     time:Time timeStruct = time:parse("2016-03-01T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     timeStruct = time:toTimezone(timeStruct, "Asia/Colombo");
@@ -130,14 +138,28 @@ function testToTimezoneWithDateTime () (string timeString) {
 }
 
 function testManualTimeCreate () (string timeString) {
-    time:Timezone zoneValue = {zoneId:"America/Panama", zoneOffset:-18000};
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
     time:Time time = {time:1498488382000, zone:zoneValue};
     timeString = time:toString(time);
     return;
 }
 
-function testManualTimeCreateWithNoZine () (int year) {
+function testManualTimeCreateWithNoZone () (int year) {
     time:Time time = {time:1498488382555};
+    year = time:year(time);
+    return;
+}
+
+function testManualTimeCreateWithEmptyZone () (int year) {
+    time:Timezone zoneValue = {zoneId:""};
+    time:Time time = {time:1498488382555, zone: zoneValue};
+    year = time:year(time);
+    return;
+}
+
+function testManualTimeCreateWithInvalidZone () (int year) {
+    time:Timezone zoneValue = {zoneId:"test"};
+    time:Time time = {time:1498488382555, zone:zoneValue};
     year = time:year(time);
     return;
 }

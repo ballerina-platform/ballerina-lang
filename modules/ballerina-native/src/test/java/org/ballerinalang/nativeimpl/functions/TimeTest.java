@@ -52,7 +52,6 @@ public class TimeTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateTimeWithZoneID");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "America/Panama");
-        Assert.assertEquals(((BInteger) returns[2]).intValue() , -18000);
     }
 
     @Test(description = "Test create time with offset values provided.")
@@ -164,8 +163,21 @@ public class TimeTest {
     }
 
     @Test(description = "Test Time struct create with struct initialization with no zone information.")
-    public void testManualTimeCreateWithNoZine() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreateWithNoZine");
+    public void testManualTimeCreateWithNoZone() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreateWithNoZone");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
+    }
+
+    @Test(description = "Test Time struct create with struct initialization with no zone information.")
+    public void testManualTimeCreateWithEmptyZone() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreateWithEmptyZone");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*unknown time-zone ID: test.*")
+    public void testManualTimeCreateWithInvalidZone() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testManualTimeCreateWithInvalidZone");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2017);
     }
 
@@ -186,5 +198,12 @@ public class TimeTest {
           expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
     public void testFormatTimeInvalidPattern() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testFormatTimeInvalidPattern");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+          expectedExceptionsMessageRegExp = ".*invalid timezone id test.*")
+    public void testToTimezoneWithInvalidZone() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToTimezoneWithInvalidZone");
+        Assert.assertEquals((returns[0]).stringValue(), "2016-03-02T05:26:23.555+0530");
     }
 }

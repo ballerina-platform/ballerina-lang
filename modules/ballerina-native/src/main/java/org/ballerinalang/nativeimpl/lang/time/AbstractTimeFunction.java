@@ -55,16 +55,6 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return BLangVMStructs.createBStruct(getTimeStructInfo(context), currentTime, currentTimezone);
     }
 
-    BStruct createTime(Context context, long timeValue, String zoneId) {
-        BStruct timezone;
-        if (zoneId.isEmpty()) {
-            timezone = createCurrentTimeZone(context);
-        } else {
-            timezone = createTimeZone(context, zoneId);
-        }
-        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue, timezone);
-    }
-
     BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
             int milliSecond, String zoneID) {
         int nanoSecond = milliSecond * 1000000;
@@ -180,6 +170,11 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         return dateTime.getDayOfWeek().toString();
     }
 
+    private BStruct createTime(Context context, long timeValue, String zoneId) {
+        BStruct timezone = createTimeZone(context, zoneId);
+        return BLangVMStructs.createBStruct(getTimeStructInfo(context), timeValue, timezone);
+    }
+
     private ZonedDateTime getZonedDateTime(BStruct timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
@@ -190,7 +185,11 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         ZoneId zoneId;
         if (zoneData != null) {
             String zoneIdName = zoneData.getStringField(0);
-            zoneId = ZoneId.of(zoneIdName);
+            if (zoneIdName.isEmpty()) {
+                zoneId = ZoneId.systemDefault();
+            } else {
+                zoneId = ZoneId.of(zoneIdName);
+            }
         } else {
             zoneId = ZoneId.systemDefault();
         }
