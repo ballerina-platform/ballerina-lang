@@ -258,6 +258,7 @@ class Annotation extends React.Component {
                     initialValue={model.getIdentifier()}
                     onSuggestionSelected={this.onIdentifierSelected}
                     onKeyDown={this.onIdentifierKeyDown}
+                    showAllAtStart
                     minWidth={130}
                     maxWidth={1000}
                 />
@@ -270,6 +271,7 @@ class Annotation extends React.Component {
                 placeholder={'Add Annotation'}
                 initialValue={model.getFullPackageName()}
                 onSuggestionSelected={this.onPackageNameSelected}
+                showAllAtStart
                 minWidth={150}
                 maxWidth={1000}
             />

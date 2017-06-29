@@ -37,6 +37,7 @@ class AutoSuggestHtml extends React.Component {
         this.state = {
             inputValue: this.props.initialValue || '',
             suggestions: [],
+            showAllAtStart: this.props.showAllAtStart,
         };
 
         this.storeInputReference = (autosuggest) => {
@@ -101,6 +102,7 @@ class AutoSuggestHtml extends React.Component {
     onChange(event, { newValue }) {
         return this.setState({
             inputValue: newValue,
+            showAllAtStart: false,
         });
     }
 
@@ -137,6 +139,13 @@ class AutoSuggestHtml extends React.Component {
      * @memberOf AutoSuggestHtml
      */
     getSuggestions(searchKeyword) {
+        if (this.state.showAllAtStart) {
+            const itemsMap = this.props.items.map(item => ({
+                name: item,
+            }));
+            return itemsMap;
+        }
+
         const escapedValue = this.escapeRegexCharacters(searchKeyword.trim());
         const regex = new RegExp(`^${escapedValue}`, 'i');
         const itemsMap = this.props.items.map(item => ({
@@ -194,7 +203,12 @@ class AutoSuggestHtml extends React.Component {
             placeholder: this.props.placeholder,
             value: this.state.inputValue,
             onChange: this.onChange,
-            onKeyDown: this.props.onKeyDown,
+            onKeyDown: (e) => {
+                this.props.onKeyDown(e);
+                this.setState({
+                    showAllAtStart: false,
+                });
+            },
             onBlur: this.props.onBlur,
             style: { width: util.getTextWidth(this.state.inputValue, this.props.minWidth, this.props.maxWidth).w + 5 },
         };
@@ -224,6 +238,7 @@ AutoSuggestHtml.propTypes = {
     initialValue: PropTypes.string,
     minWidth: PropTypes.number,
     maxWidth: PropTypes.number,
+    showAllAtStart: PropTypes.bool,
 };
 
 AutoSuggestHtml.defaultProps = {
@@ -234,6 +249,7 @@ AutoSuggestHtml.defaultProps = {
     initialValue: '',
     minWidth: 0,
     maxWidth: 120,
+    showAllAtStart: false,
 };
 
 export default AutoSuggestHtml;

@@ -212,9 +212,9 @@ class AnnotationAttribute extends React.Component {
                 this.props.model.setRightValue(newAnnotation, { doSilently: true });
             }
             this.setState({
+                setRightValueFocus: true,
                 isRightValueInEdit: true,
                 leftValue: suggestionValue,
-                setRightValueFocus: true,
             });
         }
 
@@ -378,6 +378,7 @@ class AnnotationAttribute extends React.Component {
                         items={this.getLeftValuesForSuggestions()}
                         placeholder={'Identifier'}
                         initialValue={this.state.leftValue}
+                        showAllAtStart
                         onSuggestionSelected={this.onLeftValueSelected}
                     />
                     <span className="annotation-attribute-separator">:</span>
