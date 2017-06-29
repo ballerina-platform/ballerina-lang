@@ -273,6 +273,13 @@ class BallerinaASTRoot extends ASTNode {
      */
     addGlobal(jsonNode) {
         const globalNode = this.getFactory().createFromJson(jsonNode);
+
+        if(!this.getFactory().isConstantDefinition(globalNode) &&
+            !this.getFactory().isGlobalVariableDefinition(globalNode)) {
+            // only constants and global variables can be added at global level
+            return;
+        }
+
         globalNode.initFromJson(jsonNode);
         // Get the index of the last constant declaration.
         let index = _.findLastIndex(this.getChildren(), (child) => {

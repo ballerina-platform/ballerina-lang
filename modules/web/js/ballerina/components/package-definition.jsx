@@ -93,9 +93,18 @@ class PackageDefinition extends React.Component {
     }
 
     handleAddGlobal(value) {
+        if(!value){
+            return;
+        }
+
         value += ';\n';
         const parsedJSON = this.context.editor.parserBackend.parse({content: value});
         // 0 th object of parsedJSON.root is a packageDeclaration. Next should be global var or const.
+
+        if(!parsedJSON.root[1]){
+            return;
+        }
+
         this.props.model.parent.addGlobal(parsedJSON.root[1])
     }
 
