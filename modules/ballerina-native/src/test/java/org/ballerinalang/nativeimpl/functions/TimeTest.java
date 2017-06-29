@@ -60,7 +60,6 @@ public class TimeTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateTimeWithOffset");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1498488382000L);
         Assert.assertEquals((returns[1]).stringValue(), "-05:00");
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), -18000);
     }
 
     @Test(description = "Test create time with no zone info provided.")
@@ -187,11 +186,5 @@ public class TimeTest {
           expectedExceptionsMessageRegExp = ".*invalid pattern for formatting test.*")
     public void testFormatTimeInvalidPattern() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testFormatTimeInvalidPattern");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*invalid timezone id test.*")
-    public void testCreateTimeWithInvalidZoneID() {
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCreateTimeWithInvalidZoneID");
     }
 }

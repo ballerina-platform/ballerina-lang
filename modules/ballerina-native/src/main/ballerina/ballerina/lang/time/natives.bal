@@ -22,12 +22,6 @@ struct Time {
 @doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information."}
 native function currentTime()(Time);
 
-@doc:Description {value:"Retuns the time  with given value and time zone."}
-@doc:Param {value:"timeValue : The time value as milliseconds since epoch"}
-@doc:Param {value:"zoneId : The zone id of the required time zone"}
-@doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information."}
-native function createTime(int timeValue, string zoneId)(Time);
-
 @doc:Description {value:"Retuns the time of the date and time components and time zone."}
 @doc:Param {value:"year : The year representation"}
 @doc:Param {value:"month : The month-of-year to represent, from 1 (January) to 12 (December)"}

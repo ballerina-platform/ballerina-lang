@@ -9,7 +9,8 @@ function testCurrentTime () (int timeValue, string zoneId, int zoneoffset) {
 }
 
 function testCreateTimeWithZoneID () (int timeValue, string zoneId, int zoneoffset) {
-    time:Time timeStruct = time:createTime(1498488382000, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama", zoneOffset:-18000};
+    time:Time timeStruct = {time:1498488382000, zone:zoneValue};
     timeValue = timeStruct.time;
     zoneId = timeStruct.zone.zoneId;
     zoneoffset = timeStruct.zone.zoneOffset;
@@ -17,7 +18,8 @@ function testCreateTimeWithZoneID () (int timeValue, string zoneId, int zoneoffs
 }
 
 function testCreateTimeWithOffset () (int timeValue, string zoneId, int zoneoffset) {
-    time:Time timeStruct = time:createTime(1498488382000, "-05:00");
+    time:Timezone zoneValue = {zoneId:"-05:00"};
+    time:Time timeStruct = {time:1498488382000, zone:zoneValue};
     timeValue = timeStruct.time;
     zoneId = timeStruct.zone.zoneId;
     zoneoffset = timeStruct.zone.zoneOffset;
@@ -25,7 +27,8 @@ function testCreateTimeWithOffset () (int timeValue, string zoneId, int zoneoffs
 }
 
 function testCreateTimeWithNoZone () (int timeValue, string zoneId, int zoneoffset) {
-    time:Time timeStruct = time:createTime(1498488382000, "");
+    time:Timezone zoneValue = {zoneId:""};
+    time:Time timeStruct = {time:1498488382000, zone:zoneValue};
     timeValue = timeStruct.time;
     zoneId = timeStruct.zone.zoneId;
     zoneoffset = timeStruct.zone.zoneOffset;
@@ -55,20 +58,23 @@ function testParseTime () (int timeValue, string zoneId, int zoneoffset) {
 }
 
 function testToStringWithCreateTime () (string timeString) {
-    time:Time timeStruct = time:createTime(1498488382000, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1498488382000, zone:zoneValue};
     timeString = time:toString(timeStruct);
     return;
 }
 
 function testFormatTime () (string timeString) {
-    time:Time timeStruct = time:createTime(1498488382444, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1498488382444, zone:zoneValue};
     timeString = time:format(timeStruct, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     return;
 }
 
 function testGetFunctions () (int year, int month, int day, int hour, int minute, int second, int milliSecond,
                              string weekday) {
-    time:Time timeStruct = time:createTime(1456876583555, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1456876583555, zone:zoneValue};
     year = time:year(timeStruct);
     month = time:month(timeStruct);
     day = time:day(timeStruct);
@@ -81,13 +87,15 @@ function testGetFunctions () (int year, int month, int day, int hour, int minute
 }
 
 function testGetDateFunction () (int year, int month, int day) {
-    time:Time timeStruct = time:createTime(1456876583555, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1456876583555, zone:zoneValue};
     year, month, day = time:getDate(timeStruct);
     return;
 }
 
 function testGetTimeFunction () (int hour, int minute, int second, int milliSecond) {
-    time:Time timeStruct = time:createTime(1456876583555, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1456876583555, zone:zoneValue};
     hour, minute, second, milliSecond = time:getTime(timeStruct);
     return;
 }
@@ -107,7 +115,8 @@ function testSubtractDuration () (string timeString) {
 }
 
 function testToTimezone () (string timeString) {
-    time:Time timeStruct = time:createTime(1456876583555, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1456876583555, zone:zoneValue};
     timeStruct = time:toTimezone(timeStruct, "Asia/Colombo");
     timeString = time:format(timeStruct, "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     return;
@@ -150,15 +159,8 @@ function testParseTimenFormatMismatch () (int timeValue, string zoneId, int zone
 }
 
 function testFormatTimeInvalidPattern () (string timeString) {
-    time:Time timeStruct = time:createTime(1498488382444, "America/Panama");
+    time:Timezone zoneValue = {zoneId:"America/Panama"};
+    time:Time timeStruct = {time:1498488382444, zone:zoneValue};
     timeString = time:format(timeStruct, "test");
-    return;
-}
-
-function testCreateTimeWithInvalidZoneID () (int timeValue, string zoneId, int zoneoffset) {
-    time:Time timeStruct = time:createTime(1498488382000, "test");
-    timeValue = timeStruct.time;
-    zoneId = timeStruct.zone.zoneId;
-    zoneoffset = timeStruct.zone.zoneOffset;
     return;
 }
