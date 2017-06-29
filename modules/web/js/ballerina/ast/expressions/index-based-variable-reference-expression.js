@@ -20,14 +20,21 @@ import Expression from './expression';
 import FragmentUtils from './../../utils/fragment-utils';
 
 /**
- * Constructor for IndexBasedVariableReferenceExpression
- * @param {Object} args - Arguments to create the IndexBasedVariableReferenceExpression
- * @constructor
- * @augments Expression
+ * Class to represent index based variable reference expressions
+ * @extends Expression
  */
 class IndexBasedVariableReferenceExpression extends Expression {
-    constructor(args) {
+    /**
+     * construct the expression
+     */
+    constructor() {
         super('IndexBasedVariableReferenceExpression');
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: '',
+            1: '',
+            2: '',
+            3: '',
+        };
     }
 
     /**
@@ -39,7 +46,7 @@ class IndexBasedVariableReferenceExpression extends Expression {
      * @param {Object} jsonNode to initialize from
      */
     initFromJson(jsonNode) {
-        this.getChildren().length = 0
+        this.getChildren().length = 0;
         if (!_.isNil(jsonNode.children) && !_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childNode) => {
                 const child = this.getFactory().createFromJson(childNode);
@@ -50,23 +57,29 @@ class IndexBasedVariableReferenceExpression extends Expression {
     }
 
     /**
-     * @see initFromJson docs
+     * @see IndexBasedVariableReferenceExpression#initFromJson
+     * @returns {Expression} begining var ref expression
      */
     getVarRefExpr() {
         return this.children[0];
     }
 
-     /**
+    /**
      * @see initFromJson docs
+     * @returns {Expression} index expression
      */
     getIndexExpr() {
         return this.children[1];
     }
 
+    /**
+     * Generate expression string
+     * @returns {string} expression string
+     */
     getExpressionString() {
-        const varRefString = this.getVarRefExpr().getExpressionString(),
-              indexExprString =  this.getIndexExpr().getExpressionString();
-        return `${varRefString}[${indexExprString}]`;
+        const varRefString = this.getVarRefExpr().getExpressionString();
+        const indexExprString = this.getIndexExpr().getExpressionString();
+        return `${varRefString}[${this.getWSRegion(2)}${indexExprString}]${this.getWSRegion(3)}`;
     }
 
     /**
