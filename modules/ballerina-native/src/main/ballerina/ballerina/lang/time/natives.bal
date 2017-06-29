@@ -37,7 +37,7 @@ native function createTime(int year, int month, int date, int hour, int minute, 
 
 @doc:Description {value:"Returns the time for the given string representation based on the given format string."}
 @doc:Param {value:"data : The time text to parse"}
-@doc:Param {value:"format : The format used to parse the given text"}
+@doc:Param {value:"format : The format which is used to parse the given text"}
 @doc:Return {value:"ballerina.lang.time:Time: Time struct containing time and zone information."}
 native function parse(string data, string format) (Time);
 
@@ -48,7 +48,7 @@ native function toString(Time time)(string);
 
 @doc:Description {value:"Returns formatted string representation of the given time."}
 @doc:Param {value:"time : The time struct for which needs to get the string representation"}
-@doc:Param {value:"format : The format used to parse the given text"}
+@doc:Param {value:"format : The format which is used to format the given text"}
 @doc:Return {value:"string: The formatted string of the given time."}
 native function format(Time time, string format)(string);
 
