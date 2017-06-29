@@ -36,4 +36,8 @@ public class BreakStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.BREAK;
+    }
 }

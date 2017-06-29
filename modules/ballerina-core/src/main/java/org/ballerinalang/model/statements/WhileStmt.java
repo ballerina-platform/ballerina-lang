@@ -52,6 +52,11 @@ public class WhileStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.WHILE;
+    }
+
     /**
      * Builds a {@code WhileStmt} statement.
      *
@@ -80,7 +85,9 @@ public class WhileStmt extends AbstractStatement {
         }
 
         public WhileStmt build() {
-            return new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
+            WhileStmt whileStmt = new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
+            whileBody.setParent(whileStmt);
+            return whileStmt;
         }
     }
 }

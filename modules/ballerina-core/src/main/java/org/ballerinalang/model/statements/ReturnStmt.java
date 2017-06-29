@@ -50,6 +50,11 @@ public class ReturnStmt extends AbstractStatement {
     }
 
     @Override
+    public StatementKind getKind() {
+        return StatementKind.RETURN;
+    }
+
+    @Override
     public boolean isAlwaysReturns() {
         return true;
     }

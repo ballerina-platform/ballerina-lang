@@ -112,6 +112,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -266,6 +267,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
+        pkgInitFuncStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
         BallerinaFunction initFunction = functionBuilder.buildFunction();
         initFunction.setReturnParamTypes(new BType[0]);
@@ -1360,12 +1362,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        checkParent(breakStmt);
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
-
+        checkParent(continueStmt);
     }
 
     @Override
@@ -3146,6 +3148,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setNodeLocation(structDef.getNodeLocation());
             functionBuilder.setIdentifier(new Identifier(structDef + ".<init>"));
             functionBuilder.setPkgPath(structDef.getPackagePath());
+            blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
             functionBuilder.setBody(blockStmtBuilder.build());
             structDef.setInitFunction(functionBuilder.buildFunction());
         }
@@ -3219,6 +3222,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(blockStmtBuilder.build());
         connectorDef.setInitFunction(functionBuilder.buildFunction());
     }
@@ -3246,6 +3250,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(blockStmtBuilder.build());
         service.setInitFunction(functionBuilder.buildFunction());
     }
@@ -3590,6 +3595,24 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
+    private static void checkParent(Statement stmt) {
+        Statement parent = stmt;
+        StatementKind childStmtType = stmt.getKind();
+        while (StatementKind.CALLABLE_UNIT_BLOCK != parent.getKind()) {
+            if (StatementKind.WHILE_BLOCK == parent.getKind() &&
+                    (StatementKind.BREAK == childStmtType || StatementKind.CONTINUE == childStmtType)) {
+                return;
+            } else if (StatementKind.TRANSACTION_BLOCK == parent.getKind()) {
+                if (StatementKind.BREAK == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.BREAK_USED_IN_TRANSACTION);
+                } else if (StatementKind.CONTINUE == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
+                }
+            }
+            parent = parent.getParent();
         }
     }
 

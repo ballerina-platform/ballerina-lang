@@ -101,6 +101,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -194,7 +195,6 @@ public class CodeGenerator implements NodeVisitor {
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
-    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -875,17 +875,7 @@ public class CodeGenerator implements NodeVisitor {
                 emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
-
-        if (finallyBlocks.size() > 0) {
-            resetIndexes(this.regIndexes);
-            Stack<TryCatchStmt.FinallyBlock> original = (Stack<TryCatchStmt.FinallyBlock>) finallyBlocks.clone();
-            while (!finallyBlocks.empty()) {
-                TryCatchStmt.FinallyBlock finallyBlock = finallyBlocks.pop();
-                finallyBlock.getFinallyBlockStmt().accept(this);
-            }
-            // restore.
-            finallyBlocks = original;
-        }
+        generateFinallyInstructions(returnStmt, StatementKind.CALLABLE_UNIT_BLOCK);
 
         emit(InstructionCodes.RET);
     }
@@ -914,11 +904,13 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
+        generateFinallyInstructions(breakStmt, StatementKind.WHILE_BLOCK);
         emit(breakInstructions.peek());
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
+        generateFinallyInstructions(continueStmt, StatementKind.WHILE_BLOCK);
         emit(continueInstructions.peek());
     }
 
@@ -926,9 +918,6 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
-        if (tryCatchStmt.getFinallyBlock() != null) {
-            finallyBlocks.push(tryCatchStmt.getFinallyBlock());
-        }
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         // Handle try block.
         int fromIP = nextIP();
@@ -980,7 +969,6 @@ public class CodeGenerator implements NodeVisitor {
                 errorTableEntry.setPackageInfo(currentPkgInfo);
             }
             // Append finally block instruction.
-            finallyBlocks.pop();
             tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
             emit(new Instruction(InstructionCodes.THROW, -1));
         }
@@ -1135,6 +1123,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
+        generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
     }
 
@@ -2641,6 +2630,22 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
             currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         }
+    }
+
+    private void generateFinallyInstructions(Statement statement, StatementKind scope) {
+        int[] regIndexesOriginal = this.regIndexes.clone();
+        Statement parent = statement;
+        while (scope != parent.getKind()) {
+            if (StatementKind.TRY_BLOCK == parent.getKind() || StatementKind.CATCH_BLOCK == parent.getKind()) {
+                TryCatchStmt.FinallyBlock finallyBlock = ((TryCatchStmt) parent.getParent()).getFinallyBlock();
+                if (finallyBlock != null) {
+                    resetIndexes(this.regIndexes);
+                    finallyBlock.getFinallyBlockStmt().accept(this);
+                }
+            }
+            parent = parent.getParent();
+        }
+        this.regIndexes = regIndexesOriginal;
     }
 
     /**
