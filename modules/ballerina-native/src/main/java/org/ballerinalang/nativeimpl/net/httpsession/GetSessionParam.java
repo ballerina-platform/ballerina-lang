@@ -114,8 +114,6 @@ public class GetSessionParam extends AbstractNativeFunction {
                 return new BValue[]{GetSession.createSessionStruct(context, session)};
             }
             return new BValue[]{};
-        } catch (NullPointerException e) {
-            throw new BallerinaException(e.getMessage(), e);
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }

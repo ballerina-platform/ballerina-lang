@@ -1973,7 +1973,7 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
-        handleMessageHeaders(message);
+        handleSessionCookieHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
@@ -2951,7 +2951,7 @@ public class BLangVM {
         logger.error("fatal error. incorrect error table entry.");
     }
 
-    private void handleMessageHeaders(BMessage message) {
+    private void handleSessionCookieHeaders(BMessage message) {
         //check session cookie header
         Session session = context.getCurrentSession();
         if (session != null) {

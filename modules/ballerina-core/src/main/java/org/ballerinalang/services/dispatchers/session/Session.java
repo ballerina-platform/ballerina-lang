@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BValue;
  * {@code Session} represents the session interface.
  * <p>
  * Need to have a protocol specific sessions
+ *
+ * @since 0.8.9
  */
 public interface Session {
     /**

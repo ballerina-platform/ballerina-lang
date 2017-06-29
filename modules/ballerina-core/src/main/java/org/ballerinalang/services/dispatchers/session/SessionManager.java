@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * SessionManager to manage all transport sessions.
+ *
+ * @since 0.8.9
  */
 public class SessionManager {
 

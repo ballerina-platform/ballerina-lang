@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * SessionIdGenerator util class. Borrowed from Tomcat 8.
+ *
+ * @since 0.8.9
  */
 public class SessionIdGenerator {
     private static final Logger log = LoggerFactory.getLogger(SessionIdGenerator.class);

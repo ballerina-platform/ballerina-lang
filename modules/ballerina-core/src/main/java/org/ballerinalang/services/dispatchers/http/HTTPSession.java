@@ -30,6 +30,8 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
  * HTTPSession represents a session
+ *
+ * @since 0.8.9
  */
 public class HTTPSession implements Session, Serializable {
 

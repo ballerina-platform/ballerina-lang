@@ -76,8 +76,6 @@ public class SetMaxInactiveInterval extends AbstractNativeFunction {
             }
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
-        } catch (NullPointerException e) {
-            throw new BallerinaException(e.getMessage(), e);
         }
         return VOID_RETURN;
     }
