@@ -1,6 +1,8 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 import ballerina.net.httpsession;
+import ballerina.lang.errors;
+import ballerina.lang.strings;
 
 struct Data {
             string name;
@@ -80,11 +82,13 @@ service sample {
     @http:Path{value:"/hello"}
     resource hello (message m) {
 
+        errors:TypeCastError err;
         string result = messages:getStringPayload (m);
         httpsession:Session session = httpsession:getSession(m);
         any attribute = httpsession:getAttribute(session,"name");
         if(attribute != null) {
-            result = (string) attribute;
+            result,err = (string) attribute;
+
         } else {
             httpsession:setAttribute(session, "name", result);
         }
@@ -100,15 +104,16 @@ service counter {
     resource echoCount (message m) {
 
         int sessionCounter;
+        errors:TypeCastError err;
         httpsession:Session ses = httpsession:getSession(m);
         if(httpsession:getAttribute(ses,"Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter = (int) httpsession:getAttribute(ses,"Counter");
+            sessionCounter, err = (int) httpsession:getAttribute(ses,"Counter");
         }
         sessionCounter = sessionCounter+1;
         httpsession:setAttribute(ses, "Counter", sessionCounter);
-        messages:setStringPayload(m, sessionCounter);
+        messages:setStringPayload(m, strings:valueOf(sessionCounter));
         reply m;
     }
 
@@ -117,15 +122,16 @@ service counter {
     resource echoCount2 (message m) {
 
         int sessionCounter;
+        errors:TypeCastError err;
         httpsession:Session ses = httpsession:getSessionWithParam(m, true);
         if(httpsession:getAttribute(ses,"Counter") == null) {
             sessionCounter = 0;
         } else {
-            sessionCounter = (int) httpsession:getAttribute(ses,"Counter");
+            sessionCounter, err = (int) httpsession:getAttribute(ses,"Counter");
         }
         sessionCounter = sessionCounter+1;
         httpsession:setAttribute(ses, "Counter", sessionCounter);
-        messages:setStringPayload(m, sessionCounter);
+        messages:setStringPayload(m, strings:valueOf(sessionCounter));
         reply m;
     }
 }
@@ -134,10 +140,11 @@ service sample2 {
     @http:GET{}
     resource echoName (message m) {
         string myName = "wso2";
+        errors:TypeCastError err;
         httpsession:Session Session = httpsession:getSession(m);
         any attribute = httpsession:getAttribute(Session,"name");
         if(attribute != null) {
-            myName = (string) attribute;
+            myName, err = (string) attribute;
         }
         httpsession:setAttribute(Session, "name", "chamil");
         messages:setStringPayload(m, myName);
@@ -148,11 +155,12 @@ service sample2 {
     resource myStruct (message m) {
 
         string result = messages:getStringPayload (m);
+        errors:TypeCastError err;
         Data d = {name:result};
         httpsession:Session Session = httpsession:getSession(m);
         any attribute = httpsession:getAttribute(Session, "nameStruct");
         if(attribute != null) {
-            d = (Data) attribute;
+            d, err = (Data) attribute;
         } else {
             httpsession:setAttribute(Session, "nameStruct", d);
         }
@@ -197,7 +205,7 @@ service sample2 {
         httpsession:removeAttribute(ses, "Name");
         string[] arr = httpsession:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, arrsize);
+        messages:setStringPayload(m, strings:valueOf(arrsize));
         reply m;
     }
 
@@ -212,7 +220,7 @@ service sample2 {
         httpsession:invalidate(ses);
         string[] arr = httpsession:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, arrsize);
+        messages:setStringPayload(m, strings:valueOf(arrsize));
         reply m;
     }
 
@@ -223,7 +231,7 @@ service sample2 {
         httpsession:Session ses = httpsession:getSession(m);
         string[] arr = httpsession:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, arrsize);
+        messages:setStringPayload(m, strings:valueOf(arrsize));
         reply m;
     }
 
@@ -236,7 +244,7 @@ service sample2 {
         httpsession:removeAttribute(ses, "Name");
         string[] arr = httpsession:getAttributeNames(ses);
         int arrsize = arr.length;
-        messages:setStringPayload(m, arrsize);
+        messages:setStringPayload(m, strings:valueOf(arrsize));
         reply m;
     }
 
@@ -266,7 +274,7 @@ service sample2 {
 
         httpsession:Session ses = httpsession:getSession(m);
         boolean stat = httpsession:isNew(ses);
-        messages:setStringPayload(m, stat);
+        messages:setStringPayload(m, strings:valueOf(stat));
         reply m;
     }
 
@@ -276,7 +284,7 @@ service sample2 {
 
         httpsession:Session ses = httpsession:getSession(m);
         int time = httpsession:getCreationTime(ses);
-        messages:setStringPayload(m, time);
+        messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
 
@@ -287,7 +295,7 @@ service sample2 {
         httpsession:Session ses = httpsession:getSession(m);
         httpsession:invalidate(ses);
         int time = httpsession:getCreationTime(ses);
-        messages:setStringPayload(m, time);
+        messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
 
@@ -297,7 +305,7 @@ service sample2 {
 
         httpsession:Session ses = httpsession:getSession(m);
         int time = httpsession:getLastAccessedTime(ses);
-        messages:setStringPayload(m, time);
+        messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
 
@@ -308,7 +316,7 @@ service sample2 {
         httpsession:Session ses = httpsession:getSession(m);
         httpsession:invalidate(ses);
         int time = httpsession:getLastAccessedTime(ses);
-        messages:setStringPayload(m, time);
+        messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
 
@@ -319,7 +327,7 @@ service sample2 {
         httpsession:Session ses = httpsession:getSession(m);
         int time = httpsession:getMaxInactiveInterval(ses);
         httpsession:setMaxInactiveInterval(ses, 60);
-        messages:setStringPayload(m, time);
+        messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
 
