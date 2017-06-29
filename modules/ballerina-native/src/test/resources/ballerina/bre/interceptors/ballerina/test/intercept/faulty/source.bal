@@ -4,7 +4,7 @@ import ballerina.lang.system;
 
 function requestInterceptor (message msg) (boolean, message) {
     string[] a;
-    a[5] = 10;
+    a[5] = "abc";
     return true, msg;
 }
 
