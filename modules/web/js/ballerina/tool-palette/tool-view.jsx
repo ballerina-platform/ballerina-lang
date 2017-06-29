@@ -23,6 +23,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import Tool from './tool';
+import ToolGroup from './tool-group';
 
 /**
  * Tool Component which render a tool in tool palette.
@@ -148,6 +149,20 @@ class ToolView extends React.Component {
     }
 
     /**
+     * Handles mouse click on open documentation icon
+     *
+     * @param {any} e - Mouse event of icon click
+     * @memberof ToolView
+     */
+    handleClickOpenDocumentation(e) {
+        e.stopPropagation();
+        const { tool, group, application } = this.props;
+        const functionName = tool.get('title') + (tool.parent ? tool.parent : '');
+        application.commandManager.dispatch('open-documentation',
+                            group.get('toolGroupName'), functionName);
+    }
+
+    /**
      * Render tool view.
      *
      * @returns {ReactElement} render tool view.
@@ -189,7 +204,7 @@ class ToolView extends React.Component {
 
             toolTip += ')';
         }
-        if(tool.get('_returnParams')){
+        if (tool.get('_returnParams')) {
             toolTip += '(';
             tool.get('_returnParams').forEach((param, index) => {
                 if (index !== 0) {
@@ -220,15 +235,13 @@ class ToolView extends React.Component {
                     data-placement="bottom"
                     data-toggle="tooltip"
                     title={toolTip}
-                    onClick={() => {
-                        let functionName = tool.get('title') + (tool.parent? tool.parent:"");
-                        this.props.application.commandManager.dispatch("open-documentation",
-                            this.props.group.get("toolGroupName"), functionName);
-                    }}
                 >
                     {tool.get('title')}
                 </div>
                 <p className="tool-title">{tool.get('name')}</p>
+                <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
+                    <span className="fw fw-document" />
+                </a>
             </div>
         );
     }
@@ -241,6 +254,7 @@ ToolView.defaultProps = {
 ToolView.propTypes = {
     toolOrder: PropTypes.string,
     tool: PropTypes.instanceOf(Tool).isRequired,
+    group: PropTypes.instanceOf(ToolGroup).isRequired,
 };
 
 ToolView.contextTypes = {
