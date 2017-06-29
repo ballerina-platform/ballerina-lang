@@ -25,7 +25,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom formatter for formatting error log file
+ * A custom formatter for formatting the error log
  *
  * @since 0.89
  */
@@ -44,7 +44,7 @@ public class ErrorLogFormatter extends Formatter {
         }
         return String.format(format,
                              new Date(record.getMillis()),
-                             record.getLevel().getLocalizedName(),
+                             BLogLevelMapper.mapLevel(record.getLevel()),
                              source,
                              record.getMessage());
     }

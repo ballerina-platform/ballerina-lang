@@ -25,7 +25,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting ballerina.log file
+ * A custom log formatter for formatting the ballerina.log file
  *
  * @since 0.89
  */
@@ -44,7 +44,7 @@ public class BallerinaLogFormatter extends Formatter {
         }
         return String.format(format,
                              new Date(record.getMillis()),
-                             record.getLevel().getLocalizedName(),
+                             BLogLevelMapper.mapLevel(record.getLevel()),
                              source,
                              record.getMessage());
     }
