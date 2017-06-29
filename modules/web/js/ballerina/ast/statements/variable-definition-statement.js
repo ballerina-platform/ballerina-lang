@@ -51,7 +51,7 @@ class VariableDefinitionStatement extends Statement {
             (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
         variableDefinitionStatementString += this.getBType();
         if (((this.getChildren()[0]).getChildren()[0]).isArray()) {
-            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0]).getDimensions; itr++) {
+            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0]).getDimensions(); itr++) {
                 variableDefinitionStatementString += '[]';
             }
         }
