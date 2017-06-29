@@ -132,8 +132,6 @@ public class BLangVM {
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
     private boolean isForkJoinTimedOut;
-    private CallableUnitInfo currentCallableUnitInfo;
-
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
@@ -162,7 +160,6 @@ public class BLangVM {
         this.context = context;
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
-        currentCallableUnitInfo = currentFrame.getCallableUnitInfo();
 
         if (context.getError() != null) {
             handleError();
@@ -2042,7 +2039,6 @@ public class BLangVM {
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        currentCallableUnitInfo = callableUnitInfo;
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -2109,7 +2105,7 @@ public class BLangVM {
             int[] argRegs = forkJoinCPEntry.getArgRegs();
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(currentCallableUnitInfo,
+            StackFrame calleeSF = new StackFrame(forkJoinCPEntry.getParentCallableUnitInfo(),
                     forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
             controlStack.pushFrame(calleeSF);
 

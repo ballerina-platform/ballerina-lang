@@ -186,6 +186,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private CallableUnitInfo currentCallableUnitInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -600,11 +601,13 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(Resource resource) {
         ResourceInfo resourceInfo = currentServiceInfo.getResourceInfo(resource.getName());
+        currentCallableUnitInfo = resourceInfo;
         visitCallableUnit(resource, resourceInfo, resource.getWorkers());
     }
 
     @Override
     public void visit(BallerinaFunction function) {
+        currentCallableUnitInfo = currentPkgInfo.getFunctionInfo(function.getName());
         visitCallableUnit(function, currentPkgInfo.getFunctionInfo(function.getName()), function.getWorkers());
     }
 
@@ -620,6 +623,7 @@ public class CodeGenerator implements NodeVisitor {
         // Now find out the ActionInfo
 
         ActionInfo actionInfo = connectorInfo.getActionInfo(action.getName());
+        currentCallableUnitInfo = actionInfo;
         visitCallableUnit(action, actionInfo, action.getWorkers());
     }
 
@@ -2337,6 +2341,7 @@ public class CodeGenerator implements NodeVisitor {
 
         int[] argRegs = lvIndexes;
         ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
+        forkJoinCPEntry.setParentCallableUnitInfo(currentCallableUnitInfo);
         if (argExpr != null) {
             forkJoinCPEntry.setTimeoutAvailable(true);
         }
