@@ -63,6 +63,8 @@ class PackageNameContextResolver implements ItemResolver {
                 CompletionItem completionItem = new CompletionItem();
                 completionItem.setLabel(symbolInfo.getSymbolName());
                 completionItem.setInsertText(symbolInfo.getSymbolName());
+                completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
                 completionItems.add(completionItem);
             }));
         }
