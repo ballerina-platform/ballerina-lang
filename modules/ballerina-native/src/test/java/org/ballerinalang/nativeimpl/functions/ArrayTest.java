@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
+import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -522,5 +523,28 @@ public class ArrayTest {
         Assert.assertEquals(((BStringArray) returnVals[0]).get(0), "country");
         Assert.assertEquals(((BStringArray) returnVals[0]).get(1), "currency");
         Assert.assertEquals(((BStringArray) returnVals[0]).get(2), "states");
+    }
+    
+    @Test
+    public void testArrayToString() {
+        String[] strArray = { "aaa", "bbb", "ccc" };
+        BStringArray bStringArray = new BStringArray(strArray);
+        Assert.assertEquals(bStringArray.stringValue(), "[\"aaa\",\"bbb\",\"ccc\"]");
+
+        long[] longArray = { 6, 3, 8, 4 };
+        BIntArray bIntArray = new BIntArray(longArray);
+        Assert.assertEquals(bIntArray.stringValue(), "[6,3,8,4]");
+
+        double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
+        BFloatArray bFloatArray = new BFloatArray(doubleArray);
+        Assert.assertEquals(bFloatArray.stringValue(), "[6.4,3.7,8.8,7.4]");
+
+        int[] boolArray = { 1, 1, 0 };
+        BBooleanArray bBooleanArray = new BBooleanArray(boolArray);
+        Assert.assertEquals(bBooleanArray.stringValue(), "[true,true,false]");
+
+        BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
+        BRefValueArray bXmlArray = new BRefValueArray(xmlArray);
+        Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>,<bar>hello</bar>]");
     }
 }

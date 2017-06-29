@@ -105,7 +105,7 @@ public abstract class Node {
     }
 
     public ResourceInfo getResource(CarbonMessage carbonMessage) {
-        if ("/".equalsIgnoreCase(token) && this.resource == null) {
+        if (this.resource == null) {
             return null;
         }
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);

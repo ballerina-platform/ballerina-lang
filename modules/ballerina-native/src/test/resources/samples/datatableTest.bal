@@ -86,7 +86,8 @@ function testToJson () (json) {
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    json result = <json>dt;
+    json result;
+    result, _ = <json>dt;
     return result;
 }
 
@@ -98,7 +99,8 @@ function testToXml () (xml) {
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
                boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -111,7 +113,8 @@ function toXmlComplex () (xml) {
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
                 float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
                 from MixTypes where row_id =1", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -209,7 +212,8 @@ function testJsonWithNull () (json) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    json result = <json>dt;
+    json result;
+    result, _ = <json>dt;
     return result;
 }
 
@@ -221,7 +225,8 @@ function testXmlWithNull () (xml) {
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
                boolean_type, string_type from DataTable WHERE row_id = 2", parameters);
-    xml result = <xml>dt;
+    xml result;
+    result, _ = <xml>dt;
     return result;
 }
 
@@ -236,7 +241,8 @@ function testToXmlWithinTransaction () (string, int) {
             sql:Parameter[] parameters = [];
             datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
                 WHERE row_id = 1", parameters);
-            xml xmlResult = <xml>dt;
+            xml xmlResult;
+            xmlResult, _ = <xml>dt;
             result = xmls:toString(xmlResult);
         } aborted {
             returnValue = -1;
@@ -258,7 +264,8 @@ function testToJsonWithinTransaction () (string, int) {
             sql:Parameter[] parameters = [];
             datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type from DataTable
                 WHERE row_id = 1", parameters);
-            json jsonResult = <json>dt;
+            json jsonResult;
+            jsonResult, _ = <json>dt;
             result = jsons:toString(jsonResult);
         } aborted {
             returnValue = -1;

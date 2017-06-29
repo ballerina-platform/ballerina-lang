@@ -125,7 +125,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);
             } catch (URITemplateException e) {
-                log.error("Failed to parse URIs", e);
+                throw new BallerinaException(e.getMessage());
             }
         }
 
