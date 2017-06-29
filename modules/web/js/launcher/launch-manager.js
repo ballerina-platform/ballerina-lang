@@ -179,7 +179,11 @@ class LaunchManager extends EventChannel {
             // ignore and return.
             return;
         }
-        Console.println(message);
+        // optimization to handle too many messages
+        // TODO: this a temporary fix
+        setTimeout(() => {
+            Console.println(message);
+        }, 0);
     }
     /**
      * Clear and Open console view
