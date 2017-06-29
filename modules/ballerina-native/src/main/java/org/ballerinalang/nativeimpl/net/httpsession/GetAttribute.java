@@ -33,6 +33,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function to get session attribute.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.net.httpsession",

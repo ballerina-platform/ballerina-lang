@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValue;
  * <p>
  * Need to have a protocol specific sessions
  *
- * @since 0.8.9
+ * @since 0.89
  */
 public interface Session {
     /**

@@ -46,6 +46,8 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
 
 /**
  * Native function to get session with boolean parameter.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.net.httpsession",

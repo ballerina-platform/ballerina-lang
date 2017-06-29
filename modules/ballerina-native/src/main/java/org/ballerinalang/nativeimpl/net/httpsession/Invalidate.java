@@ -32,6 +32,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function invalidate session.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.net.httpsession",

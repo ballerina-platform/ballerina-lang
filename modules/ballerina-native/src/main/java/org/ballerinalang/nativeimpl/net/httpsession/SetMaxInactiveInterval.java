@@ -34,6 +34,8 @@ import java.util.IllegalFormatException;
 
 /**
  * Native function to set session max inactive interval.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.net.httpsession",

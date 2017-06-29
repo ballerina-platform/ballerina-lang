@@ -34,6 +34,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function to get session creation time.
+ *
+ * @since 0.89
  */
 @BallerinaFunction(
         packageName = "ballerina.net.httpsession",
