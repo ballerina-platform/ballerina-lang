@@ -602,7 +602,7 @@ class TransformRender {
  * @param {object} reference AST model reference
  * @param {function} onFunctionRemove call back function for function remove
  */
-    addFunction(func, reference, onFunctionRemove) {
+    addFunction(func, reference, onFunctionRemove, removeReference = reference) {
         const packageName = func.getPackageName().replace(' ', '');
         let funcName = _.isEmpty(packageName) ? func.getName() :
                                   packageName + ' : ' + func.getName();
@@ -617,7 +617,7 @@ class TransformRender {
             this.references.push({ name: id, refObj: reference });
             const newFunc = $('<div>').attr('id', id).addClass('func');
             const self = this;
-            funcName = $('<div>');
+            funcName = $('<div/>').addClass('function-header');
             const funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
             const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
             const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
@@ -637,7 +637,7 @@ class TransformRender {
             });
 
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
-            this.onRemove(id, func, onFunctionRemove, reference);
+            this.onRemove(id, func, onFunctionRemove, removeReference);
 
             _.forEach(func.getParameters(), (parameter) => {
                 const property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);

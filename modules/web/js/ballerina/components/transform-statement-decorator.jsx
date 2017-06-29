@@ -300,7 +300,7 @@ class TransformStatementDecorator extends React.Component {
                                                  .createSimpleVariableReferenceExpression({variableName: sourceStruct.name});
                 }
             }
-            if(targetStruct != null){
+            if (targetStruct != null){
                 if (targetStruct.type == 'struct') {
                     targetExpression = self.getStructAccessNode(connection.targetStruct, connection.targetProperty);
                 } else {
@@ -321,21 +321,22 @@ class TransformStatementDecorator extends React.Component {
                 self.props.model.addChild(assignmentStmt);
                 return assignmentStmt.id;
             } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
-                    // Connection source is not a struct and target is a struct.
-                    // Source could be a function node.
+                // Connection source is not a struct and target is a struct.
+                // Source could be a function node.
                 let assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
                 assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
                 return assignmentStmtSource.id;
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-                    // Connection target is not a struct and source is a struct.
-                    // Target could be a function node.
+                // Connection target is not a struct and source is a struct.
+                // Target could be a function node.
                 let assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
                 assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
                 return assignmentStmtTarget.id;
-            }     
-                    // Connection source and target are not structs
-                    // Source and target could be function nodes.
+            } else {
+                // Connection source and target are not structs
+                // Source and target could be function nodes.
                 log.warn('multiple intermediate functions are not yet supported in design view');
+            }
             
         };
 
@@ -351,18 +352,23 @@ class TransformStatementDecorator extends React.Component {
                 self.props.model.removeChild(assignmentStmt);
             } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
                 // Connection source is not a struct and target is a struct.
-                // Source could be a function node.
-                const assignmentStmtSource = self.findExistingAssignmentStatement(connection.targetReference.id);
-                _.remove(assignmentStmtSource.getChildren()[1].getChildren()[0].getChildren(), (child) => {
+                // Source is a function node.
+                const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
+
+                // get the function invocation expression for nested and single cases.
+                const funcInvocationExpression = self.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+                let expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                     return (child.getExpressionString() === targetExpression.getExpressionString());
                 });
+                funcInvocationExpression.removeChild(expression);
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                 // Connection target is not a struct and source is a struct.
                 // Target could be a function node.
-                const assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
-                _.remove(assignmentStmtTarget.getChildren()[0].getChildren(), (child) => {
+                const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
+                let expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
                     return (child.getExpressionString() === sourceExpression.getExpressionString());
                 });
+                assignmentStmtTarget.getLeftExpression().removeChild(expression);
             } else {
                 // Connection source and target are not structs
                 // Source and target could be function nodes.
@@ -460,7 +466,9 @@ class TransformStatementDecorator extends React.Component {
             });
         }
 
-        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()));
+        //Removing this node means removing the assignment statement from the transform statement, since this is the top most invocation.
+        //Hence passing the assignment statement as remove reference.
+        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()), statement);
     }
 
     drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
@@ -481,11 +489,13 @@ class TransformStatementDecorator extends React.Component {
             });
         }
 
-        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parent));
+        //Removing this node means removing the function invocation from the parent function invocation.
+        //Hence passing the current function invocation as remove reference.
+        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression), functionInvocationExpression);
     }
 
     drawInnerFunctionInvocationExpression(functionInvocationExpression, parentFunctionInvocationExpression,
-                                                      parentFunctionDefinition, parentParameterIndex) {
+                                                      parentFunctionDefinition, parentParameterIndex, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
             alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
@@ -498,12 +508,12 @@ class TransformStatementDecorator extends React.Component {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, statement, i);
+                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, func, i, statement);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
                     const source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(functionInvocationExpression.getID(), source, target);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                 }
             });
         }
@@ -517,7 +527,7 @@ class TransformStatementDecorator extends React.Component {
             const funcTargetParam = this.getConnectionProperties('target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
             _.merge(funcTarget, funcTargetParam); // merge parameter props with function props
 
-            this.drawConnection(functionInvocationExpression.getID(), funcSource, funcTarget);
+            this.drawConnection(statement.getID() + functionInvocationExpression.getID(), funcSource, funcTarget);
         }
 
         //TODO : draw function node here when connection pooling for nested functions is implemented.
@@ -536,12 +546,12 @@ class TransformStatementDecorator extends React.Component {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(expression, functionInvocationExpression, func, i);
+                    this.drawInnerFunctionInvocationExpression(expression, functionInvocationExpression, func, i, statement);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
                     const source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(functionInvocationExpression.getID(), source, target);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
                 }
             });
         }
@@ -554,7 +564,7 @@ class TransformStatementDecorator extends React.Component {
                 const source = this.getConnectionProperties('source', func.getReturnParams()[i]);
                 _.merge(source, funcSource); // merge parameter props with function props
                 const target = this.getConnectionProperties('target', expression);
-                this.drawConnection(functionInvocationExpression.getID(), source, target);
+                this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
             });
         }
 
@@ -605,10 +615,48 @@ class TransformStatementDecorator extends React.Component {
         self.mapper.addConnection(con);
     }
 
+    /**
+     * @param {any} UUID of an assignment statement
+     * @returns {AssignmentStatement} assignment statement for maching ID
+     *
+     * @memberof TransformStatementDecorator
+     */
     findExistingAssignmentStatement(id) {
         return _.find(self.props.model.getChildren(), (child) => {
             return child.getID() === id;
         });
+    }
+
+    /**
+     * @param {any} UUID of a function invocation statement
+     * @returns {AssignmentStatement} enclosing assignment statement containing the matching function
+     * invocation statement ID
+     *
+     * @memberof TransformStatementDecorator
+     */
+    findEnclosingAssignmentStatement(id) {
+        let assignmentStmts = self.props.model.getChildren();
+        return _.find(assignmentStmts, (assignmentStmt) => {
+            let expression = this.findFunctionInvocationById(assignmentStmt.getRightExpression(), id);
+            if (expression !== undefined) {
+                return assignmentStmt;
+            }
+        });
+    }
+
+    findFunctionInvocationById(expression, id) {
+        let found = expression.getChildById(id);
+        if (found !== undefined) {
+            return found;
+        } else {
+            _.forEach(expression.getChildren(), (child) => {
+                found = this.findFunctionInvocationById(child, id);
+                if (found !== undefined) {
+                    return found;
+                }
+            });
+            return found;
+        }
     }
 
     createComplexProp(structName, expression)    {
@@ -625,7 +673,7 @@ class TransformStatementDecorator extends React.Component {
             }
             const structField = _.find(structDef.properties, { name: fieldName });
             if (_.isUndefined(structField)) {
-                alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
+                alerts.error('Struct field "' + fieldName + '" cannot be found in variable "' + structName + '"');
                 return;
             }
             const structFieldType = structField.type;
@@ -874,32 +922,10 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         $('#' + comboBoxId).append('<option value="' + name + '">' + name + ' : ' + typeName + '</option>');
     }
 
-    createAccessNode(name, property) {
-        let structExpression = BallerinaASTFactory.createFieldAccessExpression();
-        let structPropertyHolder = BallerinaASTFactory.createFieldAccessExpression();
-        let structProperty = BallerinaASTFactory.createBasicLiteralExpression({ basicLiteralType: 'string',
-            basicLiteralValue: property });
-        let structName = BallerinaASTFactory.createSimpleVariableReferenceExpression();
-
-        structName.setVariableName(name);
-        structExpression.addChild(structName);
-        structPropertyHolder.addChild(structProperty);
-        structExpression.addChild(structPropertyHolder);
-
-        return structExpression;
-    }
-
     getStructAccessNode(name, property) {
-        let structExpressions = [];
-
-        _.forEach(property, (prop) => {
-            structExpressions.push(self.createAccessNode(name, prop));
-        });
-
-        for (let i = structExpressions.length - 1; i > 0; i--) {
-            structExpressions[i - 1].children[1].addChild(structExpressions[i].children[1]);
-        }
-        return structExpressions[0];
+        let fieldVarRefExpression = BallerinaASTFactory.createFieldBasedVarRefExpression();
+        fieldVarRefExpression.setExpressionFromString(`${name}.${_.join(property, '.')}`);
+        return fieldVarRefExpression;
     }
 
     setSource(currentSelection, predefinedStructs) {
