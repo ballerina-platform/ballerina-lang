@@ -88,6 +88,7 @@ export default class GlobalExpanded extends React.Component {
         const globalDeclarationWidth = variablesPaneDefaults.globalDeclarationWidth;
         const leftPadding = 10;
         const globalElements = [];
+        const editorOuterPadding = 10;
 
         const topBarBbox = {
             x: bBox.x,
@@ -112,10 +113,10 @@ export default class GlobalExpanded extends React.Component {
         });
 
         const textBoxBBox = {
-            x: bBox.x + 5,
-            y: lastGlobalElementY + 2,
-            h: globalInputHeight - 4,
-            w: globalDeclarationWidth - 10,
+            x: bBox.x + editorOuterPadding/2,
+            y: lastGlobalElementY + editorOuterPadding/2,
+            h: globalInputHeight - editorOuterPadding,
+            w: globalDeclarationWidth - editorOuterPadding,
         };
 
         const options = {

@@ -105,10 +105,10 @@ class SourceView extends EventChannel {
         let editorTheme = ace.acequire(editorThemeName);
 
         const sourceViewCompleter = SourceViewCompleterFactory.getSourceViewCompleter(this._langserverController);
-        // TODO: Enable the completer after features are completed
-        // if (sourceViewCompleter) {
-        //     langTools.setCompleters(sourceViewCompleter);
-        // }
+        // Enable the source view completer
+        if (sourceViewCompleter) {
+            langTools.setCompleters(sourceViewCompleter);
+        }
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);

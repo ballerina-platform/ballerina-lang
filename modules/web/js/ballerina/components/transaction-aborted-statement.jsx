@@ -16,13 +16,14 @@
  * under the License.
  */
 import React from 'react';
-import CompoundStatementDecorator from './compound-statement-decorator';
 import PropTypes from 'prop-types';
+import CompoundStatementDecorator from './compound-statement-decorator';
 import { getComponentForNodeArray } from './utils';
+import TransactionAbortedStatementAST from './../ast/statements/transaction-aborted-statement';
 
 class TransactionAbortedStatement extends React.Component {
     render() {
-        const model = this.props.model;
+        const { model } = this.props;
         const bBox = model.viewState.bBox;
         const children = getComponentForNodeArray(model.getChildren());
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
@@ -38,6 +39,7 @@ TransactionAbortedStatement.propsTypes = {
         w: PropTypes.number.isRequired,
         h: PropTypes.number.isRequired,
     }),
+    model: PropTypes.instanceOf(TransactionAbortedStatementAST),
 };
 
 export default TransactionAbortedStatement;

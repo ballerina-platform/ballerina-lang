@@ -20,10 +20,11 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.SourcePosition;
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -34,22 +35,23 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Completion Suggester Impl
  */
 public class AutoCompleteSuggesterImpl implements AutoCompleteSuggester {
+
     @Override
-    public List<PossibleToken> getPossibleTokenTypes(BFile bFile, SourcePosition cursorPosition) throws IOException {
+    public BallerinaFile getBallerinaFile(BFile bFile, Position cursorPosition,
+                                          CapturePossibleTokenStrategy capturePossibleTokenStrategy)
+            throws IOException {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bFile.getContent()
-                                                        .getBytes(StandardCharsets.UTF_8));
+                .getBytes(StandardCharsets.UTF_8));
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(cursorPosition);
         ballerinaParser.setErrorHandler(capturePossibleTokenStrategy);
 
         GlobalScope globalScope = GlobalScope.getInstance();
@@ -62,6 +64,7 @@ public class AutoCompleteSuggesterImpl implements AutoCompleteSuggester {
                 new File(bFile.getFileName()).toPath());
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
-        return capturePossibleTokenStrategy.getPossibleTokens();
+        BallerinaFile ballerinaFile = bLangModelBuilder.build();
+        return ballerinaFile;
     }
 }

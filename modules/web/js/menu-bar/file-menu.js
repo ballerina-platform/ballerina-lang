@@ -59,7 +59,7 @@ define(([], function () {
             },
             {
                 id: 'open_folder',
-                label: 'Open Folder',
+                label: 'Open Program Directory',
                 command: {
                     id: 'show-folder-open-dialog',
                     shortcuts: {

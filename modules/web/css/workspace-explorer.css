@@ -13,14 +13,26 @@
     width: 100%;
 }
 
+.open-folder-btn-wrapper {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    margin: 25px auto;
+    width: 100%;
+}
+
+.open-folder-button:hover {
+    cursor: pointer;
+    color: #f17b31;
+}
+
 .open-folder-button{
-    max-height: 35px;
     padding-top: 3px;
-    position: relative;
-    top: 25px;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
+}
+
+.open-folder-button>i {
+    margin-right: 6px;
 }
 
 .folder-tree-header {

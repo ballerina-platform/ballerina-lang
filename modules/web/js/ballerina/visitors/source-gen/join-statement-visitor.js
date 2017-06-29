@@ -28,13 +28,20 @@ class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitJoinStatement(joinStatement) {
         this.node = joinStatement;
-        this.appendSource('join (' + joinStatement.getJoinConditionString() + ') (' +
-            joinStatement.getParameter().getParameterDefinitionAsString() + '){\n');
+        const JOIN_CONDITION_KEY = 'joinCondition';
+        this.appendSource('join' + joinStatement.getWSRegion(1) + '(' +
+            joinStatement.getChildWSRegion(JOIN_CONDITION_KEY, 0) + joinStatement.getJoinConditionString() +
+            joinStatement.getChildWSRegion(JOIN_CONDITION_KEY, 2) + ')' + joinStatement.getWSRegion(2) +
+            '(' + joinStatement.getParameter().getWSRegion(0) +
+            joinStatement.getParameter().getParameterDefinitionAsString() + ')' + joinStatement.getWSRegion(5) + '{' +
+            joinStatement.getWSRegion(6));
+        this.appendSource((joinStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+        this.indent();
         log.debug('Begin Visit Join Statement');
     }
 
-    endVisitJoinStatement() {
-        this.appendSource('}\n');
+    endVisitJoinStatement(joinStatement) {
+        this.appendSource('}' + joinStatement.getWSRegion(7));
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Join Statement');
     }

@@ -21,10 +21,6 @@ import StatementVisitorFactory from './statement-visitor-factory';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
 class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
-    constructor(parent) {
-        super(parent);
-        this.closed = false;
-    }
 
     canVisitForkJoinStatement() {
         return true;
@@ -32,8 +28,12 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitForkJoinStatement(forkJoinStatement) {
         this.node = forkJoinStatement;
-        this.closed = false;
-        this.appendSource('fork {');
+        if (forkJoinStatement.whiteSpace.useDefault) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        this.appendSource('fork' + forkJoinStatement.getWSRegion(1) + '{' + forkJoinStatement.getWSRegion(2));
+        this.indent();
     }
 
     visitWorkerDeclaration(workerDeclaration) {
@@ -41,21 +41,20 @@ class ForkJoinStatementVisitor extends AbstractStatementSourceGenVisitor {
         workerDeclaration.accept(workerDeclarationVisitor);
     }
 
-    endVisitForkJoinStatement() {
-        if (!this.closed) {
-            this.appendSource('}\n');
-            this.closed = true;
-        }
+    endVisitForkJoinStatement(forkJoinStatement) {
+        this.appendSource((forkJoinStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
 
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
-            if (!this.closed) {
-                this.appendSource('}\n');
-                this.closed = true;
+            const forkJoinStatement = statement.getParent();
+            this.outdent();
+            if (forkJoinStatement.whiteSpace.useDefault) {
+                this.appendSource(this.getIndentation());
             }
+            this.appendSource('}' + statement.getWSRegion(0));
             const statementVisitorFactory = new StatementVisitorFactory();
             const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
             statement.accept(statementVisitor);

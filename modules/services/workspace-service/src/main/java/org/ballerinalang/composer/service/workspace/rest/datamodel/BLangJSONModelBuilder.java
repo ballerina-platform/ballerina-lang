@@ -209,6 +209,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(Service service) {
         JsonObject serviceObj = new JsonObject();
         serviceObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.SERVICE_DEFINITION);
+        serviceObj.addProperty(BLangJSONModelConstants.SERVICE_PROTOCOL_PKG_NAME, service.getProtocolPkgName());
+        serviceObj.addProperty(BLangJSONModelConstants.SERVICE_PROTOCOL_PKG_PATH, service.getPackagePath());
         serviceObj.addProperty(BLangJSONModelConstants.SERVICE_NAME, service.getSymbolName().getName());
         this.addPosition(serviceObj, service.getNodeLocation());
         this.addWhitespaceDescriptor(serviceObj, service.getWhiteSpaceDescriptor());
@@ -1096,7 +1098,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         forkJoinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.FORK_JOIN_STATEMENT);
         this.addPosition(forkJoinStmtObj, forkJoinStmt.getNodeLocation());
-        this.addWhitespaceDescriptor(forkJoinStmtObj, forkJoinStmt.getWhiteSpaceDescriptor());
+        WhiteSpaceDescriptor whiteSpaceDescriptor = forkJoinStmt.getWhiteSpaceDescriptor();
+        addWhitespaceDescriptor(forkJoinStmtObj, whiteSpaceDescriptor, false);
         JsonArray children = new JsonArray();
         tempJsonArrayRef.push(children);
         Worker[] workers = forkJoinStmt.getWorkers();
@@ -1109,6 +1112,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (joinType != null) {
             JsonObject joinStmtObj = new JsonObject();
             joinStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.JOIN_STATEMENT);
+            WhiteSpaceDescriptor joinWS = whiteSpaceDescriptor.getChildDescriptor(BLangModelBuilder.JOIN_CLAUSE);
+            joinWS.addChildDescriptor(BLangModelBuilder.JOIN_CONDITION,
+                    whiteSpaceDescriptor.getChildDescriptor(BLangModelBuilder.JOIN_CONDITION));
+            WhiteSpaceDescriptor joinWorkersWS = whiteSpaceDescriptor.getChildDescriptor(
+                    BLangModelBuilder.JOIN_WORKERS);
+            if (joinWorkersWS != null) {
+                joinWS.addChildDescriptor(BLangModelBuilder.JOIN_WORKERS, joinWorkersWS);
+            }
+            addWhitespaceDescriptor(joinStmtObj, joinWS);
             joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_TYPE, joinType);
             joinStmtObj.addProperty(BLangJSONModelConstants.JOIN_COUNT, join.getJoinCount());
             JsonArray joinWorkers = new JsonArray();
@@ -1153,6 +1165,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
             timeoutStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                     BLangJSONModelConstants.TIMEOUT_STATEMENT);
+
+            addWhitespaceDescriptor(timeoutStmtObj,
+                    whiteSpaceDescriptor.getChildDescriptor(BLangModelBuilder.TIMEOUT_CLAUSE));
+
             this.addPosition(timeoutStmtObj, timeout.getNodeLocation());
             tempJsonArrayRef.push(new JsonArray());
             Statement timeoutBlock = timeout.getTimeoutBlock();
@@ -1847,8 +1863,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     private void addWhitespaceDescriptor(JsonObject jsonObj, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        addWhitespaceDescriptor(jsonObj, whiteSpaceDescriptor, true);
+    }
+
+    private void addWhitespaceDescriptor(JsonObject jsonObj, WhiteSpaceDescriptor whiteSpaceDescriptor
+            , boolean addChildren) {
         if (whiteSpaceDescriptor != null) {
-            JsonObject wsDescriptor = whiteSpaceDescriptorToJson(whiteSpaceDescriptor);
+            JsonObject wsDescriptor = whiteSpaceDescriptorToJson(whiteSpaceDescriptor, addChildren);
             jsonObj.add(BLangJSONModelConstants.WHITESPACE_DESCRIPTOR, wsDescriptor);
         }
     }
@@ -1863,17 +1884,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         return simpleTypeNameObj;
     }
 
-    private JsonObject whiteSpaceDescriptorToJson(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    private JsonObject whiteSpaceDescriptorToJson(WhiteSpaceDescriptor whiteSpaceDescriptor, boolean addChildren) {
         JsonObject wsDescriptor = new JsonObject();
         JsonObject regions = new JsonObject();
         whiteSpaceDescriptor.getWhiteSpaceRegions().forEach(((regionID, whitespace) -> {
             regions.addProperty(regionID.toString(), whitespace);
         }));
         wsDescriptor.add(BLangJSONModelConstants.WHITESPACE_REGIONS, regions);
-        if (whiteSpaceDescriptor.getChildDescriptors().size() > 0) {
+        if (addChildren && whiteSpaceDescriptor.getChildDescriptors().size() > 0) {
             JsonObject children = new JsonObject();
             whiteSpaceDescriptor.getChildDescriptors().forEach((childID, child) -> {
-                children.add(childID, whiteSpaceDescriptorToJson(child));
+                children.add(childID, whiteSpaceDescriptorToJson(child, true));
             });
             wsDescriptor.add(BLangJSONModelConstants.CHILD_DESCRIPTORS, children);
         }

@@ -270,6 +270,10 @@ class StatementDecorator extends React.PureComponent {
         if (model.isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
+        let tooltip = null;
+        if (viewState.fullExpression !== expression) {
+            tooltip = (<title>{this.props.viewState.fullExpression}</title>);
+        }
 
         return (
             <g
@@ -297,8 +301,11 @@ class StatementDecorator extends React.PureComponent {
                     height={this.state.statementBox.h}
                     className={statementRectClass}
                     onClick={e => this.openEditor(e)}
-                />
+                >
+                    {tooltip}
+                </rect>
                 <g className="statement-body">
+                    {tooltip}
                     <text x={textX} y={textY} className="statement-text" onClick={e => this.openEditor(e)}>
                         {expression}
                     </text>

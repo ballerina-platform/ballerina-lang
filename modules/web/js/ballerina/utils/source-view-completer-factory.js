@@ -35,19 +35,24 @@ class CompleterFactory {
     static getSourceViewCompleter(langserverController) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                const completions = [{ name: 'hello1', value: 'typess.row ', meta: 'type' },
-                    { name: 'hello2', value: 'typess.row ', meta: 'type' }];
+                const completions = [];
                 const cursorPosition = editor.getCursorPosition();
                 const options = {
                     textDocument: editor.getValue(),
                     position: {
-                        line: cursorPosition.row,
+                        line: cursorPosition.row + 1,
                         character: cursorPosition.column,
                     },
                 };
                 langserverController.getCompletions(options, (response) => {
                     response.result.map((completionItem) => {
-                        completions.push({ name: completionItem.label, value: completionItem.label, meta: 'type' });
+                        completions.push(
+                            {
+                                caption: completionItem.label,
+                                snippet: completionItem.insertText,
+                                meta: completionItem.detail,
+                                score: completionItem.sortText,
+                            });
                     });
                     callback(null, completions);
                 });

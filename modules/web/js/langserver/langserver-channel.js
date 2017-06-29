@@ -69,6 +69,8 @@ class LangserverChannel extends EventChannel {
             reason = `Unknown reason :${event.code}`;
         }
         log.debug(`Web socket closed, reason ${reason}`);
+        // After the internal server errors, websocket is being closed immediately and we re initialize the connection
+        this.connect();
     }
 
     onError() {

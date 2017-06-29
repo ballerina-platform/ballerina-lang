@@ -90,6 +90,7 @@ const WorkspaceExplorer = Backbone.View.extend({
     },
 
     createExplorerItem(folderPath) {
+        this._openFolderBtn.hide();
         const opts = {};
         _.set(opts, 'application', this.application);
         _.set(opts, 'path', folderPath);
@@ -104,6 +105,9 @@ const WorkspaceExplorer = Backbone.View.extend({
         item.remove();
         _.remove(this._items, itemEntry => _.isEqual(itemEntry.path, item.path));
         _.remove(this._openedFolders, path => _.isEqual(path, item.path));
+        if (_.isEmpty(this._openedFolders)) {
+            this._openFolderBtn.show();
+        }
         this.persistState();
     },
 
@@ -182,13 +186,25 @@ const WorkspaceExplorer = Backbone.View.extend({
         });
 
         this._explorerContainer = explorerContainer;
+        const openFolderBtn = $(
+            `<div class="open-folder-btn-wrapper">
+               <span class="open-folder-button">
+                 <i class="fw fw-folder-open"></i>Open Program Directory
+               </span>
+            </div>`
+        );
+        openFolderBtn.click(() => {
+            this.application.commandManager.dispatch('show-folder-open-dialog');
+        });
+        explorerContainer.append(openFolderBtn);
+        this._openFolderBtn = openFolderBtn;
 
         this._contextMenu = new ContextMenu({
             container: this._$parent_el,
             selector: 'div:first',
             items: {
                 add_folder: {
-                    name: 'add folder',
+                    name: 'add program directory',
                     icon: '',
                     callback() {
                         self.application.commandManager.dispatch('show-folder-open-dialog');
@@ -205,6 +221,7 @@ const WorkspaceExplorer = Backbone.View.extend({
             this._openedFolders.forEach((folder) => {
                 self.createExplorerItem(folder);
             });
+            openFolderBtn.hide();
         }
         return this;
     },

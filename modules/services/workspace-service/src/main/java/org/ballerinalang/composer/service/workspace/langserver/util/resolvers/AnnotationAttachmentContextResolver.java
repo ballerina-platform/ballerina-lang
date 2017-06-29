@@ -15,19 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.composer.service.workspace.suggetions;
 
-import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
-import org.ballerinalang.model.BallerinaFile;
+package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
-import java.io.IOException;
+import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
+import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+
+import java.util.ArrayList;
 
 /**
- * Completion Suggester
+ * AnnotationAttachments resolver for the completion Items
  */
-public interface AutoCompleteSuggester {
-
-    BallerinaFile getBallerinaFile(BFile bFile, Position cursorPosition,
-                                   CapturePossibleTokenStrategy capturePossibleTokenStrategy) throws IOException;
+public class AnnotationAttachmentContextResolver implements ItemResolver {
+    @Override
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
+        return new ArrayList<>();
+    }
 }

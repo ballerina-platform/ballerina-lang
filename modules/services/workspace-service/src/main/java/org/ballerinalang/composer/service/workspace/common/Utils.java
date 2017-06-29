@@ -9,10 +9,10 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComp
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
+import org.ballerinalang.util.program.BLangPrograms;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,8 +89,9 @@ public class Utils {
         BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
         ballerinaParser.setErrorHandler(errorStrategy);
 
-        GlobalScope globalScope = GlobalScope.getInstance();
-        BTypes.loadBuiltInTypes(globalScope);
+
+        // Get the global scope
+        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,

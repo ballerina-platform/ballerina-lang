@@ -45,22 +45,27 @@ class DeleteItemDialog extends ModalDialog {
     }
 
     displayWizard(data) {
-        this.setTitle(`delete ${data.type}`);
+        this.setTitle(`Delete ${_.upperFirst(data.type)}`);
         this.setSubmitBtnText('delete');
         const body = this.getBody();
         body.empty();
         this.getSubmitBtn().unbind('click');
         this.clearError();
+        const msgSuffix = _.isEqual(data.type, 'folder')
+                        ? 'folder and its contents' : 'file';
         const modalBody =
-            $(`${"<div class='delete-item-dialog'>" +
-                   "<div class='icon'>" +
-                        "<i class='fw fw-warning fw-5x'></i>" +
-                   '</div>' +
-                   "<div class='text'>" +
-                            '<h3> Are you sure you want to delete the selected item?</h3>' +
-                            '<p>You are deleting:</br>'}${data.path}</p>` +
-                   '</div>' +
-            '</div>');
+            $(`<div class='delete-item-dialog'>
+                   <div class='icon'>
+                        <i class='fw fw-warning fw-5x'></i>
+                   </div>
+                   <div class='text'>
+                        <h4>Warning! Are you sure you want to delete selected ${msgSuffix}?</h4>
+                        <p>
+                            Following ${data.type} will be deleted from file system</br>
+                            ${data.path}
+                        </p>
+                   </div>
+                </div>`);
         body.append(modalBody);
 
         this.show();

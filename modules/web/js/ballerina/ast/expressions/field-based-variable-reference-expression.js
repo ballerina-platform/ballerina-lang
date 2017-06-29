@@ -23,11 +23,9 @@ import FragmentUtils from './../../utils/fragment-utils';
  * Class to represent filed based variable reference expression
  */
 class FieldBasedVariableReferenceExpression extends Expression {
-    /**
-     * construct the expression
-     */
-    constructor() {
-        super('FieldBasedVariableReferenceExpression');
+    constructor(args) {
+        super(args);
+        this.type = 'FieldBasedVariableReferenceExpression';
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
             1: '',
@@ -81,8 +79,28 @@ class FieldBasedVariableReferenceExpression extends Expression {
     }
 
     /**
-     * Generate expression string
+     * Gets the struct variable name.
+     * e.g. : a.b.c => returns a.
+     * @returns {string} struct variable name.
+     * @memberof FieldBasedVariableReferenceExpression
+     */
+    getStructVariableReference() {
+        let variableRef;
+        _.forEach(this.getChildren(), (child) => {
+            if (this.getFactory().isSimpleVariableReferenceExpression(child)) {
+                variableRef = child;
+            } else if (this.getFactory().isFieldBasedVarRefExpression(child)) {
+                variableRef = child.getStructVariableReference();
+            }
+        });
+        return variableRef;
+    }
+
+    /**
+     *
+     * Get expression string.
      * @returns {string} expression string
+     * @memberof FieldBasedVariableReferenceExpression
      */
     getExpressionString() {
         const varRefString = this.getVarRefExpr().getExpressionString();
