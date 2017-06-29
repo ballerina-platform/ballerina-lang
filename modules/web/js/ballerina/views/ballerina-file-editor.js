@@ -495,13 +495,66 @@ class BallerinaFileEditor extends EventChannel {
             // Update Current package object after the package resolving
             const currentPackageInEvn = _.clone(currentPackageArray[0]);
             // todo merge the package with this.
-            currentPackage = _.merge(currentPackageInEvn, currentPackage);
+            currentPackage = this.mergePackages(currentPackageInEvn, currentPackage);
         }
         // update the package scoped environment with current package
         this._environment.setCurrentPackage(currentPackage);
 
 
         return currentPackage;
+    }
+
+    /**
+     * Merge package1 into package2 and returns merged package2
+     * @param {Package} package1 
+     * @param {Package} package2 
+     * @returns {Package} merged package
+     */
+    mergePackages(package1, package2){
+        // merge function definitions
+        let pkg1FunctionDefinitions = package1.getFunctionDefinitions();
+        let pkg2FunctionDefinitions = package2.getFunctionDefinitions();
+        package2.setFunctionDefinitions(this.mergePackageItems(pkg1FunctionDefinitions, pkg2FunctionDefinitions));
+
+        // merge struct definitions
+        let pkg1StructDefinitions = package1.getStructDefinitions();
+        let pkg2StructDefinitions = package2.getStructDefinitions();
+        package2.setStructDefinitions(this.mergePackageItems(pkg1StructDefinitions, pkg2StructDefinitions));
+
+        // merge connector definitions
+        let pkg1Connectors = package1.getConnectors();
+        let pkg2Connectors = package2.getConnectors();
+        package2.setConnectors(this.mergePackageItems(pkg1Connectors, pkg2Connectors));
+
+        // merge type definitions
+        let pkg1TypeDefinitions = package1.getTypeDefinitions();
+        let pkg2TypeDefinitions = package2.getTypeDefinitions();
+        package2.setTypeDefinitions(this.mergePackageItems(pkg1TypeDefinitions, pkg2TypeDefinitions));
+
+        // merge constant definitions
+        let pkg1ConstantDefinitions = package1.getConstantDefinitions();
+        let pkg2ConstantDefinitions = package2.getConstantDefinitions();
+        package2.setConstantDefinitions(this.mergePackageItems(pkg1ConstantDefinitions, pkg2ConstantDefinitions));
+
+        // merge annotation definitions
+        let pkg1AnnotationDefinitions = package1.getAnnotationDefinitions();
+        let pkg2AnnotationDefinitions = package2.getAnnotationDefinitions();
+        package2.setAnnotationDefinitions(this.mergePackageItems(pkg1AnnotationDefinitions, pkg2AnnotationDefinitions));
+
+        return package2;
+    }
+
+    /**
+     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority 
+     * @param {Array} itemArray1 
+     * @param {Array} itemArray2 
+     */
+    mergePackageItems(itemArray1, itemArray2){
+        _.remove(itemArray1, function(item1){
+            let duplicate = itemArray2.filter((item2) => item2.getName() == item1.getName());
+            return duplicate.length > 0;
+        });
+        return itemArray1.concat(itemArray2);
     }
 
     /**

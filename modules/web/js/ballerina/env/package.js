@@ -66,17 +66,7 @@ class Package {
             log.error(err);
             throw err;
         }
-        if (_.isArray(constantDefinitions)) {
-            if (!_.isEmpty(constantDefinitions)) {
-                _.each(constantDefinitions, (constantDefinition) => {
-                    if (!(constantDefinition instanceof ConstantDefinition)) {
-                        err = 'Adding constant def failed. Not an instance of ConstantDefinition' + constantDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
-        }
+
         this._constantDefinitions = this._constantDefinitions || [];
         this._constantDefinitions = _.concat(this._constantDefinitions, constantDefinitions);
     }
@@ -111,17 +101,6 @@ class Package {
             log.error(err);
             throw err;
         }
-        if (_.isArray(typeDefinitions)) {
-            if (!_.isEmpty(typeDefinitions)) {
-                _.each(typeDefinitions, (typeDefinition) => {
-                    if (!(typeDefinition instanceof TypeDefinition)) {
-                        err = 'Adding type def failed. Not an instance of TypeDefinition' + typeDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
-        }
         this._typeDefinitions = this._typeDefinitions || [];
         this._typeDefinitions = _.concat(this._typeDefinitions, typeDefinitions);
     }
@@ -145,6 +124,16 @@ class Package {
     }
 
     /**
+     * Set connectors
+     *
+     * @param connectorDefs
+     */
+    setConnectors(connectorDefs) {
+        this._connectorDefinitions = null;
+        this.addConnectors(connectorDefs);
+    }
+
+    /**
      * Add connectors
      * @param connectors - can be an array of connectors or a single connector
      * @fires Package#connector-defs-added
@@ -156,17 +145,7 @@ class Package {
             log.error(err);
             throw err;
         }
-        if (_.isArray(connectors)) {
-            if (!_.isEmpty(connectors)) {
-                _.each(connectors, (connector) => {
-                    if (!BallerinaEnvFactory.isConnector(connector)) {
-                        err = 'Adding connector failed. Not an instance of connector' + connector;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
-        }
+        this._connectorDefinitions = this._connectorDefinitions || [];
         this._connectorDefinitions = _.concat(this._connectorDefinitions, connectors);
     }
 
@@ -198,18 +177,6 @@ class Package {
             err = 'Adding annotation def failed. Not an instance of AnnotationDefinition' + annotationDefinitions;
             log.error(err);
             throw err;
-        }
-        if (_.isArray(annotationDefinitions)) {
-            if (!_.isEmpty(annotationDefinitions)) {
-                _.each(annotationDefinitions, (annotationDefinition) => {
-                    if (!(annotationDefinition instanceof AnnotationDefinition)) {
-                        err = 'Adding annotation def failed. Not an instance of AnnotationDefinitions'
-                                       + annotationDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
         }
         this._annotationDefinitions = this._annotationDefinitions || [];
         this._annotationDefinitions = _.concat(this._annotationDefinitions, annotationDefinitions);
@@ -288,17 +255,6 @@ class Package {
             log.error(err);
             throw err;
         }
-        if (_.isArray(functionDefinitions)) {
-            if (!_.isEmpty(functionDefinitions)) {
-                _.each(functionDefinitions, (functionDefinition) => {
-                    if (!(functionDefinition instanceof FunctionDefinition)) {
-                        err = 'Adding function def failed. Not an instance of FunctionDefinition' + functionDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
-        }
         this._functionDefinitions = this._functionDefinitions || [];
         this._functionDefinitions = _.concat(this._functionDefinitions, functionDefinitions);
     }
@@ -366,17 +322,6 @@ class Package {
             err = 'Adding struct def failed. Not an instance of StructDefinition: ' + structDefinitions;
             log.error(err);
             throw err;
-        }
-        if (_.isArray(structDefinitions)) {
-            if (!_.isEmpty(structDefinitions)) {
-                _.each(structDefinitions, (structDefinition) => {
-                    if (!(structDefinition instanceof StructDefinition)) {
-                        err = 'Adding struct def failed. Not an instance of StructDefinition: ' + structDefinition;
-                        log.error(err);
-                        throw err;
-                    }
-                });
-            }
         }
         this._structDefinitions = this._structDefinitions || [];
         // Join all struct definitions to one array(concat). Reversing the struct definitions so that the last
