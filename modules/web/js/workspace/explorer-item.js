@@ -145,7 +145,7 @@ class ExplorerItem extends EventChannel {
                     },
                 };
                 items.deleteFolder = {
-                    name: 'delete',
+                    name: 'delete folder',
                     icon: '',
                     callback() {
                         self.application.commandManager.dispatch('remove-from-disk',
@@ -164,7 +164,7 @@ class ExplorerItem extends EventChannel {
                 };
             } else if (_.isEqual('file', node.type)) {
                 items.deleteFile = {
-                    name: 'delete',
+                    name: 'delete file',
                     icon: '',
                     callback() {
                         self.application.commandManager.dispatch('remove-from-disk',
@@ -181,7 +181,7 @@ class ExplorerItem extends EventChannel {
 
             if (isRoot) {
                 items.removeFolderFromExplorer = {
-                    name: 'remove folder',
+                    name: 'remove program directory',
                     icon: '',
                     callback() {
                         self.application.commandManager.dispatch('remove-explorer-item', self);

@@ -188,7 +188,7 @@ const WorkspaceExplorer = Backbone.View.extend({
             selector: 'div:first',
             items: {
                 add_folder: {
-                    name: 'add folder',
+                    name: 'add program directory',
                     icon: '',
                     callback() {
                         self.application.commandManager.dispatch('show-folder-open-dialog');
