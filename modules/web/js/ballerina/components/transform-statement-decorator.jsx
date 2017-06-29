@@ -172,9 +172,9 @@ class TransformStatementDecorator extends React.Component {
                 '</div><div class="rightType"></div>');
 
         let transformNameText = $('<p class="transform-header-text ">'
-                                + '<i class="transform-header-icon fw fw-type-converter fw-inverse"></i>Transform</p>');
+                                + '<i class="transform-header-icon fw fw-type-converter"></i>Transform</p>');
         let transformHeader = $('<div id ="transformHeader" class ="transform-header">'
-                                + '<i class="fw fw-cancel fw-helper fw-helper-circle-outline icon close-transform"></i></div>');
+                                + '<i class="fw fw-left-arrow icon close-transform"></i></div>');
         let transformHeaderPadding = $('<div id ="transformHeaderPadding" class ="transform-header-padding"></div>');
         let transformMenuDiv = $('<div id ="transformContextMenu" class ="transformContextMenu"></div>');
 
