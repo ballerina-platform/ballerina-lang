@@ -93,3 +93,18 @@ function testStackTrace()(errors:StackTrace){
     }
     return trace;
 }
+
+function mockFunction ()(string) {
+    return "done";
+}
+
+function testMethodCallInFinally ()(string) {
+    string s = "start";
+    try {
+        errors:Error e = {msg:"test"};
+        throw e;
+    }finally {
+         s = s + mockFunction();
+    }
+    return s;
+}

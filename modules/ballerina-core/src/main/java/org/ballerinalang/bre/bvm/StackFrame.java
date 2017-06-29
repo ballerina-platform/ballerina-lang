@@ -18,6 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CodeAttributeInfo;
@@ -53,6 +54,9 @@ public class StackFrame {
 
     // Caller's Register indexes to which the return values should be copied;
     int[] retRegIndexes;
+
+    // Error thrown by current stack.
+    BStruct errorThrown;
 
     CallableUnitInfo callableUnitInfo;
     PackageInfo packageInfo;
@@ -234,5 +238,13 @@ public class StackFrame {
 
     public void setRefRegs(BRefType[] refRegs) {
         this.refRegs = refRegs;
+    }
+
+    public BStruct getErrorThrown() {
+        return errorThrown;
+    }
+
+    public void setErrorThrown(BStruct errorThrown) {
+        this.errorThrown = errorThrown;
     }
 }
