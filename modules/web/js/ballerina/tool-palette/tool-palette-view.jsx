@@ -318,7 +318,7 @@ class ToolPaletteView extends React.Component {
         const withFunctions = (mode === 'both' || mode === 'functions');
         const definitions = [];
 
-        if (withConnectors) {
+        if (withConnectors && !transform) {
             // Sort the connector package by name
             const connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
                 return connectorPackage.getName();
@@ -386,21 +386,43 @@ class ToolPaletteView extends React.Component {
                     return;
                 }
 
-                const packageName = _.last(_.split(pckg.getName(), '.'));
-                const functionTool = {};
-                functionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
-                functionTool.meta = {
-                    functionDef,
-                    packageName,
-                    fullPackageName: pckg.getName(),
-                };
-                functionTool.title = functionDef.getName();
-                functionTool.name = functionDef.getName();
-                functionTool.id = functionDef.getName();
-                functionTool.cssClass = 'icon fw fw-function';
-                functionTool._parameters = functionDef.getParameters();
-                functionTool._returnParams = functionDef.getReturnParams();
-                definitions.push(functionTool);
+                if (transform) {
+                    const packageName = _.last(_.split(pckg.getName(), '.'));
+                    if (functionDef.getReturnParams().length > 0) {
+                        const functionTool = {};
+                        functionTool.nodeFactoryMethod =
+                                               DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement;
+                        functionTool.meta = {
+                            functionDef,
+                            packageName,
+                            fullPackageName: pckg.getName(),
+                        };
+                        functionTool.title = functionDef.getName();
+                        functionTool.name = functionDef.getName();
+                        functionTool.id = functionDef.getName();
+                        functionTool.cssClass = 'icon fw fw-function';
+                        functionTool._parameters = functionDef.getParameters();
+                        functionTool._returnParams = functionDef.getReturnParams();
+                        definitions.push(functionTool);
+                    }
+
+                } else {
+                    const packageName = _.last(_.split(pckg.getName(), '.'));
+                    const functionTool = {};
+                    functionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                    functionTool.meta = {
+                        functionDef,
+                        packageName,
+                        fullPackageName: pckg.getName(),
+                    };
+                    functionTool.title = functionDef.getName();
+                    functionTool.name = functionDef.getName();
+                    functionTool.id = functionDef.getName();
+                    functionTool.cssClass = 'icon fw fw-function';
+                    functionTool._parameters = functionDef.getParameters();
+                    functionTool._returnParams = functionDef.getReturnParams();
+                    definitions.push(functionTool);
+                }
             });
         }
 

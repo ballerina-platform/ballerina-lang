@@ -484,8 +484,6 @@ class TransformStatementDecorator extends React.Component {
         this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parent));
     }
 
-
-
     drawInnerFunctionInvocationExpression(functionInvocationExpression, parentFunctionInvocationExpression,
                                                       parentFunctionDefinition, parentParameterIndex) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
