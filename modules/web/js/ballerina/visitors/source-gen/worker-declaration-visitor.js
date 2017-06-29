@@ -31,8 +31,14 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     }
 
     beginVisitWorkerDeclaration(workerDeclaration) {
-        const constructedSourceSegment = this.getIndentation() + 'worker '
-                  + workerDeclaration.getWorkerDeclarationStatement() + ' {\n';
+        const useDefaultWS = workerDeclaration.whiteSpace.useDefault;
+        if (useDefaultWS) {
+            this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
+            this.replaceCurrentPrecedingIndentation(this.getIndentation());
+        }
+        const constructedSourceSegment = 'worker' + workerDeclaration.getWSRegion(1) +
+            workerDeclaration.getWorkerDeclarationStatement() + workerDeclaration.getWSRegion(2) + '{' +
+            workerDeclaration.getWSRegion(3);
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
@@ -40,9 +46,12 @@ class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
     visitWorkerDeclaration() {
     }
 
-    endVisitWorkerDeclaration() {
+    endVisitWorkerDeclaration(workerDeclaration) {
         this.outdent();
-        this.appendSource(this.getIndentation() + '}\n');
+        if (workerDeclaration.whiteSpace.useDefault) {
+            this.appendSource(this.getIndentation());
+        }
+        this.appendSource('}' + workerDeclaration.getWSRegion(4));
         this.getParent().appendSource(this.getGeneratedSource());
     }
 

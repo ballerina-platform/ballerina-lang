@@ -29,6 +29,14 @@ class WorkerDeclaration extends ASTNode {
         this._replyReceiver = undefined;
         this._workerName = undefined;
         this._argumentsList = [];
+
+        this.whiteSpace.defaultDescriptor.regions = {
+            0: ' ',
+            1: ' ',
+            2: ' ',
+            3: '\n',
+            4: '\n',
+        };
     }
 
     setIsDefaultWorker(isDefaultWorker, options) {
