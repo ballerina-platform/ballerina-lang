@@ -420,7 +420,7 @@ class TransformStatementDecorator extends React.Component {
             const leftExpressions = statement.getChildren()[0];
             const rightExpression = statement.getChildren()[1].getChildren()[0];
 
-            if (BallerinaASTFactory.isFieldAccessExpression(rightExpression) ||
+            if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
                   BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
                 _.forEach(leftExpressions.getChildren(), (expression) => {
                     const target = this.getConnectionProperties('target', expression);
@@ -509,15 +509,15 @@ class TransformStatementDecorator extends React.Component {
         }
 
         if (parent !== undefined) {
-            const funcSource1 = this.getConnectionProperties('source', functionInvocationExpression);
-            const funcSourceParam1 = this.getConnectionProperties('source', func.getReturnParams()[0]);
-            _.merge(funcSource1, funcSourceParam1); // merge parameter props with function props
+            const funcSource = this.getConnectionProperties('source', functionInvocationExpression);
+            const funcSourceParam = this.getConnectionProperties('source', func.getReturnParams()[0]);
+            _.merge(funcSource, funcSourceParam); // merge parameter props with function props
 
-            const funcTarget1 = this.getConnectionProperties('target', parentFunctionInvocationExpression);
-            const funcTargetParam1 = this.getConnectionProperties('target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
-            _.merge(funcTarget1, funcTargetParam1); // merge parameter props with function props
+            const funcTarget = this.getConnectionProperties('target', parentFunctionInvocationExpression);
+            const funcTargetParam = this.getConnectionProperties('target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
+            _.merge(funcTarget, funcTargetParam); // merge parameter props with function props
 
-            this.drawConnection(functionInvocationExpression.getID(), funcSource1, funcTarget1);
+            this.drawConnection(functionInvocationExpression.getID(), funcSource, funcTarget);
         }
 
         //TODO : draw function node here when connection pooling for nested functions is implemented.
@@ -563,12 +563,12 @@ class TransformStatementDecorator extends React.Component {
 
     getConnectionProperties(type, expression) {
         const con = {};
-        if (BallerinaASTFactory.isFieldAccessExpression(expression)) {
-            con[type + 'Struct'] = expression.getChildren()[0].getVariableName();
-            const complexProp = this.createComplexProp(con[type + 'Struct'],
-                                        expression.getChildren()[1].getChildren());
-            con[type + 'Type'] = complexProp.types.reverse();
-            con[type + 'Property'] = complexProp.names.reverse();
+        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
+            const structVarRef = expression.getStructVariableReference();
+            con[type + 'Struct'] = structVarRef.getVariableName();
+            const complexProp = this.createComplexProp(con[type + 'Struct'], structVarRef.getParent());
+            con[type + 'Type'] = complexProp.types;
+            con[type + 'Property'] = complexProp.names;
         } else if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
             con[type + 'Function'] = true;
             if (_.isNull(expression.getPackageName())) {
@@ -611,28 +611,31 @@ class TransformStatementDecorator extends React.Component {
         });
     }
 
-    createComplexProp(typeName, children)    {
+    createComplexProp(structName, expression)    {
         let prop = {};
         prop.names = [];
         prop.types = [];
 
-        const propName = children[0].getBasicLiteralValue();
-        const struct = _.find(self.predefinedStructs, { name: typeName });
-        if (_.isUndefined(struct)) {
-            alerts.error('Struct definition for variable "' + typeName + '" cannot be found');
-            return;
+        if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
+            let fieldName = expression.getFieldName();
+            const structDef = _.find(self.predefinedStructs, { name: structName });
+            if (_.isUndefined(structDef)) {
+                alerts.error('Struct definition for variable "' + structName + '" cannot be found');
+                return;
+            }
+            const structField = _.find(structDef.properties, { name: fieldName });
+            if (_.isUndefined(structField)) {
+                alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
+                return;
+            }
+            const structFieldType = structField.type;
+            prop.types.push(structFieldType);
+            prop.names.push(fieldName);
+
+            let parentProp = this.createComplexProp(fieldName, expression.getParent());
+            prop.names = [...prop.names, ...parentProp.names];
+            prop.types = [...prop.types, ...parentProp.types];
         }
-        const structProp = _.find(struct.properties, { name: propName });
-        if (_.isUndefined(structProp)) {
-            alerts.error('Struct field "' + propName + '" cannot be found in variable "' + typeName + '"');
-            return;
-        }
-        const propType = structProp.type;
-        if (children.length > 1) {
-            prop = self.createComplexProp(propName, children[1].getChildren());
-        }
-        prop.types.push(propType);
-        prop.names.push(propName);
         return prop;
     }
 
@@ -969,7 +972,7 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         _.remove(self.props.model.getChildren(),(currentObject) => {
             var condition = false;
             if (currentObject.children[index].children[0].getFactory()
-                .isFieldAccessExpression(currentObject.children[index].children[0])) {
+                           .isFieldBasedVarRefExpression(currentObject.children[index].children[0])) {
                 condition = currentObject.children[index].children[0].children[0].getExpressionString() === id;
             } else {
                condition = currentObject.children[index].children[0].getVariableName() === id;
