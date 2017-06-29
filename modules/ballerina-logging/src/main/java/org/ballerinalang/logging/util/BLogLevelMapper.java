@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.logging;
+package org.ballerinalang.logging.util;
 
 import java.util.AbstractMap;
 import java.util.Collections;

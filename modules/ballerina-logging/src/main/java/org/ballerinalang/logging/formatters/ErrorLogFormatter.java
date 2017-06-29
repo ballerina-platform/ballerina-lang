@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.logging;
+package org.ballerinalang.logging.formatters;
 
 import org.ballerinalang.launcher.BLogManager;
 
@@ -25,14 +25,14 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * A custom log formatter for formatting the ballerina.log file
+ * A custom formatter for formatting the error log
  *
  * @since 0.89
  */
-public class BallerinaLogFormatter extends Formatter {
+public class ErrorLogFormatter extends Formatter {
 
     private static final String format = BLogManager.getLogManager().getProperty(
-            "org.ballerinalang.logging.BallerinaLogFormatter.format");
+            "org.ballerinalang.logging.formatters.ErrorLogFormatter.format");
 
     @Override
     public String format(LogRecord record) {
