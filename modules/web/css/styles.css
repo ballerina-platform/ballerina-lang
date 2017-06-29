@@ -1661,3 +1661,10 @@ span.fw-stack.fw-lg {
     position: absolute !important;
     z-index: 100 !important;
 }
+
+/*
+* Override the size of the autocomplete panel of ace editor
+*/
+.ace_editor.ace_autocomplete {
+    width: 400px !important;
+}

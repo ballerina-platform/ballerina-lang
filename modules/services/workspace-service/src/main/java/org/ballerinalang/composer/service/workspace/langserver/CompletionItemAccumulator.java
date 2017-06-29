@@ -333,7 +333,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Insert global variable initialization stmt to the package init function
             AssignStmt assignStmt = new AssignStmt(variableDefStmt.getNodeLocation(),
                     new Expression[]{variableDefStmt.getLExpr()}, variableDefStmt.getRExpr());
-            pkgInitFuncStmtBuilder.addStmt(assignStmt);
+            if (pkgInitFuncStmtBuilder != null) {
+                pkgInitFuncStmtBuilder.addStmt(assignStmt);
+            }
         }
     }
 

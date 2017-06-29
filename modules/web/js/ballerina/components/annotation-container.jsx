@@ -135,8 +135,12 @@ class AnnotationContainer extends React.Component {
         const importToBeAdded = ASTFactory.createImportDeclaration({
             packageName: this.state.selectedPackageNameValue,
         });
+
+        importToBeAdded.setParent(this.context.renderingContext.ballerinaFileEditor.getModel());
+
         this.context.renderingContext.ballerinaFileEditor
-            .getModel().addImport(importToBeAdded, {doSilently: true});
+            .getModel().addImport(importToBeAdded, { doSilently: true });
+
 
         const newAnnotation = ASTFactory.createAnnotation({
             fullPackageName: this.state.selectedPackageNameValue,
@@ -354,21 +358,7 @@ class AnnotationContainer extends React.Component {
         for (const packageDefintion of BallerinaEnvironment.getPackages()) {
             for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                 if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
-                    // Filtering by ignoring already added annotations.
-                    const parentNodeAnnotations =
-                                                this.props.model.parentNode.getChildrenOfType(ASTFactory.isAnnotation);
-                    let annotationAlreadyExists = false;
-                    for (const annotation of parentNodeAnnotations) {
-                        if (annotation.getFullPackageName() === packageDefintion.getName() &&
-                            annotation.getIdentifier() === annotationDefinition.getName()) {
-                            annotationAlreadyExists = true;
-                            break;
-                        }
-                    }
-
-                    if (!annotationAlreadyExists) {
-                        supportedAnnotations.push({ packageName: packageDefintion.getName(), annotationDefinition });
-                    }
+                    supportedAnnotations.push({ packageName: packageDefintion.getName(), annotationDefinition });
                 }
             }
         }

@@ -51,20 +51,34 @@ public class ItemResolverConstants {
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String THROW = "throw";
+    private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
+            WORKER, TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
+            BREAK, THROW};
+
+    // End of Basic Constructs
 
     public static ArrayList<String> getBasicConstructs () {
         ArrayList<String> constructs = new ArrayList<>();
-        String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT, WORKER, TRANSFORM,
-                TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE, BREAK, THROW};
         constructs.addAll(Arrays.asList(constructsArr));
-
         return constructs;
     }
-    // End of Basic Constructs
 
     // Package Name Context Constants
     public static final String PACKAGE = "package";
     public static final String IMPORT = "import";
     // End of Package Name Context Constants
+
+    // Symbol Types Constants
+    public static final String PACKAGE_TYPE = "package";
+    public static final String FUNCTION_TYPE = "function";
+    public static final String ACTION_TYPE = "action";
+    // Symbol Types Constants
+
+    // Sorting priorities
+    public static final int PRIORITY_1 = 1;
+    public static final int PRIORITY_2 = 2;
+    public static final int PRIORITY_3 = 3;
+    public static final int PRIORITY_4 = 4;
+    public static final int PRIORITY_5 = 5;
 
 }

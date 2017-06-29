@@ -24,6 +24,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.NativeUnit;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativePackageProxy;
@@ -105,6 +106,20 @@ public class StatementContextResolver implements ItemResolver {
             completionItem.setLabel(symbolInfo.getSymbolName());
             String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
             completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
+            if (symbolInfo.getSymbol() instanceof NativeUnitProxy
+                    && symbolInfo.getSymbolName().contains("ClientConnector")) {
+                completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
+            } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
+                completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
+            } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
+                completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_1);
+            } else if (symbolInfo.getSymbol() instanceof VariableDef) {
+                completionItem.setDetail(((VariableDef) symbolInfo.getSymbol()).getType().getName());
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+            }
             completionItems.add(completionItem);
         }));
 

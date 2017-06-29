@@ -56,7 +56,7 @@ class NewItemDialog extends ModalDialog {
     }
 
     displayWizard(data) {
-        this.setTitle(`new ${data.type}`);
+        this.setTitle(`New ${_.upperFirst(data.type)}`);
         this.setSubmitBtnText('create');
         const body = this.getBody();
         body.empty();

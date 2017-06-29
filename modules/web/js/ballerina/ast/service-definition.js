@@ -29,15 +29,20 @@ import CommonUtils from '../utils/common-utils';
 class ServiceDefinition extends ASTNode {
     constructor(args) {
         super('ServiceDefinition');
+        this._protocolPkgName = _.get(args, 'protocolPkgName');
+        this._protocolPkgPath = _.get(args, 'protocolPkgPath');
         this._serviceName = _.get(args, 'serviceName');
 
         // TODO: All the types should be referred from the global constants
         this.BallerinaASTFactory = this.getFactory();
         this.whiteSpace.defaultDescriptor.regions = {
-            0: ' ',
-            1: ' ',
-            2: '\n',
-            3: '\n',
+            0: '',
+            1: '',
+            2: '',
+            3: ' ',
+            4: ' ',
+            5: '\n',
+            6: '\n',
         };
     }
 
@@ -49,6 +54,38 @@ class ServiceDefinition extends ASTNode {
             log.error(errorString);
             throw errorString;
         }
+    }
+
+    /**
+     * Setd protocol package name
+     * @param {string} protocolPkgName Identifier of the protocol package
+     * @param {Object} options Options for set attribute
+     */
+    setProtocolPkgName(protocolPkgName, options) {
+        this.setAttribute('_protocolPkgName', protocolPkgName, options);
+    }
+
+    /**
+     * Setd protocol package path
+     * @param {string} protocolPkgPath Path of the protocol package
+     * @param {Object} options Options for set attribute
+     */
+    setProtocolPkgPath(protocolPkgPath, options) {
+        this.setAttribute('_protocolPkgPath', protocolPkgPath, options);
+    }
+
+    /**
+     * @returns {string} protocol package name
+     */
+    getProtocolPkgName() {
+        return this._protocolPkgName;
+    }
+
+    /**
+     * @returns {string} protocol package path
+     */
+    getProtocolPkgPath() {
+        return this._protocolPkgPath;
     }
 
     getServiceName() {
@@ -174,11 +211,15 @@ class ServiceDefinition extends ASTNode {
     /**
      * initialize ServiceDefinition from json object
      * @param {Object} jsonNode to initialize from
+     * @param {string} jsonNode.service_protocol_package_name - Name of the service protocol package
+     * @param {string} jsonNode.service_protocol_package_path - Path of the service protocol package
      * @param {string} jsonNode.service_name - Name of the service definition
      * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     initFromJson(jsonNode) {
         const self = this;
+        this.setProtocolPkgName(jsonNode.service_protocol_package_name, { doSilently: true });
+        this.setProtocolPkgPath(jsonNode.service_protocol_package_path, { doSilently: true });
         this.setServiceName(jsonNode.service_name, { doSilently: true });
 
         _.each(jsonNode.children, (childNode) => {

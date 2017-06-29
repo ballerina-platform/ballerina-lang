@@ -111,10 +111,13 @@
     padding:3px 10px;
     font-size: 13px;
 }
-.context-menu-list>.context-menu-item:hover {
-    background-color: #333;
-    color: #f47b20;
+.context-menu-list>.context-menu-item:not(.context-menu-separator):hover {
+    background-color: rgb(212, 212, 212);
+    color: rgb(86, 86, 86);
     text-transform: capitalize;
+}
+.context-menu-separator {
+    border-bottom-color: #444;
 }
 .btn{
     border: 0;

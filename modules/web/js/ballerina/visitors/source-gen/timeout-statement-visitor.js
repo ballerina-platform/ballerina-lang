@@ -28,13 +28,18 @@ class TimeoutStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     beginVisitTimeoutStatement(timeoutStatement) {
         this.node = timeoutStatement;
-        this.appendSource('timeout (' + timeoutStatement.getExpression() + ') ('
-            + timeoutStatement.getParameterAsString() + '){\n');
+
+        this.appendSource('timeout' + timeoutStatement.getWSRegion(1) + '(' + timeoutStatement.getWSRegion(2) +
+            timeoutStatement.getExpression() + ')' + timeoutStatement.getWSRegion(3) +
+            '(' + timeoutStatement.getParameter().getWSRegion(0) +
+            timeoutStatement.getParameter().getParameterDefinitionAsString() +
+            ')' + timeoutStatement.getWSRegion(6) +
+            '{' + timeoutStatement.getWSRegion(7));
         log.debug('Begin Visit Timeout Statement');
     }
 
-    endVisitTimeoutStatement() {
-        this.appendSource('}\n');
+    endVisitTimeoutStatement(timeoutStatement) {
+        this.appendSource('}' + timeoutStatement.getWSRegion(8));
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Timeout Statement');
     }

@@ -216,6 +216,7 @@ class PanelDecorator extends React.Component {
                     xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
                     className="annotation-icon"
                 />
+                {titleComponents}
                 {rightHeadingButtons}
             </g>
             <g className={panelBodyClassName}>

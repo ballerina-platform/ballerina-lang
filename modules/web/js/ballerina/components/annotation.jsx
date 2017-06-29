@@ -258,6 +258,7 @@ class Annotation extends React.Component {
                     initialValue={model.getIdentifier()}
                     onSuggestionSelected={this.onIdentifierSelected}
                     onKeyDown={this.onIdentifierKeyDown}
+                    showAllAtStart
                     minWidth={130}
                     maxWidth={1000}
                 />
@@ -270,6 +271,7 @@ class Annotation extends React.Component {
                 placeholder={'Add Annotation'}
                 initialValue={model.getFullPackageName()}
                 onSuggestionSelected={this.onPackageNameSelected}
+                showAllAtStart
                 minWidth={150}
                 maxWidth={1000}
             />
@@ -287,7 +289,7 @@ class Annotation extends React.Component {
         const model = this.props.model;
 
         let removeIcon = (null);
-        if (!_.isUndefined(this.props.removeIcon)) {
+        if (!_.isNil(this.props.removeIcon)) {
             removeIcon = this.props.removeIcon;
         } else {
             removeIcon = (<div className="annotation-remove" onClick={this.deleteAnnotation}>

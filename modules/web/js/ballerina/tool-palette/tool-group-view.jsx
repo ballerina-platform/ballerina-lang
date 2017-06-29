@@ -45,6 +45,30 @@ class ToolGroupView extends React.Component {
     }
 
     /**
+     * Get tool toolgroup name
+     *
+     * @returns string - tool toolgroup name
+     * @memberof ToolGroupView
+     */
+    getToolGroupName() {
+        // todo: find a proper solution, this is a hack to reduce connector package names.
+        return this.props.group.get('toolGroupName').replace('org.wso2.ballerina.connectors.', '');
+    }
+
+
+    /**
+     * Handles mouse click on open documentation icon
+     *
+     * @param {any} e - Mouse event of icon click
+     * @memberof ToolView
+     */
+    handleClickOpenDocumentation(e) {
+        e.stopPropagation();
+        const toolGroupName = this.getToolGroupName();
+        this.props.application.commandManager.dispatch('open-documentation', toolGroupName, null);
+    }
+
+    /**
      * Event handler for change grid styles.
      *
      * @param {any} event
@@ -71,32 +95,32 @@ class ToolGroupView extends React.Component {
                 children.push(<div className="tool-separator" key="tool-separator" />);
             } else {
                 children.push(
-                    <ToolView tool={element}
-                              group={group}
-                              key={element.get('title')}
-                              toolOrder={group.get('toolOrder')}
-                              application={this.props.application}
+                    <ToolView
+                        tool={element}
+                        group={group}
+                        key={element.get('title')}
+                        toolOrder={group.get('toolOrder')}
+                        application={this.props.application}
                     />);
             }
         }, this);
 
-        // todo: find a proper solution, this is a hack to reduce connector package names.
-        const toolGroupName = group.get('toolGroupName').replace('org.wso2.ballerina.connectors.', '');
+        const toolGroupName = this.getToolGroupName();
 
         const trigger = (<div className="tool-group-header">
-            <a className="tool-group-header-title" onClick={(e)=>{
-                e.stopPropagation();
-                this.props.application.commandManager.dispatch("open-documentation",toolGroupName,null);
-            }}>{toolGroupName}</a>
+            <span className="tool-group-header-title">{toolGroupName}</span>
             <span className="collapse-icon fw fw-down" />
+            <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
+                <span className="fw fw-document" />
+            </a>
         </div>);
 
         const triggerWhenOpen = (<div className="tool-group-header">
-            <a className="tool-group-header-title" onClick={(e)=>{
-                e.stopPropagation();
-                this.props.application.commandManager.dispatch("open-documentation", toolGroupName, null);
-            }}>{toolGroupName}</a>
+            <span className="tool-group-header-title">{toolGroupName}</span>
             <span className="collapse-icon fw fw-up" />
+            <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
+                <span className="fw fw-document" />
+            </a>
         </div>);
 
         const disabled = false;
