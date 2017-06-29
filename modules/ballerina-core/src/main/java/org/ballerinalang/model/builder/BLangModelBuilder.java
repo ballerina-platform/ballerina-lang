@@ -870,14 +870,16 @@ public class BLangModelBuilder {
     public void endCallableUnitBody(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt blockStmt = blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+        BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
     }
 
     public void setCallableUnitBody() {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt blockStmt = blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+        BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
     }
@@ -1161,7 +1163,8 @@ public class BLangModelBuilder {
         // Get the statement block at the top of the block statement stack and set as the while body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt blockStmt = blockStmtBuilder.build(StatementKind.WHILE_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.WHILE_BLOCK);
+        BlockStmt blockStmt = blockStmtBuilder.build();
         whileStmtBuilder.setWhileBody(blockStmt);
 
         // Close the current scope and open the enclosing scope
@@ -1197,7 +1200,8 @@ public class BLangModelBuilder {
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt blockStmt = blockStmtBuilder.build(StatementKind.TRANSFORM_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.TRANSFORM_BLOCK);
+        BlockStmt blockStmt = blockStmtBuilder.build();
         transformStmtBuilder.setTransformBody(blockStmt);
 
         Map<String, Expression> inputs = new HashMap<>(); // right hand expressions by variable
@@ -1251,7 +1255,8 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt blockStmt = blockStmtBuilder.build(StatementKind.THEN_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.THEN_BLOCK);
+        BlockStmt blockStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setThenBody(blockStmt);
 
         currentScope = blockStmt.getEnclosingScope();
@@ -1262,7 +1267,8 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt elseIfStmtBlock = blockStmtBuilder.build(StatementKind.ELSE_IF_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.ELSE_IF_BLOCK);
+        BlockStmt elseIfStmtBlock = blockStmtBuilder.build();
 
         Expression condition = exprStack.pop();
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
@@ -1291,7 +1297,8 @@ public class BLangModelBuilder {
         }
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt elseStmt = blockStmtBuilder.build(StatementKind.ELSE_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.ELSE_BLOCK);
+        BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);
 
         currentScope = elseStmt.getEnclosingScope();
@@ -1320,7 +1327,8 @@ public class BLangModelBuilder {
 
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt tryBlock = blockStmtBuilder.build(StatementKind.TRY_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.TRY_BLOCK);
+        BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
     }
@@ -1351,7 +1359,8 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
         catchBlockBuilder.setLocation(nodeLocation);
-        BlockStmt catchBlock = catchBlockBuilder.build(StatementKind.CATCH_BLOCK);
+        catchBlockBuilder.setBlockKind(StatementKind.CATCH_BLOCK);
+        BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
@@ -1389,7 +1398,8 @@ public class BLangModelBuilder {
         }
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
         catchBlockBuilder.setLocation(location);
-        BlockStmt finallyBlock = catchBlockBuilder.build(StatementKind.FINALLY_BLOCK);
+        catchBlockBuilder.setBlockKind(StatementKind.FINALLY_BLOCK);
+        BlockStmt finallyBlock = catchBlockBuilder.build();
         currentScope = finallyBlock.getEnclosingScope();
         tryCatchStmtBuilder.setFinallyBlockStmt(finallyBlock);
     }
@@ -1448,7 +1458,8 @@ public class BLangModelBuilder {
         forkWhiteSpaceDescriptor.addChildDescriptor(JOIN_CLAUSE, joinWhiteSpaceDescriptor);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt forkJoinStmt = blockStmtBuilder.build(StatementKind.JOIN_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.JOIN_BLOCK);
+        BlockStmt forkJoinStmt = blockStmtBuilder.build();
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
         // Check whether this constant is already defined.
@@ -1535,7 +1546,8 @@ public class BLangModelBuilder {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
-        BlockStmt timeoutStmt = blockStmtBuilder.build(StatementKind.TIMEOUT_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.TIMEOUT_BLOCK);
+        BlockStmt timeoutStmt = blockStmtBuilder.build();
         forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
         forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
         SymbolName symbolName = new SymbolName(identifier.getName());
@@ -1648,7 +1660,8 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        BlockStmt transactionBlock = blockStmtBuilder.build(StatementKind.TRANSACTION_BLOCK);
+        blockStmtBuilder.setBlockKind(StatementKind.TRANSACTION_BLOCK);
+        BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
     }
@@ -1668,7 +1681,8 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
         abortedBlockBuilder.setLocation(location);
-        BlockStmt abortedBlock = abortedBlockBuilder.build(StatementKind.ABORTED_BLOCK);
+        abortedBlockBuilder.setBlockKind(StatementKind.ABORTED_BLOCK);
+        BlockStmt abortedBlock = abortedBlockBuilder.build();
         currentScope = abortedBlock.getEnclosingScope();
         transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
     }
@@ -1688,7 +1702,8 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
         committedBlockBuilder.setLocation(location);
-        BlockStmt committedBlock = committedBlockBuilder.build(StatementKind.COMMITTED_BLOCK);
+        committedBlockBuilder.setBlockKind(StatementKind.COMMITTED_BLOCK);
+        BlockStmt committedBlock = committedBlockBuilder.build();
         currentScope = committedBlock.getEnclosingScope();
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
     }

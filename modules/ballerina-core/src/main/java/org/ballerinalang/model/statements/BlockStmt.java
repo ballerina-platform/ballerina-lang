@@ -88,7 +88,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
-    protected void setType(StatementKind statementKind) {
+    protected void setKind(StatementKind statementKind) {
         this.kind = statementKind;
     }
 
@@ -114,6 +114,10 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             blockStmt.setLocation(location);
         }
 
+        public void setBlockKind(StatementKind statementKind) {
+            blockStmt.setKind(statementKind);
+        }
+
         public SymbolScope getCurrentScope() {
             return blockStmt;
         }
@@ -123,9 +127,8 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             statementList.add(statement);
         }
 
-        public BlockStmt build(StatementKind kind) {
+        public BlockStmt build() {
             this.blockStmt.statements = statementList.toArray(new Statement[statementList.size()]);
-            blockStmt.setType(kind);
             return blockStmt;
         }
     }

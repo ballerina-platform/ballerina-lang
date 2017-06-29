@@ -267,7 +267,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(pkgInitFuncStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
+        pkgInitFuncStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+        functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
         BallerinaFunction initFunction = functionBuilder.buildFunction();
         initFunction.setReturnParamTypes(new BType[0]);
         bLangPackage.setInitFunction(initFunction);
@@ -3147,7 +3148,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setNodeLocation(structDef.getNodeLocation());
             functionBuilder.setIdentifier(new Identifier(structDef + ".<init>"));
             functionBuilder.setPkgPath(structDef.getPackagePath());
-            functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
+            blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+            functionBuilder.setBody(blockStmtBuilder.build());
             structDef.setInitFunction(functionBuilder.buildFunction());
         }
 
@@ -3220,7 +3222,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+        functionBuilder.setBody(blockStmtBuilder.build());
         connectorDef.setInitFunction(functionBuilder.buildFunction());
     }
 
@@ -3247,7 +3250,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
-        functionBuilder.setBody(blockStmtBuilder.build(StatementKind.CALLABLE_UNIT_BLOCK));
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
+        functionBuilder.setBody(blockStmtBuilder.build());
         service.setInitFunction(functionBuilder.buildFunction());
     }
 
