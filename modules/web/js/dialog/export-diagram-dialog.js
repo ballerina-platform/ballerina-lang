@@ -400,12 +400,11 @@ const ExportDiagramDialog = Backbone.View.extend({
      * Show export diagram modal.
      * */
     show() {
-        const self = this;
         this._exportDiagramModal.modal('show').on('shown.bs.modal', () => {
-            self.trigger('loaded');
+            this.trigger('loaded');
         });
         this._exportDiagramModal.on('hidden.bs.shown', () => {
-            self.trigger('unloaded');
+            this.trigger('unloaded');
         });
     },
 
