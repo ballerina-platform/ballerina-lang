@@ -240,31 +240,14 @@ public final class BMessage implements BRefType<CarbonMessage> {
 
     public BMessage clone() {
         BMessage clonedMessage = new BMessage();
-        boolean isDataAdded = false;
-        // Clone the carbon message
-        if (this.value != null && !this.value.isEmpty()) {
-            clonedMessage.value = MessageUtil.cloneCarbonMessageWithData(this.value());
-            isDataAdded = true;
-        } else {
-            clonedMessage.setValue(MessageUtil.cloneCarbonMessageWithOutData(this.value()));
-            clonedMessage.setHeaderList(this.getHeaders());
-
-        }
         // Clone the already built content
-        if (this.value.getMessageDataSource() != null &&
-                this.value.getMessageDataSource() instanceof BallerinaMessageDataSource) {
-            clonedMessage.setMessageDataSource(((BallerinaMessageDataSource) this.value.
-                    getMessageDataSource()).clone());
-            isDataAdded = true;
-        }
-
-        // This code block is added to fix the bug related to workers when accessing message variable within
-        // resource. Fix #2623
-        if (!isDataAdded) {
-            try {
-                Thread.sleep(1);
-                clonedMessage = clone();
-            } catch (InterruptedException e) {
+        if (this.value != null) {
+            if (this.value.getMessageDataSource() != null &&
+                    this.value.getMessageDataSource() instanceof BallerinaMessageDataSource) {
+                clonedMessage.setMessageDataSource(((BallerinaMessageDataSource) this.value.
+                        getMessageDataSource()).clone());
+            } else {
+                clonedMessage.value = MessageUtil.cloneCarbonMessageWithData(this.value());
             }
         }
         return clonedMessage;
