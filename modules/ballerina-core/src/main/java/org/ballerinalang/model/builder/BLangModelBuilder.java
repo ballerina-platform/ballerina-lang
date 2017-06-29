@@ -106,6 +106,7 @@ import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.util.parser.antlr4.WhiteSpaceRegions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,10 +125,15 @@ import java.util.function.Supplier;
  */
 public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
+    public static final String JOIN_WORKERS = "joinWorkers";
+
     public static final String IF_CLAUSE = "IfClause";
+    public static final String JOIN_CLAUSE = "JoinClause";
     public static final String ELSE_CLAUSE = "ElseClause";
     public static final String TRY_CLAUSE = "TryClause";
     public static final String FINALLY_CLAUSE = "FinallyClause";
+    public static final String TIMEOUT_CLAUSE = "TimeoutClause";
+    public static final String JOIN_CONDITION = "joinCondition";
 
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
@@ -623,7 +629,7 @@ public class BLangModelBuilder {
         varRefExpr.setParentVarRefExpr(fieldBasedVarRefExpr);
         exprStack.push(fieldBasedVarRefExpr);
     }
-    
+
 
     public void createBinaryExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String opStr) {
         Expression rExpr = exprStack.pop();
@@ -1425,10 +1431,17 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
-    public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+    public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName,
+                              WhiteSpaceDescriptor joinWhiteSpaceDescriptor) {
         validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkWhiteSpaceDescriptor = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkWhiteSpaceDescriptor == null) {
+            forkWhiteSpaceDescriptor = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkWhiteSpaceDescriptor);
+        }
+        forkWhiteSpaceDescriptor.addChildDescriptor(JOIN_CLAUSE, joinWhiteSpaceDescriptor);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
@@ -1441,16 +1454,35 @@ public class BLangModelBuilder {
                     SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
+        WhiteSpaceDescriptor paramWS = null;
+        if (joinWhiteSpaceDescriptor != null) {
+            paramWS = new WhiteSpaceDescriptor();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
+            Map<Integer, String> joinWhiteSpaceRegions = joinWhiteSpaceDescriptor.getWhiteSpaceRegions();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.JOIN_PARAM_TYPE_TO_PARAM_IDENTIFIER));
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.JOIN_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END));
+        }
 
-        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName
+                , currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
     }
 
-    public void createAnyJoinCondition(String joinType, String joinCount, NodeLocation location) {
+    public void createAnyJoinCondition(String joinType, String joinCount, NodeLocation location,
+                                       WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
-
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        forkJoinWS.addChildDescriptor(JOIN_CONDITION, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setJoinType(joinType);
         if (Integer.parseInt(joinCount) != 1) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1460,13 +1492,30 @@ public class BLangModelBuilder {
         forkJoinStmtBuilder.setJoinCount(Integer.parseInt(joinCount));
     }
 
-    public void createAllJoinCondition(String joinType) {
+    public void createAllJoinCondition(String joinType, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        forkJoinWS.addChildDescriptor(JOIN_CONDITION, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setJoinType(joinType);
     }
 
-    public void createJoinWorkers(String workerName) {
+    public void createJoinWorkers(String workerName, WhiteSpaceDescriptor workerWhiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        WhiteSpaceDescriptor workersWS = forkJoinWS.getChildDescriptor(JOIN_WORKERS);
+        if (workersWS == null) {
+            workersWS = new WhiteSpaceDescriptor();
+            forkJoinWS.addChildDescriptor(JOIN_WORKERS, workersWS);
+        }
+        workersWS.addChildDescriptor(workerName, workerWhiteSpaceDescriptor);
         forkJoinStmtBuilder.addJoinWorker(workerName);
     }
 
@@ -1475,7 +1524,8 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
-    public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+    public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName,
+                                 WhiteSpaceDescriptor whiteSpaceDescriptor) {
         validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
@@ -1494,13 +1544,32 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
+        WhiteSpaceDescriptor paramWS = null;
+        if (whiteSpaceDescriptor != null) {
+            paramWS = new WhiteSpaceDescriptor();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
+            Map<Integer, String> joinWhiteSpaceRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.TIMEOUT_PARAM_TYPE_TO_PARAM_IDENTIFIER));
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.TIMEOUT_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END));
+        }
 
+        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName, currentScope);
+
+        WhiteSpaceDescriptor forkWhiteSpaceDescriptor = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkWhiteSpaceDescriptor == null) {
+            forkWhiteSpaceDescriptor = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkWhiteSpaceDescriptor);
+        }
+        forkWhiteSpaceDescriptor.addChildDescriptor(TIMEOUT_CLAUSE, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
 
-    public void endForkJoinStmt(NodeLocation location) {
+    public void endForkJoinStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.pop();
 
         List<Worker> workerList = workerStack.pop();
@@ -1510,6 +1579,12 @@ public class BLangModelBuilder {
         //forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
         forkJoinStmtBuilder.setNodeLocation(location);
         ForkJoinStmt forkJoinStmt = forkJoinStmtBuilder.build();
+        WhiteSpaceDescriptor joinSpaceDescriptor = forkJoinStmt.getWhiteSpaceDescriptor();
+        if (joinSpaceDescriptor != null && whiteSpaceDescriptor != null) {
+            joinSpaceDescriptor.setWhiteSpaceRegions(whiteSpaceDescriptor.getWhiteSpaceRegions());
+        } else {
+            forkJoinStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
 
