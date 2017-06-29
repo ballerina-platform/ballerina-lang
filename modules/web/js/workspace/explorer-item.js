@@ -144,6 +144,7 @@ class ExplorerItem extends EventChannel {
                         self._fileBrowser.refresh(node);
                     },
                 };
+                items.separator1 = { type: 'cm_separator' };
                 items.deleteFolder = {
                     name: 'delete folder',
                     icon: '',
@@ -180,6 +181,7 @@ class ExplorerItem extends EventChannel {
             }
 
             if (isRoot) {
+                items.separator2 = { type: 'cm_separator' };
                 items.removeFolderFromExplorer = {
                     name: 'remove program directory',
                     icon: '',
