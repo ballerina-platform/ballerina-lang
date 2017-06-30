@@ -58,7 +58,7 @@ import static org.ballerinalang.services.dispatchers.http.Constants.SESSION_ID;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session struct") })
+        value = "Gets the session struct for valid id, otherwise create new") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m", value = "A message Object")})
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "Session",
         value = "HTTP session struct") })

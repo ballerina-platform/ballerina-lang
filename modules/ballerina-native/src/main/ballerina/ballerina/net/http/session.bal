@@ -6,7 +6,7 @@ struct Session {
     string id;
 }
 
-@doc:Description { value:"Gets the session struct" }
+@doc:Description { value:"Gets the session struct for valid id, otherwise create new" }
 @doc:Param { value:"m: A message object" }
 @doc:Return { value:"Session: HTTP session struct" }
 native function createSessionIfAbsent (message m) (Session);
