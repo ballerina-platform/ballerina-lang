@@ -55,7 +55,6 @@ public class JMSUtils {
         addStringParamIfPresent(Constants.ALIAS_DURABLE_SUBSCRIBER_ID, jmsConfig, configParams);
         addStringParamIfPresent(Constants.ALIAS_ACK_MODE, jmsConfig, configParams);
         addStringParamIfPresent(Constants.CONFIG_FILE_PATH, jmsConfig, configParams);
-        addStringParamIfPresent(Constants.PROPERTIES_ARRAY, jmsConfig, configParams);
 
         processPropertiesArray(jmsConfig, configParams);
         preProcessIfWso2MB(configParams);
@@ -119,7 +118,7 @@ public class JMSUtils {
     private static void addStringParamIfPresent(String paramName, AnnotationAttachmentInfo jmsConfig,
                                                Map<String, String> paramsMap) {
         AnnotationAttributeValue value = jmsConfig.getAnnotationAttributeValue(paramName);
-        if (value != null) {
+        if (value != null && value.getStringValue() != null) {
             paramsMap.put(paramName, value.getStringValue());
         }
     }
