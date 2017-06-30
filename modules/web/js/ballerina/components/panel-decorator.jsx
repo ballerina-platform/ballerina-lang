@@ -31,6 +31,7 @@ import { getComponentForNodeArray } from './utils';
 import { util } from '../visitors/sizing-utils';
 import SimpleBBox from '../ast/simple-bounding-box';
 import PanelDecoratorButton from './panel-decorator-button';
+import SuggestionsText from './suggestions-text';
 
 class PanelDecorator extends React.Component {
 
@@ -41,7 +42,30 @@ class PanelDecorator extends React.Component {
             dropZoneDropNotAllowed: false,
             titleEditing: false,
             editingTitle: this.props.title,
+            showProtocolSelect: false
         };
+
+        this.handleProtocolClick = this.handleProtocolClick.bind(this);
+        this.handleProtocolBlur = this.handleProtocolBlur.bind(this);
+        this.handleProtocolEnter = this.handleProtocolBlur.bind(this);
+
+        // todo : another hack for now we need to move this to correct place and make it dynamic.
+        this.availableProtocols = [{ name: 'http'}, {name: 'ws'}, {name: 'jms'}, {name: 'file'}];
+    }
+
+    handleProtocolClick() {
+        this.setState({ showProtocolSelect : true });
+    }
+
+    handleProtocolBlur(value) {
+        if (typeof value === 'string') {
+            this.props.model.setProtocolPkgName(value);
+        }
+        this.setState({ showProtocolSelect : false });
+    }
+
+    handleProtocolEnter(value) {
+        this.setState({ showProtocolSelect : false });
     }
 
     onCollapseClick() {
@@ -216,7 +240,14 @@ class PanelDecorator extends React.Component {
                             x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
                             className="protocol-rect"
                         />
-                        <text className="protocol-text" x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>                        
+                        <text className="protocol-text" onClick={this.handleProtocolClick} x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>
+                        <SuggestionsText
+                            x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
+                            suggestionsPool={this.availableProtocols}
+                            show={this.state.showProtocolSelect}
+                            onBlur={this.handleProtocolBlur}
+                            onEnter={this.handleProtocolEnter}
+                        />
                     </g>
                 }
                 <image
