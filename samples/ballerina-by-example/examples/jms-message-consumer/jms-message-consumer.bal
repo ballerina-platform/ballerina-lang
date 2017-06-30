@@ -3,26 +3,23 @@ import ballerina.lang.system;
 import ballerina.net.jms;
 import ballerina.doc;
 
-@doc:Description{value : "Service level annotation to provide connection details"}
-@jms:JMSSource {
-    factoryInitial:"org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-    providerUrl:"../jndi.properties"}
-@doc:Description{value : "Connect to a queue. We can use 'topic' when connecting to a topic"}
-@jms:ConnectionProperty {key:"connectionFactoryType", value:"queue"}
-@doc:Description{value : "Connect to a queue. We can use 'topic' when connecting to a topic"}
-@jms:ConnectionProperty {key:"destination", value:"MyQueue"}
-@jms:ConnectionProperty {key:"useReceiver", value:"true"}
-@jms:ConnectionProperty {key:"connectionFactoryJNDIName", 
-                         value:"QueueConnectionFactory"}
-@doc:Description{value : "JMS acknowledgment mode for the subscriber"}
-@jms:ConnectionProperty {key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
+@doc:Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
+@jms:config {
+    initialContextFactory:"wso2mbInitialContextFactory",
+    providerUrl:
+           "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+    connectionFactoryType:"queue",
+    connectionFactoryName:"QueueConnectionFactory",
+    destination:"MyQueue",
+    acknowledgmentMode:"AUTO_ACKNOWLEDGE"
+}
 service<jms> jmsService {
     resource onMessage (message m) {
 
-        // Retrieve the string payload using native function
+        // Retrieve the string payload using native function.
         string stringPayload = messages:getStringPayload(m);
 
-        // Print the retrieved payload
+        // Print the retrieved payload.
         system:println("Payload: " + stringPayload);
     }
 }
