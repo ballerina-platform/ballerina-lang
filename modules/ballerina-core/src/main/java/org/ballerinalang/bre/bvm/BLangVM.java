@@ -133,8 +133,6 @@ public class BLangVM {
     private ProgramFile programFile;
     private ConstantPoolEntry[] constPool;
     private boolean isForkJoinTimedOut;
-    private CallableUnitInfo currentCallableUnitInfo;
-
     // Instruction pointer;
     private int ip = 0;
     private Instruction[] code;
@@ -163,7 +161,6 @@ public class BLangVM {
         this.context = context;
         this.controlStack = context.getControlStackNew();
         this.ip = context.getStartIP();
-        currentCallableUnitInfo = currentFrame.getCallableUnitInfo();
 
         if (context.getError() != null) {
             handleError();
@@ -2044,7 +2041,6 @@ public class BLangVM {
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
-        currentCallableUnitInfo = callableUnitInfo;
         int[] argRegs = funcCallCPEntry.getArgRegs();
         BType[] paramTypes = callableUnitInfo.getParamTypes();
         StackFrame callerSF = controlStack.getCurrentFrame();
@@ -2077,8 +2073,8 @@ public class BLangVM {
 
         //populateArgumentValuesForWorker(expressions, arguments);
         if (workerDataChannel != null) {
-            workerDataChannel.putData(arguments);
             workerDataChannel.setTypes(types);
+            workerDataChannel.putData(arguments);
         } else {
             BArray<BValue> bArray = new BArray<>(BValue.class);
             for (int j = 0; j < arguments.length; j++) {
@@ -2111,7 +2107,7 @@ public class BLangVM {
             int[] argRegs = forkJoinCPEntry.getArgRegs();
 
             ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(currentCallableUnitInfo,
+            StackFrame calleeSF = new StackFrame(forkJoinCPEntry.getParentCallableUnitInfo(),
                     forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
             controlStack.pushFrame(calleeSF);
 
@@ -2311,7 +2307,11 @@ public class BLangVM {
         }
 
         for (int i = 0; i <= refLocalVals; i++) {
-            calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+            if (callerSF.getRefLocalVars()[i] instanceof BMessage) {
+                calleeSF.getRefLocalVars()[i] = ((BMessage) callerSF.getRefLocalVars()[i]).clone();
+            } else {
+                calleeSF.getRefLocalVars()[i] = callerSF.getRefLocalVars()[i];
+            }
         }
 
         for (int i = 0; i <= blobLocalVals; i++) {
@@ -2319,6 +2319,44 @@ public class BLangVM {
         }
 
 
+    }
+
+    public static void copyArgValuesWorker(StackFrame callerSF, StackFrame calleeSF,
+                                           int[] argRegs, BType[] paramTypes) {
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int refRegIndex = -1;
+        int blobRegIndex = -1;
+
+        for (int i = 0; i < argRegs.length; i++) {
+            BType paramType = paramTypes[i];
+            int argReg = argRegs[i];
+            switch (paramType.getTag()) {
+                case TypeTags.INT_TAG:
+                    calleeSF.longLocalVars[++longRegIndex] = callerSF.longRegs[argReg];
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    calleeSF.doubleLocalVars[++doubleRegIndex] = callerSF.doubleRegs[argReg];
+                    break;
+                case TypeTags.STRING_TAG:
+                    calleeSF.stringLocalVars[++stringRegIndex] = callerSF.stringRegs[argReg];
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    calleeSF.intLocalVars[++booleanRegIndex] = callerSF.intRegs[argReg];
+                    break;
+                case TypeTags.BLOB_TAG:
+                    calleeSF.byteLocalVars[++blobRegIndex] = callerSF.byteRegs[argReg];
+                    break;
+                default:
+                    if (callerSF.refRegs[argReg] instanceof BMessage) {
+                        calleeSF.refLocalVars[++refRegIndex] = ((BMessage) callerSF.refRegs[argReg]).clone();
+                    } else {
+                        calleeSF.refLocalVars[++refRegIndex] = callerSF.refRegs[argReg];
+                    }
+            }
+        }
     }
 
 
