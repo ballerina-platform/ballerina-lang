@@ -389,7 +389,17 @@ const ExportDiagramDialog = Backbone.View.extend({
             'tent .btn-primary:hover{background-color:#e7620b;border-color:#e7620b;color:#fff}.modal-content a{col' +
             'or:#F57E30}.modal-content .brand .logo{width:150px;vertical-align:top}.modal-content .brand .appname{' +
             'color:#f17b31;font-size:39px;display:inline-block;margin-top:-11px;margin-left:2px}.transform-action ' +
-            '{cursor: pointer;text-anchor: middle;dominant-baseline: central;width: 120px;max-width: 250px;}';
+            '{cursor: pointer;text-anchor: middle;dominant-baseline: central;width: 120px;max-width: 250px;}.proto' +
+            'col-line{stroke:#607D8B}.protocol-rect{fill:#607D8B;fill-opacity:.5}.protocol-text{font-weight:400}.p' +
+            'rotocol-http .protocol-line{stroke:#3498db}.protocol-http .protocol-rect{fill:#3498db}.protocol-ws .p' +
+            'rotocol-line{stroke:#E65100}.protocol-ws .protocol-rect{fill:#E65100}.protocol-jms .protocol-line{str' +
+            'oke:#558B2F}.protocol-jms .protocol-rect{fill:#558B2F}.protocol-file .protocol-line{stroke:#966c37}.p' +
+            'rotocol-file .protocol-rect{fill:#966c37}.panel-heading-decorator{fill:#607D8B}.protocol-http .panel-' +
+            'heading-decorator{fill:#3498db}.protocol-ws .panel-heading-decorator{fill:#E65100}.protocol-jms .pane' +
+            'l-heading-decorator{fill:#558B2F}.protocol-file .panel-heading-decorator{fill:#966c37;fill:#966c37!im' +
+            'portant}.protocol-jms .panel-heading-decorator{fill:#558B2F!important}.protocol-ws .panel-heading-dec' +
+            'orator{fill:#E65100!important}.protocol-http .panel-heading-decorator{fill:#3498db!important}.panel-h' +
+            'eading-decorator{fill:#607D8B!important}';
         this.app = options;
         this.dialogContainer = _.get(options.config.dialog, "container");
         this.notificationContainer = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications,
