@@ -38,7 +38,7 @@ class ServiceTransportLine extends React.Component {
         let y = bBox.y + 50;
         return (
             <g>
-                <line x1={bBox.x} y1={bBox.y + 50} x2={bBox.x} y2={bBox.y + bBox.h} stroke="black" strokeWidth="3" className="protocol-line" />
+                <line x1={bBox.x} y1={bBox.y + 50} x2={bBox.x} y2={bBox.y2} stroke="black" strokeWidth="3" className="protocol-line" />
                 <line x1={bBox.x - 1} y1={bBox.y + 50 + 2} x2={bBox.x + 60} y2={bBox.y + 15} stroke="black" strokeWidth="3" className="protocol-line" />
                 <line x1={bBox.x + 60} y1={bBox.y} x2={bBox.x + 60} y2={bBox.y + 16} stroke="black" strokeWidth="3" className="protocol-line" />
             </g>
