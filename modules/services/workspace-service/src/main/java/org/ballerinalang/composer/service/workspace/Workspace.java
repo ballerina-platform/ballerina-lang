@@ -38,7 +38,7 @@ public interface Workspace {
      * @param path The path.
      * @param extensions A list of extensions to support.
      * @return Json array of files.
-     * @throws IOException
+     * @throws IOException - Throws IOException
      */
     JsonArray listFilesInPath(String path, List<String> extensions) throws IOException;
     

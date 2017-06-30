@@ -92,10 +92,11 @@ public class CapturePossibleTokenStrategy extends DefaultErrorStrategy {
         }
 
     }
-
     /**
      * Checks whether cursor is within the whitespace region between current token to last token
-     * @param parser
+     * @param token Token to be evaluated
+     * @param parser Parser Instance
+     * @return true|false
      */
     protected boolean isCursorBetweenGivenTokenAndLastNonHiddenToken(Token token, Parser parser) {
         boolean isCursorBetween = false;
