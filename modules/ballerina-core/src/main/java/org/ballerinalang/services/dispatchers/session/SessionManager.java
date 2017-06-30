@@ -83,7 +83,7 @@ public class SessionManager {
         if (sessionMap.size() >= DEFAULT_MAX_ACTIVE_SESSIONS) {
             throw new IllegalStateException("Failed to create session: Too many active sessions");
         }
-        HTTPSession session = new HTTPSession(sessionIdGenerator.generateSessionId(""),
+        HTTPSession session = new HTTPSession(sessionIdGenerator.generateSessionId(),
                 DEFAULT_MAX_INACTIVE_INTERVAL, path);
         session.setManager(this);
         sessionMap.put(session.getId(), session);
@@ -106,7 +106,5 @@ public class SessionManager {
     public void stop() {
         sessionExpiryChecker.shutdown();
     }
-
-
 
 }

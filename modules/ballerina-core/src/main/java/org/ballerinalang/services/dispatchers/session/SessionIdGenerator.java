@@ -28,7 +28,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * SessionIdGenerator util class. Borrowed from Tomcat 8.
+ * SessionIdGenerator util class. Generously borrowed from Apache Tomcat
  *
  * @since 0.89
  */
@@ -55,13 +55,12 @@ public class SessionIdGenerator {
     /**
      * Node identifier when in a cluster. Defaults to the empty string.
      */
-    private String jvmRoute = "";
 
     public void setSessionIdLength(int sessionIdLength) {
         this.sessionIdLength = sessionIdLength;
     }
 
-    public String generateSessionId(String route) {
+    public String generateSessionId() {
 
         byte random[] = new byte[16];
 
@@ -89,15 +88,6 @@ public class SessionIdGenerator {
                 resultLenBytes++;
             }
         }
-
-        if (route != null && route.length() > 0) {
-            buffer.append('.').append(route);
-        } else {
-            if (jvmRoute != null && jvmRoute.length() > 0) {
-                buffer.append('.').append(jvmRoute);
-            }
-        }
-
         return buffer.toString();
     }
 

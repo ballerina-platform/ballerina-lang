@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -33,42 +33,42 @@ import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function to get session creation time.
+ * Native function to get session status.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
-        functionName = "getCreationTime",
+        packageName = "ballerina.net.http",
+        functionName = "isNew",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession")},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+                structPackage = "ballerina.net.http")},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session creation time")})
+        value = "Gets the session id")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
         value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
-        value = "HTTPSession creation time") })
-public class GetCreationTime extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
+        value = "HTTPSession status") })
+public class IsNew extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
+            BStruct sessionStruct = ((BStruct) getRefArgument(context, 0));
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
 
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
-                return getBValues(new BInteger(session.getCreationTime()));
+                return getBValues(new BBoolean(session.isNew()));
             } else {
                 session = context.getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
-                    return getBValues(new BInteger(session.getCreationTime()));
+                    return getBValues(new BBoolean(session.isNew()));
                 } else {
                     //no session available bcz of the time out
-                    throw new IllegalStateException("Failed to get creation time: No such session in progress");
+                    throw new IllegalStateException("Failed to get session status: No such session in progress");
                 }
             }
         } catch (IllegalStateException e) {

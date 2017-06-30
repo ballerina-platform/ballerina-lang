@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -38,10 +38,10 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
+        packageName = "ballerina.net.http",
         functionName = "getId",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession")},
+                structPackage = "ballerina.net.http")},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

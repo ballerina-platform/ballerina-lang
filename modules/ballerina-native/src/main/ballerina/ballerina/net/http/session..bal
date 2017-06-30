@@ -1,4 +1,4 @@
-package ballerina.net.httpsession;
+package ballerina.net.http;
 
 import ballerina.doc;
 
@@ -9,13 +9,12 @@ struct Session {
 @doc:Description { value:"Gets the session struct" }
 @doc:Param { value:"m: A message object" }
 @doc:Return { value:"Session: HTTP session struct" }
-native function getSession (message m) (Session);
+native function createSessionIfAbsent (message m) (Session);
 
-@doc:Description { value:"Gets the session struct" }
+@doc:Description { value:"Gets the session struct for valid id" }
 @doc:Param { value:"m: A message object" }
-@doc:Param { value:"create: Create a new session or not" }
 @doc:Return { value:"Session: HTTP session struct" }
-native function getSessionWithParam (message m, boolean create1) (Session);
+native function getSession (message m) (Session);
 
 @doc:Description { value:"Gets the session attribute" }
 @doc:Param { value:"session: A session struct" }

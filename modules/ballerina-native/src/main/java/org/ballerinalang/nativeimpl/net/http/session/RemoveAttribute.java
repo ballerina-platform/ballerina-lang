@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -27,33 +27,29 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function to get session attribute.
+ * Native function to delete session attribute.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
-        functionName = "getAttribute",
+        packageName = "ballerina.net.http",
+        functionName = "removeAttribute",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession"),
+                structPackage = "ballerina.net.http"),
                 @Argument(name = "attributeKey", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session attribute")})
+        value = "Remove the session attribute")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
         value = "A session struct")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeKey",
         value = "HTTPSession attribute key")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any",
-        value = "HTTPSession attribute value") })
-public class GetAttribute extends AbstractNativeFunction {
+public class RemoveAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
@@ -64,18 +60,20 @@ public class GetAttribute extends AbstractNativeFunction {
 
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
-                return getBValues(session.getAttributeValue(attributeKey));
+                session.removeAttribute(attributeKey);
             } else {
                 session = context.getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
-                    return getBValues(session.getAttributeValue(attributeKey));
+                    session.removeAttribute(attributeKey);
                 } else {
-                    //no session available bcz of the time out
-                    throw new IllegalStateException("Failed to get attribute: No such session in progress");
+                    //no session available cz of the time out or invalidation
+                    throw new IllegalStateException("Failed to remove attribute: No such session in progress");
                 }
+
             }
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
+        return VOID_RETURN;
     }
 }

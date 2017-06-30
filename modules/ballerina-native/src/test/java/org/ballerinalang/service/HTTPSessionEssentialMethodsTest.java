@@ -56,19 +56,19 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(stringDataSource.getValue(), "session created");
     }
 
-    @Test(description = "Test for getting a session with param at first time")
-    public void testGetSessionWithParamMethodCheck() {
+    @Test(description = "Test for getting a session without Id at first time")
+    public void testGetSessionWithoutSessionIDCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "session created");
+        Assert.assertEquals(stringDataSource.getValue(), "no session id available");
     }
 
     @Test(description = "Test for not getting a session with at first time")
-    public void testGetSessionWithParamMethod() {
+    public void testGetSessionMethod() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test3", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -76,6 +76,40 @@ public class HTTPSessionEssentialMethodsTest {
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
         Assert.assertEquals(stringDataSource.getValue(), "session is not created");
+    }
+
+    @Test(description = "Test for create two sessions ")
+    public void testCreateTwoSessionsMethod() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test6", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "wso2");
+    }
+
+    @Test(description = "Test getting a session with at first time")
+    public void testGetSessionHappyPathMethod() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test1", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "session created");
+
+        String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
+        String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 15);
+
+        cMsg = MessageUtils.generateHTTPMessage("/sample/test2", "GET");
+        cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
+        response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+        Assert.assertEquals(stringDataSource.getValue(), "session is returned");
     }
 
 
@@ -188,20 +222,20 @@ public class HTTPSessionEssentialMethodsTest {
                 "/sample2 is not an allowed path");
     }
 
-    @Test(description = "Test for path limitation with getSessionParam")
-    public void testCheckPathValiditygetSessionParam() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/counter/echo2", "GET");
+    @Test(description = "Test for path limitation with getSession")
+    public void testCheckPathValiditygetSession() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
         StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
         Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "1");
+        Assert.assertEquals(stringDataSource.getValue(), "wso2");
 
         String cookie = response.getHeader(RESPONSE_COOKIE_HEADER);
         String sessionId = cookie.substring(SESSION_ID.length(), cookie.length() - 16);
 
-        cMsg = MessageUtils.generateHTTPMessage("/sample2/echoName", "GET");
+        cMsg = MessageUtils.generateHTTPMessage("/counter/echo2", "GET");
         cMsg.setHeader(COOKIE_HEADER, SESSION_ID + sessionId);
         response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
@@ -210,7 +244,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(stringDataSource);
         String error = stringDataSource.getValue().substring(0, 92);
         Assert.assertEquals(error, "ballerina.lang.errors:Error, message: failed to get session: " +
-                "/sample2 is not an allowed path");
+                "/counter is not an allowed path");
     }
 
     @Test(description = "Test for incorrect Cookie")
@@ -371,8 +405,8 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertEquals(error, "failed to get attribute names: No such session in progress");
     }
 
-    @Test(description = "Test for null session with getsessionparam")
-    public void testNullSessionWithGetSessionParam() {
+    @Test(description = "Test for null session with getsession")
+    public void testNullSessionWithGetSession() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/sample/test5", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);

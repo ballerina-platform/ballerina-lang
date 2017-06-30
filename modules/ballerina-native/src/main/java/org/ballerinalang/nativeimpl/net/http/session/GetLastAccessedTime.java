@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -27,26 +28,30 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function invalidate session.
+ * Native function to get session last accessed time.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
-        functionName = "invalidate",
+        packageName = "ballerina.net.http",
+        functionName = "getLastAccessedTime",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession")},
+                structPackage = "ballerina.net.http")},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Invalidates the session") })
+        value = "Gets the session last accessed time")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
         value = "A session struct")})
-public class Invalidate extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
+        value = "HTTPSession last accessed time") })
+public class GetLastAccessedTime extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
@@ -56,20 +61,18 @@ public class Invalidate extends AbstractNativeFunction {
 
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
-                session.invalidate();
-                context.setCurrentSession(null);
+                return getBValues(new BInteger(session.getLastAccessedTime()));
             } else {
                 session = context.getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
-                    session.invalidate();
+                    return getBValues(new BInteger(session.getLastAccessedTime()));
                 } else {
                     //no session available bcz of the time out
-                    throw new IllegalStateException("Failed to invalidate session: No such session in progress");
+                    throw new IllegalStateException("Failed to get last accessed time: No such session in progress");
                 }
             }
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
-        return new BValue[0];
     }
 }

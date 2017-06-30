@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -33,42 +32,46 @@ import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function to get session last accessed time.
+ * Native function to get session attribute.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
-        functionName = "getLastAccessedTime",
+        packageName = "ballerina.net.http",
+        functionName = "getAttribute",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession")},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+                structPackage = "ballerina.net.http"),
+                @Argument(name = "attributeKey", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the session last accessed time")})
+        value = "Gets the session attribute")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
         value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
-        value = "HTTPSession last accessed time") })
-public class GetLastAccessedTime extends AbstractNativeFunction {
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeKey",
+        value = "HTTPSession attribute key")})
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "any",
+        value = "HTTPSession attribute value") })
+public class GetAttribute extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
+            String attributeKey = getStringArgument(context, 0);
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
 
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
-                return getBValues(new BInteger(session.getLastAccessedTime()));
+                return getBValues(session.getAttributeValue(attributeKey));
             } else {
                 session = context.getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
-                    return getBValues(new BInteger(session.getLastAccessedTime()));
+                    return getBValues(session.getAttributeValue(attributeKey));
                 } else {
                     //no session available bcz of the time out
-                    throw new IllegalStateException("Failed to get last accessed time: No such session in progress");
+                    throw new IllegalStateException("Failed to get attribute: No such session in progress");
                 }
             }
         } catch (IllegalStateException e) {

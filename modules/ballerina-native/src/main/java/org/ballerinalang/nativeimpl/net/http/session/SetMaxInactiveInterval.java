@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.httpsession;
+package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -30,46 +30,51 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.util.IllegalFormatException;
+
 /**
- * Native function to delete session attribute.
+ * Native function to set session max inactive interval.
  *
  * @since 0.89
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.httpsession",
-        functionName = "removeAttribute",
+        packageName = "ballerina.net.http",
+        functionName = "setMaxInactiveInterval",
         args = {@Argument(name = "session", type = TypeEnum.STRUCT, structType = "Session",
-                structPackage = "ballerina.net.httpsession"),
-                @Argument(name = "attributeKey", type = TypeEnum.STRING)},
+                structPackage = "ballerina.net.http"),
+                @Argument(name = "timeInterval", type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Remove the session attribute")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session",
-        value = "A session struct")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "attributeKey",
-        value = "HTTPSession attribute key")})
-public class RemoveAttribute extends AbstractNativeFunction {
+        value = "Sets session max inactive interval")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "session", value = "A session struct")})
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "timeInterval",
+        value = "HTTPSession max inactive interval")})
+public class SetMaxInactiveInterval extends AbstractNativeFunction {
+
     @Override
-    public BValue[] execute(Context context) {
+    public BValue[] execute(Context context) throws IllegalFormatException {
         try {
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            String attributeKey = getStringArgument(context, 0);
+            int timeInterval = getIntArgument(context, 0);
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
 
+            if (timeInterval == 0) {
+                throw new NullPointerException("Failed to set max time interval: Time interval: "
+                        + timeInterval);
+            }
             //return value from cached session
             if (session != null && (sessionId.equals(session.getId()))) {
-                session.removeAttribute(attributeKey);
+                session.setMaxInactiveInterval(timeInterval);
             } else {
                 session = context.getSessionManager().getHTTPSession(sessionId);
                 if (session != null) {
-                    session.removeAttribute(attributeKey);
+                    session.setMaxInactiveInterval(timeInterval);
                 } else {
-                    //no session available cz of the time out or invalidation
-                    throw new IllegalStateException("Failed to remove attribute: No such session in progress");
+                    //no session available bcz of the time out
+                    throw new IllegalStateException("Failed to set max time interval: No such session in progress");
                 }
-
             }
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
@@ -77,3 +82,4 @@ public class RemoveAttribute extends AbstractNativeFunction {
         return VOID_RETURN;
     }
 }
+
