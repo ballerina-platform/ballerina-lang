@@ -19,7 +19,7 @@ service<http> contentBasedRouting {
    json jsonMsg = messages:getJsonPayload(m);
    //Get the string value relevant to the key "name".
    string nameString;
-   nameString, err= (string)jsonMsg["name"];
+   nameString, err = (string)jsonMsg["name"];
    //Additionally HTTP HEAD request can be executed to verify the accessibility.
    http:ClientConnector.head(locationEP,"/v2/594e018c1100002811d6d39a",m);
    message response = {};
