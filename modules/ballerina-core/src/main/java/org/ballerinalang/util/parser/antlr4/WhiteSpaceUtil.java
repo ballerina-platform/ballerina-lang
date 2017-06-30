@@ -1264,13 +1264,13 @@ public class WhiteSpaceUtil {
                                                              BallerinaParser.FieldVariableReferenceContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+                getWhitespaceToLeft(tokenStream, ctx.variableReference().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR,
-                getWhitespaceToLeft(tokenStream, ctx.field().start.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START,
-                getWhitespaceToRight(tokenStream, ctx.field().start.getTokenIndex()));
+                getWhitespaceToLeft(tokenStream, ctx.field().Identifier().getSymbol().getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.field().stop.getTokenIndex()));
         return ws;
     }
 
@@ -1278,13 +1278,13 @@ public class WhiteSpaceUtil {
                                                              BallerinaParser.MapArrayVariableReferenceContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_PRECEDING_WHITESPACE,
-                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+                getWhitespaceToLeft(tokenStream, ctx.variableReference().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_VAR_REF_TO_INDEX_EXPR_WRAPPER,
-                getWhitespaceToLeft(tokenStream, ctx.index().start.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_INDEX_EXPR_WRAPPER_TO_INDEX_EXPR_START,
-                getWhitespaceToRight(tokenStream, ctx.index().start.getTokenIndex()));
+                getWhitespaceToLeft(tokenStream, ctx.index().expression().start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.INDEX_VAR_REF_EXPR_END_TO_NEXT_TOKEN,
-                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.index().stop.getTokenIndex()));
         return ws;
     }
 }
