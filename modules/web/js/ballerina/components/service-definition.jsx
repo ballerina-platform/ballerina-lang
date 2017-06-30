@@ -158,7 +158,8 @@ class ServiceDefinition extends React.Component {
                     rightComponents={rightComponents}
                     protocol={this.props.model.getProtocolPkgName()}
                 >
-                    <ServiceTransportLine bBox={this.props.model.getViewState().components.transportLine} />
+                    { resources.length &&
+                        <ServiceTransportLine bBox={this.props.model.getViewState().components.transportLine} />}
                     {
                             viewState.variablesExpanded ?
                                 <GlobalExpanded
