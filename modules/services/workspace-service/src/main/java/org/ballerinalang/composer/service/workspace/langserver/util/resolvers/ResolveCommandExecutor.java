@@ -45,6 +45,10 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
                 variableDefinitionStatementContextResolver);
         resolvers.put(BallerinaParser.PackageNameContext.class, packageNameContextResolver);
+        // TODO
+        // For the moment we are considering both import resolver and the package resolver to be same, this will
+        // Differentiate accordingly in the future
+        resolvers.put(BallerinaParser.ImportDeclarationContext.class, packageNameContextResolver);
         resolvers.put(BallerinaParser.AnnotationAttachmentContext.class, annotationAttachmentContextResolver);
         resolvers.put(null, defaultResolver);
     }
