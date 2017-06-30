@@ -23,7 +23,7 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.TestCallback;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -50,7 +50,7 @@ public class NetJMSTest {
     @Test
     public void testAcknowledge() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
+        cMsg.setProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context();
@@ -58,18 +58,18 @@ public class NetJMSTest {
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg, new BString("SUCCESS") };
         BLangFunctions.invokeNew(bLangProgram, "testAcknowledge", inputArgs, ctx);
-        String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
-        Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
+        String sc = (String) msg.value().getProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS);
+        Assert.assertEquals(sc, Constants.JMS_MESSAGE_DELIVERY_SUCCESS);
         BValue[] inputArgs1 = { msg, new BString("ERROR") };
         BLangFunctions.invokeNew(bLangProgram, "testAcknowledge", inputArgs1, ctx);
-        sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
-        Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
+        sc = (String) msg.value().getProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS);
+        Assert.assertEquals(sc, Constants.JMS_MESSAGE_DELIVERY_ERROR);
     }
 
     @Test
     public void testCommit() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
+        cMsg.setProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context();
@@ -77,14 +77,14 @@ public class NetJMSTest {
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
         BLangFunctions.invokeNew(bLangProgram, "testCommit", inputArgs, ctx);
-        String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
-        Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
+        String sc = (String) msg.value().getProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS);
+        Assert.assertEquals(sc, Constants.JMS_MESSAGE_DELIVERY_SUCCESS);
     }
 
     @Test
     public void testRollback() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
+        cMsg.setProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context();
@@ -92,7 +92,7 @@ public class NetJMSTest {
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
         BLangFunctions.invokeNew(bLangProgram, "testRollback", inputArgs, ctx);
-        String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
-        Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
+        String sc = (String) msg.value().getProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS);
+        Assert.assertEquals(sc, Constants.JMS_MESSAGE_DELIVERY_ERROR);
     }
 }
