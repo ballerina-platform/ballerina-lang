@@ -5,8 +5,8 @@ import ballerina.lang.messages;
 
 @http:config {basePath:"/hbr"}
 service<http> headerBasedRouting {
-    
-    @http:GET{}
+
+    @http:GET {}
     @http:Path {value:"/"}
     resource cbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
@@ -16,14 +16,9 @@ service<http> headerBasedRouting {
         message response = {};
         if (nameString == nyseString) {
             response = http:ClientConnector.post(nyseEP, "/stocks", m);
-            
-        }
-        else {
+        } else {
             response = http:ClientConnector.post(nasdaqEP, "/stocks", m);
-            
         }
         reply response;
-        
     }
-    
 }

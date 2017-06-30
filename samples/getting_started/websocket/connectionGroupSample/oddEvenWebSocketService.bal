@@ -12,7 +12,7 @@ service<ws> oddEvenWebSocketService {
     int i = 0;
 
     @ws:OnOpen {}
-    resource onOpen(message m) {
+    resource onOpen (message m) {
         if (i % 2 == 0) {
             ws:addConnectionToGroup(evenConnectionGroupName);
         } else {
@@ -23,18 +23,18 @@ service<ws> oddEvenWebSocketService {
     }
 
     @ws:OnTextMessage {}
-    resource onTextMessage(message m) {
+    resource onTextMessage (message m) {
         if (messages:getStringPayload(m) == "removeMe") {
             ws:removeConnectionFromGroup(oddConnectionGroupName);
             ws:removeConnectionFromGroup(evenConnectionGroupName);
         } else {
             ws:pushTextToGroup(oddConnectionGroupName, oddConnectionGroupName + ": " + messages:getStringPayload(m));
-            ws:pushTextToGroup(evenConnectionGroupName, evenConnectionGroupName+ ": " + messages:getStringPayload(m));
+            ws:pushTextToGroup(evenConnectionGroupName, evenConnectionGroupName + ": " + messages:getStringPayload(m));
         }
     }
 
     @ws:OnClose {}
-    resource onClose(message m) {
+    resource onClose (message m) {
         system:println("client left the server.");
         ws:broadcastText("client left the server.");
     }

@@ -7,20 +7,20 @@ import ballerina.net.http;
 
 @http:config {basePath:"/productsservice"}
 service<http> productmgt {
+
     map productsMap = populateSampleProducts();
 
-    @http:GET{}
+    @http:GET {}
     @http:Path {value:"/{id}"}
-    resource product(message m, @http:PathParam{value:"id"} string prodId) {
+    resource product (message m, @http:PathParam {value:"id"} string prodId) {
         json payload;
-        payload, _ = (json) productsMap[prodId];
+        payload, _ = (json)productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
-
     }
 
-    @http:POST{}
+    @http:POST {}
     @http:Path {value:"/"}
     resource addProduct (message m) {
         json jsonReq = messages:getJsonPayload(m);
@@ -30,20 +30,17 @@ service<http> productmgt {
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
-
     }
-
 }
 
-function populateSampleProducts()(map productsMap) {
+function populateSampleProducts () (map productsMap) {
     productsMap = {};
-    json prod_1 = {"Product": {"ID": "123000", "Name": "ABC_1","Description": "Sample product."}};
-    json prod_2 = {"Product": {"ID": "123001", "Name": "ABC_2","Description": "Sample product."}};
-    json prod_3 = {"Product": {"ID": "123002", "Name": "ABC_3","Description": "Sample product."}};
+    json prod_1 = {"Product":{"ID":"123000", "Name":"ABC_1", "Description":"Sample product."}};
+    json prod_2 = {"Product":{"ID":"123001", "Name":"ABC_2", "Description":"Sample product."}};
+    json prod_3 = {"Product":{"ID":"123002", "Name":"ABC_3", "Description":"Sample product."}};
     productsMap["123000"] = prod_1;
     productsMap["123001"] = prod_2;
     productsMap["123002"] = prod_3;
     system:println("Sample products are added.");
     return productsMap;
-
 }
