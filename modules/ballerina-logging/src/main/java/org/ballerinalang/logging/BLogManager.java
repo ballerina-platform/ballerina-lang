@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLogManager extends LogManager {
+    public static final int LOGGER_PREFIX_LENGTH = "ballerina.".length();
+
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
 
     @Override

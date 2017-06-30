@@ -51,7 +51,7 @@ public class DefaultLogFormatter extends Formatter {
 
         return String.format(format,
                              new Date(record.getMillis()),
-                             BLogLevelMapper.mapLevel(record.getLevel()),
+                             BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),
                              source,
                              record.getMessage(),
                              ex);

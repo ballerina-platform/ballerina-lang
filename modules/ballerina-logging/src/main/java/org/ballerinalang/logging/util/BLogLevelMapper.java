@@ -18,12 +18,7 @@
 
 package org.ballerinalang.logging.util;
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.Map;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A mapper class to map log levels from JDK logging to our custom log levels
@@ -32,18 +27,24 @@ import java.util.stream.Stream;
  */
 public class BLogLevelMapper {
 
-    private static final Map<Level, String> LEVEL_STRING_MAP = Collections.unmodifiableMap(Stream.of(
-            new AbstractMap.SimpleEntry<>(Level.SEVERE, "ERROR"),
-            new AbstractMap.SimpleEntry<>(Level.WARNING, "WARN"),
-            new AbstractMap.SimpleEntry<>(Level.INFO, "INFO"),
-            new AbstractMap.SimpleEntry<>(Level.CONFIG, "INFO"),
-            new AbstractMap.SimpleEntry<>(Level.FINE, "DEBUG"),
-            new AbstractMap.SimpleEntry<>(Level.FINER, "DEBUG"),
-            new AbstractMap.SimpleEntry<>(Level.FINEST, "TRACE"))
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())));
-
-    public static String mapLevel(Level level) {
-        //TODO: Rethink the undefined level value
-        return LEVEL_STRING_MAP.containsKey(level) ? LEVEL_STRING_MAP.get(level) : "-";
+    public static String getBallerinaLogLevel(Level level) {
+        switch (level.getName()) {
+            case "SEVERE":
+                return "ERROR";
+            case "WARNING":
+                return "WARN";
+            case "INFO":
+                return "INFO";
+            case "CONFIG":
+                return "INFO";
+            case "FINE":
+                return "DEBUG";
+            case "FINER":
+                return "DEBUG";
+            case "FINEST":
+                return "TRACE";
+            default:
+                return "<UNDEFINED>";
+        }
     }
 }

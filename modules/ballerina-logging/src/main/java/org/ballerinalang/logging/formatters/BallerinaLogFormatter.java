@@ -38,14 +38,14 @@ public class BallerinaLogFormatter extends Formatter {
     @Override
     public String format(LogRecord record) {
         String source;
-        if (record.getLoggerName().length() <= "ballerina.".length()) {
+        if (record.getLoggerName().length() <= BLogManager.LOGGER_PREFIX_LENGTH) {
             source = ".";
         } else {
-            source = record.getLoggerName().substring("ballerina.".length());
+            source = record.getLoggerName().substring(BLogManager.LOGGER_PREFIX_LENGTH);
         }
         return String.format(format,
                              new Date(record.getMillis()),
-                             BLogLevelMapper.mapLevel(record.getLevel()),
+                             BLogLevelMapper.getBallerinaLogLevel(record.getLevel()),
                              source,
                              record.getMessage());
     }
