@@ -105,6 +105,12 @@ const FirstLaunchWelcomePage = Backbone.View.extend({
             browserStorage.put('pref:passedFirstLaunch', true);
         });
 
+        // Show the open directory dialog when "open" is clicked.
+        $('#btn-welcome-open-dir').on('click', () => {
+            commandManager.dispatch('show-folder-open-dialog');
+            browserStorage.put('pref:passedFirstLaunch', true);
+        });
+
         // upon welcome tab remove, set flag to indicate first launch pass
         this._tab.on('removed', () => {
             browserStorage.put('pref:passedFirstLaunch', true);
