@@ -49,8 +49,7 @@ public class AvgIncrementalAttributeAggregator extends CompositeAggregator {
         Expression sumInitialValue;
         Expression countInitialValue;
 
-        SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator =
-                new SumIncrementalAttributeAggregator();
+        SumIncrementalAttributeAggregator sumIncrementalAttributeAggregator = new SumIncrementalAttributeAggregator();
         sumIncrementalAttributeAggregator.init(attributeName, attributeType);
         CountIncrementalAttributeAggregator countIncrementalAttributeAggregator =
                 new CountIncrementalAttributeAggregator();

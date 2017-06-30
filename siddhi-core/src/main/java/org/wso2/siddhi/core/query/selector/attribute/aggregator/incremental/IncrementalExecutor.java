@@ -37,10 +37,12 @@ import org.wso2.siddhi.core.util.parser.AggregationParser;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Queue;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -77,6 +79,8 @@ public class IncrementalExecutor implements Executor {
     private Map<String, BaseIncrementalAggregatorStore> runningBaseAggregatorCollection;
     private ComplexEventChunk<StreamEvent> timerStreamEventChunk;
     private Scheduler scheduler;
+    private Queue<List<AggregationParser.ExpressionExecutorDetails>>
+            poolOfExtraBaseExpressionExecutors;
 
     public IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child, MetaStreamEvent metaEvent,
             Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String aggregatorName,
@@ -123,6 +127,11 @@ public class IncrementalExecutor implements Executor {
 
     public void setScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public void setPoolOfExecutors (Queue<List<AggregationParser.ExpressionExecutorDetails>>
+                                            poolOfExtraBaseExpressionExecutors) {
+        this.poolOfExtraBaseExpressionExecutors = poolOfExtraBaseExpressionExecutors;
     }
 
     public void resetAggregatorStore() {
@@ -241,8 +250,20 @@ public class IncrementalExecutor implements Executor {
                                     bufferedBaseAggregatorCollection, timeStamp,
                                     basicExecutorsOfBufferedEvents.get(actualEmitTimeForEvent));
 
+                        } else if(((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>)
+                                bufferedBaseAggregatorMap).firstKey() < actualEmitTimeForEvent) {
+                            // An event which is newer than oldest buffered event, but older than current.
+                            // Event should be buffered. But no events belonging to this time period have
+                            // previously arrived. Hence, bufferedBaseAggregatorCollection gives null.
+                            Map<String, BaseIncrementalAggregatorStore> newBaseAggregatorCollection =
+                                    new HashMap<>();
+                            bufferedBaseAggregatorMap.put(actualEmitTimeForEvent, newBaseAggregatorCollection);
+                            updateBufferedBaseAggregatorCollection(groupedByKey, event,
+                                    newBaseAggregatorCollection, timeStamp,
+                                    poolOfExtraBaseExpressionExecutors.poll());
+
                         } else {
-                            // Null means, the incoming event is older than buffered data
+                            // The incoming event is older than buffered data
                             // TODO: 6/26/17 in this case process event with current event or oldest buffered event?
                             updateRunningBaseAggregatorCollection(groupedByKey, event);
                         }
@@ -295,10 +316,8 @@ public class IncrementalExecutor implements Executor {
     private void dispatchEvents(long copyOfEmitTime, long currentTimeStamp) {
 
         if (isRoot) {
-            // Clone base executors and add to basicExecutorsOfBufferedEvents
-            List<AggregationParser.ExpressionExecutorDetails> bufferedBasicExecutorDetails = basicExecutorDetails
-                    .stream().map(AggregationParser.ExpressionExecutorDetails::copy).collect(Collectors.toList());
-            basicExecutorsOfBufferedEvents.put(copyOfEmitTime, bufferedBasicExecutorDetails);
+            // Add current basicExecutorDetails to basicExecutorsOfBufferedEvents
+            basicExecutorsOfBufferedEvents.put(copyOfEmitTime, basicExecutorDetails);
             // Add current base aggregator collection to buffer
             bufferedBaseAggregatorMap.put(copyOfEmitTime, runningBaseAggregatorCollection);
             // Reset running base aggregator collection
@@ -314,11 +333,27 @@ public class IncrementalExecutor implements Executor {
                 // Remove oldest base executors from basicExecutorsOfBufferedEvents.
                 // This would remove all values corresponding to key equal to or less than
                 // "EmitTimeOfLastEventToRemove"
-                ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>) basicExecutorsOfBufferedEvents)
+                // Those executors would be cloned to be used later when out of order events arrive.
+                // TODO: 6/30/17 write test case for this
+                NavigableMap<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutors =
+                        ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>) basicExecutorsOfBufferedEvents)
                         .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
-                                this.duration, this.bufferCount), true)
-                        .clear();
-
+                                this.duration, this.bufferCount), true);
+                for (Map.Entry<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutorList:
+                     removedExecutors.entrySet()) {
+                    if (poolOfExtraBaseExpressionExecutors.size() >= bufferCount -1) {
+                        break;
+                    }
+                    List<AggregationParser.ExpressionExecutorDetails> newBasicExecutorDetails = new ArrayList<>();
+                    for (AggregationParser.ExpressionExecutorDetails removedExecutor :
+                            removedExecutorList.getValue() ) {
+                        newBasicExecutorDetails.add(new AggregationParser.
+                                ExpressionExecutorDetails(removedExecutor.getExecutor().cloneExecutor("clone"),
+                                removedExecutor.getExecutorName()));
+                    }
+                    poolOfExtraBaseExpressionExecutors.add(newBasicExecutorDetails);
+                }
+                removedExecutors.clear();
                 // Remove oldest base aggregator collections from bufferedBaseAggregatorMap
                 // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
                 NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch =
@@ -354,16 +389,20 @@ public class IncrementalExecutor implements Executor {
                     sendToNextExecutor(baseAggregatesToDispatch);
                 }
             }
-            // Send RESET event to groupByExecutor
-            // TODO: 6/2/17 call reset method (can't reset since GroupByAggregationAttributeExecutor is called)
+            // Clone basicExecutorDetails and set as new basic executors
+            List<AggregationParser.ExpressionExecutorDetails> newBasicExecutorDetails = new ArrayList<>();
             for (AggregationParser.ExpressionExecutorDetails basicExecutor : this.basicExecutorDetails) {
-                basicExecutor.getExecutor().execute(resetEvent);
+                newBasicExecutorDetails.add(new AggregationParser.
+                        ExpressionExecutorDetails(basicExecutor.getExecutor().cloneExecutor("clone"),
+                        basicExecutor.getExecutorName()));
             }
+            basicExecutorDetails = newBasicExecutorDetails;
         } else {
             sendToNextExecutor(runningBaseAggregatorCollection);
             // Reset running base aggregator collection
             resetAggregatorStore();
             // Send RESET event to groupByExecutor
+            // TODO: 6/2/17 call reset method (can't reset since GroupByAggregationAttributeExecutor is called)
             for (AggregationParser.ExpressionExecutorDetails basicExecutor : this.basicExecutorDetails) {
                 basicExecutor.getExecutor().execute(resetEvent);
             }

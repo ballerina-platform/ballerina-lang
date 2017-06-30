@@ -29,12 +29,9 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.AvgIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CountIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.SumIncrementalAttributeAggregator;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.table.InMemoryTable;
@@ -42,7 +39,6 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.CompositeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
@@ -62,7 +58,6 @@ import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.extension.Extension;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -127,7 +122,7 @@ public class AggregationParser {
             // Example format: _TIMESTAMP, groupByAttribute1, groupByAttribute2, _incAttribute1,
             // _incAttribute2
             // _incAttribute1, _incAttribute2 would have the same attribute names as in finalListOfIncrementalAttributes
-            MetaStreamEvent newMeta = new MetaStreamEvent();
+            MetaStreamEvent newMeta = new MetaStreamEvent(); // TODO: 6/30/17 change this to have rename attributes?
             newMeta.initializeAfterWindowData(); // To enter data as onAfterWindowData
 
             // To assign values to new meta, a list of expression executors using the original meta must be created
@@ -243,14 +238,16 @@ public class AggregationParser {
                             && baseIncrementalAggregatorsCheckerMap.containsKey(incrementalAttributes[i].getName())) {
                         if (!attributeInitialValueCheckerMap.get(incrementalAttributes[i]).equals(initialValues[i])) {
                             // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
-                            // For a given incrementalAttribute, same initial value should have been
-                            // defined across all composite aggregators.
+                            throw new ExecutionPlanRuntimeException("For a given incrementalAttribute, "
+                                    + "same initial value should have been defined across all "
+                                    + "composite aggregators.");
                         }
                         if (!baseIncrementalAggregatorsCheckerMap.get(incrementalAttributes[i].getName())
                                 .equals(baseAggregators[i])) {
                             // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
-                            // For a given incrementalAttribute, same base incremental aggregator should have been
-                            // defined across all composite aggregators.
+                            throw new ExecutionPlanRuntimeException("For a given incrementalAttribute, "
+                                    + "same base incremental aggregator should have been"
+                                    + " defined across all composite aggregators.");
                         }
                     } else {
                         attributeInitialValues.add(initialValues[i]);
@@ -325,10 +322,6 @@ public class AggregationParser {
                     baseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
                             finalListOfIncrementalAttributes.get(j).getName()));
                 }
-                /*List<ExpressionExecutorDetails> clonedExpressionExecutors = new ArrayList<>();
-                // Each incremental executor needs its own expression executors. Hence cloning.
-                clonedExpressionExecutors.addAll(baseExpressionExecutors.stream().map(ExpressionExecutorDetails::clone)
-                        .collect(Collectors.toList()));*/
                 root = new IncrementalExecutor(incrementalDurations.get(i), child, newMeta, tableMap,
                         executionPlanContext, aggregatorName, compositeAggregators, baseExpressionExecutors,
                         groupByVariables, timeStampExecutor, groupByKeyGenerator, genericExpressionExecutors,
@@ -365,15 +358,25 @@ public class AggregationParser {
             child.setScheduler(scheduler); // Set scheduler in root incremental executor
             aggregationRuntime.setExecutor(entryValveExecutor);
 
+            // This is required when processing out of order data in the root incremental executor
+            Queue<List<ExpressionExecutorDetails>> poolOfExtraBaseExpressionExecutors = new ArrayDeque<>();
+            List<ExpressionExecutorDetails> extraBaseExpressionExecutors = new ArrayList<>();
+            ExpressionExecutor expressionExecutor;
+            for (int i = 0; i < bufferSize - 1; i++) {
+                for (int j = 0; j < baseIncrementalAggregators.size(); j++) {
+                    expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(j), newMeta, 0,
+                            tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
+                    extraBaseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
+                            finalListOfIncrementalAttributes.get(j).getName()));
+                }
+                poolOfExtraBaseExpressionExecutors.add(extraBaseExpressionExecutors);
+            }
+            child.setPoolOfExecutors(poolOfExtraBaseExpressionExecutors);
+
             AggregationDefinitionParserHelper.updateVariablePosition(newMeta, executorsOfNewMeta);
             AggregationDefinitionParserHelper.updateVariablePosition(incomingStreamMeta, executorsOfIncomingStreamMeta);
-            AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, newMeta, lockWrapper, // TODO: 6/13/17
-                                                                                                     // same lockWrapper
-                                                                                                     // as for
-                                                                                                     // scheduler. is it
-                                                                                                     // ok?
-                    aggregatorName, aggregationRuntime, metaValueRetrievers, incomingStreamMeta, scheduler,
-                    minSchedulingTime);
+            AggregationDefinitionParserHelper.initStreamRuntime(streamRuntime, newMeta, lockWrapper, aggregatorName,
+                    aggregationRuntime, metaValueRetrievers, incomingStreamMeta, scheduler, minSchedulingTime);
         } catch (RuntimeException ex) {
             throw ex; // TODO: 5/12/17 should we log?
         }
