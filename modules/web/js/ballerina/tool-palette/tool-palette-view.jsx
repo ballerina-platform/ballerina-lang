@@ -361,7 +361,7 @@ class ToolPaletteView extends React.Component {
                     actionTool.title = action.getName();
                     actionTool.name = action.getName();
                     actionTool.cssClass = 'icon fw fw-dgm-action';
-                    actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     if (action.getReturnParams().length > 0) {
                         actionTool.nodeFactoryMethod = DefaultBallerinaASTFactory
                                                     .createAggregatedActionInvocationAssignmentStatement;

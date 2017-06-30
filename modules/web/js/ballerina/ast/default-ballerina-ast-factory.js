@@ -125,6 +125,7 @@ DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
     const connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
     connectorDef.addArgument('message', 'm');
     const connectorActionDef = DefaultBallerinaASTFactory.createConnectorAction();
+    connectorActionDef.addReturnType('message', 'response');
     connectorDef.addChild(connectorActionDef, undefined, undefined, undefined, true);
     connectorDef.accept(new EnableDefaultWSVisitor());
     return connectorDef;
@@ -171,7 +172,7 @@ DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement =
         }
     });
 
-    const rightOperandExpression = args.actionPackageName + ':' +
+    const rightOperandExpression = ((args.actionPackageName === 'Current Package') ? '' : args.actionPackageName + ':') +
         args.actionConnectorName + '.' + args.action + '()';
 
     const variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement();

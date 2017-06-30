@@ -184,13 +184,15 @@ class ConnectorAction extends ASTNode {
         const returnParamDefHolder = this.getReturnParameterDefinitionHolder();
 
         // Adding return type mode if it doesn't exists.
-        if (_.isUndefined(this.getReturnTypeModel())) {
+        if (_.isUndefined(this.getReturnTypes())) {
             this.addChild(this.getFactory().createReturnType());
         }
 
         // Check if there is already a return type with the same identifier.
         if (!_.isUndefined(identifier)) {
-            const child = returnParamDefHolder.findChildByIdentifier(true, identifier);
+            const child = returnParamDefHolder.filterChildren((child) => {
+                return child.getName() === identifier;
+            });
             if (_.isUndefined(child)) {
                 const errorString = "An return argument with identifier '" + identifier + "' already exists.";
                 log.error(errorString);
@@ -257,7 +259,7 @@ class ConnectorAction extends ASTNode {
      */
     getArgumentsAsString() {
         let argsString = '';
-        this.getArguments().forEach((arg, index) => {
+        this.getArgumentParameterDefinitionHolder().getChildren().forEach((arg, index) => {
             if (index != 0 ) {
                 argsString += ',';
             }
