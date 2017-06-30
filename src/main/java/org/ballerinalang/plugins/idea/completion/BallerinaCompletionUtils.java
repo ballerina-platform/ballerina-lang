@@ -290,6 +290,7 @@ public class BallerinaCompletionUtils {
     private static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
     }
+
     /**
      * Adds value types as lookups.
      *
@@ -874,6 +875,12 @@ public class BallerinaCompletionUtils {
                 insertHandler = insertHandlers[0];
             }
             addAllImportedPackagesAsLookups(resultSet, file, insertHandler);
+
+            // We provide a way to change the default insert handler for auto insert as well.
+            insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandlers.length >= 2) {
+                insertHandler = insertHandlers[1];
+            }
             addAllUnImportedPackagesAsLookups(resultSet, file, insertHandler);
         }
         if (withFunctions) {
