@@ -17,3 +17,7 @@ Worker
 Worker Interaction
 Fork/Join
 Blob Type
+WebSocket Basic Endpoint
+WebSocket Basic Functions
+WebSocket Connection Store
+WebSocket Connection Groups

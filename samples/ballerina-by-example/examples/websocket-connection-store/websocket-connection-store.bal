@@ -25,17 +25,20 @@ service<ws> echoServer {
         string msg = jsons:toString(jsonPayload["msg"]);
 
         if ("send" == command) {
-            // Push text to the client under the given id
+            // Push text to the client under the given id.
             ws:pushTextToConnection(id, msg);
         } else if ("remove" == command) {
-            // Remove the client from the connection store under the given id
+            // Remove the client from the connection store under the given id.
             ws:removeStoredConnection(id);
+        } else if ("close" == command) {
+            // Close the stored client from the connection store under the given id.
+            ws:closeStoredConnection(id);
         }
     }
 
     @ws:OnClose {}
     resource onClose(message m) {
-        // broadcast text to all connected clients
+        // Broadcast text to all connected clients.
         ws:broadcastText("Client left");
     }
 }
