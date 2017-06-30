@@ -52,7 +52,7 @@ class VariableDefinitionStatementContextResolver implements ItemResolver {
         int searchTokenIndex = currentTokenIndex + 1;
 
         while (continueSearch) {
-            if (tokenStream != null) {
+            if (tokenStream != null && searchTokenIndex < tokenStream.size()) {
                 String tokenStr = tokenStream.get(searchTokenIndex).getText();
                 if (tokenStr.equals(":") || tokenStr.equals(".")) {
                     searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
