@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
@@ -27,6 +28,7 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
  */
 public class SimpleTypeName {
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
+    protected NodeLocation location;
     protected String name;
     protected String pkgName;
     protected String pkgPath;
@@ -113,6 +115,14 @@ public class SimpleTypeName {
     public void setArrayType(int dimensions) {
         this.isArrayType = true;
         this.dimensions =  dimensions;
+    }
+
+    public void setNodeLocation(NodeLocation location) {
+        this.location = location;
+    }
+
+    public NodeLocation getNodeLocation() {
+        return location;
     }
 
     public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {

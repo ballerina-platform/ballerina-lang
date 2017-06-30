@@ -18,7 +18,8 @@
 package org.ballerinalang.model;
 
 /**
- * {@code SymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
+ * {@code SymbolName} represents a package qualified
+ * name of a {@link org.ballerinalang.model.symbols.BLangSymbol} in Ballerina.
  *
  * @since 0.8.0
  */

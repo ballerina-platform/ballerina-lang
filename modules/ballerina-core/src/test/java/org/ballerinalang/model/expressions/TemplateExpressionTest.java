@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -117,12 +116,5 @@ public class TemplateExpressionTest {
         String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","
                 + "\"boolStrIndex0\":\"true\",\"boolStrIndex1\":\"false\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-    
-    @Test(description = "Test backtick expression for JSON type",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "json-backtick-expr.bal:2: backtick expression is not supported")
-    public void testBacktickJSON() {
-        programFile = BTestUtils.getProgramFile("lang/expressions/json-backtick-expr.bal");
     }
 }

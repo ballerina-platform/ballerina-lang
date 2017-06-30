@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.nio.file.Path;
@@ -46,8 +45,6 @@ public class BLangProgram implements SymbolScope, Node {
     private NativeScope nativeScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    // Each program instance should have its own runtime environment
-    private RuntimeEnvironment runtimeEnv;
     private int sizeOfStaticMem;
 
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -116,14 +113,6 @@ public class BLangProgram implements SymbolScope, Node {
 
     public BLangPackage[] getPackages() {
         return symbolMap.values().stream().map(symbol -> (BLangPackage) symbol).toArray(BLangPackage[]::new);
-    }
-
-    public RuntimeEnvironment getRuntimeEnvironment() {
-        return runtimeEnv;
-    }
-
-    public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnv) {
-        this.runtimeEnv = runtimeEnv;
     }
 
     public int getSizeOfStaticMem() {

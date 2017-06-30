@@ -111,7 +111,7 @@ public class UriTemplateDispatcherTest {
                 , "RegID variable not set properly.");
     }
 
-    @Test(description = "Test accessing the variables parsed with URL. /products3/{productId}/{regId}*//*")
+    @Test(description = "Test accessing the variables parsed with URL. /products3/{productId}/{regId}/*")
     public void testValidUrlTemplate3Dispatching() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(
                 "/ecommerceservice/products3/PID125/RID125/xyz?para1=value1", "GET");

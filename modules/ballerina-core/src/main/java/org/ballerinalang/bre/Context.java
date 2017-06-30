@@ -21,10 +21,13 @@ import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.services.dispatchers.session.Session;
+import org.ballerinalang.services.dispatchers.session.SessionManager;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -38,22 +41,21 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
     private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    protected Map<String, Object> properties = new HashMap();
+    protected Map<String, Object> properties = new HashMap<>();
     private ServiceInfo serviceInfo;
-    private Object serverConnectorProtocol;
     private BallerinaTransactionManager ballerinaTransactionManager;
+    private DebugInfoHolder debugInfoHolder;
+    private boolean debugEnabled = false;
+    private Session currentSession = null;
 
-    // TODO Temporary solution mark the executor. Tree interpreter or instruction based executor
-    private boolean vmBasedExecutor = false;
     private int startIP;
-    private BStruct errorThrown;
+    private BStruct unhandledError;
 
     // TODO : Temporary solution to make non-blocking working.
-    public boolean initFunction = false;
+    public boolean disableNonBlocking = false;
     public BValue[] nativeArgValues;
     public ProgramFile programFile;
     public FunctionCallCPEntry funcCallCPEntry;
@@ -61,18 +63,28 @@ public class Context {
 
     @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
 
     public Context(ProgramFile programFile) {
         this.programFile = programFile;
-        this.controlStack = new ControlStack();
         this.controlStackNew = new ControlStackNew();
     }
 
-    public ControlStack getControlStack() {
-        return this.controlStack;
+    public DebugInfoHolder getDebugInfoHolder() {
+        return debugInfoHolder;
+    }
+
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
     }
 
     public ControlStackNew getControlStackNew() {
@@ -115,14 +127,6 @@ public class Context {
         this.serviceInfo = serviceInfo;
     }
 
-    public Object getServerConnectorProtocol() {
-        return serverConnectorProtocol;
-    }
-
-    public void setServerConnectorProtocol(Object serverConnectorProtocol) {
-        this.serverConnectorProtocol = serverConnectorProtocol;
-    }
-
     public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
         this.ballerinaTransactionManager = ballerinaTransactionManager;
     }
@@ -135,20 +139,19 @@ public class Context {
         return this.ballerinaTransactionManager != null;
     }
 
-    public boolean isVMBasedExecutor() {
-        return vmBasedExecutor;
-    }
-
-    public void setVMBasedExecutor(boolean vmBasedExecutor) {
-        this.vmBasedExecutor = vmBasedExecutor;
-    }
-
     public BStruct getError() {
-        return errorThrown;
+        if (controlStackNew.currentFrame != null) {
+            return controlStackNew.currentFrame.getErrorThrown();
+        }
+        return this.unhandledError;
     }
 
     public void setError(BStruct error) {
-        this.errorThrown = error;
+        if (controlStackNew.currentFrame != null) {
+            controlStackNew.currentFrame.setErrorThrown(error);
+        } else {
+            this.unhandledError = error;
+        }
     }
 
     public int getStartIP() {
@@ -161,5 +164,20 @@ public class Context {
 
     public ProgramFile getProgramFile() {
         return programFile;
+    }
+
+    public SessionManager getSessionManager() {
+        return SessionManager.getInstance();
+    }
+
+    public Session getCurrentSession() {
+        if (currentSession != null && currentSession.isValid()) {
+            return currentSession;
+        }
+        return null;
+    }
+
+    public void setCurrentSession(Session currentSession) {
+        this.currentSession = currentSession;
     }
 }

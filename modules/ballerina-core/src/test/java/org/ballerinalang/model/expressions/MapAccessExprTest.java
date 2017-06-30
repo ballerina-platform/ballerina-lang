@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -40,8 +39,6 @@ public class MapAccessExprTest {
 
     @BeforeClass
     public void setup() {
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
         programFile = BTestUtils.getProgramFile("lang/expressions/map-access-expr.bal");
     }
 
@@ -84,8 +81,8 @@ public class MapAccessExprTest {
     
     @Test(description = "Test nested map access",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "nested-map-access.bal:3: invalid operation: indexing is not " +
-            "supported for map elements of type 'any'. cast the value before access with index")
+            expectedExceptionsMessageRegExp = "nested-map-access.bal:3: invalid operation: " +
+                    "type 'any' does not support indexing")
     public void testNestedMapAccess() {
         BTestUtils.getProgramFile("lang/expressions/nested-map-access.bal");
     }

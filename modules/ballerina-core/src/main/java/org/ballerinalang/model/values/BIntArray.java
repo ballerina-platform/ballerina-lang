@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 /**
  * @since 0.87
@@ -32,6 +33,11 @@ public class BIntArray extends BNewArray {
 
     private long[] values;
 
+    public BIntArray(long[] values) {
+        this.values = values;
+        this.size = values.length;
+    }
+    
     public BIntArray() {
         values = (long[]) newArrayInstance(Long.TYPE);
     }
@@ -54,5 +60,21 @@ public class BIntArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BIntArray intArray = new BIntArray(Arrays.copyOf(values, values.length));
+        intArray.size = this.size;
+        return intArray;
+    }
+    
+    @Override
+    public String stringValue() {
+        StringJoiner sj = new StringJoiner(",", "[", "]");
+        for (int i = 0; i < size; i++) {
+            sj.add(Long.toString(values[i]));
+        }
+        return sj.toString();
     }
 }

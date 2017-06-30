@@ -63,7 +63,7 @@ public class LogAny extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         //here we cast second parameter to int as anyway it only has few log levels
-        LogUtil.log(logger, getIntArgument(ctx, 0), getStringArgument(ctx, 0));
+        LogUtil.log(logger, getIntArgument(ctx, 0), getRefArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

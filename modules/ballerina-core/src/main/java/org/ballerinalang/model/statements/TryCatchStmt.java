@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
@@ -69,10 +68,9 @@ public class TryCatchStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.TRY_CATCH;
     }
-
 
     /**
      * Represents CatchBlock of a Try-Catch statement.
@@ -250,12 +248,20 @@ public class TryCatchStmt extends AbstractStatement {
         }
 
         public TryCatchStmt build() {
-            return new TryCatchStmt(
+            TryCatchStmt tryCatchStmt = new TryCatchStmt(
                     location,
                     whiteSpaceDescriptor,
                     tryBlock,
                     catchBlock.toArray(new CatchBlock[0]),
                     finallyBlock);
+            tryBlock.setParent(tryCatchStmt);
+            catchBlock.forEach(catchBlock1 -> {
+                catchBlock1.getCatchBlockStmt().setParent(tryCatchStmt);
+            });
+            if (finallyBlock != null) {
+                finallyBlock.getFinallyBlockStmt().setParent(tryCatchStmt);
+            }
+            return tryCatchStmt;
         }
     }
 }

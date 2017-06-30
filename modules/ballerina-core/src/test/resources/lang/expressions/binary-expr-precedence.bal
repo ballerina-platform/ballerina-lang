@@ -1,12 +1,11 @@
 function binaryOrExprWithLeftMostSubExprTrue(boolean one, boolean two, boolean three) (boolean) {
-    json j = {};
-    return one || ((string)j.isPresent == "test");
+    return one || getBoolean();
 }
 
 
 function binaryANDExprWithLeftMostSubExprFalse(boolean one, boolean two, boolean three) (boolean) {
     json j = {};
-    return one && ((string)j.isPresent == "test");
+    return one && getBoolean();
 }
 
 
@@ -24,4 +23,11 @@ function multiBinaryANDExpr(boolean one, boolean two, boolean three) (int) {
     } else {
        return 201;
     }
+}
+
+function getBoolean()(boolean ) {
+    json j = {};
+    string val;
+    val, _ = (string)j.isPresent;
+    return (val == "test");
 }

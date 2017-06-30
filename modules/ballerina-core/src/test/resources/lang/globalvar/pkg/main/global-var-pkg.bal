@@ -1,27 +1,27 @@
 package lang.globalvar.pkg.main;
 
-import lang.globalvar.pkg.var;
+import lang.globalvar.pkg.variable;
 
-float glbVarFloat = (int)var:glbVarAny;
+float glbVarFloat = <float> variable:glbVarAnyInt;
 
 any glbVarAny = getAnyGlobalVar();
 
-int glbVarInt = var:getIntValue();
+int glbVarInt = variable:getIntValue();
 
 function getGlobalVars() (int, string, float, any) {
-    return var:glbVarInt, var:glbVarString, var:glbVarFloat, var:glbVarAny;
+    return variable:glbVarInt, variable:glbVarString, variable:glbVarFloat, variable:glbVarAny;
 }
 
 
 function changeGlobalVar(int addVal) (float) {
-    var:glbVarFloatChange = 77 + addVal;
-    float value = var:glbVarFloatChange;
+    variable:glbVarFloatChange = 77 + <float> addVal;
+    float value = variable:glbVarFloatChange;
     return value;
 }
 
 function getGlobalFloatVar() (float) {
     changeGlobalVar(3);
-    return var:glbVarFloatChange;
+    return variable:glbVarFloatChange;
 }
 
 function getAssignedGlobalVarFloat()(float) {

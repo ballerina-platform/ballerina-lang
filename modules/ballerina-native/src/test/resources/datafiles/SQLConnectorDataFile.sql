@@ -139,9 +139,21 @@ CREATE PROCEDURE TestArrayOutParams (OUT intArray INTEGER ARRAY, OUT longArray B
   SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
   END
 /
-CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY, INOUT longArray BIGINT ARRAY,
-  INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY, INOUT boolArray BOOLEAN ARRAY,
-  INOUT varcharArray VARCHAR(50) ARRAY)
+CREATE PROCEDURE TestDateTimeOutParams (IN id INT, IN dateVal DATE, IN timeVal TIME, IN datetimeVal DATETIME,
+  IN timestampVal TIMESTAMP, OUT dateValOUT DATE, OUT timeValOUT TIME, OUT datetmOut DATETIME, OUT timestOut TIMESTAMP)
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
+  insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
+  (id, dateVal, timeVal, datetimeVal, timestampVal);
+  SELECT date_type INTO dateValOUT FROM DateTimeTypes where row_id = id;
+  SELECT time_type INTO timeValOUT FROM DateTimeTypes where row_id = id;
+  SELECT datetime_type INTO datetmOut FROM DateTimeTypes where row_id = id;
+  SELECT timestamp_type INTO timestOut FROM DateTimeTypes where row_id = id;
+  END
+/
+CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
+  INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY,
+  INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY)
   MODIFIES SQL DATA
   BEGIN ATOMIC
   INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)

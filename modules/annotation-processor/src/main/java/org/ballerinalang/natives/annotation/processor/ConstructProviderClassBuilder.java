@@ -17,6 +17,7 @@
 
 package org.ballerinalang.natives.annotation.processor;
 
+import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NativeScope;
@@ -39,7 +40,6 @@ import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
-import org.ballerinalang.util.repository.BuiltinPackageRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,13 +73,13 @@ public class ConstructProviderClassBuilder {
 
     
     private Writer sourceFileWriter;
-    private String pkgRepositoryClass;
     private String className;
     private String packageName;
     private String balSourceDir;
     private String nativeUnitClass = NativeUnit.class.getSimpleName();
     private String symbolNameClass = SymbolName.class.getSimpleName();
     private String functionSymbolNameClass = FunctionSymbolName.class.getSimpleName();
+    private String actionSymbolNameClass = ActionSymbolName.class.getSimpleName();
     private String nativeProxyClass = NativeUnitProxy.class.getSimpleName();
     private String pkgProxyClass = NativePackageProxy.class.getSimpleName();
     private String pkgClass = BLangPackage.class.getSimpleName();
@@ -87,15 +87,16 @@ public class ConstructProviderClassBuilder {
     private Map<String, PackageHolder> nativePackages;
     private String symbolNameStr = "new %s(\"%s\")";
     private String functionSymbolNameStr = "new %s(\"%s\", %d)";
+    private String actionSymbolNameStr = "new %s(\"%s\", %d)";
     private final String importPkg = "import " + NativeScope.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnitProxy.class.getCanonicalName() + ";\n" + 
                                      "import " + SymbolName.class.getCanonicalName() + ";\n" + 
+                                     "import " + ActionSymbolName.class.getCanonicalName() + ";\n" +
                                      "import " + FunctionSymbolName.class.getCanonicalName() + ";\n" +
                                      "import " + NativeConstructLoader.class.getCanonicalName() + ";\n" +
                                      "import " + SimpleTypeName.class.getCanonicalName() + ";\n" +
                                      "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
                                      "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
-                                     "import " + BuiltinPackageRepository.class.getCanonicalName() + ";\n\n" +
                                      "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n" +
                                      "import " + NativeException.class.getCanonicalName() + ";\n\n";
     
@@ -107,20 +108,17 @@ public class ConstructProviderClassBuilder {
      * @param className Class name of the generated construct provider class
      * @param srcDir  source directory of ballerina files
      */
-    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir,
-                                         String pkgRepositoryClass) {
+    public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
         this.packageName = packageName;
         this.className = className;
         this.balSourceDir = srcDir;
-        this.pkgRepositoryClass = pkgRepositoryClass;
 
-        
+
         // Initialize the class writer. 
         initClassWriter(filer);
         
         // Create config file in META-INF/services directory
         createNativeConstructsLoaderServiceMetaFile(filer);
-        createBuiltinPackageRepositoryServiceMetaFile(filer);
     }
     
     /**
@@ -167,37 +165,6 @@ public class ConstructProviderClassBuilder {
                     NativeConstructLoader.class.getCanonicalName());
             configWriter = metaFile.openWriter();
             configWriter.write(packageName + "." + className);
-        } catch (IOException e) {
-            throw new BallerinaException("error while generating config file: " + e.getMessage());
-        } finally {
-            if (configWriter != null) {
-                try {
-                    configWriter.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Create the configuration file in META-INF/services, required for java service
-     * provider api related to built in package repository.
-     *
-     * @param filer {@link Filer} associated with this annotation processor.
-     * @param
-     */
-    private void createBuiltinPackageRepositoryServiceMetaFile(Filer filer) {
-        if (pkgRepositoryClass == null || pkgRepositoryClass.isEmpty()) {
-            return;
-        }
-        Writer configWriter = null;
-        try {
-            //Find the location of the resource/META-INF directory.
-            FileObject metaFile = filer.createResource(StandardLocation.CLASS_OUTPUT, "", META_INF + SERVICES +
-                    BuiltinPackageRepository.class.getCanonicalName());
-            configWriter = metaFile.openWriter();
-            configWriter.write(pkgRepositoryClass);
         } catch (IOException e) {
             throw new BallerinaException("error while generating config file: " + e.getMessage());
         } finally {
@@ -359,7 +326,7 @@ public class ConstructProviderClassBuilder {
                 String actionQualifiedName = Utils.getActionQualifiedName(balAction, balAction.connectorName());
                 String actionPkgName = balAction.packageName();
                 String actionClassName = action.getClassName();
-                String actionAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
+                String actionAddStr = getConstructInsertStrForAction(PACKAGE_SCOPE, DEFINE_METHOD, actionPkgName,
                     balAction.actionName(), actionQualifiedName, null, null, actionClassName, balAction.args(),
                     balAction.returnType(), "nativeAction", null, nativeUnitClass, "nativeActionClass",
                         balAction.connectorName(),  balAction.packageName());
@@ -417,12 +384,13 @@ public class ConstructProviderClassBuilder {
      * @param enclosingScopePkg Package name of the parent scope
      * @return
      */
-    private String getConstructInsertStr(String scope, String addMethod, String constructPkgName, String constructName,
-            String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
-            Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
+    private String getConstructInsertStrForAction(String scope, String addMethod, String constructPkgName,
+            String constructName, String constructQualifiedName, String constructArgType, String constructArg,
+            String constructImplClassName, Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
             String enclosingScopePkg) {
-        String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
+        String createSymbolStr = String.format(actionSymbolNameStr, actionSymbolNameClass, constructQualifiedName,
+                arguments.length);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
@@ -440,6 +408,54 @@ public class ConstructProviderClassBuilder {
         return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
                 constructImplClassName, nativeUnitClass, constructArgType, constructArg, argsNamesArrayStr, 
                 argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements, 
+                NativeException.class.getSimpleName());
+    }
+
+    /**
+     * Create the string representation of java source, of the construct insertion to the provided scope.
+     *
+     * @param scope Scope to which the construct is added
+     * @param constructPkgName Package name of the construct
+     * @param constructName Simple name of the construct
+     * @param constructQualifiedName Qualified name of the construct
+     * @param constructArgType Input parameter class for the parameterized constructor of this construct impl class
+     * @param constructArg  Input parameter for the parameterized constructor of this construct impl class
+     * @param constructImplClassName Name of the construct implementation class
+     * @param arguments Input parameters for the native construct
+     * @param returnTypes Return types of the native construct
+     * @param constructVarName Name of the variable that holds the instance of this construct in generated class
+     * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
+     * @param nativeUnitClass Class type of the current construct instance
+     * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
+     * generated source.
+     * @param enclosingScopeName Parent scope. Current construct will be added to this enclosingScope in the generated
+     * source.
+     * @param enclosingScopePkg Package name of the parent scope
+     * @return
+     */
+    private String getConstructInsertStr(String scope, String addMethod, String constructPkgName, String constructName,
+            String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
+            Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
+            String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
+            String enclosingScopePkg) {
+        String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
+        String retrunTypesArrayStr = getReturnTypes(returnTypes);
+        String argsNamesArrayStr = getArgNames(arguments);
+        String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
+        String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName,
+                constructName, constructPkgName);
+        if (constructArgType == null) {
+            constructArgType = EMPTY;
+        }
+        if (constructArg == null) {
+            constructArg = EMPTY;
+        }
+        if (scopeElements == null) {
+            scopeElements = EMPTY;
+        }
+        return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
+                constructImplClassName, nativeUnitClass, constructArgType, constructArg, argsNamesArrayStr,
+                argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements,
                 NativeException.class.getSimpleName());
     }
 
@@ -563,9 +579,10 @@ public class ConstructProviderClassBuilder {
                     sb.append("new " + simpleTypeNameClass + "(\"" + enclosingScopeName + "\",\"" + enclosingScopePkg +
                         "\", " + isArray + ", " + arrayDimensions + ")");
                 } else if (bType == TypeEnum.STRUCT) {
+                    String pkg = argType.structPackage().equals("null") ? enclosingScopePkg : argType.structPackage();
                     sb.append(
                             "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\""
-                                    + argType.structPackage() + "\", " + isArray + ", " + arrayDimensions + ")");
+                                    + pkg  + "\", " + isArray + ", " + arrayDimensions + ")");
                 } else {
                     sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() +
                             "\", " + isArray + ", " + arrayDimensions + ")");

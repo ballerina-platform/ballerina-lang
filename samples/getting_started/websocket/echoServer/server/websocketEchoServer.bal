@@ -3,9 +3,9 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/echo-server"}
+@http:config {basePath:"/echo-server"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketEchoServer {
+service<ws> websocketEchoServer {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
@@ -14,8 +14,13 @@ service websocketEchoServer {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
-        ws:pushText(messages:getStringPayload(m));
-        system:println("client: " + messages:getStringPayload(m));
+        string stringPayload = messages:getStringPayload(m);
+        if ("closeMe" == stringPayload) {
+            ws:closeConnection(); // Close connection from server side
+        } else {
+            ws:pushText(stringPayload);
+            system:println("client: " + messages:getStringPayload(m));
+        }
     }
 
     @ws:OnClose {}

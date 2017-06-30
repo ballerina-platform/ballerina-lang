@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 /**
  * @since 0.87
@@ -31,6 +32,11 @@ public class BBooleanArray extends BNewArray {
     private static BType arrayType = new BArrayType(BTypes.typeBoolean);
 
     private int[] values;
+
+    public BBooleanArray(int[] values) {
+        this.values = values;
+        this.size = values.length;
+    }
 
     public BBooleanArray() {
         values = (int[]) newArrayInstance(Integer.TYPE);
@@ -54,5 +60,21 @@ public class BBooleanArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public BValue copy() {
+        BBooleanArray booleanArray = new BBooleanArray(Arrays.copyOf(values, values.length));
+        booleanArray.size = this.size;
+        return booleanArray;
+    }
+    
+    @Override
+    public String stringValue() {
+        StringJoiner sj = new StringJoiner(",", "[", "]");
+        for (int i = 0; i < size; i++) {
+            sj.add(Boolean.toString(values[i] == 1));
+        }
+        return sj.toString();
     }
 }

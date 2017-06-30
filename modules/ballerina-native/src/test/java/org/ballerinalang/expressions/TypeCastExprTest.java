@@ -18,7 +18,6 @@
 package org.ballerinalang.expressions;
 
 
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
@@ -32,7 +31,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -45,12 +43,10 @@ import org.testng.annotations.Test;
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private ProgramFile bLangProgram;
-    private BLangProgram bProgram;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.getProgramFile("lang/expressions/type/cast/type-casting.bal");
-        bProgram = BTestUtils.parseBalFile("lang/expressions/type/cast/type-casting.bal");
     }
 
 //    @Test
@@ -351,9 +347,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: 'boolean' " +
                     "cannot be converted to 'int'.*")
     public void testBooleanInJsonToInt() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanInJsonToInt");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        BLangFunctions.invokeNew(bLangProgram, "testBooleanInJsonToInt");
     }
 
     @Test(description = "Test casting an integer in JSON to float",
@@ -361,9 +355,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeConversionError, message: 'int' " +
                     "cannot be converted to 'float'.*")
     public void testIntInJsonToFloat() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIntInJsonToFloat");
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 7.0);
+        BLangFunctions.invokeNew(bLangProgram, "testIntInJsonToFloat");
     }
 
     @Test(description = "Test casting a null JSON to string",
@@ -405,9 +397,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'int' cannot be cast to 'json'.*")
     public void testAnyIntToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyIntToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().intValue(), 8);
+        BLangFunctions.invokeNew(bLangProgram, "testAnyIntToJson");
     }
 
     @Test(description = "Test casting a string as any type to json",
@@ -415,9 +405,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'string' cannot be cast to 'json'.*")
     public void testAnyStringToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyStringToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().textValue(), "Supun");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyStringToJson");
     }
 
     @Test(description = "Test casting a boolean as any type to json",
@@ -425,9 +413,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, " +
                     "message: 'boolean' cannot be cast to 'json'.*")
     public void testAnyBooleanToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyBooleanToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().booleanValue(), true);
+        BLangFunctions.invokeNew(bLangProgram, "testAnyBooleanToJson");
     }
 
     @Test(description = "Test casting a float as any type to json",
@@ -435,9 +421,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'float' cannot be cast to 'json'.*")
     public void testAnyFloatToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyFloatToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().floatValue(), 8.73F);
+        BLangFunctions.invokeNew(bLangProgram, "testAnyFloatToJson");
     }
 
     @Test(description = "Test casting a map as any type to json",
@@ -445,9 +429,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'map' " +
                     "cannot be cast to 'json'.*")
     public void testAnyMapToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyMapToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"name\":\"supun\"}");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyMapToJson");
     }
 
     @Test(description = "Test casting a struct as any type to json",
@@ -455,9 +437,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: " +
                     "'Address' cannot be cast to 'json'.*")
     public void testAnyStructToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyStructToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().toString(), "{\"city\":\"CA\",\"country\":\"\"}");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyStructToJson");
     }
 
     @Test(description = "Test casting a json as any type to json")
@@ -478,9 +458,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:TypeCastError, message: 'any\\[\\]' " +
                     "cannot be cast to 'json'.*")
     public void testAnyArrayToJson() {
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testAnyArrayToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().toString(), "[8,4,6]");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyArrayToJson");
     }
 
     @Test(description = "Test casting a xml as any type to json",
@@ -552,11 +530,10 @@ public class TypeCastExprTest {
     }
 
     @Test(description = "Test casting any to struct",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "cannot cast 'any' with type 'map' to type 'Person'")
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*'map' cannot be cast to 'Person'.*")
     public void testAnyToStruct() {
-        //TODO : FIX me after fixing map to struct conversion issues
-        BValue[] returns = BLangFunctions.invoke(bProgram, "testAnyToStruct");
+        BLangFunctions.invokeNew(bLangProgram, "testAnyToStruct");
     }
 
     @Test(description = "Test casting a null stored as any to struct")
@@ -655,8 +632,8 @@ public class TypeCastExprTest {
 
     @Test(description = "Test returning a mismatching error when casting",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types for" +
-            " 'err': expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
+            expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
+                    "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
         BTestUtils.getProgramFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
     }

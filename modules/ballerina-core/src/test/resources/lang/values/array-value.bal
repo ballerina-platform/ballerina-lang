@@ -59,3 +59,19 @@ function testDefaultValueOfJsonArrayElement() (json, json, json) {
     j[5] = {name:"supun"};
     return j[0], j[1], j[5];
 }
+
+function testArrayGrowth () (int) {
+    float value = 100;
+    int[] ar = [];
+
+    int count = 0;
+    while (count < 20) {
+        int intValue;
+        intValue, _ = <int>value;
+
+        ar[intValue] = 1;
+        value = value * 1.7;
+        count = count + 1;
+    }
+    return ar.length;
+}

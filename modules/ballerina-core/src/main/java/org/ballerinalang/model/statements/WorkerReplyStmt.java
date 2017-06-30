@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -25,7 +24,6 @@ import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.ArrayList;
@@ -99,8 +97,8 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.WORKER_REPLY;
     }
 
     @Override
@@ -149,37 +147,6 @@ public class WorkerReplyStmt extends AbstractStatement implements CallableUnitIn
     @Override
     public void setCallableUnit(Worker callableUnit) {
 
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return 0;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return false;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-
-    }
-
-    /**
-     * Executes and Returns all the results of this expression.
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     * @return results of this expression
-     */
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return new BValue[0];
     }
 
     /**

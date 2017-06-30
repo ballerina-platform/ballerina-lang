@@ -17,9 +17,15 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+
+import java.util.HashMap;
+import java.util.StringJoiner;
 
 /**
  * The {@code BStruct} represents the value of a user defined struct in Ballerina.
@@ -31,6 +37,7 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
     private StructDef structDef;
     private BValue[] structMemBlock;
     private BStruct stackTrace;
+    private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
     private double[] doubleFields;
@@ -116,7 +123,35 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
      */
     @Override
     public String stringValue() {
-        return null;
+        int stringIndex = 0,
+                intIndex = 0,
+                longIndex = 0,
+                doubleIndex = 0,
+                byteIndex = 0,
+                refValIndex = 0;
+        
+        StringJoiner sj = new StringJoiner(",", "{", "}");
+        for (StructField field : ((BStructType) structType).getStructFields()) {
+            String fieldName = field.getFieldName();
+            Object fieldVal;
+            BType fieldType = field.getFieldType();
+            if (fieldType == BTypes.typeString) {
+                fieldVal = "\"" + stringFields[stringIndex++] + "\"";
+            } else if (fieldType == BTypes.typeInt) {
+                fieldVal = longFields[longIndex++];
+            } else if (fieldType == BTypes.typeFloat) {
+                fieldVal = doubleFields[doubleIndex++];
+            }  else if (fieldType == BTypes.typeBoolean) {
+                fieldVal = intFields[intIndex++];
+            } else if (fieldType == BTypes.typeBlob) {
+                fieldVal = byteFields[byteIndex++].toString();
+            } else {
+                BValue val = refFields[refValIndex++];
+                fieldVal = val == null ? null : val.stringValue();
+            }
+            sj.add(fieldName + ":" + fieldVal);
+        }
+        return sj.toString();
     }
 
     @Override
@@ -206,11 +241,43 @@ public final class BStruct implements BRefType<StructDef>, StructureType {
 
     @Override
     public BValue copy() {
-        BValue[] newStructMemBlock = new BValue[structMemBlock.length];
-        for (int i = 0; i < structMemBlock.length; i++) {
-            BValue value = structMemBlock[i];
-            newStructMemBlock[i] = value == null ? null : value.copy();
+        if (structDef != null) {
+            // TODO Remove this when the old interpreter is removed
+            BValue[] newStructMemBlock = new BValue[structMemBlock.length];
+            for (int i = 0; i < structMemBlock.length; i++) {
+                BValue value = structMemBlock[i];
+                newStructMemBlock[i] = value == null ? null : value.copy();
+            }
+            return new BStruct(structDef, newStructMemBlock);
+        } else {
+            BStruct bStruct = new BStruct(structType);
+            bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
+            bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
+            bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
+            bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
+            bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
+            bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
+            return bStruct;
         }
-        return new BStruct(structDef, newStructMemBlock);
+    }
+
+    /**
+     * Add natively accessible data to a struct.
+     *
+     * @param key key to store data with
+     * @param data data to be stored
+     */
+    public void addNativeData(String key, Object data) {
+        nativeData.put(key, data);
+    }
+
+    /**
+     * Get natively accessible data from struct.
+     *
+     * @param key key by which data was stored
+     * @return data which was stored with given key or null if no value corresponding to key
+     */
+    public Object getNativeData(String key) {
+        return nativeData.get(key);
     }
 }

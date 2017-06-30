@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.actions;
 
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
@@ -35,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.util.Calendar;
 
 /**
  * Test class for SQL Connector test.
@@ -333,9 +333,9 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testBatchUpdate() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBatchUpdate");
-        BArray retValue = (BArray) returns[0];
-        Assert.assertEquals(retValue.get(0).stringValue(), "1");
-        Assert.assertEquals(retValue.get(1).stringValue(), "1");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
     }
 
     @Test(groups = "ConnectorTest")
@@ -411,6 +411,38 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
+    @Test(groups = "ConnectorTest")
+    public void testDateTimeOutParams() {
+        BValue[] args = new BValue[3];
+        Calendar cal = Calendar.getInstance();
+        cal.clear();
+        cal.set(Calendar.HOUR, 14);
+        cal.set(Calendar.MINUTE, 15);
+        cal.set(Calendar.SECOND, 23);
+        long time = cal.getTimeInMillis();
+        args[0] = new BInteger(time);
+
+        cal.clear();
+        cal.set(Calendar.YEAR, 2017);
+        cal.set(Calendar.MONTH, 5);
+        cal.set(Calendar.DAY_OF_MONTH, 23);
+        long date = cal.getTimeInMillis();
+        args[1] = new BInteger(date);
+
+        cal.clear();
+        cal.set(Calendar.HOUR, 16);
+        cal.set(Calendar.MINUTE, 33);
+        cal.set(Calendar.SECOND, 55);
+        cal.set(Calendar.YEAR, 2017);
+        cal.set(Calendar.MONTH, 1);
+        cal.set(Calendar.DAY_OF_MONTH, 25);
+        long timestamp = cal.getTimeInMillis();
+        args[2] = new BInteger(timestamp);
+
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDateTimeOutParams", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
 
     @AfterSuite
     public void cleanup() {

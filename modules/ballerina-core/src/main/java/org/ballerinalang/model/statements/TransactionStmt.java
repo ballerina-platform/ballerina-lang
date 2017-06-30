@@ -18,7 +18,6 @@
 package org.ballerinalang.model.statements;
 
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
@@ -66,8 +65,8 @@ public class TransactionStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.TRANSACTION;
     }
 
     /**
@@ -218,6 +217,13 @@ public class TransactionStmt extends AbstractStatement {
             TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
                     abortedBlock, committedBlock);
             transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            transactionBlock.setParent(transactionStmt);
+            if (abortedBlock != null) {
+                abortedBlock.getAbortedBlockStmt().setParent(transactionStmt);
+            }
+            if (committedBlock != null) {
+                committedBlock.getCommittedBlockStmt().setParent(transactionStmt);
+            }
             return transactionStmt;
         }
     }

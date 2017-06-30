@@ -17,18 +17,13 @@
  */
 package org.ballerinalang.model.values;
 
-import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.DataTableJSONDataSource;
-import org.ballerinalang.model.DataTableOMDataSource;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Types;
 import java.util.List;
@@ -77,14 +72,19 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext() {
-        BValue[] dataArray = new BValue[this.columnCount];
-        int index = 0;
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
         for (ColumnDefinition columnDef : columnDefs) {
-            BValue value;
             String columnName = columnDef.getName();
-            switch (columnDef.getSQLType()) {
+            int sqlType = columnDef.getSQLType();
+            switch (sqlType) {
             case Types.ARRAY:
-                value = getDataArray(columnName);
+                BMap bMapvalue = getDataArray(columnName);
+                bStruct.setRefField(++refRegIndex, bMapvalue);
                 break;
             case Types.CHAR:
             case Types.VARCHAR:
@@ -92,44 +92,51 @@ public class BDataTable implements BRefType<Object> {
             case Types.NCHAR:
             case Types.NVARCHAR:
             case Types.LONGNVARCHAR:
-                value = new BString(iterator.getString(columnName));
+                String sValue = iterator.getString(columnName);
+                bStruct.setStringField(++stringRegIndex, sValue);
+                break;
+            case Types.BLOB:
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                BValue bValue = iterator.get(columnName, sqlType);
+                bStruct.setBlobField(++blobRegIndex, ((BBlob) bValue).blobValue());
                 break;
             case Types.CLOB:
-            case Types.BLOB:
+            case Types.NCLOB:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
-            case Types.NCLOB:
-                value = new BString(iterator.getObjectAsString(columnName));
-                break;
-            case Types.BINARY:
-                value = iterator.get(columnName, "binary");
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
+                BValue strValue = iterator.get(columnName, sqlType);
+                bStruct.setStringField(++stringRegIndex, strValue.stringValue());
                 break;
             case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:
             case Types.BIGINT:
-                value = new BInteger(iterator.getInt(columnName));
+                long lValue = iterator.getInt(columnName);
+                bStruct.setIntField(++longRegIndex, lValue);
                 break;
             case Types.REAL:
             case Types.NUMERIC:
             case Types.DECIMAL:
             case Types.FLOAT:
             case Types.DOUBLE:
-                value = new BFloat(iterator.getFloat(columnName));
+                double fValue = iterator.getFloat(columnName);
+                bStruct.setFloatField(++doubleRegIndex, fValue);
                 break;
             case Types.BIT:
             case Types.BOOLEAN:
-                value = new BBoolean(iterator.getBoolean(columnName));
+                boolean boolValue = iterator.getBoolean(columnName);
+                bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
                 break;
             default:
-                value = null;
+                throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
             }
-            dataArray[index] = value;
-            ++index;
         }
-        bStruct.setMemoryBlock(dataArray);
-        BLangVM.prepareStructureTypeFromNativeAction(bStruct);
         return bStruct;
     }
 
@@ -179,12 +186,19 @@ public class BDataTable implements BRefType<Object> {
             case Types.LONGNVARCHAR:
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.BLOB:
-            case Types.BINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 type = BTypes.typeString;
+                break;
+            case Types.BLOB:
+            case Types.LONGVARBINARY:
+            case Types.BINARY:
+            case Types.VARBINARY:
+                type = BTypes.typeBlob;
                 break;
             case Types.TINYINT:
             case Types.SMALLINT:
@@ -245,98 +259,28 @@ public class BDataTable implements BRefType<Object> {
     }
 
 
-    public String getString(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getString((int) index);
-    }
-
     public String getString(String columnName) {
         return iterator.getString(columnName);
-    }
-
-    public long getInt(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getInt((int) index);
     }
 
     public long getInt(String columnName) {
         return iterator.getInt(columnName);
     }
 
-    public double getFloat(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getFloat((int) index);
-    }
-
     public double getFloat(String columnName) {
         return iterator.getFloat(columnName);
-    }
-
-    public boolean getBoolean(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getBoolean((int) index);
     }
 
     public boolean getBoolean(String columnName) {
         return iterator.getBoolean(columnName);
     }
 
-    public BValue get(long index, String type) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.get((int) index, type);
-    }
-
-    public BValue get(String columnName, String type) {
-        return iterator.get(columnName, type);
-    }
-
-    public String getObjectAsString(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getObjectAsString((int) index);
-    }
-
     public String getObjectAsString(String columnName) {
         return iterator.getObjectAsString(columnName);
     }
 
-    public Map<String, Object> getArray(long index) {
-        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper
-                    .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
-        }
-        return iterator.getArray((int) index);
-    }
-
     public Map<String, Object> getArray(String columnName) {
         return iterator.getArray(columnName);
-    }
-
-    public BJSON toJSON(boolean isInTransaction) {
-        return new BJSON(new DataTableJSONDataSource(this, isInTransaction));
-    }
-
-    public BXML toXML(String rootWrapper, String rowWrapper, boolean isInTransaction) {
-        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper, isInTransaction));
-        return new BXMLItem(omSourcedElement);
     }
 
     public List<ColumnDefinition> getColumnDefs() {

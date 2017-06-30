@@ -30,6 +30,8 @@ public class DispatcherRegistry {
 
     private Map<String, ServiceDispatcher> serviceDispatchers = new HashMap<String, ServiceDispatcher>();
     private Map<String, ResourceDispatcher> resourceDispatchers = new HashMap<String, ResourceDispatcher>();
+    //key - protocolPackage, value - protocol
+    private Map<String, String> protocolPackageMap = new HashMap<>();
 
     private static DispatcherRegistry instance = new DispatcherRegistry();
 
@@ -44,6 +46,14 @@ public class DispatcherRegistry {
         return serviceDispatchers.get(protocol);
     }
 
+    public ServiceDispatcher getServiceDispatcherFromPkg(String protocolPkg) {
+        return serviceDispatchers.get(protocolPackageMap.get(protocolPkg));
+    }
+
+    public boolean protocolPkgExist(String protocolPkgPath) {
+        return protocolPackageMap.containsKey(protocolPkgPath);
+    }
+
     public Map<String, ServiceDispatcher> getServiceDispatchers() {
         return serviceDispatchers;
     }
@@ -54,6 +64,7 @@ public class DispatcherRegistry {
 
     public void registerServiceDispatcher(ServiceDispatcher dispatcher) {
         serviceDispatchers.put(dispatcher.getProtocol(), dispatcher);
+        protocolPackageMap.put(dispatcher.getProtocolPackage(), dispatcher.getProtocol());
     }
 
     public void registerResourceDispatcher(ResourceDispatcher dispatcher) {

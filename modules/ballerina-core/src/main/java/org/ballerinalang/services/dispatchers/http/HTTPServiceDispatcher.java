@@ -18,8 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
@@ -47,22 +45,14 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPServiceDispatcher.class);
     private CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
 
-    @Deprecated
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        return null;
-    }
-
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_HTTP;
     }
 
     @Override
-    public void serviceRegistered(Service service) {}
-
-    @Override
-    public void serviceUnregistered(Service service) {
-        HTTPServicesRegistry.getInstance().unregisterService(service);
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_HTTP;
     }
 
     public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
@@ -87,7 +77,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             ServiceInfo service = servicesOnInterface.get(basePath);
             if (service == null) {
                 cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
-                throw new BallerinaException("no service found to handle incoming request received to : " + uriStr);
+                throw new BallerinaException("no matching service found for path : " + uriStr);
             }
 
             String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
@@ -125,7 +115,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             try {
                 service.getUriTemplate().parse(subPathAnnotationVal, resource);
             } catch (URITemplateException e) {
-                log.error("Failed to parse URIs", e);
+                throw new BallerinaException(e.getMessage());
             }
         }
 
@@ -169,11 +159,11 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private String getServiceBasePath(ServiceInfo service) {
         String basePath = service.getName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_BASE_PATH);
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
 
         if (annotationInfo != null) {
             AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
-                    (Constants.VALUE_ATTRIBUTE);
+                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
             if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
                     !annotationAttributeValue.getStringValue().trim().isEmpty()) {
                 basePath = annotationAttributeValue.getStringValue();

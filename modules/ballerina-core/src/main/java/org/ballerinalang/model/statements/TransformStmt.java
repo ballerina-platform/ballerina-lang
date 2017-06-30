@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -52,8 +51,8 @@ public class TransformStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.TRANSFORM;
     }
 
     public Expression[] getOutputExprs() {
@@ -97,7 +96,10 @@ public class TransformStmt extends AbstractStatement {
         }
 
         public TransformStmt build() {
-            return new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs, transformBody);
+            TransformStmt transformStmt = new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs,
+                    transformBody);
+            transformBody.setParent(transformStmt);
+            return transformStmt;
         }
     }
 }

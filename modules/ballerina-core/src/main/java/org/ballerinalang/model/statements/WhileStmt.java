@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
@@ -54,8 +53,8 @@ public class WhileStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.WHILE;
     }
 
     /**
@@ -86,7 +85,9 @@ public class WhileStmt extends AbstractStatement {
         }
 
         public WhileStmt build() {
-            return new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
+            WhileStmt whileStmt = new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
+            whileBody.setParent(whileStmt);
+            return whileStmt;
         }
     }
 }

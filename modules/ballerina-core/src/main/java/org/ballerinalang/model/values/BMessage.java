@@ -226,7 +226,11 @@ public final class BMessage implements BRefType<CarbonMessage> {
         if (this.isAlreadyRead()) {
             return this.value.getMessageDataSource().getMessageAsString();
         }
-        return MessageUtils.getStringFromInputStream(this.value.getInputStream());
+        String stringValue = MessageUtils.getStringFromInputStream(this.value.getInputStream());
+        StringDataSource stringDataSource = new StringDataSource(stringValue, this.value.getOutputStream());
+        this.value.setMessageDataSource(stringDataSource);
+        setAlreadyRead(true);
+        return stringValue;
     }
 
     @Override
@@ -236,19 +240,17 @@ public final class BMessage implements BRefType<CarbonMessage> {
 
     public BMessage clone() {
         BMessage clonedMessage = new BMessage();
-        // Clone the carbon message
-        if (this.value != null && !this.value.isEmpty()) {
-            clonedMessage.value = MessageUtil.cloneCarbonMessageWithData(this.value());
-        } else {
-            clonedMessage.setValue(MessageUtil.cloneCarbonMessageWithOutData(this.value()));
-            clonedMessage.setHeaderList(this.getHeaders());
-
-        }
         // Clone the already built content
-        if (this.value.getMessageDataSource() != null &&
-                this.value.getMessageDataSource() instanceof BallerinaMessageDataSource) {
-            clonedMessage.setMessageDataSource(((BallerinaMessageDataSource) this.value.
-                    getMessageDataSource()).clone());
+        if (this.value != null) {
+            if (this.value.getMessageDataSource() != null &&
+                    this.value.getMessageDataSource() instanceof BallerinaMessageDataSource) {
+                // Clone the headers and the properties map of this message
+                clonedMessage.setValue(MessageUtil.cloneCarbonMessageWithOutData(this.value()));
+                clonedMessage.setMessageDataSource(((BallerinaMessageDataSource) this.value.
+                        getMessageDataSource()).clone());
+            } else {
+                clonedMessage.value = MessageUtil.cloneCarbonMessageWithData(this.value());
+            }
         }
         return clonedMessage;
     }
