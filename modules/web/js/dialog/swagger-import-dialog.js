@@ -177,7 +177,22 @@ const SwaggerImportDialog = Backbone.View.extend(
                                 swaggerParser = new SwaggerParser(data.content, true);
                             }
                             const ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
+
+                            // Adding ballerina.net.http import.
+                            const httpImport = BallerinaASTFactory.createImportDeclaration();
+                            httpImport.setPackageName('ballerina.net.http', { doSilently: true });
+                            httpImport.setParent(ballerinaAstRoot, { doSilently: true });
+                            ballerinaAstRoot.addImport(httpImport, { doSilently: true });
+
+                            // Adding ballerina.net.http.swagger import.
+                            const swaggerImport = BallerinaASTFactory.createImportDeclaration();
+                            swaggerImport.setPackageName('ballerina.net.http.swagger', { doSilently: true });
+                            swaggerImport.setParent(ballerinaAstRoot, { doSilently: true });
+                            ballerinaAstRoot.addImport(swaggerImport, { doSilently: true });
+
                             const serviceDefinition = BallerinaASTFactory.createServiceDefinition();
+                            serviceDefinition.setProtocolPkgName('http');
+                            serviceDefinition.setProtocolPkgPath('ballerina.net.http');
                             ballerinaAstRoot.addChild(serviceDefinition);
                             swaggerParser.mergeToService(serviceDefinition);
 
@@ -198,6 +213,7 @@ const SwaggerImportDialog = Backbone.View.extend(
                         } catch (error) {
                             this._openFileWizardError.text(`Error occurred when importing: ${error.message}`);
                             this._openFileWizardError.show();
+                            console.error(error);
                         }
                     } else {
                         this._openFileWizardError.text(data.Error);
