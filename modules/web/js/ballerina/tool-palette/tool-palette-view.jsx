@@ -77,8 +77,8 @@ class ToolsPane extends React.Component {
                         role="button"
                         onClick={() => this.changePane('connectors')}
                     >
-                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
-                        More
+                        <i className="fw fw-view icon" />
+                         More connectors
               </a>
                 </ToolsPanel>
                 <ToolsPanel name="Libraries">
@@ -89,8 +89,8 @@ class ToolsPane extends React.Component {
                         className="tool-palette-add-button"
                         onClick={() => this.changePane('library')}
                     >
-                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
-                        More
+                        <i className="fw fw-view icon" />
+                         More libraries
                     </a>
                     <br />
                 </ToolsPanel>
@@ -123,8 +123,8 @@ class TransformPane extends React.Component {
                         className="tool-palette-add-button"
                         onClick={() => this.changePane('library')}
                     >
-                        <i className="fw fw-add fw-helper fw-helper-circle-outline icon" />
-                        More
+                        <i className="fw fw-view icon" />
+                        More libraries
                     </a>
                     <br />
                 </ToolsPanel>
@@ -150,7 +150,7 @@ class ConnectorPane extends React.Component {
                 <div className="tool-pane-header">
                     Connectors
                     <a className="back" onClick={() => this.changePane('tools')}>
-                        <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
+                        <i className="fw fw-left-arrow icon" />
                     </a>
                 </div>
                 {this.props.connectors}
@@ -176,7 +176,7 @@ class LibraryPane extends React.Component {
                 <div className="tool-pane-header">
                     Libraries
                     <a className="back" onClick={() => this.changePane('tools')}>
-                        <i className="fw fw-cancel fw-helper fw-helper-circle-outline icon" />
+                        <i className="fw fw-left-arrow icon" />
                     </a>
                 </div>
                 {this.props.library}
