@@ -40,11 +40,14 @@ function main(string[] args) {
       // Values received from worker W2 are assigned to any array of r2
       r2,_   = (any[]) results["W2"];
       // Getting the 0th index of array returned from worker W1
-      int p = (int) r1[0];
+      int p;
+      p, _ = (int) r1[0];
       // Getting the 1th index of array returned from worker W1
-      string l = (string) r1[1];
+      string l;
+      l, _ = (string) r1[1];
       // Getting the 0th index of array returned from worker W2
-      float q = (float) r2[0];
+      float q;
+      q, _ = (float) r2[0];
       // Print values received from workers within join block
       system:println("[default worker] within join:
       Value of integer from W1 is [" + p + "]");
