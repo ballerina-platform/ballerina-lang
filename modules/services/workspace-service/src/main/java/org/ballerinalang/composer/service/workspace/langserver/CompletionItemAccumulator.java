@@ -135,7 +135,6 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.InstructionCodes;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -1587,10 +1586,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
 
         if (bLangSymbol instanceof VariableDef) {
-            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
-                throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
-                        SemanticErrors.INCORRECT_ACTION_INVOCATION);
-            }
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
             SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(),
                     null, name, null, pkgPath);
@@ -1603,9 +1598,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             actionIExpr.setConnectorName(varDef.getTypeName().getName());
             actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
             actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
-        } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
-            throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
-                    SemanticErrors.INVALID_ACTION_INVOCATION);
         }
 
         Expression[] exprs = actionIExpr.getArgExprs();
@@ -1834,25 +1826,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         for (Expression argExpr : argExprs) {
             KeyValueExpr keyValueExpr = (KeyValueExpr) argExpr;
             Expression keyExpr = keyValueExpr.getKeyExpr();
-            if (!(keyExpr instanceof SimpleVarRefExpr)) {
-                throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
-                        SemanticErrors.INVALID_FIELD_NAME_STRUCT_INIT);
-            }
 
             SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) keyExpr;
             //TODO fix properly package conflict
             BLangSymbol varDefSymbol = structDef.resolveMembers(new SymbolName(varRefExpr.getSymbolName().getName(),
                     structDef.getPackagePath()));
-
-            if (varDefSymbol == null) {
-                throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
-                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, varRefExpr.getVarName(), structDef.getName());
-            }
-
-            if (!(varDefSymbol instanceof VariableDef)) {
-                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
-                        SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, varDefSymbol.getSymbolName());
-            }
 
             VariableDef varDef = (VariableDef) varDefSymbol;
             varRefExpr.setVariableDef(varDef);
@@ -1875,21 +1853,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(SimpleVarRefExpr simpleVarRefExpr) {
-        // Resolve package path from the give package name
-        if (simpleVarRefExpr.getPkgName() != null && simpleVarRefExpr.getPkgPath() == null) {
-            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
-                    SemanticErrors.UNDEFINED_PACKAGE_NAME, simpleVarRefExpr.getPkgName(),
-                    simpleVarRefExpr.getPkgName() + ":" + simpleVarRefExpr.getVarName());
-        }
-
         SymbolName symbolName = simpleVarRefExpr.getSymbolName();
         // Check whether this symName is declared
         BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
-
-        if (!(varDefSymbol instanceof VariableDef)) {
-            throw BLangExceptionHelper.getSemanticError(simpleVarRefExpr.getNodeLocation(),
-                    SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, symbolName);
-        }
 
         simpleVarRefExpr.setVariableDef((VariableDef) varDefSymbol);
     }
@@ -1905,10 +1871,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         if (varRefType instanceof StructDef) {
             StructDef structDef = (StructDef) varRefType;
             BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
-            if (fieldSymbol == null) {
-                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
-                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
-            }
+
             VariableDef fieldDef = (VariableDef) fieldSymbol;
             fieldBasedVarRefExpr.setFieldDef(fieldDef);
             fieldBasedVarRefExpr.setType(fieldDef.getType());
@@ -1920,18 +1883,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
 
         } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
-            if (fieldBasedVarRefExpr.isLHSExpr()) {
-                //cannot assign a value to array length
-                throw BLangExceptionHelper.getSemanticError(fieldBasedVarRefExpr.getNodeLocation(),
-                        SemanticErrors.CANNOT_ASSIGN_VALUE_ARRAY_LENGTH);
-
-            }
             fieldBasedVarRefExpr.setType(BTypes.typeInt);
 
-        } else {
-            throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
-                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefType);
-            // TODO Implement .type expression
         }
     }
 
@@ -1946,53 +1899,24 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Type of the varRefExpr can be either Array, Map, JSON, Struct.
         BType varRefType = varRefExpr.getType();
         if (varRefType instanceof BArrayType) {
-            if (indexExpr.getType() != BTypes.typeInt) {
-                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
-                        SemanticErrors.NON_INTEGER_ARRAY_INDEX, indexExpr.getType());
-            }
             BArrayType arrayType = (BArrayType) varRefType;
             indexBasedVarRefExpr.setType(arrayType.getElementType());
 
         } else if (varRefType == BTypes.typeMap) {
-            if (indexExpr.getType() != BTypes.typeString) {
-                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
-                        SemanticErrors.NON_STRING_MAP_INDEX, indexExpr.getType());
-            }
             BMapType mapType = (BMapType) varRefType;
             indexBasedVarRefExpr.setType(mapType.getElementType());
 
         } else if (varRefType == BTypes.typeJSON) {
-            if (indexExpr.getType() != BTypes.typeInt && indexExpr.getType() != BTypes.typeString) {
-                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
-                        SemanticErrors.INCOMPATIBLE_TYPES, "string or int", varRefExpr.getType());
-            }
             indexBasedVarRefExpr.setType(BTypes.typeJSON);
 
         } else if (varRefType instanceof StructDef) {
-            if (indexExpr.getType() != BTypes.typeString) {
-                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
-                        SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, varRefExpr.getType());
-            }
-
-            if (!(indexExpr instanceof BasicLiteral)) {
-                throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
-                        SemanticErrors.DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT);
-            }
-
             String fieldName = ((BasicLiteral) indexExpr).getBValue().stringValue();
             StructDef structDef = (StructDef) varRefType;
             BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
-            if (fieldSymbol == null) {
-                throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
-                        SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
-            }
+
             VariableDef fieldDef = (VariableDef) fieldSymbol;
             indexBasedVarRefExpr.setFieldDef(fieldDef);
             indexBasedVarRefExpr.setType(fieldDef.getType());
-
-        } else {
-            throw BLangExceptionHelper.getSemanticError(indexBasedVarRefExpr.getNodeLocation(),
-                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefType);
         }
     }
 
@@ -2201,10 +2125,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         if (assignStmt.isDeclaredWithVar()) {
             // This set data structure is used to check for repeated variable names in the assignment statement
             for (Expression expr : lExprs) {
-                if (!(expr instanceof SimpleVarRefExpr)) {
-                    throw BLangExceptionHelper.getSemanticError(assignStmt.getNodeLocation(),
-                            SemanticErrors.INVALID_VAR_ASSIGNMENT);
-                }
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
@@ -2237,10 +2157,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
             // Check whether someone is trying to change the values of a constant
             checkForConstAssignment(assignStmt, lExpr);
-        }
-        if (ignoredVarCount == lExprs.length) {
-            throw new SemanticException(BLangExceptionHelper.constructSemanticError(
-                    assignStmt.getNodeLocation(), SemanticErrors.IGNORED_ASSIGNMENT));
         }
     }
 
