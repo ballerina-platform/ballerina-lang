@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.utils.logger;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.logging.BLogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.89
  */
 public class BallerinaLogHandler {
-    private static final Logger ballerinaRootLogger = LoggerFactory.getLogger("ballerina");
+    private static final Logger ballerinaRootLogger = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
 
     public static Logger getLogger(Context ctx) {
         String packageDirPath =

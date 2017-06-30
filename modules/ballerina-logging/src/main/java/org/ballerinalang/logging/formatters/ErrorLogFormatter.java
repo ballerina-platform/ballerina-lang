@@ -37,10 +37,8 @@ public class ErrorLogFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        String source;
+        String source = "";
         if (record.getLoggerName().length() <= BLogManager.LOGGER_PREFIX_LENGTH) {
-            source = ".";
-        } else {
             source = record.getLoggerName().substring(BLogManager.LOGGER_PREFIX_LENGTH);
         }
         return String.format(format,
