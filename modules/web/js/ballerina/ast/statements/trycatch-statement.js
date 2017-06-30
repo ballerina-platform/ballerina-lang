@@ -73,8 +73,8 @@ class TryCatchStatement extends Statement {
         const finallyBlockNode = jsonNode.finally_block;
 
         this._tryStatement = self.getFactory().createFromJson(tryBlockNode);
-        this._tryStatement.initFromJson(tryBlockNode);
         this.addChild(this._tryStatement);
+        this._tryStatement.initFromJson(tryBlockNode);
 
         _.each(catchBlocks, (catchBlock) => {
             const catchNode = self.getFactory().createFromJson(catchBlock);
