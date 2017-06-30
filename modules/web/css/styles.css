@@ -1683,12 +1683,19 @@ span.fw-stack.fw-lg {
 .protocol-text{
     font-weight: 400;
 }
+.panel-heading-decorator{
+    fill: #607D8B;
+}
 
 .protocol-http .protocol-line{
     stroke: #3498db;
 }
 
 .protocol-http .protocol-rect{
+    fill: #3498db;
+}
+
+.protocol-http .panel-heading-decorator{
     fill: #3498db;
 }
 
@@ -1700,6 +1707,10 @@ span.fw-stack.fw-lg {
 }
 
 .protocol-ws .protocol-rect{
+    fill: #E65100;
+}
+
+.protocol-ws .panel-heading-decorator{
     fill: #E65100;
 }
 
@@ -1715,6 +1726,10 @@ span.fw-stack.fw-lg {
     fill: #558B2F;
 }
 
+.protocol-jms .panel-heading-decorator{
+    fill: #558B2F;
+}
+
 .protocol-jms .protocol-text{
 
 }
@@ -1725,6 +1740,10 @@ span.fw-stack.fw-lg {
 }
 
 .protocol-file .protocol-rect{
+    fill: #966c37;
+}
+
+.protocol-file .panel-heading-decorator{
     fill: #966c37;
 }
 
