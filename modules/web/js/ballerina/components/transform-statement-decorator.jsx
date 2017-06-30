@@ -754,7 +754,7 @@ class TransformStatementDecorator extends React.Component {
         const text_x = bBox.x + (bBox.w / 2);
         const text_y = this.statementBox.y + (this.statementBox.h / 2);
         const expand_button_x = bBox.x + (bBox.w / 2) + 40;
-        const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 10;
+        const expand_button_y = this.statementBox.y + (this.statementBox.h / 2) - 7;
         const drop_zone_x = bBox.x + (bBox.w - lifeLine.width) / 2;
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
