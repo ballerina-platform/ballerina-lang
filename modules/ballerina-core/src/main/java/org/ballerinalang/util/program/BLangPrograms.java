@@ -19,8 +19,10 @@ package org.ballerinalang.util.program;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,8 +42,18 @@ public class BLangPrograms {
         // Get the global scope
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
-        BuiltInNativeConstructLoader.loadConstructs(globalScope);
         return globalScope;
+    }
+
+    public static NativeScope populateNativeScope() {
+        // Get the global scope
+        NativeScope nativeScope = NativeScope.getInstance();
+        BuiltInNativeConstructLoader.loadConstructs(nativeScope);
+        return nativeScope;
+    }
+
+    public static BuiltinPackageRepository[] populateBuiltinPackageRepositories() {
+        return BuiltInNativeConstructLoader.loadPackageRepositories();
     }
 
     public static Path validateAndResolveArchivePath(Path programArchivePath,

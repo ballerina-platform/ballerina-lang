@@ -17,18 +17,10 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.ConnectorVarLocation;
-import org.ballerinalang.bre.ConstantLocation;
-import org.ballerinalang.bre.ServiceVarLocation;
-import org.ballerinalang.bre.StackVarLocation;
-import org.ballerinalang.bre.StructVarLocation;
-import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
-import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
-import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -37,34 +29,41 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.JSONArrayInitExpr;
+import org.ballerinalang.model.expressions.JSONInitExpr;
+import org.ballerinalang.model.expressions.KeyValueExpr;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
-import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
-import org.ballerinalang.model.expressions.ResourceInvocationExpr;
-import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
 import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
-import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TransactionStmt;
+import org.ballerinalang.model.statements.TransformStmt;
 import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
@@ -88,6 +87,8 @@ public interface NodeVisitor {
 
     void visit(ConstDef constant);
 
+    void visit(GlobalVariableDef globalVar);
+
     void visit(Service service);
 
     void visit(BallerinaConnectorDef connector);
@@ -102,14 +103,17 @@ public interface NodeVisitor {
 
     void visit(Worker worker);
 
-    void visit(Annotation annotation);
+    void visit(AnnotationAttachment annotation);
 
     void visit(ParameterDef parameterDef);
 
     void visit(VariableDef variableDef);
 
     void visit(StructDef structDef);
+    
+    void visit(AnnotationAttributeDef annotationAttributeDef);
 
+    void visit(AnnotationDef annotationDef);
 
     // Statements
 
@@ -131,6 +135,8 @@ public interface NodeVisitor {
 
     void visit(BreakStmt breakStmt);
 
+    void visit(ContinueStmt continueStmt);
+
     void visit(TryCatchStmt tryCatchStmt);
 
     void visit(ThrowStmt throwStmt);
@@ -144,6 +150,12 @@ public interface NodeVisitor {
     void visit(WorkerReplyStmt workerReplyStmt);
 
     void visit(ForkJoinStmt forkJoinStmt);
+
+    void visit(TransformStmt transformStmt);
+
+    void visit(TransactionStmt transactionStmt);
+
+    void visit(AbortStmt abortStmt);
 
     // Expressions
 
@@ -184,12 +196,8 @@ public interface NodeVisitor {
     void visit(UnaryExpression unaryExpression);
 
     void visit(TypeCastExpression typeCastExpression);
-
-    void visit(ArrayMapAccessExpr arrayMapAccessExpr);
-
-    void visit(StructFieldAccessExpr structAttributeAccessExpr);
-
-    void visit(BacktickExpr backtickExpr);
+    
+    void visit(TypeConversionExpr typeConversionExpression);
 
     void visit(ArrayInitExpr arrayInitExpr);
 
@@ -198,27 +206,20 @@ public interface NodeVisitor {
     void visit(ConnectorInitExpr connectorInitExpr);
 
     void visit(StructInitExpr structInitExpr);
-
+    
     void visit(MapInitExpr mapInitExpr);
 
-    void visit(MapStructInitKeyValueExpr keyValueExpr);
+    void visit(JSONInitExpr jsonInitExpr);
+    
+    void visit(JSONArrayInitExpr jsonArrayInitExpr);
 
-    void visit(VariableRefExpr variableRefExpr);
+    void visit(KeyValueExpr keyValueExpr);
 
+    void visit(SimpleVarRefExpr simpleVarRefExpr);
 
-    void visit(StackVarLocation stackVarLocation);
+    void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr);
 
-    void visit(ServiceVarLocation serviceVarLocation);
+    void visit(IndexBasedVarRefExpr indexBasedVarRefExpr);
 
-    void visit(ConnectorVarLocation connectorVarLocation);
-
-    void visit(ConstantLocation constantLocation);
-
-    void visit(StructVarLocation structVarLocation);
-
-    void visit(ResourceInvocationExpr resourceIExpr);
-
-    void visit(MainInvoker mainInvoker);
-
-    void visit(WorkerVarLocation workerVarLocation);
+    void visit(NullLiteral nullLiteral);
 }

@@ -17,18 +17,19 @@
 package org.ballerinalang.model.types;
 
 /**
- * Interface class to be extended by all Ballerina Types which holds indexed values.
- * <br/>
- * Known implemented types:
+ * <p>Interface class to be extended by all Ballerina Types which holds indexed values.</p>
+ * <p>Known implemented types:</p>
  * <ul>
  * <li>{@link BArrayType}}</li>
  * <li>{@link BMapType}}</li>
  * </ul>
+ * 
+ * @since 0.8.0
  */
 public interface BIndexedType {
     
     /**
-     * Get the type of a child elements of this type
+     * Get the type of a child elements of this type.
      * 
      * @return  Type of the child elements
      */

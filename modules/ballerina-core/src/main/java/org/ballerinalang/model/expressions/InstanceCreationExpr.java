@@ -17,27 +17,21 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * @since 0.8.0
  */
 public class InstanceCreationExpr extends UnaryExpression {
 
-    public InstanceCreationExpr(NodeLocation location, Expression rExpr) {
-        super(location, null, rExpr);
+    public InstanceCreationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, null, rExpr);
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
 }

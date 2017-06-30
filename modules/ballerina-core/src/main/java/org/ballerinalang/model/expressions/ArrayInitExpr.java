@@ -17,10 +17,9 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code ArrayInitExpr} represents an arrays initializer expression.
@@ -34,18 +33,12 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ArrayInitExpr extends RefTypeInitExpr {
 
-    public ArrayInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, argExprs);
+    public ArrayInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
-    }
-
 }

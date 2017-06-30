@@ -22,6 +22,8 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.Collections;
@@ -45,17 +47,20 @@ import java.util.Map;
  */
 public class BallerinaConnectorDef extends BType implements Connector, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
+    protected Identifier identifier;
     protected boolean isPublic;
     protected boolean isNative;
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
 
     private BallerinaFunction initFunction;
+    private BallerinaAction initAction;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -70,7 +75,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -99,6 +104,14 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         this.initFunction = initFunction;
     }
 
+    public BallerinaAction getInitAction() {
+        return initAction;
+    }
+
+    public void setInitAction(BallerinaAction initAction) {
+        this.initAction = initAction;
+    }
+
     public void setSizeOfConnectorMem(int sizeOfConnectorMem) {
         this.sizeOfConnectorMem = sizeOfConnectorMem;
     }
@@ -120,17 +133,47 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_CONNECTOR, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.CONNECTOR_TAG;
     }
 
     @Override
     public String getName() {
         return typeName;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -191,7 +234,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     }
 
     /**
-     * {@code BallerinaConnectorDefBuilder} is responsible for building a {@cdoe BallerinaConnectorDef} node.
+     * {@code BallerinaConnectorDefBuilder} is responsible for building a {@code BallerinaConnectorDef} node.
      *
      * @since 0.8.0
      */
@@ -205,11 +248,14 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
         public BallerinaConnectorDef buildConnector() {
             this.connectorDef.location = this.location;
-            this.connectorDef.typeName = this.name;
+            this.connectorDef.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            this.connectorDef.identifier = this.identifier;
+            this.connectorDef.typeName = this.identifier.getName();
             this.connectorDef.pkgPath = this.pkgPath;
-            this.connectorDef.symbolName = new SymbolName(name, pkgPath);
+            this.connectorDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
-            this.connectorDef.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.connectorDef.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
             this.connectorDef.parameterDefs = this.parameterDefList.toArray(
                     new ParameterDef[this.parameterDefList.size()]);
             this.connectorDef.actions = this.actionList.toArray(new BallerinaAction[this.actionList.size()]);

@@ -17,12 +17,15 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BBoolean} represents a boolean value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BBoolean extends BValueType {
+public final class BBoolean extends BValueType implements BRefType<Boolean> {
 
     /**
      * The {@code BBoolean} object corresponding to the primitive.
@@ -43,22 +46,12 @@ public final class BBoolean extends BValueType {
     }
 
     @Override
-    public int intValue() {
+    public long intValue() {
         return 0;
     }
 
     @Override
-    public long longValue() {
-        return 0;
-    }
-
-    @Override
-    public float floatValue() {
-        return 0;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         return 0;
     }
 
@@ -68,12 +61,31 @@ public final class BBoolean extends BValueType {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
         return Boolean.toString(value);
     }
 
     @Override
+    public BType getType() {
+        return BTypes.typeBoolean;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return ((BBoolean) obj).booleanValue() == value;
+    }
+
+    @Override
+    public Boolean value() {
+        return value;
+    }
+
+    public BValue copy() {
+        return new BBoolean(value);
     }
 }

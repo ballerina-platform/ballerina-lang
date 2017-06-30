@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
 /**
@@ -31,8 +31,9 @@ public class ReplyStmt extends AbstractStatement {
 
     private Expression replyExpr;
 
-    public ReplyStmt(NodeLocation location, Expression replyExpr) {
+    public ReplyStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression replyExpr) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.replyExpr = replyExpr;
     }
 
@@ -46,8 +47,7 @@ public class ReplyStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.REPLY;
     }
-
 }

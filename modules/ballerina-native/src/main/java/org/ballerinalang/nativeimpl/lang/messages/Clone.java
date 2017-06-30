@@ -57,34 +57,7 @@ public class Clone  extends AbstractNativeFunction {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Invoke message clone.");
         }
-        BMessage msg = (BMessage) getArgument(context, 0);
-        return getBValues(getCopyOfMessage(msg));
-    }
-
-    private BMessage getCopyOfMessage(BMessage originalMessage) {
-
-        // Fix this
-        throw new RuntimeException("Not supported yet");
-//        MessageValue newMessageObj = new MessageValue(new DefaultCarbonMessage());
-//        try {
-//            // Clone headers
-//            List<Header> allHeaders = originalMessage.getHeaders();
-//            newMessageObj.setHeaderList(allHeaders);
-//
-//            // Clone payload
-//            if (originalMessage.isAlreadyRead()) {
-//                newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
-//            } else {
-//                String payload = MessageUtils.getStringFromInputStream(originalMessage.value().getInputStream());
-//                BString result = new BString(payload);
-//                newMessageObj.setBuiltPayload(result);
-//                originalMessage.setBuiltPayload(result);
-//            }
-//            newMessageObj.setAlreadyRead(true);
-//        } catch (Throwable e) {
-//            throw new BallerinaException("Error while cloning message: " + e.getMessage());
-//        }
-        
-//        return newMessageObj;
+        BMessage msg = (BMessage) getRefArgument(context, 0);
+        return getBValues(msg.clone());
     }
 }

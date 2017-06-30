@@ -2,11 +2,12 @@ package samples.parser;
 
 import ballerina.connectors.twitter;
 import ballerina.connectors.salesforce as sf;
+import ballerina.net.http;
 
-service HelloService {
+service<http> HelloService {
 
-  @POST
-  @Path ("/tweet")
+  @POST {}
+  @Path {value:"/tweet"}
   resource tweet (message m) {
       // Following line is invalid.
       int b

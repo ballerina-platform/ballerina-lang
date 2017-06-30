@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -52,14 +53,35 @@ public abstract class BType implements BLangSymbol {
     }
 
     @SuppressWarnings("unchecked")
-    <V extends BValue> Class<V> getValueClass() {
+    public <V extends BValue> Class<V> getValueClass() {
         return (Class<V>) valueClass;
     }
 
-    public abstract <V extends BValue> V getDefaultValue();
+    /**
+     * Get the default value of the type. This is the value of an uninitialized variable of this type.
+     * For value types, this is same as the value get from {@code BType#getInitValue()}.
+     *
+     * @param <V> Type of the value
+     * @return Default value of the type
+     */
+    public abstract <V extends BValue> V getZeroValue();
 
+    /**
+     * Get the empty initialized value of this type. For reference types, this is the value of a variable,
+     * when initialized with the empty initializer.
+     * For value types, this is same as the default value (value get from {@code BType#getDefaultValue()}).
+     *
+     * @param <V> Type of the value
+     * @return Init value of this type
+     */
+    public abstract <V extends BValue> V getEmptyValue();
+
+    public abstract TypeSignature getSig();
+
+    public abstract int getTag();
+    
     public String toString() {
-        return (pkgPath != null) ? pkgPath + ":" + typeName : typeName;
+        return (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
     }
 
     public boolean equals(Object obj) {
@@ -87,6 +109,11 @@ public abstract class BType implements BLangSymbol {
     }
 
     @Override
+    public Identifier getIdentifier() {
+        return null;
+    }
+
+    @Override
     public String getPackagePath() {
         return pkgPath;
     }
@@ -110,4 +137,5 @@ public abstract class BType implements BLangSymbol {
     public SymbolScope getSymbolScope() {
         return symbolScope;
     }
+
 }

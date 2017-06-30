@@ -4,20 +4,8 @@ function testIntAssignStmt(int a) (int) {
     return x;
 }
 
-function testLongAssignStmt(long a) (long) {
-    long x;
-    x = a;
-    return x;
-}
-
 function testFloatAssignStmt(float a) (float) {
     float x;
-    x = a;
-    return x;
-}
-
-function testDoubleAssignStmt(double a) (double) {
-    double x;
     x = a;
     return x;
 }

@@ -23,7 +23,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -35,7 +34,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Utility class for annotation processor
+ * Utility class for annotation processor.
  */
 public class Utils {
 
@@ -45,9 +44,9 @@ public class Utils {
     static enum DocAnnotations {
         Description, Param, Return
     }
-
+    
     /**
-     * Appends input parameters
+     * Appends input parameters.
      * 
      * @param args input parameters
      * @param sb {@link StringBuilder} to append the input parameters
@@ -56,7 +55,8 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             Argument arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ").append(arg.name());
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType(), arg.arrayDimensions()))
+                    .append(" ").append(arg.name());
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -65,7 +65,7 @@ public class Utils {
     }
 
     /**
-     * Appends return parameters
+     * Appends return parameters.
      * 
      * @param args return parameters
      * @param sb {@link StringBuilder} to append the return parameters
@@ -77,7 +77,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType(), ""));
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType(), arg.arrayDimensions()));
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -86,18 +86,21 @@ public class Utils {
     }
 
     /**
-     * Gets the argument type
+     * Gets the argument type.
      * 
      * @param argType type of the argument
      * @param argEltType type of the argument elements
+     * @param structType type of the struct
      * @return argument type
      */
-    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType) {
+    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType,
+            int arrayDimensions) {
         if (TypeEnum.ARRAY.equals(argType)) {
+            String arraySuffix = createArraySuffix(arrayDimensions);
             if (TypeEnum.STRUCT.equals(argEltType)) {
-                return structType + "[]";
+                return structType + arraySuffix;
             } else {
-                return argEltType.getName() + "[]";
+                return argEltType.getName() + arraySuffix;
             }
         } else {
             if (TypeEnum.STRUCT.equals(argType)) {
@@ -109,7 +112,7 @@ public class Utils {
     }
 
     /**
-     * Convert {@link BallerinaAnnotation} to {@link AnnotationHolder}
+     * Convert {@link BallerinaAnnotation} to {@link AnnotationHolder}.
      * 
      * @param annotations arrays of {@link BallerinaAnnotation}
      * @return list of {@link AnnotationHolder}
@@ -123,7 +126,7 @@ public class Utils {
     }
 
     /**
-     * Appends annotations and builds a string representation using the default delimiter new line
+     * Appends annotations and builds a string representation using the default delimiter new line.
      * 
      * @param sb {@link StringBuilder} to append to
      * @param annotations list of {@link AnnotationHolder}
@@ -133,7 +136,7 @@ public class Utils {
     }
 
     /**
-     * Appends annotations and builds a string representation using a given delimiter
+     * Appends annotations and builds a string representation using a given delimiter.
      * 
      * @param sb {@link StringBuilder} to append to
      * @param annotations list of {@link AnnotationHolder}
@@ -144,7 +147,7 @@ public class Utils {
     }
 
     /**
-     * Returns a string representation of an {@link AnnotationHolder}
+     * Returns a string representation of an {@link AnnotationHolder}.
      * 
      * @param annotation {@link AnnotationHolder}
      * @return string representation of the given {@link AnnotationHolder}
@@ -155,20 +158,21 @@ public class Utils {
     }
 
     /**
-     * Generate string representation of documentation annotations
+     * Generate string representation of documentation annotations.
      * 
      * @param annotation {@link AnnotationHolder}
      * @return string representation of the given documentation annotation.
      */
     private static String getDocAnnotation(AnnotationHolder annotation) {
         StringBuilder sb = new StringBuilder();
-        sb.append("@doc:" + annotation.getName() + " (");
+        sb.append("@doc:" + annotation.getName() + " { ");
         List<Attribute> attributes = annotation.getAttributes();
 
+        sb.append(Constants.DOC_ANNOTATION_DEFAULT_ATTRIBUTE + ":");
         sb.append(DocAnnotations.Description.name().equals(annotation.getName()) ? "\"" + attributes.get(0).value()
                 + "\"" : attributes.stream().map(p -> "\"" + p.name() + ": " + p.value() + "\" ")
                 .collect(Collectors.joining(",")));
-        sb.append(")");
+        sb.append("}");
         return sb.toString();
     }
     
@@ -177,32 +181,16 @@ public class Utils {
      * 
      * @param balAction Ballerina action annotation
      * @param connectorName Name of the connector this action belongs to
-     * @param connectorPkg Package of the connector this action belongs to
-     * 
+     *
      * @return Qualified name of a ballerina native action
      */
-    public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
-        StringBuilder actionNameBuilder = new StringBuilder(balAction.connectorName() + "." + balAction.actionName());
-        Argument[] args = balAction.args();
-        for (Argument arg : args) {
-            if (arg.type() == TypeEnum.CONNECTOR) {
-                actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
-            } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                // if the argument is arrayType, then append the element type to the method signature
-                if (arg.elementType() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + "[]");
-                } else {
-                    actionNameBuilder.append("." + arg.elementType().getName() + "[]");
-                }
-            } else {
-                if (arg.type() == TypeEnum.STRUCT) {
-                    actionNameBuilder.append("." + arg.structType());
-                } else {
-                    actionNameBuilder.append("." + arg.type().getName());
-                }
-            }
+    public static String getActionQualifiedName(BallerinaAction balAction, String connectorName) {
+        if (balAction.actionName().equals("init")) {
+            StringBuilder actionNameBuilder =
+                    new StringBuilder(Constants.NON_CALLABLE_NATIVE_ACTION_INIT.replace("$name", connectorName));
+            return actionNameBuilder.toString();
         }
-        return actionNameBuilder.toString();
+        return Constants.NATIVE_ACTION_PREFIX + "." + balAction.connectorName() + "." + balAction.actionName();
     }
     
     /**
@@ -213,26 +201,6 @@ public class Utils {
      */
     public static String getClassName(Element element) {
         return ((TypeElement) element).getQualifiedName().toString();
-    }
-    
-    /**
-     * Get the fully qualified name of the ballerina function.
-     * 
-     * @param balFunction Ballerina function annotation
-     * @return Fully qualified name
-     */
-    public static String getFunctionQualifiedName(BallerinaFunction balFunction) {
-        StringBuilder funcNameBuilder = new StringBuilder(balFunction.functionName());
-        Argument[] args = balFunction.args();
-        for (Argument arg : args) {
-            // if the argument is arrayType, then append the element type to the method signature 
-            if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
-                funcNameBuilder.append("." + arg.elementType().getName() + "[]");
-            } else {
-                funcNameBuilder.append("." + arg.type().getName());
-            }
-        }
-        return funcNameBuilder.toString();
     }
     
     /**
@@ -256,5 +224,14 @@ public class Utils {
             convertorNameBuilder.append(".").append(returnType.type().getName());
         }
         return convertorNameBuilder.toString();
+    }
+
+    private static String createArraySuffix(int arrayDimensions) {
+        StringBuffer arraySuffix = new StringBuffer("");
+        for (int i = 0; i < arrayDimensions; i++) {
+            arraySuffix = arraySuffix.append("[]");
+        }
+
+        return arraySuffix.toString();
     }
 }

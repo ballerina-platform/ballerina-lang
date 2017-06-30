@@ -19,8 +19,9 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -28,10 +29,12 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
+import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -39,6 +42,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * {@code {@link AbstractNativeFunction}} represents a Abstract implementation of Native Ballerina Function.
@@ -48,17 +52,17 @@ import java.util.List;
 public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     /**
-     * Value to be returned for functions having a void return
+     * Value to be returned for functions having a void return.
      */
     public static final BValue[] VOID_RETURN = new BValue[0];
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic = true;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private int stackFrameSize;
@@ -71,7 +75,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private int tempStackFrameSize;
 
     /**
-     * Initialize a native function
+     * Initialize a native function.
      */
     public AbstractNativeFunction() {
         parameterDefs = new ArrayList<>();
@@ -79,20 +83,54 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         annotations = new ArrayList<>();
     }
 
-    /**
-     * Get Argument by index.
-     *
-     * @param context current {@code {@link Context}} instance.
-     * @param index   index of the parameter.
-     * @return BValue;
-     */
-    public BValue getArgument(Context context, int index) {
+    public BValue getRefArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
-            BValue result = context.getControlStack().getCurrentFrame().values[index];
+            BValue result = context.getControlStackNew().getCurrentFrame().getRefLocalVars()[index];
             if (result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
+
             return result;
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public byte[] getBlobArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            byte[] result = context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+
+            return result;
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public long getIntArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public String getStringArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getStringLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public long getLongArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public boolean getBooleanArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -113,7 +151,8 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public void executeNative(Context context) {
         try {
             BValue[] retVals = execute(context);
-            BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+            BValue[] returnRefs = context.getControlStackNew().getCurrentFrame().returnValues;
+
             if (returnRefs.length != 0) {
                 for (int i = 0; i < returnRefs.length; i++) {
                     if (i < retVals.length) {
@@ -124,21 +163,15 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
                 }
             }
         } catch (RuntimeException e) {
-            BException exception = new BException(e.getMessage());
-            // TODO : Fix this once we remove Blocking executor
-            if (context.getExecutor() != null) {
-                context.getExecutor().handleBException(exception);
-            } else {
-                throw e;
-            }
+            throw e;
         }
     }
 
     /**
      * Util method to construct BValue arrays.
      *
-     * @param values
-     * @return BValue
+     * @param values BValues to construct the array
+     * @return Array of BValues
      */
     public BValue[] getBValues(BValue... values) {
         return values;
@@ -152,8 +185,8 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
+    public AnnotationAttachment[] getAnnotations() {
+        return annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     /**
@@ -241,8 +274,18 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
+    @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
 
@@ -250,7 +293,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.identifier = new Identifier(name);
     }
 
     @Override
@@ -318,5 +361,25 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     @Override
     public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
         this.returnParamTypeNames = returnParamTypes;
+    }
+
+    /**
+     * Get worker interaction statements related to a callable unit.
+     *
+     * @return Queue of worker interactions
+     */
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return null;
+    }
+
+    /**
+     * Get the workers defined within a callable unit.
+     *
+     * @return Array of workers
+     */
+    @Override
+    public Worker[] getWorkers() {
+        return new Worker[0];
     }
 }

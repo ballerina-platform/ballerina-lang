@@ -68,7 +68,7 @@ public @interface BallerinaFunction {
     /**
      * Constants related this function.
      *
-     * @return
+     * @return Constants related this function
      */
     BallerinaConstant[] consts() default {};
 }

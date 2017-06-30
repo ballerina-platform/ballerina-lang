@@ -2,6 +2,6 @@ package lang.expressions.type.incompatible.lt;
 
 function checkLessThan() (boolean){
 	int a;
-	boolean b;
+	string b;
 	return a < b;
 }

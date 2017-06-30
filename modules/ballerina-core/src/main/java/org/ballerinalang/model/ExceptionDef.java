@@ -57,6 +57,11 @@ public class ExceptionDef implements CompilationUnit {
         return null;
     }
 
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return null;
+    }
+
     public BString getCategory() {
         return category;
     }

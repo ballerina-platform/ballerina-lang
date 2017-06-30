@@ -19,6 +19,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
@@ -26,6 +27,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * {@code BTypeMapper} represents a  TypeMapper in ballerina.
@@ -34,14 +36,15 @@ import java.util.Map;
  */
 public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
-    protected boolean isPublic;
+    protected boolean isNative;
     protected SymbolName symbolName;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private ParameterDef[] returnParams;
@@ -69,16 +72,16 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get all the Annotations associated with a BallerinatypeMapper
+     * Get all the Annotations associated with a BallerinatypeMapper.
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
     /**
-     * Get list of Arguments associated with the typeMapper definition
+     * Get list of Arguments associated with the typeMapper definition.
      *
      * @return list of Arguments
      */
@@ -87,7 +90,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeMapper
+     * Get all the variableDcls declared in the scope of BallerinaTypeMapper.
      *
      * @return list of all BallerinaTypeMapper scoped variableDcls
      */
@@ -151,6 +154,26 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
         this.parameterTypes = parameterTypes;
     }
 
+    /**
+     * Get worker interaction statements related to a callable unit.
+     *
+     * @return Queue of worker interactions
+     */
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return null;
+    }
+
+    /**
+     * Get the workers defined within a callable unit.
+     *
+     * @return Array of workers
+     */
+    @Override
+    public Worker[] getWorkers() {
+        return new Worker[0];
+    }
+
     // Methods in Node interface
 
     @Override
@@ -163,12 +186,26 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
     public String getName() {
-        return name;
+        return this.identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -178,12 +215,12 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
     @Override
     public boolean isPublic() {
-        return isPublic;
+        return false;
     }
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -233,7 +270,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * {@code BTypeMapperBuilder} is responsible for building a {@cdoe BTypeMapper} node.
+     * {@code BTypeMapperBuilder} is responsible for building a {@code BTypeMapper} node.
      *
      * @since 0.8.0
      */
@@ -247,10 +284,12 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
         public BTypeMapper buildTypeMapper() {
             bTypeCon.location = this.location;
-            bTypeCon.name = this.name;
+            bTypeCon.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            bTypeCon.identifier = this.identifier;
             bTypeCon.pkgPath = this.pkgPath;
+            bTypeCon.isNative = this.isNative;
 
-            bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bTypeCon.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bTypeCon.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bTypeCon.typeMapperBody = this.body;

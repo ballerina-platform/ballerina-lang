@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.util;
 
+import org.ballerinalang.model.ActionSymbolName;
+import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
@@ -35,13 +37,8 @@ public class LangModelUtils {
         return new SymbolName(stringBuilder.toString());
     }
 
-    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, BType[] types) {
-        StringBuilder sBuilder = new StringBuilder(identifier);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
-
-        return new SymbolName(sBuilder.toString(), pkgPath);
+    public static FunctionSymbolName getFuncSymNameWithParams(String identifier, String pkgPath, BType[] types) {
+        return new FunctionSymbolName(identifier, pkgPath, types.length);
     }
 
     public static SymbolName getTypeMapperSymName(String pkgName, BType source, BType target) {
@@ -52,14 +49,19 @@ public class LangModelUtils {
         return new SymbolName(identifier, pkgPath);
     }
 
-    public static SymbolName getActionSymName(String actionName, String connectorName,
-                                              String pkgPath, BType[] types) {
-        StringBuilder sBuilder = new StringBuilder(connectorName + "." + actionName);
-        for (BType type : types) {
-            sBuilder.append(".").append(type);
-        }
+    public static SymbolName getResourceSymName(String resourceName, String pkgPath, String serviceName) {
+        return new SymbolName(serviceName + "." + resourceName, pkgPath);
+    }
 
-        return new SymbolName(sBuilder.toString(), pkgPath);
+    public static ActionSymbolName getActionSymName(String actionName, String pkgPath, String connectorName,
+                                                    BType[] types) {
+        return new ActionSymbolName(connectorName + "." + actionName, pkgPath, types.length);
+    }
+
+    public static ActionSymbolName getNativeActionSymName(String actionName, String connectorName,
+                                              String pkgPath, BType[] types) {
+        return new ActionSymbolName("NativeAction" + "." + connectorName + "." + actionName, pkgPath,
+                types.length);
     }
 
     public static BType[] getTypesOfParams(ParameterDef[] parameterDefs) {

@@ -17,19 +17,17 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.ExecutableExpr;
-import org.ballerinalang.model.LinkedNode;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.types.BType;
 
 /**
  * {@code Expression} represents a generic expression node in Ballerina.
  *
  * @see AddExpression
- * @see VariableRefExpr
  * @see FunctionInvocationExpr
  * @since 0.8.0
  */
-public interface Expression extends LinkedNode, ExecutableExpr {
+public interface Expression extends Node {
 
     BType getType();
 

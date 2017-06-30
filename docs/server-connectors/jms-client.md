@@ -1,4 +1,5 @@
-#JMS Client Connector
+# JMS Client Connector
+
 The JMS client connector can be used to send/publish JMS messages to a JMS broker. Given below is a diagram that represents a high-level view of the connector.
 
 ![JMS_Client_Connector](../images/jms_client_connector.png)
@@ -21,7 +22,7 @@ ProviderURL | string | The URL/file path of the JNDI provider. | A valid URL/pat
 Example:
 
 ```
-jms:ClientConnector jmsConnector = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
+jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 ```
 ### Step 3
 Invoke the send action of the JMS client connector and pass the relevant parameters as mentioned below.
@@ -53,17 +54,17 @@ message queueMessage = {};
 map dataMap;
 dataMap = {};
 messages:setStringPayload(queueMessage, "Hello from ballerina");
-jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
+jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
 ```
 
 Given below is a sample Ballerina function depicting the creation of a JMS client connector:
 
 ```
-jms:JMSConnector jmsEP = create jms:JMSConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
+jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 message queueMessage = {};
 map dataMap;
 dataMap = { "country" : "US", "currency" : "Dollar" , "states" : "50"};
 map propertyMap;
 propertyMap = { "MapData" : dataMap};
-jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
+jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
 ```

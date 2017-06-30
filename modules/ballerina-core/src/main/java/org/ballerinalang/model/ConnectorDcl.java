@@ -41,6 +41,7 @@ public class ConnectorDcl implements Node {
     Connector connector;
 
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     public ConnectorDcl(NodeLocation location, SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
         this.connectorName = connectorName;
@@ -104,6 +105,15 @@ public class ConnectorDcl implements Node {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 
     /**

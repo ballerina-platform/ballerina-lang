@@ -26,8 +26,6 @@ import java.util.List;
 /**
  * {@code BLauncherCmd} represents a Ballerina launcher command.
  *
- * @see Main.RunCmd
- * @see Main.BuildCmd
  * @since 0.8.0
  */
 public interface BLauncherCmd {

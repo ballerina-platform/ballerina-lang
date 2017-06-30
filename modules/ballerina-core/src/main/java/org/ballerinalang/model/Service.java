@@ -21,37 +21,44 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.services.dispatchers.uri.URITemplate;
+import org.ballerinalang.services.dispatchers.uri.URITemplateException;
+import org.ballerinalang.services.dispatchers.uri.parser.Literal;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@code Service} is an HTTP web service described by a Swagger.
+ * <p>A {@code Service} is an HTTP web service described by a Swagger.
  * A Service is the discrete unit of functionality that can be remotely accessed.
- * <p/>
- * <p/>
+ * </p>
  * A Service is defined as follows:
- * <p/>
+ * <br>
  * [ServiceAnnotations]
  * service ServiceName {
  * ConnectorDeclaration;*
  * VariableDeclaration;*
  * ResourceDefinition;+
  * }
+ * <br>
  *
  * @since 0.8.0
  */
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
+    protected String protocolPkgName;
+    protected String protocolPkgPath;
     protected String pkgPath;
     protected SymbolName symbolName;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private Resource[] resources;
+    private URITemplate uriTemplate;
     private VariableDefStmt[] variableDefStmts;
 
     private BallerinaFunction initFunction;
@@ -69,11 +76,11 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         this.symbolMap = new HashMap<>();
     }
 
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(Annotation[] annotations) {
+    public void setAnnotations(AnnotationAttachment[] annotations) {
         this.annotations = annotations;
     }
 
@@ -127,12 +134,34 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
+    }
+
+    public String getProtocolPkgName() {
+        return protocolPkgName;
+    }
+
+    public String getProtocolPkgPath() {
+        return protocolPkgPath;
     }
 
     @Override
@@ -188,8 +217,15 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
+    public URITemplate getUriTemplate() throws URITemplateException {
+        if (uriTemplate == null) {
+            uriTemplate = new URITemplate(new Literal("/"));
+        }
+        return uriTemplate;
+    }
+
     /**
-     * {@code ServiceBuilder} is responsible for building a {@cdoe Service} node.
+     * {@code ServiceBuilder} is responsible for building a {@code Service} node.
      *
      * @since 0.8.0
      */
@@ -203,11 +239,15 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
         public Service buildService() {
             this.service.location = this.location;
-            this.service.name = this.name;
+            this.service.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            this.service.identifier = this.identifier;
+            this.service.protocolPkgName = this.protocolPkgName;
+            this.service.protocolPkgPath = this.protocolPkgPath;
             this.service.pkgPath = this.pkgPath;
-            this.service.symbolName = new SymbolName(name, pkgPath);
+            this.service.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
-            this.service.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.service.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
             this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
             this.service.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);

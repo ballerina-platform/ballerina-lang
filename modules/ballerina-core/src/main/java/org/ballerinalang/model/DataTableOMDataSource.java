@@ -41,11 +41,13 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     private BDataTable dataTable;
     private String rootWrapper;
     private String rowWrapper;
+    private boolean isInTransaction;
 
-    public DataTableOMDataSource(BDataTable dataTable, String rootWrapper, String rowWrapper) {
+    public DataTableOMDataSource(BDataTable dataTable, String rootWrapper, String rowWrapper, boolean isInTransaction) {
         this.dataTable = dataTable;
         this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
         this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;
+        this.isInTransaction = isInTransaction;
     }
 
     @Override
@@ -67,14 +69,8 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                 case INT:
                     value = String.valueOf(dataTable.getInt(col.getName()));
                     break;
-                case LONG:
-                    value = String.valueOf(dataTable.getLong(col.getName()));
-                    break;
                 case FLOAT:
                     value = String.valueOf(dataTable.getFloat(col.getName()));
-                    break;
-                case DOUBLE:
-                    value = String.valueOf(dataTable.getDouble(col.getName()));
                     break;
                 case ARRAY:
                     isArray = true;
@@ -97,7 +93,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
             xmlStreamWriter.writeEndElement();
         }
         xmlStreamWriter.writeEndElement();
-        dataTable.close();
+        dataTable.close(isInTransaction);
         xmlStreamWriter.flush();
     }
 

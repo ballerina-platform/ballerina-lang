@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code BinaryLogicalExpression} represents a logical expression in Ballerina.
@@ -29,7 +30,8 @@ import org.ballerinalang.model.Operator;
  */
 public class BinaryLogicalExpression extends BinaryExpression {
 
-    public BinaryLogicalExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, lExpr, op, rExpr);
+    public BinaryLogicalExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                   Expression lExpr, Operator op, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, op, rExpr);
     }
 }

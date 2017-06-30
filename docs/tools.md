@@ -14,13 +14,17 @@ As you work in one view, the diagrams and code are updated in the other views, a
 
 ## IDE plug-ins
 
-You can use plug-ins to write Ballerina code in your favorite IDE. The following plug-ins are available in Github:
+You can use plug-ins to write Ballerina code in your favorite IDE. There are several plug-ins available in Github. Click one of the following links to learn how to use that IDE's plug-in. 
 
 * [Atom](https://github.com/ballerinalang/plugin-atom)
 * [IntelliJ IDEA](https://github.com/ballerinalang/plugin-intellij)
 * [Sublime Text 3](https://github.com/ballerinalang/plugin-sublimetext3)
 * [Vim](https://github.com/ballerinalang/plugin-vim)
 * [Visual Studio Code (VS Code)](https://github.com/ballerinalang/plugin-vscode)
+
+## Swagger to Ballerina code generator
+
+You can use existing Swagger files to generate connectors and services in Ballerina code. For details, see the [Swagger to Ballerina Code Generator](https://github.com/ballerinalang/tool-swagger-ballerina/tree/master/modules/swagger-ballerina-generator).
 
 ## API documentation generator
 

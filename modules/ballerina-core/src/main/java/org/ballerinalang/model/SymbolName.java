@@ -18,7 +18,8 @@
 package org.ballerinalang.model;
 
 /**
- * {@code SymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
+ * {@code SymbolName} represents a package qualified
+ * name of a {@link org.ballerinalang.model.symbols.BLangSymbol} in Ballerina.
  *
  * @since 0.8.0
  */
@@ -58,8 +59,9 @@ public class SymbolName {
 
         // If both package paths are null or both package paths are not null,
         //    then check their names. If not return false
-        return (this.pkgPath == null && other.getPkgPath() == null ||
-                this.pkgPath != null && other.getPkgPath() != null) && namesEqual;
+        return ((this.pkgPath == null && other.getPkgPath() == null && namesEqual) ||
+                (this.pkgPath != null && other.getPkgPath() != null
+                        && this.pkgPath.equals(other.getPkgPath()) && namesEqual));
     }
 
     @Override
@@ -80,6 +82,6 @@ public class SymbolName {
     }
 
     public String toString() {
-        return (pkgPath == null) ? name : pkgPath + ":" + name;
+        return (pkgPath == null || pkgPath.equals(".")) ? name : pkgPath + ":" + name;
     }
 }

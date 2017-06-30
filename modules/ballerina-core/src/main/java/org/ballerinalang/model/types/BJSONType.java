@@ -37,8 +37,23 @@ public class BJSONType extends BType {
         super(typeName, pkgPath, symbolScope, BJSON.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BJSON("{}");
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.JSON.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.JSON_TAG;
     }
 }

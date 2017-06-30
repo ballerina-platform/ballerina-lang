@@ -18,8 +18,8 @@
 
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * Represents an abstract statement. All statements nodes extends this abstract class.
@@ -31,8 +31,9 @@ import org.ballerinalang.model.NodeLocation;
  */
 public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
-    public LinkedNode next;
-    protected LinkedNode sibling, parent;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
+    protected boolean alwaysReturns;
+    protected Statement parent;
 
     public AbstractStatement(NodeLocation location) {
         this.location = location;
@@ -42,37 +43,35 @@ public abstract class AbstractStatement implements Statement {
         return location;
     }
 
-    @Override
-    public LinkedNode next() {
-        return next;
+    public void setLocation(NodeLocation location) {
+        this.location = location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 
     @Override
-    public void setNext(LinkedNode linkedNode) {
-        // Validation for incorrect Linking.
-        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
-            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
-        }
-        this.next = linkedNode;
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
+    public void setAlwaysReturns(boolean alwaysReturns) {
+        this.alwaysReturns = alwaysReturns;
+    }
+
+    public boolean isAlwaysReturns() {
+        return alwaysReturns;
     }
 
     @Override
-    public LinkedNode getNextSibling() {
-        return sibling;
+    public void setParent(Statement parent) {
+        this.parent = parent;
     }
 
     @Override
-    public void setNextSibling(LinkedNode linkedNode) {
-        this.sibling = linkedNode;
+    public Statement getParent() {
+        return this.parent;
     }
 
-    @Override
-    public LinkedNode getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(LinkedNode linkedNode) {
-        this.parent = linkedNode;
-    }
 }

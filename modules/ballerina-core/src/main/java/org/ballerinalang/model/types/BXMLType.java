@@ -20,6 +20,7 @@ package org.ballerinalang.model.types;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLSequence;
 
 /**
  * {@code BXMLType} represents an XML Element.
@@ -37,8 +38,23 @@ public class BXMLType extends BType {
         super(typeName, pkgPath, symbolScope, BXML.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
-        return (V) new BXML();
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) new BXMLSequence();
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.XML.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.XML_TAG;
     }
 }

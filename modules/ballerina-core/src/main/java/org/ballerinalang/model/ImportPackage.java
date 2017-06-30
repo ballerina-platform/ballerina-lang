@@ -36,12 +36,14 @@ package org.ballerinalang.model;
  */
 public class ImportPackage implements Node {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     private String path;
     private String name;
     private String asName;
     private SymbolName symbolName;
 
     private boolean isUsed;
+    private boolean isImplicitImport;
 
     public ImportPackage(String path) {
         int lastIndex = path.lastIndexOf(".");
@@ -55,13 +57,15 @@ public class ImportPackage implements Node {
         this.symbolName = new SymbolName(this.path);
     }
 
-    public ImportPackage(NodeLocation location, String path) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path) {
         this(path);
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
     }
 
-    public ImportPackage(NodeLocation location, String path, String asName) {
+    public ImportPackage(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String path, String asName) {
         this.location = location;
+        this.whiteSpaceDescriptor = wsDescriptor;
         this.path = path;
         this.name = asName;
         this.asName = asName;
@@ -103,6 +107,15 @@ public class ImportPackage implements Node {
         isUsed = true;
     }
 
+    public boolean isImplicitImport() {
+        return isImplicitImport;
+    }
+
+    public void setImplicitImport(boolean implicitImport) {
+        isImplicitImport = implicitImport;
+        isUsed = true;
+    }
+
     public boolean equals(Object obj) {
         if (!(obj instanceof ImportPackage)) {
             return false;
@@ -120,5 +133,14 @@ public class ImportPackage implements Node {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
     }
 }

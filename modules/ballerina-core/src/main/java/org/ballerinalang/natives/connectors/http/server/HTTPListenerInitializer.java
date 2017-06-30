@@ -33,7 +33,7 @@ import java.io.PrintStream;
 import java.util.Set;
 
 /**
- * {@code HTTPListenerInitializer} is responsible for initializing http transport listener side configuration
+ * {@code HTTPListenerInitializer} is responsible for initializing http transport listener side configuration.
  */
 @Deprecated
 public class HTTPListenerInitializer {

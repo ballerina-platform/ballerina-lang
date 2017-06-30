@@ -54,11 +54,13 @@ public interface SymbolScope {
      */
     enum ScopeName {
         GLOBAL,
+        NATIVE,
         PROGRAM,
         PACKAGE,
         SERVICE,
         CONNECTOR,
         WORKER,
-        LOCAL  // The term 'LOCAL' represents a function, an action or a resource scope.
+        LOCAL,  // The term 'LOCAL' represents a function, an action or a resource scope.
+        STRUCT
     }
 }

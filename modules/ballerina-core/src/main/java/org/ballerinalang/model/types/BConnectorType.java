@@ -29,17 +29,45 @@ import org.ballerinalang.model.values.BValue;
 public class BConnectorType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type.
+     * Create a {@code BConnectorType} which represents the Ballerina Connector type.
      *
-     * @param typeName string name of the type
+     * @param typeName    string name of the type
+     * @param pkgPath     package of the connector
+     * @param symbolScope symbol scope of the connector
      */
     public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BConnector.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
-        return (V) new BConnector();
+    /**
+     * Create a {@code BConnectorType} which represents the Ballerina Connector type.
+     *
+     * @param typeName    string name of the type
+     * @param pkgPath     package of the connector
+     */
+    public BConnectorType(String typeName, String pkgPath) {
+        super(typeName, pkgPath, null, BConnector.class);
+    }
+
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) new BConnector(this);
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_CONNECTOR, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.CONNECTOR_TAG;
     }
 }
 

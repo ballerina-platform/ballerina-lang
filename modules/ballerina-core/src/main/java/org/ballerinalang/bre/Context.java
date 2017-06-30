@@ -17,8 +17,15 @@
 */
 package org.ballerinalang.bre;
 
-import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
+import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.BalCallback;
+import org.ballerinalang.util.codegen.ActionInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
+import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -32,29 +39,61 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-    private ControlStack controlStack;
+    private ControlStackNew controlStackNew;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-    protected Map<String, Object> properties = new HashMap();
-    private CallableUnitInfo serviceInfo;
-    private BLangExecutionVisitor executor;
-    private Object serverConnectorProtocol;
+    protected Map<String, Object> properties = new HashMap<>();
+    private ServiceInfo serviceInfo;
+    private BallerinaTransactionManager ballerinaTransactionManager;
+    private DebugInfoHolder debugInfoHolder;
+    private boolean debugEnabled = false;
 
+    private int startIP;
+    private BStruct unhandledError;
+
+    // TODO : Temporary solution to make non-blocking working.
+    public boolean disableNonBlocking = false;
+    public BValue[] nativeArgValues;
+    public ProgramFile programFile;
+    public FunctionCallCPEntry funcCallCPEntry;
+    public ActionInfo actionInfo;
+
+    @Deprecated
     public Context() {
-        this.controlStack = new ControlStack();
+        this.controlStackNew = new ControlStackNew();
     }
 
-    public Context(CarbonMessage cMsg) {
-        this.cMsg = cMsg;
-        this.controlStack = new ControlStack();
+    public Context(ProgramFile programFile) {
+        this.programFile = programFile;
+        this.controlStackNew = new ControlStackNew();
     }
 
-    public ControlStack getControlStack() {
-        return this.controlStack;
+    public DebugInfoHolder getDebugInfoHolder() {
+        return debugInfoHolder;
+    }
+
+    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+        this.debugInfoHolder = debugInfoHolder;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
+    public ControlStackNew getControlStackNew() {
+        return controlStackNew;
     }
 
     public CarbonMessage getCarbonMessage() {
         return this.cMsg;
+    }
+
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
     }
 
     public Object getProperty(String key) {
@@ -77,27 +116,50 @@ public class Context {
         this.balCallback = balCallback;
     }
     
-    public CallableUnitInfo getServiceInfo() {
+    public ServiceInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
-    public void setServiceInfo(CallableUnitInfo serviceInfo) {
+    public void setServiceInfo(ServiceInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
     }
 
-    public void setExecutor(BLangExecutionVisitor executor) {
-        this.executor = executor;
+    public void setBallerinaTransactionManager(BallerinaTransactionManager ballerinaTransactionManager) {
+        this.ballerinaTransactionManager = ballerinaTransactionManager;
     }
 
-    public BLangExecutionVisitor getExecutor() {
-        return executor;
+    public BallerinaTransactionManager getBallerinaTransactionManager() {
+        return this.ballerinaTransactionManager;
     }
 
-    public Object getServerConnectorProtocol() {
-        return serverConnectorProtocol;
+    public boolean isInTransaction() {
+        return this.ballerinaTransactionManager != null;
     }
 
-    public void setServerConnectorProtocol(Object serverConnectorProtocol) {
-        this.serverConnectorProtocol = serverConnectorProtocol;
+    public BStruct getError() {
+        if (controlStackNew.currentFrame != null) {
+            return controlStackNew.currentFrame.getErrorThrown();
+        }
+        return this.unhandledError;
+    }
+
+    public void setError(BStruct error) {
+        if (controlStackNew.currentFrame != null) {
+            controlStackNew.currentFrame.setErrorThrown(error);
+        } else {
+            this.unhandledError = error;
+        }
+    }
+
+    public int getStartIP() {
+        return startIP;
+    }
+
+    public void setStartIP(int startIP) {
+        this.startIP = startIP;
+    }
+
+    public ProgramFile getProgramFile() {
+        return programFile;
     }
 }

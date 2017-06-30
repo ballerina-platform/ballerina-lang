@@ -20,8 +20,8 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina</artifactId>
-        <version>0.8.1-SNAPSHOT</version>
+        <artifactId>ballerina-parent</artifactId>
+        <version>0.89-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -60,6 +60,14 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
@@ -84,16 +92,16 @@
             <artifactId>axiom-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
+        </dependency>
+        <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
-            <artifactId>tapestry-json</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -118,6 +126,14 @@
         <dependency>
             <groupId>javax.websocket</groupId>
             <artifactId>javax.websocket-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.atomikos.wso2</groupId>
+            <artifactId>atomikos</artifactId>
         </dependency>
     </dependencies>
 
@@ -173,13 +189,13 @@
                                     </limits> -->
                                     <excludes>
                                         <exclude>*Test</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaBaseListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaLexer*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaListener*</exclude>
-                                        <exclude>org/wso2/ballerina/core/parser/
+                                        <exclude>org/ballerinalang/util/parser/
                                             BallerinaParser*</exclude>
                                     </excludes>
                                 </rule>

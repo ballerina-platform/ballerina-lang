@@ -52,7 +52,7 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.file",
         functionName = "acknowledge",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
@@ -69,7 +69,7 @@ public class Acknowledge extends AbstractNativeFunction {
         BMessage msg;
         CarbonMessage cMsg = null;
         try {
-            msg = (BMessage) getArgument(context, 0);
+            msg = (BMessage) getRefArgument(context, 0);
             cMsg = msg.value();
 
             if (cMsg instanceof StreamingCarbonMessage) {

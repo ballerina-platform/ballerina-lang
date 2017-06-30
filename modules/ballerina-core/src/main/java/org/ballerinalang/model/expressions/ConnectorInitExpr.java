@@ -17,11 +17,10 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code ConnectorInitExpr} represents a expression which creates a new connector instance.
@@ -31,8 +30,9 @@ import org.ballerinalang.model.values.BValue;
 public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
 
-    public ConnectorInitExpr(NodeLocation location, SimpleTypeName typeName, Expression[] argExprs) {
-        super(location, argExprs);
+    public ConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
+                             Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
         this.typeName = typeName;
     }
 
@@ -43,10 +43,5 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }

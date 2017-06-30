@@ -18,9 +18,6 @@
 
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.SymScope;
-import org.ballerinalang.model.types.TypeLattice;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +40,15 @@ public class BallerinaFile implements Node {
 
     private ImportPackage[] importPkgs;
     private CompilationUnit[] compilationUnits;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     private BallerinaFile(
+            WhiteSpaceDescriptor whiteSpaceDescriptor,
             String pkgName,
             String bFileName,
             ImportPackage[] importPkgs,
             CompilationUnit[] compilationUnits) {
-
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.pkgName = pkgName;
         this.bFileName = bFileName;
         this.importPkgs = importPkgs;
@@ -120,29 +119,6 @@ public class BallerinaFile implements Node {
         return null;
     }
 
-    public TypeLattice getTypeLattice() {
-        return null;
-    }
-
-    public Function getMainFunction() {
-        return null;
-    }
-
-    public StructDef[] getStructDefs() {
-        return null;
-    }
-
-    public SymScope getPackageScope() {
-        return null;
-    }
-
-    public int getSizeOfStaticMem() {
-        return 0;
-    }
-
-    public void setSizeOfStaticMem(int sizeOfStaticMem) {
-    }
-
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -153,12 +129,22 @@ public class BallerinaFile implements Node {
         return null;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     /**
      * Builds a BFile node which represents physical ballerina source file.
      *
      * @since 0.8.0
      */
     public static class BFileBuilder {
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private String pkgName = ".";
         private String bFileName;
 
@@ -169,6 +155,18 @@ public class BallerinaFile implements Node {
         public BFileBuilder(String bFileName, BLangPackage.PackageBuilder packageBuilder) {
             this.bFileName = bFileName;
             this.packageBuilder = packageBuilder;
+        }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
+        public void setPackageLocation(NodeLocation pkgLocation) {
+            this.packageBuilder.setPackageLocation(pkgLocation);
         }
 
         public void setPackagePath(String pkgName) {
@@ -200,21 +198,39 @@ public class BallerinaFile implements Node {
             this.packageBuilder.addConst(constant);
         }
 
+        public void addGlobalVar(GlobalVariableDef globalVariableDef) {
+            this.compilationUnitList.add(globalVariableDef);
+            this.packageBuilder.addGlobalVar(globalVariableDef);
+        }
+
         public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
             this.packageBuilder.addTypeMapper(typeMapper);
         }
 
         /**
-         * Add a ballerina user defined Struct to the ballerina file
+         * Add a ballerina user defined Struct to the ballerina file.
+         * 
+         * @param structDef User defined struct definition
          */
         public void addStruct(StructDef structDef) {
             this.compilationUnitList.add(structDef);
             this.packageBuilder.addStruct(structDef);
         }
+        
+        /**
+         * Add a user defined annotation definition to the ballerina file.
+         * 
+         * @param annotationDef User defined annotation definition
+         */
+        public void addAnnotationDef(AnnotationDef annotationDef) {
+            this.compilationUnitList.add(annotationDef);
+            this.packageBuilder.addAnnotationDef(annotationDef);
+        }
 
         public BallerinaFile build() {
             return new BallerinaFile(
+                    whiteSpaceDescriptor,
                     pkgName,
                     bFileName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),

@@ -17,11 +17,9 @@
 */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BValue;
-
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code MapInitExpr} represents a Map initializer expression.
@@ -31,16 +29,12 @@ import org.ballerinalang.model.values.BValue;
  */
 public class MapInitExpr extends RefTypeInitExpr {
 
-    public MapInitExpr(NodeLocation location, Expression[] argExprs) {
-        super(location, argExprs);
+    public MapInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] argExprs) {
+        super(location, whiteSpaceDescriptor, argExprs);
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public BValue execute(NodeExecutor executor) {
-        return executor.visit(this);
     }
 }

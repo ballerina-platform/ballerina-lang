@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
@@ -27,6 +28,7 @@ import org.ballerinalang.util.exceptions.FlowBuilderException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -47,20 +49,22 @@ import java.util.Map;
  */
 public class Resource implements Node, SymbolScope, CallableUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
 
     // TODO Refactor
     private int stackFrameSize;
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
     private BlockStmt resourceBody;
+    private Queue<Statement> workerInteractionStatements;
 
 
     // Scope related variables
@@ -76,15 +80,14 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     /**
      * Get an Annotation from a given name.
      *
+     * @param packageName Package name of the annotation
      * @param name name of the annotation
      * @return Annotation
      */
-    public Annotation getAnnotation(String packageName, String name) {
+    public AnnotationAttachment getAnnotation(String packageName, String name) {
         /* ToDo : Annotations should be a map. */
-
-        String annotationFqn = packageName.concat(":").concat(name);
-        for (Annotation annotation : annotations) {
-            if (annotation.getName().equals(annotationFqn)) {
+        for (AnnotationAttachment annotation : annotations) {
+            if (annotation.getPkgName().equals(packageName) && annotation.getName().equals(name)) {
                 return annotation;
             }
         }
@@ -96,7 +99,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Annotations
      */
-    public Annotation[] getResourceAnnotations() {
+    public AnnotationAttachment[] getResourceAnnotations() {
         return annotations;
     }
 
@@ -105,8 +108,14 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Workers
      */
+    @Override
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
     }
 
     /**
@@ -153,7 +162,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return this.annotations;
     }
 
@@ -218,12 +227,26 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -280,7 +303,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     /**
-     * {@code ResourceBuilder} is responsible for building a {@cdoe Resource} node.
+     * {@code ResourceBuilder} is responsible for building a {@code Resource} node.
      *
      * @since 0.8.0
      */
@@ -294,13 +317,19 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
         public Resource buildResource() {
             resource.location = this.location;
-            resource.name = this.name;
+            resource.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            resource.identifier = this.identifier;
             resource.pkgPath = this.pkgPath;
-            resource.symbolName = new SymbolName(name, pkgPath);
+            resource.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
-            resource.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            resource.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             resource.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            // Set the parameters to the workers if there are any
+            for (Worker worker : this.workerList) {
+                worker.setParameterDefs(resource.getParameterDefs());
+            }
             resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            resource.workerInteractionStatements = this.workerInteractionStatements;
             resource.resourceBody = this.body;
             return resource;
         }

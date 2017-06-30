@@ -22,7 +22,7 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 
 /**
- * Transport configuration provider for HTTP Client and Server connectors
+ * Transport configuration provider for HTTP Client and Server connectors.
  */
 public class TransportConfigProvider {
 

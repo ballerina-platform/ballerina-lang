@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -65,7 +65,7 @@ public class GetQueryParam extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage msg = (BMessage) getArgument(context, 0);
+        BMessage msg = (BMessage) getRefArgument(context, 0);
 
         String to = (String) msg.value().getProperty(Constants.TO);
 
@@ -73,7 +73,7 @@ public class GetQueryParam extends AbstractNativeFunction {
             return getBValues(new BString("")); // todo return null;
         } else {
             Map<String, String> queryParams = fetchQueryParams(to);
-            String key = getArgument(context, 1).stringValue();
+            String key = getStringArgument(context, 0);
             String value = queryParams.get(key);
             if (value == null) {
                 return getBValues(new BString("")); // todo return null;

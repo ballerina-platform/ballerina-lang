@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.nio.file.Path;
@@ -33,7 +32,7 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BLangProgram implements SymbolScope, Node {
-    private static final SymbolName mainFuncSymboleName = new SymbolName("main.string[]");
+    private static SymbolName mainFuncSymboleName;
 
     private Category programCategory;
     private BLangPackage mainPackage;
@@ -43,17 +42,17 @@ public class BLangProgram implements SymbolScope, Node {
 
     // Scope related variables
     private GlobalScope globalScope;
+    private NativeScope nativeScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
-    // Each program instance should have its own runtime environment
-    private RuntimeEnvironment runtimeEnv;
     private int sizeOfStaticMem;
 
     // This is the actual path given by the user and this is used primarily for error reporting
     private Path programFilePath;
 
-    public BLangProgram(GlobalScope globalScope, Category programCategory) {
+    public BLangProgram(GlobalScope globalScope, NativeScope nativeScope, Category programCategory) {
         this.globalScope = globalScope;
+        this.nativeScope = nativeScope;
         this.programCategory = programCategory;
         symbolMap = new HashMap<>();
     }
@@ -79,6 +78,7 @@ public class BLangProgram implements SymbolScope, Node {
     }
 
     public BallerinaFunction getMainFunction() {
+        mainFuncSymboleName = new SymbolName("main.string[]", mainPackage.getPackagePath());
         BallerinaFunction mainFunction = (BallerinaFunction) mainPackage.resolveMembers(mainFuncSymboleName);
         if (mainFunction == null || mainFunction.getReturnParameters().length != 0) {
             throw new RuntimeException("cannot find main function");
@@ -115,14 +115,6 @@ public class BLangProgram implements SymbolScope, Node {
         return symbolMap.values().stream().map(symbol -> (BLangPackage) symbol).toArray(BLangPackage[]::new);
     }
 
-    public RuntimeEnvironment getRuntimeEnvironment() {
-        return runtimeEnv;
-    }
-
-    public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnv) {
-        this.runtimeEnv = runtimeEnv;
-    }
-
     public int getSizeOfStaticMem() {
         return sizeOfStaticMem;
     }
@@ -142,6 +134,10 @@ public class BLangProgram implements SymbolScope, Node {
     @Override
     public SymbolScope getEnclosingScope() {
         return globalScope;
+    }
+
+    public SymbolScope getNativeScope() {
+        return nativeScope;
     }
 
     @Override
@@ -169,6 +165,11 @@ public class BLangProgram implements SymbolScope, Node {
 
     @Override
     public NodeLocation getNodeLocation() {
+        return null;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return null;
     }
 

@@ -32,19 +32,41 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class BMapType extends BType {
+public class BMapType extends BType implements BIndexedType {
+
+    private BType elementType;
 
     /**
      * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BMapType(String typeName, String pkgPath, SymbolScope symbolScope) {
+    BMapType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BMap.class);
+        this.elementType = elementType;
+    }
+
+    public BType getElementType() {
+        return elementType;
     }
 
     @Override
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
+        return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
         return (V) new BMap<BString, V>();
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.MAP.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.MAP_TAG;
     }
 }

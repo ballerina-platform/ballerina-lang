@@ -18,7 +18,6 @@
 package org.ballerinalang.util.exceptions;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BException;
 
 /**
  * This is the runtime exception occurs at executing ballerina code.
@@ -29,9 +28,6 @@ public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
     private transient Context context;
-
-    // TODO: Remove this once we remove Blocking executor.
-    private BException exception;
 
     public BallerinaException() {
         super();
@@ -46,25 +42,7 @@ public class BallerinaException extends RuntimeException {
         super(message);
     }
 
-    /**
-     * Create BallerinaException from bException.
-     *
-     * @param bException Ballerina Exception.
-     */
-    public BallerinaException(BException bException) {
-        this.exception = bException;
-    }
 
-    /**
-     * Create BallerinaException from bException.
-     *
-     * @param message    Error message.
-     * @param bException Ballerina Exception.
-     */
-    public BallerinaException(String message, BException bException) {
-        super(message);
-        this.exception = bException;
-    }
 
 
     /**
@@ -106,7 +84,7 @@ public class BallerinaException extends RuntimeException {
     /**
      * Constructs a new {@link BallerinaException} with the cause.
      *
-     * @param cause
+     * @param cause Throwable to wrap by a ballerina exception
      */
     public BallerinaException(Throwable cause) {
         super(cause);
@@ -118,9 +96,5 @@ public class BallerinaException extends RuntimeException {
 
     public Context getContext() {
         return this.context;
-    }
-
-    public BException getBException() {
-        return this.exception;
     }
 }

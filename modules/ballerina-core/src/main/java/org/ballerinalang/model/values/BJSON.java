@@ -23,6 +23,10 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -45,6 +49,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     private static final JsonFactory JSON_FAC = new JsonFactory();
+
+    private static final SerializerProvider SERIALIZER_PROVIDER = new DefaultSerializerProvider.Impl()
+            .createInstance(OBJECT_MAPPER.getSerializationConfig(), OBJECT_MAPPER.getSerializerFactory());
 
     // The streaming JSON data source object
     private JSONDataSource datasource;
@@ -78,7 +85,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     /**
      * Initialize a {@link BJSON} from a streaming datasource.
-     * @param datasource
+     * 
+     * @param datasource Datasource of this json
      */
     public BJSON(JSONDataSource datasource) {
         this.datasource = datasource;
@@ -118,7 +126,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     /**
      * Create a {@link BJSON} from a {@link InputStream}.
      *
-     * @param in InputStream
+     * @param in InputStream of the json content
+     * @param schema Schema of the json
      */
     public BJSON(InputStream in, String schema) {
         try {
@@ -175,7 +184,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 this.outputStream.flush();
             } else {
                 JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
-                this.datasource.serialize(gen);
+                this.datasource.serialize(gen, SERIALIZER_PROVIDER);
                 gen.flush();
             }
         } catch (Throwable t) {
@@ -199,11 +208,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             try {
                 JsonGenerator gen = JSON_FAC.createGenerator(byteOut);
-                this.datasource.serialize(gen);
+                this.datasource.serialize(gen, SERIALIZER_PROVIDER);
                 gen.close();
                 this.value = OBJECT_MAPPER.readTree(byteOut.toByteArray());
             } catch (Throwable t) {
-                handleJsonException("Error in building JSON node", t);
+                handleJsonException("Error in building JSON node: ", t);
             }
         }
         return this.value;
@@ -211,12 +220,21 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     @Override
     public String stringValue() {
+        if (this.value().isTextual()) {
+            return this.value().textValue();
+        }
+        
         try {
             return OBJECT_MAPPER.writeValueAsString(this.value());
         } catch (Throwable t) {
             handleJsonException("failed to get json as string: ", t);
         }
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeJSON;
     }
 
     @Override
@@ -262,9 +280,15 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         /**
          * Serializes the current representation of the JSON data source to the given {@link JsonGenerator}.
          * @param gen The {@link JsonGenerator} object to write the data to
+         * @param serializerProvider The {@link SerializerProvider} object capable of serializing specific types
          * @throws IOException Error occurs while serializing
          */
-        void serialize(JsonGenerator gen) throws IOException;
+        void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException;
 
+    }
+    
+    @Override
+    public BValue copy() {
+        return new BJSON(this.stringValue());
     }
 }

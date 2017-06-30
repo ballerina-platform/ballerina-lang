@@ -17,15 +17,14 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,11 +37,11 @@ import java.util.Map;
  */
 public class BlockStmt extends AbstractStatement implements SymbolScope {
     private Statement[] statements;
-    private GotoNode gotoNode;
 
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private StatementKind kind;
 
     private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
@@ -54,14 +53,14 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return this.statements;
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public void setStatements(Statement[] statements) {
+        Arrays.stream(statements).forEach(statement -> statement.setParent(this));
+        this.statements = statements;
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     @Override
@@ -89,12 +88,13 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
-    public GotoNode getGotoNode() {
-        return gotoNode;
+    protected void setKind(StatementKind statementKind) {
+        this.kind = statementKind;
     }
 
-    public void setGotoNode(GotoNode gotoNode) {
-        this.gotoNode = gotoNode;
+    @Override
+    public StatementKind getKind() {
+        return this.kind;
     }
 
     /**
@@ -110,11 +110,20 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             blockStmt = new BlockStmt(location, enclosingScope);
         }
 
+        public void setLocation(NodeLocation location) {
+            blockStmt.setLocation(location);
+        }
+
+        public void setBlockKind(StatementKind statementKind) {
+            blockStmt.setKind(statementKind);
+        }
+
         public SymbolScope getCurrentScope() {
             return blockStmt;
         }
 
         public void addStmt(Statement statement) {
+            statement.setParent(blockStmt);
             statementList.add(statement);
         }
 

@@ -17,20 +17,22 @@
  */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.CallableUnitInvocationExpr;
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement
- * <p>
- * message -> sampleWorker;
+ * A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement.
+ * <br>
+ * message -&gt; sampleWorker;
  *
  *  @since 0.8.0
  */
@@ -38,24 +40,46 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     private String workerName;
     private Worker calleeWorker;
-    private VariableRefExpr inMsg;
     private BType[] types = new BType[0];
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
+    protected List<Expression> expressionList = new ArrayList<>();
+    private WorkerDataChannel workerDataChannel;
+    private String enclosingCallableUnitName;
+    private String packagePath;
 
-    public WorkerInvocationStmt(String workerName, NodeLocation nodeLocation) {
+    private int[] offsets;
+
+    public WorkerInvocationStmt(String workerName, List<Expression> expressionList, NodeLocation nodeLocation,
+                                WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocation);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.workerName = workerName;
+        this.expressionList = expressionList;
     }
-
 
     public String getCallableUnitName() {
         return workerName;
     }
 
+
+    public String getEnclosingCallableUnitName() {
+        return enclosingCallableUnitName;
+    }
+
+    public void setEnclosingCallableUnitName(String enclosingCallableUnitName) {
+        this.enclosingCallableUnitName = enclosingCallableUnitName;
+    }
+
+    public WorkerDataChannel getWorkerDataChannel() {
+        return workerDataChannel;
+    }
+
+    public void setWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+        this.workerDataChannel = workerDataChannel;
+    }
+
     @Override
     public String getName() {
-        return null;
+        return workerName;
     }
 
     @Override
@@ -65,9 +89,12 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
 
     @Override
     public String getPackagePath() {
-        return null;
+        return this.packagePath;
     }
 
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
+    }
     /**
      * Returns an arrays of arguments of this callable unit invocation expression.
      *
@@ -98,37 +125,16 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
         this.types = types;
     }
 
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
+    public int[] getOffsets() {
+        return offsets;
     }
 
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
+    public void setOffsets(int[] offsets) {
+        this.offsets = offsets;
     }
 
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
-    }
-
-    @Override
-    public BValue[] executeMultiReturn(NodeExecutor executor) {
-        return null;
-    }
-
-    public VariableRefExpr getInMsg() {
-        return inMsg;
-    }
-
-    public void setInMsg(VariableRefExpr inMsg) {
-        this.inMsg = inMsg;
+    public Expression[] getExpressionList() {
+        return expressionList.toArray(new Expression[expressionList.size()]);
     }
 
     @Override
@@ -137,8 +143,8 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.WORKER_INVOCATION;
     }
 }
 

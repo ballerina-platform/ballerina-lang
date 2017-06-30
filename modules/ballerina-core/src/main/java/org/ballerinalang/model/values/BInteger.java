@@ -17,36 +17,29 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BInteger} represents a int value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BInteger extends BValueType {
+public final class BInteger extends BValueType implements BRefType<Long> {
 
-    private int value;
+    private long value;
 
-    public BInteger(int value) {
+    public BInteger(long value) {
         this.value = value;
     }
 
     @Override
-    public int intValue() {
+    public long intValue() {
         return this.value;
     }
 
     @Override
-    public long longValue() {
-        return (long) this.value;
-    }
-
-    @Override
-    public float floatValue() {
-        return (float) this.value;
-    }
-
-    @Override
-    public double doubleValue() {
+    public double floatValue() {
         return (double) this.value;
     }
 
@@ -56,12 +49,32 @@ public final class BInteger extends BValueType {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
-        return Integer.toString(value);
+        return Long.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeInt;
     }
 
     @Override
     public boolean equals(Object obj) {
         return ((BInteger) obj).intValue() == value;
+    }
+
+    @Override
+    public Long value() {
+        return value;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BInteger(value);
     }
 }

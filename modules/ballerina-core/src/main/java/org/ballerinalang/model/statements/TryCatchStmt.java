@@ -17,16 +17,18 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,20 +38,28 @@ import java.util.Map;
  */
 public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
-    private CatchBlock catchBlock;
+    private CatchBlock[] catchBlocks;
+    private FinallyBlock finallyBlock;
 
-    private TryCatchStmt(NodeLocation location, Statement tryBlock, CatchBlock catchBlock) {
+    private TryCatchStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                         Statement tryBlock, CatchBlock[] catchBlocks, FinallyBlock     finallyBlock) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.tryBlock = tryBlock;
-        this.catchBlock = catchBlock;
+        this.catchBlocks = catchBlocks;
+        this.finallyBlock = finallyBlock;
     }
 
     public Statement getTryBlock() {
         return tryBlock;
     }
 
-    public CatchBlock getCatchBlock() {
-        return catchBlock;
+    public CatchBlock[] getCatchBlocks() {
+        return catchBlocks;
+    }
+
+    public FinallyBlock getFinallyBlock() {
+        return finallyBlock;
     }
 
     @Override
@@ -58,10 +68,9 @@ public class TryCatchStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.TRY_CATCH;
     }
-
 
     /**
      * Represents CatchBlock of a Try-Catch statement.
@@ -72,6 +81,7 @@ public class TryCatchStmt extends AbstractStatement {
         private ParameterDef parameterDef;
         private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt catchBlock;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public CatchBlock(SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -118,6 +128,63 @@ public class TryCatchStmt extends AbstractStatement {
         void setCatchBlockStmt(BlockStmt catchBlock) {
             this.catchBlock = catchBlock;
         }
+
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+    }
+
+    /**
+     * Represents CatchBlock of a Try-Catch statement.
+     */
+    public static class FinallyBlock implements SymbolScope {
+
+        private final SymbolScope enclosingScope;
+        private Map<SymbolName, BLangSymbol> symbolMap;
+        private BlockStmt finallyBlock;
+
+        public FinallyBlock(SymbolScope enclosingScope) {
+            this.enclosingScope = enclosingScope;
+            this.symbolMap = new HashMap<>();
+        }
+
+        @Override
+        public ScopeName getScopeName() {
+            return ScopeName.LOCAL;
+        }
+
+        @Override
+        public SymbolScope getEnclosingScope() {
+            return this.enclosingScope;
+        }
+
+        @Override
+        public void define(SymbolName name, BLangSymbol symbol) {
+            symbolMap.put(name, symbol);
+        }
+
+        @Override
+        public BLangSymbol resolve(SymbolName name) {
+            return resolve(symbolMap, name);
+        }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
+        }
+
+        public BlockStmt getFinallyBlockStmt() {
+            return finallyBlock;
+        }
+
+        void setFinallyBlockStmt(BlockStmt catchBlock) {
+            this.finallyBlock = catchBlock;
+        }
+
     }
 
     /**
@@ -127,8 +194,10 @@ public class TryCatchStmt extends AbstractStatement {
      */
     public static class TryCatchStmtBuilder {
         private Statement tryBlock;
-        private CatchBlock catchBlock;
+        private List<CatchBlock> catchBlock = new ArrayList<>();
+        private FinallyBlock finallyBlock;
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
         public Statement getTryBlock() {
             return tryBlock;
@@ -138,16 +207,28 @@ public class TryCatchStmt extends AbstractStatement {
             this.tryBlock = tryBlock;
         }
 
-        public CatchBlock getCatchBlock() {
-            return catchBlock;
+        public CatchBlock getLastCatchBlock() {
+            return catchBlock.get(catchBlock.size() - 1);
         }
 
-        public void setCatchBlockStmt(Statement statement) {
-            this.catchBlock.setCatchBlockStmt((BlockStmt) statement);
+        public void setLastCatchBlockStmt(Statement statement) {
+            this.catchBlock.get(catchBlock.size() - 1).setCatchBlockStmt((BlockStmt) statement);
         }
 
-        public void setCatchBlock(CatchBlock catchBlock) {
-            this.catchBlock = catchBlock;
+        public void addCatchBlock(CatchBlock catchBlock) {
+            this.catchBlock.add(catchBlock);
+        }
+
+        public FinallyBlock getFinallyBlock() {
+            return finallyBlock;
+        }
+
+        public void setFinallyBlockStmt(Statement statement) {
+            this.finallyBlock.setFinallyBlockStmt((BlockStmt) statement);
+        }
+
+        public void setFinallyBlock(FinallyBlock finallyBlock) {
+            this.finallyBlock = finallyBlock;
         }
 
         public NodeLocation getLocation() {
@@ -158,11 +239,29 @@ public class TryCatchStmt extends AbstractStatement {
             this.location = location;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public TryCatchStmt build() {
-            return new TryCatchStmt(
+            TryCatchStmt tryCatchStmt = new TryCatchStmt(
                     location,
+                    whiteSpaceDescriptor,
                     tryBlock,
-                    catchBlock);
+                    catchBlock.toArray(new CatchBlock[0]),
+                    finallyBlock);
+            tryBlock.setParent(tryCatchStmt);
+            catchBlock.forEach(catchBlock1 -> {
+                catchBlock1.getCatchBlockStmt().setParent(tryCatchStmt);
+            });
+            if (finallyBlock != null) {
+                finallyBlock.getFinallyBlockStmt().setParent(tryCatchStmt);
+            }
+            return tryCatchStmt;
         }
     }
 }

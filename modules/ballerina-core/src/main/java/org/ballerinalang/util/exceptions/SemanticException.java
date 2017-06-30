@@ -45,7 +45,7 @@ public class SemanticException extends BallerinaException {
     /**
      * Constructs a new {@link SemanticException} with the cause.
      * 
-     * @param cause
+     * @param cause Cause
      */
     public SemanticException(Throwable cause) {
         super(cause);

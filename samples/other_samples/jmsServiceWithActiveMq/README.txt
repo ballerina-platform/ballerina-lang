@@ -7,13 +7,14 @@ Pre-requisites
 --------------
 1. Start the activemq broker.
 2. Copy the client libs of activemq broker to {Ballerina_HOME}/bre/lib folder.
+3. Copy the jmsServiceWithActiveMq.bsz in this folder to {Ballerina_HOME}/samples/ folder
 
 How to run this sample
 ======================
-bin$ ./ballerina service ../samples/jmsServiceWithActiveMq/jmsServiceWithActiveMq.bal
+bin$ ./ballerina service ../samples/jmsServiceWithActiveMq.bsz
 
-the above command will start the ballerina server in the current terminal and deploy the jmsServiceWithActiveMq.bal file
-and publish the 'jmsWSO2ActiveMqQueueService' and 'jmsWSO2ActiveMqTopicService' services
+the above command will start the ballerina server in the current terminal and deploy the jmsServiceWithActiveMq.bsz
+and publish the 'jmsActiveMqQueueService' and 'jmsActiveMqTopicService' services
 
 Invoking the service
 ====================

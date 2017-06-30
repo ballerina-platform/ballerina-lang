@@ -20,13 +20,17 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -46,26 +50,32 @@ import java.util.Map;
  */
 public class BallerinaFunction implements Function, SymbolScope, CompilationUnit {
     private NodeLocation location;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
+    private Queue<Statement> workerInteractionStatements;
     private ParameterDef[] returnParameters;
     private BType[] returnParamTypes;
     private BlockStmt functionBody;
     private int stackFrameSize;
 
+    private Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+
+    private NativeUnitProxy nativeFunction;
 
     // Linker related variables
     private int tempStackFrameSize;
@@ -103,8 +113,14 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      *
      * @return list of Workers
      */
+    @Override
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public Queue<Statement> getWorkerInteractionStatements() {
+        return workerInteractionStatements;
     }
 
     /**
@@ -116,6 +132,13 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return null;
     }
 
+    public void setNativeFunction(NativeUnitProxy nativeFunction) {
+        this.nativeFunction = nativeFunction;
+    }
+
+    public NativeUnitProxy getNativeFunction() {
+        return nativeFunction;
+    }
 
     // Methods in CallableUnit interface
 
@@ -130,7 +153,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return this.annotations;
     }
 
@@ -195,12 +218,26 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
 
     // Methods in BLangSymbol interface
 
     @Override
     public String getName() {
-        return name;
+        return identifier.getName();
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
@@ -279,14 +316,20 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
         public BallerinaFunction buildFunction() {
             bFunc.location = this.location;
-            bFunc.name = this.name;
+            bFunc.whiteSpaceDescriptor = this.whiteSpaceDescriptor;
+            bFunc.identifier = this.identifier;
             bFunc.pkgPath = this.pkgPath;
-            bFunc.symbolName = new SymbolName(name, pkgPath);
+            bFunc.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
-            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bFunc.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            // Set the parameters to the workers if there are any
+            for (Worker worker : this.workerList) {
+                worker.setParameterDefs(bFunc.getParameterDefs());
+            }
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bFunc.workerInteractionStatements = this.workerInteractionStatements;
             bFunc.functionBody = this.body;
             bFunc.isNative = this.isNative;
             return bFunc;

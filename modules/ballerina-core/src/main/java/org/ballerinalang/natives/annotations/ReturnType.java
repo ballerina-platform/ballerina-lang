@@ -26,6 +26,13 @@ import org.ballerinalang.model.types.TypeEnum;
 public @interface ReturnType {
     TypeEnum type();
 
+    //used with structs to specify the struct type name
+    String structType() default "";
+
+    String structPackage() default "null";
+
     // elementType specially used with Arrays to specify the type of arrays.
     TypeEnum elementType() default TypeEnum.EMPTY;
+
+    int arrayDimensions() default 1;
 }

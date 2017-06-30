@@ -51,4 +51,26 @@ public class BLangExceptionHelper {
         return  location + errorMsg;
 
     }
+
+    public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+        String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
+        //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
+        return new BallerinaException(errorMsg);
+    }
+
+    public static SemanticException getSemanticError(NodeLocation nodeLocation, SemanticErrors semanticError,
+                                                     Object... params) {
+        String location = nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() + ": ";
+
+        String errorMsg = MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
+        return new SemanticException(location + errorMsg);
+    }
+
+    public static String getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
+        return MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
+    }
+    
+    public static String getErrorMessage(SemanticErrors semanticError, Object... params) {
+        return MessageFormat.format(messageBundle.getString(semanticError.getErrorMsgKey()), params);
+    }
 }

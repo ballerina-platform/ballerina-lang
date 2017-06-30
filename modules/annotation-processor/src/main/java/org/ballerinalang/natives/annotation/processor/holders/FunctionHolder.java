@@ -23,7 +23,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina function annotation
+ * DTO to hold Ballerina function annotation.
  */
 public class FunctionHolder {
     

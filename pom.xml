@@ -19,16 +19,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>0.89-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
-    <artifactId>ballerina</artifactId>
+    <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.89-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <url>http://ballerinalang.org</url>
@@ -40,13 +40,33 @@
         <tag>HEAD</tag>
     </scm>
 
+    <repositories>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 Releases Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>WSO2 Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
@@ -72,268 +92,6 @@
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-                <version>${carbon.transport.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.http.netty.feature</artifactId>
-                <version>${carbon.transport.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.connector.framework</artifactId>
-                <version>${carbon.transport.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.jms</artifactId>
-                <version>${carbon.transport.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.messaging</groupId>
-                <artifactId>org.wso2.carbon.messaging</artifactId>
-                <version>${carbon.messaging.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.messaging</groupId>
-                <artifactId>org.wso2.carbon.messaging.feature</artifactId>
-                <version>${carbon.messaging.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.deployment</groupId>
-                <artifactId>org.wso2.carbon.deployment.engine</artifactId>
-                <version>${carbon.deployment.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr4.runtime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-api</artifactId>
-                <version>${orbit.version.axiom}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.commons.axiom</groupId>
-                <artifactId>axiom-impl</artifactId>
-                <version>${orbit.version.axiom}</version>
-            </dependency>
-            <dependency>
-                <groupId>jaxen</groupId>
-                <artifactId>jaxen</artifactId>
-                <version>${jaxen.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons.logging.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-activation_1.1_spec</artifactId>
-                <version>${geronimo.activation}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                <version>${geronimo.stax}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.staxon</groupId>
-                <artifactId>staxon-core</artifactId>
-                <version>${staxon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.james</groupId>
-                <artifactId>apache-mime4j-core</artifactId>
-                <version>${mime4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.wso2.orbit.net.sf.saxon</groupId>
-                <artifactId>Saxon-HE</artifactId>
-                <version>${saxon.wso2.version}</version>
-            </dependency>
-             <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-                <version>${osgi.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.osgi</artifactId>
-                <version>${equinox.osgi.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.osgi.services</artifactId>
-                <version>${equinox.osgi.services.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-nop</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons.lang3.version}</version>
-            </dependency>
-
-            <!--WebSocket Java Api-->
-            <dependency>
-                <groupId>javax.websocket</groupId>
-                <artifactId>javax.websocket-api</artifactId>
-                <version>${javax.websocket.version}</version>
-            </dependency>
-
-            <!-- JSON dependencies -->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jayway.jsonpath</groupId>
-                <artifactId>json-path</artifactId>
-                <version>${jayway.jsonpath.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
-                <artifactId>tapestry-json</artifactId>
-                <version>${tapestry.json.orbit.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${jcommander.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-buffer</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-transport</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>javax.jms-api</artifactId>
-                <version>${javax.jms.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http2</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-resolver</artifactId>
-                <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-pool.wso2</groupId>
-                <artifactId>commons-pool</artifactId>
-                <version>${commons.pool.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${org.snakeyaml.version}</version>
-            </dependency>
-
-            <!-- Data Services dependencies -->
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>${com.zaxxer.hikaricp.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${hyperSQL.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-broker</artifactId>
-                <version>${activemq.broker.vesion}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!--file server connector dependencies-->
-            <dependency>
-                <groupId>org.apache.commons.wso2</groupId>
-                <artifactId>commons-vfs2</artifactId>
-                <version>${commons-vfs2.wso2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.transport</groupId>
-                <artifactId>org.wso2.carbon.transport.file</artifactId>
-                <version>${carbon.transport.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ftpserver</groupId>
-                <artifactId>ftpserver-core</artifactId>
-                <version>${ftp-server-core.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -400,7 +158,8 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java</excludes>
+                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java,
+                                    **/${ballerina.package.repository.provider.class}.java</excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -431,104 +190,20 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.89-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
-
-        <!-- Maven plugins -->
-        <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
-        <maven.bundle.plugin.version>2.5.4</maven.bundle.plugin.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-
-        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
-        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
-
-        <testng.version>6.9.4</testng.version>
-        <plugin.version.antlr>4.5.1</plugin.version.antlr>
-
-        <!-- OSGI -->
-        <osgi.api.version>6.0.0</osgi.api.version>
-        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
-        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-
-        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
-        <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
-
-        <!-- Dependencies -->
-        <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
-        <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
-
-        <carbon.transport.version>4.2.5</carbon.transport.version>
-        <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
-
-        <carbon.messaging.version>2.2.3</carbon.messaging.version>
-        <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
-
-        <carbon.deployment.version>5.0.0</carbon.deployment.version>
-        <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
-
-        <slf4j.version>1.7.22</slf4j.version>
-        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
-        </slf4j.logging.package.import.version.range>
-
-        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
-        <commons.lang3.version>3.5</commons.lang3.version>
-        <javax.websocket.version>1.1</javax.websocket.version>
-        <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
-
-        <!-- json dependencies -->
-        <jackson.version>2.8.6</jackson.version>
-        <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
-        <jayway.jsonpath.import.version.range>[2.2.0,2.3.0)</jayway.jsonpath.import.version.range>
-        <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
-        
-        <!-- xml depependencies -->
-        <orbit.version.axiom>1.2.20</orbit.version.axiom>
-        <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
-        <saxon.import.version.range>[9.7.0.wso2v1,9.8.0)</saxon.import.version.range>
-        <javax.mail.version>1.4</javax.mail.version>
-        <jaxen.version>1.1.6</jaxen.version>
-        <jaxen.import.version.range>[1.1.6,1.2.0)</jaxen.import.version.range>
-        <commons.logging.version>1.2</commons.logging.version>
-        <geronimo.activation>1.1</geronimo.activation>
-        <geronimo.stax>1.0.1</geronimo.stax>
-        <mime4j.version>0.7.2</mime4j.version>
-        <staxon.version>1.2.0.wso2v2</staxon.version>
-
-        <!--pax-exam dependencies-->
-        <javax.inject.version>1</javax.inject.version>
-        <pax.exam.version>4.6.0</pax.exam.version>
-        <pax.exam.testng.version>4.6.0</pax.exam.testng.version>
-        <pax.exam.link.mvn.version>4.6.0</pax.exam.link.mvn.version>
-        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <commons-net.version>3.6</commons-net.version>
         <cobertura.version>2.7</cobertura.version>
-        <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
-        <mockito.version>1.9.0</mockito.version>
-
-        <!-- netty version -->
-        <netty.version>4.1.7.Final</netty.version>
-
-        <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
-        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
-        <jcommander.version>1.60</jcommander.version>
 
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
+        <ballerina.package.repository.provider.class>BallerinaBuiltinPackageRepository
+        </ballerina.package.repository.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-
-        <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
-        <javax.jms.version>2.0.1</javax.jms.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
-
-        <!--data services dependencies -->
-        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
-        <hyperSQL.version>2.3.4</hyperSQL.version>
-
-        <!--file server connector dependencies-->
-        <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
-        <commons-net.version>3.6</commons-net.version>
-        <ftp-server-core.version>1.0.6</ftp-server-core.version>
+        <ant.contrib.plugin.version>1.0b3</ant.contrib.plugin.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
@@ -536,8 +211,7 @@
         <module>modules/launcher</module>
         <module>modules/ballerina-native</module>
         <module>modules/annotation-processor</module>
-        <module>modules/distribution</module>
-        <module>modules/tests/test-integration</module>
+        <module>modules/ballerina-samples</module>
     </modules>
 
 </project>

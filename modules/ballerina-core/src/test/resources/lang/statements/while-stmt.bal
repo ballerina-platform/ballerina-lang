@@ -12,32 +12,32 @@ function testWhileScope(int number)(int) {
     int i = number;
     while(i < 4) {
         i = i + 1;
-       if(i == 2) {
-          int x = 200;
-          i = x;
-       } else {
-          int x = 400;
-          i = x;
+        if(i == 2) {
+            int x = 200;
+            i = x;
+        } else {
+            int x = 400;
+            i = x;
         }
     }
     return i;
 }
 
-function testWhileScopeWithIf()(int, double) {
-    double[] values = [];
+function testWhileScopeWithIf()(int, float) {
+    float[] values = [];
     string operator;
-    double sum = 0.0d;
+    float sum = 0.0;
     string[] args = ["+" , "10", "20"];
 
     int i = 0;
-        while (i < 3) {
-           if(i == 0){
-                 operator = args[0];
-           } else {
-                 values[i -1] = (double)args[i];
-           }
-           i = i + 1;
-           }
+    while (i < 3) {
+        if(i == 0){
+            operator = args[0];
+        } else {
+            values[i -1], _ = <float>args[i];
+        }
+        i = i + 1;
+    }
     int j = 0;
     while(j < 2) {
         sum = sum + values[j];

@@ -17,8 +17,6 @@
 package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.LinkedNode;
-import org.ballerinalang.model.nodes.fragments.expressions.InvokeNativeActionNode;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.DefaultBalCallback;
@@ -31,23 +29,20 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class BalConnectorCallback extends DefaultBalCallback {
 
-    private InvokeNativeActionNode actionNode;
-
     private Context context;
 
     private boolean responseArrived = false;
 
     private BValue valueRef;
 
+    private boolean nonBlockingExecution;
+
+    // Reference for post validation.
+    private AbstractNativeAction nativeAction;
+
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
-    }
-
-    public BalConnectorCallback(Context context, InvokeNativeActionNode current) {
-        super(context.getBalCallback());
-        this.context = context;
-        this.actionNode = current;
     }
 
     public boolean isResponseArrived() {
@@ -58,18 +53,29 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return valueRef;
     }
 
+    public void setNonBlockingExecution(boolean nonBlockingExecution) {
+        this.nonBlockingExecution = nonBlockingExecution;
+    }
+
+    public AbstractNativeAction getNativeAction() {
+        return nativeAction;
+    }
+
+    public void setNativeAction(AbstractNativeAction nativeAction) {
+        this.nativeAction = nativeAction;
+    }
+
     @Override
     public void done(CarbonMessage carbonMessage) {
         BMessage bMessage = new BMessage(carbonMessage);
         valueRef = bMessage;
-        //context.getControlStack().setValue(4, valueRef);
-        context.getControlStack().setReturnValue(0, valueRef);
+        context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
         responseArrived = true;
-        if (isNonBlockingExecutor()) {
-            // spawn a new thread to continue execution.
+
+        // Release Thread.
+        if (nonBlockingExecution) {
             ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
         } else {
-            // Release Thread.
             synchronized (context) {
                 context.notifyAll();
             }
@@ -80,16 +86,4 @@ public class BalConnectorCallback extends DefaultBalCallback {
         return context;
     }
 
-    public LinkedNode getCurrentNode() {
-        return this.actionNode;
-    }
-
-    public boolean isNonBlockingExecutor() {
-        // If actionNode is not null, then this is non-blocking execution.
-        return actionNode != null;
-    }
-
-    public InvokeNativeActionNode getActionNode() {
-        return actionNode;
-    }
 }

@@ -37,6 +37,9 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected String pkgPath;
     protected SymbolName symbolName;
 
+    // This is used to specify a location for the package.<init> function
+    protected NodeLocation pkgLocation;
+
     protected CompilationUnit[] compilationUnits;
     protected BallerinaFile[] ballerinaFiles;
     protected ImportPackage[] importPackages;
@@ -44,10 +47,14 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected BallerinaConnectorDef[] connectors;
     protected Function[] functions;
     protected TypeLattice typeLattice;
+    protected GlobalVariableDef[] globalVariables;
     protected ConstDef[] consts;
     protected StructDef[] structDefs;
     protected Function mainFunction;
     protected TypeMapper[] typeMappers;
+    protected AnnotationDef[] annotationDefs;
+
+    private BallerinaFunction initFunction;
 
     protected List<BLangPackage> dependentPkgs = new ArrayList<>();
 
@@ -56,6 +63,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
     private boolean symbolsDefined = false;
+
     private PackageRepository pkgRepo;
     private boolean isNative = false;
 
@@ -66,6 +74,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     public BLangPackage(GlobalScope golbalScope) {
         this.enclosingScope = golbalScope;
+        symbolMap = new HashMap<>();
+    }
+
+    public BLangPackage(NativeScope nativeScope) {
+        this.enclosingScope = nativeScope;
         symbolMap = new HashMap<>();
     }
 
@@ -130,6 +143,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeLattice;
     }
 
+    public GlobalVariableDef[] getGlobalVariables() {
+        return globalVariables;
+    }
+
     public ConstDef[] getConsts() {
         return consts;
     }
@@ -162,6 +179,18 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeMappers;
     }
 
+    public AnnotationDef[] getAnnotationDefs() {
+        return annotationDefs;
+    }
+
+    public BallerinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    public void setInitFunction(BallerinaFunction initFunction) {
+        this.initFunction = initFunction;
+    }
+
     // Methods in the SymbolScope interface
 
     @Override
@@ -184,19 +213,19 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         if (name.getPkgPath() == null) {
             return resolve(symbolMap, name);
         }
-        
+
         // resolve the package symbol first
         SymbolName pkgSymbolName = new SymbolName(name.getPkgPath());
         BLangSymbol pkgSymbol = getEnclosingScope().resolve(pkgSymbolName);
         if (pkgSymbol == null) {
             return null;
         }
-        
+
         if (pkgSymbol instanceof NativePackageProxy) {
             pkgSymbol = ((NativePackageProxy) pkgSymbol).load();
         }
 
-        return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
+        return ((BLangPackage) pkgSymbol).resolveMembers(name);
     }
 
     @Override
@@ -214,6 +243,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     @Override
     public String getName() {
         return pkgPath;
+    }
+
+    @Override
+    public Identifier getIdentifier() {
+        return null;
     }
 
     @Override
@@ -251,6 +285,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     @Override
     public NodeLocation getNodeLocation() {
+        return pkgLocation;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
         return null;
     }
 
@@ -259,16 +298,19 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
      */
     public static class PackageBuilder {
         private BLangPackage bLangPackage;
+        private NodeLocation pkgLocation;
 
         private Map<String, ImportPackage> importPkgMap = new HashMap<>();
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
+        private List<GlobalVariableDef> globalVarList = new ArrayList<>();
         private List<ConstDef> constList = new ArrayList<>();
         private List<StructDef> structDefList = new ArrayList<>();
         private TypeLattice typeLattice = new TypeLattice();
         private List<TypeMapper> typeMapperList = new ArrayList<>();
+        private List<AnnotationDef> annotationDefList = new ArrayList<>();
 
         private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
 
@@ -282,6 +324,15 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
         public SymbolScope getCurrentScope() {
             return bLangPackage;
+        }
+
+        public void setPackageLocation(NodeLocation pkgLocation) {
+            // Always take the first one
+            if (this.pkgLocation != null) {
+                return;
+            }
+
+            this.pkgLocation = pkgLocation;
         }
 
         public void addFunction(BallerinaFunction function) {
@@ -308,6 +359,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.constList.add(constant);
         }
 
+        public void addGlobalVar(GlobalVariableDef globalVariableDef) {
+            this.compilationUnitList.add(globalVariableDef);
+            this.globalVarList.add(globalVariableDef);
+        }
+
         public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
             typeMapperList.add(typeMapper);
@@ -316,6 +372,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         public void addStruct(StructDef structDef) {
             this.compilationUnitList.add(structDef);
             this.structDefList.add(structDef);
+        }
+
+        public void addAnnotationDef(AnnotationDef annotationDef) {
+            this.compilationUnitList.add(annotationDef);
+            this.annotationDefList.add(annotationDef);
         }
 
         public void addBallerinaFile(BallerinaFile bFile) {
@@ -332,11 +393,14 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.services = this.serviceList.toArray(new Service[0]);
             bLangPackage.connectors = this.connectorList.toArray(new BallerinaConnectorDef[0]);
             bLangPackage.structDefs = this.structDefList.toArray(new StructDef[0]);
+            bLangPackage.globalVariables = this.globalVarList.toArray(new GlobalVariableDef[0]);
             bLangPackage.consts = this.constList.toArray(new ConstDef[0]);
             bLangPackage.importPackages = this.importPkgMap.values().toArray(new ImportPackage[0]);
             bLangPackage.typeLattice = this.typeLattice;
             bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
             bLangPackage.typeMappers = this.typeMapperList.toArray(new TypeMapper[0]);
+            bLangPackage.annotationDefs = this.annotationDefList.toArray(new AnnotationDef[0]);
+            bLangPackage.pkgLocation = pkgLocation;
             return bLangPackage;
         }
     }

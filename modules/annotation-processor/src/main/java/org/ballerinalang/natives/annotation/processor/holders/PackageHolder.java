@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.natives.annotation.processor.holders;
 
+import org.ballerinalang.natives.annotation.processor.Constants;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * DTO to hold Ballerina package. Contains the native functions, native connectors and Native type 
+ * DTO to hold Ballerina package. Contains the native functions, native actions and Native type
  * convertors belongs to a package.
  */
 public class PackageHolder {
@@ -75,6 +77,7 @@ public class PackageHolder {
     @Override
     public String toString() {
         return "package " + packageName + ";\n\n"
+                + "import " + Constants.DOC_PACKAGE_NAME + ";\n\n"
                 + nativeFunctions.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
                 + (nativeFunctions.size() > 0 ? "\n\n" : "")
                 + nativeTypeMapper.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))

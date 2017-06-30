@@ -1,4 +1,4 @@
 function multiTypeArrayInitTest() {
-	int arr;
+	int[] arr;
  	arr = ["foo", 10];
 }

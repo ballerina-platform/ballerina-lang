@@ -18,9 +18,11 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code ConstDef} represents a Constant in Ballerina.
@@ -30,39 +32,29 @@ import org.ballerinalang.model.values.BValue;
 public class ConstDef extends VariableDef implements CompilationUnit {
     private Expression rhsExpr;
     private BValue value;
+    private List<AnnotationAttachment> annotations;
 
     public ConstDef(NodeLocation location,
-                    String name,
+                    WhiteSpaceDescriptor whiteSpaceDescriptor,
+                    Identifier identifier,
                     SimpleTypeName typeName,
                     String pkgPath,
-                    boolean isPublic,
                     SymbolName symbolName,
                     SymbolScope symbolScope,
                     Expression rhsExpr) {
 
-        super(location, name, typeName, symbolName, symbolScope);
+        super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
         this.rhsExpr = rhsExpr;
-    }
-
-    public ConstDef(BType type, SymbolName symbolName, BValue value) {
-        super(null, "", null, null, null);
-        this.type = type;
-        this.symbolName = symbolName;
-        this.value = value;
-    }
-
-    public ConstDef(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
-        super(null, "", null, null, null);
-        this.location = location;
-        this.type = type;
-        this.symbolName = symbolName;
-        this.rhsExpr = rhsExpr;
+        this.annotations = new ArrayList<>();
     }
 
     public Expression getRhsExpr() {
         return rhsExpr;
+    }
+
+    public void setRhsExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
     }
 
     public BValue getValue() {
@@ -73,11 +65,29 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         this.value = value;
     }
 
-
+    /**
+     * Add an annotation to the constant.
+     * 
+     * @param annotation Annotation attachment
+     */
+    public void addAnnotation(AnnotationAttachment annotation) {
+        this.annotations.add(annotation);
+    }
+    
+    /**
+     * Get all the Annotations associated with this constant.
+     *
+     * @return List of annotation attachments
+     */
+    public AnnotationAttachment[] getAnnotations() {
+        return this.annotations.toArray(new AnnotationAttachment[annotations.size()]);
+    }
+    
     // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
 }

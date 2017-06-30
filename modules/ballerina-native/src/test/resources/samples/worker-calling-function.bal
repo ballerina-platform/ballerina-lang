@@ -1,30 +1,34 @@
 import ballerina.lang.system;
-import ballerina.lang.messages;
 
-const int index = 12;
+function testWorkerInVM()(int) {
+    int q;
+    q = testWorker();
+    return q;
+}
 
-function testWorker()(message) {
-  worker sampleWorker (message m)  {
-    message result;
-    system:println("constant value is " + index);
-    result = changeMessage(m);
-    reply result;
-  }
-
-  message result;
+function testWorker()(int) {
+  int result;
   message msg = {};
   msg -> sampleWorker;
-  system:println("After worker");
+  system:println("Worker calling function test started");
   result <- sampleWorker;
-  string s = messages:getStringPayload(result);
-  system:println(s);
+  system:println(result);
   return result;
+
+  worker sampleWorker {
+  int r = 120;
+  message m;
+  m <- default;
+  system:println("before calling function");
+  //r = changeMessage(m);
+  system:println("after calling function");
+  r -> default;
+  return;
+}
 
 }
 
-function changeMessage(message m)(message) {
-      json j;
-      j = `{"name":"chanaka"}`;
-      messages:setJsonPayload(m, j);
-      return m;
+function changeMessage(message m)(int) {
+      system:println("Within function");
+      return 120;
 }

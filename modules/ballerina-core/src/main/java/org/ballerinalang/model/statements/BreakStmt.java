@@ -17,27 +17,18 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
- * An {@code BreakStmt} represents a break statement
+ * An {@code BreakStmt} represents a break statement.
  */
 public class BreakStmt extends AbstractStatement {
 
-    private BlockStmt[] blockStmts;
-
-    private BreakStmt(NodeLocation nodeLocations, BlockStmt[] statements) {
+    public BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocations);
-        this.blockStmts = statements;
-    }
-
-    public BlockStmt[] getBlockStmts() {
-        return blockStmts;
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 
     @Override
@@ -45,41 +36,8 @@ public class BreakStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
-    /**
-     * Executes the statement
-     *
-     * @param executor instance of a {@code NodeExecutor}
-     */
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
-    }
-
-    /**
-     * Builds a {@link BreakStmt} statement.
-     */
-    public static class BreakStmtBuilder {
-
-        private NodeLocation location;
-        private List<BlockStmt> statementList = new ArrayList<>();
-
-        public BreakStmtBuilder() {
-        }
-
-        public NodeLocation getLocation() {
-            return location;
-        }
-
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
-        }
-
-        public void addStmt(BlockStmt statement) {
-            statementList.add(statement);
-        }
-
-        public BreakStmt build() {
-            return new BreakStmt(location, statementList.toArray(new BlockStmt[statementList.size()]));
-        }
+    public StatementKind getKind() {
+        return StatementKind.BREAK;
     }
 }

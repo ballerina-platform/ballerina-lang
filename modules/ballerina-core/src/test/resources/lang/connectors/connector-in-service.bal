@@ -1,5 +1,3 @@
-package samples.connectors.test;
-
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 
@@ -50,13 +48,13 @@ connector EchoConnector(string greeting) {
 
 }
 
-@BasePath ("/invoke")
+@BasePath {value:"/invoke"}
 service actionInvokeService {
 
     TestConnector testConnector = create TestConnector(myConst, "MyParam2", 5);
 
-    @GET
-    @Path ("/action3")
+    @GET{}
+    @Path {value:"/action3"}
     resource action3Resource (message m) {
 
         string actionResponse;
@@ -68,8 +66,8 @@ service actionInvokeService {
     }
 
 
-    @GET
-    @Path ("/action1")
+    @GET{}
+    @Path {value:"/action1"}
     resource action1Resource (message m) {
 
         boolean actionResponse;
@@ -81,16 +79,16 @@ service actionInvokeService {
     }
 
 
-    @GET
-    @Path ("/action2")
+    @GET{}
+    @Path {value:"/action2"}
     resource action2Resource (message m) {
 
         TestConnector.action2(testConnector);
         reply m;
     }
 
-    @GET
-    @Path ("/action5")
+    @GET{}
+    @Path {value:"/action5"}
     resource action5Resource (message m) {
 
         string actionResponse;
@@ -101,8 +99,8 @@ service actionInvokeService {
         reply response;
     }
 
-    @GET
-    @Path ("/action6")
+    @GET{}
+    @Path {value:"/action6"}
     resource action6Resource (message m) {
 
         string actionResponse;

@@ -1,5 +1,3 @@
-package samples.connectors.test;
-
 connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
@@ -82,4 +80,11 @@ function testEmptyParamAction(string inputParam) (string) {
     EmptyParamConnector emptyParamConector = create EmptyParamConnector();
     string s = EmptyParamConnector.emptyParamConnAction(emptyParamConector, inputParam);
     return s;
+}
+
+function testDotActionInvocation(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string s1, string s2, int i) {
+    TestConnector testConnector = create TestConnector(functionArg1, functionArg2, functionArg3);
+
+    s1, s2, i = testConnector.action5(functionArg4);
+    return;
 }

@@ -17,30 +17,44 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * {@code MapType} represents a map.
- * @param <BString> Key
+ * @param <K> Key
  * @param <V> Value
  * @since 0.8.0
  */
-public class BMap<BString, V extends BValue> implements BRefType {
+public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implements BRefType {
 
     private int size;
     private static final int INITIAL_CAPACITY = 16;
     private static final int MAX_CAPACITY = 1 << 16;
     @SuppressWarnings("unchecked")
-    private MapEntry<BString, V>[] values = new MapEntry[INITIAL_CAPACITY];
+    private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
+
+    /**
+     * Output stream to write message out to the socket
+     */
+     private OutputStream outputStream;
 
     /**
      * Retrieve the value for the given key from map.
      * @param key key used to get the value
      * @return value
      */
-    public V get(BString key) {
+    public V get(K key) {
         for (int i = 0; i < size; i++) {
             if (values[i] != null) {
                 if (values[i].getKey().equals(key)) {
@@ -56,7 +70,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
      * @param key key related to the value
      * @param value value related to the key
      */
-    public void put(BString key, V value) {
+    public void put(K key, V value) {
         boolean insert = true;
         for (int i = 0; i < size; i++) {
             if (values[i].getKey().equals(key)) {
@@ -93,7 +107,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
      * Remove an item from the map.
      * @param key key of the item to be removed
      */
-    public void remove(BString key) {
+    public void remove(K key) {
         for (int i = 0; i < size; i++) {
             if (values[i].getKey().equals(key)) {
                 values[i] = null;
@@ -111,15 +125,18 @@ public class BMap<BString, V extends BValue> implements BRefType {
      * Retrieve the set of keys related to this map.
      * @return returns the set of keys
      */
-    public Set<BString> keySet() {
-        Set<BString> set = new HashSet<>();
+    public Set<K> keySet() {
+        Set<K> set = new HashSet<>();
         for (int i = 0; i < size; i++) {
             set.add(values[i].getKey());
         }
         return set;
     }
 
-    /** Return true if this map is empty. */
+    /**Return true if this map is empty.
+     * 
+     * @return Flag indicating whether the map is empty or not
+     */
     public boolean isEmpty() {
         return size() == 0;
     }
@@ -131,9 +148,40 @@ public class BMap<BString, V extends BValue> implements BRefType {
 
     @Override
     public String stringValue() {
-        return null;
+        StringJoiner sj = new StringJoiner(",", "{", "}");
+        String key;
+        BValue value;
+        String stringValue;
+        for (int i = 0; i < size; i++) {
+            key = "\"" + (String) values[i].getKey() + "\"";
+            value = values[i].getValue();
+            if (value == null) {
+                stringValue = null;
+            } else if (value instanceof BString) {
+                stringValue = "\"" + value.stringValue() + "\"";
+            } else {
+                stringValue = value.stringValue();
+            }
+            sj.add(key + ":" + stringValue);
+        }
+        return sj.toString();
     }
 
+    @Override
+    public BType getType() {
+        return BTypes.typeMap;
+    }
+
+    @Override
+    public BValue copy() {
+        BMap map = BTypes.typeMap.getEmptyValue();
+        for (int i = 0; i < size; i++) {
+            BValue value = values[i].getValue();
+            map.put(values[i].getKey(), value == null ? null : value.copy());
+        }
+        return map;
+    }
+    
     private class MapEntry<K, V> {
         private final K key;
         private V value;
@@ -156,5 +204,23 @@ public class BMap<BString, V extends BValue> implements BRefType {
         }
     }
 
+    @Override
+    public String getMessageAsString() {
+        return stringValue();
+    }
+
+    @Override
+    public void serializeData() {
+        try {
+            outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new BallerinaException("Error occurred while serializing data", e);
+        }
+    }
+
+    @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
 }
 

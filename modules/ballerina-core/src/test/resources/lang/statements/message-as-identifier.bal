@@ -1,0 +1,3 @@
+function messageTest() {
+    message message = {};
+}

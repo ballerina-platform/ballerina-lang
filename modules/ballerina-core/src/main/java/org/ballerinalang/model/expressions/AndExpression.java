@@ -19,25 +19,20 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 import static org.ballerinalang.model.Operator.AND;
 
 /**
- * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina.
+ * {@code AndExpression} represents an boolean AND('&amp;&amp;') expression in Ballerina.
  *
  * @since 0.8.0
  */
 public class AndExpression extends BinaryLogicalExpression {
 
-    public static final BiFunction<BValueType, BValueType, BValueType> AND_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.booleanValue() && rVal.booleanValue());
-
-    public AndExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, AND, rExpr);
+    public AndExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                         Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, AND, rExpr);
     }
 
     @Override

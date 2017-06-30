@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -51,7 +51,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class GetStatusCode extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         int statusCode = -1;
-        BMessage bMsg = (BMessage) getArgument(ctx, 0);
+        BMessage bMsg = (BMessage) getRefArgument(ctx, 0);
         String statusCodeStr = String.valueOf(bMsg.value().getProperty(Constants.HTTP_STATUS_CODE));
 
         try {

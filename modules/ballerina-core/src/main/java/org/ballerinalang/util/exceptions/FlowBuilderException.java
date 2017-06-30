@@ -43,7 +43,7 @@ public class FlowBuilderException extends BallerinaException {
     /**
      * Constructs a new {@link FlowBuilderException} with the cause.
      *
-     * @param cause
+     * @param cause Cause
      */
     public FlowBuilderException(Throwable cause) {
         super(cause);

@@ -22,9 +22,9 @@ import org.ballerinalang.natives.annotation.processor.holders.ConnectorHolder;
 import org.ballerinalang.natives.annotation.processor.holders.FunctionHolder;
 import org.ballerinalang.natives.annotation.processor.holders.PackageHolder;
 import org.ballerinalang.natives.annotation.processor.holders.TypeMapperHolder;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -44,8 +44,8 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Read all class annotations of native functions, connectors, actions, type mappers.
- * Process them and generate a service provider class that will register all the annotated 
+ * Read all class annotations of native functions, actions, type mappers.
+ * Process them and generate a service provider class that will register all the annotated
  * classes as {@link org.ballerinalang.model.symbols.BLangSymbol}s to the global symbol table, via java SPI.
  */
 @SupportedAnnotationTypes({ "org.ballerinalang.natives.annotations.BallerinaFunction",
@@ -58,106 +58,120 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private static final String CLASS_NAME = "className";
     private static final String PACKAGE_NAME = "packageName";
+    private static final String IS_SYSTEM_PKG_REPO =  "isSystemPkgRepository";
+    private static final String PACKAGE_PROVIDER_CLASS = "pkgRepositoryClass";
     private static final String SOURCE_DIR = "srcDir";
     private static final String TARGET_DIR = "targetDir";
     private static final String IGNORE = "ignore";
     private Map<String, PackageHolder> nativePackages;
-    
+
     public BallerinaAnnotationProcessor() throws IOException {
         super();
         this.nativePackages = new HashMap<String, PackageHolder>();
     }
-    
+
     /**
      * Process the ballerina annotations and generate the construct provider class.
-     * <br/>
+     *
      * {@inheritDoc}
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Set<Element> balFunctionElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
-        Set<Element> balConnectorElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaConnector.class);
         Set<Element> balActionElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaAction.class);
         Set<Element> balTypeMapperElements =
                 (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaTypeMapper.class);
-        
+
         // If all annotations are empty, should not do anything. Continue to the next plugin phases.
-        if (balFunctionElements.isEmpty() && balConnectorElements.isEmpty() && balActionElements.isEmpty()
+        if (balFunctionElements.isEmpty() && balActionElements.isEmpty()
                     && balTypeMapperElements.isEmpty()) {
             return true;
         }
-        
-        // Process all native function, connectors, actions and type converters
+
+        // Process all native function, actions and type converters
         processNativeFunctions(balFunctionElements);
-        processNativeConnectors(balConnectorElements);
+
         processNativeActions(balActionElements);
         processNativeTypeMappers(balTypeMapperElements);
-        
+
         Map<String, String> options = processingEnv.getOptions();
-        
+
         String srcDir = options.get(SOURCE_DIR);
         if (srcDir == null) {
             throw new BallerinaException("source directory of ballerina files must be specified.");
         }
-        
+
         // Generate the native ballerina files
-        generateNativeBalFiles(options, srcDir);
-        
+        // generateNativeBalFiles(options, srcDir);
+
         // Generate the construct provider class. This should be invoked after 
         // generating the native ballerina files
         generateConstructProviderClass(options, srcDir);
-        
+
+        generateBuiltinPackageRepositoryClass(options);
+
         return true;
     }
-    
+
+    /**
+     * Generate the builtin package repository provider class.
+     *
+     * @param options Annotation processor options
+     */
+    private void generateBuiltinPackageRepositoryClass(Map<String, String> options) {
+        Filer filer = processingEnv.getFiler();
+        String pkgRepositoryClass = options.get(PACKAGE_PROVIDER_CLASS);
+        if (pkgRepositoryClass == null || pkgRepositoryClass.equals("")) {
+            //should be specified in maven current build module pom.xml
+            return;
+        }
+        //TODO remove interface SystemPackageRepository with proper way
+        String isSystemPkgRepoStr = options.get(IS_SYSTEM_PKG_REPO);
+        boolean isSystemPkgRepo = false;
+        if (isSystemPkgRepoStr != null && isSystemPkgRepoStr.equals("true")) {
+            isSystemPkgRepo = true;
+        }
+        BuiltinPackageRepositoryClassBuilder pkgRepoProviderClassBuilder =
+                new BuiltinPackageRepositoryClassBuilder(filer, pkgRepositoryClass, isSystemPkgRepo);
+        pkgRepoProviderClassBuilder.build();
+    }
+
     /**
      * Generate the construct provider class.
-     * 
+     *
      * @param options Annotation processor options
      * @param srcDir Path to the ballerina source directory
      */
     private void generateConstructProviderClass(Map<String, String> options, String srcDir) {
         Filer filer = processingEnv.getFiler();
-        
+
         String classClassName = options.get(CLASS_NAME);
         if (classClassName == null) {
             throw new BallerinaException("class name for the generated construct-provider must be specified.");
         }
-        
+
         String packageName = options.get(PACKAGE_NAME);
         if (packageName == null) {
             throw new BallerinaException("package name for the generated construct-provider must be specified.");
         }
-        
+
         ConstructProviderClassBuilder constructProviderClassBuilder =
                 new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir);
         constructProviderClassBuilder.addNativePackages(nativePackages);
         constructProviderClassBuilder.build();
     }
-    
-    /**
-     * Generate the built-in ballerina files.
-     * 
-     * @param srcDir Path to the ballerina source directory
-     */
-    private void generateNativeBalFiles(Map<String, String> options, String srcDir) {
-        String targetDir = options.get(TARGET_DIR);
-        if (targetDir == null) {
-            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
-        }
-        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(srcDir, targetDir);
-        nativeBallerinaFileBuilder.addNativePackages(nativePackages);
-        nativeBallerinaFileBuilder.build();
-    }
 
     /**
      * Process all {@link BallerinaFunction} annotations and append constructs to the class builder.
-     * 
+     *
      * @param balFunctionElements Elements annotated with {@link BallerinaFunction}
      */
     private void processNativeFunctions(Set<Element> balFunctionElements) {
         for (Element element : balFunctionElements) {
             BallerinaFunction balFunction = element.getAnnotation(BallerinaFunction.class);
+            if (IGNORE.equalsIgnoreCase(balFunction.functionName())) {
+                continue;
+            }
             BallerinaAnnotation[] annot = getBallerinaAnnotations(element);
             String packageName = balFunction.packageName();
             String className = Utils.getClassName(element);
@@ -173,37 +187,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
         return annot;
     }
-    
-    /**
-     * Process all {@link BallerinaConnector} annotations and append constructs to the class builder.
-     * 
-     * @param balConnectorElements Elements annotated with {@link BallerinaConnector}
-     */
-    private void processNativeConnectors(Set<Element> balConnectorElements) {
-        for (Element element : balConnectorElements) {
-            BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
-            
-            /*
-             * For ballerina source modules without any native implementations, it is required to have a 
-             * dummy native impl annotation with a dummy annotation. This is a limitation in the annotation
-             * processor. Hence checking the dummy annotation here and ignore it.
-             * TODO: find a better approach to ignore annotations
-             */
-            if (IGNORE.equalsIgnoreCase(balConnector.connectorName())) {
-                continue;
-            }
-            
-            String packageName = balConnector.packageName();
-            String className = Utils.getClassName(element);
-            ConnectorHolder connector = new ConnectorHolder(balConnector, className);
-            connector.setAnnotations(getBallerinaAnnotations(element));
-            getPackage(packageName).addConnector(balConnector.connectorName(), connector);
-        }
-    }
-    
+
+
     /**
      * Process all {@link BallerinaAction} annotations and append constructs to the class builder.
-     * 
+     *
      * @param balActionElements Elements annotated with {@link BallerinaAction}
      */
     private void processNativeActions(Set<Element> balActionElements) {
@@ -213,13 +201,44 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             String className = Utils.getClassName(element);
             ActionHolder action = new ActionHolder(balAction, className);
             action.setAnnotations(getBallerinaAnnotations(element));
+            if (getPackage(packageName).getConnector(balAction.connectorName()) == null) {
+                ConnectorHolder connector = new ConnectorHolder(balAction.connectorName(),
+                        balAction.connectorArgs());
+                getPackage(packageName).addConnector(balAction.connectorName(), connector);
+            }
+            validateConnectorParams(getPackage(packageName).getConnector(balAction.connectorName()),
+                    balAction);
             getPackage(packageName).getConnector(balAction.connectorName()).addAction(action);
         }
     }
-    
+
+    private void validateConnectorParams(ConnectorHolder connectorHolder, BallerinaAction balAction) {
+        //need to validate connector params types as well as their relative order to be exactly same
+        //for all the actions who share the same ballerina connector
+        if (connectorHolder.getConnectorArgs().length > 0) {
+            if (connectorHolder.getConnectorArgs().length != balAction.connectorArgs().length) {
+                throw new BallerinaException("Connector Arguments should be equal and ordered the same across all"
+                        + "the ballerina actions registered against the same ballerina connector.");
+            }
+            int counter = 0;
+            for (; counter < connectorHolder.getConnectorArgs().length; counter++) {
+                Argument connectorArg = connectorHolder.getConnectorArgs()[counter];
+                Argument actionProvidedArg = balAction.connectorArgs()[counter];
+                if (connectorArg.name().equals(actionProvidedArg.name())
+                        && connectorArg.structType().equals(actionProvidedArg.structType())
+                        && (connectorArg.type().compareTo(actionProvidedArg.type()) == 0)
+                        && (connectorArg.elementType().compareTo(actionProvidedArg.elementType()) == 0)) {
+                } else {
+                    throw new BallerinaException("Connector Arguments should be equal and ordered the same across all"
+                            + "the ballerina actions registered against the same ballerina connector.");
+                }
+            }
+        }
+    }
+
     /**
      * Process all {@link BallerinaTypeMapper} annotations and append constructs to the class builder.
-     * 
+     *
      * @param balTypeMapperElements Elements annotated with {@link BallerinaTypeMapper}
      */
     private void processNativeTypeMappers(Set<Element> balTypeMapperElements) {
@@ -232,11 +251,11 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
             getPackage(packageName).addTypeMapper(typeMapperHolder);
         }
     }
-    
+
     /**
      * Get a package holder by name, from the package map. If a package does not exists with the provided name,
      * this method will create a new package and return it.
-     * 
+     *
      * @param packageName Name of the package to be retrieved
      * @return Package holder with the provided name
      */

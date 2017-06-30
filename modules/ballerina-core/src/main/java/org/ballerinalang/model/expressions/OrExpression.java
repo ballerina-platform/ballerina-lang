@@ -19,10 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 import static org.ballerinalang.model.Operator.OR;
 
@@ -33,11 +30,9 @@ import static org.ballerinalang.model.Operator.OR;
  */
 public class OrExpression extends BinaryLogicalExpression {
 
-    public static final BiFunction<BValueType, BValueType, BValueType> OR_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.booleanValue() || rVal.booleanValue());
-
-    public OrExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, OR, rExpr);
+    public OrExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                        Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, OR, rExpr);
     }
 
     @Override

@@ -33,41 +33,19 @@ public interface DataIterator {
 
     boolean next();
 
-    void close();
-
-    String getString(int columnIndex);
+    void close(boolean isInTransaction);
 
     String getString(String columnName);
 
-    long getLong(int columnIndex);
+    long getInt(String columnName);
 
-    long getLong(String columnName);
-
-    int getInt(int columnIndex);
-
-    int getInt(String columnName);
-
-    float getFloat(int columnIndex);
-
-    float getFloat(String columnName);
-
-    double getDouble(int columnIndex);
-
-    double getDouble(String columnName);
-
-    boolean getBoolean(int columnIndex);
+    double getFloat(String columnName);
 
     boolean getBoolean(String columnName);
 
-    String getObjectAsString(int columnIndex);
-
     String getObjectAsString(String columnName);
 
-    BValue get(int columnIndex, String type);
-
-    BValue get(String columnName, String type);
-
-    Map<String, Object> getArray(int columnIndex);
+    BValue get(String columnName, int type);
 
     Map<String, Object> getArray(String columnName);
 }

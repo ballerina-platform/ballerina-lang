@@ -17,26 +17,35 @@
  */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.TypeMapper;
+import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.natives.typemappers.NativeCastMapper;
+import org.ballerinalang.util.codegen.InstructionCodes;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
- * Class to hold the types and their connections within ballerina
+ * Class to hold the types and their connections within ballerina.
  */
 public class TypeLattice {
+
+    private static final boolean SAFE = true;
+    private static final boolean UNSAFE = false;
 
     protected final HashMap<String, TypeVertex> vertices = new HashMap<>();
     protected final HashMap<Integer, TypeEdge> edges = new HashMap<>();
     private static TypeLattice explicitCastLattice = new TypeLattice();
     private static TypeLattice implicitCastLattice = new TypeLattice();
+    private static TypeLattice conversionLattice = new TypeLattice();
 
     public static TypeLattice getExplicitCastLattice() {
         return explicitCastLattice;
@@ -46,99 +55,151 @@ public class TypeLattice {
         return implicitCastLattice;
     }
 
+    public static TypeLattice getTransformLattice() {
+        return conversionLattice;
+    }
 
     public static void loadImplicitCastLattice(SymbolScope scope) {
 
         TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex longV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.LONG_TNAME)));
         TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex doubleV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DOUBLE_TNAME)));
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex nullV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.NULL_TNAME)));
 
         implicitCastLattice.addVertex(intV, false);
-        implicitCastLattice.addVertex(longV, false);
         implicitCastLattice.addVertex(floatV, false);
-        implicitCastLattice.addVertex(doubleV, false);
         implicitCastLattice.addVertex(stringV, false);
 
-        implicitCastLattice.addEdge(intV, longV, NativeCastMapper.INT_TO_LONG_FUNC);
-        implicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
-        implicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
+        implicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
+        implicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
+        implicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
+        implicitCastLattice.addEdge(nullV, jsonV, SAFE, InstructionCodes.NULL2JSON);
 
-        implicitCastLattice.addEdge(longV, floatV, NativeCastMapper.LONG_TO_FLOAT_FUNC);
-        implicitCastLattice.addEdge(longV, doubleV, NativeCastMapper.LONG_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(longV, stringV, NativeCastMapper.LONG_TO_STRING_FUNC);
-
-        implicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
-
-        implicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
-
-        implicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
+        implicitCastLattice.addEdge(floatV, anyV, SAFE, InstructionCodes.F2ANY);
+        implicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
+        implicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
+        implicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
 
+        TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
+        TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
+        TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
+        TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
+        TypeVertex blobV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BLOB_TNAME)));
+        TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+        TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex messageV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MESSAGE_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
+
+
+        explicitCastLattice.addVertex(intV, false);
+        explicitCastLattice.addVertex(floatV, false);
+        explicitCastLattice.addVertex(stringV, false);
+        explicitCastLattice.addVertex(booleanV, false);
+        explicitCastLattice.addVertex(blobV, false);
+        explicitCastLattice.addVertex(xmlV, false);
+        explicitCastLattice.addVertex(jsonV, false);
+        explicitCastLattice.addVertex(anyV, false);
+        explicitCastLattice.addVertex(connectorV, false);
+        explicitCastLattice.addVertex(messageV, false);
+        explicitCastLattice.addVertex(datatableV, false);
+
+        explicitCastLattice.addEdge(intV, anyV, SAFE, InstructionCodes.I2ANY);
+        explicitCastLattice.addEdge(intV, jsonV, SAFE, InstructionCodes.I2JSON);
+
+        explicitCastLattice.addEdge(floatV, anyV, SAFE, InstructionCodes.F2ANY);
+        explicitCastLattice.addEdge(floatV, jsonV, SAFE, InstructionCodes.F2JSON);
+
+        explicitCastLattice.addEdge(stringV, anyV, SAFE, InstructionCodes.S2ANY);
+        explicitCastLattice.addEdge(stringV, jsonV, SAFE, InstructionCodes.S2JSON);
+
+        explicitCastLattice.addEdge(booleanV, anyV, SAFE, InstructionCodes.B2ANY);
+        explicitCastLattice.addEdge(booleanV, jsonV, SAFE, InstructionCodes.B2JSON);
+
+        explicitCastLattice.addEdge(blobV, anyV, SAFE, InstructionCodes.L2ANY);
+
+        explicitCastLattice.addEdge(connectorV, anyV, SAFE, InstructionCodes.NOP);
+
+        explicitCastLattice.addEdge(anyV, floatV, UNSAFE, InstructionCodes.ANY2F);
+        explicitCastLattice.addEdge(anyV, stringV, UNSAFE, InstructionCodes.ANY2S);
+        explicitCastLattice.addEdge(anyV, booleanV, UNSAFE, InstructionCodes.ANY2B);
+        explicitCastLattice.addEdge(anyV, blobV, UNSAFE, InstructionCodes.ANY2L);
+        explicitCastLattice.addEdge(anyV, intV, UNSAFE, InstructionCodes.ANY2I);
+        explicitCastLattice.addEdge(anyV, jsonV, UNSAFE, InstructionCodes.ANY2JSON);
+        explicitCastLattice.addEdge(anyV, xmlV, UNSAFE, InstructionCodes.ANY2XML);
+        explicitCastLattice.addEdge(anyV, connectorV, UNSAFE, InstructionCodes.ANY2C);
+        explicitCastLattice.addEdge(anyV, anyV, SAFE, InstructionCodes.NOP);
+        explicitCastLattice.addEdge(anyV, mapV, UNSAFE, InstructionCodes.ANY2MAP);
+        explicitCastLattice.addEdge(anyV, messageV, UNSAFE, InstructionCodes.ANY2MSG);
+        explicitCastLattice.addEdge(anyV, datatableV, UNSAFE, InstructionCodes.ANY2DT);
+
+        explicitCastLattice.addEdge(jsonV, anyV, SAFE, InstructionCodes.NOP);
+        explicitCastLattice.addEdge(anyV, messageV, SAFE, InstructionCodes.ANY2MSG);
+
+        explicitCastLattice.addEdge(jsonV, stringV, UNSAFE, InstructionCodes.JSON2S);
+        explicitCastLattice.addEdge(jsonV, intV, UNSAFE, InstructionCodes.JSON2I);
+        explicitCastLattice.addEdge(jsonV, floatV, UNSAFE, InstructionCodes.JSON2F);
+        explicitCastLattice.addEdge(jsonV, booleanV, UNSAFE, InstructionCodes.JSON2B);
+
+        explicitCastLattice.addEdge(xmlV, anyV, SAFE, InstructionCodes.NOP);
+
+        explicitCastLattice.addEdge(mapV, anyV, SAFE, InstructionCodes.NOP);
+
+        explicitCastLattice.addEdge(datatableV, anyV, SAFE, InstructionCodes.NOP);
+    }
+
+    public static void loadConversionLattice(SymbolScope scope) {
 
         TypeVertex intV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.INT_TNAME)));
-        TypeVertex longV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.LONG_TNAME)));
         TypeVertex floatV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.FLOAT_TNAME)));
-        TypeVertex doubleV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DOUBLE_TNAME)));
         TypeVertex stringV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.STRING_TNAME)));
         TypeVertex booleanV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.BOOLEAN_TNAME)));
         TypeVertex xmlV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.XML_TNAME)));
         TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+        TypeVertex connectorV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.CONNECTOR_TNAME)));
+        TypeVertex datatableV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.DATATABLE_TNAME)));
 
-        explicitCastLattice.addVertex(intV, false);
-        explicitCastLattice.addVertex(longV, false);
-        explicitCastLattice.addVertex(floatV, false);
-        explicitCastLattice.addVertex(doubleV, false);
-        explicitCastLattice.addVertex(booleanV, false);
-        explicitCastLattice.addVertex(stringV, false);
-        explicitCastLattice.addVertex(xmlV, false);
-        explicitCastLattice.addVertex(jsonV, false);
+        conversionLattice.addVertex(intV, false);
+        conversionLattice.addVertex(floatV, false);
+        conversionLattice.addVertex(booleanV, false);
+        conversionLattice.addVertex(stringV, false);
+        conversionLattice.addVertex(xmlV, false);
+        conversionLattice.addVertex(jsonV, false);
+        conversionLattice.addVertex(connectorV, false);
+        conversionLattice.addVertex(datatableV, false);
 
-        explicitCastLattice.addEdge(intV, longV, NativeCastMapper.INT_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(intV, intV, NativeCastMapper.INT_TO_INT_FUNC);
+        conversionLattice.addEdge(intV, floatV, SAFE, InstructionCodes.I2F);
+        conversionLattice.addEdge(intV, stringV, SAFE, InstructionCodes.I2S);
+        conversionLattice.addEdge(intV, booleanV, SAFE, InstructionCodes.I2B);
 
-        explicitCastLattice.addEdge(longV, intV, NativeCastMapper.LONG_TO_INT_FUNC);
-        explicitCastLattice.addEdge(longV, floatV, NativeCastMapper.LONG_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(longV, doubleV, NativeCastMapper.LONG_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(longV, stringV, NativeCastMapper.LONG_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(longV, longV, NativeCastMapper.LONG_TO_LONG_FUNC);
+        conversionLattice.addEdge(floatV, stringV, SAFE, InstructionCodes.F2S);
+        conversionLattice.addEdge(floatV, booleanV, SAFE, InstructionCodes.F2B);
+        conversionLattice.addEdge(floatV, intV, UNSAFE, InstructionCodes.F2I);
 
-        explicitCastLattice.addEdge(doubleV, longV, NativeCastMapper.DOUBLE_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(doubleV, floatV, NativeCastMapper.DOUBLE_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(doubleV, doubleV, NativeCastMapper.DOUBLE_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(doubleV, intV, NativeCastMapper.DOUBLE_TO_INT_FUNC);
+        conversionLattice.addEdge(stringV, floatV, UNSAFE, InstructionCodes.S2F);
+        conversionLattice.addEdge(stringV, intV, UNSAFE, InstructionCodes.S2I);
+        conversionLattice.addEdge(stringV, booleanV, UNSAFE, InstructionCodes.S2B);
 
-        explicitCastLattice.addEdge(floatV, longV, NativeCastMapper.FLOAT_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(floatV, floatV, NativeCastMapper.FLOAT_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(floatV, intV, NativeCastMapper.FLOAT_TO_INT_FUNC);
+        conversionLattice.addEdge(booleanV, stringV, SAFE, InstructionCodes.B2S);
+        conversionLattice.addEdge(booleanV, intV, SAFE, InstructionCodes.B2I);
+        conversionLattice.addEdge(booleanV, floatV, SAFE, InstructionCodes.B2F);
 
-        explicitCastLattice.addEdge(stringV, longV, NativeCastMapper.STRING_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(stringV, floatV, NativeCastMapper.STRING_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(stringV, doubleV, NativeCastMapper.STRING_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(stringV, stringV, NativeCastMapper.STRING_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(stringV, intV, NativeCastMapper.STRING_TO_INT_FUNC);
+        conversionLattice.addEdge(jsonV, xmlV, UNSAFE, InstructionCodes.JSON2XML);
 
-        explicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(booleanV, booleanV, NativeCastMapper.BOOLEAN_TO_BOOLEAN_FUNC);
-
-//        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(stringV, jsonV, new StringToJSON(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(stringV, xmlV, new StringToXML(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(xmlV, stringV, new XMLToString(), TypeConstants.NATIVE_PACKAGE);
-//        explicitCastLattice.addEdge(jsonV, stringV, new JSONToString(), TypeConstants.NATIVE_PACKAGE);
+        conversionLattice.addEdge(xmlV, jsonV, UNSAFE, InstructionCodes.XML2JSON);
+        conversionLattice.addEdge(datatableV, xmlV, UNSAFE, InstructionCodes.DT2XML);
+        conversionLattice.addEdge(datatableV, jsonV, UNSAFE, InstructionCodes.DT2JSON);
     }
 
     /**
@@ -146,41 +207,16 @@ public class TypeLattice {
      * ({one, two}, weight) iff no TypeEdge relating one and two
      * exists in the Graph.
      *
-     * @param one           The first TypeVertex of the TypeEdge
-     * @param two           The second TypeVertex of the TypeEdge
-     * @param typeMapper The weight of the TypeEdge
+     * @param one             The first TypeVertex of the TypeEdge
+     * @param two             The second TypeVertex of the TypeEdge
+     * @param safe            There will be runtime errors or not
+     * @param instructionCode Instruction code to be used in VM
      * @return true iff no TypeEdge already exists in the Graph
      */
-    public boolean addEdge(TypeVertex one, TypeVertex two, Function typeMapper) {
+    public boolean addEdge(TypeVertex one, TypeVertex two, boolean safe, int instructionCode) {
 
         //ensures the TypeEdge is not in the Graph
-        TypeEdge e = new TypeEdge(one, two, typeMapper);
-        if (this.edges.containsKey(e.hashCode())) {
-            return false;
-        } else if (one.containsNeighbor(e) || two.containsNeighbor(e)) {
-            return false;
-        }
-
-        this.edges.put(e.hashCode(), e);
-        one.addNeighbor(e);
-        two.addNeighbor(e);
-        return true;
-    }
-
-    /**
-     * Accepts two vertices and a weight, and adds the edge
-     * ({one, two}, weight) iff no TypeEdge relating one and two
-     * exists in the Graph.
-     *
-     * @param one           The first TypeVertex of the TypeEdge
-     * @param two           The second TypeVertex of the TypeEdge
-     * @param typeMapper The weight of the TypeEdge
-     * @return true iff no TypeEdge already exists in the Graph
-     */
-    public boolean addEdge(TypeVertex one, TypeVertex two, TypeMapper typeMapper, String packageName) {
-
-        //ensures the TypeEdge is not in the Graph
-        TypeEdge e = new TypeEdge(one, two, typeMapper, packageName);
+        TypeEdge e = new TypeEdge(one, two, safe, instructionCode);
         if (this.edges.containsKey(e.hashCode())) {
             return false;
         } else if (one.containsNeighbor(e) || two.containsNeighbor(e)) {
@@ -196,12 +232,11 @@ public class TypeLattice {
     public TypeEdge getEdgeFromTypes(BLangSymbol source, BLangSymbol target, String packageName) {
         TypeEdge result;
         // First check within the package
-        result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
-        if (result == null) {
-            // If not found, check in native type typemappers
-            packageName = TypeConstants.NATIVE_PACKAGE;
-            result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
-        }
+        result = this.edges.get(Objects.hash(source.toString(), target.toString()));
+//        if (result == null) {
+//            result = this.edges.get((packageName + ":" + source.toString() + packageName + ":" +
+//                    target.toString() + packageName).hashCode());
+//        }
         return result;
     }
 
@@ -224,8 +259,8 @@ public class TypeLattice {
      * only if overwriteExisting is true. If the existing TypeVertex is overwritten,
      * the Edges incident to it are all removed from the Graph.
      *
-     * @param vertex
-     * @param overwriteExisting
+     * @param vertex            {@link TypeVertex} to add
+     * @param overwriteExisting flag indicating whetehr to overide the vertex, if already exists with the same name
      * @return true iff vertex was added to the Graph
      */
     public boolean addVertex(TypeVertex vertex, boolean overwriteExisting) {
@@ -240,15 +275,140 @@ public class TypeLattice {
             }
         }
 
-
         this.vertices.put(vertex.toString(), vertex);
         return true;
     }
 
     /**
-     * @return Set<TypeEdge> The Edges of this graph
+     * @return Set &lt;TypeEdge&gt; The Edges of this graph
      */
     public Set<TypeEdge> getEdges() {
         return new HashSet<TypeEdge>(this.edges.values());
+    }
+
+    /**
+     * @return Set &lt;TypeVertex&gt; The Vertices of this graph
+     */
+    public Set<TypeVertex> getVertices() {
+        return new HashSet<TypeVertex>(this.vertices.values());
+    }
+
+    /**
+     * Add edges to type cast lattice for dynamically defined types structs.
+     * This method will add edges from the current struct to map-type, json-type,
+     * and all other struct-types, and the vice-versa.
+     *
+     * @param structDef {@link StructDef} of the dynamically defined struct type
+     * @param scope     scope of the defined type
+     */
+    public static void addStructEdges(StructDef structDef, SymbolScope scope) {
+        addExplicitCastingLatticeEdges(structDef, scope);
+        addConversionLatticeEdges(structDef, scope);
+    }
+
+    private static void addExplicitCastingLatticeEdges(StructDef structDef, SymbolScope scope) {
+        TypeVertex structV = new TypeVertex(structDef);
+        TypeVertex anyV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.ANY_TNAME)));
+
+        explicitCastLattice.addVertex(structV, false);
+        explicitCastLattice.addEdge(anyV, structV, UNSAFE, InstructionCodes.ANY2T);
+        explicitCastLattice.addEdge(structV, anyV, SAFE, InstructionCodes.NOP);
+
+        // For all the structs in all the packages imported, check for possibility of casting.
+        // Add an edge to the lattice, if casting is possible.
+        for (Entry<SymbolName, BLangSymbol> pkg : scope.getEnclosingScope().getSymbolMap().entrySet()) {
+            BLangSymbol pkgSymbol = pkg.getValue();
+            if (!(pkgSymbol instanceof BLangPackage)) {
+                continue;
+            }
+            for (Entry<SymbolName, BLangSymbol> entry : ((BLangPackage) pkgSymbol).getSymbolMap().entrySet()) {
+                BLangSymbol symbol = entry.getValue();
+                if (symbol instanceof StructDef && symbol != structDef) {
+                    TypeVertex otherStructV = new TypeVertex(symbol);
+
+                    if (isAssignCompatible(structDef, (StructDef) symbol)) {
+                        explicitCastLattice.addEdge(otherStructV, structV, SAFE, InstructionCodes.NOP);
+                    }
+
+                    if (isAssignCompatible((StructDef) symbol, structDef)) {
+                        explicitCastLattice.addEdge(structV, otherStructV, SAFE, InstructionCodes.NOP);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Add conversion edges for structs.
+     *
+     * @param structDef Struct definition
+     * @param scope     scope of the struct
+     */
+    private static void addConversionLatticeEdges(StructDef structDef, SymbolScope scope) {
+        TypeVertex structV = new TypeVertex(structDef);
+        TypeVertex mapV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.MAP_TNAME)));
+        TypeVertex jsonV = new TypeVertex(scope.resolve(new SymbolName(TypeConstants.JSON_TNAME)));
+
+        conversionLattice.addVertex(structV, false);
+
+        conversionLattice.addEdge(structV, mapV, SAFE, InstructionCodes.T2MAP);
+        conversionLattice.addEdge(structV, jsonV, SAFE, InstructionCodes.T2JSON);
+        conversionLattice.addEdge(jsonV, structV, UNSAFE, InstructionCodes.JSON2T);
+        conversionLattice.addEdge(mapV, structV, UNSAFE, InstructionCodes.MAP2T);
+    }
+
+    public static boolean isAssignCompatible(StructDef targetStructDef, StructDef sourceStructDef) {
+        if (targetStructDef == sourceStructDef) {
+            return true;
+        }
+
+        for (VariableDefStmt fieldDef : targetStructDef.getFieldDefStmts()) {
+            VariableDef targetFieldDef = fieldDef.getVariableDef();
+            BType targetFieldType = targetFieldDef.getType();
+            SymbolName fieldSymbolName = targetFieldDef.getSymbolName();
+            VariableDef sourceFieldDef = (VariableDef) sourceStructDef
+                    .resolveMembers(new SymbolName(fieldSymbolName.getName(), sourceStructDef.getPackagePath()));
+
+            // field has to exists
+            if (sourceFieldDef == null) {
+                return false;
+            }
+
+            // struct memory index of both the fields has to be same. i.e: order of the fields
+            // must be same in the target and the source structs
+            if (((StructVarLocation) targetFieldDef.getMemoryLocation()).getStructMemAddrOffset() !=
+                    ((StructVarLocation) sourceFieldDef.getMemoryLocation()).getStructMemAddrOffset()) {
+                return false;
+            }
+
+            BType sourceFieldType = sourceFieldDef.getType();
+            if (!isCompatible(targetFieldType, sourceFieldType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check whether a given source type can be assigned to a destination type.
+     *
+     * @param lType Destination type
+     * @param rType Source Type
+     * @return Flag indicating whether the given source type can be assigned to the destination type.
+     */
+    public static boolean isCompatible(BType lType, BType rType) {
+        if (lType == rType) {
+            return true;
+        }
+
+        if (lType == BTypes.typeAny) {
+            return true;
+        }
+
+        if (!BTypes.isValueType(lType) && (rType == BTypes.typeNull)) {
+            return true;
+        }
+
+        return false;
     }
 }

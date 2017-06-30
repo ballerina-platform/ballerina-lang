@@ -1,8 +1,8 @@
 # Write your First Program
 
-Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper and write your first Ballerina integration program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your integration, understand the key concepts, and get familiar with the Ballerina language.
+Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper and write your first Ballerina program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your program, understand the key concepts, and get familiar with the Ballerina language.
 
-## Running Ballerina
+## Run Ballerina
 
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `<ballerina_home>/samples/helloWorld` directory with a single command:
 
@@ -26,81 +26,120 @@ curl -v http://localhost:9090/hello
 
 The service receives the request and executes its logic, printing "Hello, World!" on the command line. Notice that the Ballerina server is still running in the background, waiting for more requests to come in. You can stop the Ballerina server by pressing Ctrl-C. 
 
-## Creating an integration
+## Create a new program
 
-It's time to create your first integration! In this exercise, we are going to create a service that takes an incoming message, extracts the text, and sends a message back to the client with that same text. 
+It's time to create your first program! In this exercise, we are going to create a service that takes an incoming message, extracts the text, and sends a message back to the client with that same text. 
 
 ### Add a service and resource
 
 First, we add a **service** construct to the canvas in the Composer. A service is a container for all the other constructs and represents a single unit of functionality that can be accessed remotely.
 
 1. If the Composer is not already running, run it as described in the [Quick Tour](../quick-tour.md).
-
+1. On the Welcome page, click **New**.
 1. On the tool palette, click the service icon and drag it to the canvas. 
 
-A box appears with the name `newService`, and inside it is another box called `newResource` with some content already created for you. 
+![alt text](../images/AddService.gif)
 
-A **resource** is a single request handler within a service. This is where we will program the logic describing how to handle certain types of requests from incoming messages to this service. 
+A box appears called `Resource1` with some content already created for you. If you scroll up, you can see that it is inside another box called `Service1`, which is the top-level container for the service.  
 
-By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box. When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
+A **resource** is a single request handler within a service. This is where we will program the logic describing how to handle certain types of requests from incoming messages to this service. The diagram shows that when clients send messages to this service, they are received by the `Resource1` resource, which has one **worker** that handles the message. Each worker is a separate thread of execution, so you can add more workers if you want to do parallel processing. In this tutorial, we'll just use the default worker.  
 
-Let's rename both the service and resource. 
+By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box: 
 
-1. Highlight the name `newService` and type `myEchoService` in its place. 
-1. Change `newResource` to `myEchoResource` in the same way. 
+![alt text](../images/icons/arguments.png "Arguments icon")
+
+When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
+
+Let's rename the service and resource. 
+
+1. Highlight the name `Service1` and type `myEchoService` in its place. 
+1. Change `Resource1` to `myEchoResource` in the same way. 
 
 ### Set the base path
 
-Now, let's set the base path for this service. This will be the context portion of the URL that clients will use to send requests to this service. 
+The base path for a service is the context portion of the URL that clients will use to send requests to this service. For example, if we set the base path to `/myecho`, clients will be able to send requests to this service using the URL http://localhost:9090/myecho. Let's do this now.
 
-1. In the upper right corner of the **service** box (not the resource box this time), click the Annotations (`@`) icon. 
-1. Make sure BasePath is selected in the list, type `/myecho` in the text box, and then press Enter or click the + symbol to its right. 
+1. In the upper right corner of the myEcho**Service** box (not the resource box this time), click the Annotations (@) icon.
+1. Make sure `http:BasePath` is selected in the list, type `/myecho` in the text box, and then press Enter or click the + symbol to its right. 
 
-The base path is now set, so that when you deploy this service, clients will be able to send requests to it using the URL http://localhost:9090/myecho.
+The base path is now set, so that when you deploy this service, clients will be able to send requests to it using http://localhost:9090/myecho.
 
 ### Change GET to POST
 
 When you added the service, Ballerina configured the resource to use the GET method by default. Because we are going to use the incoming message to post a reply, let's change it to POST. 
 
-1. Click the `@` symbol in the upper right corner of the resource box, highlight `GET`, and type `POST`. 
-1. Click the `@` symbol again to hide the box. 
+1. Click the Annotations (@) icon in the upper right corner of the myEcho**Resource** box (not the service box).
+1. Click `http:GET`, highlight `GET`, and type `POST`. 
+1. Click the Annotations icon again to hide the box. 
 
-You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the Source View button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor.
+You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the **Source View** button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor. Currently, the source code should look like this:
+
+```
+@http:BasePath{value:"/myecho"} 
+service myEchoService {
+	@http:POST {} 
+	resource myEchoResource( message m) {
+	}
+}
+```
 
 ### Add a function
 
 Now, let's add a function that will take the incoming message and convert it to a response that gets sent back to the client. Because we are sending the original request back instead of composing a new message to send to the client, we need to strip its original headers before we reply, as those headers are intended for use in the client -> server direction and not the other way around. The `ballerina.net.http` package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. Let's add that function to our flow.
 
-1. On the tool palette, go to the **ballerina.net.http** section, click the **convertToResponse** function, and drag it to the canvas below **Start**. 
-1. Click in the parentheses of `convertToResponse()` and type `m`, which is the incoming message, so that it looks like this: `convertToResponse(m)`
+1. Click **Design View**. 
+1. On the tool palette, scroll down and click the **ballerina.net.http** section to expand it, click the **convertToResponse** function, and drag it to the canvas below **start**. 
+1. Highlight `message` in `http:convertToResponse(message)` and replace it with `m`, which is the incoming message, so that it looks like this: `http:convertToResponse(m)`
 
 ### Add the reply
-Now that we've added the function that will convert the incoming message text to a response, we just need to instruct the program to send the response back to the client.
+Now that we've added the function that will convert the incoming message text to a response, we just need to instruct the program to send the response back to the client. We will use the Reply icon in the tool palette, which looks like this:
 
-1. On the tool palette, click the Reply icon ![alt text](../images/icons/reply.png "Reply icon") and drag it to the canvas under the `convertToResponse` function you just added. You'll see that it appears as a box with an arrow going back to the client. 
-1. Click the reply box you just added, click the Edit icon, and set the response message to `m`, which instructs the program to send the message processed by the `convertToResponse` function back to the client. 
+![alt text](../images/icons/reply.png "Reply icon")
 
-This completes the sequence, so you are now ready to save and run your integration program.
+1. On the tool palette, click the Reply icon and drag it to the canvas under the `convertToResponse` function you just added. 
+
+    It appears as a box with an arrow pointing back to the client. 
+
+1. Click the reply box you just added and type `m` to instruct the program to send the message processed by the `convertToResponse` function back to the client. Click outside of the box. 
+
+This completes the sequence. If you go to the Source view, your program should now look like this:
+
+```
+ import ballerina.net.http;
+@http:BasePath{value:"/myecho"} 
+service myEchoService {
+	@http:POST {} 
+	resource myEchoResource( message m) {
+		http:convertToResponse( m );
+		reply m;
+		
+	}
+	
+}
+```
+Notice that the `ballerina.net.http` package has been imported, and the `convertToResponse` function and `reply` statement appear within the resource definition.
+
+You are now ready to save and run your integration program
 
 ### Save the program
 
 1. Click the **File** menu and choose **Save As**. 
-1. Save it as `myEcho.bal` in your Ballerina `samples` directory. 
+1. Specify the name as `myEcho.bal` and specify the location as your Ballerina `samples` directory. You can type the path directly in the Location box, or use the tree to navigate to the directory. 
+1. Click **Save**.
 
 ### Run the program
 
-1. At the command prompt, navigate to your `<ballerina_home>/samples` directory. 
-1. Enter the command to run the Ballerina server and deploy your myEcho program:
+You can run a Ballerina program from inside the Composer using the Run icon, which is to the left of the tool palette:
 
-  ```
-  ballerina run service ../samples/myEcho.bal
-  ```
+![alt text](../images/icons/run.png "Run icon")
+
+Click the Run icon now and click **Service**. If you were creating a Ballerina program with a `main()` function, you would click **Application** instead.
 
 Your service is now deployed and running on the Ballerina server. 
 
 ### Send the request
 
-From a separate command prompt, use curl to send a request to your program:
+In a new command prompt, use curl to send the following request to your program:
 
 ```
 curl -v http://localhost:9090/myecho -d "Hello World......"
@@ -108,12 +147,14 @@ curl -v http://localhost:9090/myecho -d "Hello World......"
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response without the client headers, and sends it back to the command line where the request was sent.
 
-You have now completed your first Ballerina program! If you run into problems, you can troubleshoot by comparing your code with the Echo sample.  
+You have now completed your first Ballerina program! If you run into problems, you can troubleshoot by comparing your code with the Echo sample.
 
 ## Next steps
 
-Now that you're familiar with running Ballerina in standalone and server mode, using the Composer to build an integration program, and creating a service and resource, you are ready to learn more. 
+Now that you're familiar with running Ballerina in standalone and server mode, using the Composer to build a program, and creating a service and resource, you are ready to learn more. 
 
-* Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the main features you need to know about.
+* Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the primary features you need to know about.
+* Read about the [Tools](../tools.md) that you can use with Ballerina, such as using an IDE instead of the Composer. 
+* Run through the rest of the [Tutorials](index.md) to get hands-on experience.  
 * Browse through the [Samples](../samples.md) and use them as templates for your own programs.
 * See the [Language Reference](../lang-ref/lang-overview.md) for complete information on using the Ballerina language. 

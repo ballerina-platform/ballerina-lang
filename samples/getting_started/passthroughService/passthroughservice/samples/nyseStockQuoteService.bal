@@ -1,13 +1,14 @@
 package passthroughservice.samples;
 
 import ballerina.lang.messages;
+import ballerina.net.http;
 
-@http:BasePath ("/nyseStock")
-service nyseStockQuote {
+@http:config {basePath:"/nyseStock"}
+service<http> nyseStockQuote {
 
-    @http:GET
+    @http:GET{}
     resource stocks (message m) {
-        json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+        json payload = {"exchange":"nyse", "name":"IBM", "value":"127.50"};
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;

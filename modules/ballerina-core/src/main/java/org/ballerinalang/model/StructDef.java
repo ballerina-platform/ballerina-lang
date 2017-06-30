@@ -18,8 +18,11 @@
 
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeSignature;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
@@ -34,14 +37,16 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class StructDef extends BType implements CompilationUnit, SymbolScope {
+public class StructDef extends BType implements CompilationUnit, SymbolScope, StructuredUnit {
+    private Identifier identifier;
     private NodeLocation location;
-    private Annotation[] annotations;
-    private VariableDef[] fields;
+    private WhiteSpaceDescriptor whiteSpaceDescriptor;
+    private AnnotationAttachment[] annotations;
+    private VariableDefStmt[] fields;
     private int structMemorySize;
-
     private SymbolName symbolName;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private BallerinaFunction initFunction;
 
     public StructDef(SymbolScope enclosingScope) {
         super(null, null, enclosingScope, BStruct.class);
@@ -53,6 +58,15 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         return location;
     }
 
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+    }
+
+    @Override
+    public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+        return whiteSpaceDescriptor;
+    }
+
     /**
      * Set the symbol name of this struct.
      *
@@ -61,13 +75,13 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
     }
-    
+
     /**
      * Get all the Annotations associated with this struct.
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -76,17 +90,44 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
      *
      * @return Variable fields in the struct
      */
-    public VariableDef[] getFields() {
+    public VariableDefStmt[] getFieldDefStmts() {
         return fields;
     }
 
+    /**
+     * Get the size of the allocated memory for the struct.
+     *
+     * @return Size of the allocated memory
+     */
     public int getStructMemorySize() {
         return structMemorySize;
     }
 
-
+    /**
+     * Set the size of memory to allocate for the struct.
+     *
+     * @param structMemorySize Size of memory to allocate
+     */
     public void setStructMemorySize(int structMemorySize) {
         this.structMemorySize = structMemorySize;
+    }
+
+    /**
+     * Get the struct initializing function.
+     *
+     * @return Struct initializing function
+     */
+    public BallerinaFunction getInitFunction() {
+        return initFunction;
+    }
+
+    /**
+     * Set the struct initializing function.
+     *
+     * @param initFunction Struct initializing function
+     */
+    public void setInitFunction(BallerinaFunction initFunction) {
+        this.initFunction = initFunction;
     }
 
     @Override
@@ -98,13 +139,18 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     // Methods in BLangSymbol interface
 
     @Override
+    public Identifier getIdentifier() {
+        return null;
+    }
+
+    @Override
     public SymbolName getSymbolName() {
         return symbolName;
     }
 
     @Override
     public SymbolScope getSymbolScope() {
-        return this;
+        return symbolScope;
     }
 
 
@@ -112,7 +158,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
 
     @Override
     public ScopeName getScopeName() {
-        return ScopeName.LOCAL;
+        return ScopeName.STRUCT;
     }
 
     @Override
@@ -135,14 +181,30 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
+    @Override
     public BLangSymbol resolveMembers(SymbolName name) {
         return symbolMap.get(name);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return null;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return null;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        String packagePath = (pkgPath == null) ? "." : pkgPath;
+        return new TypeSignature(TypeSignature.SIG_STRUCT, packagePath, typeName);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRUCT_TAG;
     }
 
     public boolean equals(Object obj) {
@@ -161,10 +223,11 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
      */
     public static class StructBuilder {
         private NodeLocation location;
-        private String name;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
+        private Identifier identifier;
         private String pkgPath;
-        private List<VariableDef> fields = new ArrayList<>();
-        private List<Annotation> annotationList = new ArrayList<>();
+        private List<VariableDefStmt> fields = new ArrayList<VariableDefStmt>();
+        private List<AnnotationAttachment> annotationList = new ArrayList<>();
         private StructDef structDef;
 
         public StructBuilder(NodeLocation location, SymbolScope enclosingScope) {
@@ -172,24 +235,27 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
             this.location = location;
         }
 
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public SymbolScope getCurrentScope() {
             return structDef;
         }
 
-        /**
-         * Set the symbol name of this struct.
-         *
-         * @param name Symbol name of this struct
-         */
-        public void setName(String name) {
-            this.name = name;
+        public void setIdentifier(Identifier identifier) {
+            this.identifier = identifier;
         }
 
         public void setPackagePath(String pkgPath) {
             this.pkgPath = pkgPath;
         }
-        
-        public void addAnnotation(Annotation annotation) {
+
+        public void addAnnotation(AnnotationAttachment annotation) {
             this.annotationList.add(annotation);
         }
 
@@ -198,7 +264,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
          *
          * @param field Field in the struct
          */
-        public void addField(VariableDef field) {
+        public void addField(VariableDefStmt field) {
             fields.add(field);
         }
 
@@ -209,11 +275,14 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
          */
         public StructDef build() {
             this.structDef.location = location;
-            this.structDef.typeName = name;
+            this.structDef.whiteSpaceDescriptor = whiteSpaceDescriptor;
+            this.structDef.identifier = identifier;
+            this.structDef.typeName = identifier.getName();
             this.structDef.pkgPath = pkgPath;
-            this.structDef.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
-            this.structDef.fields = fields.toArray(new VariableDef[fields.size()]);
-            this.structDef.symbolName = new SymbolName(name, pkgPath);
+            this.structDef.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
+            this.structDef.fields = fields.toArray(new VariableDefStmt[fields.size()]);
+            this.structDef.symbolName = new SymbolName(identifier.getName(), pkgPath);
 
             return structDef;
         }

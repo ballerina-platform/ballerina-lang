@@ -13,40 +13,57 @@ Example:
 service jmsService {
 }
 ```
-### Step 2: Specify the topic or queue
+### Step 2: Specify the connection details
 
-Add a service-level annotation named “Source”, and add the key-value pairs to specify the particular topic/queue that you want to listen to. The following table describes each key that can be used with the JMS service.
+Add a service-level annotation named “jms:JMSSource”, and add the key-value pairs of these two mandatory properties to specify the JMS connection details.
+The following table describes each key that can be used with the JMS service.
 
-Key | Description | Required | Expected Values | Default Value
------------- | ------------- | ---------- | ----------- | ----------
-protocol | The protocol this particular service belongs to | Yes | jms | -
-factoryInitial | The JNDI initial context factory class. The class must implement the java.naming.spi.InitialContextFactory interface. | Yes | A valid class name depending on the JMS provider | -
-providerUrl | The URL/ file path of the JNDI provider | Yes | A valid URL/ path for the JNDI provider | -
-connectionFactoryJNDIName | The JNDI name of the connection factory | Yes | A valid JNDI name of the connection factory. | -
-connectionFactoryType | The type of the connection factory | no | queue, topic | queue
-destination | The JNDI name of the destination | no | A valid JNDI name of the destination | service name
-sessionAcknowledgement | The JMS session acknowledgment mode | no | AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE, SESSION_TRANSACTED | AUTO_ACKNOWLEDGE
-connectionUsername | The JMS connection username | no | - | -
-connectionPassword | The JMS connection password | no | - | -
-subscriptionDurable | Whether subscription is durable | no | true, false | false (subscription is not durable)
-durableSubscriberClientID | The ClientId parameter when using durable subscriptions | Required if subscriptionDurable is specified as "true" | - | -
-durableSubscriberName | The name of the durable subscriber | Required if subscriptionDurable is specified as "true" | - | -
-retryInterval | The retry interval (in milliseconds) if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid long value | 10000
-maxRetryCount | Maximum retry count if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid integer value | 5
+Key | Description | Expected Values | Default Value
+------------ | ------------- | ----------- | ----------
+factoryInitial | The JNDI initial context factory class. The class must implement the java.naming.spi.InitialContextFactory interface. | A valid class name depending on the JMS provider | -
+providerUrl | The URL/ file path of the JNDI provider | A valid URL/ path for the JNDI provider | -
 
 Example: 
 
 ```
-@Source (
-protocol = "jms",
-destination = "ballerina",
-connectionFactoryJNDIName = "QpidConnectionFactory",
-factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-providerUrl = "jndi.properties",
-connectionFactoryType = "queue",
-sessionAcknowledgement = "CLIENT_ACKNOWLEDGE")
-service jmsMBService {
-}
+import ballerina.net.jms;
+
+@jms:JMSSource {
+factoryInitial : "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+providerUrl : "/Users/Akalanka/test/jndi.properties"}
+```
+
+The following set of parameters are optional and can be provided to the JMS provider along with any other vendor specific properties by adding an annotation named "jms:ConnectionProperty"
+
+Key | Description | Required | Expected Values | Default Value
+------------ | ------------- | ---------- | ----------- | ----------
+connectionFactoryType | The type of the connection factory | no | queue, topic | queue
+connectionFactoryJNDIName | The JNDI name of the connection factory | no | A valid JNDI name of the connection factory. | -
+destination | The JNDI name of the destination | no | A valid JNDI name of the destination | service name
+sessionAcknowledgement | The JMS session acknowledgment mode | no | AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE, SESSION_TRANSACTED | AUTO_ACKNOWLEDGE
+connectionUsername | The JMS connection username | no | - | -
+connectionPassword | The JMS connection password | no | - | -
+subscriptionDurable | Whether subscription is durable | no | true/false | false (subscription is not durable)
+durableSubscriberClientID | The ClientId parameter when using durable subscriptions | Required if subscriptionDurable is specified as "true" | - | -
+durableSubscriberName | The name of the durable subscriber | Required if subscriptionDurable is specified as "true" | - | -
+retryInterval | The retry interval (in milliseconds) if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid long value | 10000
+maxRetryCount | Maximum retry count if the JMS connection cannot be established at the beginning or is lost in the middle | no | A valid integer value | 5
+useReceiver | Use synchronous message receiver to receive message instead of asynchronous message listener | no | true/false | false
+concurrentConsumers | Number of concurrent consumers to be spawned when the server connector is starting. | no | Integer | 1
+connectionFactoryNature | The type of connection factory to use when creating consumers | no | default,cached,pooled | default
+
+Example: 
+
+```
+import ballerina.net.jms;
+
+@jms:ConnectionProperty{key:"connectionFactoryType", value:"queue"}
+@jms:ConnectionProperty{key:"destination", value:"MyQueue"}
+@jms:ConnectionProperty{key:"useReceiver", value:"true"}
+@jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}
+@jms:ConnectionProperty{key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
+@jms:ConnectionProperty{key:"concurrentConsumers", value:"5"}
+@jms:ConnectionProperty{key:"connectionFactoryNature", value:"pooled"}
 ```
 
 ### Step 3: Add the resource
@@ -55,14 +72,16 @@ Add a resource to the JMS service. This is required, because whenever a message 
 Example:
 
 ```
-@Source (
-protocol = "jms",
-destination = "ballerina",
-connectionFactoryJNDIName = "QpidConnectionFactory",
-factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-providerUrl = "jndi.properties",
-connectionFactoryType = "queue",
-sessionAcknowledgement = "CLIENT_ACKNOWLEDGE")
+import ballerina.net.jms;
+
+@jms:JMSSource {
+factoryInitial : "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+providerUrl : "/Users/Akalanka/test/jndi.properties",
+connectionFactoryType : "queue"}
+@jms:ConnectionProperty{key:"destination", value:"MyQueue"}
+@jms:ConnectionProperty{key:"useReceiver", value:"true"}
+@jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}
+@jms:ConnectionProperty{key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
 service jmsService {
     resource onMessage (message m) {
         // ProcessMessage
@@ -78,14 +97,14 @@ Following is a sample JMS service.
 ```
 import ballerina.net.jms;
 
-@Source (
-protocol = "jms",
-destination = "ballerina",
-connectionFactoryJNDIName = "QpidConnectionFactory",
-factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-providerUrl = "jndi.properties",
-connectionFactoryType = "queue",
-sessionAcknowledgement = "CLIENT_ACKNOWLEDGE")
+@jms:JMSSource {
+factoryInitial : "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+providerUrl : "/Users/Akalanka/test/jndi.properties"}
+@jms:ConnectionProperty{key:"connectionFactoryType", value:"queue"}
+@jms:ConnectionProperty{key:"destination", value:"MyQueue"}
+@jms:ConnectionProperty{key:"useReceiver", value:"true"}
+@jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}
+@jms:ConnectionProperty{key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
 service jmsService {
     resource onMessage (message m) {
         //Process the message
@@ -143,21 +162,23 @@ string stringValue;
 stringValue = messages:getStringValue(m, “count”);
 ```
 
-### Package ballerina.net.jms
+**messages:getProperty**
 
-**jms:getMessageType**
-
-This function can be used get the JMS message type of the relevant message. This function accepts the relevant message as the argument. Return values will be “TextMessage”, “BytesMessage”, “MapMessage” or “ObjectMessage”.
+This function can be used to retrieve a property from the message.
 
 Example:
 
+Message type can be retrieved from the message as below.
+
 ```
-import ballerina.net.jms
+import ballerina.lang.messages;
 ---
 
-string messageType;
-messageType = jms:getMessageType(m);
+string msgType = messages:getProperty(m, "JMS_MESSAGE_TYPE");
+
 ```
+
+### Package ballerina.net.jms
 
 **jms:acknowledge**
 

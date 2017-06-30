@@ -41,7 +41,3 @@ function checkStringEquality(string a, string b) (int) {
 
     return returnType;
 }
-
-function checkFloatAndDoubleEquality(float a, double b) (boolean) {
-    return (a == b);
-}

@@ -2,55 +2,62 @@ package restfulservice.samples;
 
 import ballerina.net.http;
 
-@http:BasePath ("/ecommerceservice")
-service Ecommerce {
-
+@http:config {basePath:"/ecommerceservice"}
+service<http> Ecommerce {
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-
-    @http:GET
-    @http:Path ("/products/{productId}")
-    resource productsInfo (message m, @http:PathParam ("productId") string prodId) {
+    
+    @http:GET{}
+    @http:Path {value:"/products/{productId}"}
+    resource productsInfo(message m, 
+    @http:PathParam{value:"productId"} string prodId) {
         string reqPath = "/productsservice/" + prodId;
         message response = http:ClientConnector.get(productsService, reqPath, m);
         reply response;
+    
     }
-
-    @http:POST
-    @http:Path ("/products")
+    
+    @http:POST{}
+    @http:Path {value:"/products"}
     resource productMgt (message m) {
         message response = http:ClientConnector.post(productsService, "/productsservice", m);
         reply response;
+        
     }
-
-    @http:GET
-    @http:Path ("/orders")
+    
+    @http:GET{}
+    @http:Path {value:"/orders"}
     resource ordersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/orderservice", m);
+        message response = http:ClientConnector.get(productsService, "/orderservice/orders", m);
         reply response;
+        
     }
-
-    @http:POST
-    @http:Path ("/orders")
+    
+    @http:POST{}
+    @http:Path {value:"/orders"}
     resource ordersMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/orderservice", m);
+        message response = http:ClientConnector.post(productsService, "/orderservice/orders", m);
         reply response;
+        
     }
-
-    @http:GET
-    @http:Path ("/customers")
+    
+    @http:GET{}
+    @http:Path {value:"/customers"}
     resource customersInfo (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.get(productsService, "/customerservice", m);
+        message response = http:ClientConnector.get(productsService, "/customerservice/customers", m);
         reply response;
+        
     }
-
-    @http:POST
-    @http:Path ("/customers")
+    
+    @http:POST{}
+    @http:Path {value:"/customers"}
     resource customerMgt (message m) {
         http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
-        message response = http:ClientConnector.post(productsService, "/customerservice", m);
+        message response = http:ClientConnector.post(productsService, "/customerservice/customers", m);
         reply response;
+        
     }
+    
 }

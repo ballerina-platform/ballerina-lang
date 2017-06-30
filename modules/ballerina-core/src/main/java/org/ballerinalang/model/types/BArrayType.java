@@ -33,32 +33,74 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
+    private int dimensions = 1;
 
     /**
      * Create a type from the given name.
      *
      * @param typeName string name of the type
      */
-    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope) {
+    BArrayType(String typeName, BType elementType, String pkgPath, SymbolScope symbolScope, int dimensions) {
         super(typeName, pkgPath, symbolScope, BArray.class);
         this.elementType = elementType;
+        this.dimensions = dimensions;
+    }
+
+    public BArrayType(BType elementType) {
+        super(null, null, null, BArray.class);
+        this.elementType = elementType;
+        if (elementType instanceof BArrayType) {
+            dimensions = ((BArrayType) elementType).getDimensions() + 1;
+        }
     }
 
     public BType getElementType() {
         return elementType;
     }
 
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
-        return (V) new BArray<V>(elementType.getValueClass());
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return null;
     }
 
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        BArray emptyVal = new BArray<V>(elementType.getValueClass());
+        emptyVal.setType(this);
+        return (V) emptyVal;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_ARRAY, elementType.getSig());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.ARRAY_TAG;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.toString().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            return this.typeName.equals(other.typeName);
+            return this.elementType.equals(other.elementType);
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return elementType + "[]";
+    }
+
+    public int getDimensions() {
+        return this.dimensions;
     }
 }

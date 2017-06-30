@@ -29,8 +29,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -61,16 +59,17 @@ public class GetHash extends AbstractNativeFunction {
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
-    private static final Logger log = LoggerFactory.getLogger(GetHash.class);
 
     @Override public BValue[] execute(Context context) {
-        String baseString = getArgument(context, 0).stringValue();
-        String algorithm = getArgument(context, 1).stringValue();
+        String baseString = getStringArgument(context, 0);
+        String algorithm = getStringArgument(context, 1);
 
         //todo document the supported algorithm
         switch (algorithm) {
-            case "SHA1":
-            case "SHA256":
+            case "SHA1": algorithm = "SHA-1";
+                break;
+            case "SHA256": algorithm = "SHA-256";
+                break;
             case "MD5":
                 break;
             default:
@@ -78,11 +77,10 @@ public class GetHash extends AbstractNativeFunction {
                         "Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
-        String result = "";
+        String result;
         try {
-            baseString = baseString.replace("\\n", "\n");
-            MessageDigest messageDigest = null;
-            messageDigest = MessageDigest.getInstance("SHA-256");
+            MessageDigest messageDigest;
+            messageDigest = MessageDigest.getInstance(algorithm);
             messageDigest.update(baseString.getBytes("UTF-8"));
             byte[] bytes = messageDigest.digest();
 

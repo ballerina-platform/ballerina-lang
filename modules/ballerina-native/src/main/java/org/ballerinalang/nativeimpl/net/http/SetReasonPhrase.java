@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function to set a custom Http Reason Phrase
+ * Native function to set a custom Http Reason Phrase.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",
@@ -49,8 +49,8 @@ public class SetReasonPhrase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        BMessage bMsg = (BMessage) getArgument(context, 0);
-        String reasonPhrase = getArgument(context, 1).stringValue();
+        BMessage bMsg = (BMessage) getRefArgument(context, 0);
+        String reasonPhrase = getStringArgument(context, 0);
         bMsg.value().setProperty(Constants.HTTP_REASON_PHRASE, reasonPhrase);
         return VOID_RETURN;
     }

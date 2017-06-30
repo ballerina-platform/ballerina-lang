@@ -19,9 +19,9 @@ package org.ballerinalang.model.expressions;
 
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -34,36 +34,36 @@ import org.testng.annotations.Test;
  */
 public class FuncInvocationExprTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
+        bLangProgram = BTestUtils.getProgramFile("lang/expressions/funcInvocation-expr.bal");
     }
 
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFuncInvocation", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 116;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 116;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         BValue[] args = {new BInteger(7)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "sum", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "sum", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 28;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 28;
         Assert.assertEquals(actual, expected);
 
     }
@@ -71,13 +71,13 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "funcInvocationWithinFuncInvocation", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
-        int actual = ((BInteger) returns[0]).intValue();
-        int expected = 322;
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 322;
         Assert.assertEquals(actual, expected);
     }
 }

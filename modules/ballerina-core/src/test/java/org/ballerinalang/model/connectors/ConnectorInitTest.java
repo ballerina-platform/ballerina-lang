@@ -18,34 +18,35 @@
 package org.ballerinalang.model.connectors;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test the hidden <init> function invocation in connectors
+ * Test the hidden <init> function invocation in connectors.
  *
  * @since 0.8.0
  */
 public class ConnectorInitTest {
 
-    private BLangProgram bLangProgram;
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/connectors/init");
+        programFile = BTestUtils.getProgramFile("lang/connectors/init");
     }
 
     @Test(description = "Test Connector int functionality")
     public void testConnectorInit() {
         BValue[] args = {new BString("Apple"), new BInteger(13)};
 
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorInit", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.connectors.init",
+                "testConnectorInit", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

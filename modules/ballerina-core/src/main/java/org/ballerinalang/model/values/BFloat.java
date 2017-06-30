@@ -17,37 +17,30 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BFloat} represents a float value in Ballerina.
  *
  * @since 0.8.0
  */
-public final class BFloat extends BValueType {
+public final class BFloat extends BValueType implements BRefType<Double> {
 
-    private float value;
+    private double value;
 
-    public BFloat(float value) {
+    public BFloat(double value) {
         this.value = value;
     }
 
     @Override
-    public int intValue() {
-        return (int) this.value;
-    }
-
-    @Override
-    public long longValue() {
+    public long intValue() {
         return (long) this.value;
     }
 
     @Override
-    public float floatValue() {
+    public double floatValue() {
         return this.value;
-    }
-
-    @Override
-    public double doubleValue() {
-        return (double) this.value;
     }
 
     @Override
@@ -56,12 +49,32 @@ public final class BFloat extends BValueType {
     }
 
     @Override
+    public byte[] blobValue() {
+        return null;
+    }
+
+    @Override
     public String stringValue() {
-        return Float.toString(value);
+        return Double.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeFloat;
     }
 
     @Override
     public boolean equals(Object obj) {
         return ((BFloat) obj).floatValue() == value;
+    }
+
+    @Override
+    public Double value() {
+        return value;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BFloat(value);
     }
 }

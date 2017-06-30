@@ -22,13 +22,18 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+
+import javax.jms.Session;
 
 /**
  * Acknowledge the jms message.
@@ -36,7 +41,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.jms",
         functionName = "acknowledge",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "deliveryStatus", type = TypeEnum.STRING)},
         isPublic = true
 )
@@ -48,14 +53,37 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "deliveryStatus",
         value = "Specify whether message delivery is SUCCESS or ERROR") })
 public class Acknowledge extends AbstractNativeFunction {
-    public BValue[] execute(Context ctx) {
-        BMessage msg = (BMessage) getArgument(ctx, 0);
-        CarbonMessage carbonMessage = msg.value();
-        String deliveryStatus = getArgument(ctx, 1).stringValue();
+    private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
 
-        if (ctx.getBalCallback() != null) {
-            carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
-            ctx.getBalCallback().done(carbonMessage);
+    public BValue[] execute(Context ctx) {
+        BMessage msg = (BMessage) getRefArgument(ctx, 0);
+        CarbonMessage carbonMessage = msg.value();
+        String deliveryStatus = getStringArgument(ctx, 0);
+        Object jmsSessionAcknowledgementMode = carbonMessage
+                .getProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
+
+        if (null == jmsSessionAcknowledgementMode) {
+            log.warn("JMS Acknowledge function can only be used with JMS Messages. "
+                    + JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
+            return VOID_RETURN;
+        }
+        if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
+            throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
+                    + "integer value. ");
+        }
+        if (Session.CLIENT_ACKNOWLEDGE == (Integer) jmsSessionAcknowledgementMode) {
+            if (JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
+                    || JMSConstants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
+                carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
+                ctx.getBalCallback().done(carbonMessage);
+            } else {
+                throw new BallerinaException(
+                        "Second parameter for the jms:acknowledge function should be within the " + "set ["
+                                + JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS + ", "
+                                + JMSConstants.JMS_MESSAGE_DELIVERY_ERROR + "]. '" + deliveryStatus + "' is invalid.");
+            }
+        } else {
+            log.warn("JMS Acknowledge function can only be used with JMS CLIENT ACKNOWLEDGEMENT Mode");
         }
         return VOID_RETURN;
     }

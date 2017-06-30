@@ -20,19 +20,23 @@ package org.ballerinalang.util.repository;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Represents a repository contains built in ballerina packages.
@@ -42,11 +46,12 @@ import java.util.zip.ZipInputStream;
 public class BuiltinPackageRepository extends PackageRepository {
 
     private Class<?> nativePackageProvider;
-    private static final String BASE_DIR = "META-INF" + File.separator + "natives" + File.separator;
+    private static final String BASE_DIR = "META-INF/natives/";
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
     private static final String FALSE = "false";
-    private boolean skipNatives = true;
+    private boolean skipNatives = false;
+
 
     private String packageDirPath;
 
@@ -62,8 +67,17 @@ public class BuiltinPackageRepository extends PackageRepository {
         if (FALSE.equals(System.getProperty("skipNatives"))) {
             skipNatives = false;
         }
+
+        if (internalPkgRepo != null) {
+            PackageSource pkgSource = internalPkgRepo.loadPackage(packageDirPath);
+            if (pkgSource != null && !pkgSource.getSourceFileStreamMap().isEmpty()) {
+                return pkgSource;
+            }
+        }
+
+        // Replace system dependent file-separator with forward-slash
+        this.packageDirPath = packageDirPath.toString().replace("\\", "/") + "/";
         
-        this.packageDirPath = packageDirPath.toString();
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
 
@@ -72,8 +86,8 @@ public class BuiltinPackageRepository extends PackageRepository {
 
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + packageDirPath.toString()
-                    + File.separator + fileName);
+            InputStream balSourceStream = classLoader.getResourceAsStream(
+                    BASE_DIR + this.packageDirPath + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
         return new PackageSource(packageDirPath, sourceFileStreamMap, this);
@@ -106,12 +120,12 @@ public class BuiltinPackageRepository extends PackageRepository {
         BufferedReader reader = null;
         try {
             InputStream fileNamesStream =
-                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
+                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath);
             if (fileNamesStream != null) {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
                 while ((fileName = reader.readLine()) != null) {
-                    if (skipNatives && fileName.endsWith(NATIVE_BAL_FILE)) {
+                    if ((skipNatives && fileName.endsWith(NATIVE_BAL_FILE)) || !fileName.endsWith(BAL_FILE_EXT)) {
                         continue;
                     }
                     fileNames.add(fileName);
@@ -140,33 +154,41 @@ public class BuiltinPackageRepository extends PackageRepository {
      */
     private List<String> getPackageNamesFromJar(URL repoUrl, String pkgRelPath) {
         List<String> fileNames = new ArrayList<String>();
-        ZipInputStream jarInputStream = null;
-        ZipEntry fileNameEntry;
+        FileSystem zipFS = null;
         try {
-            jarInputStream = new ZipInputStream(repoUrl.openStream());
-            while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
-                String filePath = fileNameEntry.getName();
-                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
-                    if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
-                        continue;
+            Map<String, String> zipFSEnv = new HashMap<>();
+            zipFSEnv.put("create", "false");
+            URI zipFileURI = URI.create("jar:file:" + repoUrl.toURI().getPath());
+            zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv);
+            Path rootPathInArchive = zipFS.getPath(pkgRelPath);
+
+            Files.walkFileTree(rootPathInArchive, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path filePath, BasicFileAttributes attributes) throws IOException {
+                    if (filePath.toString().matches("/" + pkgRelPath + "((?!/).)*\\" + BAL_FILE_EXT)) {
+                        if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+                        // get only the file name
+                        fileNames.add(filePath.getFileName().toString());
                     }
-                    // get only the file name 
-                    String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
-                    fileNames.add(fileName);
+                    return FileVisitResult.CONTINUE;
                 }
-            }
-        } catch (Exception e) {
+            });
+        } catch (NoSuchFileException ex) {
+            //expected return filenames
+        } catch (Exception ex) {
             throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. "
-                    + e.getMessage());
+                    + ex.getMessage());
         } finally {
-            if (jarInputStream != null) {
+            if (zipFS != null) {
                 try {
-                    jarInputStream.close();
-                } catch (IOException ignore) {
+                    zipFS.close();
+                } catch (IOException ex) {
+                    //Ignore
                 }
             }
         }
-
         return fileNames;
     }
 
@@ -185,4 +207,17 @@ public class BuiltinPackageRepository extends PackageRepository {
         // TODO
         return null;
     }
+
+    /**
+     * Get list of All package package names exposed by builtin/external package repositories.
+     *
+     * @return List of package names.
+     */
+    public String[] loadPackageNames() {
+        List<String> builtInPackages = getFileNames(this.getClass().getClassLoader());
+        String[] array = new String[builtInPackages.size()];
+        builtInPackages.toArray(array);
+        return array;
+    }
+
 }

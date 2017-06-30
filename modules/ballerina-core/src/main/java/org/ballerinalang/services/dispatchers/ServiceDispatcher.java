@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.services.dispatchers;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Service;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -29,16 +28,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public interface ServiceDispatcher {
 
-
-    /**
-     * Find the Service which can handle a given Carbon Message.
-     *
-     * @param cMsg Carbon Message
-     * @param callback callback
-     * @return service which can handle a given cMsg
-     */
-    Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext);
-
     /**
      * Get the protocol of the dispatcher.
      *
@@ -47,17 +36,32 @@ public interface ServiceDispatcher {
     String getProtocol();
 
     /**
+     * Get the protocol package of the server connector.
+     *
+     * @return protocolPkgPath
+     */
+    String getProtocolPackage();
+
+    /**
+     * Find the Service which can handle a given Carbon Message.
+     *
+     * @param cMsg     Carbon Message
+     * @param callback callback
+     * @return ServiceInfo instance which can handle a given cMsg
+     */
+    ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback);
+
+    /**
      * This is getting triggered when a new Service belongs to this protocol added to the Ballerina engine.
      *
      * @param service Service
      */
-    void serviceRegistered(Service service);
+    void serviceRegistered(ServiceInfo service);
 
     /**
      * This is getting triggered when Service belongs to this protocol removed from Ballerina engine.
      *
      * @param service Service
      */
-    void serviceUnregistered(Service service);
-
+    void serviceUnregistered(ServiceInfo service);
 }

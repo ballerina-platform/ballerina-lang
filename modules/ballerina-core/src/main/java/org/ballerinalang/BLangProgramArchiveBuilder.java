@@ -21,6 +21,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.repository.BLangProgramArchive;
+import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 
 import java.io.ByteArrayInputStream;
@@ -102,6 +103,11 @@ public class BLangProgramArchiveBuilder {
     private void addProgramToArchive(BLangProgram bLangProgram, FileSystem zipFS) throws IOException {
 
         for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
+            // Skip coping packages loaded by built-in repositories
+            if (bLangPackage.getPackageRepository() instanceof BuiltinPackageRepository) {
+                continue;
+            }
+
             if (bLangPackage.getPackagePath().equals(".")) {
                 PackageRepository.PackageSource packageSource =
                         bLangPackage.getPackageRepository().loadFile(bLangProgram.getProgramFilePath());

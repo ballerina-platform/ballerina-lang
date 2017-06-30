@@ -51,7 +51,7 @@ public class Length extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).stringValue();
+        String param1 = getStringArgument(context, 0);
         BInteger intValue = new BInteger(param1.length());
         return getBValues(intValue);
     }

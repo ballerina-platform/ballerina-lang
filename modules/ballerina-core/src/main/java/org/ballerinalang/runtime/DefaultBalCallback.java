@@ -37,4 +37,8 @@ public class DefaultBalCallback implements BalCallback {
     public void done(CarbonMessage carbonMessage) {
         parentCallback.done(carbonMessage);
     }
+
+    public CarbonCallback getParentCallback() {
+        return parentCallback;
+    }
 }

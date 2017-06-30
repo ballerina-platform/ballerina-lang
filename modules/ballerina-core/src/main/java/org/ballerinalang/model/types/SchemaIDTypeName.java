@@ -18,7 +18,7 @@
 package org.ballerinalang.model.types;
 
 /**
- * {@code SchemaIDTypeName} represents a type name with the schema ID (json<Person>) in Ballerina.
+ * {@code SchemaIDTypeName} represents a type name with the schema ID (e.g: json&lt;Person&gt;) in Ballerina.
  *
  * @since 0.8.0
  */

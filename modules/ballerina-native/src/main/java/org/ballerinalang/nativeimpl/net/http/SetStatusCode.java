@@ -20,16 +20,17 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Set HTTP StatusCode to the message.
@@ -51,9 +52,13 @@ public class SetStatusCode extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BMessage bMsg = (BMessage) getArgument(context, 0);
-            int statusCode = ((BInteger) getArgument(context, 1)).intValue();
-            bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, statusCode);
+            BMessage bMsg = (BMessage) getRefArgument(context, 0);
+            long statusCode = getIntArgument(context, 0);
+            if (statusCode != (int) statusCode) {
+                throw BLangExceptionHelper
+                        .getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, statusCode);
+            }
+            bMsg.value().setProperty(Constants.HTTP_STATUS_CODE, (int) statusCode);
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Status Code");
         }

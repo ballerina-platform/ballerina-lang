@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -29,6 +31,7 @@ import org.wso2.carbon.messaging.MessageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code BMessage} represents a Carbon Message in Ballerina.
@@ -89,7 +92,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
     }
 
     /**
-     * This method returns the already built content of this ballerina message
+     * This method returns the already built content of this ballerina message.
+     * 
      * @return BallerinaMessageDataSource content of this message
      */
     public BallerinaMessageDataSource getMessageDataSource() {
@@ -148,7 +152,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
     /**
      * Get the header value.
      *
-     * @return header name
+     * @param headerName Name of the header
+     * @return header Value of the header
      */
     public String getHeader(String headerName) {
         return this.value.getHeader(headerName);
@@ -224,6 +229,11 @@ public final class BMessage implements BRefType<CarbonMessage> {
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
     }
 
+    @Override
+    public BType getType() {
+        return BTypes.typeMessage;
+    }
+
     public BMessage clone() {
         BMessage clonedMessage = new BMessage();
         // Clone the carbon message
@@ -241,5 +251,39 @@ public final class BMessage implements BRefType<CarbonMessage> {
                     getMessageDataSource()).clone());
         }
         return clonedMessage;
+    }
+
+    /**
+     * Set properties of a message.
+     *
+     * @param propertyName name of the property
+     * @param propertyValue value of the property
+     */
+    public void setProperty(String propertyName, Object propertyValue) {
+        value.setProperty(propertyName, propertyValue);
+    }
+
+    /**
+     * Retrieve a message property.
+     *
+     * @param propertyName name of the property
+     * @return The property value.
+     */
+    public Object getProperty(String propertyName) {
+        return value.getProperty(propertyName);
+    }
+
+    /**
+     * Get all message properties.
+     *
+     * @return Map of all message properties.
+     */
+    public Map<String, Object> getProperties() {
+        return value.getProperties();
+    }
+    
+    @Override
+    public BValue copy() {
+        return clone();
     }
 }

@@ -16,7 +16,7 @@ For details on using the built-in connectors, see the following topics:
 * [JMS Server Connector](../server-connectors/jms-server.md)
 * [WebSocket Server Connector](../server-connectors/websocket-server.md)
 
-TODO: insert list of third-party connectors and point off to their docs. 
+To explore other connectors, go to https://github.com/ballerinalang/connectors. 
 
 ## Defining a new connector
 

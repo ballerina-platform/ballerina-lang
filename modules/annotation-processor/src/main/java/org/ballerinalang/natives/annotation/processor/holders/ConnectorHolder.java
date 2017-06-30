@@ -17,47 +17,44 @@
 package org.ballerinalang.natives.annotation.processor.holders;
 
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.natives.annotation.processor.Constants;
 import org.ballerinalang.natives.annotation.processor.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaConnector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina Connector
+ * DTO to hold Ballerina Connector.
  */
 public class ConnectorHolder {
     
-    private BallerinaConnector balConnector;
-    private String connectorClassName;
+    private String connectorName;
+    private Argument[] connectorArgs;
     private List<ActionHolder> actions;
     private List<AnnotationHolder> annotations;
     
     
-    public ConnectorHolder(BallerinaConnector balConnector, String className) {
-        this.balConnector = balConnector;
-        this.connectorClassName = className;
+    public ConnectorHolder(String connectorName,
+                           Argument[] connectorArgs) {
+        this.connectorName = connectorName;
+        this.connectorArgs = connectorArgs.clone();
         this.actions = new ArrayList<>();
         this.annotations = new ArrayList<>();
     }
-    
+
+    public Argument[] getConnectorArgs() {
+        return this.connectorArgs.clone();
+    }
+
     public void addAction(ActionHolder action) {
         this.actions.add(action);
     }
     
     public ActionHolder[] getActions() {
         return actions.toArray(new ActionHolder[0]);
-    }
-    
-    public BallerinaConnector getBalConnector() {
-        return balConnector;
-    }
-    
-    public String getClassName() {
-        return connectorClassName;
     }
 
     public void setAnnotations(BallerinaAnnotation[] annotations) {
@@ -68,20 +65,26 @@ public class ConnectorHolder {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
         sb.append(annotations.size() > 0 ? "\n" : "");
-        sb.append("native connector ").append(balConnector.connectorName());
-        Utils.getInputParams(balConnector.args(), sb);
+        sb.append("connector ").append(connectorName);
+        Utils.getInputParams(connectorArgs, sb);
         sb.append(" {\n");
         for (ActionHolder action : actions) {
             BallerinaAction ballerinaAction = action.getBalAction();
+            //ignore init action from adding to native.bal
+            if (ballerinaAction.actionName().equals(Constants.NATIVE_INIT_ACTION_NAME)) {
+                continue;
+            }
             sb.append(action.getAnnotations().size() > 0 ? "\n\t" : "");
             Utils.appendAnnotationStrings(sb, action.getAnnotations(), "\n\t");
             sb.append("\n\tnative action ").append(ballerinaAction.actionName()).append(" (");
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
                 sb.append(TypeEnum.CONNECTOR.getName()
-                                .equals(Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())) ?
-                                balConnector.connectorName() :
-                                Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ")
+                                .equals(Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType(),
+                                        arg.arrayDimensions())) ?
+                                connectorName :
+                                Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType(),
+                                        arg.arrayDimensions())).append(" ")
                         .append(arg.name());
                 if (i != ballerinaAction.args().length) {
                     sb.append(", ");

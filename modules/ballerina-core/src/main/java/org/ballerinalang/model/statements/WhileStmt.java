@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
 /**
@@ -31,8 +31,10 @@ public class WhileStmt extends AbstractStatement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 
-    private WhileStmt(NodeLocation location, Expression whileCondition, BlockStmt whileBody) {
+    private WhileStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression whileCondition,
+                      BlockStmt whileBody) {
         super(location);
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
         this.whileCondition = whileCondition;
         this.whileBody = whileBody;
     }
@@ -51,8 +53,8 @@ public class WhileStmt extends AbstractStatement {
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-        executor.visit(this);
+    public StatementKind getKind() {
+        return StatementKind.WHILE;
     }
 
     /**
@@ -62,6 +64,7 @@ public class WhileStmt extends AbstractStatement {
      */
     public static class WhileStmtBuilder {
         private NodeLocation location;
+        private WhiteSpaceDescriptor whiteSpaceDescriptor;
         private Expression whileCondition;
         private BlockStmt whileBody;
 
@@ -77,8 +80,14 @@ public class WhileStmt extends AbstractStatement {
             this.whileBody = whileBody;
         }
 
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public WhileStmt build() {
-            return new WhileStmt(location, whileCondition, whileBody);
+            WhileStmt whileStmt = new WhileStmt(location, whiteSpaceDescriptor, whileCondition, whileBody);
+            whileBody.setParent(whileStmt);
+            return whileStmt;
         }
     }
 }

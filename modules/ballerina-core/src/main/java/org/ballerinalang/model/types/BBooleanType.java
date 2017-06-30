@@ -38,7 +38,22 @@ class BBooleanType extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return (V) BBoolean.FALSE;
+    }
+
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) BBoolean.FALSE;
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_BOOLEAN);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.BOOLEAN_TAG;
     }
 }

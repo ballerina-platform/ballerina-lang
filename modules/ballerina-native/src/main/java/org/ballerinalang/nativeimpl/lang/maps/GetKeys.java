@@ -20,9 +20,8 @@ package org.ballerinalang.nativeimpl.lang.maps;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -53,11 +52,11 @@ import java.util.Set;
 public class GetKeys extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BMap map = (BMap) getArgument(ctx, 0);
-        Set<BString> keySet = map.keySet();
-        BArray<BString> keyArray = new BArray<>(BString.class);
+        BMap<String, BValue> map = (BMap<String, BValue>) getRefArgument(ctx, 0);
+        Set<String> keySet = map.keySet();
+        BStringArray keyArray = new BStringArray();
         int i = 0;
-        for (BString key : keySet) {
+        for (String key : keySet) {
             keyArray.add(i++, key);
         }
         return getBValues(keyArray);

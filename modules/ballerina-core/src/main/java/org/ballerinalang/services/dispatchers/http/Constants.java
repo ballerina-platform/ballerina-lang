@@ -28,12 +28,14 @@ public class Constants {
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
     public static final String QUERY_STR = "QUERY_STR";
+    public static final String RAW_QUERY_STR = "RAW_QUERY_STR";
 
     public static final String DEFAULT_INTERFACE = "default";
     public static final String DEFAULT_BASE_PATH = "/";
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.net.http";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -45,6 +47,8 @@ public class Constants {
     public static final String PORT = "PORT";
     public static final String TO = "TO";
 
+    public static final String HTTP_PACKAGE_PATH = "ballerina.net.http";
+    public static final String WS_PACKAGE_PATH = "ballerina.net.ws";
 
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
@@ -55,9 +59,16 @@ public class Constants {
     public static final String HTTP_METHOD_HEAD = "HEAD";
 
     /* Annotations */
-    public static final String ANNOTATION_NAME_SOURCE = "Source";
-    public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
+    public static final String ANNOTATION_NAME_CONFIG = "config";
+    public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
+    public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
+    public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
+    public static final String ANNOTATION_ATTRIBUTE_SCHEME = "scheme";
+    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_FILE = "keyStoreFile";
+    public static final String ANNOTATION_ATTRIBUTE_KEY_STORE_PASS = "keyStorePass";
+    public static final String ANNOTATION_ATTRIBUTE_CERT_PASS = "certPass";
+    public static final String ANNOTATION_ATTRIBUTE_VERSION = "version";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -67,6 +78,7 @@ public class Constants {
 
     /* WebSocket Annotations */
     public static final String PROTOCOL_WEBSOCKET = "ws";
+    public static final String PROTOCOL_PACKAGE_WEBSOCKET = "ballerina.net.ws";
     public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
     public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
     public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
@@ -82,4 +94,6 @@ public class Constants {
     public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
+    
+    public static final String VALUE_ATTRIBUTE = "value";
 }

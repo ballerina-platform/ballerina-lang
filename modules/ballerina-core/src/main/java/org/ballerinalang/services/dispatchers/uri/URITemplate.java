@@ -18,11 +18,10 @@
 
 package org.ballerinalang.services.dispatchers.uri;
 
-
-
-
 import org.ballerinalang.services.dispatchers.uri.parser.Node;
 import org.ballerinalang.services.dispatchers.uri.parser.URITemplateParser;
+import org.ballerinalang.util.codegen.ResourceInfo;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
 
@@ -35,20 +34,37 @@ public class URITemplate {
 
     private Node syntaxTree;
 
-    public URITemplate(String template) throws URITemplateException {
-        if (!"/".equals(template) && template.endsWith("/")) {
-            template = template.substring(0, template.length() - 1);
-        }
-        URITemplateParser parser = new URITemplateParser();
-        syntaxTree = parser.parse(template);
+    public URITemplate(Node syntaxTree) {
+        this.syntaxTree = syntaxTree;
     }
 
     public String expand(Map<String, String> variables) {
         return null;
     }
 
-    public boolean matches(String uri, Map<String, String> variables) {
-        return syntaxTree.matchAll(uri, variables) == uri.length();
+    public ResourceInfo matches(String uri, Map<String, String> variables, CarbonMessage carbonMessage) {
+        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
     }
 
+    public void parse(String uriTemplate, ResourceInfo resource) throws URITemplateException {
+        uriTemplate = removeTheFirstAndLastBackSlash(uriTemplate);
+
+        URITemplateParser parser = new URITemplateParser(syntaxTree);
+        parser.parse(uriTemplate, resource);
+    }
+
+    public String removeTheFirstAndLastBackSlash(String template) {
+        String uri = template;
+        if (!uri.equals("/")) {
+            if (!"/".equals(uri) && uri.endsWith("/")) {
+                uri = uri.substring(0, uri.length() - 1);
+            }
+
+            if (uri.startsWith("/")) {
+                uri = uri.substring(1);
+            }
+            return uri;
+        }
+        return uri;
+    }
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
@@ -29,7 +30,8 @@ import org.ballerinalang.model.Operator;
  */
 public class BinaryEqualityExpression extends BinaryExpression {
 
-    public BinaryEqualityExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, lExpr, op, rExpr);
+    public BinaryEqualityExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                                    Operator op, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, op, rExpr);
     }
 }

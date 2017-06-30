@@ -43,7 +43,7 @@ public class LinkerException extends BallerinaException {
     /**
      * Constructs a new {@link LinkerException} with the cause.
      *
-     * @param cause
+     * @param cause Cause
      */
     public LinkerException(Throwable cause) {
         super(cause);

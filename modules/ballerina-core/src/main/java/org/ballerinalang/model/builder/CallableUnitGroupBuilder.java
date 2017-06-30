@@ -17,15 +17,17 @@
 */
 package org.ballerinalang.model.builder;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
@@ -33,23 +35,26 @@ import java.util.List;
 
 /**
  * {@code CallableUnitGroupBuilder} builds Services and Connectors.
- * <p/>
+ * <br>
  * A CallableUnitGroup represents a Service or a Connector
  *
  * @since 0.8.0
  */
 public class CallableUnitGroupBuilder {
     protected NodeLocation location;
+    protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected SymbolScope currentScope;
 
     // BLangSymbol related attributes
-    protected String name;
+    protected Identifier identifier;
+    protected String protocolPkgName;
+    protected String protocolPkgPath;
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<AnnotationAttachment> annotationList = new ArrayList<>();
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
     protected List<Resource> resourceList = new ArrayList<>();
     protected List<BallerinaAction> actionList = new ArrayList<>();
@@ -63,8 +68,16 @@ public class CallableUnitGroupBuilder {
         this.location = location;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIdentifier(Identifier identifier) {
+        this.identifier = identifier;
+    }
+
+    public void setProtocolPkgName(String protocolPkgName) {
+        this.protocolPkgName = protocolPkgName;
+    }
+
+    public void setProtocolPkgPath(String protocolPkgPath) {
+        this.protocolPkgPath = protocolPkgPath;
     }
 
     public void setPkgPath(String pkgPath) {
@@ -75,7 +88,7 @@ public class CallableUnitGroupBuilder {
         this.isPublic = isPublic;
     }
 
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(AnnotationAttachment annotation) {
         this.annotationList.add(annotation);
     }
 
@@ -105,5 +118,9 @@ public class CallableUnitGroupBuilder {
 
     public void setNative(boolean isNative) {
         this.isNative = isNative;
+    }
+
+    public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
 }

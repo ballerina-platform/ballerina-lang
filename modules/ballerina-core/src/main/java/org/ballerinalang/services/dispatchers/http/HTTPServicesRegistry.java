@@ -19,17 +19,18 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.model.Annotation;
-import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +46,10 @@ public class HTTPServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
     // Outer Map key=interface, Inner Map key=basePath
-    private final Map<String, Map<String, Service>> servicesMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, ServiceInfo>> servicesInfoMap = new ConcurrentHashMap<>();
+    //Outer map key = interface, Inner map = listener property map
+    private final Map<String, Map<String, String>> listenerPropMap = new ConcurrentHashMap<>();
+
     private static final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
     private HTTPServicesRegistry() {
@@ -56,43 +60,43 @@ public class HTTPServicesRegistry {
     }
 
     /**
+     * Get ServiceInfo isntance for given interface and base path.
+     *
      * @param interfaceId interface id of the service.
-     * @param basepath basepath of the service.
-     * @return the {@link Service} is exists else null.
+     * @param basepath    basepath of the service.
+     * @return the {@link ServiceInfo} instance if exist else null
      */
-    public Service getService(String interfaceId, String basepath) {
-        return servicesMap.get(interfaceId).get(basepath);
+    public ServiceInfo getServiceInfo(String interfaceId, String basepath) {
+        return servicesInfoMap.get(interfaceId).get(basepath);
     }
 
     /**
-     * @param interfaceId interface id of the services.
-     * @return the services map if exists else null.
+     * Get ServiceInfo map for given interfaceId.
+     *
+     * @param interfaceId interfaceId interface id of the services.
+     * @return the serviceInfo map if exists else null.
      */
-    public Map<String, Service> getServicesByInterface(String interfaceId) {
-        return servicesMap.get(interfaceId);
+    public Map<String, ServiceInfo> getServicesInfoByInterface(String interfaceId) {
+        return servicesInfoMap.get(interfaceId);
     }
 
     /**
      * Register a service into the map.
-     * @param service requested service to register.
+     *
+     * @param service requested serviceInfo to be registered.
      */
-    public void registerService(Service service) {
-        if (serviceExists(service)) {
-            logger.debug("Service already exists.");
-            return;
-        }
+    public void registerService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
-                basePath = annotation.getValue();
+        String basePath = service.getName();
+        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+
+        if (annotationInfo != null) {
+            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+                    (Constants.ANNOTATION_ATTRIBUTE_BASE_PATH);
+            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
+                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annotationAttributeValue.getStringValue();
             }
         }
 
@@ -100,19 +104,42 @@ public class HTTPServicesRegistry {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
 
-        Map<String, Service> servicesOnInterface = servicesMap.get(listenerInterface);
+        Map<String, String> propMap = buildServerConnectorProperties(service);
+
+        //If port annotation is present in the service, then create a listener interface with schema and port
+        if (propMap != null) {
+            listenerInterface = buildInterfaceName(propMap);
+        }
+
+        //TODO check for parallel access
+        Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
         if (servicesOnInterface == null) {
             // Assumption : this is always sequential, no two simultaneous calls can get here
             servicesOnInterface = new HashMap<>();
-            servicesMap.put(listenerInterface, servicesOnInterface);
+            servicesInfoMap.put(listenerInterface, servicesOnInterface);
             ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
+
+            //If there is no listener and required listener properties are present, then create a new listener
+            if (connector == null && propMap != null) {
+                connector = BallerinaConnectorManager.getInstance()
+                    .createServerConnector(Constants.PROTOCOL_HTTP, listenerInterface, propMap);
+                listenerPropMap.put(listenerInterface, propMap);
+            }
+
             if (connector == null) {
                 throw new BallerinaException(
                         "ServerConnector interface not registered for : " + listenerInterface);
             }
             // Delay the startup until all services are deployed
-            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector,
-                                                                                     Collections.emptyMap());
+            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector);
+        } else {
+            //It comes to this means, same listener interface is already present. So in here, it checks
+            //whether existing interface also has same parameters (schema, keystores etc). If not throw and error
+            Map<String, String> existingMap = listenerPropMap.get(listenerInterface);
+            if (existingMap != null && propMap != null && !existingMap.equals(propMap)) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.SERVER_CONNECTOR_ALREADY_EXIST,
+                        propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
+            }
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
@@ -121,45 +148,104 @@ public class HTTPServicesRegistry {
 
         servicesOnInterface.put(basePath, service);
 
-        logger.info("Service deployed : " +
-                         (service.getSymbolName().getPkgPath() != null ?
-                                 service.getSymbolName().getPkgPath() + ":" : "") +
-                         service.getSymbolName().getName() +
-                         " with context " +  basePath);
+        logger.info("Service deployed : " + service.getName() + " with context " + basePath);
+    }
+
+    /**
+     * Method to build property map given the service annotations.
+     * This will first look for the port property and if present then it will get other properties,
+     * and create the property map.
+     *
+     * @param service from which annotations are retrieved
+     * @return  propMap with required properties
+     */
+    private Map<String, String> buildServerConnectorProperties(ServiceInfo service) {
+        AnnotationAttachmentInfo configInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+        if (configInfo == null) {
+            return null;
+        }
+        AnnotationAttributeValue portAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_PORT);
+        if (portAttrVal == null || portAttrVal.getIntValue() < 0) {
+            return null;
+        }
+        Map<String, String> propMap = new HashMap<>();
+        propMap.put(Constants.ANNOTATION_ATTRIBUTE_PORT, Long.toString(portAttrVal.getIntValue()));
+
+        AnnotationAttributeValue hostAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_HOST);
+        if (hostAttrVal != null && hostAttrVal.getStringValue() != null &&
+                !hostAttrVal.getStringValue().trim().isEmpty()) {
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_HOST, hostAttrVal.getStringValue());
+        }
+
+        AnnotationAttributeValue schemaAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_SCHEME);
+        if (schemaAttrVal != null && schemaAttrVal.getStringValue() != null &&
+                !schemaAttrVal.getStringValue().trim().isEmpty()) {
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_SCHEME, schemaAttrVal.getStringValue());
+        }
+
+        AnnotationAttributeValue keyStoreFileAttrVal = configInfo.getAnnotationAttributeValue
+                (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE);
+        if (keyStoreFileAttrVal != null && keyStoreFileAttrVal.getStringValue() != null &&
+                !keyStoreFileAttrVal.getStringValue().trim().isEmpty()) {
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_FILE, keyStoreFileAttrVal.getStringValue());
+            AnnotationAttributeValue keyStorePassAttrVal = configInfo.getAnnotationAttributeValue
+                    (Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS);
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_KEY_STORE_PASS, keyStorePassAttrVal.getStringValue());
+            AnnotationAttributeValue certPassAttrVal = configInfo.getAnnotationAttributeValue
+                    (Constants.ANNOTATION_ATTRIBUTE_CERT_PASS);
+            propMap.put(Constants.ANNOTATION_ATTRIBUTE_CERT_PASS, certPassAttrVal.getStringValue());
+        }
+
+        return propMap;
+    }
+
+    /**
+     * Build interface name using schema and port.
+     *
+     * @param propMap which has schema and port
+     * @return interfaceName
+     */
+    private String buildInterfaceName(Map<String, String> propMap) {
+        StringBuilder iName = new StringBuilder();
+        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) != null ?
+                propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME) : Constants.PROTOCOL_HTTP);
+        iName.append("_");
+        iName.append(propMap.get(Constants.ANNOTATION_ATTRIBUTE_PORT));
+        return iName.toString();
     }
 
     /**
      * Removing service from the service registry.
      * @param service requested service to be removed.
      */
-    public void unregisterService(Service service) {
+    public void unregisterService(ServiceInfo service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        // String basePath = Constants.DEFAULT_BASE_PATH;
-        String basePath = service.getSymbolName().getName();
+        String basePath = service.getName();
+        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
+                .HTTP_PACKAGE_PATH, Constants.BASE_PATH);
 
-        for (Annotation annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
-                basePath = annotation.getValue();
+        if (annotationInfo != null) {
+            AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue
+                    (Constants.VALUE_ATTRIBUTE);
+            if (annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
+                    !annotationAttributeValue.getStringValue().trim().isEmpty()) {
+                basePath = annotationAttributeValue.getStringValue();
             }
         }
-
 
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
         }
 
-        Map<String, Service> servicesOnInterface = servicesMap.get(listenerInterface);
+        Map<String, ServiceInfo> servicesOnInterface = servicesInfoMap.get(listenerInterface);
         if (servicesOnInterface != null) {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
-                servicesMap.remove(listenerInterface);
+                servicesInfoMap.remove(listenerInterface);
                 ServerConnector connector =
                         BallerinaConnectorManager.getInstance().getServerConnector(listenerInterface);
                 if (connector != null) {
@@ -167,33 +253,10 @@ public class HTTPServicesRegistry {
                         connector.stop();
                     } catch (ServerConnectorException e) {
                         throw new BallerinaException("Cannot stop the connector for the interface : " +
-                                                             listenerInterface, e);
+                                listenerInterface, e);
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Indicate the service exists already.
-     * @param service requested service to check.
-     * @return true if service exists.
-     */
-    public boolean serviceExists(Service service) {
-        String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
-                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                    listenerInterface = sourceInterfaceVal;
-                }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
-                basePath = annotation.getValue();
-            }
-        }
-        return servicesMap.containsKey(listenerInterface) && servicesMap.get(listenerInterface).containsKey(basePath);
     }
 }

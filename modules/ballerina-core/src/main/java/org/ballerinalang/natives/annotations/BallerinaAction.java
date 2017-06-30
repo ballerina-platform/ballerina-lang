@@ -17,4 +17,5 @@ public @interface BallerinaAction {
     Argument[] args() default {};
     ReturnType[] returnType() default {};
     BallerinaConstant[] consts() default {};
+    Argument[] connectorArgs() default {};
 }

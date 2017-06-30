@@ -19,7 +19,7 @@
 package org.ballerinalang.util.exceptions;
 
 /**
- * Error codes and Error keys to represent the semantic errors
+ * Error codes and Error keys to represent the semantic errors.
  */
 public enum SemanticErrors {
 
@@ -32,7 +32,7 @@ public enum SemanticErrors {
     INCOMPATIBLE_TYPES_BOOLEAN_EXPECTED("incompatible.types.boolean.expected", "SEMANTIC_0007"),
     NO_STATEMENTS_WHILE_LOOP("no.statements.while.loop", "SEMANTIC_0008"),
     UNKNOWN_OPERATOR_IN_UNARY("unknown.operator.in.unary", "SEMANTIC_0009"),
-    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.inti.not.allowed.here", "SEMANTIC_0010"),
+    REF_TYPE_INTI_NOT_ALLOWED_HERE("ref.type.init.not.allowed.here", "SEMANTIC_0010"),
     STRUCT_MAP_INIT_NOT_ALLOWED("struct.map.init.not.allowed", "SEMANTIC_0011"),
     CONNECTOR_INIT_NOT_ALLOWED("connector.init.not.allowed", "SEMANTIC_0012"),
     ARRAY_INIT_NOT_ALLOWED_HERE("array.init.not.allowed.here", "SEMANTIC_0013"),
@@ -53,7 +53,7 @@ public enum SemanticErrors {
     TOO_MANY_ARGUMENTS_TO_RETURN("too.many.arguments.to.return", "SEMANTIC_0028"),
     CANNOT_USE_TYPE_IN_RETURN_STATEMENT("cannot.use.type.in.return.statement", "SEMANTIC_0029"),
     CANNOT_USE_CREATE_FOR_VALUE_TYPES("cannot.use.create.for.value.types", "SEMANTIC_0030"),
-    INCOMPATIBLE_TYPES_EXPECTED_JSON_XML("incompatible.types.expected.json.xml", "SEMANTIC_0031"),
+    INCOMPATIBLE_TYPES_EXPECTED_XML("incompatible.types.expected.xml", "SEMANTIC_0031"),
     CANNOT_ASSIGN_VALUE_CONSTANT("cannot.assign.value.constant", "SEMANTIC_0032"),
     ASSIGNMENT_COUNT_MISMATCH("assignment.count.mismatch", "SEMANTIC_0033"),
     CANNOT_ASSIGN_IN_MULTIPLE_ASSIGNMENT("cannot.assign.in.multiple.assignment", "SEMANTIC_0034"),
@@ -74,11 +74,50 @@ public enum SemanticErrors {
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
-    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
+    ONLY_ERROR_TYPE_ALLOWED_HERE("only.error.type.here", "SEMANTIC_0052"),
     BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
-    UNDEFINED_ACTION_IN_CONNECTOR("undefined.action.in.connector", "SEMANTIC_0055"),
-    INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056");
+    UNDEFINED_NATIVE_ACTION("undefined.native.action", "SEMANTIC_0055"),
+    INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056"),
+    BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER("built.in.type.names.not.allowed.as.identifier", "SEMANTIC_0057"),
+    INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED("incompatible.types.connector.expected", "SEMANTIC_0058"),
+    AMBIGUOUS_FUNCTIONS("ambiguous.functions", "SEMANTIC_0059"),
+    UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE("unsupported.annotation.attribute.value", "SEMANTIC_0060"),
+    UNDEFINED_ANNOTATION("undefined.annotation", "SEMANTIC_0061"),
+    ANNOTATION_NOT_ALLOWED("annotation.not.allowed", "SEMANTIC_0062"),
+    NO_SUCH_ATTRIBUTE("no.such.attribute", "SEMANTIC_0063"),
+    INVALID_DEFAULT_VALUE("invalid.default.value", "SEMANTIC_0064"),
+    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066"),
+    INCOMPATIBLE_ASSIGNMENT("incompatible.assignment", "SEMANTIC_0067"),
+    INDEXING_NOT_SUPPORTED_FOR_MAP_ELEMENT("indexing.not.supported.map.element", "SEMANTIC_0068"),
+    DYNAMIC_KEYS_NOT_SUPPORTED_FOR_STRUCT("dynamic.keys.not.supported.for.struct", "SEMANTIC_0069"),
+    STRUCT_FIELD_CHILD_HAS_PKG_IDENTIFIER("struct.field.child.has.pkg.identifier", "PARSER_0070"),
+    CANNOT_ASSIGN_VALUE_ARRAY_LENGTH("cannot.assign.value.array.length", "SEMANTIC_0071"),
+    MISSING_RETURN_STATEMENT("missing.return.statement", "SEMANTIC_0071"),
+    TRANSFORM_STATEMENT_NO_BODY("transform.statement.no.body", "SEMANTIC_0072"),
+    TRANSFORM_STATEMENT_INVALID_INPUT_OUTPUT("transform.statement.invalid.input.output", "SEMANTIC_0073"),
+    ABORT_STMT_NOT_ALLOWED_HERE("abort.stmt.not.allowed.here", "SEMANTIC_0074"),
+    RETURN_CANNOT_USED_IN_TRANSACTION("return.cannot.used.in.transaction",  "SEMANTIC_0075"),
+    WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
+    INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
+    CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
+    CONTINUE_STMT_NOT_ALLOWED_HERE("continue.stmt.not.allowed.here", "SEMANTIC_0079"),
+    DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
+    RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
+    IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
+    REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
+    RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
+    BREAK_USED_IN_TRANSACTION("break.used.in.transaction", "SEMANTIC_0085"),
+    CONTINUE_USED_IN_TRANSACTION("continue.used.in.transaction", "SEMANTIC_0085"),
+    REPLY_CANNOT_USED_IN_TRANSACTION("reply.cannot.used.in.transaction",  "SEMANTIC_0086"),
+    UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
+    UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
+    INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
+    INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
+    INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
+    ;
 
     private String errorMsgKey;
     private String errorCode;

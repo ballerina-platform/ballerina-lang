@@ -19,6 +19,7 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
  * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression.
@@ -30,7 +31,8 @@ import org.ballerinalang.model.Operator;
  */
 public class BinaryArithmeticExpression extends BinaryExpression {
 
-    public BinaryArithmeticExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, lExpr, op, rExpr);
+    public BinaryArithmeticExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                      Expression lExpr, Operator op, Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, op, rExpr);
     }
 }

@@ -14,7 +14,7 @@ If you want to build Ballerina from the source code:
 
 1. Get a clone or download the source from this repository (https://github.com/ballerinalang/ballerina).
 1. Run the Maven command ``mvn clean install`` from the ``ballerina`` directory.
-1. Extract the Ballerina distribution created at `ballerina/modules/distribution/target/ballerina-0.8.0-SNAPSHOT.zip` to your local directory.
+1. Extract the Ballerina distribution created at `ballerina/modules/distribution/target/ballerina-<version>-SNAPSHOT.zip` to your local directory.
 
 ## Running samples
 

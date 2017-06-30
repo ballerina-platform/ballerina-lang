@@ -12,8 +12,11 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangPrograms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
@@ -39,6 +43,8 @@ public class Main {
     private static final String JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX = "Expected a value after parameter";
 
     private static PrintStream outStream = System.err;
+
+    private static final Logger breLog = LoggerFactory.getLogger(Main.class);
 
     public static void main(String... args) {
         try {
@@ -55,10 +61,12 @@ public class Main {
         } catch (Throwable e) {
             String msg = e.getMessage();
             if (msg == null) {
-                outStream.println("ballerina: unexpected error occurred");
+                msg = "ballerina: unexpected error occurred";
             } else {
-                outStream.println("ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg));
+                msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
             }
+            outStream.println(msg);
+            breLog.error(msg, e);
             Runtime.getRuntime().exit(1);
         }
     }
@@ -120,6 +128,11 @@ public class Main {
                 bCmd.setParentCmdParser(cmdParser);
             }
 
+            // Build Version Command
+            VersionCmd versionCmd = new VersionCmd();
+            cmdParser.addCommand("version", versionCmd);
+            versionCmd.setParentCmdParser(cmdParser);
+
             cmdParser.setProgramName("ballerina");
             cmdParser.parse(args);
             String parsedCmdName = cmdParser.getParsedCommand();
@@ -178,8 +191,21 @@ public class Main {
         outStream.println(out.toString());
     }
 
+    private static void printVersionInfo() {
+        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String version = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
+            outStream.print(version);
+        } catch (Throwable ignore) {
+            // Exception is ignored
+            throw LauncherUtils.createUsageException("version info not available");
+        }
+    }
+
     /**
-     * This class represents the "run" command and it holds arguments and flags specified by the user
+     * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -235,7 +261,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "run" command and it holds arguments and flags specified by the user
+     * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -302,7 +328,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "service" command and it holds arguments and flags specified by the user
+     * This class represents the "service" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -396,7 +422,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build" command and it holds arguments and flags specified by the user
+     * This class represents the "build" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -455,7 +481,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build main" command and it holds arguments and flags specified by the user
+     * This class represents the "build main" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -539,7 +565,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build service" command and it holds arguments and flags specified by the user
+     * This class represents the "build service" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -623,7 +649,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "help" command and it holds arguments and flags specified by the user
+     * This class represents the "help" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -676,7 +702,67 @@ public class Main {
     }
 
     /**
-     * This class represents the "main" command required by the JCommander
+     * This class represents the "version" command and it holds arguments and flags specified by the user.
+     *
+     * @since 0.8.1
+     */
+    @Parameters(commandNames = "version", commandDescription = "print Ballerina version")
+    private static class VersionCmd implements BLauncherCmd {
+
+        @Parameter(description = "Command name")
+        private List<String> versionCommands;
+
+        @Parameter(names = "--debug", hidden = true)
+        private String debugPort;
+
+        @Parameter(names = {"--help", "-h"}, hidden = true)
+        private boolean helpFlag;
+
+        private JCommander parentCmdParser;
+
+        public void execute() {
+            if (helpFlag) {
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "version");
+                outStream.println(commandUsageInfo);
+                return;
+            }
+
+            if (versionCommands == null) {
+                printVersionInfo();
+                return;
+            } else if (versionCommands.size() > 1) {
+                throw LauncherUtils.createUsageException("too many arguments given");
+            }
+
+            String userCommand = versionCommands.get(0);
+            if (parentCmdParser.getCommands().get(userCommand) == null) {
+                throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "version";
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina version\n");
+        }
+
+        @Override
+        public void setParentCmdParser(JCommander parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+
+        @Override
+        public void setSelfCmdParser(JCommander selfCmdParser) {
+
+        }
+    }
+
+    /**
+     * This class represents the "main" command required by the JCommander.
      *
      * @since 0.8.0
      */

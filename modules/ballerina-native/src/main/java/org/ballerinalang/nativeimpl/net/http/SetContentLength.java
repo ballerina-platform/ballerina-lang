@@ -20,10 +20,9 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.nativeimpl.actions.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -52,9 +51,9 @@ public class SetContentLength extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            BMessage bMsg = (BMessage) getArgument(context, 0);
-            int statusCode = ((BInteger) getArgument(context, 1)).intValue();
-            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(statusCode));
+            BMessage bMsg = (BMessage) getRefArgument(context, 0);
+            long contentLength = getIntArgument(context, 0);
+            bMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
         } catch (ClassCastException e) {
             throw new BallerinaException("Invalid message or Content-Length");
         }

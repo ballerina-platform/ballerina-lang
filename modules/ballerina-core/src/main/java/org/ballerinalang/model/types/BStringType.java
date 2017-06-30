@@ -38,7 +38,22 @@ public class BStringType extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <V extends BValue> V getDefaultValue() {
+    public <V extends BValue> V getZeroValue() {
         return (V) new BString("");
+    }
+    
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) new BString("");
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_STRING);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.STRING_TAG;
     }
 }

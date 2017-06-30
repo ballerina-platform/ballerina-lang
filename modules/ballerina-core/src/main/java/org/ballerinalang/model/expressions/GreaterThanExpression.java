@@ -19,34 +19,20 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BValueType;
-
-import java.util.function.BiFunction;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 import static org.ballerinalang.model.Operator.GREATER_THAN;
 
 /**
- * {@code GreaterThanExpression} represents a greater than (>) expression in Ballerina.
+ * {@code GreaterThanExpression} represents a greater than (&gt;) expression in Ballerina.
  *
  * @since 0.8.0
  */
 public class GreaterThanExpression extends BinaryCompareExpression {
 
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_INT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.intValue() > rVal.intValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_LONG_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.longValue() > rVal.longValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_FLOAT_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.floatValue() > rVal.floatValue());
-
-    public static final BiFunction<BValueType, BValueType, BValueType> GREATER_THAN_DOUBLE_FUNC =
-            (lVal, rVal) -> new BBoolean(lVal.doubleValue() > rVal.doubleValue());
-
-    public GreaterThanExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
-        super(location, lExpr, GREATER_THAN, rExpr);
+    public GreaterThanExpression(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression lExpr,
+                                 Expression rExpr) {
+        super(location, whiteSpaceDescriptor, lExpr, GREATER_THAN, rExpr);
     }
 
     @Override

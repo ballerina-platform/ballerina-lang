@@ -24,7 +24,7 @@ import org.ballerinalang.runtime.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code WorkerCallback} represents a callback which will get executed once the worker replies to the caller
+ * {@code WorkerCallback} represents a callback which will get executed once the worker replies to the caller.
  *
  * @since 0.8.0
  */
@@ -45,9 +45,9 @@ public class WorkerCallback extends DefaultBalCallback {
 
     @Override
     public void done(CarbonMessage carbonMessage) {
-        BMessage bMessage = new BMessage(carbonMessage);
-        valueRef = bMessage;
-        context.getControlStack().setReturnValue(0, valueRef);
+        valueRef = carbonMessage != null ? new BMessage(carbonMessage) : null;
+        // TODO Verify: why do we need to following line
+        context.getControlStackNew().currentFrame.returnValues[0] = valueRef;
         synchronized (context) {
             context.notifyAll();
         }

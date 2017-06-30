@@ -4,16 +4,14 @@ struct Department {
 }
 
 struct Person {
-    string name;
+    string name = "default first name";
+    string lname;
     map adrs;
-    int age;
+    int age = 999;
     Family family;
+    Person parent;
 }
 
-@doc:Description("Family representation")
-@doc:Field("spouse: a spouse")
-@doc:Field("noOfChildren: number of children")
-@doc:Field("children: list of children")
 struct Family {
     string spouse;
     int noOfChildren;
@@ -21,6 +19,7 @@ struct Family {
 }
 
 function testCreateStruct() (string, map, int){
+    map address1;
     map address = {"country":"USA","state":"CA"};
     Person emp = {name:"Jack", adrs:address, age:25};
     return emp.name, emp.adrs, emp.age;
@@ -34,13 +33,15 @@ function testStructOfStruct() (string) {
     Person[] emps = [emp1, emp2];
     Department dpt = {employees:emps};
     
-    string country = dpt.employees[0].adrs["country"];
+    string country;
+    country, _ = (string) dpt.employees[0].adrs["country"];
     return country;
 }
 
 function testReturnStructAttributes () (string) {
 	map address = {"country":"USA","state":"CA"};
-	Family fmly= {};
+	string[] chldrn = [];
+	Family fmly= {children:chldrn};
 	Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
     Person emp2;
     Person[] employees = [emp1, emp2];
@@ -49,35 +50,6 @@ function testReturnStructAttributes () (string) {
     dpt.employees[0].family.children[0] = "emily";
 
     return dpt.employees[0].family.children[0];
-}
-
-
-function testGetNonInitAttribute() (string) {
-	Person emp1;
-    Person emp2;
-    Person[] emps = [emp1, emp2];
-    Department dpt = {dptName : "HR" , employees : emps};
-    return dpt.employees[0].family.children[0];
-}
-
-function testGetNonInitArrayAttribute() (string) {
-    Department dpt = {dptName : "HR"};
-    return dpt.employees[0].family.children[0];
-}
-
-function testGetNonInitLastAttribute() (Person) {
-    Department dpt;
-    return dpt.employees[0];
-}
-
-function testSetFieldOfNonInitChildStruct() {
-    Person person = {name : "Jack"};
-    person.family.spouse = "Jane";
-}
-
-function testSetFieldOfNonInitStruct() {
-    Department dpt;
-    dpt.dptName = "HR";
 }
 
 function testExpressionAsIndex() (string) {
@@ -92,6 +64,7 @@ function testStructExpressionAsIndex() (string) {
     string country;
     Department dpt= {};
     Family fmly = {};
+    fmly.children = [];
     Person emp2;
     map address = {"country":"USA","state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25, family:fmly};
@@ -104,4 +77,38 @@ function testStructExpressionAsIndex() (string) {
     dpt.employees[0].family.noOfChildren = 1;
 
     return dpt.employees[0].family.children[dpt.employees[0].family.noOfChildren - 1];
+}
+
+function testDefaultVal() (string, string, int) {
+    Person p = {};
+    return p.name, p.lname, p.age;
+}
+
+function testNestedFieldDefaultVal() (string, string, int) {
+    Department dpt = {};
+    dpt.employees = [];
+    dpt.employees[0] = {lname:"Smith"};
+    return dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age;
+}
+
+function testNestedStructInit() (Person) {
+    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
+    return p1;
+}
+
+struct NegativeValTest {
+    int negativeInt = -9;
+    int negativeSpaceInt = -  8;
+    float negativeFloat = -88.234;
+    float negativeSpaceFloat = -   24.99;
+}
+
+function getStructNegativeValues()(int, int, float, float) {
+    NegativeValTest tmp = {};
+    return tmp.negativeInt, tmp.negativeSpaceInt, tmp.negativeFloat, tmp.negativeSpaceFloat;
+}
+
+function getStruct() (Person) {
+    Person p1 = {name:"aaa", age:25, parent:{name:"bbb", lname:"ccc", age:50}};
+    return p1;
 }

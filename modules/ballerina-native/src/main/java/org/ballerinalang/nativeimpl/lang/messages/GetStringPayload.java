@@ -59,7 +59,7 @@ public class GetStringPayload extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BString result;
         try {
-            BMessage msg = (BMessage) getArgument(context, 0);
+            BMessage msg = (BMessage) getRefArgument(context, 0);
             if (msg.isAlreadyRead()) {
                 result = new BString(msg.getMessageDataSource().getMessageAsString());
             } else {

@@ -55,7 +55,7 @@ public class BLangDiagnostic {
     }
 
     /**
-     * Gets the line number of the source node associated with this diagnostic
+     * Gets the line number of the source node associated with this diagnostic.
      *
      * @return line number
      */
@@ -64,7 +64,7 @@ public class BLangDiagnostic {
     }
 
     /**
-     * Gets the line number of the source node associated with this diagnostic
+     * Gets the line number of the source node associated with this diagnostic.
      *
      * @return column number
      */

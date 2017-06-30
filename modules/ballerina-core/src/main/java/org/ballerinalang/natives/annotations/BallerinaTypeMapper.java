@@ -68,7 +68,7 @@ public @interface BallerinaTypeMapper {
     /**
      * Constants related this typeMapper.
      *
-     * @return
+     * @return Constants related this function
      */
     BallerinaConstant[] consts() default {};
 }

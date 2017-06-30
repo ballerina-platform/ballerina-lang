@@ -17,9 +17,15 @@
 package org.ballerinalang.natives.annotation.processor;
 
 /**
- *
+ * Constants related to annotation processor.
  */
 public class Constants {
     
     public static final String BAL_FILES_DIR = "ballerina";
+    public static final String DOC_ANNOTATION_DEFAULT_ATTRIBUTE = "value";
+    public static final String DOC_PACKAGE_NAME = "ballerina.doc";
+    public static final String NON_CALLABLE_NATIVE_ACTION_INIT = "NativeAction.$name.<init>";
+    public static final String NATIVE_ACTION_PREFIX = "NativeAction";
+    public static final String NATIVE_INIT_ACTION_NAME = "init";
+
 }

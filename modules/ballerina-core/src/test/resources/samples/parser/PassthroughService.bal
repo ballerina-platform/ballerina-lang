@@ -4,11 +4,11 @@ import ballerina.lang.messages;
 import ballerina.net.http as http;
 
 
-@BasePath ("/passthrough")
+@BasePath {value:"/passthrough"}
 service PassthroughService {
 
-    @POST
-    @Path ("/stocks")
+    @POST {}
+    @Path {value:"/stocks"}
     resource passthrough (message m) {
         http:ClientConnector nyseEP = new http:ClientConnector("http://localhost:8280/exchange/nyse/");
 

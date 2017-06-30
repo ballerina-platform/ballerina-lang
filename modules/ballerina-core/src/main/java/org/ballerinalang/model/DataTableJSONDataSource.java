@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ballerinalang.model.values.BDataTable;
@@ -39,23 +40,26 @@ public class DataTableJSONDataSource implements JSONDataSource {
 
     private JSONObjectGenerator objGen;
 
-    public DataTableJSONDataSource(BDataTable df) {
-        this(df, new DefaultJSONObjectGenerator());
+    private boolean isInTransaction;
+
+    public DataTableJSONDataSource(BDataTable df, boolean isInTransaction) {
+        this(df, new DefaultJSONObjectGenerator(), isInTransaction);
     }
 
-    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen) {
+    public DataTableJSONDataSource(BDataTable df, JSONObjectGenerator objGen, boolean isInTransaction) {
         this.df = df;
         this.objGen = objGen;
+        this.isInTransaction = isInTransaction;
     }
 
     @Override
-    public void serialize(JsonGenerator gen) throws IOException {
+    public void serialize(JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
         gen.writeStartArray();
         while (this.df.next()) {
-            this.objGen.transform(this.df).serialize(gen, null);
+            this.objGen.transform(this.df).serialize(gen, serializerProvider);
         }
         gen.writeEndArray();
-        this.df.close();
+        this.df.close(this.isInTransaction);
     }
 
     /**
@@ -77,12 +81,6 @@ public class DataTableJSONDataSource implements JSONDataSource {
                     break;
                 case INT:
                     objNode.put(name, df.getInt(name));
-                    break;
-                case LONG:
-                    objNode.put(name, df.getLong(name));
-                    break;
-                case DOUBLE:
-                    objNode.put(name, df.getDouble(name));
                     break;
                 case FLOAT:
                     objNode.put(name, df.getFloat(name));
@@ -122,11 +120,11 @@ public class DataTableJSONDataSource implements JSONDataSource {
         /**
          * Converts the current position of the given datatable to a JSON object.
          *
-         * @param dataframe The datatable that should be used in the current position
+         * @param datatable The datatable that should be used in the current position
          * @return The generated JSON object
-         * @throws java.io.IOException
+         * @throws IOException for json reading/serializing errors
          */
-        JsonNode transform(BDataTable dataframe) throws IOException;
+        JsonNode transform(BDataTable datatable) throws IOException;
 
     }
 

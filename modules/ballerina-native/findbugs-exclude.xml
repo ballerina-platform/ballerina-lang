@@ -20,7 +20,7 @@
         <Package name="org.ballerinalang.nativeimpl"/>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.nativeimpl.connectors.data.sql.client.AbstractSQLAction"/>
+        <Class name="org.ballerinalang.nativeimpl.actions.data.sql.client.AbstractSQLAction"/>
         <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" />
     </Match>
 </FindBugsFilter>

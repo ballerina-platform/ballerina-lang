@@ -47,3 +47,31 @@ function commnetFunction() {
 // 4) Array maximum size test
 // 5) Array grow and size change test
 }
+
+function testDefaultValueOfIntArrayElement() (int, int, int){
+    int[] a = [];
+    a[5] = 45;
+    return a[0], a[1], a[5];
+}
+
+function testDefaultValueOfJsonArrayElement() (json, json, json) {
+    json[] j = [];
+    j[5] = {name:"supun"};
+    return j[0], j[1], j[5];
+}
+
+function testArrayGrowth () (int) {
+    float value = 100;
+    int[] ar = [];
+
+    int count = 0;
+    while (count < 20) {
+        int intValue;
+        intValue, _ = <int>value;
+
+        ar[intValue] = 1;
+        value = value * 1.7;
+        count = count + 1;
+    }
+    return ar.length;
+}
