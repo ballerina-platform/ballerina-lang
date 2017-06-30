@@ -1696,11 +1696,11 @@ span.fw-stack.fw-lg {
 }
 /* -------- ws ------------*/
 .protocol-ws .protocol-line{
-    stroke: #F9A825;
+    stroke: #E65100;
 }
 
 .protocol-ws .protocol-rect{
-    fill: #F9A825;
+    fill: #E65100;
 }
 
 .protocol-ws .protocol-text{
@@ -1708,24 +1708,24 @@ span.fw-stack.fw-lg {
 
 /* -------- jms ------------*/
 .protocol-jms .protocol-line{
-    stroke: #00695C;
+    stroke: #558B2F;
 }
 
 .protocol-jms .protocol-rect{
-    fill: #00695C;
+    fill: #558B2F;
 }
 
 .protocol-jms .protocol-text{
-    font-weight: bold;
+
 }
 
 /* -------- file ------------*/
 .protocol-file .protocol-line{
-    stroke: #5D4037;
+    stroke: #966c37;
 }
 
 .protocol-file .protocol-rect{
-    fill: #5D4037;
+    fill: #966c37;
 }
 
 .protocol-file .protocol-text{
