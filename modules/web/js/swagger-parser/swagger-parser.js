@@ -77,34 +77,32 @@ class SwaggerParser {
 
             // Creating consumes annotation
             if (!_.isUndefined(this._swaggerJson.consumes)) {
-                const consumesAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
-                                                                                                'swagger', 'Consumes');
-                const consumesAnnotation = this._createSimpleAnnotation({
-                    annotation: {
-                        fullPackageName: 'ballerina.net.http.swagger',
-                        packageName: 'swagger',
-                        identifier: 'Consumes',
-                        supported: true,
-                    },
-                    swaggerJsonNode: this._swaggerJson.consumes,
-                });
-                serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
+                SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Consumes');
+                // const consumesAnnotation = this._createSimpleAnnotation({
+                //     annotation: {
+                //         fullPackageName: 'ballerina.net.http.swagger',
+                //         packageName: 'swagger',
+                //         identifier: 'Consumes',
+                //         supported: true,
+                //     },
+                //     swaggerJsonNode: this._swaggerJson.consumes,
+                // });
+                // serviceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
             }
 
             // Creating consumes annotation
             if (!_.isUndefined(this._swaggerJson.produces)) {
-                const producesAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
-                                                                                                'swagger', 'Produces');
-                const producesAnnotation = this._createSimpleAnnotation({
-                    annotation: {
-                        fullPackageName: 'ballerina.net.http.swagger',
-                        packageName: 'swagger',
-                        identifier: 'Produces',
-                        supported: true,
-                    },
-                    swaggerJsonNode: this._swaggerJson.produces,
-                });
-                serviceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
+                SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations, 'swagger', 'Produces');
+                // const producesAnnotation = this._createSimpleAnnotation({
+                //     annotation: {
+                //         fullPackageName: 'ballerina.net.http.swagger',
+                //         packageName: 'swagger',
+                //         identifier: 'Produces',
+                //         supported: true,
+                //     },
+                //     swaggerJsonNode: this._swaggerJson.produces,
+                // });
+                // serviceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
             }
 
             // Updating/Creating resources using path annotation
@@ -309,32 +307,30 @@ class SwaggerParser {
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.consumes)) {
-            const consumesAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
-                                                                                    'swagger', 'Consumes');
-            const consumesAnnotation = this._createSimpleAnnotation({
-                annotation: {
-                    fullPackageName: 'ballerina.net.http.swagger',
-                    packageName: 'swagger',
-                    identifier: 'Consumes',
-                },
-                swaggerJsonNode: httpMethodJsonObject.consumes,
-            });
-            resourceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
+            SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Consumes');
+            // const consumesAnnotation = this._createSimpleAnnotation({
+            //     annotation: {
+            //         fullPackageName: 'ballerina.net.http.swagger',
+            //         packageName: 'swagger',
+            //         identifier: 'Consumes',
+            //     },
+            //     swaggerJsonNode: httpMethodJsonObject.consumes,
+            // });
+            // resourceDefinition.addChild(consumesAnnotation, consumesAnnotationIndex, true);
         }
 
         // Creating consumes annotation
         if (!_.isUndefined(httpMethodJsonObject.produces)) {
-            const producesAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
-                                                                                    'swagger', 'Produces');
-            const producesAnnotation = this._createSimpleAnnotation({
-                annotation: {
-                    fullPackageName: 'ballerina.net.http.swagger',
-                    packageName: 'swagger',
-                    identifier: 'Produces',
-                },
-                swaggerJsonNode: httpMethodJsonObject.produces,
-            });
-            resourceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
+            SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations, 'swagger', 'Produces');
+            // const producesAnnotation = this._createSimpleAnnotation({
+            //     annotation: {
+            //         fullPackageName: 'ballerina.net.http.swagger',
+            //         packageName: 'swagger',
+            //         identifier: 'Produces',
+            //     },
+            //     swaggerJsonNode: httpMethodJsonObject.produces,
+            // });
+            // resourceDefinition.addChild(producesAnnotation, producesAnnotationIndex, true);
         }
 
         SwaggerParser.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
