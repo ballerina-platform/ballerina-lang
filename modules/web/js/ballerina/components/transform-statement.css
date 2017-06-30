@@ -216,8 +216,8 @@ svg.plumbConnect path {
 
 .type-mapper-combo, .source-view > .select2-container, .target-view > .select2-container {
     top: 10px;
-    left: 70px;
-    width: 195px;
+    left: 10px;
+    width: 250px !important;
     position: absolute;
     height: 30px
 }
@@ -323,10 +323,13 @@ svg.plumbConnect path {
 }
 
 .btn-add-type {
-    color: #666769;
+    background-color: #666769;
     top: 10px;
-    left: 265px;
+    left: 259px;
     position: absolute;
+    border: 1px solid #aaaaaa;
+    color: #fff;
+    opacity: 0.6;
 }
 
 .btn-remove-type {
@@ -337,5 +340,9 @@ svg.plumbConnect path {
 }
 
 .function-header{
-    background-color: #666769;
+    background-color: #2980b9;
+}
+
+.btn-add-type i{
+    margin-top: -2px;
 }
