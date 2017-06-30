@@ -57,6 +57,7 @@ public class ResolveCommandExecutor {
      * Resolve the completion items based on the criteria
      * @param resolveCriteria - resolving criteria
      * @param dataModel - SuggestionsFilterDataModel
+     * @param symbols - Symbols list
      * @return {@link ArrayList}
      */
     public ArrayList<CompletionItem> resolveCompletionItems
