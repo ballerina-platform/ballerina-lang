@@ -14,7 +14,7 @@ import ballerina.doc;
 @doc:Description{ value:"Set the acknowledgment mode to 'CLIENT_ACKNOWLEDGME'"}
 @jms:ConnectionProperty {key:"sessionAcknowledgement", 
 					     value:"CLIENT_ACKNOWLEDGE"}
-service jmsService {
+service<jms> jmsService {
     resource onMessage (message m) {
 
         string stringPayload = messages:getStringPayload(m);

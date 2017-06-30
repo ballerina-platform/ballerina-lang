@@ -2,9 +2,9 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/functions"}
+@http:config{basePath:"/functions"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketEndpoint {
+service<ws> websocketEndpoint {
 
     @ws:OnOpen {}
     resource onOpen(message m) {

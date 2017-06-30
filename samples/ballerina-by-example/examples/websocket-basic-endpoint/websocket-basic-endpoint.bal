@@ -5,9 +5,9 @@ import ballerina.net.ws;
 import ballerina.doc;
 
 @doc:Description {value:"WebSocket endpoint is defined as a composition of  BasePath + WebSocketUpgradePath"}
-@http:BasePath {value:"/endpoint"}
+@http:config{basePath:"/endpoint"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketServerEndpoint {
+service<ws> websocketServerEndpoint {
 
     @doc:Description {value:"@OnOpen annotation is triggered when a new connection is initiated."}
     @ws:OnOpen {}

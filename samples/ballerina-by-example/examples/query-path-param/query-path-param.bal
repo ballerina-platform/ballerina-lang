@@ -1,8 +1,8 @@
 import ballerina. net.http;
 import ballerina.lang. messages;
 
-@http:BasePath {value:"/sample"}
-service sample {
+@http:config {basePath:"/sample"}
+service<http> sample {
 
     @http:GET {}
     @http:Path {value:"/path/{foo}"}

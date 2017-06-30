@@ -16,7 +16,7 @@ import ballerina.doc;
                          value:"QueueConnectionFactory"}
 @doc:Description{value : "JMS acknowledgment mode for the subscriber"}
 @jms:ConnectionProperty {key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
-service jmsService {
+service<jms> jmsService {
     resource onMessage (message m) {
 
         // Retrieve the string payload using native function
