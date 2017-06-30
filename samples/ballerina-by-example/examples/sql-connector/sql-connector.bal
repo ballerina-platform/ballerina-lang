@@ -51,7 +51,7 @@ function main (string[] args) {
     params = [para1];
     datatable dt = sql:ClientConnector.select(testDB,
             "SELECT * from Students where age = ?", params);
-    json jsonRes = <json>dt;
+    var jsonRes,err = <json>dt;
     system:println(jsonRes);
     datatables:close(dt);
     //A Batch of data can be inserted using  batchUpdate action. Number
@@ -77,8 +77,10 @@ function main (string[] args) {
     params = [pAge, pCount, pId];
     sql:ClientConnector.call (testDB,
                     "{call getCount(?,?,?)}", params);
-    system:println("Age 10 count:" + (int)pCount.value);
-    system:println("Id 1 count:" + (int)pId.value);
+    var countValue, err = (int)pCount.value;
+    var idValue, err = (int)pId.value;
+    system:println("Age 10 count:" + countValue);
+    system:println("Id 1 count:" + idValue);
     //Finally close the connection pool.
     sql:ClientConnector.close(testDB);
 }
