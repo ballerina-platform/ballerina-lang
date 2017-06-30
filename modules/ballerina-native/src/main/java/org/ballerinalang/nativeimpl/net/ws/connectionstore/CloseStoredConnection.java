@@ -68,10 +68,7 @@ public class CloseStoredConnection extends AbstractNativeFunction {
         }
         if (session.isOpen()) {
             try {
-                session.close(new CloseReason(
-                        () -> 1000,
-                        "Normal closure"
-                ));
+                session.close(new CloseReason(() -> 1000, "Normal closure"));
             } catch (IOException e) {
                 throw new BallerinaException("Error occurred in closing the connection for connection name: "
                                                      + connectionName);

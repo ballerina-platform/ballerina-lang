@@ -70,10 +70,7 @@ public class CloseConnectionGroup extends AbstractNativeFunction {
                 session -> {
                     if (session.isOpen()) {
                         try {
-                            session.close(new CloseReason(
-                                    () -> 1000,
-                                    "Normal closure"
-                            ));
+                            session.close(new CloseReason(() -> 1000, "Normal closure"));
                             connectionManager.removeConnectionFromAll(session);
                         } catch (IOException e) {
                             throw new BallerinaException("Error occurred in closing connection group: "
