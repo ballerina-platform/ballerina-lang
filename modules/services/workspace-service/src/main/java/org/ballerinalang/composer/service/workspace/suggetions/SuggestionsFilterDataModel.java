@@ -47,6 +47,8 @@ public class SuggestionsFilterDataModel {
     /**
      * Constructor for SuggestionsFilterDataModel
      * @param parser - parser instance
+     * @param context - Parser rule context
+     * @param posibleTokenList - List of possible tokens
      */
     public SuggestionsFilterDataModel(Parser parser, ParserRuleContext context, List<PossibleToken> posibleTokenList) {
         this.context = context;
@@ -72,7 +74,7 @@ public class SuggestionsFilterDataModel {
 
     /**
      * Get the possible tokens list
-     * @return {@link List<PossibleToken>}
+     * @return {@link List}
      */
     public List<PossibleToken> getPossibleTokens() {
         return possibleTokens;
