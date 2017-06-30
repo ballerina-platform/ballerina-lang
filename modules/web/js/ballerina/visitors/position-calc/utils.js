@@ -181,7 +181,9 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     const heading = viewSate.components.heading;
     const body = viewSate.components.body;
     const annotation = viewSate.components.annotation;
-    const transportLine = viewSate.components.transportLine;
+    // FIXME
+    const transportLine = !_.isNil(viewSate.components.transportLine) ?
+        viewSate.components.transportLine : { x: 0, y: 0 };
     const currentServiceIndex = _.findIndex(panelChildren, node);
     let headerX;
     let headerY;
