@@ -21,6 +21,7 @@ import LifeLineDecorator from './lifeline.jsx';
 import StatementContainer from './statement-container';
 import PanelDecorator from './panel-decorator';
 import ParameterDefinition from './parameter-definition';
+import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 
@@ -60,6 +61,14 @@ class ResourceDefinition extends React.Component {
             model: this.props.model.getArgumentParameterDefinitionHolder(),
         }];
 
+        let annotationBodyHeight = 0;
+        if (!_.isNil(this.props.model.viewState.components.annotation)) {
+            annotationBodyHeight = this.props.model.viewState.components.annotation.h;
+        }
+
+        const tLinkBox = Object.assign({}, bBox);
+        tLinkBox.y += annotationBodyHeight;
+
         return (<PanelDecorator
             icon="tool-icons/resource" title={name} bBox={bBox}
             model={this.props.model}
@@ -73,6 +82,7 @@ class ResourceDefinition extends React.Component {
                     {children}
                 </StatementContainer>
             </g>
+            <ResourceTransportLink bBox={tLinkBox} />
         </PanelDecorator>);
     }
 }

@@ -1668,3 +1668,66 @@ span.fw-stack.fw-lg {
 .ace_editor.ace_autocomplete {
     width: 400px !important;
 }
+
+
+/* Transport Line */
+.protocol-line{
+    stroke: #607D8B;
+}
+
+.protocol-rect{
+    fill: #607D8B;
+    fill-opacity: 0.5;
+}
+
+.protocol-text{
+    font-weight: 400;
+}
+
+.protocol-http .protocol-line{
+    stroke: #3498db;
+}
+
+.protocol-http .protocol-rect{
+    fill: #3498db;
+}
+
+.protocol-http .protocol-text{
+}
+/* -------- ws ------------*/
+.protocol-ws .protocol-line{
+    stroke: #F9A825;
+}
+
+.protocol-ws .protocol-rect{
+    fill: #F9A825;
+}
+
+.protocol-ws .protocol-text{
+}
+
+/* -------- jms ------------*/
+.protocol-jms .protocol-line{
+    stroke: #00695C;
+}
+
+.protocol-jms .protocol-rect{
+    fill: #00695C;
+}
+
+.protocol-jms .protocol-text{
+    font-weight: bold;
+}
+
+/* -------- file ------------*/
+.protocol-file .protocol-line{
+    stroke: #5D4037;
+}
+
+.protocol-file .protocol-rect{
+    fill: #5D4037;
+}
+
+.protocol-file .protocol-text{
+    
+}
