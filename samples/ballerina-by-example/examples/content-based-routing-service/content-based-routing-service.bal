@@ -1,5 +1,6 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
+import ballerina.lang.errors;
 import ballerina.doc;
 
 @doc:Description {value : "Service is invoke using BasePath value (/cbr)."}
@@ -9,13 +10,16 @@ service<http> contentBasedRouting {
  @http:POST{}
  @http:Path {value:"/route"}
  resource cbrResource (message m) {
+
+   errors:TypeCastError err;
    //Create service endpoint using HTTP client-connector.
    http:ClientConnector locationEP = create
                            http:ClientConnector("http://www.mocky.io");
    //Native function to get JSON payload from message.
    json jsonMsg = messages:getJsonPayload(m);
    //Get the string value relevant to the key "name".
-   string nameString = (string )jsonMsg["name"];
+   string nameString;
+   nameString, err= (string )jsonMsg["name"];
    //Additionally HTTP HEAD request can be executed to verify the accessibility.
    http:ClientConnector.head(locationEP,"/v2/594e018c1100002811d6d39a",m);
    message response = {};
