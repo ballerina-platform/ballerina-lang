@@ -372,9 +372,8 @@ class SizingUtil {
         components.annotation.w = bodyWidth;
 
         // transport line height calculations.
-        components.transportLine.h = totalResourceHeight - resources[resources.length - 1].getViewState().bBox.h
-                                     + variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top
-                                     + ( DesignerDefaults.panel.wrapper.gutter.v * resources.length) - 5;
+        // FIXME
+        components.transportLine.h = totalResourceHeight;
 
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;
