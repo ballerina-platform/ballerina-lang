@@ -34,10 +34,12 @@ import org.ballerinalang.plugins.idea.debugger.dto.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class BallerinaStackFrame extends XStackFrame {
 
@@ -73,7 +75,7 @@ public class BallerinaStackFrame extends XStackFrame {
         VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
         VirtualFile file = null;
         for (VirtualFile contentRoot : contentRoots) {
-            String absolutePath = contentRoot.getPath() + "/" + relativePath;
+            String absolutePath = contentRoot.getPath() + Matcher.quoteReplacement(File.separator) + relativePath;
             file = LocalFileSystem.getInstance().findFileByPath(absolutePath);
             if (file != null) {
                 break;
