@@ -4,9 +4,9 @@ import ballerina.net.http;
 import ballerina.net.ws;
 import ballerina.lang.system;
 
-@http:BasePath {value:"/store"}
+@http:config{basePath:"/store"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service echoServer {
+service<ws> echoServer {
     int i = 0;
 
     @ws:OnOpen {}

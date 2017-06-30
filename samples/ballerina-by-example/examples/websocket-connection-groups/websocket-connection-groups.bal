@@ -4,9 +4,9 @@ import ballerina.net.http;
 import ballerina.net.ws;
 
 
-@http:BasePath {value:"/groups"}
+@http:config{basePath:"/groups"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service echoServer {
+service<ws> echoServer {
 
     int i = 0;
     string groupEven = "even";

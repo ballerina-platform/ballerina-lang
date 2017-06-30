@@ -11,7 +11,7 @@ import ballerina.net.jms;
 @jms:ConnectionProperty {key:"connectionFactoryJNDIName", 
                         value:"QueueConnectionFactory"}
 @jms:ConnectionProperty {key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
-service jmsService {
+service<jms> jmsService {
     resource onMessage (message m) {
         // Read a message property.
         string myProperty = messages:getProperty(m, "MyProperty");

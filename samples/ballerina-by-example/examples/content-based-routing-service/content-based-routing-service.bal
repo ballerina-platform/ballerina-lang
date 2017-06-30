@@ -3,8 +3,8 @@ import ballerina.lang.messages;
 import ballerina.doc;
 
 @doc:Description {value : "Service is invoke using BasePath value (/cbr)."}
-@http:BasePath {value:"/cbr"}
-service contentBasedRouting {
+@http:config{basePath:"/cbr"}
+service<http> contentBasedRouting {
  @doc:Description {value : "http:POST{} annotation declares the HTTP method."}
  @http:POST{}
  @http:Path {value:"/route"}
