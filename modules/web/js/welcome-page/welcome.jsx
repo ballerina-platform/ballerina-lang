@@ -36,6 +36,7 @@ const WelcomeView = () => (<div className="initial-background-container">
 
                 <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
                 <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
+                <button id="btn-welcome-open-dir" className="btn btn-secondary"> Open Directory</button>
 
                 <ul className="nav nav-pills">
                     {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
