@@ -16,7 +16,6 @@
  * under the License.
  **/
 
-
 package org.ballerinalang.composer.service.workspace.rest;
 
 import org.slf4j.Logger;
@@ -50,11 +49,13 @@ public class FileServer {
 
         String rawUri = request.getUri();
         String rawUriPath = "";
+        boolean isDoc = false;
 
         if (rawUri.trim().length() == 0 || rawUri.endsWith("/")) {
             rawUriPath = contextRoot + rawUri + "index.html";
         } else if (rawUri.trim().length() >= 0 && rawUri.startsWith("/docs")) {
             if (contextRoot.endsWith("/resources/composer/web")) {
+                isDoc = true;
                 int index = contextRoot.indexOf("/resources/composer/web");
                 String home = contextRoot.substring(0, index);
                 rawUriPath = home + rawUri.trim();
@@ -77,6 +78,13 @@ public class FileServer {
             return Response.ok(file).build();
         }
         log.error(" File not found [" + rawUriPath + "], Requesting path [" + rawUriPath + "] ");
+        // If it is a doc request and file not found return an error page.
+        if (isDoc) {
+            File error404 = new File(contextRoot + "/errors/error404.html");
+            if (error404.exists()) {
+                return Response.status(Response.Status.NOT_FOUND).entity(error404).build();
+            }
+        }
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
