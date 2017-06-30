@@ -23,8 +23,8 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
         }
     }
 
-    @Test
-    public void textPushText() throws InterruptedException, SSLException, URISyntaxException {
+    @Test(priority = 0)
+    public void testPushText() throws InterruptedException, SSLException, URISyntaxException {
         handshakeAllClients(wsClients);
         String sentText = "test";
         wsClients[0].sendText(sentText);
@@ -33,6 +33,16 @@ public class EchoServerSampleTestCase extends WebSocketIntegrationTest {
         for (int i = 1; i < clientCount; i++) {
             Assert.assertEquals(null, wsClients[i].getTextReceived());
         }
+        shutDownAllClients(wsClients);
+    }
+
+    @Test(priority = 1)
+    public void testCloseConnection() throws InterruptedException, SSLException, URISyntaxException {
+        handshakeAllClients(wsClients);
+        String closeText = "closeMe";
+        wsClients[0].sendText(closeText);
+        Thread.sleep(threadSleepTime);
+        Assert.assertFalse(wsClients[0].isOpen());
         shutDownAllClients(wsClients);
     }
 }
