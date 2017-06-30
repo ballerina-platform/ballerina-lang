@@ -91,7 +91,7 @@ public class StartService extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context ctx) {
-        ctx.initFunction = true;
+        ctx.disableNonBlocking = true;
         String serviceName = getStringArgument(ctx, 0);
 
         Optional<ServiceInfo> matchingService = Optional.empty();
@@ -123,7 +123,7 @@ public class StartService extends AbstractNativeFunction {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
 
         Context bContext = new Context(programFile);
-        bContext.initFunction = true;
+        bContext.disableNonBlocking = true;
 
         PackageInfo packageInfo = matchingService.getPackageInfo();
         
@@ -166,9 +166,10 @@ public class StartService extends AbstractNativeFunction {
 
             AnnotationAttachmentInfo annotation = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                                                                                       Constants
-                                                                                              .ANNOTATION_NAME_BASE_PATH);
+                                                                                              .ANNOTATION_NAME_CONFIG);
             if (annotation != null) {
-                basePath = annotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getStringValue();
+                basePath = annotation.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH)
+                        .getStringValue();
             }
             if (basePath.startsWith("\"")) {
                 basePath = basePath.substring(1, basePath.length() - 1);
