@@ -114,7 +114,7 @@ set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
 set JAVA_ENDORSED=".\bre\lib\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Denable.nonblocking=false -Dtransports.netty.conf="%BALLERINA_HOME%\bre\conf\netty-transports.yml" -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.launcher.BLogManager"
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%BALLERINA_HOME%\tmp" -Denable.nonblocking=false -Dtransports.netty.conf="%BALLERINA_HOME%\bre\conf\netty-transports.yml" -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.file="%BALLERINA_HOME%\bre\conf\logging.properties" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
 
 
 :runJava
