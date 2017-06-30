@@ -290,8 +290,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // packages.
             addImportSuggestions(resultSet, element);
         } else {
-            InsertHandler<LookupElement>[] insertHandlers = (InsertHandler<LookupElement>[]) (new InsertHandler[]{new
-                    BasicInsertHandler()});
+            BasicInsertHandler basicInsertHandler = new BasicInsertHandler();
+            InsertHandler[] insertHandlers = new InsertHandler[]{basicInsertHandler,
+                    BallerinaAutoImportInsertHandler.INSTANCE};
             addLookups(resultSet, originalFile, true, false, false, false, insertHandlers);
         }
     }

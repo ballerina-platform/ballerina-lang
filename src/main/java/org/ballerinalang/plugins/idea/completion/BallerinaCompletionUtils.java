@@ -367,7 +367,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet     result list which is used to add lookups
      * @param lookupElement lookup element which needs to be added to the result list
      */
-    static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
+    private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
     }
 
@@ -653,7 +653,7 @@ public class BallerinaCompletionUtils {
                 //
                 // Eg: import org.tools as system;
                 //     import ballerina.lang.system as builtin;
-                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP;
+                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS;
             } else if (importsMap.containsValue(suggestedImportPath)) {
                 // This means we have already imported this package. This will be suggested by {@code
                 // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
@@ -868,9 +868,9 @@ public class BallerinaCompletionUtils {
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
                            boolean withFunctions, boolean withConnectors, boolean withStructs,
-                           InsertHandler<LookupElement>... insertHandlers) {
+                           InsertHandler... insertHandlers) {
         if (withPackages) {
-            InsertHandler<LookupElement> insertHandler = PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            InsertHandler insertHandler = PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
             if (insertHandlers.length >= 1) {
                 insertHandler = insertHandlers[0];
             }
