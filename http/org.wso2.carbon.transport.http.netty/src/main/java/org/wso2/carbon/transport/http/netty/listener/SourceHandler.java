@@ -37,8 +37,6 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +49,6 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
@@ -181,9 +178,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
             ChannelPipeline pipeline = ctx.pipeline();
-            int maxThreads = PoolConfiguration.getInstance().getEventGroupExecutorThreads();
-            EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
-            pipeline.addLast(executorGroup, "ws_handler",
+            pipeline.addLast("ws_handler",
                              new WebSocketSourceHandler(generateWebSocketChannelID(), this.connectionManager,
                                                         this.listenerConfiguration, httpRequest, isSecuredConnection,
                                                         ctx));
