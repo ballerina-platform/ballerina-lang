@@ -56,9 +56,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
         String msg = "mismatched input " + mismatchedToken + ". Expecting" + " one of " + expectedToken;
         // FixMe: This need to be handled by grammar itself
-        if (!EOF.equals(mismatchedToken)) {
-            errorTokens.add(createError(line, position, msg));
-        }
+        errorTokens.add(createError(line, position, msg));
     }
 
     @Override
@@ -79,9 +77,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = "invalid identifier " + getTokenErrorDisplay(token);
-        if (!EOF.equals(getTokenErrorDisplay(token))) {
-            errorTokens.add(createError(line, position, msg));
-        }
+        errorTokens.add(createError(line, position, msg));
     }
 
     @Override
@@ -90,9 +86,7 @@ public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = "unwanted token " + getTokenErrorDisplay(token);
-        if (!EOF.equals(getTokenErrorDisplay(token))) {
-            errorTokens.add(createError(line, position, msg));
-        }
+        errorTokens.add(createError(line, position, msg));
     }
 
     private SyntaxError createError(int line, int position, String message) {

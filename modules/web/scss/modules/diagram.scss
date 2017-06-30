@@ -296,3 +296,22 @@
     stroke: black;
     stroke-width: 1;
 }
+
+.protocol-file .panel-heading-decorator{
+    fill: #966c37 !important;
+}
+
+.protocol-jms .panel-heading-decorator{
+    fill: #558B2F !important;
+}
+
+.protocol-ws .panel-heading-decorator{
+    fill: #E65100 !important;
+}
+
+.protocol-http .panel-heading-decorator{
+    fill: #3498db !important;
+}
+.panel-heading-decorator{
+    fill: #607D8B !important;
+}
