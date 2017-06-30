@@ -51,6 +51,6 @@ public class Next extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);
-        return getBValues(dataTable.getNext());
+        return getBValues(dataTable.getNext(ctx.isInTransaction()));
     }
 }

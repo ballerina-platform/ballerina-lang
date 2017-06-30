@@ -632,20 +632,18 @@ public class SQLDatasourceUtils {
      * @param conn SQL connection
      */
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
-        if (rs != null) {
-            try {
+        try {
+            if (rs != null && !rs.isClosed()) {
                 rs.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (stmt != null) {
-            try {
+            }
+            if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (conn != null && !isInTransaction) {
-            try {
+            }
+            if (conn != null && !conn.isClosed() && !isInTransaction) {
                 conn.close();
-            } catch (SQLException ignore) { /* ignore */ }
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
         }
     }
 

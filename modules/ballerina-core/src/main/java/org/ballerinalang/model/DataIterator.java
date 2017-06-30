@@ -33,6 +33,8 @@ public interface DataIterator {
 
     boolean next();
 
+    boolean isLast();
+
     void close(boolean isInTransaction);
 
     String getString(String columnName);

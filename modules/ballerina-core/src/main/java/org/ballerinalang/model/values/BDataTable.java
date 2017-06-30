@@ -40,12 +40,14 @@ public class BDataTable implements BRefType<Object> {
     private List<ColumnDefinition> columnDefs;
     private int columnCount;
     private BStruct bStruct;
+    private boolean lastRecordProcessed;
 
     public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.columnDefs = columnDefs;
         this.columnCount = columnDefs.size();
         generateStruct();
+        lastRecordProcessed = false;
     }
 
     @Override
@@ -63,7 +65,10 @@ public class BDataTable implements BRefType<Object> {
         return BTypes.typeDatatable;
     }
 
-    public boolean next() {
+    public boolean hasNext() {
+        if (lastRecordProcessed) {
+            return false;
+        }
         return iterator.next();
     }
 
@@ -71,7 +76,7 @@ public class BDataTable implements BRefType<Object> {
         iterator.close(isInTransaction);
     }
 
-    public BStruct getNext() {
+    public BStruct getNext(boolean isInTransaction) {
         BValue[] dataArray = new BValue[this.columnCount];
         int index = 0;
         for (ColumnDefinition columnDef : columnDefs) {
@@ -121,6 +126,11 @@ public class BDataTable implements BRefType<Object> {
             }
             dataArray[index] = value;
             ++index;
+        }
+        boolean isLast = iterator.isLast();
+        if (isLast) {
+            close(isInTransaction);
+            lastRecordProcessed = true;
         }
         bStruct.setMemoryBlock(dataArray);
         BLangVM.prepareStructureTypeFromNativeAction(bStruct);

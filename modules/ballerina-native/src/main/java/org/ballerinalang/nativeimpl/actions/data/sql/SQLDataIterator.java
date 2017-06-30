@@ -75,6 +75,15 @@ public class SQLDataIterator implements DataIterator {
     }
 
     @Override
+    public boolean isLast() {
+        try {
+            return rs.isLast();
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public String getString(String columnName) {
         try {
             return rs.getString(columnName);
