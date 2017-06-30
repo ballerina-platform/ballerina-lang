@@ -212,7 +212,7 @@ public class QueryParser {
             selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime
                     .getMetaComplexEvent()));
             queryRuntime = new QueryRuntime(query, siddhiAppContext, streamRuntime, selector, outputRateLimiter,
-                    outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null);
+                    outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null, queryName);
 
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
                 selector.setBatchingEnabled(false);
