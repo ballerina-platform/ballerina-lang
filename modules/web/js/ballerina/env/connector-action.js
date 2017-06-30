@@ -16,6 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
+import ParameterDefinition from './../ast/parameter-definition';
 
 /**
  * @class ConnectorAction
@@ -68,7 +69,19 @@ class ConnectorAction {
      * @param [object] parameters
      */
     setParameters(parameters) {
-        this._parameters = parameters;
+        const params = [];
+        parameters.forEach((child) => {
+            if (child instanceof ParameterDefinition) {
+                const param = {
+                    type: child._typeName,
+                    identifier: child._name,
+                };
+                params.push(param);
+            } else {
+                params.push(child);
+            }
+        });
+        this._parameters = params;
     }
 
     /**
@@ -84,7 +97,19 @@ class ConnectorAction {
      * @param [object] returnParams
      */
     setReturnParams(returnParams) {
-        this._returnParams = returnParams;
+        const params = [];
+        returnParams.forEach((child) => {
+            if (child instanceof ParameterDefinition) {
+                const param = {
+                    type: child._typeName,
+                    identifier: child._name,
+                };
+                params.push(param);
+            } else {
+                params.push(child);
+            }
+        });
+        this._returnParams = params;
     }
 
     /**
