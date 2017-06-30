@@ -69,21 +69,24 @@ class ResourceDefinition extends React.Component {
         const tLinkBox = Object.assign({}, bBox);
         tLinkBox.y += annotationBodyHeight;
 
-        return (<PanelDecorator
-            icon="tool-icons/resource" title={name} bBox={bBox}
-            model={this.props.model}
-            dropTarget={this.props.model}
-            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-            titleComponentData={titleComponentData}
-        >
+        return (
             <g>
-                <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
-                <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
-                    {children}
-                </StatementContainer>
-            </g>
-            <ResourceTransportLink bBox={tLinkBox} />
-        </PanelDecorator>);
+                <ResourceTransportLink bBox={tLinkBox} />
+                <PanelDecorator
+                    icon="tool-icons/resource" title={name} bBox={bBox}
+                    model={this.props.model}
+                    dropTarget={this.props.model}
+                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    titleComponentData={titleComponentData}
+                >
+                    <g>
+                        <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
+                        <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
+                            {children}
+                        </StatementContainer>
+                    </g>
+                </PanelDecorator>
+            </g>);
     }
 }
 
