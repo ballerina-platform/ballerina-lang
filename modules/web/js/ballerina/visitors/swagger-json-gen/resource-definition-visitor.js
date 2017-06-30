@@ -82,20 +82,20 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                 this.parseResponsesAnnotation(existingAnnotation, httpMethodJson);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http')
                                                         && _.isEqual(existingAnnotation.getIdentifier(), 'Consumes')) {
-                const consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                const consumes = [];
-                _.forEach(consumesAnnotationEntryArray.getChildren(), (consumesAnnotationEntry) => {
-                    consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
-                });
-                _.set(httpMethodJson, 'consumes', consumes);
+                // const consumesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                // const consumes = [];
+                // _.forEach(consumesAnnotationEntryArray.getChildren(), (consumesAnnotationEntry) => {
+                //     consumes.push(this.removeDoubleQuotes(consumesAnnotationEntry.getRightValue()));
+                // });
+                // _.set(httpMethodJson, 'consumes', consumes);
             } else if (_.isEqual(existingAnnotation.getPackageName(), 'http')
                                                         && _.isEqual(existingAnnotation.getIdentifier(), 'Produces')) {
-                const producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
-                const produces = [];
-                _.forEach(producesAnnotationEntryArray.getChildren(), (producesAnnotationEntry) => {
-                    produces.push(this.removeDoubleQuotes(producesAnnotationEntry.getRightValue()));
-                });
-                _.set(httpMethodJson, 'produces', produces);
+                // const producesAnnotationEntryArray = existingAnnotation.getChildren()[0].getRightValue();
+                // const produces = [];
+                // _.forEach(producesAnnotationEntryArray.getChildren(), (producesAnnotationEntry) => {
+                //     produces.push(this.removeDoubleQuotes(producesAnnotationEntry.getRightValue()));
+                // });
+                // _.set(httpMethodJson, 'produces', produces);
             }
         });
 
