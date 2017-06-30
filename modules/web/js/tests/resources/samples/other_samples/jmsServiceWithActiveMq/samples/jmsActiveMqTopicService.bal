@@ -8,7 +8,7 @@ import ballerina.lang.system;
 protocol = "jms", destination = "ballerinatopic", connectionFactoryJNDIName = "TopicConnectionFactory",
 factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
 connectionFactoryType = "topic")
-service jmsActiveMqTopicService {
+service<jms> jmsActiveMqTopicService {
 
     resource onMessage (message m) {
         system:println("Received " + jms:getMessageType(m) + " : " + messages:getStringValue(m, "queue message count"));

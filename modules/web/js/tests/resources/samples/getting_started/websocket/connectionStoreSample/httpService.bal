@@ -2,8 +2,8 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/storeInfo"}
-service dataService {
+@http:config {basePath:"/storeInfo"}
+service<http> dataService {
 
     @http:POST {}
     @http:Path {value:"/{id}"}
