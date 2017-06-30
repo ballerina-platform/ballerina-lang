@@ -58,9 +58,9 @@ class PanelDecorator extends React.Component {
     }
 
     handleProtocolBlur(value) {
-        if (typeof value === 'string') {
-            this.props.model.setProtocolPkgName(value);
-        }
+        value = (typeof value === 'string') ? value : value.currentTarget.textContent;
+        value = (value === '') ? 'http' : value;
+        this.props.model.setProtocolPkgName(value);
         this.setState({ showProtocolSelect : false });
     }
 
@@ -239,14 +239,16 @@ class PanelDecorator extends React.Component {
                         <rect
                             x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
                             className="protocol-rect"
+                            onClick={this.handleProtocolClick}
                         />
                         <text className="protocol-text" onClick={this.handleProtocolClick} x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>
                         <SuggestionsText
-                            x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
+                            x={bBox.x + titleHeight + iconSize + 15 + 3} y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
                             suggestionsPool={this.availableProtocols}
                             show={this.state.showProtocolSelect}
                             onBlur={this.handleProtocolBlur}
                             onEnter={this.handleProtocolEnter}
+                            onSuggestionSelected={this.handleProtocolBlur}
                         />
                     </g>
                 }
