@@ -296,7 +296,7 @@ public class EventTestCase {
         context.setElementIdGenerator(new ElementIdGenerator(context.getName()));
         context.setSnapshotService(new SnapshotService(context));
         QueryRuntime runtime = QueryParser.parse(query, context, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, tableMap, eventWindowMap, eventSourceMap, eventSinkMap, lockSynchronizer);
+                windowDefinitionMap, tableMap, eventWindowMap, eventSourceMap, eventSinkMap, lockSynchronizer, "1");
         Assert.assertNotNull(runtime);
         Assert.assertTrue(runtime.getStreamRuntime() instanceof SingleStreamRuntime);
         Assert.assertNotNull(runtime.getSelector());
