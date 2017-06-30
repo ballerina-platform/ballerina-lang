@@ -43,13 +43,13 @@ function main (string[] args) {
     //Convert a datatable in to json.
     dt = sql:ClientConnector.select(testDB,
                    "SELECT id,name from employees", params);
-    json jsonRes = <json>dt;
+    var jsonRes,err = <json>dt;
     system:println(jsonRes);
     datatables:close(dt);
     //Convert a datatable in to xml.
     dt = sql:ClientConnector.select(testDB,
                    "SELECT id,name from employees", params);
-    xml xmlRes = <xml>dt;
+    var xmlRes,err = <xml>dt;
     system:println(xmlRes);
     datatables:close(dt);
     //Finally close the DB connection.
