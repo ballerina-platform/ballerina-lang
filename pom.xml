@@ -144,7 +144,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.89</ballerina.version>
+        <ballerina.version>0.90-SNAPSHOT</ballerina.version>
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
 
