@@ -348,6 +348,7 @@ class SizingUtil {
         components.body = new SimpleBBox();
         components.annotation = new SimpleBBox();
         components.variablesPane = new SimpleBBox();
+        components.transportLine = new SimpleBBox();
         components.heading.h = DesignerDefaults.panel.heading.height;
         if (node.viewState.collapsed) {
             components.body.h = 0;
@@ -369,6 +370,11 @@ class SizingUtil {
 
         components.body.w = bodyWidth;
         components.annotation.w = bodyWidth;
+
+        // transport line height calculations.
+        components.transportLine.h = totalResourceHeight - resources[resources.length - 1].getViewState().bBox.h
+                                     + variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top
+                                     + ( DesignerDefaults.panel.wrapper.gutter.v * resources.length) - 5;
 
         viewState.bBox.h = components.heading.h + components.body.h + components.annotation.h;
         viewState.components = components;

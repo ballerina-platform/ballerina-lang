@@ -181,6 +181,7 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     const heading = viewSate.components.heading;
     const body = viewSate.components.body;
     const annotation = viewSate.components.annotation;
+    const transportLine = viewSate.components.transportLine;
     const currentServiceIndex = _.findIndex(panelChildren, node);
     let headerX;
     let headerY;
@@ -209,6 +210,8 @@ function populateOuterPanelDecoratorBBoxPosition(node) {
     heading.y = headerY;
     body.x = bodyX;
     body.y = bodyY;
+    transportLine.x = body.x + 25;
+    transportLine.y = body.y;
 
     // here we need to re adjust resource width to match the service width.
     const resources = node.filterChildren(child => ASTFactory.isResourceDefinition(child) ||

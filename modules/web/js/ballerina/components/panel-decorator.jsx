@@ -184,6 +184,13 @@ class PanelDecorator extends React.Component {
 
         const rightHeadingButtons = this.getRightHeadingButtons(bBox.x + bBox.w, bBox.y + annotationBodyHeight, 27.5, titleHeight);
 
+        let protocolOffset = 0;
+        let protocolTextSize = 0;
+        if (this.props.protocol) {
+            protocolOffset = 50;
+            protocolTextSize = util.getTextWidth(this.props.protocol, 0).w;
+        }
+
         return (<g className="panel">
             <g className="panel-header">
                 <rect
@@ -192,7 +199,7 @@ class PanelDecorator extends React.Component {
                 />
                 <rect x={bBox.x - 1} y={bBox.y + annotationBodyHeight} height={titleHeight} rx="0" ry="0" className="panel-heading-decorator" />
                 <EditableText
-                    x={bBox.x + titleHeight + iconSize + 15} y={bBox.y + titleHeight / 2 + annotationBodyHeight}
+                    x={bBox.x + titleHeight + iconSize + 15 + protocolOffset } y={bBox.y + titleHeight / 2 + annotationBodyHeight}
                     width={titleWidth.w}
                     onBlur={() => { this.onTitleInputBlur(); }}
                     onClick={() => { this.onTitleClick(); }}
@@ -203,6 +210,15 @@ class PanelDecorator extends React.Component {
                 >
                     {this.state.editingTitle}
                 </EditableText>
+                {this.props.protocol &&
+                    <g>
+                        <rect
+                            x={bBox.x + titleHeight + iconSize + 15 + 3 } y={bBox.y + annotationBodyHeight} width={protocolOffset - 3} height={titleHeight}
+                            className="protocol-rect"
+                        />
+                        <text className="protocol-text" x={bBox.x + titleHeight + iconSize + 15 + 3 + ((protocolOffset - protocolTextSize) / 2)} y={bBox.y + annotationBodyHeight + 15} style={{ dominantBaseline: 'central' }}>{this.props.protocol}</text>                        
+                    </g>
+                }
                 <image
                     x={bBox.x + 8} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString(this.props.icon)}

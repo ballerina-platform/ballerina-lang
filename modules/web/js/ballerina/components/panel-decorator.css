@@ -56,3 +56,7 @@
     fill-opacity: 1;
 }
 .test-color{background-color: red;}
+
+.protocol-rect-http{
+    fill: #3498db !important;
+}

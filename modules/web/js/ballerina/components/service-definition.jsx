@@ -26,7 +26,10 @@ import * as DesignerDefaults from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import ServiceDefinitionAST from './../ast/service-definition';
 import PanelDecoratorButton from './panel-decorator-button';
+import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
+import SimpleBBox from './../ast/simple-bounding-box';
+import EditableText from './editable-text';
 
 /**
  * React component for a service definition.
@@ -135,38 +138,43 @@ class ServiceDefinition extends React.Component {
             });
         }
 
-        return (<PanelDecorator
-            icon="tool-icons/service"
-            title={title}
-            bBox={bBox}
-            model={model}
-            dropTarget={this.props.model}
-            dropSourceValidateCB={node => this.canDropToPanelBody(node)}
-            rightComponents={rightComponents}
-        >
-            {
-                    viewState.variablesExpanded ?
-                        <GlobalExpanded
-                            bBox={expandedVariablesBBox}
-                            globals={variables}
-                            onCollapse={this.handleVarialblesBadgeClick}
-                            title="Variables"
-                            addText={'+ Add Variable'}
-                            model={this.props.model}
-                            onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
-                            newValuePlaceholder={''}
-                            onDeleteClick={this.handleDeleteVariable}
-                            getValue={g => (g.getStatementString())}
-                        /> :
-                        <GlobalDefinitions
-                            bBox={expandedVariablesBBox}
-                            numberOfItems={variables.length}
-                            title={'Variables'}
-                            onExpand={this.handleVarialblesBadgeClick}
-                        />
-                }
-            {children}
-        </PanelDecorator>);
+        return (
+            <g className={`protocol-${this.props.model.getProtocolPkgName()}`}>
+                <PanelDecorator
+                    icon="tool-icons/service"
+                    title={title}
+                    bBox={bBox}
+                    model={model}
+                    dropTarget={this.props.model}
+                    dropSourceValidateCB={node => this.canDropToPanelBody(node)}
+                    rightComponents={rightComponents}
+                    protocol={this.props.model.getProtocolPkgName()}
+                >
+                    <ServiceTransportLine bBox={this.props.model.getViewState().components.transportLine} />
+                    {
+                            viewState.variablesExpanded ?
+                                <GlobalExpanded
+                                    bBox={expandedVariablesBBox}
+                                    globals={variables}
+                                    onCollapse={this.handleVarialblesBadgeClick}
+                                    title="Variables"
+                                    addText={'+ Add Variable'}
+                                    model={this.props.model}
+                                    onAddNewValue={this.props.model.addVariableDefinitionFromString.bind(this.props.model)}
+                                    newValuePlaceholder={''}
+                                    onDeleteClick={this.handleDeleteVariable}
+                                    getValue={g => (g.getStatementString())}
+                                /> :
+                                <GlobalDefinitions
+                                    bBox={expandedVariablesBBox}
+                                    numberOfItems={variables.length}
+                                    title={'Variables'}
+                                    onExpand={this.handleVarialblesBadgeClick}
+                                />
+                        }
+                    {children}
+                </PanelDecorator>
+            </g>);
     }
 }
 
