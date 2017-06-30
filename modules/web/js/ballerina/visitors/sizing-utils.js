@@ -293,10 +293,7 @@ class SizingUtil {
             }
         });
 
-        /**
-         * Add the total variable definitions height to the total height
-         */
-        totalResourceHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
+        totalResourceHeight += DesignerDefaults.panel.body.padding.top;
 
         /**
          * Set the max resource width to the resources
@@ -343,6 +340,11 @@ class SizingUtil {
             // There are no connectors as well as resources, since we set the default height
             bodyHeight = DesignerDefaults.innerPanel.body.height;
         }
+
+        /**
+         * Add the total variable definitions height to the total height
+         */
+        bodyHeight += variableDefinitionsHeight + DesignerDefaults.panel.body.padding.top;
 
         components.heading = new SimpleBBox();
         components.body = new SimpleBBox();

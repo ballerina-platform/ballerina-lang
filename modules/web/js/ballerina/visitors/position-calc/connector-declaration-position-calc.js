@@ -63,8 +63,11 @@ class ConnectorDeclarationPositionCalcVisitor {
         } else {
             x = this.positionInnerPanelLevelConnectors(connectors, connectorIndex, workers, parent);
         }
+        let y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
 
-        const y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
+        if(parentViewState.components.variablesPane){
+            y += (parentViewState.components.variablesPane.h + DesignerDefaults.panel.body.padding.top);
+        }
 
         bBox.x = x;
         bBox.y = y;
@@ -109,7 +112,7 @@ class ConnectorDeclarationPositionCalcVisitor {
 
         if (connectorIndex === 0) {
             if (innerPanelNodes.length === 0) {
-                xPosition = parentNode.getViewState().bBox.getLeft() + DesignerDefaults.lifeLine.gutter.h;
+                xPosition = parentNode.getViewState().bBox.getLeft() + DesignerDefaults.panel.body.padding.left;
             } else {
                 xPosition = parentNode.getViewState().bBox.getLeft() + innerPanelNodes[0].getViewState().bBox.w +
                     DesignerDefaults.lifeLine.gutter.h + DesignerDefaults.panel.body.padding.left;
