@@ -30,6 +30,7 @@ import ServiceTransportLine from './service-transport-line';
 import ImageUtil from './image-util';
 import SimpleBBox from './../ast/simple-bounding-box';
 import EditableText from './editable-text';
+import ASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * React component for a service definition.
@@ -136,6 +137,14 @@ class ServiceDefinition extends React.Component {
                     onClick: () => this.onSwaggerButtonClicked(),
                 },
             });
+        }
+
+        // todo: this is a hack need to be fixed
+        const resources = this.props.model.filterChildren(child => ASTFactory.isResourceDefinition(child));
+        this.props.model.getViewState().components.transportLine.y2 = 0;
+        if (resources[resources.length - 1]) {
+            console.log(resources[resources.length - 1].getViewState().components);
+            this.props.model.getViewState().components.transportLine.y2 = resources[resources.length - 1].getViewState().components.body.y - 15;
         }
 
         return (
