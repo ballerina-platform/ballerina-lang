@@ -137,7 +137,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
@@ -358,10 +357,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.accept(this);
         }
 
-        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
-                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
-        }
+        //TODO if this validation is present, then can't run main methods in a file which has a service
+//        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
+//            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
+//                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
+//        }
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
