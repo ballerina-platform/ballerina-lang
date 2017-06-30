@@ -308,6 +308,8 @@ class BallerinaFileEditor extends EventChannel {
                     log.error('Cannot switch to Source view due to syntax errors.');
                     return false;
                 }
+
+                this._swaggerView.updateServices();
             }
 
             lastRenderedTimestamp = this._file.getLastPersisted();
@@ -328,10 +330,13 @@ class BallerinaFileEditor extends EventChannel {
 
         this._designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
         this._designViewBtn.click(() => {
-            if (this.isInSwaggerView() && this._swaggerView.hasSwaggerErrors()) {
-                alerts.error('Cannot switch to Design view due to syntax errors.');
-                log.error('Cannot switch to Design view due to syntax errors.');
-                return false;
+            if (this.isInSwaggerView()) {
+                if (this._swaggerView.hasSwaggerErrors()) {
+                    alerts.error('Cannot switch to Design view due to syntax errors.');
+                    log.error('Cannot switch to Design view due to syntax errors.');
+                    return false;
+                }
+                this._swaggerView.updateServices();
             }
 
             // re-parse if there are modifications to source

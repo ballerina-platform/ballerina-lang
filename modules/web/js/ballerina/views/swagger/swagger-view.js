@@ -108,7 +108,7 @@ class SwaggerView extends EventChannel {
                     // and another with 'insert'. Hence we are updating the services only once and not on both events.
                     if (!(this._pasteTriggered && e.action === 'remove')) {
                         this._pasteTriggered = false;
-                        this.updateServices();
+                        // this.updateServices();
                     }
                 }
             } catch (error) {
@@ -128,44 +128,46 @@ class SwaggerView extends EventChannel {
     updateServices() {
         // we do not update the dom if swagger is not edited.
         if (this.swaggerDirty) {
-            setTimeout(() => {
-                if (!this.hasSwaggerErrors()) {
-                    const swaggerParser = new SwaggerParser(this._swaggerData.swagger, false);
-                    // Keep the original service defintion as ref.
-                    const originalServiceDef = this._swaggerData.serviceDefinitionAST;
-                    // Make a copy of the service definition.
-                    const updatedServiceDef = _.cloneDeep(this._swaggerData.serviceDefinitionAST);
-                    // Removing all resourceDefs so that the resources for the new swagger def are created.
-                    updatedServiceDef.getResourceDefinitions().forEach((resourceDef) => {
-                        updatedServiceDef.removeChild(resourceDef);
-                    });
+            const swaggerParser = new SwaggerParser(this._swaggerData.swagger, false);
+            swaggerParser.mergeToService(this._swaggerData.serviceDefinitionAST);
+            // setTimeout(() => {
+            //     if (!this.hasSwaggerErrors()) {
+            //         const swaggerParser = new SwaggerParser(this._swaggerData.swagger, false);
+            //         // Keep the original service defintion as ref.
+            //         const originalServiceDef = this._swaggerData.serviceDefinitionAST;
+            //         // Make a copy of the service definition.
+            //         const updatedServiceDef = _.cloneDeep(this._swaggerData.serviceDefinitionAST);
+            //         // Removing all resourceDefs so that the resources for the new swagger def are created.
+            //         updatedServiceDef.getResourceDefinitions().forEach((resourceDef) => {
+            //             updatedServiceDef.removeChild(resourceDef);
+            //         });
 
-                    // Merging will allows to have resources that maps to the new swagger json.
-                    swaggerParser.mergeToService(updatedServiceDef);
+            //         // Merging will allows to have resources that maps to the new swagger json.
+            //         swaggerParser.mergeToService(updatedServiceDef);
 
-                    const missingOriginalResourceDefs = originalServiceDef.getResourceDefinitions().filter(
-                        (originalResourceDef) => {
-                            let isMissingResource = true;
-                            updatedServiceDef.getResourceDefinitions().forEach((updatedResourceDef) => {
-                                if (SwaggerView.isSameResource(originalResourceDef, updatedResourceDef)) {
-                                    isMissingResource = false;
-                                }
-                            });
-                            return isMissingResource;
-                        });
+            //         const missingOriginalResourceDefs = originalServiceDef.getResourceDefinitions().filter(
+            //             (originalResourceDef) => {
+            //                 let isMissingResource = true;
+            //                 updatedServiceDef.getResourceDefinitions().forEach((updatedResourceDef) => {
+            //                     if (SwaggerView.isSameResource(originalResourceDef, updatedResourceDef)) {
+            //                         isMissingResource = false;
+            //                     }
+            //                 });
+            //                 return isMissingResource;
+            //             });
 
-                    if (missingOriginalResourceDefs.length > 0) {
-                        this.showMergeConflictModal({
-                            originalServiceDef,
-                            missingOriginalResourceDefs,
-                            swaggerParser,
-                        });
-                    } else {
-                        swaggerParser.mergeToService(originalServiceDef);
-                    }
-                }
-                // Wait till any errors come from the swagger editor as there is an inbuilt delay.
-            }, 2000);
+            //         if (missingOriginalResourceDefs.length > 0) {
+            //             this.showMergeConflictModal({
+            //                 originalServiceDef,
+            //                 missingOriginalResourceDefs,
+            //                 swaggerParser,
+            //             });
+            //         } else {
+            //             swaggerParser.mergeToService(originalServiceDef);
+            //         }
+            //     }
+            //     // Wait till any errors come from the swagger editor as there is an inbuilt delay.
+            // }, 2000);
         }
     }
 
