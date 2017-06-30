@@ -26,8 +26,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
-import org.ballerinalang.nativeimpl.lang.utils.Constants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -37,6 +36,7 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.services.dispatchers.jms.JMSUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +45,8 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ import java.util.Map;
 @BallerinaAction(
         packageName = "ballerina.net.jms",
         actionName = "send",
-        connectorName = JMSConstants.CONNECTOR_NAME,
+        connectorName = Constants.CONNECTOR_NAME,
         args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
                  @Argument(name = "msgType", type = TypeEnum.STRING),
@@ -95,36 +95,33 @@ public class Send extends AbstractJMSAction {
         // Get the map of properties.
         BMap<String, BString> properties = (BMap<String, BString>) bConnector.getRefField(0);
 
-        Map<String, String> propertyMap = new HashMap<>();
-        for (String key:properties.keySet()) {
-            propertyMap.put(key, properties.get(key).stringValue());
-        }
+        Map<String, String> propertyMap = JMSUtils.preProcessJmsConfig(properties);
 
         // Create message content according to the message type.
-        String messageType = message.getHeader(Constants.CONTENT_TYPE);
+        String messageType = message.getHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
         if (messageType == null) {
-            messageType = Constants.OCTET_STREAM;
+            messageType = org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM;
         }
 
-        message.setHeader(JMSConstants.JMS_MESSAGE_TYPE, messageType);
+        message.setHeader(Constants.JMS_MESSAGE_TYPE, messageType);
         switch (messageType) {
-            case Constants.TEXT_PLAIN:
-            case Constants.APPLICATION_JSON:
-            case Constants.APPLICATION_XML:
+            case org.ballerinalang.nativeimpl.lang.utils.Constants.TEXT_PLAIN:
+            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_JSON:
+            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_XML:
                 message = getTextCarbonMessage(bMessage, messageType, context);
                 break;
-            case Constants.APPLICATION_FORM:
+            case org.ballerinalang.nativeimpl.lang.utils.Constants.APPLICATION_FORM:
                 message = getMapCarbonMessage(bMessage, context);
                 break;
-            case Constants.OCTET_STREAM:
+            case org.ballerinalang.nativeimpl.lang.utils.Constants.OCTET_STREAM:
             default:
                 message = getBlobCarbonMessage(bMessage, context);
         }
 
-        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, destination);
+        propertyMap.put(JMSConstants.PARAM_DESTINATION_NAME, destination);
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Sending " + messageType + " to " + propertyMap.get(JMSConstants.DESTINATION_PARAM_NAME));
+                log.debug("Sending " + messageType + " to " + propertyMap.get(JMSConstants.PARAM_DESTINATION_NAME));
             }
 
             BallerinaConnectorManager.getInstance().getClientConnector("jms")
@@ -158,7 +155,6 @@ public class Send extends AbstractJMSAction {
         } else {
             throw new BallerinaException("Invalid Map Message provided", context);
         }
-
     }
 
     private CarbonMessage getTextCarbonMessage(BMessage bMessage, String messageType, Context context) {
