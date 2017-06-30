@@ -24,6 +24,7 @@ ballerina-core-0.89.jar                                                         
 ballerina-launcher-0.89.jar                                                     jar            apache2   2223
 ballerina-logging-0.89.jar                                                      jar            apache2   2222
 ballerina-native-0.89.jar                                                       jar            apache2   2221
+carbon-utils-1.2.1.jar                                                          bundle         apache2
 commons-lang3-3.5.jar                                                           bundle         apache2   2105
 commons-logging-1.2.jar                                                         bundle         apache2   1702
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
@@ -69,8 +70,6 @@ staxon-core-1.2.0.wso2v2.jar                                                    
 swagger-ballerina-generator-0.89.jar                                            jar            apache2   2226
 testerina-core-0.89.jar                                                         jar            apache2   2225
 workspace-service-0.89.jar                                                      jar            apache2   2230
-xml-resolver-1.2.jar                                                            jarinbundle    apache2   431
-xml-resolver-1.2.jar                                                            jarinbundle    apache2   2230
 
 
 
