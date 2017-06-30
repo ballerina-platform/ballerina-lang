@@ -36,8 +36,8 @@ class ResourceTransportLink extends React.Component {
         const bBox = this.props.bBox;
         return (
             <g>
-                <line x1={bBox.x - 25} y1={bBox.y + 15} x2={bBox.x} y2={bBox.y + 15} stroke="black" strokeWidth="2"  className="protocol-line" />
-                <circle cx={bBox.x - 25} cy={bBox.y + 15} r="8" stroke="black" strokeWidth="2" fill="white"  className="protocol-line" />
+                <line x1={bBox.x - 25} y1={bBox.y + 15} x2={bBox.x} y2={bBox.y + 15} stroke="black" strokeWidth="3"  className="protocol-line" />
+                <circle cx={bBox.x - 25} cy={bBox.y + 15} r="8" stroke="black" strokeWidth="3" fill="white"  className="protocol-line" />
             </g>
         );
     }
