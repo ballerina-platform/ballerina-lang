@@ -5,10 +5,11 @@ package ${PACKAGE_NAME};
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:BasePath {value:"/hello"}
-service HelloService {
+@http:config {basePath:"/hello"}
+service<http> HelloService {
 
     @http:GET {}
+    @http:Path {value:"/"}
     resource sayHello (message m) {
         message response = {};
         messages:setStringPayload(response, "Hello World !!!");
