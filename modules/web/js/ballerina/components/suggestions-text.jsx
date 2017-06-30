@@ -171,6 +171,7 @@ class SuggestionsText extends React.Component {
               getSuggestionValue={this.getSuggestionValue}
               renderSuggestion={this.renderSuggestion}
               renderSuggestionsContainer={this.renderSuggestionsContainer}
+              onSuggestionSelected={this.props.onSuggestionSelected}
               inputProps={inputProps}
               ref={this.storeInputReference}
               shouldRenderSuggestions={() => true}

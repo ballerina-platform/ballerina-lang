@@ -1678,10 +1678,12 @@ span.fw-stack.fw-lg {
 .protocol-rect{
     fill: #607D8B;
     fill-opacity: 0.5;
+    cursor: pointer;
 }
 
 .protocol-text{
     font-weight: 400;
+    cursor: pointer;
 }
 .panel-heading-decorator{
     fill: #607D8B;
