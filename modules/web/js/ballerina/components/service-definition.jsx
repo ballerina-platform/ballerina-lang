@@ -143,7 +143,6 @@ class ServiceDefinition extends React.Component {
         const resources = this.props.model.filterChildren(child => ASTFactory.isResourceDefinition(child));
         this.props.model.getViewState().components.transportLine.y2 = 0;
         if (resources[resources.length - 1]) {
-            console.log(resources[resources.length - 1].getViewState().components);
             this.props.model.getViewState().components.transportLine.y2 = resources[resources.length - 1].getViewState().components.body.y - 15;
         }
 
