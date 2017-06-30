@@ -7,8 +7,8 @@ struct Data {
             string name;
         }
 
-@http:BasePath {value:"/sample"}
-service sample {
+@http:config{basePath:"/sample"}
+service<http> sample {
     @http:GET{}
     @http:Path{value:"/test1"}
     resource echo (message m) {
@@ -115,8 +115,8 @@ service sample {
     }
 }
 
-@http:BasePath {value:"/counter"}
-service counter {
+@http:config{basePath:"/counter"}
+service<http> counter {
     @http:GET{}
     @http:Path{value:"/echo"}
     resource echoCount (message m) {
@@ -154,7 +154,8 @@ service counter {
     }
 }
 
-service sample2 {
+@http:config{basePath:"/sample2"}
+service<http> sample2 {
     @http:GET{}
     resource echoName (message m) {
         string myName = "wso2";

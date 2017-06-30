@@ -56,7 +56,7 @@ public class SetMaxInactiveInterval extends AbstractNativeFunction {
     public BValue[] execute(Context context) throws IllegalFormatException {
         try {
             BStruct sessionStruct  = ((BStruct) getRefArgument(context, 0));
-            int timeInterval = getIntArgument(context, 0);
+            int timeInterval = (int) getIntArgument(context, 0);
             String sessionId = sessionStruct.getStringField(0);
             Session session = context.getCurrentSession();
 
