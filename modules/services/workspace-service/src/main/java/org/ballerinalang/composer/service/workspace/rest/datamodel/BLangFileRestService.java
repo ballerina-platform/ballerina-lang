@@ -180,7 +180,11 @@ public class BLangFileRestService {
                 StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, filePath);
         ballerinaParser.addParseListener(ballerinaBaseListener);
-        ballerinaParser.compilationUnit();
+        try {
+            ballerinaParser.compilationUnit();
+        } catch (Exception e) {
+            logger.debug("Model building error", e);
+        }
 
         JsonArray errors = new JsonArray();
 
