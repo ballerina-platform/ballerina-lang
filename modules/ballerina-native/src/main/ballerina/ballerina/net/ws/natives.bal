@@ -47,7 +47,7 @@ native function removeConnectionGroup (string connectionGroupName);
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToGroup (string connectionGroupName, string text);
 
-@doc:Description { value:"Close all the connections in connection group"}
+@doc:Description { value:"Close all the connections in connection group."}
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 native function closeConnectionGroup(string connectionGroupName);
 
