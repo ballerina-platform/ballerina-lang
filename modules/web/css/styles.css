@@ -1601,6 +1601,7 @@ span.fw-stack.fw-lg {
 
 .select2-container--default .select2-selection--single {
     border-radius: 0 !important;
+    border:none;
 }
 
 .topbar {
