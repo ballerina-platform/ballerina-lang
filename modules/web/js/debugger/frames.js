@@ -124,12 +124,6 @@ class Frames extends EventChannel {
             }
             return false;
         });
-
-        // drop unnecessary first frame in services
-        const firstFrame = _.head(message.frames);
-        if (firstFrame && firstFrame.frameName !== 'main') {
-            message.frames.splice(0, 1);
-        }
         message.frames = this.process(message.frames);
 
         const html = this.compiled(message);
