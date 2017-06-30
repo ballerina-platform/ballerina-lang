@@ -4,7 +4,7 @@ import ballerina.doc;
 @doc:Description {value:"Global level variables defined as 'any'."}
 any stringVal = "string value as any";
 any intVal = 6;
-any jsonAny = {"name":"tom", "age":33};
+any mapAny = {"name":"tom", "age":33};
 
 function main (string[] args) {
     //Using global level 'any' variable as function parameter.
@@ -18,17 +18,20 @@ function main (string[] args) {
 
     system:println(person.name);
 
-    //Casting a 'json' defined as 'any' to a 'json'.
-    json jsonVal = (json)jsonAny;
+    //Casting a 'map' defined as 'any' to a 'map'.
+    var mapVal, _ = (map)mapAny;
 
-    system:println("name - " + (string)jsonVal.name);
-    system:println("age - " + (int)jsonVal.age);
+    var stringVal, _ = (string)mapVal.name;
+    var intVal, _ = (int)mapVal.age;
+
+    system:println("name - " + stringVal);
+    system:println("age - " + intVal);
 }
 
 @doc:Description {value:"Function accepting 'any' as a parameter value."}
 function acceptAny (any param) {
     int value;
-    value = (int)param;
+    value, _ = (int)param;
     system:println("casted any valu - " + value);
 }
 
