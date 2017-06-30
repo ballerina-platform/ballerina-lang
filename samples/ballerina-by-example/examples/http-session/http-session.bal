@@ -54,7 +54,7 @@ service<http> session {
       //Removes the object bound with the specified key from this session.
       http:removeAttribute(session, "key");
     }
-    //Invalidates this session
+    //Invalidates this session.
     http:invalidate(session);
     messages:setStringPayload(m, "Session: " + id + " invalidated");
     reply m;
