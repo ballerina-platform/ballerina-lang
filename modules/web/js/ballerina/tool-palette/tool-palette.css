@@ -132,6 +132,10 @@
     cursor: pointer;
 }
 
+.tool-container-vertical:hover {
+    background: #f1f1f1;
+}
+
 .tool-container-vertical-title {
     float: left;
     margin-left: 10px;
@@ -160,6 +164,7 @@
 .tool-container-vertical:hover .fw.fw-document{
     margin-right: 20px;
     display: inline-block;
+    margin-top: 5px;
 }
 
 .tool-title {
@@ -217,7 +222,7 @@
 }
 
 .tool-connector-action {
-    margin-left: 17px;
+    padding-left: 17px;
 }
 
 .tool-group-import-header{
@@ -269,9 +274,14 @@
     padding: 8px 0px 0px 0px;
     width: 100%;
 }
+a.tool-palette-add-button:focus, a.tool-palette-add-button:hover{
+    text-decoration: none;
+}
 
 .tool-palette-add-button .icon{
-    font-size: 8px;
+    font-size: 14px;
+    margin-right: 10px;
+    color: #707276;
 }
 
 .tool-pane-header{
@@ -283,10 +293,11 @@
 
 .tool-pane-header .back{
     display: block;
-    float: right;
+    float: left;
+    margin-right:10px ;
 }
 
 .tool-pane-header .icon{
-    font-size: 8px;
-    color:white;
+    font-size: 15px;
+    color:#ccc;
 }
