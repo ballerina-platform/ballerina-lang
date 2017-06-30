@@ -66,6 +66,7 @@ import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
@@ -403,6 +404,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                          @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+        PsiFile originalFile = parameters.getOriginalFile();
 
         ParameterNode parameterNode = PsiTreeUtil.getParentOfType(parent, ParameterNode.class);
         if (parameterNode != null) {
@@ -412,6 +414,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     this::handleOtherTypesInParameter);
             return;
         }
+
+        ReturnTypeListNode returnTypeListNode = PsiTreeUtil.getParentOfType(parent, ReturnTypeListNode.class);
+        if (returnTypeListNode != null) {
+            addTypeNamesAsLookups(resultSet);
+            addLookups(resultSet, originalFile, true, false, true, true);
+        }
+
         AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(element,
                 AnnotationDefinitionNode.class);
         if (annotationDefinitionNode != null) {
