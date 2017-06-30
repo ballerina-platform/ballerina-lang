@@ -35,8 +35,6 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
-import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
@@ -135,18 +133,8 @@ public class HTTPClientConnector implements ClientConnector {
         }
 
         try {
-            TargetChannel targetChannel = connectionManager.
-                    getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
-            if (targetChannel != null) {
-                TargetHandler targetHandler = targetChannel.getTargetHandler();
-                targetHandler.setCallback(callback);
-                targetHandler.setIncomingMsg(msg);
-                targetHandler.setConnectionManager(connectionManager);
-                targetHandler.setTargetChannel(targetChannel);
-                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, msg)) {
-                    targetChannel.setRequestWritten(true); // If request written
-                }
-            }
+            connectionManager.
+                    executeTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
         } catch (Exception failedCause) {
             throw new ClientConnectorException(failedCause.getMessage(), failedCause);
         }

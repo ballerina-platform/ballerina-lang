@@ -61,10 +61,8 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
 
-        handler = new TargetHandler(-1);
-        // -1 means timer tasks are disabled, please see TargetHandler class comment
+        handler = new TargetHandler();
         ch.pipeline().addLast(HANDLER, handler);
-
     }
 
     public TargetHandler getTargetHandler() {

@@ -96,6 +96,8 @@ public final class Constants {
 
     public static final String MAX_IDLE_CONNECTIONS_PER_POOL = "cleint.max.idle.connections.per.pool";
 
+    public static final String MAX_WAIT_FOR_CLIENT_CONNECTION_POOL = "max.wait.for.client.connection.pool";
+
     public static final String MIN_EVICTION_IDLE_TIME = "client.min.eviction.idle.time";
 
     public static final String ENABLE_GLOBAL_CONNECTION_POOLING = "enable.global.client.connection.pooling";
