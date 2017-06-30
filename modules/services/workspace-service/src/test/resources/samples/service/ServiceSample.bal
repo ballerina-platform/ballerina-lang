@@ -1,18 +1,13 @@
-@http:BasePath{ value: "/Hello"}
-service HelloService {
+import ballerina.connectors.twitter;
+import ballerina.connectors.salesforce as sf;
 
-  @http:BasePath{ value: "/Hello"}
-  @http:GET{}
-  @http:Test{ key1 : "value1",
-              key2 : @http:Bar{value: "value2"},
-              key3 : [1, 2, 3, 4.5, 5],
-              key4 : ["a", "b", "c"]}
+service<http> HelloService {
+
+  twitter:TwitterConnector t = create twitter:TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
+
+  @POST {}
+  @Path {value:"/tweet"}
   resource tweet (message m) {
-      reply m;
+      twitter:TwitterConnector.tweet(t, messages:getPayload(m));
   }
-
-}
-
-function test(int a) (int) {
-   return a+2;
 }
