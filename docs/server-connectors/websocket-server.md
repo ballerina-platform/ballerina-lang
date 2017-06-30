@@ -93,6 +93,14 @@ This function push text all the clients who have been connected to the currently
 |---------|--------------|-----------|---------------|
 |text|string|The text message to send|This can be any string|
 
+### Closing the connection of the current client from server side
+#### ws:closeConnection(text)
+This function close the connection of the current client from a given WebSocket resource.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|none|-|-|-|
+
 ### Storing and grouping WebSocket connections globally
 In Ballerina you can store the WebSocket connections and use them in other services too.
 There are 2 ways of using this feature.
@@ -130,6 +138,14 @@ store.
 |---------|--------------|-----------|---------------|
 |connectionName|string|Represent the name of the connection given by the user|Unique string of the connection|
 
+#### ws:closeStoredConnection(connectionName);
+This function is used to close a stored connection. Note that removeStoredConnection will only remove connection from
+connection store. This will close the connection and remove it from the store.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|connectionName|string|Represent the name of the connection given by the user|Unique string of the connection|
+
 ### Grouping WebSocket Connections
 #### ws:addConnectionToGroup(groupName)
 This will add the current WebSocket connection to group with the given group name.
@@ -158,6 +174,14 @@ This function removes the current connection from the given group if that connec
 This removes the whole connection group globally. So if the connection group is removed it cannot be used again.
 But it does not mean that individual connections are removed globally. Because same connection can be added to one or
 more groups. 
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|groupName|string|Represent the name of the group|String name represents the group|
+
+#### ws:closeConnectionGroup(groupName)
+This close all the connections in a connection group. Note that removeConnectionGroup will only remove only the connection
+group. But the connection status will not affect. But here the connections will be closed and removed the connection group
 
 |Parameter|Parameter Type|Description|Expected Values|
 |---------|--------------|-----------|---------------|

@@ -29,8 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import javax.websocket.CloseReason;
-
 /**
  * Test connected client scenarios. When the client connects, send  and receive text and closing the connection.
  */
@@ -42,36 +40,28 @@ public class WebSocketEndpointTest {
     // Client properties
     MockWebSocketSession session1 = new MockWebSocketSession("session1");
     MockWebSocketSession session2 = new MockWebSocketSession("session2");
-    MockWebSocketSession errorSession = new MockWebSocketSession("errorSession");
+    MockWebSocketSession session3 = new MockWebSocketSession("session2");
 
     @BeforeClass
     public void setup() throws InterruptedException {
         application = EnvironmentInitializer.setupProgramFile("samples/websocket/endpointTest.bal");
     }
 
-    @Test(description = "Test the client connection establishment and broadcast.")
+    @Test(description = "Test the client connection establishment and broadcast.",
+          priority = 0)
     public void testClientConnected() {
         String expectedText = "new client connected";
         CarbonMessage client1Message = MessageUtils.generateWebSocketOnOpenMessage(session1, uri);
         CarbonMessage client2Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri);
-        CarbonMessage client3Message = MessageUtils.generateWebSocketOnOpenMessage(errorSession, uri + "/error");
 
         Services.invoke(client1Message);
         Services.invoke(client2Message);
-        Services.invoke(client3Message);
 
         Assert.assertEquals(session1.getTextReceived(), expectedText);
-
-        // Checking the Error handler response for invalid URL
-        Assert.assertTrue(errorSession.isConnectionClose());
-        CloseReason closeReason = errorSession.getCloseReason();
-        Assert.assertTrue(closeReason != null);
-        Assert.assertEquals(closeReason.getCloseCode().getCode(), 1001);
-        Assert.assertEquals(closeReason.getReasonPhrase(),
-                            "Server closing connection since no service found for URI: " + uri + "/error");
     }
 
-    @Test(description = "Test the sending and receiving of client messages.")
+    @Test(description = "Test the sending and receiving of client messages.",
+          priority = 1)
     public void testPushText() {
         String expectedText = "Hi, Test";
         CarbonMessage client1Message = MessageUtils.generateWebSocketTextMessage(expectedText, session1, uri);
@@ -79,12 +69,31 @@ public class WebSocketEndpointTest {
         Assert.assertEquals(session1.getTextReceived(), expectedText);
     }
 
-    @Test(description = "Test closing a connection and broadcast.")
+    @Test(description = "Test closing a connection and broadcast.",
+          priority = 2)
     public void textConnectionClose() {
         String expectedText = "client left";
         CarbonMessage client1Message = MessageUtils.generateWebSocketOnCloseMessage(session1, uri);
         Services.invoke(client1Message);
         Assert.assertEquals(session2.getTextReceived(), expectedText);
+    }
+
+    @Test(description = "Test the connection closure by server",
+          priority = 4)
+    public void testConnectionClosureByServer() {
+        CarbonMessage client3Message = MessageUtils.generateWebSocketOnOpenMessage(session2, uri);
+        Services.invoke(client3Message);
+
+        //Check pre conditions
+        Assert.assertTrue(session3.isOpen());
+
+        String sentText = "closeMe";
+        client3Message = MessageUtils.generateWebSocketTextMessage(sentText, session3, uri);
+        Services.invoke(client3Message);
+
+        // Check post conditions
+        Assert.assertFalse(session3.isOpen());
+
     }
 
     @AfterClass
