@@ -61,7 +61,6 @@ public class InputEventHandler {
     }
 
     public void sendEvents(Event[] events) throws InterruptedException {
-        inputHandler.send(events);
         try {
             String[] transportProperties = trpProperties.get();
             for (int i = 0; i < transportMapping.size(); i++) {
@@ -71,6 +70,9 @@ public class InputEventHandler {
                 }
             }
             inputHandler.send(events);
+        } catch (RuntimeException e) {
+            LOG.error("Error in applying transport property mapping for '" + sourceType
+                    + "' source at '" + inputHandler.getStreamId() + "' stream, " + e.getMessage(), e);
         } finally {
             trpProperties.remove();
         }
