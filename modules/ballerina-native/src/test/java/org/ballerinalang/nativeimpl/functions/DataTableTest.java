@@ -272,6 +272,13 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 100);
     }
 
+    @Test(description = "Check toJson methods within transaction.")
+    public void testDatatableAutoClose() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDatatableAutoClose");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

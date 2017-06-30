@@ -53,6 +53,10 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
+struct ResultPrimitiveInt {
+    int INT_TYPE;
+}
+
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
@@ -73,7 +77,6 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
         b = rs.BOOLEAN_TYPE;
         s = rs.STRING_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -146,7 +149,6 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
         timestamp = rs.TIMESTAMP_TYPE;
         datetime = rs.DATETIME_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -174,7 +176,6 @@ function testGetComplexTypes () (string blobValue, string clob, string time, str
         datetime = rs.DATETIME_TYPE;
         binary = rs.BINARY_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -199,7 +200,6 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
         boolean_arr = rs.BOOLEAN_ARRAY;
         string_arr = rs.STRING_ARRAY;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -297,6 +297,31 @@ function testBlobData () (string blobStringData) {
     return;
 }
 
+function testDatatableAutoClose () (int i) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
+    ResultPrimitiveInt rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultPrimitiveInt)dataStruct;
+        i = rs.INT_TYPE;
+    }
+
+    datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    var jsonstring,err = <json> dt2;
+    var test,err = (string)jsonstring;
+
+    datatable dt3 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
@@ -320,7 +345,6 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
         s = rs.STRING_TYPE;
         i2 = rs.DT2INT_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
