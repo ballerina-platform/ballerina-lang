@@ -177,7 +177,7 @@ class PackageDefinition extends React.Component {
 
         const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
-            .map(p => ({ name: p.getName() }));
+            .map(p => ({ name: p.getName() })).sort();
 
         const packageDefExpanded = this.state.packageDefExpanded || !!this.state.packageDefValue;
 
