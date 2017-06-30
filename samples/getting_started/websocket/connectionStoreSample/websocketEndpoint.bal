@@ -2,9 +2,9 @@ import ballerina.lang.system;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/store"}
+@http:config {basePath:"/store"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketEndpoint {
+service<ws> websocketEndpoint {
     int i = 0;
 
     @ws:OnOpen {}

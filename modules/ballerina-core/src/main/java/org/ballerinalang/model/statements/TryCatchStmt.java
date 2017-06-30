@@ -67,6 +67,11 @@ public class TryCatchStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.TRY_CATCH;
+    }
+
     /**
      * Represents CatchBlock of a Try-Catch statement.
      */
@@ -243,12 +248,20 @@ public class TryCatchStmt extends AbstractStatement {
         }
 
         public TryCatchStmt build() {
-            return new TryCatchStmt(
+            TryCatchStmt tryCatchStmt = new TryCatchStmt(
                     location,
                     whiteSpaceDescriptor,
                     tryBlock,
                     catchBlock.toArray(new CatchBlock[0]),
                     finallyBlock);
+            tryBlock.setParent(tryCatchStmt);
+            catchBlock.forEach(catchBlock1 -> {
+                catchBlock1.getCatchBlockStmt().setParent(tryCatchStmt);
+            });
+            if (finallyBlock != null) {
+                finallyBlock.getFinallyBlockStmt().setParent(tryCatchStmt);
+            }
+            return tryCatchStmt;
         }
     }
 }

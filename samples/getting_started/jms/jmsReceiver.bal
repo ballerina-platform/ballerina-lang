@@ -10,7 +10,7 @@ providerUrl : "tcp://localhost:61616"}
 @jms:ConnectionProperty{key:"useReceiver", value:"true"}
 @jms:ConnectionProperty{key:"connectionFactoryJNDIName", value:"QueueConnectionFactory"}
 @jms:ConnectionProperty{key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
-service jmsService {
+service<jms> jmsService {
     resource onMessage (message m) {
         //Process the message
         string msgType = messages:getProperty(m, "JMS_MESSAGE_TYPE");

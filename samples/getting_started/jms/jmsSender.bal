@@ -16,6 +16,7 @@ function jmsSender() (boolean) {
     message queueMessage = {};
     messages:setStringPayload(queueMessage, "Hello from JMS");
 
-    jms:ClientConnector.send(jmsEP, "MyQueue", "TextMessage", queueMessage);
+    jms:ClientConnector.send(jmsEP, "MyQueue", queueMessage);
     return true;
 }
+

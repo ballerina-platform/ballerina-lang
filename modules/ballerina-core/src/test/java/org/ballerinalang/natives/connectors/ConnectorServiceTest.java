@@ -18,7 +18,6 @@
 
 package org.ballerinalang.natives.connectors;
 
-import org.ballerinalang.core.EnvironmentInitializer;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.core.utils.MessageUtils;
 import org.ballerinalang.model.BLangProgram;
@@ -110,7 +109,7 @@ public class ConnectorServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
+//        EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

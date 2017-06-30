@@ -37,12 +37,16 @@ import java.util.Map;
 public class ConnectionGroupTest {
 
     private ProgramFile wsApp;
+    private final Map<String, String> oddGroup = new HashMap<>();
+    private final Map<String, String> evenGroup = new HashMap<>();
 
     // Client are identified here by Sessions
     private MockWebSocketSession session1 = new MockWebSocketSession("session1");
     private MockWebSocketSession session2 = new MockWebSocketSession("session2");
     private MockWebSocketSession session3 = new MockWebSocketSession("session3");
     private MockWebSocketSession session4 = new MockWebSocketSession("session4");
+    private MockWebSocketSession session5 = new MockWebSocketSession("session5");
+    private MockWebSocketSession session6 = new MockWebSocketSession("session6");
 
     // paths
     private final String wsEndpointPath = "/chat-group/ws";
@@ -51,18 +55,15 @@ public class ConnectionGroupTest {
     public void  setup() {
         wsApp = EnvironmentInitializer.setupProgramFile(
                 "samples/websocket/connection_group_sample/connectionGroupTest.bal");
+        oddGroup.put("group", "odd");
+        evenGroup.put("group", "even");
     }
 
-    @Test
+    @Test(priority = 0)
     public void testGrouping() {
         String sentText = "test message";
         String textExpectedForEven = "evenGroup: " + sentText;
         String textExpectedForOdd = "oddGroup: " + sentText;
-
-        Map<String, String> oddGroup = new HashMap<>();
-        Map<String, String> evenGroup = new HashMap<>();
-        oddGroup.put("group", "odd");
-        evenGroup.put("group", "even");
 
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session1, wsEndpointPath, oddGroup));
         Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session2, wsEndpointPath, evenGroup));
@@ -76,7 +77,7 @@ public class ConnectionGroupTest {
         Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
     }
 
-    @Test
+    @Test(priority = 1)
     public void testRemoveConnectionFromGroup() {
         String sentTextToRemove = "removeOddConnection";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session1, wsEndpointPath));
@@ -92,7 +93,7 @@ public class ConnectionGroupTest {
         Assert.assertEquals(session4.getTextReceived(), textExpectedForEven);
     }
 
-    @Test
+    @Test(priority = 2)
     public void testRemoveConnectionGroup() {
         String sentTextToRemove = "removeEvenGroup";
         Services.invoke(MessageUtils.generateWebSocketTextMessage(sentTextToRemove, session3, wsEndpointPath));
@@ -104,6 +105,26 @@ public class ConnectionGroupTest {
         Assert.assertEquals(session2.getTextReceived(), null);
         Assert.assertEquals(session3.getTextReceived(), "oddGroup: " + sentText);
         Assert.assertEquals(session4.getTextReceived(), null);
+    }
+
+    @Test(priority = 3)
+    public void testCloseConnectionGroup() {
+        // Check pre conditions
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session5, wsEndpointPath, oddGroup));
+        Services.invoke(MessageUtils.generateWebSocketOnOpenMessage(session6, wsEndpointPath, evenGroup));
+        Assert.assertTrue(session3.isOpen());
+        Assert.assertTrue(session4.isOpen());
+        Assert.assertTrue(session5.isOpen());
+        Assert.assertTrue(session6.isOpen());
+
+        String sentText = "closeOddGroup";
+        Services.invoke(MessageUtils.generateWebSocketTextMessage(sentText, session3, wsEndpointPath));
+
+        // Check post conditions
+        Assert.assertFalse(session3.isOpen());
+        Assert.assertTrue(session4.isOpen());
+        Assert.assertFalse(session5.isOpen());
+        Assert.assertTrue(session6.isOpen());
     }
 
     @AfterClass
