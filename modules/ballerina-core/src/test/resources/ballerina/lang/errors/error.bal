@@ -22,3 +22,17 @@ struct CastError {
     string sourceType;
     string targetType;
 }
+
+struct TypeCastError {
+    string msg;
+    Error cause;
+    string sourceType;
+    string targetType;
+}
+
+struct TypeConversionError {
+    string msg;
+    Error cause;
+    string sourceType;
+    string targetType;
+}

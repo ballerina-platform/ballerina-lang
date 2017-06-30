@@ -67,6 +67,7 @@ import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
+import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -1972,6 +1973,7 @@ public class BLangVM {
         if (i >= 0) {
             message = (BMessage) sf.refRegs[i];
         }
+        handleSessionCookieHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
                 ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
@@ -2355,7 +2357,6 @@ public class BLangVM {
 
     private void handleReturn() {
         StackFrame currentSF = controlStack.popFrame();
-        context.setError(null);
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
@@ -2402,7 +2403,6 @@ public class BLangVM {
             nativeFunction.executeNative(context);
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
             handleError();
             return;
         }
@@ -2427,7 +2427,7 @@ public class BLangVM {
 
         AbstractNativeAction nativeAction = actionInfo.getNativeAction();
         try {
-            if (!context.initFunction && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
+            if (!context.disableNonBlocking && !context.isInTransaction() && nativeAction.isNonBlockingAction()) {
                 // Enable non-blocking.
                 context.setStartIP(ip);
                 // TODO : Temporary solution to make non-blocking working.
@@ -2452,7 +2452,6 @@ public class BLangVM {
             }
         } catch (Throwable e) {
             context.setError(BLangVMErrors.createError(this.context, ip, e.getMessage()));
-            controlStack.popFrame();
             handleError();
             return;
         }
@@ -2501,41 +2500,6 @@ public class BLangVM {
                     break;
                 default:
                     callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
-            }
-        }
-    }
-
-    public static void prepareStructureTypeFromNativeAction(StructureType structureType) {
-        BType[] fieldTypes = structureType.getFieldTypes();
-        BValue[] memoryBlock = structureType.getMemoryBlock();
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
-        for (int i = 0; i < fieldTypes.length; i++) {
-            BType paramType = fieldTypes[i];
-            switch (paramType.getTag()) {
-                case TypeTags.INT_TAG:
-                    structureType.setIntField(++longRegIndex, ((BInteger) memoryBlock[i]).intValue());
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    structureType.setFloatField(++doubleRegIndex, ((BFloat) memoryBlock[i]).floatValue());
-                    break;
-                case TypeTags.STRING_TAG:
-                    structureType.setStringField(++stringRegIndex, memoryBlock[i].stringValue());
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    structureType.setBooleanField(++booleanRegIndex,
-                            ((BBoolean) memoryBlock[i]).booleanValue() ? 1 : 0);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    structureType.setBlobField(++blobRegIndex, ((BBlob) memoryBlock[i]).blobValue());
-                    break;
-                default:
-                    structureType.setRefField(++refRegIndex, (BRefType) memoryBlock[i]);
             }
         }
     }
@@ -2909,6 +2873,7 @@ public class BLangVM {
             }
 
             controlStack.popFrame();
+            context.setError(currentFrame.errorThrown);
             if (controlStack.getCurrentFrame() == null) {
                 break;
             }
@@ -2949,5 +2914,13 @@ public class BLangVM {
 
         ip = -1;
         logger.error("fatal error. incorrect error table entry.");
+    }
+
+    private void handleSessionCookieHeaders(BMessage message) {
+        //check session cookie header
+        Session session = context.getCurrentSession();
+        if (session != null) {
+            session.generateSessionHeader(message);
+        }
     }
 }

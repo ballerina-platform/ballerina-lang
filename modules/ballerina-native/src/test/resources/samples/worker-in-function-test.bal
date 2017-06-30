@@ -18,7 +18,9 @@ function testSimpleWorkerVM(message msg)(message) {
     y, result <- sampleWorker;
     string s = messages:getStringPayload(result);
     system:println(s);
-    system:println("Value received from worker is " + (int)p["a"]);
+    int aVal;
+    aVal, _ = (int)p["a"];
+    system:println("Value received from worker is " + aVal);
     return result;
 
     worker sampleWorker {
@@ -29,7 +31,9 @@ function testSimpleWorkerVM(message msg)(message) {
     float b = 12.34;
     q, m, a <- default;
     q["a"] = 12;
-    system:println("passed in value is " + (int)q["a"]);
+    int intVal;
+    intVal, _ = (int)q["a"];
+    system:println("passed in value is " + intVal);
     json j;
     j = {"name":"chanaka"};
     messages:setJsonPayload(m, j);

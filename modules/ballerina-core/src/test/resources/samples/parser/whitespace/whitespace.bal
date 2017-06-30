@@ -4,9 +4,10 @@ package  samples.parser   ;
 
 
 import   ballerina.connectors.twitter    as  tw   ;
+  import   ballerina.net.http    as  abc   ;
 
 
-  service HelloService {
+  service < abc  >  HelloService {
 
   any SERVICE_VAR1  =   2    ;
 
@@ -30,6 +31,8 @@ native function testNativeFunction (message m, int i) (message);
 
 function testBalFunction (message m, int i)
                             (message)  {
+  fork{worker a{} }     join (all a , b ) (map v ) { }
+   timeout(3000)(map v){}
 
 
 }

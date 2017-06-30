@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 /**
  * @since 0.87
@@ -32,8 +33,9 @@ public class BFloatArray extends BNewArray {
 
     private double[] values;
 
-    private BFloatArray(double[] values) {
+    public BFloatArray(double[] values) {
         this.values = values;
+        this.size = values.length;
     }
 
     public BFloatArray() {
@@ -65,5 +67,14 @@ public class BFloatArray extends BNewArray {
         BFloatArray floatArray = new BFloatArray(Arrays.copyOf(values, values.length));
         floatArray.size = size;
         return floatArray;
+    }
+    
+    @Override
+    public String stringValue() {
+        StringJoiner sj = new StringJoiner(",", "[", "]");
+        for (int i = 0; i < size; i++) {
+            sj.add(Double.toString(values[i]));
+        }
+        return sj.toString();
     }
 }

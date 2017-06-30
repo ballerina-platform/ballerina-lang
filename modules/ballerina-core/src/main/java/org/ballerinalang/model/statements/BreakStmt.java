@@ -21,24 +21,14 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * An {@code BreakStmt} represents a break statement.
  */
 public class BreakStmt extends AbstractStatement {
 
-    private BlockStmt[] blockStmts;
-
-    private BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor, BlockStmt[] statements) {
+    public BreakStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocations);
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        this.blockStmts = statements;
-    }
-
-    public BlockStmt[] getBlockStmts() {
-        return blockStmts;
     }
 
     @Override
@@ -46,41 +36,8 @@ public class BreakStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
-    /**
-     * Builds a {@link BreakStmt} statement.
-     */
-    public static class BreakStmtBuilder {
-
-        private NodeLocation location;
-        private WhiteSpaceDescriptor whiteSpaceDescriptor;
-        private List<BlockStmt> statementList = new ArrayList<>();
-
-        public BreakStmtBuilder() {
-        }
-
-        public NodeLocation getLocation() {
-            return location;
-        }
-
-        public void setNodeLocation(NodeLocation location) {
-            this.location = location;
-        }
-
-        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
-            return whiteSpaceDescriptor;
-        }
-
-        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
-            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
-        }
-
-        public void addStmt(BlockStmt statement) {
-            statementList.add(statement);
-        }
-
-        public BreakStmt build() {
-            return new BreakStmt(location, whiteSpaceDescriptor,
-                    statementList.toArray(new BlockStmt[statementList.size()]));
-        }
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.BREAK;
     }
 }

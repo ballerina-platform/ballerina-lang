@@ -55,7 +55,7 @@ public class BLangProgramRunner {
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
-        bContext.initFunction = true;
+        bContext.disableNonBlocking = true;
 
         int serviceCount = 0;
         for (String packageName : servicePackageNameList) {
@@ -78,8 +78,8 @@ public class BLangProgramRunner {
                 }
 
                 // Deploy service
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-                        dispatcher.serviceRegistered(serviceInfo));
+                DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
+                        .serviceRegistered(serviceInfo);
                 serviceCount++;
             }
         }
@@ -99,7 +99,7 @@ public class BLangProgramRunner {
     public void runMain(ProgramFile programFile, String[] args) {
         Context bContext = new Context(programFile);
         // Non blocking is not support in the main program flow..
-        bContext.initFunction = true;
+        bContext.disableNonBlocking = true;
 
         ControlStackNew controlStackNew = bContext.getControlStackNew();
         String mainPkgName = programFile.getMainPackageName();

@@ -3,9 +3,9 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/group"}
+@http:config {basePath:"/group"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service oddEvenWebSocketService {
+service<ws> oddEvenWebSocketService {
 
     string evenConnectionGroupName = "evenGroup";
     string oddConnectionGroupName = "oddGroup";

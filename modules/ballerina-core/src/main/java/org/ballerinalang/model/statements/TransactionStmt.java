@@ -64,6 +64,11 @@ public class TransactionStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.TRANSACTION;
+    }
+
     /**
      * Represents Aborted block of a Transaction statement.
      */
@@ -212,6 +217,13 @@ public class TransactionStmt extends AbstractStatement {
             TransactionStmt transactionStmt = new TransactionStmt(location, transactionBlock,
                     abortedBlock, committedBlock);
             transactionStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            transactionBlock.setParent(transactionStmt);
+            if (abortedBlock != null) {
+                abortedBlock.getAbortedBlockStmt().setParent(transactionStmt);
+            }
+            if (committedBlock != null) {
+                committedBlock.getCommittedBlockStmt().setParent(transactionStmt);
+            }
             return transactionStmt;
         }
     }

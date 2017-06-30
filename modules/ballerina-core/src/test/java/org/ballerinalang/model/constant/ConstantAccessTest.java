@@ -32,15 +32,15 @@ import org.testng.annotations.Test;
  * Constant access test cases.
  */
 public class ConstantAccessTest {
+    private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-
+        programFile = BTestUtils.getProgramFile("lang/constant/main");
     }
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
                 "accessConstantFromOtherPkg");
         Assert.assertEquals(returns.length, 1);
@@ -50,7 +50,6 @@ public class ConstantAccessTest {
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
                 "assignConstFromOtherPkgToGlobalVar");
         Assert.assertEquals(returns.length, 1);
@@ -61,7 +60,6 @@ public class ConstantAccessTest {
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        ProgramFile programFile = BTestUtils.getProgramFile("lang/constant/main");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
                 "getNegativeConstants");
         Assert.assertEquals(returns.length, 4);
@@ -75,4 +73,18 @@ public class ConstantAccessTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), -3343.88);
     }
 
+    @Test(description = "Test assigning float to int in constants")
+    public void floatIntConversion() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "lang.constant.main",
+                "floatIntConversion");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.0);
+
+        Assert.assertSame(returns[2].getClass(), BFloat.class);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 10.0);
+    }
 }

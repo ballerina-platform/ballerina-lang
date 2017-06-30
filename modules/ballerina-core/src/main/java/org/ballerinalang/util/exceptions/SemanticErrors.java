@@ -102,16 +102,21 @@ public enum SemanticErrors {
     WORKER_INTERACTION_NOT_VALID("worker.interaction.not.valid", "SEMANTIC_0076"),
     INCOMPATIBLE_TYPES_IN_MULTIPLE_ASSIGNMENT("incompatible.types.in.multiple.assignment", "SEMANTIC_0077"),
     CANNOT_RESOLVE_STRUCT("cannot.resolve.struct", "SEMANTIC_0078"),
-    
+    CONTINUE_STMT_NOT_ALLOWED_HERE("continue.stmt.not.allowed.here", "SEMANTIC_0079"),
     DUPLICATED_ERROR_CATCH("duplicated.error.catch", "SEMANTIC_0080"),
     RESERVED_IDENTIFIER("reserved.identifier", "SEMANTIC_0081"),
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
     REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
     RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
+    BREAK_USED_IN_TRANSACTION("break.used.in.transaction", "SEMANTIC_0085"),
+    CONTINUE_USED_IN_TRANSACTION("continue.used.in.transaction", "SEMANTIC_0085"),
+    REPLY_CANNOT_USED_IN_TRANSACTION("reply.cannot.used.in.transaction",  "SEMANTIC_0086"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
+    INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
     ;
 
     private String errorMsgKey;

@@ -35,7 +35,7 @@ definition
     ;
 
 serviceDefinition
-    :   'service' Identifier serviceBody
+    :   'service' ('<' Identifier '>') Identifier serviceBody
     ;
 
 serviceBody
@@ -254,7 +254,7 @@ connectorInitExpression
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
+    :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
@@ -365,9 +365,22 @@ commentStatement
     ;
 
 variableReference
-    :   nameReference                               # simpleVariableIdentifier// simple identifier
-    |   nameReference ('['expression']')+           # mapArrayVariableIdentifier// arrays and map reference
-    |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
+    :   nameReference                               # simpleVariableReference
+    |   variableReference index                     # mapArrayVariableReference
+    |   variableReference field                     # fieldVariableReference
+    |   variableReference xmlAttrib                 # xmlAttribVariableReference
+    ;
+
+field
+    : '.' Identifier
+    ;
+
+index
+    : '[' expression ']'
+    ;
+
+xmlAttrib
+    : '@[' expression ']'
     ;
 
 expressionList

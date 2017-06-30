@@ -21,10 +21,10 @@ import org.ballerinalang.bre.BallerinaTransactionContext;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -56,7 +56,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
@@ -71,6 +73,11 @@ import javax.transaction.xa.XAResource;
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
+    public Calendar utcCalendar;
+
+    public AbstractSQLAction() {
+        utcCalendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC));
+    }
 
     protected void executeQuery(Context context, SQLDatasource datasource, String query, BRefValueArray parameters) {
         Connection conn = null;
@@ -82,7 +89,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = getPreparedStatement(conn, datasource, query);
             createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
+            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                     getColumnDefinitions(rs));
             context.getControlStackNew().getCurrentFrame().returnValues[0] = dataTable;
         } catch (SQLException e) {
@@ -161,7 +168,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
-                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs),
+                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs, utcCalendar),
                         getColumnDefinitions(rs));
                 context.getControlStackNew().getCurrentFrame().returnValues[0] = datatable;
             } else {
@@ -189,12 +196,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
             int[] updatedCount = stmt.executeBatch();
             conn.commit();
-            BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
+            BIntArray countArray = new BIntArray();
             int iSize = updatedCount.length;
             for (int i = 0; i < iSize; ++i) {
-                arrayValue.add(i, new BInteger(updatedCount[i]));
+                countArray.add(i, updatedCount[i]);
             }
-            context.getControlStackNew().getCurrentFrame().returnValues[0] = arrayValue;
+            context.getControlStackNew().getCurrentFrame().returnValues[0] = countArray;
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
@@ -338,6 +345,21 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.VARCHAR:
                 SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
                 break;
+            case Constants.SQLDataTypes.CHAR:
+                SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.CHAR);
+                break;
+            case Constants.SQLDataTypes.LONGVARCHAR:
+                SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.LONGVARCHAR);
+                break;
+            case Constants.SQLDataTypes.NCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.NCHAR);
+                break;
+            case Constants.SQLDataTypes.NVARCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.NVARCHAR);
+                break;
+            case Constants.SQLDataTypes.LONGNVARCHAR:
+                SQLDatasourceUtils.setNStringValue(stmt, value, index, direction, Types.LONGNVARCHAR);
+                break;
             case Constants.SQLDataTypes.DOUBLE:
                 SQLDatasourceUtils.setDoubleValue(stmt, value, index, direction, Types.DOUBLE);
                 break;
@@ -367,10 +389,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME:
-                SQLDatasourceUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP);
+                SQLDatasourceUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP, utcCalendar);
                 break;
             case Constants.SQLDataTypes.TIME:
-                SQLDatasourceUtils.setTimeValue(stmt, value, index, direction, Types.TIME);
+                SQLDatasourceUtils.setTimeValue(stmt, value, index, direction, Types.TIME, utcCalendar);
                 break;
             case Constants.SQLDataTypes.BINARY:
                 SQLDatasourceUtils.setBinaryValue(stmt, value, index, direction, Types.BINARY);
@@ -378,8 +400,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.BLOB:
                 SQLDatasourceUtils.setBlobValue(stmt, value, index, direction, Types.BLOB);
                 break;
+            case Constants.SQLDataTypes.LONGVARBINARY:
+                SQLDatasourceUtils.setBlobValue(stmt, value, index, direction, Types.LONGVARBINARY);
+                break;
+            case Constants.SQLDataTypes.VARBINARY:
+                SQLDatasourceUtils.setBinaryValue(stmt, value, index, direction, Types.VARBINARY);
+                break;
             case Constants.SQLDataTypes.CLOB:
                 SQLDatasourceUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
+                break;
+            case Constants.SQLDataTypes.NCLOB:
+                SQLDatasourceUtils.setNClobValue(stmt, value, index, direction, Types.NCLOB);
                 break;
             case Constants.SQLDataTypes.ARRAY:
                 SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);
@@ -484,12 +515,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME: {
-                Timestamp value = stmt.getTimestamp(index + 1);
+                Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
                 paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIME: {
-                Time value = stmt.getTime(index + 1);
+                Time value = stmt.getTime(index + 1, utcCalendar);
                 paramValue.setRefField(0, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
@@ -524,7 +555,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
-            int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
+            int direction = (int) paramValue.getIntField(0);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
             }
