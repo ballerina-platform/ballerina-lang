@@ -209,6 +209,15 @@ public class WebSocketClient {
     }
 
     /**
+     * Check whether the connection is opened or not.
+     *
+     * @return true if the connection is open.
+     */
+    public boolean isOpen() {
+        return handler.isOpen();
+    }
+
+    /**
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {

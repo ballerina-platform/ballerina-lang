@@ -49,6 +49,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = null;
     private ByteBuffer bufferReceived = null;
+    private boolean isOpen;
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -65,11 +66,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        isOpen = true;
         handshaker.handshake(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
+        isOpen = false;
         logger.info("WebSocket Client disconnected!");
     }
 
@@ -80,6 +83,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             logger.info("WebSocket Client connected!");
             handshakeFuture.setSuccess();
+            isOpen = true;
             return;
         }
 
@@ -93,19 +97,16 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            logger.info("WebSocket Client received text message: " + textFrame.text());
             textReceived = textFrame.text();
         } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
             bufferReceived = binaryFrame.content().nioBuffer();
-            logger.info("WebSocket Client received  binary message: " + bufferReceived.toString());
         } else if (frame instanceof PongWebSocketFrame) {
-            logger.info("WebSocket Client received pong");
             PongWebSocketFrame pongFrame = (PongWebSocketFrame) frame;
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
-            logger.info("WebSocket Client received closing");
-            ch.close();
+            ch.close().sync();
+            isOpen = false;
         }
     }
 
@@ -127,6 +128,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         return temp;
     }
 
+    /**
+     * Check whether the connection is opened or not.
+     *
+     * @return true if the connection is open.
+     */
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
@@ -135,4 +145,5 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
         ctx.close();
     }
+
 }

@@ -96,6 +96,20 @@ public class ConnectionGroupSampleTest extends WebSocketIntegrationTest {
                 Assert.assertEquals(clients[i].getTextReceived(), null);
             }
         }
+    }
+
+
+    @Test(priority = 4)
+    public void testCloseGroup() throws InterruptedException, IOException {
+        HttpClientRequest.doGet(getServiceURLHttp("groupInfo/close-even"));
+        Thread.sleep(threadSleepTime);
+        for (int i = 1; i < clientCount; i++) {
+            if (i % 2 == 0) {
+                Assert.assertFalse(clients[i].isOpen());
+            } else {
+                Assert.assertTrue(clients[i].isOpen());
+            }
+        }
         shutDownAllClients(clients);
     }
 
