@@ -1973,8 +1973,8 @@ public class BLangVM {
         handleSessionCookieHeaders(message);
         context.setError(null);
         if (context.getBalCallback() != null &&
-                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null) {
-            context.getBalCallback().done(message != null ? message.value() : null);
+                ((DefaultBalCallback) context.getBalCallback()).getParentCallback() != null && message != null) {
+            context.getBalCallback().done(message.value());
         }
         ip = -1;
     }
