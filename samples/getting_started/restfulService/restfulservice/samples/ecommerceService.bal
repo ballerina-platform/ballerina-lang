@@ -2,8 +2,8 @@ package restfulservice.samples;
 
 import ballerina.net.http;
 
-@http:BasePath {value:"/ecommerceservice"}
-service Ecommerce {
+@http:config {basePath:"/ecommerceservice"}
+service<http> Ecommerce {
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
     
     @http:GET{}

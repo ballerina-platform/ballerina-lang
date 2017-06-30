@@ -81,7 +81,7 @@ public class WhiteSpaceCaptureTest {
 
     @Test(description = "Test captured whitespace regions of import declarations")
     public void testWhiteSpaceCaptureInImportDec() {
-        ImportPackage importPackage = bFile.getImportPackages()[0];
+        ImportPackage importPackage = bFile.getImportPackages()[1];
         Assert.assertNotNull(importPackage);
         Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START), "   ");
@@ -338,6 +338,8 @@ public class WhiteSpaceCaptureTest {
                 System.lineSeparator() + System.lineSeparator() + "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER), "  ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_BODY_START), "   ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_BODY_START_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + "      ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN),
                 System.lineSeparator() + System.lineSeparator() + "  ");
     }

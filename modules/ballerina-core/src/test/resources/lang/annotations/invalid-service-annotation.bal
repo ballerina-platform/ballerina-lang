@@ -1,7 +1,8 @@
 import lang.annotations.doc;
+import ballerina.net.http;
 
 @doc:Description{value:1234}
-service PizzaService {
+service<http> PizzaService {
     
     @doc:Description{value:"Order pizza"}
     resource orderPizza(message m) {

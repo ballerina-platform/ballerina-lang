@@ -1,8 +1,8 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:BasePath {value:"/hello"}
-service echo11 {
+@http:config {basePath:"/hello"}
+service<http> echo11 {
 
     @http:GET{}
     @http:Path {value:"/echo2"}
@@ -111,8 +111,8 @@ service echo11 {
     }
 }
 
-@http:BasePath {value:"/hello/world"}
-service echo22 {
+@http:config {basePath:"/hello/world"}
+service<http> echo22 {
 
     @http:GET{}
     @http:Path {value:"/echo2"}
@@ -142,8 +142,8 @@ service echo22 {
     }
 }
 
-@http:BasePath {value:"/"}
-service echo33 {
+@http:config {basePath:"/"}
+service<http> echo33 {
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"third":foo, "echo33": "echo1"};
@@ -152,7 +152,7 @@ service echo33 {
     }
 }
 
-service echo44 {
+service<http> echo44 {
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"first":foo, "echo44": "echo1"};
@@ -161,8 +161,8 @@ service echo44 {
     }
 }
 
-@http:BasePath {value:"/echo55"}
-service echo55 {
+@http:config {basePath:"/echo55"}
+service<http> echo55 {
     @http:Path {value:"/foo/bar"}
     resource echo1 (message m, string foo) {
         message response = {};

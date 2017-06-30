@@ -59,6 +59,11 @@ public final class Constants {
      */
     public static final class SQLDataTypes {
         public static final String VARCHAR = "VARCHAR";
+        public static final String CHAR = "CHAR";
+        public static final String LONGVARCHAR = "LONGVARCHAR";
+        public static final String NCHAR = "NCHAR";
+        public static final String LONGNVARCHAR = "LONGNVARCHAR";
+        public static final String NVARCHAR = "NVARCHAR";
         public static final String NUMERIC = "NUMERIC";
         public static final String DECIMAL = "DECIMAL";
         public static final String BIT = "BIT";
@@ -72,7 +77,10 @@ public final class Constants {
         public static final String DOUBLE = "DOUBLE";
         public static final String BINARY = "BINARY";
         public static final String BLOB = "BLOB";
+        public static final String LONGVARBINARY = "LONGVARBINARY";
+        public static final String VARBINARY = "VARBINARY";
         public static final String CLOB = "CLOB";
+        public static final String NCLOB = "NCLOB";
         public static final String DATE = "DATE";
         public static final String TIME = "TIME";
         public static final String DATETIME = "DATETIME";
@@ -93,4 +101,5 @@ public final class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String DATASOURCE_KEY = "datasource_key";
+    public static final String TIMEZONE_UTC = "UTC";
 }

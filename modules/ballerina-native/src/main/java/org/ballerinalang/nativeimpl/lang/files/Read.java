@@ -62,7 +62,7 @@ public class Read extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct file = (BStruct) getRefArgument(context, 0);
-        int bytesToRead = getIntArgument(context, 0);
+        int bytesToRead = (int) getIntArgument(context, 0);
         byte[] data;
         int nRead;
         try {

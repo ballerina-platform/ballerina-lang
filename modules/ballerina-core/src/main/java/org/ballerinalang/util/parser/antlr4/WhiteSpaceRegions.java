@@ -38,10 +38,13 @@ public class WhiteSpaceRegions {
     public static final int IMPORT_DEC_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a service definition
-    public static final int SERVICE_DEF_SERVICE_KEYWORD_TO_IDENTIFIER = 0;
-    public static final int SERVICE_DEF_IDENTIFIER_TO_BODY_START = 1;
-    public static final int SERVICE_DEF_BODY_START_TO_FIRST_CHILD = 2;
-    public static final int SERVICE_DEF_END_TO_NEXT_TOKEN = 3;
+    public static final int SERVICE_DEF_SERVICE_KEYWORD_TO_LEFT_ANGLE_BRACKET = 0;
+    public static final int SERVICE_DEF_LEFT_ANGLE_BRACKET_TO_IDENTIFIER = 1;
+    public static final int SERVICE_DEF_IDENTIFIER_TO_RIGHT_ANGLE_BRACKET = 2;
+    public static final int SERVICE_DEF_RIGHT_ANGLE_BRACKET_TO_IDENTIFIER = 3;
+    public static final int SERVICE_DEF_IDENTIFIER_TO_BODY_START = 4;
+    public static final int SERVICE_DEF_BODY_START_TO_FIRST_CHILD = 5;
+    public static final int SERVICE_DEF_END_TO_NEXT_TOKEN = 6;
 
     // whitespace regions in a resource definition
     public static final int RESOURCE_DEF_RESOURCE_KEYWORD_TO_IDENTIFIER = 0;
@@ -147,7 +150,8 @@ public class WhiteSpaceRegions {
     public static final int WORKER_DEC_PRECEDING_WHITESPACE = 0;
     public static final int WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER = 1;
     public static final int WORKER_DEC_IDENTIFIER_TO_BODY_START = 2;
-    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 3;
+    public static final int WORKER_DEC_BODY_START_TO_NEXT_TOKEN = 3;
+    public static final int WORKER_DEC_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions of a type name
     public static final int TYPE_NAME_PRECEDING_WHITESPACE = 0;
@@ -412,4 +416,16 @@ public class WhiteSpaceRegions {
 
     public static final int JOIN_WORKER_PRECEDING_WHITESPACE = 0;
     public static final int JOIN_WORKER_END_TO_NEXT_TOKEN = 1;
+
+    // whitespace regions in an index based var ref expression
+    public static final int INDEX_VAR_REF_EXPR_PRECEDING_WHITESPACE = 0;
+    public static final int INDEX_VAR_REF_EXPR_VAR_REF_TO_INDEX_EXPR_WRAPPER = 1;
+    public static final int INDEX_VAR_REF_EXPR_INDEX_EXPR_WRAPPER_TO_INDEX_EXPR_START = 2;
+    public static final int INDEX_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in an field based var ref expression
+    public static final int FIELD_VAR_REF_EXPR_PRECEDING_WHITESPACE = 0;
+    public static final int FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR = 1;
+    public static final int FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START = 2;
+    public static final int FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
 }

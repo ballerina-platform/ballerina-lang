@@ -3,9 +3,9 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/echo-server"}
+@http:config {basePath:"/echo-server"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketEchoServer {
+service<ws> websocketEchoServer {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
