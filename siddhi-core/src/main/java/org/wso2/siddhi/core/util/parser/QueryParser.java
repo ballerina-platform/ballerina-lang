@@ -65,16 +65,17 @@ public class QueryParser {
     /**
      * Parse a query and return corresponding QueryRuntime.
      *
-     * @param query                query to be parsed.
-     * @param siddhiAppContext associated Siddhi app context.
-     * @param streamDefinitionMap  keyvalue containing user given stream definitions.
-     * @param tableDefinitionMap   keyvalue containing table definitions.
-     * @param windowDefinitionMap  keyvalue containing window definition map.
-     * @param tableMap             keyvalue containing event tables.
-     * @param eventWindowMap       keyvalue containing event window map.
-     * @param eventSourceMap       keyvalue containing event source map.
-     * @param eventSinkMap         keyvalue containing event sink map.
-     * @param lockSynchronizer     Lock synchronizer for sync the lock across queries.
+     * @param query               query to be parsed.
+     * @param siddhiAppContext    associated Siddhi app context.
+     * @param streamDefinitionMap keyvalue containing user given stream definitions.
+     * @param tableDefinitionMap  keyvalue containing table definitions.
+     * @param windowDefinitionMap keyvalue containing window definition map.
+     * @param tableMap            keyvalue containing event tables.
+     * @param eventWindowMap      keyvalue containing event window map.
+     * @param eventSourceMap      keyvalue containing event source map.
+     * @param eventSinkMap        keyvalue containing event sink map.
+     * @param lockSynchronizer    Lock synchronizer for sync the lock across queries.
+     * @param queryIndex          query index to identify unknown query by number
      * @return queryRuntime
      */
     public static QueryRuntime parse(Query query, SiddhiAppContext siddhiAppContext,
@@ -85,7 +86,8 @@ public class QueryParser {
                                      Map<String, Window> eventWindowMap,
                                      Map<String, List<Source>> eventSourceMap,
                                      Map<String, List<Sink>> eventSinkMap,
-                                     LockSynchronizer lockSynchronizer) {
+                                     LockSynchronizer lockSynchronizer,
+                                     String queryIndex) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
         QueryRuntime queryRuntime;
         Element nameElement = null;
@@ -98,7 +100,7 @@ public class QueryParser {
             if (nameElement != null) {
                 queryName = nameElement.getValue();
             } else {
-                queryName = "query_" + UUID.randomUUID().toString();
+                queryName = "query_" + queryIndex + "_" + UUID.randomUUID().toString();
             }
             if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
                 if (nameElement != null) {
@@ -212,7 +214,7 @@ public class QueryParser {
             selector.setEventPopulator(StateEventPopulatorFactory.constructEventPopulator(streamRuntime
                     .getMetaComplexEvent()));
             queryRuntime = new QueryRuntime(query, siddhiAppContext, streamRuntime, selector, outputRateLimiter,
-                    outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null);
+                    outputCallback, streamRuntime.getMetaComplexEvent(), lockWrapper != null, queryName);
 
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
                 selector.setBatchingEnabled(false);

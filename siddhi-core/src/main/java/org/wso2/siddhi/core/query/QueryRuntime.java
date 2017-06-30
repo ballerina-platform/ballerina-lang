@@ -28,17 +28,13 @@ import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.OutputParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
-import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
-import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -62,35 +58,19 @@ public class QueryRuntime {
     public QueryRuntime(Query query, SiddhiAppContext siddhiAppContext, StreamRuntime streamRuntime,
                         QuerySelector selector,
                         OutputRateLimiter outputRateLimiter, OutputCallback outputCallback, MetaComplexEvent
-                                metaComplexEvent, boolean synchronised) {
+                                metaComplexEvent, boolean synchronised, String queryName) {
         this.query = query;
         this.siddhiAppContext = siddhiAppContext;
         this.streamRuntime = streamRuntime;
         this.selector = selector;
         this.outputCallback = outputCallback;
         this.synchronised = synchronised;
+        this.queryId = queryName;
 
         outputRateLimiter.setOutputCallback(outputCallback);
         setOutputRateLimiter(outputRateLimiter);
         setMetaComplexEvent(metaComplexEvent);
-        setId();
         init();
-    }
-
-    private void setId() {
-        try {
-            Element element = AnnotationHelper.getAnnotationElement("info", "name", query.getAnnotations());
-            if (element != null) {
-                queryId = element.getValue();
-
-            }
-        } catch (DuplicateAnnotationException e) {
-            throw new DuplicateAnnotationException(e.getMessage() + " for the same Query " + query.toString());
-        }
-        if (queryId == null) {
-            queryId = UUID.randomUUID().toString();
-        }
-
     }
 
     public String getQueryId() {
@@ -152,10 +132,9 @@ public class QueryRuntime {
 
         QueryRuntime queryRuntime = new QueryRuntime(query, siddhiAppContext, clonedStreamRuntime, clonedSelector,
                                                      clonedOutputRateLimiter, outputCallback, this.metaComplexEvent,
-                                                     synchronised);
+                                                     synchronised, this.queryId + key);
         QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper, queryId);
 
-        queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
 
         if (!toLocalStream) {

@@ -65,7 +65,7 @@ public class SiddhiAppParser {
     /**
      * Parse an SiddhiApp returning SiddhiAppRuntime
      *
-     * @param siddhiApp plan to be parsed
+     * @param siddhiApp     plan to be parsed
      * @param siddhiContext SiddhiContext
      * @return SiddhiAppRuntime
      */
@@ -76,7 +76,7 @@ public class SiddhiAppParser {
 
         try {
             Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_NAME, null,
-                                                                    siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
             if (element != null) {
                 siddhiAppContext.setName(element.getValue());
             } else {
@@ -84,13 +84,13 @@ public class SiddhiAppParser {
             }
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
-                                                                   siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
             if (annotation != null) {
                 siddhiAppContext.setEnforceOrder(true);
             }
 
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ASYNC,
-                                                        siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
             if (annotation != null) {
                 siddhiAppContext.setAsync(true);
                 String bufferSizeString = annotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_BUFFER_SIZE);
@@ -103,10 +103,10 @@ public class SiddhiAppParser {
             }
 
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_STATISTICS,
-                                                        siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
 
             Element statElement = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_STATISTICS, null,
-                                                                        siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
 
             // Both annotation and statElement should be checked since siddhi uses
             // @app:statistics(reporter = 'console', interval = '5' )
@@ -115,9 +115,9 @@ public class SiddhiAppParser {
                 if (siddhiContext.getStatisticsConfiguration() != null) {
                     siddhiAppContext.setStatsEnabled(true);
                     siddhiAppContext.setStatisticsManager(siddhiContext
-                                                                      .getStatisticsConfiguration()
-                                                                      .getFactory()
-                                                                      .createStatisticsManager(annotation.getElements()));
+                            .getStatisticsConfiguration()
+                            .getFactory()
+                            .createStatisticsManager(annotation.getElements()));
                 }
             }
 
@@ -125,15 +125,15 @@ public class SiddhiAppParser {
 
             siddhiAppContext.setExecutorService(Executors.newCachedThreadPool(
                     new ThreadFactoryBuilder().setNameFormat("Siddhi-" + siddhiAppContext.getName() +
-                                                                     "-executor-thread-%d").build()));
+                            "-executor-thread-%d").build()));
 
             siddhiAppContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5,
-                                                                                              new ThreadFactoryBuilder().setNameFormat("Siddhi-" +
-                                                                                                                                               siddhiAppContext.getName() + "-scheduler-thread-%d").build()));
+                    new ThreadFactoryBuilder().setNameFormat("Siddhi-" +
+                            siddhiAppContext.getName() + "-scheduler-thread-%d").build()));
 
             // Select the TimestampGenerator based on playback mode on/off
             annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
-                                                        siddhiApp.getAnnotations());
+                    siddhiApp.getAnnotations());
             if (annotation != null) {
                 String idleTime = null;
                 String increment = null;
@@ -147,31 +147,31 @@ public class SiddhiAppParser {
                         increment = e.getValue();
                     } else {
                         throw new SiddhiAppValidationException("Playback annotation accepts only idle.time and " +
-                                                                           "increment but found " + e.getKey());
+                                "increment but found " + e.getKey());
                     }
                 }
 
                 // idleTime and increment are optional but if one presents, the other also should be given
                 if (idleTime != null && increment == null) {
                     throw new SiddhiAppValidationException("Playback annotation requires both idle.time and " +
-                                                                       "increment but increment not found");
+                            "increment but increment not found");
                 } else if (idleTime == null && increment != null) {
                     throw new SiddhiAppValidationException("Playback annotation requires both idle.time and " +
-                                                                       "increment but idle.time does not found");
+                            "increment but idle.time does not found");
                 } else if (idleTime != null) {
                     // The fourth case idleTime == null && increment == null are ignored because it means no heartbeat.
                     try {
                         timestampGenerator.setIdleTime(SiddhiCompiler.parseTimeConstantDefinition(idleTime).value());
                     } catch (SiddhiParserException ex) {
                         throw new SiddhiParserException("Invalid idle.time constant '" + idleTime + "' in playback " +
-                                                                "annotation", ex);
+                                "annotation", ex);
                     }
                     try {
                         timestampGenerator.setIncrementInMilliseconds(SiddhiCompiler.parseTimeConstantDefinition
                                 (increment).value());
                     } catch (SiddhiParserException ex) {
                         throw new SiddhiParserException("Invalid increment constant '" + increment + "' in playback " +
-                                                                "annotation", ex);
+                                "annotation", ex);
                     }
                 }
 
@@ -186,7 +186,7 @@ public class SiddhiAppParser {
 
         } catch (DuplicateAnnotationException e) {
             throw new DuplicateAnnotationException(e.getMessage() + " for the same Siddhi app " +
-                                                           siddhiApp.toString());
+                    siddhiApp.toString());
         }
 
         SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder = new SiddhiAppRuntimeBuilder(siddhiAppContext);
@@ -214,31 +214,35 @@ public class SiddhiAppParser {
                     .getEventWindowMap(), latencyTracker, window.getWindowDefinition().getId());
         }
         try {
+            int queryIndex = 1;
             for (ExecutionElement executionElement : siddhiApp.getExecutionElementList()) {
                 if (executionElement instanceof Query) {
                     QueryRuntime queryRuntime = QueryParser.parse((Query) executionElement, siddhiAppContext,
-                                                                  siddhiAppRuntimeBuilder.getStreamDefinitionMap(),
-                                                                  siddhiAppRuntimeBuilder.getTableDefinitionMap(),
-                                                                  siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
-                                                                  siddhiAppRuntimeBuilder.getTableMap(),
-                                                                  siddhiAppRuntimeBuilder.getEventWindowMap(),
-                                                                  siddhiAppRuntimeBuilder.getEventSourceMap(),
-                                                                  siddhiAppRuntimeBuilder.getEventSinkMap(),
-                                                                  siddhiAppRuntimeBuilder.getLockSynchronizer());
+                            siddhiAppRuntimeBuilder.getStreamDefinitionMap(),
+                            siddhiAppRuntimeBuilder.getTableDefinitionMap(),
+                            siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
+                            siddhiAppRuntimeBuilder.getTableMap(),
+                            siddhiAppRuntimeBuilder.getEventWindowMap(),
+                            siddhiAppRuntimeBuilder.getEventSourceMap(),
+                            siddhiAppRuntimeBuilder.getEventSinkMap(),
+                            siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
                     siddhiAppRuntimeBuilder.addQuery(queryRuntime);
+                    queryIndex++;
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(siddhiAppRuntimeBuilder,
-                                                                              (Partition) executionElement, siddhiAppContext,
-                                                                              siddhiAppRuntimeBuilder.getStreamDefinitionMap());
+                            (Partition) executionElement, siddhiAppContext,
+                            siddhiAppRuntimeBuilder.getStreamDefinitionMap(), queryIndex);
                     siddhiAppRuntimeBuilder.addPartition(partitionRuntime);
+                    queryIndex += ((Partition) executionElement).getQueryList().size();
                 }
+
             }
         } catch (SiddhiAppCreationException e) {
             throw new SiddhiAppValidationException(e.getMessage() + " in siddhi app \"" +
-                                                               siddhiAppContext.getName() + "\"", e);
+                    siddhiAppContext.getName() + "\"", e);
         } catch (DuplicateDefinitionException e) {
             throw new DuplicateDefinitionException(e.getMessage() + " in siddhi app \"" +
-                                                           siddhiAppContext.getName() + "\"", e);
+                    siddhiAppContext.getName() + "\"", e);
         }
 
         //Done last as they have to be started last
