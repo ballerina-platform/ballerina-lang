@@ -107,21 +107,19 @@ class ToolGroupView extends React.Component {
 
         const toolGroupName = this.getToolGroupName();
 
-        const trigger = (<div className="tool-group-header">
-            <span className="tool-group-header-title">{toolGroupName}</span>
-            <span className="collapse-icon fw fw-down" />
-            <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
-                <span className="fw fw-document" />
-            </a>
-        </div>);
+        const trigger = (currentStatus) => {
+            // Do not show doc icon for Constructs and Current Package
+            const canShowDoc = toolGroupName !== 'Constructs' && toolGroupName !== 'Current Package';
+            const docIcon = canShowDoc ? (<span className="fw fw-document" />) : '';
 
-        const triggerWhenOpen = (<div className="tool-group-header">
-            <span className="tool-group-header-title">{toolGroupName}</span>
-            <span className="collapse-icon fw fw-up" />
-            <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
-                <span className="fw fw-document" />
-            </a>
-        </div>);
+            return (<div className="tool-group-header">
+                <span className="tool-group-header-title">{toolGroupName}</span>
+                <span className={`collapse-icon fw fw-${currentStatus}`} />
+                <a onClick={e => this.handleClickOpenDocumentation(e)} className="pull-right">
+                    {docIcon}
+                </a>
+            </div>);
+        };
 
         const disabled = false;
         let open = false;
@@ -132,10 +130,10 @@ class ToolGroupView extends React.Component {
         return (
             <div id="tool-group-constructs-tool-group" className="tool-group">
                 <Collapsible
-                    trigger={trigger}
+                    trigger={trigger('down')}
                     triggerDisabled={disabled}
                     open={open}
-                    triggerWhenOpen={triggerWhenOpen}
+                    triggerWhenOpen={trigger('up')}
                     transitionTime={200}
                 >
                     <div className={`tool-group-body tool-group-body-${this.state.activeGridStyle}`}>
