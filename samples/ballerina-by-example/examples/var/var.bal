@@ -11,11 +11,11 @@ function main (string[] args) {
     system:println("'intVar' variable value - " + intVar);
 
     // Cast string value "not an int" to int value, this returns a cast error.
-    var castResult, error = castToInteger("not an int");
+    var _ , error = castToInteger("not an int");
     system:println("cast error msg - " + error.msg);
 
     // Cast int value 81 to int value, this returns a cast result without error.
-    var castResult, error = castToInteger(81);
+    var castResult, _ = castToInteger(81);
     system:println("cast result value - " + castResult);
 }
 
