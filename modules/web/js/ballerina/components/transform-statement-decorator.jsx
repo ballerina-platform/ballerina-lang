@@ -328,14 +328,24 @@ class TransformStatementDecorator extends React.Component {
                 return assignmentStmtSource.id;
             } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
                 // Connection target is not a struct and source is a struct.
-                // Target could be a function node.
+                // Target is a function node.
                 let assignmentStmtTarget = self.findExistingAssignmentStatement(connection.sourceReference.id);
                 assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
                 return assignmentStmtTarget.id;
             } else {
                 // Connection source and target are not structs
-                // Source and target could be function nodes.
-                log.warn('multiple intermediate functions are not yet supported in design view');
+                // Source and target are function nodes.
+                let functionInvocationExpression = connection.targetReference;
+                let assignmentStmtTarget = self.getParentAssignmentStmt(functionInvocationExpression);
+
+                let assignmentStmtSource = connection.sourceReference;
+                functionInvocationExpression.addChild(assignmentStmtSource.getRightExpression().getChildren()[0]);
+
+                //remove the source assignment statement since it is now included in the target assignment statement.
+                let transformStmt = assignmentStmtSource.getParent();
+                transformStmt.removeChild(assignmentStmtSource);
+
+                return assignmentStmtTarget.id;
             }
             
         };
@@ -372,7 +382,10 @@ class TransformStatementDecorator extends React.Component {
             } else {
                 // Connection source and target are not structs
                 // Source and target could be function nodes.
-                log.warn('multiple intermediate functions are not yet supported in design view');
+                let targetFuncInvocationExpression = connection.targetReference;
+                let sourceFuncInvocationExpression = connection.sourceReference;
+
+                targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
             }
         };
 
@@ -625,6 +638,22 @@ class TransformStatementDecorator extends React.Component {
         return _.find(self.props.model.getChildren(), (child) => {
             return child.getID() === id;
         });
+    }
+
+    /**
+    *
+    * Gets the enclosing assignment statement.
+    *
+    * @param {any} expression
+    * @returns {AssignmentStatement} enclosing assignment statement
+    * @memberof TransformStatementDecorator
+    */
+    getParentAssignmentStmt(node) {
+        if (BallerinaASTFactory.isAssignmentStatement(node)){
+            return node;
+        } else {
+            return this.getParentAssignmentStmt(node.getParent());
+        }
     }
 
     /**
