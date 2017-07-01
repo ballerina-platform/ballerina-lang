@@ -1,9 +1,8 @@
-# To run the program, put the code in `structs.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main structs.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run main structs.bal
+$ ballerina run main structs.bal
 {name:"",age:-1,parent:null,status:""}
-{name:"Jack",age:20,parent:{name:"",age:-1,parent:null,status:""},status:""}
+{name:"Jack",age:20,
+        parent:{name:"",age:-1,parent:null,status:""},
+        status:""}
 Jack
 Jack
 -1
