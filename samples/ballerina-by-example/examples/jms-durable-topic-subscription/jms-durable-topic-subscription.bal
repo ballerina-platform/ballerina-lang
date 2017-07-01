@@ -3,15 +3,16 @@ import ballerina.lang.system;
 import ballerina.net.jms;
 import ballerina.doc;
 
-@doc:Description{value : "Service level annotation to provide connection details. Connection factory type can be either queue or topic depending on the requirement. "}
+@doc:Description{value : "Add the subscriptionId when connecting to a topic to create a durable topic subscription."}
 @jms:config {
     initialContextFactory:"wso2mbInitialContextFactory",
     providerUrl:
            "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
-    connectionFactoryType:"queue",
-    connectionFactoryName:"QueueConnectionFactory",
+    connectionFactoryType:"topic",
+    connectionFactoryName:"TopicConnectionFactory",
     destination:"MyQueue",
-    acknowledgmentMode:"AUTO_ACKNOWLEDGE"
+    acknowledgmentMode:"AUTO_ACKNOWLEDGE",
+    subscriptionId:"mySub1"
 }
 service<jms> jmsService {
     resource onMessage (message m) {
