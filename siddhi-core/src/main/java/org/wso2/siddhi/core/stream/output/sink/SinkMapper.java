@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -56,7 +55,9 @@ public abstract class SinkMapper {
         if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
-        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader, siddhiAppContext);
+
+        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader,
+        siddhiAppContext);
     }
 
     /**
@@ -141,8 +142,7 @@ public abstract class SinkMapper {
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener);
 
     /**
      * Called to map the event and send it to {@link SinkListener}
@@ -154,8 +154,7 @@ public abstract class SinkMapper {
      * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener);
 
     public final String getType() {
         return this.type;

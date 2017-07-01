@@ -16,10 +16,10 @@
  * under the License.
  */
 package org.wso2.siddhi.extension.output.mapper.json;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -27,7 +27,6 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -119,6 +118,14 @@ public class JsonSinkMapper extends SinkMapper {
     private String enclosingElement = null;
     private boolean isJsonValidationEnabled = false;
 
+    private static boolean isValidJson(String jsonInString) {
+        try {
+            new Gson().fromJson(jsonInString, Object.class);
+            return true;
+        } catch (com.google.gson.JsonSyntaxException ex) {
+            return false;
+        }
+    }
 
     @Override
     public String[] getSupportedDynamicOptions() {
@@ -144,8 +151,7 @@ public class JsonSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener)
-            throws ConnectionUnavailableException {
+                           SinkListener sinkListener) {
         StringBuilder sb = new StringBuilder();
         if (payloadTemplateBuilder == null) {
             String jsonString = constructJsonForDefaultMapping(events);
@@ -155,9 +161,9 @@ public class JsonSinkMapper extends SinkMapper {
         }
 
         if (!isJsonValidationEnabled) {
-            sinkListener.publish(sb.toString());
+            sinkListener.publishEvents(sb.toString());
         } else if (isValidJson(sb.toString())) {
-            sinkListener.publish(sb.toString());
+            sinkListener.publishEvents(sb.toString());
         } else {
             log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
         }
@@ -165,8 +171,7 @@ public class JsonSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener)
-            throws ConnectionUnavailableException {
+                           SinkListener sinkListener) {
         StringBuilder sb = null;
         if (payloadTemplateBuilder == null) {
             String jsonString = constructJsonForDefaultMapping(event);
@@ -181,9 +186,9 @@ public class JsonSinkMapper extends SinkMapper {
 
         if (sb != null) {
             if (!isJsonValidationEnabled) {
-                sinkListener.publish(sb.toString());
+                sinkListener.publishEvents(sb.toString());
             } else if (isValidJson(sb.toString())) {
-                sinkListener.publish(sb.toString());
+                sinkListener.publishEvents(sb.toString());
             } else {
                 log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
             }
@@ -342,14 +347,5 @@ public class JsonSinkMapper extends SinkMapper {
             }
         }
         return event;
-    }
-
-    private static boolean isValidJson(String jsonInString) {
-        try {
-            new Gson().fromJson(jsonInString, Object.class);
-            return true;
-        } catch (com.google.gson.JsonSyntaxException ex) {
-            return false;
-        }
     }
 }

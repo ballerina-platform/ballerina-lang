@@ -43,7 +43,8 @@ public class PartitionParser {
 
     public static PartitionRuntime parse(SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder, Partition partition,
                                          SiddhiAppContext siddhiAppContext,
-                                         ConcurrentMap<String, AbstractDefinition> streamDefinitionMap) {
+                                         ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
+                                         int queryIndex) {
         PartitionRuntime partitionRuntime = new PartitionRuntime(siddhiAppRuntimeBuilder.getStreamDefinitionMap()
                 , siddhiAppRuntimeBuilder.getStreamJunctions(), partition, siddhiAppContext);
         for (Query query : partition.getQueryList()) {
@@ -59,7 +60,8 @@ public class PartitionParser {
                     siddhiAppRuntimeBuilder.getEventWindowMap(),
                     siddhiAppRuntimeBuilder.getEventSourceMap(),
                     siddhiAppRuntimeBuilder.getEventSinkMap(),
-                    siddhiAppRuntimeBuilder.getLockSynchronizer());
+                    siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
+            queryIndex++;
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());
             partitionRuntime.addQuery(queryRuntime);
             partitionRuntime.addPartitionReceiver(queryRuntime, executors, metaStateEvent);

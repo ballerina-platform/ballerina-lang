@@ -22,7 +22,6 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
@@ -58,15 +57,13 @@ public class PassThroughSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener)
-            throws ConnectionUnavailableException {
-        sinkListener.publish(events);
+                           SinkListener sinkListener) {
+        sinkListener.publishEvents(events);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener)
-            throws ConnectionUnavailableException {
-        sinkListener.publish(event);
+                           SinkListener sinkListener) {
+        sinkListener.publishEvents(event);
     }
 }

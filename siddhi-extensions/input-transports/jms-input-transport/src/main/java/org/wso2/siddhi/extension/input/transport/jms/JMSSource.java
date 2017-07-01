@@ -65,7 +65,7 @@ public class JMSSource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         Map<String, String> properties = initJMSProperties();
         jmsServerConnector = new JMSServerConnector(properties);
         jmsMessageProcessor = new JMSMessageProcessor(sourceEventListener, threadPoolSize);

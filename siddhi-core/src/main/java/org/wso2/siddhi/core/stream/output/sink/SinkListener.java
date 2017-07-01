@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 /**
  * Sink Listener is used to get Events out from {@link SinkMapper}s into Sinks. Mappers will send the resulting
@@ -29,7 +30,8 @@ public interface SinkListener {
      * Sending events via output transport
      *
      * @param payload          payload of the event
+     * @param transportOptions one of the event constructing the payload
      * @throws ConnectionUnavailableException throw when connections are unavailable.
      */
-    void publish(Object payload) throws ConnectionUnavailableException;
+    void publishEvents(Object payload, DynamicOptions transportOptions);
 }

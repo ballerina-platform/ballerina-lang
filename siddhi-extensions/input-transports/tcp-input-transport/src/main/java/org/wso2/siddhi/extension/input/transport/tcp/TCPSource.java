@@ -56,7 +56,7 @@ public class TCPSource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         TCPServer.getInstance().start();
         TCPServer.getInstance().addStreamListener(new StreamListener() {
             @Override

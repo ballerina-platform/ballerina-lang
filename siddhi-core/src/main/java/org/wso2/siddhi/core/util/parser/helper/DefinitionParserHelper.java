@@ -172,7 +172,7 @@ public class DefinitionParserHelper {
             } else {
                 table = new InMemoryTable();
             }
-            table.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
+            table.initTable(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
                     siddhiAppContext);
             tableMap.putIfAbsent(tableDefinition.getId(), table);
         }
@@ -297,10 +297,11 @@ public class DefinitionParserHelper {
                             sourceType, attributesHolder.transportMappings, siddhiAppContext.getSiddhiContext().
                                     getConfigManager().generateConfigReader(mapperExtension.getNamespace(),
                                     mapperExtension.getName()), siddhiAppContext);
-                    source.init(sourceOptionHolder, sourceMapper,
+                    source.init(sourceType, sourceOptionHolder, sourceMapper,
                             transportPropertyNames, siddhiAppContext.getSiddhiContext().
                                     getConfigManager().generateConfigReader
-                                    (sourceExtension.getNamespace(), sourceExtension.getName()), siddhiAppContext);
+                                    (sourceExtension.getNamespace(), sourceExtension.getName()), streamDefinition,
+                            siddhiAppContext);
 
                     List<Source> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {

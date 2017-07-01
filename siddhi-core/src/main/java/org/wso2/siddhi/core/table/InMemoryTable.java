@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
@@ -41,14 +42,13 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * In-memory event table implementation of SiddhiQL.
  */
-public class InMemoryTable implements Table, Snapshotable {
+public class InMemoryTable extends Table implements Snapshotable {
 
     private TableDefinition tableDefinition;
     private StreamEventCloner tableStreamEventCloner;
@@ -140,13 +140,18 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public void connectWithRetry(ExecutorService executorService) {
-        //not applicable for in-memory tables
+    protected void connect() throws ConnectionUnavailableException {
+
     }
 
     @Override
-    public void shutdown() {
-        //not applicable for in-memory tables
+    protected void disconnect() {
+
+    }
+
+    @Override
+    protected void destroy() {
+
     }
 
     @Override
