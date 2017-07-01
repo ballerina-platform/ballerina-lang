@@ -1,13 +1,13 @@
 import ballerina.lang.system;
 import ballerina.doc;
 
-@doc:Description {value:"Global level variables defined as 'any'."}
+@doc:Description {value:"Global variables defined with type 'any'."}
 any stringVal = "string value as any";
 any intVal = 6;
 any mapAny = {"name":"tom", "age":33};
 
 function main (string[] args) {
-    //Using global level 'any' variable as function parameter.
+    //Using global 'any' variable as function parameter.
     acceptAny(intVal);
 
     //Initializing struct variable which has 'any' as field types.

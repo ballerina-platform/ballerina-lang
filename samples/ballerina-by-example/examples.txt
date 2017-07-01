@@ -4,9 +4,14 @@ Hello World Service
 Value Types
 Constants
 Global Variables
+While
+IF Else
+Structs
 Functions
 Multiple Return Values
 Named Returns
+Arrays
+Array of Arrays
 Any Type
 Identifier Literals
 JSON
@@ -16,8 +21,11 @@ XML
 Worker
 Worker Interaction
 Fork/Join
-Blob Type
 WebSocket Basic Endpoint
 WebSocket Basic Functions
 WebSocket Connection Store
 WebSocket Connection Groups
+Datatables
+Blob Type
+File API
+Strings
