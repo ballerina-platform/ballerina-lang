@@ -130,6 +130,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
+    public double getFloatArgument(Context context, int index) {
+        if (index > -1 && index < this.argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
+        } else {
+            throw new ArgumentOutOfRangeException(index);
+        }
+    }
+
     public boolean getBooleanArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
             return (context.getControlStackNew().getCurrentFrame().getIntLocalVars()[index] == 1);
