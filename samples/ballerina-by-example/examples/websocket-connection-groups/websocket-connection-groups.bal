@@ -30,20 +30,23 @@ service<ws> echoServer {
         string msg = jsons:toString(jsonPayload["msg"]);
 
         if ("send" == command) {
-            // broadcast text to given connection group
+            // Broadcast text to given connection group.
             ws:pushTextToGroup(groupName, msg);
         } else if ("remove" == command) {
-            // remove connection from the mentioned group
+            // Remove connection from the mentioned group.
             ws:removeConnectionFromGroup(groupName);
         } else if ("removeGroup" == command) {
-            // remove the connection group
+            // Remove the connection group.
             ws:removeConnectionGroup(groupName);
+        } else if ("closeGroup" == command) {
+            // Close the connection group.
+            ws:closeConnectionGroup(groupName);
         }
     }
 
     @ws:OnClose {}
     resource onClose(message m) {
-        // broadcast text to all connected clients
+        // Broadcast text to all connected clients.
         ws:broadcastText("Client left");
     }
 }
