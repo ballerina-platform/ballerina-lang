@@ -1,16 +1,4 @@
 $ ballerina run main fork-join-variable-access.bal
-[default worker] before fork-join:
-      Value of integer variable is [100]
-      Value of string variable is [WSO2]
-[default worker] before fork-join:
-      Value of name is [Abhaya]
-      Value of era is [Anuradhapura]
-[W1 worker]: starting worker
-      Value of integer variable is [100]
-      Value of string variable is [WSO2]
-[W2 worker]: starting worker
-      Value of integer variable is [100]
-      Value of string variable is [WSO2]
 [default worker] within join:
       Value of integer from W1 is [23]
 [default worker] within join:
@@ -23,3 +11,4 @@ $ ballerina run main fork-join-variable-access.bal
 [default worker] after fork-join:
       Value of name is [Rajasinghe]
       Value of era is [Kandy]
+

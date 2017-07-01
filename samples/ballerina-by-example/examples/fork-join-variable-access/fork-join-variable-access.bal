@@ -7,21 +7,10 @@ function main(string[] args) {
   int i = 100;
   string s = "WSO2";
   map m = {"name":"Abhaya","era":"Anuradhapura"};
-  // Print the values within the default(main) worker
-  system:println("[default worker] before fork-join:
-      Value of integer variable is [" + i + "]
-      Value of string variable is [" + s + "]");
-  system:println("[default worker] before fork-join:
-      Value of name is [" + (string)m["name"] + "]
-      Value of era is [" + (string)m["era"] + "]");
 
   // Declare the fork-join statement
   fork {
     worker W1 {
-      // Print the values of variables visible to worker W1
-      system:println("[W1 worker]: starting worker
-      Value of integer variable is [" + i + "]
-      Value of string variable is [" + s + "]");
       // Change the value of the integer variable "i" within the worker W1
       i = 23;
       // Change the value of map variable "m" within the worker W1
@@ -33,10 +22,6 @@ function main(string[] args) {
     }
 
     worker W2 {
-      // Print the values of variables visible to worker W2
-      system:println("[W2 worker]: starting worker
-      Value of integer variable is [" + i + "]
-      Value of string variable is [" + s + "]");
       // Change the value of string variable "s" within the worker W2
       s = "Ballerina";
       // Change the value of map variable "m" within the worker W2
@@ -55,11 +40,14 @@ function main(string[] args) {
       // Values received from worker W2 are assigned to any array of r2
       r2,_   = (any[]) results["W2"];
       // Getting the 0th index of array returned from worker W1
-      int p = (int) r1[0];
+      int p;
+      p, _ = (int) r1[0];
       // Getting the 1th index of array returned from worker W1
-      string l = (string) r1[1];
+      string l;
+      l, _ = (string) r1[1];
       // Getting the 0th index of array returned from worker W2
-      string q = (string) r2[0];
+      string q;
+      q, _ = (string) r2[0];
       // Print values received from workers within join block
       system:println("[default worker] within join:
       Value of integer from W1 is [" + p + "]");
@@ -76,8 +64,12 @@ function main(string[] args) {
       Value of string variable is [" + s + "]");
   // Reference type variables are changed since they have passed in as a
   // reference to the workers
+  string name;
+  string era;
+  name, _ =  (string)m["name"];
+  era, _ = (string)m["era"];
   system:println("[default worker] after fork-join:
-      Value of name is [" + (string)m["name"] + "]
-      Value of era is [" + (string)m["era"] + "]");
+      Value of name is [" + name + "]
+      Value of era is [" + era + "]");
 
 }

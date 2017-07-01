@@ -1,28 +1,32 @@
-import ballerina.lang.system;
 import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
-import ballerina.doc;
 
-@http:BasePath {value:"/endpoint"}
+@http:config{basePath:"/functions"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service websocketEndpoint {
+service<ws> websocketEndpoint {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
-        // broadcast text to all connected clients
+        // Broadcast text to all connected clients.
         ws:broadcastText("New client connected");
     }
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
-        // Push text to the same client who sent the message
-        ws:pushText("You said: " + messages:getStringPayload(m));
+        // Push text to the same client who sent the message.
+        string text = messages:getStringPayload(m);
+        ws:pushText("You said: " + text);
+
+        // Close client connection if requested by the text closeMe.
+        if ("closeMe" == text) {
+            ws:closeConnection();
+        }
     }
 
     @ws:OnClose {}
     resource onClose(message m) {
-        // broadcast text to all connected clients
+        // Broadcast text to all connected clients.
         ws:broadcastText("Client left");
     }
 }

@@ -2,18 +2,18 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.jms;
 
-@jms:JMSSource {
-    factoryInitial:"org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-    providerUrl:"../jndi.properties"}
-@jms:ConnectionProperty {key:"connectionFactoryType", value:"queue"}
-@jms:ConnectionProperty {key:"destination", value:"MyQueue"}
-@jms:ConnectionProperty {key:"useReceiver", value:"true"}
-@jms:ConnectionProperty {key:"connectionFactoryJNDIName", 
-                         value:"QueueConnectionFactory"}
-@jms:ConnectionProperty {key:"sessionAcknowledgement", value:"AUTO_ACKNOWLEDGE"}
-service jmsService {
+@jms:config {
+    initialContextFactory:"wso2mbInitialContextFactory",
+    providerUrl:
+           "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+    connectionFactoryType:"queue",
+    connectionFactoryName:"QueueConnectionFactory",
+    destination:"MyQueue",
+    acknowledgmentMode:"AUTO_ACKNOWLEDGE"
+}
+service<jms> jmsService {
     resource onMessage (message m) {
-        // Read all the supported headers from the message
+        // Read all the supported headers from the message.
         string correlationId = messages:getHeader(m, jms:HDR_CORRELATION_ID);
         string timestamp = messages:getHeader(m, jms:HDR_TIMESTAMP);
         string messageType = messages:getHeader(m, jms:HDR_MESSAGE_TYPE);
@@ -23,13 +23,13 @@ service jmsService {
         string expirationTime = messages:getHeader(m, jms:HDR_EXPIRATION);
         string priority = messages:getHeader(m, jms:HDR_PRIORITY);
         string deliveryMode = messages:getHeader(m, jms:HDR_DELIVERY_MODE);
-        // For delivery mode we can use the built in constant as follows to infer whether the message is a persistent message or not
+        // For delivery mode we can use the built in constant as follows to infer whether the message is a persistent message or not.
         if (deliveryMode == jms:PERSISTENT_DELIVERY_MODE) {
             system:println("delivery mode: persistent");
         } else if (deliveryMode == jms:PERSISTENT_DELIVERY_MODE){
             system:println("delivery mode: non-persistent");
         }
-        // Print the header values
+        // Print the header values.
         system:println("correlationId: " + correlationId);
         system:println("timestamp: " + timestamp);
         system:println("message type : " + messageType);
@@ -51,16 +51,15 @@ service jmsService {
         // We can explicitly set the message type. If we use functions like setStringPayload, 
         // setJSONPayload and setXMLPayload content type will be set. 
         // And when we send the message the content type will be used as the message type value. 
-        // Therefore we might not need to explicitly set this value
+        // Therefore we might not need to explicitly set this value.
         messages:setHeader(responseMessage, jms:HDR_MESSAGE_TYPE, 
                                             "application/json");
 
         map properties = {   
-                "factoryInitial":
-                    "org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-                "providerUrl":"../jndi.properties",
-                "connectionFactoryJNDIName": "QueueConnectionFactory",
-                "connectionFactoryType" : "queue"};
+                         "initialContextFactory":"wso2mbInitialContextFactory",
+                         "configFilePath":"../jndi.properties",
+                         "connectionFactoryName": "QueueConnectionFactory",
+                         "connectionFactoryType" : "queue"};
 
         jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
         jms:ClientConnector.send(jmsEP, "MySecondQueue", responseMessage);
