@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This manage all the connectors for Incoming and outgoing WebSocket messages.
  */
-public class ConnectorControllerRegistry {
+public class    ConnectorControllerRegistry {
 
     private static final ConnectorControllerRegistry CONNECTOR_MANAGER = new ConnectorControllerRegistry();
 

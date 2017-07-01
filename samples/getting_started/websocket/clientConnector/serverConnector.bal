@@ -3,9 +3,9 @@ import ballerina.net.ws;
 import ballerina.lang.messages;
 import ballerina.lang.system;
 
-@http:BasePath {value:"/base"}
+@http:config {basePath:"/mediation"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service serverConnector {
+service<ws> serverConnector {
 
     ws:ClientConnector c1 = create ws:ClientConnector("ws://localhost:8080/websocket", "clientService1");
     ws:ClientConnector c2 = create ws:ClientConnector("ws://localhost:8080/websocket", "clientService2");
