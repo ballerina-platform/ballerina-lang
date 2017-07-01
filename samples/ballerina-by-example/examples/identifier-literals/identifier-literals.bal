@@ -1,4 +1,5 @@
 import ballerina.lang.system;
+import ballerina.doc;
 
 @doc:Description{value : "Global variable defined using identifier literal."}
 string |this is a global variable| = "global var with identifier literal";

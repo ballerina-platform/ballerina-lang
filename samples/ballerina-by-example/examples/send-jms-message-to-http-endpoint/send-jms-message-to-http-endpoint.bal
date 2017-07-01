@@ -12,7 +12,7 @@ import ballerina.net.http;
     destination:"MyQueue",
     acknowledgmentMode: "AUTO_ACKNOWLEDGE"
 }
-service jmsService {
+service<jms> jmsService {
     resource onMessage (message m) {
         // Retrieve the string payload using native function and set as a 
         // json payload.

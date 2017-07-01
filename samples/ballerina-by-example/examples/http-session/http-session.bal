@@ -1,4 +1,3 @@
-import ballerina.doc;
 import ballerina.net.http;
 import ballerina.lang.errors;
 import ballerina.lang.messages;

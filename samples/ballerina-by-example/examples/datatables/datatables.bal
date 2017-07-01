@@ -1,6 +1,7 @@
 import ballerina.lang.system;
 import ballerina.lang.datatables;
 import ballerina.data.sql;
+import ballerina.doc;
 
 @doc:Description{value : "This is the struct corresponding to the result set. The field names of the struct should match column names of the table. The field types are the matching ballerina type for the given sql type "}
 struct Result {
