@@ -39,13 +39,13 @@ import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.table.Table;
-import org.wso2.siddhi.doc.gen.commons.ExampleMetaData;
-import org.wso2.siddhi.doc.gen.commons.ExtensionMetaData;
-import org.wso2.siddhi.doc.gen.commons.ExtensionType;
-import org.wso2.siddhi.doc.gen.commons.NamespaceMetaData;
-import org.wso2.siddhi.doc.gen.commons.ParameterMetaData;
-import org.wso2.siddhi.doc.gen.commons.ReturnAttributeMetaData;
-import org.wso2.siddhi.doc.gen.commons.SystemParameterMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.ExampleMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.ExtensionMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.ExtensionType;
+import org.wso2.siddhi.doc.gen.commons.metadata.NamespaceMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.ParameterMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.ReturnAttributeMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.SystemParameterMetaData;
 import org.wso2.siddhi.doc.gen.core.freemarker.FormatDescriptionMethod;
 
 import java.io.File;
@@ -61,6 +61,7 @@ import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,6 @@ import java.util.Objects;
  */
 public class DocumentationUtils {
     private static Map<ExtensionType, Class<?>> superClassMap;
-    private static String[] templateFiles;
 
     static {
         // Populating the processor super class map
@@ -86,9 +86,6 @@ public class DocumentationUtils {
         superClassMap.put(ExtensionType.SOURCE_MAPPER, SourceMapper.class);
         superClassMap.put(ExtensionType.SINK_MAPPER, SinkMapper.class);
         superClassMap.put(ExtensionType.STORE, Table.class);
-
-        // Populating the template files
-        templateFiles = new String[]{"documentation.md.ftl"};
     }
 
     private DocumentationUtils() {   // To prevent instantiating utils class
@@ -124,12 +121,11 @@ public class DocumentationUtils {
         try {
             // Adding the generated classes to the class loader
             urls[urlCount - 1] = classesDirectory.toURI().toURL();
-            ClassLoader urlClassLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                public ClassLoader run() {
-                    return new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
-
-                }
-            });
+            ClassLoader urlClassLoader = AccessController.doPrivileged(
+                    (PrivilegedAction<ClassLoader>) () -> new URLClassLoader(
+                            urls, Thread.currentThread().getContextClassLoader()
+                    )
+            );
             // Getting extensions from all the class files in the classes directory
             addExtensionInDirectory(classesDirectory, classesDirectory.getAbsolutePath(), urlClassLoader,
                     namespaceMetaDataList, logger);
@@ -138,6 +134,30 @@ public class DocumentationUtils {
         }
 
         return namespaceMetaDataList;
+    }
+
+
+    /**
+     * Generate documentation related files using metadata
+     *
+     * @param namespaceMetaDataList Metadata in this repository
+     * @param outputDirectory       The path of the directory in which the documentation will be generated
+     * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
+     */
+    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
+                                             String outputDirectory, String outputFileName) throws MojoFailureException {
+        // Generating data model
+        Map<String, Object> rootDataModel = new HashMap<>();
+        rootDataModel.put("metaData", namespaceMetaDataList);
+        rootDataModel.put("formatDescription", new FormatDescriptionMethod());
+
+        generateFileFromTemplate(
+                Constants.MARKDOWN_DOCUMENTATION_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
+                        + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
+                rootDataModel,
+                outputDirectory,
+                outputFileName
+        );
     }
 
     /**
@@ -248,14 +268,14 @@ public class DocumentationUtils {
 
                 ParameterMetaData parameter = new ParameterMetaData();
                 parameter.setName(parameterAnnotation.name());
-                parameter.setType(parameterAnnotation.type());
+                parameter.setType(Arrays.asList(parameterAnnotation.type()));
                 parameter.setDescription(parameterAnnotation.description());
                 parameter.setOptional(parameterAnnotation.optional());
                 parameter.setDynamic(parameterAnnotation.dynamic());
                 parameter.setDefaultValue(parameterAnnotation.defaultValue());
                 parameters[i] = parameter;
             }
-            extensionMetaData.setParameters(parameters);
+            extensionMetaData.setParameters(Arrays.asList(parameters));
 
             // Adding system parameters
             SystemParameterMetaData[] systemParameters =
@@ -267,10 +287,10 @@ public class DocumentationUtils {
                 systemParameter.setName(systemParameterAnnotation.name());
                 systemParameter.setDescription(systemParameterAnnotation.description());
                 systemParameter.setDefaultValue(systemParameterAnnotation.defaultValue());
-                systemParameter.setPossibleParameters(systemParameterAnnotation.possibleParameters());
+                systemParameter.setPossibleParameters(Arrays.asList(systemParameterAnnotation.possibleParameters()));
                 systemParameters[i] = systemParameter;
             }
-            extensionMetaData.setSystemParameters(systemParameters);
+            extensionMetaData.setSystemParameters(Arrays.asList(systemParameters));
 
             // Adding return attributes
             ReturnAttributeMetaData[] returnAttributes =
@@ -280,11 +300,11 @@ public class DocumentationUtils {
 
                 ReturnAttributeMetaData returnAttribute = new ReturnAttributeMetaData();
                 returnAttribute.setName(parameterAnnotation.name());
-                returnAttribute.setType(parameterAnnotation.type());
+                returnAttribute.setType(Arrays.asList(parameterAnnotation.type()));
                 returnAttribute.setDescription(parameterAnnotation.description());
                 returnAttributes[i] = returnAttribute;
             }
-            extensionMetaData.setReturnAttributes(returnAttributes);
+            extensionMetaData.setReturnAttributes(Arrays.asList(returnAttributes));
 
             // Adding examples
             ExampleMetaData[] examples = new ExampleMetaData[extensionAnnotation.examples().length];
@@ -296,7 +316,7 @@ public class DocumentationUtils {
                 exampleMetaData.setDescription(exampleAnnotation.description());
                 examples[i] = exampleMetaData;
             }
-            extensionMetaData.setExamples(examples);
+            extensionMetaData.setExamples(Arrays.asList(examples));
 
             // Finding the namespace
             String namespaceName = extensionAnnotation.namespace();
@@ -316,30 +336,30 @@ public class DocumentationUtils {
             if (namespace == null) {
                 namespace = new NamespaceMetaData();
                 namespace.setName(namespaceName);
-                namespace.setExtensionMap(new HashMap<String, List<ExtensionMetaData>>());
+                namespace.setExtensionMap(new HashMap<>());
                 namespaceList.add(namespace);
             }
 
             // Adding to the relevant extension metadata list in the namespace
-            List<ExtensionMetaData> extensionMetaDataList = namespace.getExtensionMap().get(extensionType);
-            if (extensionMetaDataList == null) {
-                extensionMetaDataList = new ArrayList<>();
-                namespace.getExtensionMap().put(extensionType, extensionMetaDataList);
-            }
+            List<ExtensionMetaData> extensionMetaDataList = namespace.getExtensionMap()
+                    .computeIfAbsent(extensionType, k -> new ArrayList<>());
 
             extensionMetaDataList.add(extensionMetaData);
         }
     }
 
     /**
-     * Generate documentation related files using metadata
+     * Generate a file from a template
+     * The output file name will be inferred based on the template file name
      *
-     * @param namespaceMetaDataList Metadata in this repository
-     * @param outputDirectory       The path of the directory in which the documentation will be generated
+     * @param templateFile    The template file name
+     * @param dataModel       The data model to be used for generating the output files from template files
+     * @param outputDirectory The output directory in which the file will be generated
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String outputDirectory) throws MojoFailureException {
+    private static void generateFileFromTemplate(String templateFile, Object dataModel,
+                                                 String outputDirectory, String outputFileName)
+            throws MojoFailureException {
         // Creating the free marker configuration
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_25);
         cfg.setDefaultEncoding("UTF-8");
@@ -349,44 +369,33 @@ public class DocumentationUtils {
                 File.separator + Constants.TEMPLATES_DIRECTORY
         );
 
-        // Generating data model
-        Map<String, Object> rootDataModel = new HashMap<>();
-        rootDataModel.put("metaData", namespaceMetaDataList);
-        rootDataModel.put("formatDescription", new FormatDescriptionMethod());
+        try {
+            // Fetching the template
+            Template template = cfg.getTemplate(templateFile);
 
-        for (String templateFile : templateFiles) {
-            try {
-                // Fetching the template
-                Template template = cfg.getTemplate(templateFile);
-
-                // Finding output file name by removing .ftl extension
-                String fileName = templateFile.substring(0,
-                        templateFile.length() - Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION.length());
-
-                // Generating empty documentation files
-                File file = new File(outputDirectory + File.separator + fileName);
-                if (!file.getParentFile().exists()) {
-                    if (!file.getParentFile().mkdirs()) {
-                        throw new MojoFailureException("Unable to create directory " + file.getParentFile());
-                    }
+            // Generating empty documentation files
+            File file = new File(outputDirectory + File.separator + outputFileName);
+            if (!file.getParentFile().exists()) {
+                if (!file.getParentFile().mkdirs()) {
+                    throw new MojoFailureException("Unable to create directory " + file.getParentFile());
                 }
-                if (!file.exists()) {
-                    if (!file.createNewFile()) {
-                        throw new MojoFailureException("Unable to create file " + file.getAbsolutePath());
-                    }
-                }
-
-                // Writing to the documentation file
-                try (OutputStream outputStream = new FileOutputStream(file)) {
-                    try (Writer writer = new OutputStreamWriter(outputStream, Charset.defaultCharset())) {
-                        template.process(rootDataModel, writer);
-                    }
-                } catch (TemplateException e) {
-                    throw new MojoFailureException("Invalid Free Marker template found in " + templateFile, e);
-                }
-            } catch (IOException e) {
-                throw new MojoFailureException("Unable to find template file " + templateFile, e);
             }
+            if (!file.exists()) {
+                if (!file.createNewFile()) {
+                    throw new MojoFailureException("Unable to create file " + file.getAbsolutePath());
+                }
+            }
+
+            // Writing to the documentation file
+            try (OutputStream outputStream = new FileOutputStream(file)) {
+                try (Writer writer = new OutputStreamWriter(outputStream, Charset.defaultCharset())) {
+                    template.process(dataModel, writer);
+                }
+            } catch (TemplateException e) {
+                throw new MojoFailureException("Invalid Free Marker template found in " + templateFile, e);
+            }
+        } catch (IOException e) {
+            throw new MojoFailureException("Unable to find template file " + templateFile, e);
         }
     }
 }

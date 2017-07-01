@@ -26,7 +26,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.wso2.siddhi.doc.gen.commons.NamespaceMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.NamespaceMetaData;
 import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
@@ -37,7 +37,7 @@ import java.util.List;
  * Mojo for generating Siddhi Documentation
  */
 @Mojo(
-        name = "generate",
+        name = "generate-md-docs",
         defaultPhase = LifecyclePhase.INSTALL,
         requiresDependencyResolution = ResolutionScope.TEST
 )
@@ -62,8 +62,15 @@ public class DocumentationGenerationMojo extends AbstractMojo {
     @Parameter(property = "doc.gen.directory")
     private File docGenDirectory;
 
+    /**
+     * The final output file name of the documentation
+     */
+    @Parameter(property = "doc.gen.file.name")
+    private String docGenFileName;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Setting the relevant modules target directory if not set by user
         String moduleTargetPath;
         if (moduleTargetDirectory != null) {
             moduleTargetPath = moduleTargetDirectory.getAbsolutePath();
@@ -71,11 +78,20 @@ public class DocumentationGenerationMojo extends AbstractMojo {
             moduleTargetPath = mavenProject.getBuild().getDirectory();
         }
 
+        // Setting the documentation output directory if not set by user
         String docGenPath;
         if (docGenDirectory != null) {
             docGenPath = docGenDirectory.getAbsolutePath();
         } else {
             docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
+        }
+
+        // Setting the documentation output file name if not set by user
+        String outputFileName;
+        if (docGenFileName != null) {
+            outputFileName = docGenFileName;
+        } else {
+            outputFileName = Constants.MARKDOWN_DOCUMENTATION_TEMPLATE;
         }
 
         List<NamespaceMetaData> namespaceMetaDataList;
@@ -90,7 +106,10 @@ public class DocumentationGenerationMojo extends AbstractMojo {
         }
 
         if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath);
+            DocumentationUtils.generateDocumentation(
+                    namespaceMetaDataList, docGenPath,
+                    outputFileName + Constants.MARKDOWN_FILE_EXTENSION
+            );
         }
     }
 }

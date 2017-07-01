@@ -15,17 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.doc.gen.commons;
+package org.wso2.siddhi.doc.gen.commons.metadata;
 
 import org.wso2.siddhi.annotation.util.DataType;
 
+import java.util.List;
+
 /**
- * POJO for holding extension return attribute meta data
+ * POJO for holding extension parameter meta data
  */
-public class ReturnAttributeMetaData {
+public class ParameterMetaData {
     private String name;
-    private DataType[] type;
+    private List<DataType> type;
     private String description;
+    private boolean optional;
+    private boolean dynamic;
+    private String defaultValue;
 
     public String getName() {
         return name;
@@ -35,11 +40,11 @@ public class ReturnAttributeMetaData {
         this.name = name;
     }
 
-    public DataType[] getType() {
+    public List<DataType> getType() {
         return type;
     }
 
-    public void setType(DataType[] type) {
+    public void setType(List<DataType> type) {
         this.type = type;
     }
 
@@ -49,5 +54,29 @@ public class ReturnAttributeMetaData {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
+    public boolean isDynamic() {
+        return dynamic;
+    }
+
+    public void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }

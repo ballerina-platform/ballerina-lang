@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.doc.gen.commons;
+package org.wso2.siddhi.doc.gen.commons.metadata;
 
 /**
  * POJO for holding example meta data
