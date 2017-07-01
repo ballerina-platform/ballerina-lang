@@ -1,28 +1,28 @@
 import ballerina.lang.system;
-import ballerina.lang.errors;
 
-function main (string[] args) {
-    // 'strVar' holds a string variable.
-    var strVar = "Hello!";
-    system:println("'helloVar' variable value - " + strVar);
-
-    // 'intVar' holds an int variable.
-    var intVar = 100;
-    system:println("'intVar' variable value - " + intVar);
-
-    // Cast string value "not an int" to int value, this returns a cast error.
-    var _ , error = castToInteger("not an int");
-    system:println("cast error msg - " + error.msg);
-
-    // Cast int value 81 to int value, this returns a cast result without error.
-    var castResult, _ = castToInteger(81);
-    system:println("cast result value - " + castResult);
+function divideBy10 (int d) (int, int) {
+    return d / 10, d % 10;
 }
 
-@doc:Description {value:"Cast function accepts 'any' as a param value, returns cast result and cast error."}
-function castToInteger (any age) (int, errors:TypeCastError) {
-    int castResult;
-    errors:TypeCastError error;
-    castResult, error = (int)age;
-    return castResult, error;
+function main (string[] args) {
+    //Here the variable type is inferred type from the initial value. This is same as "int k = 5";
+    var k = 5;
+    system:println(10 + k);
+
+    //Here the type of the 'strVar' is 'string'.
+    var strVar = "Hello!";
+    system:println(strVar);
+
+    //Multiple assignment with 'var' allows you to define the variable then and there.
+    //Variable type is inferred from the right-hand side.
+    var q, r = divideBy10(6);
+    system:println("24/10: " + "quotient=" + q + " " +
+                   "reminder=" + r);
+
+    //To ignore a particular return value in a multiple assignment statement, use '_'.
+    var q1, _ = divideBy10(57);
+    system:println("57/10: " + "quotient=" + q1);
+
+    var _, r1 = divideBy10(9);
+    system:println("05/10: " + "reminder=" + r1);
 }

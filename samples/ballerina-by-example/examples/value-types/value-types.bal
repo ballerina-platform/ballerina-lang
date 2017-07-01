@@ -14,9 +14,5 @@ function main (string[] args) {
 
     boolean b = true;
     system:println(b);
-
-    // Ballerina infers type from the initial value. This is same as "int k = 5";
-    var k = 5;
-    system:println( 10 + k);
 }
 

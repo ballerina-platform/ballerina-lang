@@ -1,14 +1,10 @@
 import ballerina.lang.system;
 
 function main (string[] args) {
-    // Initialize one dimension array with two values.
-    int[] x = [1, 2];
-    // Initialize another one dimension array with two values.
-    int[] y = [3, 4];
-
-    // Initialize two dimension array with two values. As you can see in this two
-    // values previously created one dimensional arrays.
-    int[][] xx = [x, y];
+    //Here is how you can initialize an array of int arrays.
+    int[][] xx = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
+    system:println(xx.length);
+    system:println(xx[0].length);
 
     // Initialize three dimensional array with one value. In this case value is a
     // two dimensional array.

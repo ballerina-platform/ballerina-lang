@@ -1,6 +1,5 @@
 $ ballerina run main any-type.bal
-casted any valu - 6
-casted any valu - 45
-john
-name - tom
-age - 33
+5
+15
+[1,3,5,6]
+cat

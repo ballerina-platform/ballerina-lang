@@ -1,21 +1,28 @@
 import ballerina.lang.system;
-
-@doc:Description{value : "Global variable defined using identifier literal."}
-string |this is a global variable| = "global var with identifier literal";
+import ballerina.doc;
 
 function main (string[] args) {
-
-    //Local variable defined using identifier literal.
-    string |sample variable| = "identifier literal";
+    //The vertical bar (|) character is used to demarcate the identifier name.
+    //This is similar to string literals (using double quote characters to demarcate).
+    string |first name| = "John";
+    string |last name| = "Gosling";
 
     //Invoking a function with identifier literal as a parameter.
-    |this is a sample function|(|sample variable|);
-
-    //Using global variable defined using identifier literal as function parameter.
-    |this is a sample function|(|this is a global variable|);
+    string name = |combine names|(|first name|, |last name|);
+    system:println(name);
 }
 
-@doc:Description{value : "Sample function defined with function name and input parameter as identifier literals."}
-function |this is a sample function| (string |input value|){
-    system:println(|input value|);
+@doc:Description {value:"Sample function defined with function name and input parameter using identifier literals."}
+function |combine names| (string |first value|,
+                          string |last name|) (string) {
+    return |first name| + |last name|;
 }
+
+@doc:Description {value:"Struct defined using identifier literals"}
+struct |person record| {
+    string |first name|
+    string |last name|
+    int age;
+}
+
+

@@ -6,13 +6,17 @@ Constants
 Global Variables
 While
 IF Else
-Structs
 Functions
 Multiple Return Values
 Named Returns
+Var
+Any Type
+Type Casting
+Type Conversion
+Structs
+Maps
 Arrays
 Array of Arrays
-Any Type
 Identifier Literals
 JSON
 JSON Literals

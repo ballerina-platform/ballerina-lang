@@ -1,5 +1,6 @@
 $ ballerina run main var.bal
-'helloVar' variable value - Hello!
-'intVar' variable value - 100
-cast error msg - 'string' cannot be cast to 'int'
-cast result value - 81
+15
+Hello!
+24/10: quotient=0 reminder=6
+57/10: quotient=5
+05/10: reminder=9

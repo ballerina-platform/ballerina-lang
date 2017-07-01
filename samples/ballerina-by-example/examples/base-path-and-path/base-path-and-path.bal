@@ -1,4 +1,5 @@
 import ballerina.net.http;
+import ballerina.doc;;
 
 @doc:description{value : "BasePath annotation associates a path to service."}
 @http:config{basePath:"/foo"}
