@@ -137,7 +137,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
 
     private ResourceInfo getResource(ServiceInfo service, String annotationName) {
         for (ResourceInfo resource : service.getResourceInfoList()) {
-            if (resource.getAnnotationAttachmentInfo(Constants.WS_PACKAGE_PATH, annotationName) != null) {
+            if (resource.getAnnotationAttachmentInfo(Constants.PROTOCOL_PACKAGE_WEBSOCKET, annotationName) != null) {
                 return resource;
             }
         }

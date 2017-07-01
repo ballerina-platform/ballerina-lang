@@ -3,7 +3,7 @@ import ballerina.lang.system;
 import ballerina.lang.messages;
 
 @ws:ClientService {}
-service clientService2 {
+service<ws> clientService2 {
 
     @ws:OnTextMessage {}
     resource ontext(message m) {

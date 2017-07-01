@@ -75,26 +75,6 @@ public class Constants {
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
-    /* WebSocket Annotations */
-    public static final String PROTOCOL_WEBSOCKET = "ws";
-    public static final String PROTOCOL_PACKAGE_WEBSOCKET = "ballerina.net.ws";
-    public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
-    public static final String ANNOTATION_NAME_WEBSOCKET_CLIENT_SERVICE = "ClientService";
-    public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
-    public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
-    public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";
-    public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "OnPongMessage";
-    public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
-    public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
-    public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
-
-    public static final String CONNECTION = "Connection";
-    public static final String UPGRADE = "Upgrade";
-    public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String CHANNEL_ID = "CHANNEL_ID";
-    public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
-
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
     public static final String VALUE_ATTRIBUTE = "value";
 

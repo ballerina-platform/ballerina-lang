@@ -133,7 +133,7 @@ public class ConnectionStoreTest {
 
     @AfterClass
     public void cleanUp() {
-//        EnvironmentInitializer.cleanup(wsApp);
-//        EnvironmentInitializer.cleanup(httpApp);
+        EnvironmentInitializer.cleanup(wsApp);
+        EnvironmentInitializer.cleanup(httpApp);
     }
 }
