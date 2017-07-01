@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.doc;
 
-@doc:Description{value : "A service can be invoke by the name itself when basePath is not stated specifically. In this sample service basepath is "/passthrough"."}
+@doc:Description{value : "A service can be invoke by the name itself when basePath is not stated specifically. In this sample service basepath is '/passthrough'."}
 service<http> passthrough {
 @doc:Description{value : "GET{} annotation adds the HTTP method."}
 @http:GET{}

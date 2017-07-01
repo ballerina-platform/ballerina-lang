@@ -1,5 +1,6 @@
 import ballerina.lang.system;
 import ballerina.lang.errors;
+import ballerina.doc;
 
 function main (string[] args) {
     // 'strVar' holds a string variable.
