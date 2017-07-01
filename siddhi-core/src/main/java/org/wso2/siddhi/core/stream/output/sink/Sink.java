@@ -60,7 +60,7 @@ public abstract class Sink implements SinkListener, Snapshotable {
         init(streamDefinition, transportOptionHolder, sinkConfigReader, siddhiAppContext);
         if (sinkMapper != null) {
             sinkMapper.init(streamDefinition, mapType, mapOptionHolder, payload, this,
-                           mapperConfigReader, siddhiAppContext);
+                    mapperConfigReader, siddhiAppContext);
             this.mapper = sinkMapper;
         }
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
@@ -92,11 +92,26 @@ public abstract class Sink implements SinkListener, Snapshotable {
                                  ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext);
 
     @Override
-    public final void publish(Object payload) throws ConnectionUnavailableException {
+    public final void publish(Object payload) {
         try {
-            DynamicOptions dynamicOptions = trpDynamicOptions.get();
-            trpDynamicOptions.remove();
-            publish(payload, dynamicOptions);
+            if (isConnected.get()) {
+                try {
+                    DynamicOptions dynamicOptions = trpDynamicOptions.get();
+                    publish(payload, dynamicOptions);
+                } catch (ConnectionUnavailableException e) {
+                    isConnected.set(false);
+                    LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+                            "', " + e.getMessage() + ", will retry connection immediately.", e);
+                    connectWithRetry();
+                    publish(payload);
+                }
+            } else if (isTryingToConnect.get()) {
+                LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "' as its still trying to reconnect!, events dropped '" + payload + "'");
+            } else {
+                connectWithRetry();
+                publish(payload);
+            }
         } finally {
             trpDynamicOptions.remove();
         }
@@ -160,37 +175,6 @@ public abstract class Sink implements SinkListener, Snapshotable {
             }
         }
     }
-
-    @Override
-    public void publishEvents(Object payload, DynamicOptions transportOptions) {
-        if (isConnected.get()) {
-            try {
-                publish(payload, transportOptions);
-            } catch (ConnectionUnavailableException e) {
-                isConnected.set(false);
-                LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry connection immediately.", e);
-                connectWithRetry();
-                publishEvents(payload, transportOptions);
-            }
-        } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + payload + "'");
-        } else {
-            connectWithRetry();
-            publishEvents(payload, transportOptions);
-        }
-
-    }
-
-    /**
-     * Sending events via output transport
-     *
-     * @param payload          payload of the event
-     * @param transportOptions one of the event constructing the payload
-     * @throws ConnectionUnavailableException throw when connections are unavailable.
-     */
-    public abstract void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException;
 
     public boolean isConnected() {
         return isConnected.get();

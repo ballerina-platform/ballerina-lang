@@ -83,7 +83,7 @@ public class TestTrpInMemorySource extends InMemorySource {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         InMemoryBroker.subscribe(subscriber);
     }
 }

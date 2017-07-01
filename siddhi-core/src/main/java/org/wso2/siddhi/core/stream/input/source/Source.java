@@ -47,8 +47,12 @@ public abstract class Source implements Snapshotable {
     private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
     private AtomicBoolean isConnected = new AtomicBoolean(false);
     private ScheduledExecutorService scheduledExecutorService;
-    private ConnectionCallback connectionCallback = new ConnectionCallback();public finalvoid init(String sourceType,OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     String[] transportPropertyNames,ConfigReader configReader,StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {this.type = sourceType;
+    private ConnectionCallback connectionCallback = new ConnectionCallback();
+
+    public final void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
+                           String[] transportPropertyNames, ConfigReader configReader,
+                           StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
+        this.type = sourceType;
         this.mapper = sourceMapper;
         this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
@@ -80,7 +84,8 @@ public abstract class Source implements Snapshotable {
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException | RuntimeException e) {
                 LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                        "', " + e.getMessage() + ", will retry in '" +
+                        backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {

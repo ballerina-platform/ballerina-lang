@@ -56,8 +56,7 @@ public abstract class SinkMapper {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
 
-        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader,
-        siddhiAppContext);
+        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader, siddhiAppContext);
     }
 
     /**
@@ -87,10 +86,8 @@ public abstract class SinkMapper {
      * Called to map the events and send them to {@link SinkListener}
      *
      * @param events {@link Event}s that need to be mapped
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    final void mapAndSend(Event[] events)
-            throws ConnectionUnavailableException {
+    final void mapAndSend(Event[] events) {
         try {
             if (groupDeterminer != null) {
                 LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
@@ -119,10 +116,8 @@ public abstract class SinkMapper {
      * Called to map the event and send it to {@link SinkListener}
      *
      * @param event The {@link Event} that need to be mapped
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
-    final void mapAndSend(Event event)
-            throws ConnectionUnavailableException {
+    final void mapAndSend(Event event) {
         try {
             trpDynamicOptions.set(new DynamicOptions(event));
             mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener);
@@ -139,7 +134,6 @@ public abstract class SinkMapper {
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder To build the message payload based on the given template
      * @param sinkListener           {@link SinkListener} that will be called with the mapped events
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                                     SinkListener sinkListener);
@@ -151,7 +145,6 @@ public abstract class SinkMapper {
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder To build the message payload based on the given template
      * @param sinkListener           {@link SinkListener} that will be called with the mapped event
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
      */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                                     SinkListener sinkListener);
