@@ -1,7 +1,4 @@
-# To run the program, create a file named `while.bal`
-# and run the command below.
-
-$ $BALLERINA_HOME/bin/ballerina while.bal
+$ ballerina run  main while.bal
 This is number 0
 This is number 1
 This is number 2
