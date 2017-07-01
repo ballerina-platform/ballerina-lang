@@ -1,4 +1,4 @@
-$ ballerina run main worker.sh
+$ ballerina run main worker.bal
 [default worker]
     Value of integer variable is [100]
     Value of float variable is [2.34]
