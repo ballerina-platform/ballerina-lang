@@ -13,3 +13,7 @@ native function exp (float val) (float);
 @doc:Param { value:"b: the exponent value" }
 @doc:Return { value:"float: result value" }
 native function pow (float a, float b) (float);
+
+@doc:Description { value:"Returns a random number between 0.0 and 1.0"}
+@doc:Return { value:"float: random value" }
+native function random () (float);
