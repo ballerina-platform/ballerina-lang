@@ -1,5 +1,5 @@
 # To invoke the service, use following client.
-curl -v http://localhost:9090/passthrough
+$ curl -v http://localhost:9090/passthrough
 # Server response:
 {"coord":{"lon":139.01,"lat":35.02},"weather":[{"id":800,
 "main":"Clear","description":"clear sky","icon":"01n"}],
