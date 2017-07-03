@@ -135,6 +135,14 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
     }
 
+    @Test(description = "Test var with at least non declared ref in LHS expr.")
+    public void testVarDeclarationWithAtLeaseOneNonDeclaredSymbol() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
+                new BValue[]{});
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertNull(returns[1]);
+    }
+
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanToVarAssignment",
@@ -181,10 +189,19 @@ public class VarDeclaredAssignmentStmtTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "var-redeclared-symbol.bal:4: redeclared symbol 'a'")
-    public void testVarDeclarationWithRedeclaredSymbol() {
-        //var declarations cannot have already declared variables references in LHS
-        BTestUtils.getProgramFile("lang/var/var-redeclared-symbol.bal");
+          expectedExceptionsMessageRegExp = "var-declared-symbols.bal:7: var keyword declared assignment " +
+                  "statement should have at least one non declared variable")
+    public void testVarDeclarationWithAllDeclaredSymbols() {
+        //var declarations should at least one non declared var ref symbol
+        BTestUtils.getProgramFile("lang/var/var-declared-symbols.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "var-all-ignored-symbols.bal:3: var keyword declared assignment " +
+                    "statement should have at least one non declared variable")
+    public void testVarDeclarationWithAllIgnoredSymbols() {
+        //var declarations should at least one non declared var ref symbol
+        BTestUtils.getProgramFile("lang/var/var-all-ignored-symbols.bal");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
