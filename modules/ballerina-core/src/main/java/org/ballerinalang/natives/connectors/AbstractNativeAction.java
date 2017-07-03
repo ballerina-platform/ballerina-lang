@@ -352,7 +352,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     /**
-     * Prepare responses which doesn't have a message body.
+     * Prepare responses which don't have a message body.
      *
      * @param valueRef Callback valueRef.
      */
