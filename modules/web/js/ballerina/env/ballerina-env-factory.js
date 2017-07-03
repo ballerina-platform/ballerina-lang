@@ -23,6 +23,7 @@ import Package from './package';
 import Connector from './connector';
 import ConnectorAction from './connector-action';
 import FunctionDefinition from './function';
+import StructDefinition from './struct';
 import AnnotationDefinition from './annotation-definition';
 import AnnotationAttributeDefinition from './annotation-attribute-definition';
 
@@ -68,6 +69,15 @@ BallerinaEnvFactory.createFunction = function (args) {
 };
 
 /**
+ * creates Struct
+ * @param jsonNode
+ */
+BallerinaEnvFactory.createStruct = function (args) {
+    const structDef = new StructDefinition(args);
+    return structDef;
+};
+
+/**
  * creates Annotation
  * @param jsonNode
  */
@@ -95,6 +105,10 @@ BallerinaEnvFactory.isConnector = function (connector) {
 
 BallerinaEnvFactory.isFunction = function (functionDef) {
     return (functionDef instanceof FunctionDefinition);
+};
+
+BallerinaEnvFactory.isStruct = function (structDef) {
+    return (structDef instanceof StructDefinition);
 };
 
 BallerinaEnvFactory.isConnectorAction = function (connectorAction) {

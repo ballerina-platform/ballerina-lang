@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
+import org.ballerinalang.composer.service.workspace.model.Struct;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaAction;
@@ -118,6 +119,8 @@ public class WorkspaceUtils {
                     connector));
             Stream.of(pkg.getFunctions()).forEach((function) -> extractFunction(packages, pkg.getPackagePath(),
                     function));
+            Stream.of(pkg.getStructDefs()).forEach((structDef) -> extractStructDefs(packages, pkg.getPackagePath(),
+                    structDef));
         }
     }
 
@@ -219,6 +222,25 @@ public class WorkspaceUtils {
     }
 
     /**
+     * Extract Structs from ballerina lang.
+     * @param packages packages to send.
+     * @param packagePath packagePath.
+     * @param structDef structDef.
+     * */
+    private static void extractStructDefs(Map<String, ModelPackage> packages, String packagePath,
+                                          org.ballerinalang.model.StructDef structDef) {
+        if (packages.containsKey(packagePath)) {
+            ModelPackage modelPackage = packages.get(packagePath);
+            modelPackage.addStructsItem(createNewStruct(structDef.getName()));
+        } else {
+            ModelPackage modelPackage = new ModelPackage();
+            modelPackage.setName(packagePath);
+            modelPackage.addStructsItem(createNewStruct(structDef.getName()));
+            packages.put(packagePath, modelPackage);
+        }
+    }
+
+    /**
      * Add parameters to a list from ballerina lang param list.
      * @param params params to send.
      * @param argumentTypeNames argument types
@@ -315,6 +337,17 @@ public class WorkspaceUtils {
         function.setParameters(params);
         function.setReturnParams(returnParams);
         return function;
+    }
+
+    /**
+     * Create new struct
+     * @param name name of the struct
+     * @return {Function} function
+     * */
+    private static Struct createNewStruct(String name) {
+        Struct struct = new Struct();
+        struct.setName(name);
+        return struct;
     }
 
     /**

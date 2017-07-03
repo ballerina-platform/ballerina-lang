@@ -137,6 +137,16 @@ public class ModelPackage   {
     return this;
   }
 
+  public ModelPackage structs(List<Struct> structs) {
+    this.structs = structs;
+    return this;
+  }
+
+  public ModelPackage addStructsItem(Struct structItem) {
+    this.structs.add(structItem);
+    return this;
+  }
+
   public ModelPackage annotations(List<AnnotationDef> annotations) {
     this.annotations = annotations;
     return this;
@@ -192,12 +202,13 @@ public class ModelPackage   {
         Objects.equals(this.version, modelPackage.version) &&
         Objects.equals(this.connectors, modelPackage.connectors) &&
         Objects.equals(this.functions, modelPackage.functions) &&
+            Objects.equals(this.structs, modelPackage.structs) &&
             Objects.equals(this.annotations, modelPackage.annotations);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, description, version, connectors, functions, annotations);
+    return Objects.hash(name, description, version, connectors, functions, structs, annotations);
   }
 
   @Override
@@ -210,6 +221,7 @@ public class ModelPackage   {
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("    connectors: ").append(toIndentedString(connectors)).append("\n");
     sb.append("    functions: ").append(toIndentedString(functions)).append("\n");
+    sb.append("    structs: ").append(toIndentedString(structs)).append("\n");
     sb.append("    annotations: ").append(toIndentedString(annotations)).append("\n");
     sb.append("}");
     return sb.toString();
