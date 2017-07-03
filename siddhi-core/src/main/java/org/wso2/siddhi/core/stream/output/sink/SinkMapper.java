@@ -82,6 +82,8 @@ public abstract class SinkMapper {
                               ConfigReader mapperConfigReader,
                               SiddhiAppContext siddhiAppContext);
 
+    public abstract Class getOutputEventClass();
+
     /**
      * Called to map the events and send them to {@link SinkListener}
      *

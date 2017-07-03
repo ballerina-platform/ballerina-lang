@@ -73,6 +73,11 @@ public class InMemorySource extends Source {
     }
 
     @Override
+    public Class getOutputEventClass() {
+        return Object.class;
+    }
+
+    @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         InMemoryBroker.subscribe(subscriber);
     }

@@ -134,7 +134,8 @@ public class JsonSinkMapper extends SinkMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition       The stream definition
+     *
+     * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param siddhiAppContext
@@ -142,7 +143,7 @@ public class JsonSinkMapper extends SinkMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext
-                                 siddhiAppContext) {
+                             siddhiAppContext) {
         attributeNameArray = streamDefinition.getAttributeNameArray();
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
         isJsonValidationEnabled = Boolean.parseBoolean(optionHolder
@@ -161,9 +162,9 @@ public class JsonSinkMapper extends SinkMapper {
         }
 
         if (!isJsonValidationEnabled) {
-            sinkListener.publishEvents(sb.toString());
+            sinkListener.publish(sb.toString());
         } else if (isValidJson(sb.toString())) {
-            sinkListener.publishEvents(sb.toString());
+            sinkListener.publish(sb.toString());
         } else {
             log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
         }
@@ -186,9 +187,9 @@ public class JsonSinkMapper extends SinkMapper {
 
         if (sb != null) {
             if (!isJsonValidationEnabled) {
-                sinkListener.publishEvents(sb.toString());
+                sinkListener.publish(sb.toString());
             } else if (isValidJson(sb.toString())) {
-                sinkListener.publishEvents(sb.toString());
+                sinkListener.publish(sb.toString());
             } else {
                 log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
             }

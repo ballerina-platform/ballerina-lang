@@ -286,6 +286,24 @@ public class DefinitionParserHelper {
                     SourceMapper sourceMapper = (SourceMapper) SiddhiClassLoader.loadExtensionImplementation(
                             mapperExtension, SourceMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
 
+                    Class[] inputEventClasses = sourceMapper.getSupportedInputEventClasses();
+                    Class outputEventClass = source.getOutputEventClass();
+
+                    boolean matchingSinkAndMapperClasses = false;
+                    for (Class inputEventClass : inputEventClasses) {
+                        if (inputEventClass.isAssignableFrom(outputEventClass) ||
+                                outputEventClass.isAssignableFrom(inputEventClass)) {
+                            matchingSinkAndMapperClasses = true;
+                            break;
+                        }
+                    }
+                    if (!matchingSinkAndMapperClasses) {
+                        throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
+                                "source '" + sourceType + "' processes and an incompatible '" + outputEventClass +
+                                "' class, while it's source mapper '" + mapType + "' can only consume '" +
+                                Arrays.deepToString(inputEventClasses) + "' classes.");
+                    }
+
                     OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
                             source.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
                     OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
@@ -386,10 +404,25 @@ public class DefinitionParserHelper {
                         SinkMapper sinkMapper = (SinkMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapperExtension, SinkMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
 
+                        Class[] inputEventClasses = sink.getSupportedInputEventClasses();
+                        Class outputEventClass = sinkMapper.getOutputEventClass();
+
+                        boolean matchingSinkAndMapperClasses = false;
+                        for (Class inputEventClass : inputEventClasses) {
+                            if (inputEventClass.isAssignableFrom(outputEventClass)) {
+                                matchingSinkAndMapperClasses = true;
+                                break;
+                            }
+                        }
+                        if (!matchingSinkAndMapperClasses) {
+                            throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
+                                    "sink mapper '" + mapType + "' processes '" + outputEventClass + "' class " +
+                                    "but it's sink '" + sinkType + "' cannot not consume that class, where sink can " +
+                                    "only consume '" + Arrays.deepToString(inputEventClasses) + "' classes");
+                        }
                         org.wso2.siddhi.annotation.Extension sinkExt
                                 = sink.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
 
-                        // Initialing output transport
                         OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition,
                                 sinkAnnotation, sinkExt, supportedDynamicOptions);
                         OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
@@ -397,7 +430,6 @@ public class DefinitionParserHelper {
                                 sinkMapper.getSupportedDynamicOptions());
                         String payload = getPayload(mapAnnotation);
 
-                        // Initializing the transports
                         OptionHolder distributionOptHolder = null;
                         if (isDistributedTransport) {
                             distributionOptHolder = constructOptionProcessor(streamDefinition,

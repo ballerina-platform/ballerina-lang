@@ -55,6 +55,8 @@ public abstract class SourceMapper implements SourceEventListener {
     public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
             attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
+    public abstract Class[] getSupportedInputEventClasses();
+
     public final void setInputHandler(InputHandler inputEventHandler) {
         this.inputEventHandler = new InputEventHandler(inputEventHandler, transportMappings, trpProperties, sourceType);
     }

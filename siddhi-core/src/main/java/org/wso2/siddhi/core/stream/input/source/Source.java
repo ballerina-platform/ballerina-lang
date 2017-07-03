@@ -64,6 +64,8 @@ public abstract class Source implements Snapshotable {
                               String[] transportPropertyNames, ConfigReader configReader,
                               SiddhiAppContext siddhiAppContext);
 
+    public abstract Class getOutputEventClass();
+
     public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
 
     public abstract void disconnect();

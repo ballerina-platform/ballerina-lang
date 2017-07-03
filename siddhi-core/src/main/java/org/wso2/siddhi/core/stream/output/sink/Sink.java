@@ -67,6 +67,9 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     }
 
+    public abstract Class[] getSupportedInputEventClasses();
+
+
     public final void initOnlyTransport(StreamDefinition streamDefinition, OptionHolder transportOptionHolder,
                                         ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
