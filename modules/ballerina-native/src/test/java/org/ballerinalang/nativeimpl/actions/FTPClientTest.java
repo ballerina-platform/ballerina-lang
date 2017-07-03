@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -37,12 +36,12 @@ import java.io.File;
 /**
  * Test cases for jms client.
  */
-public class VFSClientTest {
+public class FTPClientTest {
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/vfsClientConnectorTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/ftpClientConnectorTest.bal");
         BuiltInNativeConstructLoader.loadConstructs();
     }
 

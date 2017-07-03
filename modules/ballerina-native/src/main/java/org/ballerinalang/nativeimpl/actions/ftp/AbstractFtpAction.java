@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.nativeimpl.actions.vfs;
+package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
+import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -30,11 +30,11 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import java.util.Map;
 
 /**
- * {@code AbstractVfsAction} is the base class for all VFS Connector Actions.
+ * {@code AbstractFtpAction} is the base class for all FTP Connector Actions.
  */
 
-public abstract class AbstractVfsAction extends AbstractNativeAction {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractVfsAction.class);
+public abstract class AbstractFtpAction extends AbstractNativeAction {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFtpAction.class);
     private static final long SENDER_TIMEOUT = 180000;
 
     /**
@@ -50,7 +50,7 @@ public abstract class AbstractVfsAction extends AbstractNativeAction {
         BalConnectorCallback callback = new BalConnectorCallback(context);
         try {
             //Getting the sender instance and sending the message.
-            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.VFS_CONNECTOR_NAME)
+            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.FTP_CONNECTOR_NAME)
                                      .send(message, callback, propertyMap);
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
@@ -74,5 +74,9 @@ public abstract class AbstractVfsAction extends AbstractNativeAction {
             logger.debug("Interrupted while waiting for isExists callback", e);
         }
         return ((BMessage) callback.getValueRef()).value();
+    }
+
+    protected boolean validateProtocol(String url) {
+        return url.contains("ftp://") || url.contains("sftp://") || url.contains("ftps://");
     }
 }

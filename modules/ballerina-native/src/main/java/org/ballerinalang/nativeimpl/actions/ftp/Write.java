@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.vfs;
+package org.ballerinalang.nativeimpl.actions.ftp;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.vfs.util.FileConstants;
+import org.ballerinalang.nativeimpl.actions.ftp.util.FileConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -37,29 +37,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Send
+ * Write
  */
 @BallerinaAction(
-        packageName = "ballerina.net.vfs",
+        packageName = "ballerina.net.ftp",
         actionName = "write",
         connectorName = FileConstants.CONNECTOR_NAME,
-        args = { @Argument(name = "vfsClientConnector", type = TypeEnum.CONNECTOR),
+        args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "blob", type = TypeEnum.BLOB),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
                          structPackage = "ballerina.lang.files") })
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "This function writes a file using the given byte data") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
-        value = "Vfs client connector") })
+        value = "ftp client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "content",
         value = "Blob content to be written") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "file",
         value = "The file which the blob should be written to") })
-public class Write extends AbstractVfsAction {
+public class Write extends AbstractFtpAction {
     @Override public BValue execute(Context context) {
 
         byte[] content = getBlobArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
+        if (!validateProtocol(destination.getStringField(0))) {
+            throw new BallerinaException("Only FTP, SFTP and FTPS protocols are supported by this connector");
+        }
         CarbonMessage byteMessage = new BinaryCarbonMessage(ByteBuffer.wrap(content), true);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
@@ -67,7 +70,7 @@ public class Write extends AbstractVfsAction {
         propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_WRITE);
         try {
             //Getting the sender instance and sending the message.
-            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.VFS_CONNECTOR_NAME)
+            BallerinaConnectorManager.getInstance().getClientConnector(FileConstants.FTP_CONNECTOR_NAME)
                                      .send(byteMessage, null, propertyMap);
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
