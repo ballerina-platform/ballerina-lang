@@ -141,11 +141,11 @@ public class BDataTable implements BRefType<Object> {
             default:
                 throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
             }
-            boolean isLast = iterator.isLast();
-            if (isLast) {
-                close(isInTransaction);
-                lastRecordProcessed = true;
-            }
+        }
+        boolean isLast = iterator.isLast();
+        if (isLast) {
+            close(isInTransaction);
+            lastRecordProcessed = true;
         }
         return bStruct;
     }

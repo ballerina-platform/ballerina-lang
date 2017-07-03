@@ -354,7 +354,6 @@ function testBlobInsert () (int i) {
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    datatables:close(dt);
     sql:Parameter para0 = {sqlType:"integer", value:10};
     sql:Parameter para1 = {sqlType:"blob", value:blobData};
     params = [para0, para1];
