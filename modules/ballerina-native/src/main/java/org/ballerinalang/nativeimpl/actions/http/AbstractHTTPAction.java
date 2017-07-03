@@ -196,11 +196,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     @Override
     public void validate(BalConnectorCallback callback) {
         handleTransportException(callback.getValueRef());
-        prepareNoMessageBodyResponse(callback.getValueRef());
     }
 
     // Handle operations for empty content messages initiated from the backend service
-    private void prepareNoMessageBodyResponse(BValue valueRef) {
+    @Override
+    public void prepareNoMessageBodyResponse(BValue valueRef) {
         if (this.getIdentifier().getName().equals("head") || this.getIdentifier().getName().equals("option")) {
             if (valueRef instanceof BMessage) {
                 BMessage bMsg = (BMessage) valueRef;

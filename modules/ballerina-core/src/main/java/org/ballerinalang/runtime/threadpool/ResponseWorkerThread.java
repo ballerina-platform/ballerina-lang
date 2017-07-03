@@ -53,6 +53,7 @@ public class ResponseWorkerThread extends WorkerThread {
             BStruct err = BLangVMErrors.createError(context, context.getStartIP() - 1, e.getMessage());
             context.setError(err);
         }
+        connectorCallback.getNativeAction().prepareNoMessageBodyResponse(connectorCallback.getValueRef());
         // TODO : Fix error handling
         try {
             bLangVM.run(context);

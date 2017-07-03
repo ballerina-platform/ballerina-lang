@@ -350,4 +350,11 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     public Worker[] getWorkers() {
         return new Worker[0];
     }
+
+    /**
+     * Prepare responses which doesn't have a message body.
+     *
+     * @param valueRef Callback valueRef.
+     */
+    public void prepareNoMessageBodyResponse(BValue valueRef){}
 }
