@@ -14,57 +14,73 @@ Initialize a JMS connector instance by passing the following parameters. This ca
 
 ### Expected values
 
-Parameter Name | Parameter Type | Description | Expected Values
----------- | ------------- | ----- | --------
-FactoryInitial | string | The JNDI initial context factory class. The class must implement the `java.naming.spi.InitialContextFactory` interface. | A valid class name depending on the JMS provider
-ProviderURL | string | The URL/file path of the JNDI provider. | A valid URL/path for the JNDI provider
+Key | Description | Expected Values | Default Value
+------------ | ------------- | ----------- | ----------
+initialContextFactory | The JNDI initial context factory class. The class must implement the java.naming.spi.InitialContextFactory interface. | Depends on the JMS provider. When using WSO2 MB the value can be set as `wso2mbInitialContextFactory` | -
+providerUrl | The URL to connect to the JMS brroker | A valid URL depending on the JMS provider. | -
+configFilePath | specify a configuration file instead of provider url | file path to a jndi.properties file | -
+connectionFactoryType | The type of the connection factory | queue, topic | queue
+connectionFactoryName | The JNDI name of the connection factory | - | -
+destination | The name of the destination | - | service name
+acknowledgmentMode | The JMS session acknowledgment mode | AUTO_ACKNOWLEDGE, CLIENT_ACKNOWLEDGE, DUPS_OK_ACKNOWLEDGE, SESSION_TRANSACTED | AUTO_ACKNOWLEDGE
+clientID | The clientId parameter when using durable subscriptions | - | -
+durableSubscriptionId | For topic subscriptions, setting the value will create a durable topic subscription | any valid subscription name depending on the JMS provider | -
+connectionFactoryNature | The type of connection factory to use when creating consumers | default,cached,pooled | default
 
 Example:
 
+```java
+map properties = {
+       "initialContextFactory": "wso2mbInitialContextFactory",
+       "providerUrl": "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+       "connectionFactoryName": "QueueConnectionFactory",
+       "connectionFactoryType" : "queue"};
+// Create the JMS client Connector using the connection properties we defined earlier.
+jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
 ```
-jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
-```
+
 ### Step 3
 Invoke the send action of the JMS client connector and pass the relevant parameters as mentioned below.
 
-Parameter Name | Parameter type | Description | Expected Values
------------- | ------------- | ----------- | -------------
-JMSConnector | JMSConnector | A JMSConnector instance | A JMSConnector instance that has been initialized
-ConnectionFactoryName | string | The JNDI name of the connection factory | -
-DestinationName | string | The JNDI name of the destination | The JNDI name of the destination
-DestinationType | string | The type of the destinaiton | The queue or topic. If not given, taken as queue.
-MessageType | string | The message type needed to be sent | Message, TextMessage, BytesMessage, ObjectMessage, or MapMessage
-Message | message | The message conaining the payload to be sent | A Ballerina message
-PropertyMap | map | A map of optional Ballerina properties | A valid Ballerina map
+**jms:ClientConnector.send**
 
-Optional parameters that can be defined in PropertyMap:
-
-Parameter Name | Parameter type | Description | Expected Values
-------------- | ------------------- | ---------------- | ---------------
-ConnectionUsername | string | A valid connection username to connect to the JMS provider | Valid string username
-ConnectionPassword | string | A valid connection password to connect to the JMS provider | Valid string password
-MapData | map | Map of data to send in a JMS map message | Map of data to send in a JMS map message, only if message type is MapMessage
-ConnectionCacheLevel | int | Caching level required when sending messages | 0 - No caching (default), 1 - Cache Connection, 2 - Cache Session, 3 - Cache Consumer, or 4 - Cache Producer
-
+* ClientConnector - JMS client connector instance
+* string          - JMS destination
+* message         - Ballerina message
 
 Example:
 
-```
+```java
 message queueMessage = {};
-map dataMap;
-dataMap = {};
 messages:setStringPayload(queueMessage, "Hello from ballerina");
-jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
+jms:ClientConnector.send(jmsEP, "MyQueue", queueMessage);
 ```
 
-Given below is a sample Ballerina function depicting the creation of a JMS client connector:
+Given below is a sample Ballerina function depicting the creation of a JMS client connector and sending a message
 
-```
-jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
-message queueMessage = {};
-map dataMap;
-dataMap = { "country" : "US", "currency" : "Dollar" , "states" : "50"};
-map propertyMap;
-propertyMap = { "MapData" : dataMap};
-jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
+```java
+import ballerina.net.jms;
+import ballerina.lang.messages;
+
+function main (string[] args) {
+    jmsSender();
+}
+
+function jmsSender() (boolean) {
+    // In this example we connect to the WSO2 MB server
+    map properties = {
+       "initialContextFactory": "wso2mbInitialContextFactory",
+       "providerUrl": "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5672'",
+       "connectionFactoryName": "QueueConnectionFactory",
+       "connectionFactoryType" : "queue"};
+    // Create the JMS client Connector using the connection properties we defined earlier.
+    jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
+    // Create an empty Ballerina message
+    message queueMessage = {};
+    // Set a string payload to the message
+    messages:setStringPayload(queueMessage, "Hello from Ballerina!");
+    // Send the Ballerina message to the JMS provider.
+    jms:ClientConnector.send(jmsEP, "MyQueue", queueMessage);
+    return true;
+}
 ```
