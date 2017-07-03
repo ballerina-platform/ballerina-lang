@@ -21,4 +21,4 @@ native function random () (float);
 @doc:Description { value:"Returns rounded positive square root of the given value"}
 @doc:Param { value:"val: value to get square root" }
 @doc:Return { value:"float: square root value" }
-native function exp (float val) (float);
+native function sqrt (float val) (float);

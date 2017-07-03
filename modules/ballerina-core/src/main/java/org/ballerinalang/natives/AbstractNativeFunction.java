@@ -109,6 +109,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
+    /**
+     * This will return a int variable defined in ballerina level.
+     * In java level it would be a long value.
+     *
+     * @param context   In which the variable reside.
+     * @param index     Index of the variable location.
+     * @return          Long value.
+     */
     public long getIntArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
             return context.getControlStackNew().getCurrentFrame().getLongLocalVars()[index];
@@ -123,13 +131,14 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public long getLongArgument(Context context, int index) {
-        if (index > -1 && index < argTypeNames.length) {
-            return (long) context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
-        }
-        throw new ArgumentOutOfRangeException(index);
-    }
-
+    /**
+     * This will return a float variable defined in ballerina level.
+     * In java level that would be a double value.
+     *
+     * @param context   In which the variable reside.
+     * @param index     Index of the variable location.
+     * @return          Double value.
+     */
     public double getFloatArgument(Context context, int index) {
         if (index > -1 && index < this.argTypeNames.length) {
             return context.getControlStackNew().getCurrentFrame().getDoubleLocalVars()[index];
