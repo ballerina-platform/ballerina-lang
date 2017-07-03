@@ -26,7 +26,7 @@ public interface SinkListener {
     /**
      * Sending events via output transport
      *
-     * @param payload          payload of the event
+     * @param payload payload of the event
      */
     void publish(Object payload);
 }

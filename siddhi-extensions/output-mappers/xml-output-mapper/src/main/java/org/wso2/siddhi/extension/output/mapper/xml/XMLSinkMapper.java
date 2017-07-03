@@ -192,7 +192,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publishEvents(sb.toString());
+        sinkListener.publish(sb.toString());
     }
 
     /**
@@ -240,7 +240,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publishEvents(sb.toString());
+        sinkListener.publish(sb.toString());
     }
 
     /**

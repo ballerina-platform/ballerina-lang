@@ -161,9 +161,9 @@ public class JsonSinkMapper extends SinkMapper {
         }
 
         if (!isJsonValidationEnabled) {
-            sinkListener.publishEvents(sb.toString());
+            sinkListener.publish(sb.toString());
         } else if (isValidJson(sb.toString())) {
-            sinkListener.publishEvents(sb.toString());
+            sinkListener.publish(sb.toString());
         } else {
             log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
         }
@@ -186,9 +186,9 @@ public class JsonSinkMapper extends SinkMapper {
 
         if (sb != null) {
             if (!isJsonValidationEnabled) {
-                sinkListener.publishEvents(sb.toString());
+                sinkListener.publish(sb.toString());
             } else if (isValidJson(sb.toString())) {
-                sinkListener.publishEvents(sb.toString());
+                sinkListener.publish(sb.toString());
             } else {
                 log.error("Invalid json string : " + sb.toString() + ". Hence dropping the message.");
             }

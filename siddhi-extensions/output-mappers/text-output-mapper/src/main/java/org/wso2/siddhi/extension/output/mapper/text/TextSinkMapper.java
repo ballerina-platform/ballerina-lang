@@ -67,11 +67,11 @@ public class TextSinkMapper extends SinkMapper {
                            SinkListener sinkListener) {
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
-                sinkListener.publishEvents(payloadTemplateBuilder.build(event));
+                sinkListener.publish(payloadTemplateBuilder.build(event));
             }
         } else {
             for (Event event : events) {
-                sinkListener.publishEvents(constructDefaultMapping(event));
+                sinkListener.publish(constructDefaultMapping(event));
             }
         }
     }
@@ -80,9 +80,9 @@ public class TextSinkMapper extends SinkMapper {
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener) {
         if (this.payloadTemplateBuilder != null) {
-            sinkListener.publishEvents(payloadTemplateBuilder.build(event));
+            sinkListener.publish(payloadTemplateBuilder.build(event));
         } else {
-            sinkListener.publishEvents(constructDefaultMapping(event));
+            sinkListener.publish(constructDefaultMapping(event));
         }
     }
 
