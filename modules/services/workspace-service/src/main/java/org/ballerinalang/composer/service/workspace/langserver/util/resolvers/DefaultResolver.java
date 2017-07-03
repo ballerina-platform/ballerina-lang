@@ -53,7 +53,12 @@ class DefaultResolver implements ItemResolver {
                 completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
             } else if (symbolInfo.getSymbol() instanceof VariableDef) {
-                completionItem.setDetail(((VariableDef) symbolInfo.getSymbol()).getType().getName());
+                if (((VariableDef) symbolInfo.getSymbol()).getType() == null) {
+                    completionItem.setDetail(ItemResolverConstants.NONE);
+                } else {
+                    completionItem.setDetail(((VariableDef) symbolInfo.getSymbol()).getType().getName());
+                }
+
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
             }
             completionItems.add(completionItem);

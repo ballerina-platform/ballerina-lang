@@ -24,7 +24,6 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
-import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -47,7 +46,6 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
-import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -1063,8 +1061,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(varDefStmt);
         // Resolves the type of the variable
         VariableDef varDef = varDefStmt.getVariableDef();
-        BType lhsType = BTypes.resolveType(varDef.getTypeName(), currentScope, varDef.getNodeLocation());
-        varDef.setType(lhsType);
+
 
         // Mark the this variable references as LHS expressions
         ((VariableReferenceExpr) varDefStmt.getLExpr()).setLHSExpr(true);
@@ -1082,12 +1079,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             return;
         }
 
-        if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
-            varDefStmt.setRExpr(refTypeInitExpr);
-            refTypeInitExpr.accept(this);
-            return;
-        }
 
         if (rExpr instanceof ExecutableMultiReturnExpr) {
             rExpr.accept(this);
@@ -1603,12 +1594,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         for (Expression expr : exprs) {
             visitSingleValueExpr(expr);
         }
-
-        linkAction(actionIExpr);
-
-        //Find the return types of this function invocation expression.
-        BType[] returnParamTypes = actionIExpr.getCallableUnit().getReturnParamTypes();
-        actionIExpr.setTypes(returnParamTypes);
     }
 
     @Override
@@ -1773,13 +1758,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             visitSingleValueExpr(argExpr);
         }
 
-        Expression[] argExprs = connectorInitExpr.getArgExprs();
-        ParameterDef[] parameterDefs = ((BallerinaConnectorDef) inheritedType).getParameterDefs();
-        for (int i = 0; i < argExprs.length; i++) {
-            SimpleTypeName simpleTypeName = parameterDefs[i].getTypeName();
-            BType paramType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
-            parameterDefs[i].setType(paramType);
-        }
     }
 
     @Override
@@ -1894,29 +1872,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         VariableReferenceExpr varRefExpr = indexBasedVarRefExpr.getVarRefExpr();
         varRefExpr.accept(this);
-
-        // Type of the varRefExpr can be either Array, Map, JSON, Struct.
-        BType varRefType = varRefExpr.getType();
-        if (varRefType instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) varRefType;
-            indexBasedVarRefExpr.setType(arrayType.getElementType());
-
-        } else if (varRefType == BTypes.typeMap) {
-            BMapType mapType = (BMapType) varRefType;
-            indexBasedVarRefExpr.setType(mapType.getElementType());
-
-        } else if (varRefType == BTypes.typeJSON) {
-            indexBasedVarRefExpr.setType(BTypes.typeJSON);
-
-        } else if (varRefType instanceof StructDef) {
-            String fieldName = ((BasicLiteral) indexExpr).getBValue().stringValue();
-            StructDef structDef = (StructDef) varRefType;
-            BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
-
-            VariableDef fieldDef = (VariableDef) fieldSymbol;
-            indexBasedVarRefExpr.setFieldDef(fieldDef);
-            indexBasedVarRefExpr.setType(fieldDef.getType());
-        }
     }
 
     @Override
@@ -2157,59 +2112,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Check whether someone is trying to change the values of a constant
             checkForConstAssignment(assignStmt, lExpr);
         }
-    }
-
-    private void linkAction(ActionInvocationExpr actionIExpr) {
-        String pkgPath = actionIExpr.getPackagePath();
-        String connectorName = actionIExpr.getConnectorName();
-
-        // First look for the connectors
-        SymbolName connectorSymbolName = new SymbolName(connectorName, pkgPath);
-        BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
-
-
-        //Expression[] exprs = actionIExpr.getArgExprs();
-        //BType[] paramTypes = new BType[exprs.length];
-        //for (int i = 0; i < exprs.length; i++) {
-        //    paramTypes[i] = exprs[i].getType();
-        //}
-
-        // When getting the action symbol name, Package name for the action is set to null, since the action is
-        // registered under connector, and connecter contains the package
-        SymbolName actionSymbolName = new SymbolName("");
-
-        // Now check whether there is a matching action
-        BLangSymbol actionSymbol = null;
-        if (connectorSymbol instanceof BallerinaConnectorDef) {
-            actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(actionSymbolName);
-        }
-
-        if ((actionSymbol instanceof BallerinaAction) && (actionSymbol.isNative())) {
-            actionSymbol = ((BallerinaAction) actionSymbol).getNativeAction();
-        }
-
-        // Load native action
-        Action action = null;
-        if (actionSymbol instanceof NativeUnitProxy) {
-            // Loading return parameter types of this native function
-            NativeUnit nativeUnit = ((NativeUnitProxy) actionSymbol).load();
-            SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
-            BType[] returnTypes = new BType[returnParamTypeNames.length];
-            for (int i = 0; i < returnParamTypeNames.length; i++) {
-                SimpleTypeName typeName = returnParamTypeNames[i];
-                BType bType = BTypes.resolveType(typeName, currentScope, actionIExpr.getNodeLocation());
-                returnTypes[i] = bType;
-            }
-
-            action = (Action) nativeUnit;
-            action.setReturnParamTypes(returnTypes);
-
-        } else if (actionSymbol instanceof Action) {
-            action = (Action) actionSymbol;
-        }
-
-        // Link the action with the action invocation expression
-        actionIExpr.setCallableUnit(action);
     }
 
     private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
