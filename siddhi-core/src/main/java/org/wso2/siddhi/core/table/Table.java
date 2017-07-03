@@ -103,8 +103,8 @@ public abstract class Table implements FindableProcessor {
                 return find(matchingEvent, compiledCondition);
             }
         } else if (isTryingToConnect.get()) {
-            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
-                    "' as its still trying to reconnect!, events dropped '" + matchingEvent + "'");
+            LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" + 
+                      tableDefinition.getId() + "' as its still trying to reconnect!");
             return null;
         } else {
             connectWithRetry();
