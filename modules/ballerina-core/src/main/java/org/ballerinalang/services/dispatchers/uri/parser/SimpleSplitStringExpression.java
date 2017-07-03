@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class SimpleSplitStringExpression extends Expression {
 
-    protected static final char[] reserved = new char[] {
+    protected static final char[] RESERVED = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
@@ -89,7 +89,7 @@ public class SimpleSplitStringExpression extends Expression {
         return 0;
     }
 
-    protected boolean setVariables(String expressionValue, Map<String,String> variables) {
+    protected boolean setVariables(String expressionValue, Map<String, String> variables) {
         String separator = Pattern.quote(String.valueOf(getSeparator()));
         String[] values = expressionValue.split(separator);
         int length = values.length;
@@ -137,7 +137,7 @@ public class SimpleSplitStringExpression extends Expression {
     }
 
     protected boolean isReserved(char ch) {
-        for (char reservedChar : reserved) {
+        for (char reservedChar : RESERVED) {
             if (ch == reservedChar) {
                 return true;
             }

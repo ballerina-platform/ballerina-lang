@@ -92,6 +92,7 @@ public class URITemplateParser {
                         if (pointerIndex == 0 && currentElement != segments.length - 1) {
                             throw new URITemplateException("/* is only allowed at the end of the Path");
                         }
+                        // fallthru
 
                     default:
                         if (pointerIndex == maxIndex) {

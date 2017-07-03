@@ -99,8 +99,7 @@ public abstract class Node {
             }
 
             return null;
-        }
-        else if (matchLength == uriFragment.length()) {
+        } else if (matchLength == uriFragment.length()) {
             return getResource(carbonMessage);
         } else {
             return null;
@@ -144,8 +143,8 @@ public abstract class Node {
         }
     }
 
-    abstract String expand(Map<String,String> variables);
-    abstract int match(String uriFragment, Map<String,String> variables);
+    abstract String expand(Map<String, String> variables);
+    abstract int match(String uriFragment, Map<String, String> variables);
     abstract String getToken();
     abstract char getFirstCharacter();
 

@@ -22,7 +22,7 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 /**
- * PathSegmentExpression represents path segments that have reserved characters.
+ * PathSegmentExpression represents path segments that have RESERVED characters.
  */
 public class PathSegmentExpression extends LabelExpression {
 

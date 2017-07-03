@@ -44,7 +44,7 @@ public class Literal extends Node {
 
     @Override
     int match(String uriFragment, Map<String, String> variables) {
-        if(!token.endsWith("*")){
+        if (!token.endsWith("*")) {
             if (uriFragment.length() < tokenLength) {
                 return -1;
             }
@@ -57,14 +57,13 @@ public class Literal extends Node {
                 }
             }
             return tokenLength;
-        }
-        else {
+        } else {
             if (uriFragment.length() < tokenLength - 1) {
                 return -1;
             }
-            for (int i = 0; i < tokenLength - 1 ; i++) {
+            for (int i = 0; i < tokenLength - 1; i++) {
                 if (token.charAt(i) != uriFragment.charAt(i)) {
-                    if ( i == token.length() - 1) {
+                    if (i == token.length() - 1) {
                         return uriFragment.length();
                     }
                     return -1;
