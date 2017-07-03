@@ -17,3 +17,8 @@ native function pow (float a, float b) (float);
 @doc:Description { value:"Returns a random number between 0.0 and 1.0"}
 @doc:Return { value:"float: random value" }
 native function random () (float);
+
+@doc:Description { value:"Returns rounded positive square root of the given value"}
+@doc:Param { value:"val: value to get square root" }
+@doc:Return { value:"float: square root value" }
+native function exp (float val) (float);

@@ -22,23 +22,26 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function wso2.ballerina.math:random.
+ * Native function ballerina.lang.math:exp.
  *
  * @since 0.90
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.math",
-        functionName = "random",
+        functionName = "sqrt",
+        args = {@Argument(name = "val", type = TypeEnum.FLOAT)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
-public class Random extends AbstractNativeFunction {
+public class Sqrt extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        return getBValues(new BFloat(Math.random()));
+        double value = getFloatArgument(ctx, 0);
+        return getBValues(new BFloat(Math.sqrt(value)));
     }
 }
