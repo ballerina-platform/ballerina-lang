@@ -34,7 +34,7 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:13:6: missing ';' before 'reply'")
+            expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:14:6: missing ';' before 'reply'")
     public void testParseSemicolonMissingSerivce() {
         BTestUtils.getProgramFile("samples/parser/invalidSyntax/SemicolonMissingService.bal");
     }
@@ -76,7 +76,7 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:6:11: " +
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:8:11: " +
                     "mismatched input '\\{'. Expecting one of Identifier")
     public void testServiceWithoutResourceName() {
         BTestUtils.getProgramFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal");
@@ -95,7 +95,7 @@ public class InvalidSyntaxParserTest {
      */
 
     @Test(expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:6:17: mismatched input '\\{'. " +
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:8:17: mismatched input '\\{'. " +
                     "Expecting one of '\\('")
     public void testServiceWithoutResourceParams() {
         BTestUtils.getProgramFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal");

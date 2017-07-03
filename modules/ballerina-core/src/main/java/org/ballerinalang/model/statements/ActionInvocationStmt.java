@@ -42,4 +42,9 @@ public class ActionInvocationStmt extends AbstractStatement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.ACTION_INVOCATION;
+    }
 }

@@ -25,6 +25,10 @@ public class NodeLocation {
     private String pkgDirPath;
     private String fileName;
     private int lineNumber = -1;
+    public int startLineNumber = -1;
+    public int startColumn = -1;
+    public int stopLineNumber = -1;
+    public int stopColumn = -1;
 
     public NodeLocation(String fileName, int lineNumber) {
         this.fileName = fileName;
@@ -34,6 +38,15 @@ public class NodeLocation {
     public NodeLocation(String pkgDirPath, String fileName, int lineNumber) {
         this(fileName, lineNumber);
         this.pkgDirPath = pkgDirPath;
+    }
+
+    public NodeLocation(String pkgDirPath, String fileName, int lineNumber, int startLineNumber,
+                        int startColumn, int stopLineNumber, int stopColumn) {
+        this(pkgDirPath, fileName, lineNumber);
+        this.startLineNumber = startLineNumber;
+        this.startColumn = startColumn;
+        this.stopLineNumber = stopLineNumber;
+        this.stopColumn = stopColumn;
     }
 
     public String getPackageDirPath() {

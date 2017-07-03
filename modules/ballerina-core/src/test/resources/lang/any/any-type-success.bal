@@ -15,7 +15,8 @@ function anyMethodParameter() (any) {
 }
 
 function anyParam(any val)(int) {
-  int m = (int)val;
+  int m;
+  m, _ = (int)val;
   return m;
 }
 
@@ -34,8 +35,11 @@ struct Sample {
 
 function successfulIntCasting()(int) {
   any abc = floatReturn();
-  float floatVal = (float)abc;
-  int intVal = (int)floatVal;
+  float floatVal;
+  floatVal, _ = (float)abc;
+  //Int to float is a conversion now
+  int intVal;
+  intVal, _ = <int>floatVal;
   return intVal;
 }
 

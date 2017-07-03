@@ -27,6 +27,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.expressions.Expression;
@@ -233,6 +234,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.FORK_JOIN;
     }
 
     /**
@@ -528,19 +534,34 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
             return timeout;
         }
 
+        public WhiteSpaceDescriptor getWhiteSpaceDescriptor() {
+            return whiteSpaceDescriptor;
+        }
+
+        public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
+            this.whiteSpaceDescriptor = whiteSpaceDescriptor;
+        }
+
         public ForkJoinStmt build() {
             forkJoinStmt.workers = this.workers;
             this.join.joinBlock = this.joinBlock;
+            if (this.join.joinBlock != null) {
+                this.join.joinBlock.setParent(forkJoinStmt);
+            }
             this.join.joinCount = this.joinCount;
             this.join.joinResult = this.joinResult;
             this.join.joinType = this.joinType;
             this.join.joinWorkers = joinWorkers.toArray(new String[joinWorkers.size()]);
             forkJoinStmt.join = this.join;
             this.timeout.timeoutBlock = this.timeoutBlock;
+            if (this.timeout.timeoutBlock != null) {
+                this.timeout.timeoutBlock.setParent(forkJoinStmt);
+            }
             this.timeout.timeoutExpression = this.timeoutExpression;
             this.timeout.timeoutResult = this.timeoutResult;
             forkJoinStmt.timeout = this.timeout;
             forkJoinStmt.location = this.location;
+            forkJoinStmt.whiteSpaceDescriptor = whiteSpaceDescriptor;
             return forkJoinStmt;
         }
     }

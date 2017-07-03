@@ -38,6 +38,13 @@ public class TypeConversionExpr extends AbstractExpression implements Executable
 
     private int[] offsets;
 
+    public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression rExpr,
+                              BType targetType) {
+        super(location, whiteSpaceDescriptor);
+        this.rExpr = rExpr;
+        this.type = targetType;
+    }
+
     public TypeConversionExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
             SimpleTypeName typeName, Expression rExpr) {
         super(location, whiteSpaceDescriptor);

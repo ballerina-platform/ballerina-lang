@@ -45,3 +45,8 @@ function testAnyAsArray() (any) {
     any array = [1,2,3];
     return array;
 }
+
+function floatArrayInitWithInt() (float[]) {
+    float[] abc = [2,4,5];
+    return abc;
+}

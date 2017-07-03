@@ -24,6 +24,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private StatementKind kind;
 
     private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
@@ -52,6 +54,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     }
 
     public void setStatements(Statement[] statements) {
+        Arrays.stream(statements).forEach(statement -> statement.setParent(this));
         this.statements = statements;
     }
 
@@ -85,6 +88,15 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
+    protected void setKind(StatementKind statementKind) {
+        this.kind = statementKind;
+    }
+
+    @Override
+    public StatementKind getKind() {
+        return this.kind;
+    }
+
     /**
      * Builds a {@code BlockStmt}.
      *
@@ -98,11 +110,20 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
             blockStmt = new BlockStmt(location, enclosingScope);
         }
 
+        public void setLocation(NodeLocation location) {
+            blockStmt.setLocation(location);
+        }
+
+        public void setBlockKind(StatementKind statementKind) {
+            blockStmt.setKind(statementKind);
+        }
+
         public SymbolScope getCurrentScope() {
             return blockStmt;
         }
 
         public void addStmt(Statement statement) {
+            statement.setParent(blockStmt);
             statementList.add(statement);
         }
 

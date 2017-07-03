@@ -265,11 +265,6 @@ public class BLangFunctions {
             }
         }
 
-//        if (executor.isErrorThrown && executor.thrownError != null) {
-//            String errorMsg = "uncaught error: " + executor.thrownError.getType().getName() + "{ msg : " +
-//                    executor.thrownError.getValue(0).stringValue() + "}";
-//            throw new BallerinaException(errorMsg);
-//        }
         return returnValues;
 
     }

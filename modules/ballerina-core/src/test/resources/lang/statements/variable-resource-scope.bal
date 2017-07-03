@@ -1,4 +1,6 @@
-service myService {
+import ballerina.net.http;
+
+service<http> myService {
     int a = 20;
 
     resource myResource1(message m) {
