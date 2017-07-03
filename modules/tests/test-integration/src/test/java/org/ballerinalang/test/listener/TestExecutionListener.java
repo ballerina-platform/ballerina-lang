@@ -150,7 +150,11 @@ public class TestExecutionListener implements IExecutionListener {
                 sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
                                         "websocketEndpoint.bal",
                 sampleDir + File.separator + "websocket" + File.separator + "connectionStoreSample" + File.separator +
-                                        "httpService.bal"
+                                        "httpService.bal",
+                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
+                        + "httpService" + File.separator + "httpEchoService.bal").getAbsolutePath(),
+                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator
+                        + "httpService" + File.separator + "httpsEchoService.bal").getAbsolutePath()
 
 
         };

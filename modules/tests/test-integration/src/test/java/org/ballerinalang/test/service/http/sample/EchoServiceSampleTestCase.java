@@ -20,6 +20,7 @@ package org.ballerinalang.test.service.http.sample;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -47,4 +48,33 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         //request should be returned as response
         Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
     }
+
+    @Test(description = "Test echo service with dynamic port sample test case")
+    public void testEchoServiceWithDynamicPortByBasePath() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        String serviceUrl = "http://localhost:9094/echo";
+        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        //request should be returned as response
+        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+    }
+
+    @Test(description = "Test echo service with dynamic port and scheme https")
+    public void testEchoServiceWithDynamicPortHttpsByBasePath() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        String serviceUrl = "https://localhost:9095/echo";
+        String serverHome = getServerInstance().getServerHome();
+        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        //request should be returned as response
+        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+    }
+
+
 }
