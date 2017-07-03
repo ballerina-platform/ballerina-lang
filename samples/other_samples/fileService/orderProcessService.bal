@@ -1,13 +1,13 @@
 import ballerina.lang.messages;
 import ballerina.lang.system;
-import ballerina.net.file;
+import ballerina.net.fs;
 
 @Source (
 protocol = "file",
 fileURI = "ftp://username:password@localhost:2221/orders",
 pollingInterval = "1000"
 )
-service<file> orderProcessService {
+service<fs> orderProcessService {
 
     resource processOrder(message m) {
         system:println(messages:getStringPayload(m));

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.services.dispatchers.file;
+package org.ballerinalang.services.dispatchers.smb;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Resource;
@@ -33,44 +33,32 @@ import org.wso2.carbon.messaging.CarbonMessage;
 /**
  * Resource level dispatchers handler for file protocol.
  */
-public class FileResourceDispatcher implements ResourceDispatcher {
-    private static final Logger log = LoggerFactory.getLogger(FileResourceDispatcher.class);
+public class SMBResourceDispatcher implements ResourceDispatcher {
+    private static final Logger log = LoggerFactory.getLogger(SMBResourceDispatcher.class);
 
-    @Override
-    @Deprecated
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
-            Context balContext) throws BallerinaException {
-        if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the file service " + service.getSymbolName().toString() + " to "
-                    + "deliver the message");
-        }
-        Resource[] resources = service.getResources();
-        if (resources.length != 1) {
-            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
-                    + "' has to have only one resource associated to itself. " + "Found " + resources.length
-                    + " resources in Service: " + service.getSymbolName().getName());
-        }
-        return resources[0];
+    @Override public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
+                                           Context balContext) throws BallerinaException {
+        return null;
     }
 
     @Override
     public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
             BallerinaException {
         if (log.isDebugEnabled()) {
-            log.debug("Starting to find resource in the file service " + service.getName() + " to "
-                    + "deliver the message");
+            log.debug("Starting to find resource in the file service " + service.getName() + " to " +
+                      "deliver the message");
         }
         ResourceInfo[] resourceInfoList = service.getResourceInfoList();
         if (resourceInfoList.length != 1) {
-            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
-                    + "' has to have only one resource associated to itself. " + "Found " + resourceInfoList.length
-                    + " resources in Service: " + service.getName());
+            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_SMB +
+                                         "' has to have only one resource associated to itself. " + "Found " +
+                                         resourceInfoList.length + " resources in Service: " + service.getName());
         }
         return resourceInfoList[0];
     }
 
     @Override
     public String getProtocol() {
-        return Constants.PROTOCOL_FILE;
+        return Constants.PROTOCOL_SMB;
     }
 }
