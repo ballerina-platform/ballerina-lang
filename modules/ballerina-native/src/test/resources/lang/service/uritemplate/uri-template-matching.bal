@@ -102,6 +102,16 @@ service<http> echo11 {
         reply response;
     }
 
+    @http:GET{}
+    @http:Path {value:"/echo12/{abc}/bar"}
+    resource echo12 (message m, @http:PathParam {value:"abc"} string abc1) {
+        message response = {};
+        json responseJson = {"echo12": abc1};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+
     @http:POST{}
     @http:Path {value:"/so2"}
     resource echo (message m) {
