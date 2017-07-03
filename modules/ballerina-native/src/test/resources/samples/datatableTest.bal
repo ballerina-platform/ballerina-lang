@@ -289,7 +289,7 @@ function testBlobData () (string blobStringData) {
     return;
 }
 
-function testDatatableAutoClose () (int i) {
+function testDatatableAutoClose () (int i, string test) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -310,6 +310,38 @@ function testDatatableAutoClose () (int i) {
 
     datatable dt3 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testDatatableManualClose () (int data) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable", parameters);
+    ResultPrimitiveInt rs;
+    int i = 0;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultPrimitiveInt)dataStruct;
+        int ret = rs.INT_TYPE;
+        i = i + 1;
+        if (i == 1) {
+            break;
+        }
+    }
+    datatables:close(dt);
+
+    datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
+    ResultPrimitiveInt rs2;
+    while (datatables:hasNext(dt2)) {
+        any dataStruct = datatables:next(dt2);
+        rs2, _ = (ResultPrimitiveInt)dataStruct;
+        data = rs2.INT_TYPE;
+    }
+    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }

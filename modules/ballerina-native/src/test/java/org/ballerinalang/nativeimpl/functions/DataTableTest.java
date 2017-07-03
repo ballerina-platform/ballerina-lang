@@ -289,9 +289,19 @@ public class DataTableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(description = "Check toJson methods within transaction.")
+    @Test(description = "Check auto close resources in datatable.")
     public void testDatatableAutoClose() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDatatableAutoClose");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
+                + "\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,"
+                + "\"STRING_TYPE\":\"Hello\"}]");
+    }
+
+    @Test(description = "Check manual close resources in datatable.")
+    public void testDatatableManualClose() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testDatatableManualClose");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }

@@ -2,6 +2,10 @@ package ballerina.lang.datatables;
 
 import ballerina.doc;
 
+@doc:Description { value:"Releases the database connection."}
+@doc:Param { value:"dt: The datatable object" }
+native function close (datatable dt);
+
 @doc:Description { value:"Checks for a new row in the given datatable. If a new row is found, moves the cursor to it."}
 @doc:Param { value:"dt: The datatable object" }
 @doc:Return { value:"boolean: True if there is a new row; false otherwise" }
