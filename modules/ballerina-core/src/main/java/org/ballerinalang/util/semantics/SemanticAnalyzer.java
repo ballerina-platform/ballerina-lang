@@ -2610,7 +2610,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                if (!varName.equals("_") && !varNameSet.add(varName)) {
+                if (varName.equals("_")) {
+                    continue;
+                }
+                if (!varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
                 }
@@ -2623,7 +2626,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
-                BLangSymbol varSymbol = currentScope.resolve(symbolName);
+                BLangSymbol varSymbol = currentScope.resolve(varDefSymName);
                 if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
                     BLangExceptionHelper.throwSemanticError(variableDef, SemanticErrors.REDECLARED_SYMBOL,
                             variableDef.getName());

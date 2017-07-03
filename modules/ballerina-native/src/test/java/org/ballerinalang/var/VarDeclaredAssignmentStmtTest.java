@@ -180,6 +180,13 @@ public class VarDeclaredAssignmentStmtTest {
         BTestUtils.getProgramFile("lang/var/var-declaration-with-array-init.bal");
     }
 
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "var-redeclared-symbol.bal:4: redeclared symbol 'a'")
+    public void testVarDeclarationWithRedeclaredSymbol() {
+        //var declarations cannot have already declared variables references in LHS
+        BTestUtils.getProgramFile("lang/var/var-redeclared-symbol.bal");
+    }
+
     @Test(description = "Test incompatible json to struct with errors.")
     public void testIncompatibleJsonToStructWithErrors() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testIncompatibleJsonToStructWithErrors",
