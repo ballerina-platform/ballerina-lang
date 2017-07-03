@@ -67,6 +67,12 @@ under the License.
         </packages>
     </test>
 
+    <test name="ballerina-var-declaration-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.var"/>
+        </packages>
+    </test>
+
     <test name="ballerina-native-values-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.values"/>
@@ -81,6 +87,8 @@ under the License.
             <class name="org.ballerinalang.service.ServiceTest"/>
             <class name="org.ballerinalang.service.UriTemplateDispatcherTest"/>
             <class name="org.ballerinalang.service.UriTemplateBestMatchTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionEssentialMethodsTest"/>
+            <class name="org.ballerinalang.service.HTTPSessionSubMethodsTest"/>
         </classes>
     </test>
 
@@ -119,6 +127,12 @@ under the License.
             <class name="org.ballerinalang.core.lang.error.TestErrorReturn"/>
             <class name="org.ballerinalang.core.lang.error.TryCatchThrowStmtTest"/>
             <class name="org.ballerinalang.core.lang.error.TestFinallyBlock"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-interceptor-test-suite">
+        <classes>
+            <class name="org.ballerinalang.service.interceptors.ResourceInterceptorTest"/>
         </classes>
     </test>
 </suite>

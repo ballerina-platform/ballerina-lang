@@ -2,8 +2,8 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/groupInfo"}
-service oddEvenHttpService {
+@http:config {basePath:"/groupInfo"}
+service<http> oddEvenHttpService {
 
     string evenWebSocketConnectionGroupName = "evenGroup";
     string oddWebSocketConnectionGroupName = "oddGroup";
@@ -39,6 +39,24 @@ service oddEvenHttpService {
     @http:Path {value:"/rm-odd"}
     resource deleteOdd (message m) {
         ws:removeConnectionGroup(oddWebSocketConnectionGroupName);
+        message res = {};
+        messages:setStringPayload(res, "done");
+        reply res;
+    }
+
+    @http:GET {}
+    @http:Path {value:"/close-even"}
+    resource closeEven (message m) {
+        ws:closeConnectionGroup(evenWebSocketConnectionGroupName);
+        message res = {};
+        messages:setStringPayload(res, "done");
+        reply res;
+    }
+
+    @http:GET {}
+    @http:Path {value:"/close-odd"}
+    resource closeOdd (message m) {
+        ws:closeConnectionGroup(oddWebSocketConnectionGroupName);
         message res = {};
         messages:setStringPayload(res, "done");
         reply res;

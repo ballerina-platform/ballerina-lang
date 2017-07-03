@@ -38,6 +38,11 @@ import java.util.List;
 public class JMSMessageUtils {
 
     /**
+     * Class cannot be instantiated. Can only be used as a util class with static methods.
+     */
+    private JMSMessageUtils(){}
+
+    /**
      * To convert a {@link BMessage} message into a {@link SerializableCarbonMessage}.
      *
      * @param message {@link BMessage} to be converted

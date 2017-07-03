@@ -11,7 +11,7 @@ Pre-requisites
 
 How to run this sample
 ======================
-bin$ ./ballerina service ../samples/jmsServiceWithActiveMq.bsz
+bin$ ./ballerina run service ../samples/jmsServiceWithActiveMq.bsz
 
 the above command will start the ballerina server in the current terminal and deploy the jmsServiceWithActiveMq.bsz
 and publish the 'jmsActiveMqQueueService' and 'jmsActiveMqTopicService' services

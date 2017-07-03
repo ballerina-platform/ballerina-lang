@@ -117,6 +117,7 @@ import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -271,6 +272,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Complete the package init function
         ReturnStmt returnStmt = new ReturnStmt(pkgLocation, null, new Expression[0]);
         pkgInitFuncStmtBuilder.addStmt(returnStmt);
+        pkgInitFuncStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(pkgInitFuncStmtBuilder.build());
         BallerinaFunction initFunction = functionBuilder.buildFunction();
         initFunction.setReturnParamTypes(new BType[0]);
@@ -360,6 +362,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
             annotationAttachment.accept(this);
         }
+
+        //TODO if this validation is present, then can't run main methods in a file which has a service
+//        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
+//            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
+//                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
+//        }
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
@@ -1360,12 +1368,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        checkParent(breakStmt);
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
-
+        checkParent(continueStmt);
     }
 
     @Override
@@ -2360,7 +2368,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
 
-        // If this is a multi-value return conversion expression, set the return types. 
+        // If this is a multi-value return conversion expression, set the return types.
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr,
@@ -2417,7 +2425,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
-        // If this is a multi-value return conversion expression, set the return types. 
+        // If this is a multi-value return conversion expression, set the return types.
         BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
         if (error == null || !(error instanceof StructDef)) {
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
@@ -2647,7 +2655,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (lExpr instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) lExpr).getVarName().equals("_")) {
                 continue;
             }
-            
+
             if ((lExpr.getType() != BTypes.typeAny) && (!lExpr.getType().equals(returnType))) {
                 BLangExceptionHelper.throwSemanticError(assignStmt,
                         SemanticErrors.INCOMPATIBLE_TYPES, returnType, lExpr.getType());
@@ -2668,7 +2676,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                if (!varNameSet.add(varName)) {
+                if (!varName.equals("_") && !varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
                 }
@@ -3206,6 +3214,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             functionBuilder.setNodeLocation(structDef.getNodeLocation());
             functionBuilder.setIdentifier(new Identifier(structDef + ".<init>"));
             functionBuilder.setPkgPath(structDef.getPackagePath());
+            blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
             functionBuilder.setBody(blockStmtBuilder.build());
             structDef.setInitFunction(functionBuilder.buildFunction());
         }
@@ -3279,6 +3288,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(blockStmtBuilder.build());
         connectorDef.setInitFunction(functionBuilder.buildFunction());
     }
@@ -3306,6 +3316,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Adding the return statement
         ReturnStmt returnStmt = new ReturnStmt(location, null, new Expression[0]);
         blockStmtBuilder.addStmt(returnStmt);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         functionBuilder.setBody(blockStmtBuilder.build());
         service.setInitFunction(functionBuilder.buildFunction());
     }
@@ -3644,9 +3655,30 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private static void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
+    private void assignVariableRefTypes(Expression[] expr, BType[] returnTypes) {
         for (int i = 0; i < expr.length; i++) {
+            if (expr[i] instanceof SimpleVarRefExpr && ((SimpleVarRefExpr) expr[i]).getVarName().equals("_")) {
+                continue;
+            }
             ((SimpleVarRefExpr) expr[i]).getVariableDef().setType(returnTypes[i]);
+        }
+    }
+
+    private static void checkParent(Statement stmt) {
+        Statement parent = stmt;
+        StatementKind childStmtType = stmt.getKind();
+        while (StatementKind.CALLABLE_UNIT_BLOCK != parent.getKind()) {
+            if (StatementKind.WHILE_BLOCK == parent.getKind() &&
+                    (StatementKind.BREAK == childStmtType || StatementKind.CONTINUE == childStmtType)) {
+                return;
+            } else if (StatementKind.TRANSACTION_BLOCK == parent.getKind()) {
+                if (StatementKind.BREAK == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.BREAK_USED_IN_TRANSACTION);
+                } else if (StatementKind.CONTINUE == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
+                }
+            }
+            parent = parent.getParent();
         }
     }
 

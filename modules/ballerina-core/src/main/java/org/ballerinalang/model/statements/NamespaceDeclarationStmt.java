@@ -47,4 +47,9 @@ public class NamespaceDeclarationStmt extends AbstractStatement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.NAMESPACE_DECLARATION;
+    }
 }

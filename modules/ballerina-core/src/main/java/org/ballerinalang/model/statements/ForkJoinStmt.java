@@ -236,6 +236,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.FORK_JOIN;
+    }
+
     /**
      * Returns the name of the callable unit.
      *
@@ -540,12 +545,18 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         public ForkJoinStmt build() {
             forkJoinStmt.workers = this.workers;
             this.join.joinBlock = this.joinBlock;
+            if (this.join.joinBlock != null) {
+                this.join.joinBlock.setParent(forkJoinStmt);
+            }
             this.join.joinCount = this.joinCount;
             this.join.joinResult = this.joinResult;
             this.join.joinType = this.joinType;
             this.join.joinWorkers = joinWorkers.toArray(new String[joinWorkers.size()]);
             forkJoinStmt.join = this.join;
             this.timeout.timeoutBlock = this.timeoutBlock;
+            if (this.timeout.timeoutBlock != null) {
+                this.timeout.timeoutBlock.setParent(forkJoinStmt);
+            }
             this.timeout.timeoutExpression = this.timeoutExpression;
             this.timeout.timeoutResult = this.timeoutResult;
             forkJoinStmt.timeout = this.timeout;

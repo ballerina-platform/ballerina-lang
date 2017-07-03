@@ -3,8 +3,8 @@ package servicechaining.samples;
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:BasePath {value:"/bankinfo"}
-service Bankinfo {
+@http:config {basePath:"/bankinfo"}
+service<http> Bankinfo {
     
     @http:POST{}
     resource product (message m) {

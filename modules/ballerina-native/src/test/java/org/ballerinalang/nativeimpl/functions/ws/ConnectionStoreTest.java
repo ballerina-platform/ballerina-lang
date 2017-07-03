@@ -114,6 +114,23 @@ public class ConnectionStoreTest {
         Assert.assertEquals(session4.getTextReceived(), null);
     }
 
+    @Test(priority = 2)
+    public void testCloseConnection() {
+        // Check pre conditions
+        Assert.assertTrue(session1.isOpen());
+        Assert.assertTrue(session2.isOpen());
+        Assert.assertTrue(session3.isOpen());
+        Assert.assertTrue(session4.isOpen());
+
+        Services.invoke(MessageUtils.generateHTTPMessage(httpBasePath + "/close/2", "GET"));
+
+        // Check post conditions
+        Assert.assertTrue(session1.isOpen());
+        Assert.assertFalse(session2.isOpen());
+        Assert.assertTrue(session3.isOpen());
+        Assert.assertTrue(session4.isOpen());
+    }
+
     @AfterClass
     public void cleanUp() {
         EnvironmentInitializer.cleanup(wsApp);

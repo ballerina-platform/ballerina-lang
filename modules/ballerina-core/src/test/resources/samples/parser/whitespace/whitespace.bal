@@ -4,9 +4,10 @@ package  samples.parser   ;
 
 
 import   ballerina.connectors.twitter    as  tw   ;
+  import   ballerina.net.http    as  abc   ;
 
 
-  service HelloService {
+  service < abc  >  HelloService {
 
   any SERVICE_VAR1  =   2    ;
 

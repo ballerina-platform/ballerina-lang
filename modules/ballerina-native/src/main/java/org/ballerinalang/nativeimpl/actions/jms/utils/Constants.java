@@ -19,7 +19,7 @@ package org.ballerinalang.nativeimpl.actions.jms.utils;
 /**
  * JMS Constants required for ballerina JMS actions.
  */
-public class JMSConstants {
+public class Constants {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
 
@@ -52,11 +52,5 @@ public class JMSConstants {
      * This property is set to specify the status of the message.
      */
     public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
-
-    /**
-     * The message destination parameter name.
-     */
-    public static final String DESTINATION_PARAM_NAME = "destination";
-
 
 }
