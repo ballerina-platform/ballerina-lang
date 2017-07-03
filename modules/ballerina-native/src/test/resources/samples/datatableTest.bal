@@ -49,6 +49,11 @@ struct ResultDates {
     string DATETIME_TYPE;
 }
 
+struct ResultPrimitiveInt {
+    int INT_TYPE;
+}
+
+
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
@@ -68,7 +73,6 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
         b = rs.BOOLEAN_TYPE;
         s = rs.STRING_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -141,7 +145,6 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
         timestamp = rs.TIMESTAMP_TYPE;
         datetime = rs.DATETIME_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -165,7 +168,6 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
         blob binaryData = rs.BINARY_TYPE;
         binary = blobs:toString(binaryData, "UTF-8");
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -190,7 +192,6 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
         boolean_arr = rs.BOOLEAN_ARRAY;
         string_arr = rs.STRING_ARRAY;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -288,6 +289,63 @@ function testBlobData () (string blobStringData) {
     return;
 }
 
+function testDatatableAutoClose () (int i, string test) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
+    ResultPrimitiveInt rs;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultPrimitiveInt)dataStruct;
+        i = rs.INT_TYPE;
+    }
+
+    datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    var jsonstring,err = <json> dt2;
+    var test,err = (string)jsonstring;
+
+    datatable dt3 = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testDatatableManualClose () (int data) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable", parameters);
+    ResultPrimitiveInt rs;
+    int i = 0;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        rs, _ = (ResultPrimitiveInt)dataStruct;
+        int ret = rs.INT_TYPE;
+        i = i + 1;
+        if (i == 1) {
+            break;
+        }
+    }
+    datatables:close(dt);
+
+    datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
+    ResultPrimitiveInt rs2;
+    while (datatables:hasNext(dt2)) {
+        any dataStruct = datatables:next(dt2);
+        rs2, _ = (ResultPrimitiveInt)dataStruct;
+        data = rs2.INT_TYPE;
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
@@ -311,7 +369,6 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
         s = rs.STRING_TYPE;
         i2 = rs.DT2INT_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -329,7 +386,6 @@ function testBlobInsert () (int i) {
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
-    datatables:close(dt);
     sql:Parameter para0 = {sqlType:"integer", value:10};
     sql:Parameter para1 = {sqlType:"blob", value:blobData};
     params = [para0, para1];
