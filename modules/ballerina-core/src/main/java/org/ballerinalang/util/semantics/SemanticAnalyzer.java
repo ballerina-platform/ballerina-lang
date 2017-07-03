@@ -2306,7 +2306,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (isUnsafeCastPossible) {
                 typeCastExpr.setOpcode(InstructionCodes.CHECKCAST);
             } else {
-                // TODO: print a suggestion
+                TypeEdge conversionEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType,
+                        targetType, null);
+                if (conversionEdge != null) {
+                    BLangExceptionHelper.throwSemanticError(typeCastExpr,
+                            SemanticErrors.CANNOT_CAST_WITH_SUGGESTION, sourceType, targetType);
+                }
                 BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
                         sourceType, targetType);
             }
@@ -2364,7 +2369,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                 return;
             }
         } else {
-            // TODO: print a suggestion
+            TypeEdge castEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            if (castEdge != null) {
+                BLangExceptionHelper.throwSemanticError(typeConversionExpr,
+                        SemanticErrors.CANNOT_CONVERT_WITH_SUGGESTION, sourceType, targetType);
+            }
             BLangExceptionHelper.throwSemanticError(typeConversionExpr,
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
