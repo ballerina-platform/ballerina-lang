@@ -25,13 +25,13 @@ import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class SimpleStringExpression extends Expression {
+public class SimpleSplitStringExpression extends Expression {
 
     private static final char[] reserved = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
-    public SimpleStringExpression(String token) throws URITemplateException {
+    public SimpleSplitStringExpression(String token) throws URITemplateException {
         super(token);
     }
 
@@ -144,8 +144,10 @@ public class SimpleStringExpression extends Expression {
     }
 
     private boolean isEndCharacter(Character endCharacter) {
-        if (endCharacter == '/') {
-            return true;
+        for (Node childNode : childNodesList) {
+            if (endCharacter == childNode.getFirstCharacter()) {
+                return true;
+            }
         }
         return false;
     }

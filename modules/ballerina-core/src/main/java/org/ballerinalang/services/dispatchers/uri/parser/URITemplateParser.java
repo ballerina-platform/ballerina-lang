@@ -20,7 +20,6 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 public class URITemplateParser {
 
@@ -75,7 +74,8 @@ public class URITemplateParser {
                         if (expression) {
                             expression = false;
                             if (pointerIndex > startIndex) {
-                                createExpressionNode(segment.substring(startIndex, pointerIndex));
+                                String token = segment.substring(startIndex, pointerIndex);
+                                createExpressionNode(token, maxIndex, pointerIndex);
                                 startIndex = pointerIndex + 1;
                             } else {
                                 throw new URITemplateException("Illegal empty expression");
@@ -94,7 +94,7 @@ public class URITemplateParser {
                         if (pointerIndex == maxIndex) {
                             String token = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(token);
+                                createExpressionNode(token, maxIndex, pointerIndex);
                             } else {
                                 addNode(new Literal(token));
                             }
@@ -120,10 +120,14 @@ public class URITemplateParser {
         }
     }
 
-    private void createExpressionNode(String expression) throws URITemplateException {
+    private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
         Node node = null;
         if (isSimpleString(expression)) {
-            node = new SimpleStringExpression(expression);
+            if (maxIndex == pointerIndex) {
+                node = new SimpleStringExpression(expression);
+            } else {
+                node = new SimpleSplitStringExpression(expression);
+            }
         }
 
         if (expression.length() <= 1) {
