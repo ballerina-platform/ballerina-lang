@@ -1,23 +1,23 @@
 function xmltojson(xml input)(json) {
     json result;
-    result = <json>input;
+    result, _ = <json>input;
     return result;
 }
 
 function jsontoxml(json input)(xml) {
     xml result;
-    result = <xml>input;
+    result, _ = <xml>input;
     return result;
 }
 
 function stringtojson(string value)(json) {
     json result;
-    result = <json> value;
+    result = (json) value;
     return result;
 }
 
 function jsontostring(json value)(string) {
     string result;
-    result = (string)value;
+    result, _ = (string)value;
     return result;
 }

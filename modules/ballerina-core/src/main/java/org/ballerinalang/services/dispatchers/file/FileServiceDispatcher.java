@@ -18,10 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.file;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.AnnotationAttributeValue;
-import org.ballerinalang.model.Service;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
@@ -34,34 +30,13 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service dispatcher for File server connector.
  */
 public class FileServiceDispatcher implements ServiceDispatcher {
 
-    Map<String, Service> servicesMap = new HashMap<>();
-
     Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
-
-    @Override
-    @Deprecated
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
-        String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
-        if (serviceName == null) {
-            throw new BallerinaException("Service name is not found with the file input stream.", balContext);
-        }
-        Service service = servicesMap.get(serviceName);
-        if (service == null) {
-            throw new BallerinaException("No file service is registered with the service name " + serviceName,
-                    balContext);
-        }
-        return service;
-    }
 
     @Override
     public String getProtocol() {
@@ -69,39 +44,8 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public void serviceRegistered(Service service) {
-        for (AnnotationAttachment annotation : service.getAnnotations()) {
-            if (annotation.getName().equals(Constants.ANNOTATION_FILE_SOURCE) &&
-                annotation.getPkgName().equals(Constants.PROTOCOL_FILE)) {
-                Map<String, String> elementsMap = annotation.getAttributeNameValuePairs().entrySet().stream().collect(
-                        Collectors.toMap(Entry::getKey, entry -> entry.getValue().getLiteralValue().stringValue()));
-                String serviceName = service.getSymbolName().getName();
-                ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
-                        Constants.PROTOCOL_FILE, serviceName, elementsMap);
-                try {
-                    fileServerConnector.start();
-                    servicesMap.put(serviceName, service);
-                } catch (ServerConnectorException e) {
-                    throw new BallerinaException("Could not start File Server Connector for service: " +
-                                                 serviceName, e);
-                }
-                return;
-            }
-        }
-    }
-
-    @Override
-    public void serviceUnregistered(Service service) {
-        String serviceName = service.getSymbolName().getName();
-        if (servicesMap.get(serviceName) != null) {
-            servicesMap.remove(serviceName);
-            try {
-                BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
-            } catch (ServerConnectorException e) {
-                throw new BallerinaException("Could not stop file server connector for " +
-                        "service: " + serviceName, e);
-            }
-        }
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_FILE;
     }
 
     @Override
@@ -141,8 +85,8 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceUnregistered(ServiceInfo service) {
         String serviceName = service.getName();
-        if (servicesMap.get(serviceName) != null) {
-            servicesMap.remove(serviceName);
+        if (serviceInfoMap.get(serviceName) != null) {
+            serviceInfoMap.remove(serviceName);
             try {
                 BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
             } catch (ServerConnectorException e) {
@@ -150,14 +94,5 @@ public class FileServiceDispatcher implements ServiceDispatcher {
                         "service: " + serviceName, e);
             }
         }
-    }
-
-    private static Map<String, String> getServerConnectorParamMap(Map<String, AnnotationAttributeValue> map) {
-        Map<String, String> convertedMap = new HashMap<>();
-        Set<Entry<String, AnnotationAttributeValue>> entrySet = map.entrySet();
-        for (Map.Entry<String, AnnotationAttributeValue> entry : entrySet) {
-            convertedMap.put(entry.getKey(), entry.getValue().toString());
-        }
-        return convertedMap;
     }
 }

@@ -141,6 +141,11 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.WORKER_INVOCATION;
+    }
 }
 
 

@@ -41,6 +41,12 @@ You just started Ballerina, ran the HelloWorld sample, and got a response within
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
+## Why Ballerina Composer
+
+The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. This is a revolutionary way of doing programming for integration due to its use of sequence diagrams, enabling you to architecturally generate your code while designing your solution. The Ballerina Composer sets Ballerina apart from other integration paradigms due to its unique visual representation.
+
+You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view to define services by writing Swagger definitions. You can switch seamlessly between the Design view, Source view, and Swagger view and create your programs in the way that you like to work.
+
 ## Run the Composer
 
 1. At the command prompt, type `composer`.
@@ -53,30 +59,34 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
     
     Let's open a sample and take a look around. 
 
+## Explore the Ballerina Composer
+
+Once you have accessed the composer, you can have a look around using the available samples in the welcome page of the Ballerina Composer.
+
 1. Click **echoService**.
 
     The Echo Service program displays in the Composer.
     
     ![alt text](images/EchoDesign.png "Echo Service program")
 
-Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
+    Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
 
-Also notice the **Source View** and **Swagger View** buttons in the lower right corner. 
+    Also notice the **Source View** and **Swagger View** buttons in the lower right corner. 
    
-1. Click **Source View**. 
+2. Click **Source View**. 
 
     ![alt text](images/EchoSource.png "Source view")
 
     You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
 
-1. Click **Swagger View**. 
+3. Click **Swagger View**. 
 
     ![alt text](images/EchoSwagger.png "Swagger view")
 
-    This editor allows you to write Swagger definitions to create services. 
+    If your Ballerina program contains services and resources, you can view the generated Swagger definition for your program by switching to the Swagger view. This editor allows you to write Swagger definitions to create services. All the changes made on the Swagger definition will reflect on the Ballerina program when you switch back to Source or Design view.
 
-1. Click **Design View** to return to the visual editor. 
+1. Click **Design View** to return to the visual editor. If you happen to write the source code completely in the source view, when you switch to Design view, the Visual representation is created.
 
 1. Click the "x" to the right of "untitled" in the tab title to close this sample, and click **Don't Save** when prompted.
 
-Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to take Ballerina for a spin and [write your first Ballerina program](tutorials/first-program.md).

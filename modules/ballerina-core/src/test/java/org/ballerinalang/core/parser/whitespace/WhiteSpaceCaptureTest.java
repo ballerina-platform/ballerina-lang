@@ -9,6 +9,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalScope;
@@ -21,6 +22,7 @@ import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
@@ -79,7 +81,7 @@ public class WhiteSpaceCaptureTest {
 
     @Test(description = "Test captured whitespace regions of import declarations")
     public void testWhiteSpaceCaptureInImportDec() {
-        ImportPackage importPackage = bFile.getImportPackages()[0];
+        ImportPackage importPackage = bFile.getImportPackages()[1];
         Assert.assertNotNull(importPackage);
         Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START), "   ");
@@ -92,6 +94,22 @@ public class WhiteSpaceCaptureTest {
         Assert.assertEquals(importPackage.getWhiteSpaceDescriptor()
                 .getWhiteSpaceRegions().get(WhiteSpaceRegions.IMPORT_DEC_END_TO_NEXT_TOKEN),
                 System.lineSeparator() + System.lineSeparator() + System.lineSeparator() + "  ");
+    }
+
+    @Test(description = "Test captured whitespace regions of fork join nodes")
+    public void testWhiteSpaceCaptureInForkJoinStatement() {
+        BallerinaFunction function = (BallerinaFunction) bFile.getCompilationUnits()[2];
+        ForkJoinStmt forkJoin = (ForkJoinStmt) function.getCallableUnitBody().getStatements()[0];
+        Assert.assertNotNull(forkJoin);
+        WhiteSpaceDescriptor whiteSpaceDescriptor = forkJoin.getWhiteSpaceDescriptor();
+        Assert.assertEquals(
+                whiteSpaceDescriptor.getWhiteSpaceRegions().get(WhiteSpaceRegions.FORK_PRECEDING_WHITESPACE),
+                System.lineSeparator() + "  ");
+        Assert.assertEquals(whiteSpaceDescriptor.getChildDescriptor(BLangModelBuilder.JOIN_CLAUSE)
+                .getWhiteSpaceRegions().get(WhiteSpaceRegions.JOIN_PRECEDING_WHITESPACE), "     ");
+        Assert.assertEquals(whiteSpaceDescriptor.getChildDescriptor(BLangModelBuilder.TIMEOUT_CLAUSE)
+                        .getWhiteSpaceRegions().get(WhiteSpaceRegions.TIMEOUT_PRECEDING_WHITESPACE),
+                System.lineSeparator() + "   ");
     }
 
     @Test(description = "Test captured whitespace regions of package declaration node")
@@ -320,6 +338,8 @@ public class WhiteSpaceCaptureTest {
                 System.lineSeparator() + System.lineSeparator() + "    ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_WORKER_KEYWORD_TO_IDENTIFIER), "  ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_IDENTIFIER_TO_BODY_START), "   ");
+        Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_BODY_START_TO_NEXT_TOKEN),
+                System.lineSeparator() + System.lineSeparator() + "      ");
         Assert.assertEquals(wsRegions.get(WhiteSpaceRegions.WORKER_DEC_END_TO_NEXT_TOKEN),
                 System.lineSeparator() + System.lineSeparator() + "  ");
     }

@@ -157,8 +157,14 @@ public class StructTest {
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), -88.234);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), -24.99);
     }
-
     
+    @Test(description = "Test negative default values in struct")
+    public void testStructToString() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "getStruct");
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"aaa\",lname:\"\",adrs:null,age:25,family:null,parent:" +
+                "{name:\"bbb\",lname:\"ccc\",adrs:null,age:50,family:null,parent:null}}");
+    }
+
     /*
      *  Negative tests
      */

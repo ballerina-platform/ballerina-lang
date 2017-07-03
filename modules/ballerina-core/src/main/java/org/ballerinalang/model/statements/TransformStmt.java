@@ -50,6 +50,11 @@ public class TransformStmt extends AbstractStatement {
         visitor.visit(this);
     }
 
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.TRANSFORM;
+    }
+
     public Expression[] getOutputExprs() {
         return outputExprs;
     }
@@ -91,7 +96,10 @@ public class TransformStmt extends AbstractStatement {
         }
 
         public TransformStmt build() {
-            return new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs, transformBody);
+            TransformStmt transformStmt = new TransformStmt(location, whiteSpaceDescriptor, inputExprs, outputExprs,
+                    transformBody);
+            transformBody.setParent(transformStmt);
+            return transformStmt;
         }
     }
 }

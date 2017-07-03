@@ -5,14 +5,15 @@ import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
 
-@http:BasePath{value:"/productsservice"}
-service productmgt {
+@http:config {basePath:"/productsservice"}
+service<http> productmgt {
     map productsMap = populateSampleProducts();
 
     @http:GET{}
     @http:Path {value:"/{id}"}
     resource product(message m, @http:PathParam{value:"id"} string prodId) {
-        json payload = (json) productsMap[prodId];
+        json payload;
+        payload, _ = (json) productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;

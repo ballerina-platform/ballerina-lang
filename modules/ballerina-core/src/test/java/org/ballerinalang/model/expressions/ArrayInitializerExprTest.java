@@ -18,6 +18,7 @@
 package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -152,5 +153,21 @@ public class ArrayInitializerExprTest {
         BRefValueArray arrayValue = (BRefValueArray) returns[0];
         Assert.assertEquals(arrayValue.size(), 3);
         Assert.assertEquals(((Long) arrayValue.get(0).value()).longValue(), 1);
+    }
+
+    @Test(description = "Test float array initialization with integer values")
+    public void testFloatArrayInitWithIntExpr() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "floatArrayInitWithInt", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloatArray.class);
+
+        BFloatArray arrayValue = (BFloatArray) returns[0];
+        Assert.assertEquals(arrayValue.size(), 3);
+
+        Assert.assertEquals(arrayValue.get(0), 2.0);
+        Assert.assertEquals(arrayValue.get(1), 4.0);
+        Assert.assertEquals(arrayValue.get(2), 5.0);
     }
 }
