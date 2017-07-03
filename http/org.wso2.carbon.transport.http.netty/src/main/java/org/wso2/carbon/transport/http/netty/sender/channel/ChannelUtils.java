@@ -39,8 +39,6 @@ import org.wso2.carbon.transport.http.netty.sender.HTTPClientInitializer;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class for Channel handling.
@@ -100,21 +98,9 @@ public class ChannelUtils {
                     bootstrapConfiguration.getConnectTimeOut());
         }
 
-        // here we need to wait it in other thread
-        final CountDownLatch channelLatch = new CountDownLatch(1);
-        channelFuture.addListener(cf -> channelLatch.countDown());
-
-        try {
-            boolean wait = channelLatch.await(bootstrapConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-            if (wait) {
-                log.debug("Waited for connection creation in Sender");
-            }
-        } catch (InterruptedException ex) {
-            throw new Exception("Interrupted while waiting for " + "connection to " + httpRoute.toString());
-        }
-
+        // this wait is okay as we have a timeout in connect method
+        channelFuture.awaitUninterruptibly();
         Channel channel = null;
-
         if (channelFuture.isDone() && channelFuture.isSuccess()) {
             channel = channelFuture.channel();
             if (log.isDebugEnabled()) {

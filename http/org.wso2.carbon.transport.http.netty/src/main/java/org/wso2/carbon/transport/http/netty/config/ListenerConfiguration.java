@@ -77,6 +77,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private String certPass;
 
+    @XmlAttribute
+    private int socketIdleTimeout;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -183,5 +186,16 @@ public class ListenerConfiguration {
         List<Parameter> defaultParams = new ArrayList<>();
         return defaultParams;
 
+    }
+
+    public int getSocketIdleTimeout(int defaultVal) {
+        if (socketIdleTimeout == 0) {
+            return defaultVal;
+        }
+        return socketIdleTimeout;
+    }
+
+    public void setSocketIdleTimeout(int socketIdleTimeout) {
+        this.socketIdleTimeout = socketIdleTimeout;
     }
 }

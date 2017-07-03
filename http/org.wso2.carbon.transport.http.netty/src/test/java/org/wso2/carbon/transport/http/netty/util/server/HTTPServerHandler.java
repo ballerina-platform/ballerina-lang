@@ -35,8 +35,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
@@ -53,7 +51,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServerHandler.class);
 
-    private ByteBuf content;
+    private String stringContent;
     private String contentType;
     private int responseStatusCode = 200;
     private HttpRequest req;
@@ -61,7 +59,8 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if (content != null) {
+        if (stringContent != null) {
+            ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
             if (msg instanceof HttpRequest) {
                 req = (HttpRequest) msg;
             } else if (msg instanceof LastHttpContent) {
@@ -120,13 +119,7 @@ public class HTTPServerHandler extends ChannelInboundHandlerAdapter {
     public void setMessage(String message, String contentType) {
         if (message != null && contentType != null) {
             this.contentType = contentType;
-            try {
-                content = Unpooled.wrappedBuffer(message.getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                logger.error("Encoding not supported", e);
-            }
-        } else {
-            logger.debug("Please specify message and contentType ");
+            stringContent = message;
         }
     }
 

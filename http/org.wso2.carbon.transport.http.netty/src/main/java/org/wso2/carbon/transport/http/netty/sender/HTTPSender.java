@@ -15,7 +15,6 @@
 
 package org.wso2.carbon.transport.http.netty.sender;
 
-import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +30,6 @@ import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
-import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
-import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.util.HashMap;
@@ -105,21 +102,9 @@ public class HTTPSender implements TransportSender {
                     + "listener side please copy property SRC_HANDLER from incoming message");
         }
 
-        Channel outboundChannel = null;
         try {
-            TargetChannel targetChannel = connectionManager
-                    .getTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
-            if (targetChannel != null) {
-                outboundChannel = targetChannel.getChannel();
-                targetChannel.getTargetHandler().setCallback(callback);
-                targetChannel.getTargetHandler().setIncomingMsg(msg);
-                targetChannel.getTargetHandler().setTargetChannel(targetChannel);
-                targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-                boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-                if (written) {
-                    targetChannel.setRequestWritten(true);
-                }
-            }
+            connectionManager
+                    .executeTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
         } catch (Exception failedCause) {
             throw new MessageProcessorException(failedCause.getMessage(), failedCause);
         }

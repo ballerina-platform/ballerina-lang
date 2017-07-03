@@ -36,8 +36,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,20 +44,17 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.carbon.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -69,11 +65,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     protected HTTPCarbonMessage cMsg;
     protected ConnectionManager connectionManager;
-    private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
-    protected Map<String, GenericObjectPool> targetChannelPool;
+    protected Map<String, GenericObjectPool> targetChannelPool = new ConcurrentHashMap<>();
     protected ListenerConfiguration listenerConfiguration;
     private WebSocketServerHandshaker handshaker;
-
 
     public ListenerConfiguration getListenerConfiguration() {
         return listenerConfiguration;
@@ -89,7 +83,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool();
     }
 
     @Override
@@ -100,9 +93,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
         this.ctx = ctx;
-        if (this.targetChannelPool == null) {
-            this.targetChannelPool = connectionManager.getTargetChannelPool();
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -188,9 +178,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
             ChannelPipeline pipeline = ctx.pipeline();
-            int maxThreads = PoolConfiguration.getInstance().getEventGroupExecutorThreads();
-            EventExecutorGroup executorGroup = new DefaultEventExecutorGroup(maxThreads);
-            pipeline.addLast(executorGroup, "ws_handler",
+            pipeline.addLast("ws_handler",
                              new WebSocketSourceHandler(generateWebSocketChannelID(), this.connectionManager,
                                                         this.listenerConfiguration, httpRequest, isSecuredConnection,
                                                         ctx));
@@ -262,19 +250,16 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
+
+        targetChannelPool.forEach((k, genericObjectPool) -> {
+            try {
+                targetChannelPool.remove(k).close();
+            } catch (Exception e) {
+                log.error("Couldn't close target channel socket connections", e);
+            }
+        });
+
         connectionManager.notifyChannelInactive();
-    }
-
-    public void addTargetChannel(HttpRoute route, TargetChannel targetChannel) {
-        channelFutureMap.put(route.toString(), targetChannel);
-    }
-
-    public TargetChannel getChannelFuture(HttpRoute route) {
-        return channelFutureMap.remove(route.toString());
-    }
-
-    public boolean isChannelFutureExists(HttpRoute route) {
-        return (channelFutureMap.get(route.toString()) != null);
     }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {
@@ -321,16 +306,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
         //Added protocol name as a string
 
-        // TODO: Cannot find a single usage of these properties. Commenting it and will remove it in the next release.
-        // TODO: Make them available through util methods.
-//        cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-//        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-//        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-//        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-
-//        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-//        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().toString())
-
         return cMsg;
     }
 
@@ -341,4 +316,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return ctx.channel().id().asLongText();
     }
 
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            ctx.close();
+        }
+    }
 }
