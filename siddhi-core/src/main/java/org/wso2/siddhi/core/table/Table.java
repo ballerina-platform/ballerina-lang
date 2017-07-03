@@ -91,6 +91,30 @@ public abstract class Table implements FindableProcessor {
 
     protected abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException;
 
+    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+        if (isConnected.get()) {
+            try {
+                return find(compiledCondition, matchingEvent);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                return find(matchingEvent, compiledCondition);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, events dropped '" + matchingEvent + "'");
+            return null;
+        } else {
+            connectWithRetry();
+            return find(matchingEvent, compiledCondition);
+        }
+    }
+
+    protected abstract StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
+            throws ConnectionUnavailableException;
+
     public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
         if (isConnected.get()) {
             try {

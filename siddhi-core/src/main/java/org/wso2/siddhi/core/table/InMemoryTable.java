@@ -155,7 +155,7 @@ public class InMemoryTable extends Table implements Snapshotable {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent) {
         try {
             readWriteLock.readLock().lock();
             return ((Operator) compiledCondition).find(matchingEvent, eventHolder, tableStreamEventCloner);
