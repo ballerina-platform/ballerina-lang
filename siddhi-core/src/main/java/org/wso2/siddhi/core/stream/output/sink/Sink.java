@@ -133,19 +133,19 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
 
     /**
-     * Will be called to connect to the backend before events are published
+     * Called to connect to the backend before events are published
      *
      * @throws ConnectionUnavailableException if it cannot connect to the backend
      */
     public abstract void connect() throws ConnectionUnavailableException;
 
     /**
-     * Will be called after all publishing is done, or when ConnectionUnavailableException is thrown
+     * Called after all publishing is done, or when ConnectionUnavailableException is thrown
      */
     public abstract void disconnect();
 
     /**
-     * Will be called at the end to clean all the resources consumed
+     * Called at the end to clean all the resources consumed
      */
     public abstract void destroy();
 

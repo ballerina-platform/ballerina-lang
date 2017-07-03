@@ -52,9 +52,23 @@ public abstract class SourceMapper implements SourceEventListener {
         init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
     }
 
+    /**
+     * Initialize Source-mapper
+     *
+     * @param streamDefinition     Associated output stream definition
+     * @param optionHolder         Mapper option holder
+     * @param attributeMappingList Custom attribute mapping for source-mapping
+     * @param configReader         System configuration reader
+     * @param siddhiAppContext     Siddhi application context
+     */
     public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
             attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
+    /**
+     * Support classes that the source-mapper can consume for mapping processing (used for validation purposes)
+     *
+     * @return Supported event classes that mapper can process.
+     */
     public abstract Class[] getSupportedInputEventClasses();
 
     public final void setInputHandler(InputHandler inputEventHandler) {
@@ -67,7 +81,7 @@ public abstract class SourceMapper implements SourceEventListener {
                 trpProperties.set(transportProperties);
                 mapAndProcess(eventObject, inputEventHandler);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | RuntimeException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
                     "' for the stream '" + streamDefinition.getId() + "'");
         } finally {
@@ -79,6 +93,13 @@ public abstract class SourceMapper implements SourceEventListener {
         return streamDefinition;
     }
 
+    /**
+     * Method to map the incoming event and as pass that via inputEventHandler to process further.
+     *
+     * @param eventObject       Incoming event Object
+     * @param inputEventHandler Handler to pass the converted Siddhi Event for processing
+     * @throws InterruptedException
+     */
     protected abstract void mapAndProcess(Object eventObject,
                                           InputEventHandler inputEventHandler)
             throws InterruptedException;

@@ -47,12 +47,17 @@ public class TCPSource extends Source {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
-            transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
                 siddhiAppContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
         streamDefinition = StreamDefinition.id(context);
         streamDefinition.getAttributeList().addAll(sourceEventListener.getStreamDefinition().getAttributeList());
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{Event[].class, Event.class};
     }
 
     @Override

@@ -151,6 +151,11 @@ public class JsonSinkMapper extends SinkMapper {
     }
 
     @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener) {
         StringBuilder sb = new StringBuilder();

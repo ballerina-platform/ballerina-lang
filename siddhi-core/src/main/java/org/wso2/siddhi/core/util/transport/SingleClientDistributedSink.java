@@ -91,6 +91,11 @@ public class SingleClientDistributedSink extends DistributedTransport {
         this.sink.initOnlyTransport(streamDefinition, sinkOptionHolder, sinkConfigReader, siddhiAppContext);
     }
 
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return sink.getSupportedInputEventClasses();
+    }
+
     /**
      * Will be called to connect to the backend before events are published
      *

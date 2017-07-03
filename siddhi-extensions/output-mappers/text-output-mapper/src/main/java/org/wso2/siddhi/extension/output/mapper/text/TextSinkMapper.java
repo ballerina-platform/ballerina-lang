@@ -64,6 +64,11 @@ public class TextSinkMapper extends SinkMapper {
     }
 
     @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener) {
         if (this.payloadTemplateBuilder != null) {

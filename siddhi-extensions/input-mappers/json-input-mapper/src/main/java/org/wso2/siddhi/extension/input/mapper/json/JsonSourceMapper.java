@@ -27,7 +27,6 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
@@ -90,7 +89,7 @@ import java.util.List;
                 @Example(
                         syntax = "@source(type='inMemory', topic='stock', @map(type='json'))\n"
                                 + "define stream FooStream (symbol string, price float, volume long);\n",
-                        description =  "Above configuration will do a default JSON input mapping. Expected "
+                        description = "Above configuration will do a default JSON input mapping. Expected "
                                 + "input will look like below."
                                 + "{\n"
                                 + "    \"event\":{\n"
@@ -103,7 +102,7 @@ import java.util.List;
                         syntax = "@source(type='inMemory', topic='stock', @map(type='json', "
                                 + "enclosing.element=\"$.portfolio\", "
                                 + "@attributes(symbol = \"company.symbol\", price = \"price\", volume = \"volume\")))",
-                        description =  "Above configuration will perform a custom JSON mapping. Expected input will "
+                        description = "Above configuration will perform a custom JSON mapping. Expected input will "
                                 + "look like below."
                                 + "{"
                                 + " \"portfolio\":{\n"
@@ -140,7 +139,7 @@ public class JsonSourceMapper extends SourceMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      List<AttributeMapping> attributeMappingList, ConfigReader configReader, SiddhiAppContext
-                                 siddhiAppContext) {
+                             siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
         attributesSize = this.streamDefinition.getAttributeList().size();
@@ -169,6 +168,11 @@ public class JsonSourceMapper extends SourceMapper {
                         .streamDefinition.getAttributeList().get(i).getName());
             }
         }
+    }
+
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override

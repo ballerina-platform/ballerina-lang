@@ -56,7 +56,8 @@ public class InMemorySource extends Source {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     String[] transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+                     String[] requestedTransportPropertyNames, ConfigReader configReader,
+                     SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory source");
         this.subscriber = new InMemoryBroker.Subscriber() {
@@ -73,8 +74,8 @@ public class InMemorySource extends Source {
     }
 
     @Override
-    public Class getOutputEventClass() {
-        return Object.class;
+    public Class[] getOutputEventClasses() {
+        return new Class[]{};
     }
 
     @Override

@@ -45,21 +45,19 @@ import java.util.concurrent.ScheduledExecutorService;
 )
 public class KafkaSink extends Sink {
 
-    private ScheduledExecutorService executorService;
-    private Producer<String, String>  producer;
-    private Option topicOption = null;
-    private String kafkaConnect;
-    private String optionalConfigs;
-    private Option partitionOption;
-
     private static final String KAFKA_PUBLISH_TOPIC = "topic";
     private static final String KAFKA_BROKER_LIST = "bootstrap.servers";
     private static final String KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
     private static final String KAFKA_PARTITION_NO = "partition.no";
-
     private static final Logger log = Logger.getLogger(KafkaSink.class);
+    private ScheduledExecutorService executorService;
+    private Producer<String, String> producer;
+    private Option topicOption = null;
+    private String kafkaConnect;
+    private String optionalConfigs;
+    private Option partitionOption;
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
@@ -127,6 +125,11 @@ public class KafkaSink extends Sink {
     @Override
     public void destroy() {
         //not required
+    }
+
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override
