@@ -134,6 +134,7 @@ public class URITemplateParser {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }
 
+        // TODO: Re-verify the usage of these nodes
         if (expression.startsWith("#")) {
             node = new FragmentExpression(expression.substring(1));
         } else if (expression.startsWith("+")) {
