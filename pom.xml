@@ -170,7 +170,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.90-SNAPSHOT</ballerina.version>
+        <ballerina.version>${project.version}</ballerina.version>
 
         <!-- Maven plugins -->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
