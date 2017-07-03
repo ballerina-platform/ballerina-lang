@@ -31,6 +31,9 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.MapCarbonMessage;
+import org.wso2.carbon.messaging.MessageUtil;
 
 /**
  * Native function to set a Map object as the payload of a message.
@@ -56,7 +59,23 @@ public class SetMapPayload extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getRefArgument(context, 0);
-        BMap payload = (BMap) getRefArgument(context, 1);
+        BMap<String, ? extends BValue> payload = (BMap) getRefArgument(context, 1);
+
+        CarbonMessage carbonMessage = msg.value();
+        MapCarbonMessage mapCarbonMessage;
+        if (carbonMessage instanceof MapCarbonMessage) {
+            mapCarbonMessage = (MapCarbonMessage) carbonMessage;
+            mapCarbonMessage.clearMapPayload();
+        } else {
+            mapCarbonMessage = MessageUtil.createMapMessageWithoutData(carbonMessage);
+        }
+
+        for (String key : payload.keySet()) {
+            BValue value = payload.get(key);
+            mapCarbonMessage.setValue(key, value.stringValue());
+        }
+
+        msg.setValue(mapCarbonMessage);
         // Clone the message without content
         msg.setMessageDataSource(payload);
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_FORM);

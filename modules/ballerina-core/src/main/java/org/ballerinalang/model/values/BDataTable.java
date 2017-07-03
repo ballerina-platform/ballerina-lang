@@ -17,13 +17,13 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.Types;
 import java.util.List;
@@ -77,15 +77,19 @@ public class BDataTable implements BRefType<Object> {
     }
 
     public BStruct getNext(boolean isInTransaction) {
-        BValue[] dataArray = new BValue[this.columnCount];
-        int index = 0;
+        int longRegIndex = -1;
+        int doubleRegIndex = -1;
+        int stringRegIndex = -1;
+        int booleanRegIndex = -1;
+        int blobRegIndex = -1;
+        int refRegIndex = -1;
         for (ColumnDefinition columnDef : columnDefs) {
-            BValue value;
             String columnName = columnDef.getName();
             int sqlType = columnDef.getSQLType();
             switch (sqlType) {
             case Types.ARRAY:
-                value = getDataArray(columnName);
+                BMap bMapvalue = getDataArray(columnName);
+                bStruct.setRefField(++refRegIndex, bMapvalue);
                 break;
             case Types.CHAR:
             case Types.VARCHAR:
@@ -93,47 +97,56 @@ public class BDataTable implements BRefType<Object> {
             case Types.NCHAR:
             case Types.NVARCHAR:
             case Types.LONGNVARCHAR:
-                value = new BString(iterator.getString(columnName));
+                String sValue = iterator.getString(columnName);
+                bStruct.setStringField(++stringRegIndex, sValue);
+                break;
+            case Types.BLOB:
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+                BValue bValue = iterator.get(columnName, sqlType);
+                bStruct.setBlobField(++blobRegIndex, ((BBlob) bValue).blobValue());
                 break;
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.BLOB:
-            case Types.BINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
-                value = iterator.get(columnName, sqlType);
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
+                BValue strValue = iterator.get(columnName, sqlType);
+                bStruct.setStringField(++stringRegIndex, strValue.stringValue());
                 break;
             case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:
             case Types.BIGINT:
-                value = new BInteger(iterator.getInt(columnName));
+                long lValue = iterator.getInt(columnName);
+                bStruct.setIntField(++longRegIndex, lValue);
                 break;
             case Types.REAL:
             case Types.NUMERIC:
             case Types.DECIMAL:
             case Types.FLOAT:
             case Types.DOUBLE:
-                value = new BFloat(iterator.getFloat(columnName));
+                double fValue = iterator.getFloat(columnName);
+                bStruct.setFloatField(++doubleRegIndex, fValue);
                 break;
             case Types.BIT:
             case Types.BOOLEAN:
-                value = new BBoolean(iterator.getBoolean(columnName));
+                boolean boolValue = iterator.getBoolean(columnName);
+                bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
                 break;
             default:
-                value = null;
+                throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
             }
-            dataArray[index] = value;
-            ++index;
+            boolean isLast = iterator.isLast();
+            if (isLast) {
+                close(isInTransaction);
+                lastRecordProcessed = true;
+            }
         }
-        boolean isLast = iterator.isLast();
-        if (isLast) {
-            close(isInTransaction);
-            lastRecordProcessed = true;
-        }
-        bStruct.setMemoryBlock(dataArray);
-        BLangVM.prepareStructureTypeFromNativeAction(bStruct);
         return bStruct;
     }
 
@@ -183,13 +196,18 @@ public class BDataTable implements BRefType<Object> {
             case Types.LONGNVARCHAR:
             case Types.CLOB:
             case Types.NCLOB:
-            case Types.BINARY:
             case Types.DATE:
             case Types.TIME:
             case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.ROWID:
                 type = BTypes.typeString;
                 break;
             case Types.BLOB:
+            case Types.LONGVARBINARY:
+            case Types.BINARY:
+            case Types.VARBINARY:
                 type = BTypes.typeBlob;
                 break;
             case Types.TINYINT:

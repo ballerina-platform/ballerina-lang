@@ -20,7 +20,11 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -39,6 +43,11 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private static final int MAX_CAPACITY = 1 << 16;
     @SuppressWarnings("unchecked")
     private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
+
+    /**
+     * Output stream to write message out to the socket
+     */
+     private OutputStream outputStream;
 
     /**
      * Retrieve the value for the given key from map.
@@ -195,5 +204,23 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         }
     }
 
+    @Override
+    public String getMessageAsString() {
+        return stringValue();
+    }
+
+    @Override
+    public void serializeData() {
+        try {
+            outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
+        } catch (IOException e) {
+            throw new BallerinaException("Error occurred while serializing data", e);
+        }
+    }
+
+    @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
 }
 

@@ -209,12 +209,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        String serviceName = ctx.Identifier().getText();
+        String protocolPkgName = ctx.Identifier(0).getText();
+        String serviceName = ctx.Identifier(1).getText();
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getServiceDefinitionWS(tokenStream, ctx);
         }
-        modelBuilder.createService(getCurrentLocation(ctx), whiteSpaceDescriptor, serviceName);
+        modelBuilder.createService(getCurrentLocation(ctx), whiteSpaceDescriptor, serviceName, protocolPkgName);
     }
 
     @Override
@@ -1176,9 +1177,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endForkJoinStmt(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getForkJoinStatementWS(tokenStream, ctx);
+        }
+        modelBuilder.endForkJoinStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }
 
     @Override
@@ -1190,9 +1196,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endJoinClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor joinWhiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            joinWhiteSpaceDescriptor = WhiteSpaceUtil.getJoinClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.endJoinClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText(),
+                joinWhiteSpaceDescriptor);
+
     }
 
     public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
@@ -1202,10 +1215,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx));
-            for (TerminalNode t : ctx.Identifier()) {
-                modelBuilder.createJoinWorkers(t.getText());
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
+            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx),
+                    whiteSpaceDescriptor);
+            enterJoinWorkers(ctx.Identifier());
         }
     }
 
@@ -1217,12 +1233,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createAllJoinCondition("all");
-            for (TerminalNode t : ctx.Identifier()) {
-                modelBuilder.createJoinWorkers(t.getText());
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getJoinConditionWS(tokenStream, ctx);
             }
+            modelBuilder.createAllJoinCondition("all", whiteSpaceDescriptor);
+            enterJoinWorkers(ctx.Identifier());
         }
 
+    }
+
+    private void enterJoinWorkers(List<TerminalNode> identifiers) {
+        for (TerminalNode t : identifiers) {
+            WhiteSpaceDescriptor workerWhiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                workerWhiteSpaceDescriptor = WhiteSpaceUtil.getJoinWorkerWS(tokenStream, t);
+            }
+            modelBuilder.createJoinWorkers(t.getText(), workerWhiteSpaceDescriptor);
+        }
     }
 
     @Override
@@ -1234,9 +1262,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.endTimeoutClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText());
+        if (ctx.exception != null) {
+            return;
         }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTimeoutClauseWS(tokenStream, ctx);
+        }
+        modelBuilder.endTimeoutClause(getCurrentLocation(ctx), typeNameStack.pop(), ctx.Identifier().getText(),
+                whiteSpaceDescriptor);
+
     }
 
     @Override
@@ -1482,16 +1517,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getSimpleVariableIdentifierWS(tokenStream, ctx);
-//        }
-
         NodeLocation currentLocation = getCurrentLocation(ctx);
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         modelBuilder.resolvePackageFromNameReference(nameReference);
-        modelBuilder.createSimpleVarRefExpr(currentLocation, whiteSpaceDescriptor, nameReference);
+        // simple variable ref whitespaces are already captured through name ref
+        modelBuilder.createSimpleVarRefExpr(currentLocation, nameReference.getWhiteSpaceDescriptor(), nameReference);
     }
 
     @Override
@@ -1504,12 +1534,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getStructFieldIdentifierWS(tokenStream, ctx);
-//        }
-
         String fieldName = ctx.field().Identifier().getText();
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFieldBasedVarRedWS(tokenStream, ctx);
+        }
         modelBuilder.createFieldBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, fieldName);
     }
 
@@ -1525,9 +1554,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-//        if (isVerboseMode) {
-//            whiteSpaceDescriptor = WhiteSpaceUtil.getMapArrayVarIdentifierWS(tokenStream, ctx);
-//        }
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getIndexBasedVarRefWS(tokenStream, ctx);
+        }
 
         modelBuilder.createIndexBasedVarRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
     }

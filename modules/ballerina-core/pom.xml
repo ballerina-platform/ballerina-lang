@@ -43,6 +43,10 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.jms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.connector.framework</artifactId>
         </dependency>
         <dependency>
@@ -58,6 +62,14 @@
                     <artifactId>pax-logging-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.config</groupId>
+            <artifactId>org.wso2.carbon.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.secvault</groupId>
+            <artifactId>org.wso2.carbon.secvault</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>

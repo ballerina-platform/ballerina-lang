@@ -36,6 +36,8 @@ import java.util.ServiceLoader;
 
 /**
  * {@code BallerinaConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
+ *
+ * @since 0.89
  */
 public class BallerinaConnectorManager {
 

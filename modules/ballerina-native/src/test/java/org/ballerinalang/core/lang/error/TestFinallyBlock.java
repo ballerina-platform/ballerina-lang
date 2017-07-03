@@ -87,5 +87,79 @@ public class TestFinallyBlock {
         Assert.assertEquals(returns[0].stringValue(), "start123end");
     }
 
+    @Test(description = "check finally while returning for reference type.")
+    public void testReturnReferenceTypeInFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test6", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
+    }
 
+    @Test(description = "check try-finally block inside a finally block ")
+    public void testTryFinallyInsideFinallyFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test7", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally innerInnerTry " +
+                "innerInnerFinally outerFinally");
+    }
+
+    @Test(description = "check multiple return inside finally block ")
+    public void testMultipleReturnInsideFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test8", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "OuterOk");
+    }
+
+
+    @Test(description = "check multiple return inside finally block ")
+    public void testMultipleReturnInsideFinallyBlockWithRefType() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test9", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally innerInnerTry " +
+                "innerInnerFinally outerFinally");
+    }
+
+
+    @Test(description = "check break with Finally ")
+    public void testBreakWithFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testBreak1", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3");
+    }
+
+    @Test(description = "check continue with finally ")
+    public void testContinueWithFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testContinue1", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3 t-f4 t-f5");
+    }
+
+    @Test(description = "check abort with finally ")
+    public void testAbortWithFinallyBlock() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testAbort1", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s tf");
+    }
+
+    @Test(description = "check abort with finally ")
+    public void testAbortWithFinallyBlock2() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testAbort2", args);
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 tf2");
+    }
 }

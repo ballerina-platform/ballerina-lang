@@ -8,7 +8,7 @@ import ballerina.lang.system;
 protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "QpidConnectionFactory",
 factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
 connectionFactoryType = "queue")
-service jmsWSO2MBQueueService {
+service<jms> jmsWSO2MBQueueService {
 
     resource onMessage (message m) {
         string messageType;
