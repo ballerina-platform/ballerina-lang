@@ -163,7 +163,7 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java,
+                                <excludes>**/util/parser/*,**/${native.constructs.provider.class}.java,
                                     **/${ballerina.package.repository.provider.class}.java</excludes>
                             </configuration>
                             <goals>
