@@ -116,6 +116,8 @@ public enum SemanticErrors {
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    CANNOT_CONVERT_WITH_SUGGESTION("cannot.convert.with.suggestion", "SEMANTIC_0095"),
+    CANNOT_CAST_WITH_SUGGESTION("cannot.cast.with.suggestion", "SEMANTIC_0096"),
     ;
 
     private String errorMsgKey;
