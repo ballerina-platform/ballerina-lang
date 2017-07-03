@@ -2610,9 +2610,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
+                //continue to next iteration if variable symbol is underscore '_' == ignore
                 if (varName.equals("_")) {
                     continue;
                 }
+
                 if (!varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
