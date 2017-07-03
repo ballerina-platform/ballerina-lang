@@ -18,12 +18,13 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 
+/**
+ * Literal represents literal path segments in the uri-template.
+ */
 public class Literal extends Node {
 
     private int tokenLength = 0;

@@ -18,12 +18,13 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 
+/**
+ * ReservedStringExpression represents path segments that have reserved characters.
+ */
 public class ReservedStringExpression extends SimpleStringExpression {
 
     public ReservedStringExpression(String token) throws URITemplateException {

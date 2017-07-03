@@ -18,16 +18,18 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * SimpleSplitStringExpression represents path segments that have multiple path params.
+ * ex - /{foo}+{bar}/
+ */
 public class SimpleSplitStringExpression extends Expression {
 
-    private static final char[] reserved = new char[] {
+    protected static final char[] reserved = new char[] {
             ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '='
     };
 
@@ -143,7 +145,7 @@ public class SimpleSplitStringExpression extends Expression {
         return false;
     }
 
-    private boolean isEndCharacter(Character endCharacter) {
+    protected boolean isEndCharacter(Character endCharacter) {
         for (Node childNode : childNodesList) {
             if (endCharacter == childNode.getFirstCharacter()) {
                 return true;

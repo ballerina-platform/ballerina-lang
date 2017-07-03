@@ -21,6 +21,9 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
 
+/**
+ * URITemplateParser parses the provided uri-template and build the tree.
+ */
 public class URITemplateParser {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };

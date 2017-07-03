@@ -29,6 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Node represents different types of path segments in the uri-template.
+ */
 public abstract class Node {
 
     protected String token;
