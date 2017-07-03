@@ -317,19 +317,13 @@ class Package {
      * @param {StructDefinition[]|StructDefinition} structDefinitions - The struct definition(s).
      */
     addStructDefinitions(structDefinitions) {
-        let err;
-        if (!_.isArray(structDefinitions) && !(structDefinitions instanceof StructDefinition)) {
-            err = 'Adding struct def failed. Not an instance of StructDefinition: ' + structDefinitions;
-            log.error(err);
-            throw err;
-        }
         this._structDefinitions = this._structDefinitions || [];
         // Join all struct definitions to one array(concat). Reversing the struct definitions so that the last
         // modified elements comes first(reverse). Then remove the duplicates using struct name(uniqBy).
         // Then reverse it back(reverse).
         this._structDefinitions = _.reverse(
             _.uniqBy((_.reverse(_.concat(this._structDefinitions, structDefinitions))), (structDefinition) => {
-                return structDefinition.getStructName();
+                return structDefinition.getName();
             }));
     }
 
@@ -365,6 +359,13 @@ class Package {
             functionDef.initFromJson(functionNode);
             functionDef.setFullPackageName(this.getName());
             this.addFunctionDefinitions(functionDef);
+        });
+
+        _.each(jsonNode.structs, (structNode) => {
+            const structDef = BallerinaEnvFactory.createStruct();
+            structDef.initFromJson(structNode);
+            structDef.setFullPackageName(this.getName());
+            this.addStructDefinitions(structDef);
         });
 
         _.each(jsonNode.annotations, (annotationNode) => {

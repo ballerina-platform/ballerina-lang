@@ -21,5 +21,20 @@ package org.ballerinalang.composer.service.workspace.model;
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
         date = "2017-01-27T07:45:46.625Z")
 public class Struct {
-    //TODO: Implement when native structs are available.
+
+    private String name = null;
+
+    public Struct name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }
