@@ -16,21 +16,20 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream;
+package org.wso2.siddhi.core.stream.input.source;
 
 /**
- * Holder object to store mapping information for a given Siddhi {@link org.wso2.siddhi.query.api.definition.Attribute}
+ * Holder object to store mapping information for a given Siddhi Attribute
+ * {@link org.wso2.siddhi.query.api.definition.Attribute}
  */
 public class AttributeMapping {
-    private String mapping;
-    private String rename;
+    protected String name;
+    protected int position;
+    private String mapping = null;
 
-    public AttributeMapping(String mapping) {
-        this.mapping = mapping;
-    }
-
-    public AttributeMapping(String rename, String mapping) {
-        this.rename = rename;
+    public AttributeMapping(String name, int position, String mapping) {
+        this.name = name;
+        this.position = position;
         this.mapping = mapping;
     }
 
@@ -38,23 +37,19 @@ public class AttributeMapping {
         return mapping;
     }
 
-    public void setMapping(String mapping) {
-        this.mapping = mapping;
+    public String getName() {
+        return name;
     }
 
-    public String getRename() {
-        return rename;
-    }
-
-    public void setRename(String rename) {
-        this.rename = rename;
+    public int getPosition() {
+        return position;
     }
 
     @Override
     public String toString() {
         return "AttributeMapping{" +
-                "mapping='" + mapping + '\'' +
-                ", rename='" + rename + '\'' +
+                "name='" + name + '\'' +
+                ", mapping='" + mapping + '\'' +
                 '}';
     }
 
@@ -69,17 +64,20 @@ public class AttributeMapping {
 
         AttributeMapping that = (AttributeMapping) o;
 
-        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) {
+        if (position != that.position) {
             return false;
         }
-        return !(rename != null ? !rename.equals(that.rename) : that.rename != null);
-
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        return mapping != null ? mapping.equals(that.mapping) : that.mapping == null;
     }
 
     @Override
     public int hashCode() {
-        int result = mapping != null ? mapping.hashCode() : 0;
-        result = 31 * result + (rename != null ? rename.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + position;
+        result = 31 * result + (mapping != null ? mapping.hashCode() : 0);
         return result;
     }
 }

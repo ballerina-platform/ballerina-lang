@@ -22,12 +22,12 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
@@ -125,15 +125,16 @@ public class XMLSinkMapper extends SinkMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *
-     * @param streamDefinition       The stream definition
+     * * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param mapperConfigReader
+     * @param siddhiAppContext
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
-                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext
+                                 siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.getOrCreateOption(OPTION_ENCLOSING_ELEMENT, null).getValue();
         if (enclosingElement != null) {
@@ -158,7 +159,7 @@ public class XMLSinkMapper extends SinkMapper {
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
+                           SinkListener sinkListener) {
         StringBuilder sb = new StringBuilder();
         if (payloadTemplateBuilder != null) {   //custom mapping
             if (enclosingElement != null) {
@@ -191,20 +192,19 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publishEvents(sb.toString(), dynamicOptions);
+        sinkListener.publishEvents(sb.toString());
     }
 
     /**
      * Map and publish the given {@link Event} array
-     *
-     * @param events                 Event object array
+     *  @param events                 Event object array
      * @param optionHolder           option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param sinkListener           output transport callback
      */
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
+                           SinkListener sinkListener) {
         if (events.length < 1) {        //todo valid case?
             return;
         }
@@ -240,7 +240,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publishEvents(sb.toString(), dynamicOptions);
+        sinkListener.publishEvents(sb.toString());
     }
 
     /**

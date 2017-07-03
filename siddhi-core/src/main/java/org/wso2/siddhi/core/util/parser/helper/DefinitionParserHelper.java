@@ -24,8 +24,8 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.function.Script;
-import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.StreamJunction;
+import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.stream.output.sink.DynamicOptionGroupDeterminer;
@@ -77,7 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for queryParser to help with QueryRuntime
@@ -292,11 +291,15 @@ public class DefinitionParserHelper {
                     OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
                             sourceMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
-                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation),
-                            siddhiAppContext.getSiddhiContext().getConfigManager().generateConfigReader
-                                    (mapperExtension.getNamespace(), mapperExtension.getName()));
-                    source.init(sourceType, sourceOptionHolder, sourceMapper, siddhiAppContext.getSiddhiContext()
-                            .getConfigManager().generateConfigReader
+                    AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
+                    String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
+                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder, attributesHolder.payloadMappings,
+                            sourceType, attributesHolder.transportMappings, siddhiAppContext.getSiddhiContext().
+                                    getConfigManager().generateConfigReader(mapperExtension.getNamespace(),
+                                    mapperExtension.getName()), siddhiAppContext);
+                    source.init(sourceType, sourceOptionHolder, sourceMapper,
+                            transportPropertyNames, siddhiAppContext.getSiddhiContext().
+                                    getConfigManager().generateConfigReader
                                     (sourceExtension.getNamespace(), sourceExtension.getName()), streamDefinition,
                             siddhiAppContext);
 
@@ -313,6 +316,15 @@ public class DefinitionParserHelper {
                 }
             }
         }
+    }
+
+    private static String[] getTransportPropertyNames(AttributesHolder attributesHolder) {
+        List<String> attributeNames = new ArrayList<>();
+        for (AttributeMapping attributeMapping : attributesHolder.transportMappings
+                ) {
+            attributeNames.add(attributeMapping.getMapping());
+        }
+        return attributeNames.toArray(new String[0]);
     }
 
     public static void addEventSink(StreamDefinition streamDefinition,
@@ -501,20 +513,67 @@ public class DefinitionParserHelper {
         };
     }
 
-    private static List<AttributeMapping> getAttributeMappings(Annotation mapAnnotation) {
-        List<AttributeMapping> mappings = new ArrayList<>();
+    private static AttributesHolder getAttributeMappings(Annotation mapAnnotation, String mapType,
+                                                         StreamDefinition streamDefinition) {
         List<Annotation> attributeAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_ATTRIBUTES);
+        DefinitionParserHelper.AttributesHolder attributesHolder = new DefinitionParserHelper.AttributesHolder();
         if (attributeAnnotations.size() > 0) {
-            mappings.addAll(
-                    attributeAnnotations
-                            .get(0)
-                            .getElements()
-                            .stream()
-                            .map(element -> new AttributeMapping(element.getKey(), element.getValue()))
-                            .collect(Collectors.toList())
-            );
+            Map<String, String> elementMap = new HashMap<>();
+            List<String> elementList = new ArrayList<>();
+            Boolean attributesNameDefined = null;
+            for (Element element : attributeAnnotations.get(0).getElements()) {
+                if (element.getKey() == null) {
+                    if (attributesNameDefined != null && attributesNameDefined) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                    }
+                    attributesNameDefined = false;
+                    elementList.add(element.getValue());
+                } else {
+                    if (attributesNameDefined != null && !attributesNameDefined) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', some attributes are defined and some are not defined.");
+                    }
+                    attributesNameDefined = true;
+                    elementMap.put(element.getKey(), element.getValue());
+                }
+            }
+            if (elementMap.size() > 0) {
+                List<Attribute> attributeList = streamDefinition.getAttributeList();
+                for (int i = 0, attributeListSize = attributeList.size(); i < attributeListSize; i++) {
+                    Attribute attribute = attributeList.get(i);
+                    String value = elementMap.get(attribute.getName());
+                    if (value == null) {
+                        throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                                streamDefinition.getId() + "', attribute '" + attribute.getName() + "' is not mapped.");
+                    }
+                    assignMapping(attributesHolder, elementMap, i, attribute);
+                }
+            } else {
+                List<Attribute> attributeList = streamDefinition.getAttributeList();
+                if (elementList.size() != attributeList.size()) {
+                    throw new SiddhiAppCreationException("Error at '" + mapType + "' defined at stream '" +
+                            streamDefinition.getId() + "', '" + elementList.size() + "' mapping attributes are " +
+                            "provided but expected attributes are '" + attributeList.size() + "'.");
+                }
+                for (int i = 0; i < attributeList.size(); i++) {
+                    Attribute attribute = attributeList.get(i);
+                    assignMapping(attributesHolder, elementMap, i, attribute);
+                }
+            }
         }
-        return mappings;
+        return attributesHolder;
+    }
+
+    private static void assignMapping(AttributesHolder attributesHolder, Map<String, String> elementMap, int i,
+                                      Attribute attribute) {
+        String mapping = elementMap.get(attribute.getName()).trim();
+        if (mapping.startsWith("trp:")) {
+            attributesHolder.transportMappings.add(new AttributeMapping(attribute.getName(), i, mapping
+                    .substring(4)));
+        } else {
+            attributesHolder.payloadMappings.add(new AttributeMapping(attribute.getName(), i, mapping));
+        }
     }
 
     private static String getPayload(Annotation mapAnnotation) {
@@ -610,6 +669,15 @@ public class DefinitionParserHelper {
                         destinationAnnotation, sinkExt, clientTransport.getSupportedDynamicOptions())));
 
         return destinationOptHolders;
+    }
+
+    /**
+     * Holder to collect attributes mapping
+     */
+    static class AttributesHolder {
+        List<AttributeMapping> transportMappings = new ArrayList<>();
+        List<AttributeMapping> payloadMappings = new ArrayList<>();
+
     }
 
 }

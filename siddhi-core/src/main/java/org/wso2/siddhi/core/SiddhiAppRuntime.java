@@ -31,7 +31,6 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -120,13 +119,12 @@ public class SiddhiAppRuntime {
 
         for (Map.Entry<String, List<Sink>> sinkEntries : sinkMap.entrySet()) {
             addCallback(sinkEntries.getKey(),
-                    new SinkCallback(sinkEntries.getValue(),
-                            streamDefinitionMap.get(sinkEntries.getKey())));
+                    new SinkCallback(sinkEntries.getValue(), streamDefinitionMap.get(sinkEntries.getKey())));
         }
         for (Map.Entry<String, List<Source>> sourceEntries : sourceMap.entrySet()) {
             InputHandler inputHandler = getInputHandler(sourceEntries.getKey());
             for (Source source : sourceEntries.getValue()) {
-                source.getMapper().setInputEventHandler(new InputEventHandler(inputHandler, siddhiAppContext));
+                source.getMapper().setInputHandler(inputHandler);
             }
         }
     }

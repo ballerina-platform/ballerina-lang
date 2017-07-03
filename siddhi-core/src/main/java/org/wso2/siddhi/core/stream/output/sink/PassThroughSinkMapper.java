@@ -20,9 +20,9 @@ package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -51,19 +51,19 @@ public class PassThroughSinkMapper extends SinkMapper {
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
-            payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+            payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         // do nothing
     }
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
-        sinkListener.publishEvents(events, dynamicOptions);
+                           SinkListener sinkListener) {
+        sinkListener.publish(events);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
-        sinkListener.publishEvents(event, dynamicOptions);
+                           SinkListener sinkListener) {
+        sinkListener.publish(event);
     }
 }

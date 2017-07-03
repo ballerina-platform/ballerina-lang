@@ -28,10 +28,11 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
+import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.source.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -145,14 +146,15 @@ public class XmlSourceMapper extends SourceMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition     the  StreamDefinition
+     * @param streamDefinition     the  StreamDefinition
      * @param optionHolder         mapping options
      * @param attributeMappingList list of attributes mapping
      * @param configReader
+     * @param siddhiAppContext
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
-            attributeMappingList, ConfigReader configReader) {
+            attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         String enclosingElementSelectorXPath;
         this.streamDefinition = streamDefinition;
         attributeList = streamDefinition.getAttributeList();
@@ -180,14 +182,14 @@ public class XmlSourceMapper extends SourceMapper {
             }
 
             for (AttributeMapping attributeMapping : attributeMappingList) {
-                if (attributeTypeMap.containsKey(attributeMapping.getRename())) {
+                if (attributeTypeMap.containsKey(attributeMapping.getName())) {
                     AXIOMXPath axiomxPath;
                     try {
                         axiomxPath = new AXIOMXPath(attributeMapping.getMapping());
                     } catch (JaxenException e) {
                         throw new SiddhiAppValidationException("Error occurred when building XPath from: " +
                                 attributeMapping.getMapping() + ", mapped to attribute: " +
-                                attributeMapping.getRename());
+                                attributeMapping.getName());
                     }
                     for (Map.Entry<String, String> entry : namespaceMap.entrySet()) {
                         try {
@@ -198,9 +200,9 @@ public class XmlSourceMapper extends SourceMapper {
                                     + ":" + entry.getValue() + " to XPath element: " + attributeMapping.getMapping());
                         }
                     }
-                    xPathMap.put(attributeMapping.getRename(), axiomxPath);
+                    xPathMap.put(attributeMapping.getName(), axiomxPath);
                 } else {
-                    throw new SiddhiAppValidationException("No attribute with name " + attributeMapping.getRename()
+                    throw new SiddhiAppValidationException("No attribute with name " + attributeMapping.getName()
                             + " available in stream. Hence halting Siddhi app deployment");
                 }
             }
@@ -231,7 +233,6 @@ public class XmlSourceMapper extends SourceMapper {
      * Receives an event as an XML string from {@link org.wso2.siddhi.core.stream.input.source.Source}, converts it to
      * a {@link org.wso2.siddhi.core.event.ComplexEventChunk} and send to the
      * {@link org.wso2.siddhi.core.query.output.callback.OutputCallback}.
-     *
      * @param eventObject  the input event, given as an XML string
      * @param inputEventHandler input handler
      */

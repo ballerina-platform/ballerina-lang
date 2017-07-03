@@ -49,18 +49,20 @@ public abstract class Source implements Snapshotable {
     private ScheduledExecutorService scheduledExecutorService;
     private ConnectionCallback connectionCallback = new ConnectionCallback();
 
-    public void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
-                     ConfigReader configReader, StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
+    public final void init(String sourceType, OptionHolder transportOptionHolder, SourceMapper sourceMapper,
+                           String[] transportPropertyNames, ConfigReader configReader,
+                           StreamDefinition streamDefinition, SiddhiAppContext siddhiAppContext) {
         this.type = sourceType;
         this.mapper = sourceMapper;
         this.streamDefinition = streamDefinition;
         this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
-        init(sourceMapper, transportOptionHolder, configReader, siddhiAppContext);
+        init(sourceMapper, transportOptionHolder, transportPropertyNames, configReader, siddhiAppContext);
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader
-            configReader, SiddhiAppContext siddhiAppContext);
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
+                              String[] transportPropertyNames, ConfigReader configReader,
+                              SiddhiAppContext siddhiAppContext);
 
     public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
 
@@ -82,7 +84,8 @@ public abstract class Source implements Snapshotable {
                 backoffRetryCounter.reset();
             } catch (ConnectionUnavailableException | RuntimeException e) {
                 LOG.error("Error while connecting at Source '" + type + "' at '" + streamDefinition.getId() +
-                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                        "', " + e.getMessage() + ", will retry in '" +
+                        backoffRetryCounter.getTimeInterval() + "'.", e);
                 scheduledExecutorService.schedule(new Runnable() {
                     @Override
                     public void run() {
@@ -94,7 +97,7 @@ public abstract class Source implements Snapshotable {
         }
     }
 
-    public SourceMapper getMapper() {
+    public final SourceMapper getMapper() {
         return mapper;
     }
 
@@ -109,7 +112,7 @@ public abstract class Source implements Snapshotable {
     }
 
     @Override
-    public String getElementId() {
+    public final String getElementId() {
         return elementId;
     }
 

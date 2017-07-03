@@ -20,11 +20,11 @@ package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -49,40 +49,40 @@ public class TextSinkMapper extends SinkMapper {
 
     /**
      * Initialize the mapper and the mapping configurations
-     *
-     * @param streamDefinition       The stream definition
+     * * @param streamDefinition       The stream definition
      * @param optionHolder           Unmapped dynamic options
      * @param payloadTemplateBuilder
      * @param mapperConfigReader
+     * @param siddhiAppContext
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder
-            payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+            payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.payloadTemplateBuilder = payloadTemplateBuilder;
     }
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
+                           SinkListener sinkListener) {
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
-                sinkListener.publishEvents(payloadTemplateBuilder.build(event), dynamicOptions);
+                sinkListener.publishEvents(payloadTemplateBuilder.build(event));
             }
         } else {
             for (Event event : events) {
-                sinkListener.publishEvents(constructDefaultMapping(event), dynamicOptions);
+                sinkListener.publishEvents(constructDefaultMapping(event));
             }
         }
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions) {
+                           SinkListener sinkListener) {
         if (this.payloadTemplateBuilder != null) {
-            sinkListener.publishEvents(payloadTemplateBuilder.build(event), dynamicOptions);
+            sinkListener.publishEvents(payloadTemplateBuilder.build(event));
         } else {
-            sinkListener.publishEvents(constructDefaultMapping(event), dynamicOptions);
+            sinkListener.publishEvents(constructDefaultMapping(event));
         }
     }
 
@@ -94,7 +94,6 @@ public class TextSinkMapper extends SinkMapper {
      */
     private Object constructDefaultMapping(Event event) {
         StringBuilder eventText = new StringBuilder();
-        eventText.append("siddhiEventId").append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(event.getId()).append("\n");
         Object[] data = event.getData();
         for (int i = 0; i < data.length; i++) {
             Object attributeValue = data[i];
