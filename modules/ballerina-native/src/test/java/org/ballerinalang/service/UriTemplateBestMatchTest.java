@@ -326,6 +326,42 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
+    @Test(description = "Test suitable method with URL. /echo13?foo=1 ")
+    public void testIntegerQueryParam() {
+        String path = "/hello/echo13?foo=1";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo13").asText(), "1"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test suitable method with URL. /echo14?foo=1.11 ")
+    public void testFloatQueryParam() {
+        String path = "/hello/echo14?foo=1.11";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo14").asText(), "1.11"
+                , "Resource dispatched to wrong template");
+    }
+
+    @Test(description = "Test suitable method with URL. /echo15?foo=1.11 ")
+    public void testBooleanQueryParam() {
+        String path = "/hello/echo15?foo=true";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo15").asText(), "true"
+                , "Resource dispatched to wrong template");
+    }
+
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);
