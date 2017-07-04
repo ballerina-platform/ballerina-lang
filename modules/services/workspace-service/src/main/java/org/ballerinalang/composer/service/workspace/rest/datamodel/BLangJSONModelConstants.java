@@ -175,6 +175,8 @@ public class BLangJSONModelConstants {
 
     public static final String ASSIGNMENT_STATEMENT = "assignment_statement";
 
+    public static final String IS_DECLARED_WITH_VAR = "is_declared_with_var";
+
     public static final String WHILE_STATEMENT = "while_statement";
 
     public static final String FUNCTION_INVOCATION_STATEMENT = "function_invocation_statement";
