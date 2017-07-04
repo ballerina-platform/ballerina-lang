@@ -111,16 +111,16 @@ public class TextSourceMapperTestCase {
 //                "([^,;]+),([^,;]+),([^,;]+),([^,;]+)"));
 //        subscription.insertInto("FooStream");
 //
-//        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
-//        siddhiApp.defineStream(StreamDefinition.id("FooStream")
+//        SiddhiApp SiddhiApp = SiddhiApp.SiddhiApp();
+//        SiddhiApp.defineStream(StreamDefinition.id("FooStream")
 //                .attribute("symbol", Attribute.Type.STRING)
 //                .attribute("price", Attribute.Type.FLOAT)
 //                .attribute("volume", Attribute.Type.INT));
-//        siddhiApp.addSubscription(subscription);
+//        SiddhiApp.addSubscription(subscription);
 //
 //        SiddhiManager siddhiManager = new SiddhiManager();
 //        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(SiddhiApp);
 //        siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
 //            @Override
 //            public void receive(Event[] events) {
@@ -151,16 +151,16 @@ public class TextSourceMapperTestCase {
 //                .option("regex3", "(volume=)([^,;]+)"));
 //        subscription.insertInto("FooStream");
 //
-//        SiddhiApp siddhiApp = SiddhiApp.siddhiApp();
-//        siddhiApp.defineStream(StreamDefinition.id("FooStream")
+//        SiddhiApp SiddhiApp = SiddhiApp.SiddhiApp();
+//        SiddhiApp.defineStream(StreamDefinition.id("FooStream")
 //                .attribute("symbol", Attribute.Type.STRING)
 //                .attribute("price", Attribute.Type.FLOAT)
 //                .attribute("volume", Attribute.Type.INT));
-//        siddhiApp.addSubscription(subscription);
+//        SiddhiApp.addSubscription(subscription);
 //
 //        SiddhiManager siddhiManager = new SiddhiManager();
 //        siddhiManager.setExtension("source:inMemory", InMemorySource.class);
-//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+//        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(SiddhiApp);
 //        siddhiAppRuntime.addCallback("FooStream", new StreamCallback() {
 //            @Override
 //            public void receive(Event[] events) {

@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -44,18 +44,19 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Queue;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * Incremental executor class which is responsible for performing incremental aggregation
  */
 public class IncrementalExecutor implements Executor {
     static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<>();
+    private final StreamEvent resetEvent;
     private TimePeriod.Duration duration; // TODO: 6/16/17 remove unnecessary fields
     private IncrementalExecutor child;
     private MetaStreamEvent metaEvent;
     private Map<String, Table> tableMap;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private String aggregatorName;
     private List<CompositeAggregator> compositeAggregators;
     private List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails;
@@ -65,14 +66,11 @@ public class IncrementalExecutor implements Executor {
     private GroupByKeyGenerator groupByKeyGenerator;
     private int bufferCount;
     private StreamEventPool streamEventPool;
-
     private long nextEmitTime = -1;
     private boolean isRoot = false;
     private boolean isExternalTimeStampBased = false;
     private boolean isGroupBy;
     private Executor next;
-    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<>();
-    private final StreamEvent resetEvent;
     private long startTimeOfAggregates;
     private Map<Long, Map<String, BaseIncrementalAggregatorStore>> bufferedBaseAggregatorMap;
     private Map<Long, List<AggregationParser.ExpressionExecutorDetails>> basicExecutorsOfBufferedEvents;
@@ -82,17 +80,25 @@ public class IncrementalExecutor implements Executor {
     private Queue<List<AggregationParser.ExpressionExecutorDetails>>
             poolOfExtraBaseExpressionExecutors;
 
-    public IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child, MetaStreamEvent metaEvent,
-            Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String aggregatorName,
-            List<CompositeAggregator> compositeAggregators,
-            List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails, List<Variable> groupByVariables,
-            VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator,
-            List<ExpressionExecutor> genericExpressionExecutors, int bufferCount, StreamEventPool streamEventPool) {
+    public IncrementalExecutor(TimePeriod.Duration duration,
+                               IncrementalExecutor child,
+                               MetaStreamEvent metaEvent,
+                               Map<String, Table> tableMap,
+                               SiddhiAppContext siddhiAppContext,
+                               String aggregatorName,
+                               List<CompositeAggregator> compositeAggregators,
+                               List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails,
+                               List<Variable> groupByVariables,
+                               VariableExpressionExecutor timeStampExecutor,
+                               GroupByKeyGenerator groupByKeyGenerator,
+                               List<ExpressionExecutor> genericExpressionExecutors,
+                               int bufferCount,
+                               StreamEventPool streamEventPool) {
         this.duration = duration;
         this.child = child;
         this.metaEvent = metaEvent;
         this.tableMap = tableMap;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.aggregatorName = aggregatorName;
         this.compositeAggregators = compositeAggregators;
         this.basicExecutorDetails = basicExecutorDetails;
@@ -117,6 +123,10 @@ public class IncrementalExecutor implements Executor {
         timerStreamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
+    public static String getThreadLocalGroupByKey() {
+        return keyThreadLocal.get();
+    }
+
     public void setRoot() {
         this.isRoot = true;
     }
@@ -129,8 +139,8 @@ public class IncrementalExecutor implements Executor {
         this.scheduler = scheduler;
     }
 
-    public void setPoolOfExecutors (Queue<List<AggregationParser.ExpressionExecutorDetails>>
-                                            poolOfExtraBaseExpressionExecutors) {
+    public void setPoolOfExecutors(Queue<List<AggregationParser.ExpressionExecutorDetails>>
+                                           poolOfExtraBaseExpressionExecutors) {
         this.poolOfExtraBaseExpressionExecutors = poolOfExtraBaseExpressionExecutors;
     }
 
@@ -250,7 +260,7 @@ public class IncrementalExecutor implements Executor {
                                     bufferedBaseAggregatorCollection, timeStamp,
                                     basicExecutorsOfBufferedEvents.get(actualEmitTimeForEvent));
 
-                        } else if(((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>)
+                        } else if (((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>)
                                 bufferedBaseAggregatorMap).firstKey() < actualEmitTimeForEvent) {
                             // An event which is newer than oldest buffered event, but older than current.
                             // Event should be buffered. But no events belonging to this time period have
@@ -276,10 +286,6 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    public static String getThreadLocalGroupByKey() {
-        return keyThreadLocal.get();
-    }
-
     private void updateRunningBaseAggregatorCollection(String groupedByKey, ComplexEvent event) {
         BaseIncrementalAggregatorStore runningBaseAggregator = runningBaseAggregatorCollection.get(groupedByKey);
         if (runningBaseAggregator == null) {
@@ -295,9 +301,13 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-    private void updateBufferedBaseAggregatorCollection(String groupedByKey, ComplexEvent event,
-            Map<String, BaseIncrementalAggregatorStore> bufferedBaseAggregatorCollection, long timeStamp,
-            List<AggregationParser.ExpressionExecutorDetails> basicExecutorsOfBufferedEvents) {
+    private void updateBufferedBaseAggregatorCollection(String groupedByKey,
+                                                        ComplexEvent event,
+                                                        Map<String, BaseIncrementalAggregatorStore>
+                                                                bufferedBaseAggregatorCollection,
+                                                        long timeStamp,
+                                                        List<AggregationParser.ExpressionExecutorDetails>
+                                                                basicExecutorsOfBufferedEvents) {
         BaseIncrementalAggregatorStore bufferedBaseAggregator = bufferedBaseAggregatorCollection.get(groupedByKey);
         if (bufferedBaseAggregator == null) {
             bufferedBaseAggregator = new BaseIncrementalAggregatorStore(timeStamp, groupedByKey,
@@ -336,17 +346,18 @@ public class IncrementalExecutor implements Executor {
                 // Those executors would be cloned to be used later when out of order events arrive.
                 // TODO: 6/30/17 write test case for this
                 NavigableMap<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutors =
-                        ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>) basicExecutorsOfBufferedEvents)
-                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
-                                this.duration, this.bufferCount), true);
-                for (Map.Entry<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutorList:
-                     removedExecutors.entrySet()) {
-                    if (poolOfExtraBaseExpressionExecutors.size() >= bufferCount -1) {
+                        ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>)
+                                basicExecutorsOfBufferedEvents)
+                                .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
+                                        this.duration, this.bufferCount), true);
+                for (Map.Entry<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutorList :
+                        removedExecutors.entrySet()) {
+                    if (poolOfExtraBaseExpressionExecutors.size() >= bufferCount - 1) {
                         break;
                     }
                     List<AggregationParser.ExpressionExecutorDetails> newBasicExecutorDetails = new ArrayList<>();
                     for (AggregationParser.ExpressionExecutorDetails removedExecutor :
-                            removedExecutorList.getValue() ) {
+                            removedExecutorList.getValue()) {
                         newBasicExecutorDetails.add(new AggregationParser.
                                 ExpressionExecutorDetails(removedExecutor.getExecutor().cloneExecutor("clone"),
                                 removedExecutor.getExecutorName()));
@@ -358,8 +369,8 @@ public class IncrementalExecutor implements Executor {
                 // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
                 NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch =
                         ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
-                        .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
-                                this.duration, this.bufferCount), true);
+                                .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
+                                        this.duration, this.bufferCount), true);
 
                 // Send oldest base aggregator collection to next executor
                 if (mapOfBaseAggregatesToDispatch != null) {
@@ -449,7 +460,7 @@ public class IncrementalExecutor implements Executor {
         private Object[] baseIncrementalValues;
 
         private BaseIncrementalAggregatorStore(long timeStamp, String key, int numberOfGenericValues,
-                int numberOfBaseValues) {
+                                               int numberOfBaseValues) {
             this.timeStamp = timeStamp;
             this.key = key;
             genericValues = new Object[numberOfGenericValues];

@@ -61,7 +61,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
- * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an siddhiApp
+ * Keep streamDefinitions, partitionRuntimes, queryRuntimes of an SiddhiApp
  * and streamJunctions and inputHandlers used
  */
 public class SiddhiAppRuntime {

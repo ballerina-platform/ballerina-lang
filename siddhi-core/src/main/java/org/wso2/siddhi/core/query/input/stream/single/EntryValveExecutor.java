@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.input.stream.single;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
 import org.wso2.siddhi.core.util.Schedulable;
@@ -30,11 +30,11 @@ import org.wso2.siddhi.core.util.ThreadBarrier;
 public class EntryValveExecutor implements Executor, Schedulable {
     private Executor next;
     private ThreadBarrier threadBarrier;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
 
-    public EntryValveExecutor(ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
-        threadBarrier = executionPlanContext.getThreadBarrier();
+    public EntryValveExecutor(SiddhiAppContext siddhiAppContext) {
+        this.siddhiAppContext = siddhiAppContext;
+        threadBarrier = siddhiAppContext.getThreadBarrier();
     }
 
     /**
@@ -90,7 +90,7 @@ public class EntryValveExecutor implements Executor, Schedulable {
      */
     @Override
     public Executor cloneExecutor(String key) {
-        return new EntryValveExecutor(executionPlanContext);
+        return new EntryValveExecutor(siddhiAppContext);
     }
 
     /**

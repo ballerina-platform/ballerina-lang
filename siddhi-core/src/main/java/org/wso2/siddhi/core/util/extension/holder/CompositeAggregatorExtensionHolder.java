@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util.extension.holder;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,16 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CompositeAggregatorExtensionHolder extends AbstractExtensionHolder {
     private static Class clazz = CompositeAggregator.class;
 
-    private CompositeAggregatorExtensionHolder(ExecutionPlanContext executionPlanContext) {
-        super(clazz, executionPlanContext);
+    private CompositeAggregatorExtensionHolder(SiddhiAppContext siddhiAppContext) {
+        super(clazz, siddhiAppContext);
     }
 
-    public static CompositeAggregatorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
-        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext()
+    public static CompositeAggregatorExtensionHolder getInstance(SiddhiAppContext siddhiAppContext) {
+        ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = siddhiAppContext.getSiddhiContext()
                 .getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder = new CompositeAggregatorExtensionHolder(executionPlanContext);
+            abstractExtensionHolder = new CompositeAggregatorExtensionHolder(siddhiAppContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
         return (CompositeAggregatorExtensionHolder) extensionHolderMap.get(clazz);

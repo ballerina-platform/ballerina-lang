@@ -61,7 +61,7 @@ import java.util.concurrent.Executors;
  * Class to parse {@link SiddhiApp}
  */
 public class SiddhiAppParser {
-    private static final Logger log = Logger.getLogger(SiddhiAppRuntimeBuilder.class);
+    private static final Logger log = Logger.getLogger(SiddhiAppParser.class);
 
     /**
      * Parse an SiddhiApp returning SiddhiAppRuntime
