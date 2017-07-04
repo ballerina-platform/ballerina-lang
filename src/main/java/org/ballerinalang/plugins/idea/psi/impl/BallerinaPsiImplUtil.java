@@ -175,7 +175,12 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-
+    /**
+     * Find all matching packages in current module, dependencies(modules)
+     * @param module
+     * @param packages
+     * @return
+     */
     @NotNull
     private static List<PsiDirectory> findAllMatchingPackages(@NotNull Module module,
                                                               @NotNull List<PsiElement> packages) {
@@ -213,21 +218,6 @@ public class BallerinaPsiImplUtil {
         }
         return results;
     }
-
-
-    //    private static void getMatchingPackagesFromContentRoots(List<PsiElement> packages, Project project,
-    //                                                               List<PsiDirectory> results) {
-    //        // We need to get the content roots from the project and find matching directories in each content root.
-    //        VirtualFile[] contentRoots = ProjectRootManager.getInstance(project).getContentRoots();
-    //        for (VirtualFile contentRoot : contentRoots) {
-    //            // Get any matching directory from the content root.
-    //            VirtualFile match = getMatchingDirectory(contentRoot, packages);
-    //            // If there is a match, add it to the results.
-    //            if (match != null) {
-    //                results.add(PsiManager.getInstance(project).findDirectory(match));
-    //            }
-    //        }
-    //    }
 
     @NotNull
     private static List<PsiDirectory> getMatchingPackagesFromSDK(@NotNull Project project, @NotNull Module module,

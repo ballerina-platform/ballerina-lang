@@ -53,7 +53,7 @@
         <colorSettingsPage implementation="org.ballerinalang.plugins.idea.highlighter.BallerinaColorSettingsPage"/>
 
         <annotator language="Ballerina"
-                   implementationClass="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
+                   implementationClass="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaAnnotator"/>
 
         <!--formatter-->
         <lang.formatter language="Ballerina"
@@ -64,7 +64,7 @@
                 implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
         <quoteHandler fileType="Ballerina file"
-                      className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
+                      className="org.ballerinalang.plugins.idea.codeInsight.editoractions.BallerinaQuoteHandler"/>
 
         <enterHandlerDelegate
                 implementation="org.ballerinalang.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
@@ -81,7 +81,7 @@
                                 implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaCompletionContributor"/>
 
         <lang.braceMatcher language="Ballerina"
-                           implementationClass="org.ballerinalang.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
+                           implementationClass="org.ballerinalang.plugins.idea.codeInsight.highlighting.BallerinaPairedBraceMatcher"/>
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
@@ -125,7 +125,7 @@
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
         <projectSdkSetupValidator id="BallerinaSdk"
-                                  implementation="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
+                                  implementation="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
         <library.presentationProvider implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
         <applicationService serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker"/>
 
@@ -140,16 +140,16 @@
                 implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <!-- run application -->
-        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
+        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaRunner"/>
 
-        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>
+        <configurationType implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationProducer"/>
 
-        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
-        <console.folding implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFolding"/>
+        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaRunLineMarkerProvider"/>
+        <console.folding implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFolding"/>
 
         <!-- debugger -->
-        <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaDebugger"/>
+        <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaDebugger"/>
         <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>
 
         <!--project-->
@@ -158,7 +158,7 @@
         <projectConfigurable id="Ballerina" groupId="language" provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectExtension"/>
-        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
+        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaCodeInsightSettings"/>
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaFoldingBuilder"/>
 
@@ -174,7 +174,7 @@
                          groupName="General" enabledByDefault="true" level="ERROR"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.BallerinaUnresolvedReferenceInspection"/>
 
-        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeinsight.highlighting.HighlightExitPointsHandlerFactory"/>
+        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
 
    </extensions>
 

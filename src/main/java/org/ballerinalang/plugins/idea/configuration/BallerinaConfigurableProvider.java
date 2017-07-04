@@ -22,7 +22,7 @@ import com.intellij.openapi.options.ConfigurableProvider;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
-import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
+import org.ballerinalang.plugins.idea.codeInsight.imports.BallerinaAutoImportConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
