@@ -363,6 +363,19 @@ public class SiddhiAppRuntime {
         }
     }
 
+    public void restore(byte[] snapshot) {
+        try {
+            // first, pause all the event sources
+            sourceMap.values().forEach(list -> list.forEach(Source::pause));
+            // start the restoring process
+            siddhiAppContext.getPersistenceService().restore(snapshot);
+        } finally {
+            // at the end, resume the event sources
+            sourceMap.values().forEach(list -> list.forEach(Source::resume));
+        }
+    }
+
+
     public void restoreRevision(String revision) {
         try {
             // first, pause all the event sources
