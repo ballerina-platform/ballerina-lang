@@ -306,6 +306,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
                 new Expression[]{varRefExpr}, constDef.getRhsExpr());
         pkgInitFuncStmtBuilder.addStmt(assignStmt);
+
+        addToCompletionItems(constDef);
     }
 
     @Override
@@ -323,6 +325,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 pkgInitFuncStmtBuilder.addStmt(assignStmt);
             }
         }
+
+        addToCompletionItems(globalVarDef);
+    }
+
+    private void addToCompletionItems(BLangSymbol symbol) {
+        SymbolInfo symbolInfo = new SymbolInfo(symbol.getName(), symbol);
+        completionItems.add(symbolInfo);
     }
 
     @Override
@@ -385,6 +394,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         // Close the symbol scope
         connectorMemAddrOffset = -1;
+        addToCompletionItems(connectorDef);
         closeScope();
     }
 
@@ -507,6 +517,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Close the symbol scope
         stackFrameOffset = -1;
         currentCallableUnit = null;
+
+        addToCompletionItems(function);
         closeScope();
     }
 
@@ -567,6 +579,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Close the symbol scope
         stackFrameOffset = -1;
         currentCallableUnit = null;
+
+        addToCompletionItems(typeMapper);
         closeScope();
     }
 
@@ -701,6 +715,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
             annotationAttachment.accept(this);
         }
+        addToCompletionItems(structDef);
     }
 
     @Override
@@ -752,6 +767,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
             annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
             annotationAttachment.accept(this);
         }
+        addToCompletionItems(annotationDef);
     }
 
     @Override
