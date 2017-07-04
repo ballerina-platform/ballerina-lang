@@ -10,9 +10,15 @@
 2. Install latest version of [Gradle](https://gradle.org/) if you don't have it installed already.
 3. Navigate into the cloned repository and run `gradle buildPlugin`. In the **build/distributions** directory, **Ballerina-Intellij-Plugin.zip** will be created.
 
-**Note:** Make sure to use ANTLR v4.6 to generate the Lexer and Parser if issues occur when using a version higher than v4.6. Also if you are using the ANTLR plugin for Intellij to generate the ANTLR Recognizer, use plugin v1.8.3 which includes ANTLR v4.6.
-
 ## Installing the plugin to IDEA
+
+### From Jetbrains plugin repository
+1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
+2. Select **Browse Repositories** button at the bottom. 
+3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
+4. Restart IDEA.
+
+### From a local build
 1. Go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select **Plugins**.
 2. Click **Install plugin from disc** button and select the deployed **plugin zip** file. Please make sure to install the Zip file, not the extracted Jar files. This zip contains an additional library as well. Without this library, the plugin will not work properly.
 3. Restart IDEA.
