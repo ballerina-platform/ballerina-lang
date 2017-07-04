@@ -22,12 +22,18 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.expressions.Expression;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code XMLAttributesRefExpr} represents an XML attributes reference in Ballerina.
  *
  * @since 0.89
  */
 public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
+
+    // Namespaces visible to this attribute reference expression.
+    private Map<String, String> namespaces = new HashMap<String, String>();
     
     /**
      * @param location
@@ -47,5 +53,13 @@ public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
     
     public void setIndexExpr(Expression indexExpr) {
         this.indexExpr = indexExpr;
+    }
+    
+    public Map<String, String> getNamespaces() {
+        return namespaces;
+    }
+
+    public void setNamespaces(Map<String, String> namespaces) {
+        this.namespaces = namespaces;
     }
 }

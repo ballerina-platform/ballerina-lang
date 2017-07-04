@@ -974,4 +974,23 @@ public class XMLTest {
         ProgramFile xmlAttributeMapInvalidUsage =
                 BTestUtils.getProgramFile("samples/xml/undefinedNamespace.bal");
     }
+    
+    @Test
+    public void testRuntimeNamespaceLookup() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testRuntimeNamespaceLookup");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns401=\"http://sample.com/wso2/a1\" xmlns:ns1=" +
+            "\"http://sample.com/wso2/b1\" xmlns:ns403=\"http://sample.com/wso2/e3\" xmlns:nsn7xFP=" +
+            "\"http://sample.com/wso2/f3\" ns401:foo1=\"bar1\" ns1:foo2=\"bar2\" ns403:foo3=\"bar3\" " +
+            "nsn7xFP:foo4=\"bar4\"/>");
+    }
+    
+    @Test
+    public void testRuntimeNamespaceLookupPriority() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testRuntimeNamespaceLookupPriority");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:p1=\"http://wso2.com\" " +
+            "xmlns:p2=\"http://sample.com/wso2/a1\" xmlns:ns401=\"http://sample.com/wso2/a1\" ns401:foo1=\"bar1\" " +
+            "p1:foo2=\"bar2\"/>");
+    }
 }

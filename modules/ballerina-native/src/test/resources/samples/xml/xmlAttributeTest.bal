@@ -157,3 +157,37 @@ function testXMLAttributesToAny()(any) {
 function foo(any a) (any) {
     return a;
 }
+
+function testRuntimeNamespaceLookup() (xml) {
+    xmlns "http://sample.com/wso2/a1" as ns401;
+    xmlns "http://sample.com/wso2/d2" as ns402;
+    
+    xml x = xmls:parse("<root/>");
+    
+    x@["{http://sample.com/wso2/a1}foo1"] = "bar1";
+    x@["{http://sample.com/wso2/b1}foo2"] = "bar2";
+    
+    if (true) {
+        xmlns "http://sample.com/wso2/e3" as ns403;
+        xmlns "http://sample.com/wso2/f3" as ns404;
+        
+        x@["{http://sample.com/wso2/e3}foo3"] = "bar3";
+    }
+    
+    x@["{http://sample.com/wso2/f3}foo4"] = "bar4";
+    
+    return x;
+}
+
+function testRuntimeNamespaceLookupPriority() (xml) {
+    xmlns "http://sample.com/wso2/a1" as ns401;
+    
+    xml x = xmls:parse("<root xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\"/>");
+    
+    x@["{http://sample.com/wso2/a1}foo1"] = "bar1";
+    x@["{http://wso2.com}foo2"] = "bar2";
+    
+    xmlns "http://wso2.com" as ns402;
+    
+    return x;
+}

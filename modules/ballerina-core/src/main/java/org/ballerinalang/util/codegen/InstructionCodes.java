@@ -253,6 +253,9 @@ public interface InstructionCodes {
     int XMLATTRSTORE = 240;
     int S2QNAME = 241;
     int XMLATTR2MAP = 242;
+    int QNAMELOAD = 243;
+    int QNAMEPREFIXSTORE = 244;
+    int QNAMEURILOAD = 245;
     
-    int INSTRUCTION_CODE_COUNT = 242;
+    int INSTRUCTION_CODE_COUNT = 246;
 }

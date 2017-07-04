@@ -154,6 +154,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -168,7 +169,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String BALLERINA_CAST_ERROR = "TypeCastError";
     private static final String BALLERINA_CONVERSION_ERROR = "TypeConversionError";
     private static final String BALLERINA_ERROR = "Error";
-    private static final String DEFAULT_NAMESPACE_PREFIX = ".";
     
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
@@ -2286,6 +2286,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (indexExpr instanceof XMLQNameExpr) {
             ((XMLQNameExpr) indexExpr).setUsedInXML(true);
             return;
+        } else {
+            populateNamespaceMap(xmlAttributesRefExpr);
         }
         
         if (indexExpr.getType() != BTypes.typeString) {
@@ -3679,6 +3681,36 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             parent = parent.getParent();
+        }
+    }
+
+    /**
+     * Populate the namespace map of a {@link XMLAttributesRefExpr}.
+     * Namespaces are looked-up in the scopes visible to the provided expression.
+     * 
+     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the bamespaces
+     */
+    private void populateNamespaceMap(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
+        SymbolScope scope = currentScope;
+        while (true) {
+            for (Entry<SymbolName, BLangSymbol> symbols : scope.getSymbolMap().entrySet()) {
+                SymbolName symbolName = symbols.getKey();
+                if (!(symbolName instanceof NamespaceSymbolName)) {
+                    continue;
+                }
+
+                NamespaceDeclaration namespaceDecl = (NamespaceDeclaration) symbols.getValue();
+                if (!namespaceDecl.isDefaultNamespace() && !namespaces.containsKey(namespaceDecl.getPrefix()) &&
+                        !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
+                    namespaces.put(namespaceDecl.getPrefix(), namespaceDecl.getNamespaceUri());
+                }
+            }
+
+            if (scope instanceof BLangPackage) {
+                break;
+            }
+            scope = scope.getEnclosingScope();
         }
     }
 

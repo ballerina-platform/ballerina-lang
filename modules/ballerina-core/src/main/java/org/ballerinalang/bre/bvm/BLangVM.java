@@ -59,6 +59,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
+import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
@@ -213,6 +214,9 @@ public class BLangVM {
         int lvIndex; // Index of the local variable
         int cpIndex; // Index of the constant pool
         int fieldIndex;
+        int localNameIndex;
+        int uriIndex;
+        int prefixIndex;
 
         BIntArray bIntArray;
         BFloatArray bFloatArray;
@@ -225,6 +229,7 @@ public class BLangVM {
         BJSON jsonVal;
         BXML xmlVal;
         BXMLAttributes xmlAttrs;
+        BXMLQName xmlQName;
         
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
@@ -1428,25 +1433,41 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
+                    
                     xmlVal = (BXML) sf.refRegs[i];
                     if (xmlVal == null) {
                         handleNullRefError();
                         break;
                     }
-                    xmlVal.setAttribute(sf.stringRegs[j], sf.stringRegs[j + 1], sf.stringRegs[j + 2], 
+                    
+                    xmlQName = (BXMLQName) sf.refRegs[j];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    
+                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(), 
                             sf.stringRegs[k]);
                     break;
                 case InstructionCodes.XMLATTRLOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
+                    
                     xmlVal = (BXML) sf.refRegs[i];
                     if (xmlVal == null) {
                         handleNullRefError();
                         break;
                     }
-                    sf.stringRegs[k] = xmlVal.getAttribute(sf.stringRegs[j], sf.stringRegs[j + 1], 
-                            sf.stringRegs[j + 2]);
+                    
+                    xmlQName = (BXMLQName) sf.refRegs[j];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    
+                    sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(), 
+                            xmlQName.getPrefix());
                     break;
                 case InstructionCodes.XML2ATTRS:
                     i = operands[0];
@@ -1464,19 +1485,51 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     String qNameStr = sf.stringRegs[i];
+                    
+                    String localName, uri;
 
                     if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
-                        // local part
-                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
-                        // namespaceUri
-                        sf.stringRegs[j + 1] = qNameStr.substring(1, qNameStr.indexOf('}'));
+                        localName = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
+                        uri = qNameStr.substring(1, qNameStr.indexOf('}'));
                     } else {
-                        sf.stringRegs[j] = qNameStr;
-                        sf.stringRegs[j + 1] = "";
+                        localName = qNameStr;
+                        uri = "";
                     }
 
-                    // prefix
-                    sf.stringRegs[j + 2] = "";
+                    sf.refRegs[j] = new BXMLQName(localName, uri, "");
+                    break;
+                case InstructionCodes.QNAMELOAD:
+                    localNameIndex = operands[0];
+                    uriIndex = operands[1];
+                    prefixIndex = operands[2];
+                    i = operands[3];
+                    
+                    sf.refRegs[i] = new BXMLQName(sf.stringRegs[localNameIndex], sf.stringRegs[uriIndex], 
+                            sf.stringRegs[prefixIndex]);
+                    break;
+                case InstructionCodes.QNAMEPREFIXSTORE:
+                    i = operands[0];
+                    j = operands[1];
+                    
+                    xmlQName = (BXMLQName) sf.refRegs[i];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    
+                    xmlQName.setPrefix(sf.stringRegs[j]);
+                    break;
+                case InstructionCodes.QNAMEURILOAD:
+                    i = operands[0];
+                    j = operands[1];
+                    
+                    xmlQName = (BXMLQName) sf.refRegs[i];
+                    if (xmlQName == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    
+                    sf.stringRegs[j] = xmlQName.getUri();
                     break;
                 default:
                     throw new UnsupportedOperationException();

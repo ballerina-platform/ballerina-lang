@@ -148,6 +148,8 @@ import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 /**
@@ -2024,10 +2026,15 @@ public class CodeGenerator implements NodeVisitor {
 
         indexExpr.accept(this);
         int qnameRegIndex = indexExpr.getTempOffset();
-        if (!(indexExpr instanceof XMLQNameExpr)) {
+        
+        if (indexExpr instanceof XMLQNameExpr) {
+
+        } else { // this means its a string representation of qname
             int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
             emit(InstructionCodes.S2QNAME, qnameRegIndex, qnameLoadedRegIndex);
             qnameRegIndex = qnameLoadedRegIndex;
+            
+            createConditions(xmlAttributesRefExpr, qnameRegIndex);
         }
         
         if (variableStore) {
@@ -2036,6 +2043,57 @@ public class CodeGenerator implements NodeVisitor {
             int xmlValueRegIndex = ++regIndexes[REF_OFFSET];
             emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
             xmlAttributesRefExpr.setTempOffset(xmlValueRegIndex);
+        }
+    }
+    
+    private void createConditions(XMLAttributesRefExpr xmlAttributesRefExpr, int qnameRegIndex) {
+        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
+        if (namespaces.isEmpty()) {
+            return;
+        }
+        int uriLoadedRegIndex = ++regIndexes[STRING_OFFSET];
+        emit(InstructionCodes.QNAMEURILOAD, qnameRegIndex, uriLoadedRegIndex);
+        
+        List<Instruction> gotoInstructionList = new ArrayList<>();
+        Instruction ifInstruction;
+        Instruction gotoInstruction;
+        for (Entry<String, String> keyValues : namespaces.entrySet()) {
+            
+            // Below section creates the condition to compare the namespace uri's
+            
+            // store the comparing uri as string
+            BasicLiteral uriLiteral = new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(),
+                null, new BString(keyValues.getValue()));
+            uriLiteral.setType(BTypes.typeString);
+            uriLiteral.accept(this);
+
+            int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
+            int exprIndex = ++regIndexes[BOOL_OFFSET];
+            emit(opcode, uriLoadedRegIndex, uriLiteral.getTempOffset(), exprIndex);
+
+            ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE, exprIndex, -1);
+            emit(ifInstruction);
+
+            // Below section creates instructions to run, if the above condition succeeds (then body)
+            
+            // create the prifix literal
+            BasicLiteral prefixLiteral =
+                new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(), null, new BString(keyValues.getKey()));
+            prefixLiteral.setType(BTypes.typeString);
+            prefixLiteral.accept(this);
+
+            // update the qname's prefix
+            emit(InstructionCodes.QNAMEPREFIXSTORE, qnameRegIndex, prefixLiteral.getTempOffset());
+
+            gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
+            emit(gotoInstruction);
+            gotoInstructionList.add(gotoInstruction);
+            ifInstruction.setOperand(1, nextIP());
+        }
+        
+        int nextIP = nextIP();
+        for (Instruction instruction : gotoInstructionList) {
+            instruction.setOperand(0, nextIP);
         }
     }
 
@@ -2058,7 +2116,7 @@ public class CodeGenerator implements NodeVisitor {
             return;
         }
         
-        // Else, treat localname, namespaceUri and prefix as three separate strings.
+        // Else, treat it as QName
         BasicLiteral localNameLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
             null, new BString(xmlQNameRefExpr.getLocalname()));
         localNameLiteral.setType(BTypes.typeString);
@@ -2074,7 +2132,10 @@ public class CodeGenerator implements NodeVisitor {
         prefixLiteral.setType(BTypes.typeString);
         prefixLiteral.accept(this);
         
-        xmlQNameRefExpr.setTempOffset(localNameLiteral.getTempOffset());
+        int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
+        emit(InstructionCodes.QNAMELOAD, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(), 
+                prefixLiteral.getTempOffset(), qnameLoadedRegIndex);
+        xmlQNameRefExpr.setTempOffset(qnameLoadedRegIndex);
     }
     
     // Private methods

@@ -225,6 +225,15 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LRET] = "lret";
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
+        
+        mnemonics[InstructionCodes.XML2ATTRS] = "xml2attrs";
+        mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
+        mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
+        mnemonics[InstructionCodes.S2QNAME] = "s2qname";
+        mnemonics[InstructionCodes.XMLATTR2MAP] = "xmlattr2map";
+        mnemonics[InstructionCodes.QNAMELOAD] = "qnameload";
+        mnemonics[InstructionCodes.QNAMEPREFIXSTORE] = "qnameprefixstore";
+        mnemonics[InstructionCodes.QNAMEURILOAD] = "qnameuriload";
     }
 
     public static String getMnem(int opcode) {

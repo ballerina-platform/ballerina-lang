@@ -1876,11 +1876,7 @@ public class BLangModelBuilder {
         }
 
         NamespaceDeclarationStmt namespaceDclrStmt = new NamespaceDeclarationStmt(location, namspaceDclr);
-        if (currentCUGroupBuilder != null) {
-            currentCUGroupBuilder.addNamespaceDeclarationStmt(namespaceDclrStmt);
-        } else {
-            addToBlockStmt(namespaceDclrStmt);
-        }
+        addToBlockStmt(namespaceDclrStmt);
     }
     
     /**
