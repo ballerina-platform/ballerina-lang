@@ -53,9 +53,9 @@ public class ConversionStreamEventChunk extends ComplexEventChunk<StreamEvent> {
         last = first;
     }
 
-    public void convertAndAssign(long timeStamp, Object[] data) {
+    public void convertAndAssign(long timestamp, Object[] data) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
+        streamEventConverter.convertData(timestamp, data, borrowedEvent);
         first = borrowedEvent;
         last = first;
     }

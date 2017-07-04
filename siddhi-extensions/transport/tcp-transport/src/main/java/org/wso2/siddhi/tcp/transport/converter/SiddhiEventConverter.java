@@ -83,8 +83,8 @@ public class SiddhiEventConverter {
     public static Event getEvent(ByteBuffer byteBuffer, Attribute.Type[] attributeTypes) throws
             MalformedEventException {
         Event event = new Event();
-        long timeStamp = byteBuffer.getLong();
-        event.setTimestamp(timeStamp);
+        long timestamp = byteBuffer.getLong();
+        event.setTimestamp(timestamp);
         event.setData(toObjectArray(byteBuffer, attributeTypes));
         return event;
     }

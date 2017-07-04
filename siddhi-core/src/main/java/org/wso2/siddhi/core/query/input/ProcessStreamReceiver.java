@@ -169,9 +169,9 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     @Override
-    public void receive(long timeStamp, Object[] data) {
+    public void receive(long timestamp, Object[] data) {
         StreamEvent borrowedEvent = streamEventPool.borrowEvent();
-        streamEventConverter.convertData(timeStamp, data, borrowedEvent);
+        streamEventConverter.convertData(timestamp, data, borrowedEvent);
         // Send to debugger
         if (siddhiDebugger != null) {
             siddhiDebugger.checkBreakPoint(queryName, SiddhiDebugger.QueryTerminal.IN, borrowedEvent);

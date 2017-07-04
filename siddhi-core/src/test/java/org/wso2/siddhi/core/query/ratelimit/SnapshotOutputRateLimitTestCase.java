@@ -57,7 +57,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest1') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -113,7 +113,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest2') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -167,7 +167,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest3') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -226,7 +226,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest4') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string);" +
+                "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -286,7 +286,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest5') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents " +
@@ -349,7 +349,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest6') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -406,7 +406,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest7') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -463,7 +463,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest8') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -519,7 +519,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest9') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -577,7 +577,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest10') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(2 sec) " +
@@ -632,7 +632,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest11') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -687,7 +687,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest12') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -734,7 +734,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest13') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -788,7 +788,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest14') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(2 sec) " +
@@ -840,7 +840,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest15') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -855,8 +855,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     value++;
@@ -895,7 +895,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest16') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -911,8 +911,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -954,7 +954,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest17') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -970,8 +970,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 if (inEvents != null) {
                     count.incrementAndGet();
                     value += inEvents.length;
@@ -1009,7 +1009,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest18') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -1024,8 +1024,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1066,7 +1066,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest19') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -1081,8 +1081,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1130,7 +1130,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest20') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(5 sec) " +
@@ -1146,8 +1146,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 if (inEvents != null) {
                     count.incrementAndGet();
@@ -1193,7 +1193,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest21') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.time(1 sec) " +
@@ -1209,8 +1209,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 if (count.get() == 2) {
@@ -1253,7 +1253,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest22') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1268,8 +1268,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1316,7 +1316,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1331,8 +1331,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1379,7 +1379,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1394,8 +1394,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1438,7 +1438,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1454,8 +1454,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1502,7 +1502,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1518,8 +1518,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1565,7 +1565,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest27') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1581,8 +1581,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 for (Event inEvent : inEvents) {
@@ -1629,7 +1629,7 @@ public class SnapshotOutputRateLimitTestCase {
         String siddhiApp = "" +
                 "@app:name('SnapshotOutputRateLimitTest28') " +
                 "" +
-                "define stream LoginEvents (timeStamp long, ip string, calls int);" +
+                "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
                 "@info(name = 'query1') " +
                 "from LoginEvents#window.lengthBatch(3) " +
@@ -1645,8 +1645,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 eventArrived = true;
                 count.incrementAndGet();
                 if (inEvents != null) {

@@ -71,7 +71,7 @@ public class WSO2EventSinkmapper extends Sinkmapper {
 
         //streamID is expected to receive as an option
         eventObject.setStreamId(optionHolder.validateAndGetOption(STREAM_ID).getValue());
-        eventObject.setTimeStamp(event.getTimestamp());
+        eventObject.setTimestamp(event.getTimestamp());
         for (int i = 0; i < eventData.length; i++) {
             String attributeName = streamDefinition.getAttributeNameArray()[i];
             if (attributeName.startsWith(PROPERTY_META_PREFIX)) {

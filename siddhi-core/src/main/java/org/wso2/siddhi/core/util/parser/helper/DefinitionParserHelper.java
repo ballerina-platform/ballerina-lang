@@ -85,8 +85,9 @@ import java.util.regex.Pattern;
  */
 public class DefinitionParserHelper {
 
-    public static void validateDefinition(AbstractDefinition definition,
-                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
+
+    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition>
+            streamDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> tableDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> windowDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> aggregationDefinitionMap) {
@@ -119,9 +120,9 @@ public class DefinitionParserHelper {
         // TODO: 1/29/17 add source / sink both validation here
     }
 
-    public static void addStreamJunction(StreamDefinition streamDefinition,
-                                         ConcurrentMap<String, StreamJunction> streamJunctionMap,
-                                         SiddhiAppContext siddhiAppContext) {
+
+    public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction>
+            streamJunctionMap, SiddhiAppContext siddhiAppContext) {
         if (!streamJunctionMap.containsKey(streamDefinition.getId())) {
             StreamJunction streamJunction = new StreamJunction(streamDefinition,
                     siddhiAppContext.getExecutorService(),
@@ -131,7 +132,7 @@ public class DefinitionParserHelper {
     }
 
     public static void validateOutputStream(StreamDefinition outputStreamDefinition,
-                                            AbstractDefinition existingStream) {
+            AbstractDefinitionexistingStream) {
         if (!existingStream.equalsIgnoreAnnotations(outputStreamDefinition)) {
             throw new DuplicateDefinitionException("Different definition same as output stream definition :"
                     + outputStreamDefinition + " already exist as:" + existingStream);
@@ -192,8 +193,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addFunction(SiddhiAppContext siddhiAppContext,
-                                   final FunctionDefinition functionDefinition) {
+    public static void addFunction(SiddhiAppContext siddhiAppContext, final FunctionDefinition
+            functionDefinition) {
 
         Extension extension = new Extension() {
             @Override
@@ -220,18 +221,18 @@ public class DefinitionParserHelper {
             if (triggerDefinition.getAtEvery() == null) {
                 String expression = triggerDefinition.getAt();
                 if (expression == null) {
-                    throw new SiddhiAppValidationException(
-                            "Trigger Definition '" + triggerDefinition.getId() + "' must have trigger time defined");
+                    throw new SiddhiAppValidationException("Trigger Definition '" + triggerDefinition.getId() +
+                            "' must have trigger time defined");
                 } else {
                     if (!expression.trim().equalsIgnoreCase(SiddhiConstants.TRIGGER_START)) {
                         try {
                             org.quartz.CronExpression.isValidExpression(expression);
                         } catch (Throwable t) {
-                            throw new SiddhiAppValidationException(
-                                    "Trigger Definition '" + triggerDefinition.getId()
-                                            + "' have invalid trigger time defined, expected 'start' " +
+                            throw new SiddhiAppValidationException("Trigger Definition '" + triggerDefinition
+                                    .getId()
+                                    +"' have invalid trigger time defined, expected 'start' " +
                                             "or valid cron but found '"
-                                            + expression + "'");
+                                    + expression + "'");
                         }
                     }
                 }
@@ -299,15 +300,14 @@ public class DefinitionParserHelper {
                             sourceMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
                     AttributesHolder attributesHolder = getAttributeMappings(mapAnnotation, mapType, streamDefinition);
-                    String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);
-                    sourceMapper.init(streamDefinition, mapType, mapOptionHolder, attributesHolder.payloadMappings,
+                    String[] transportPropertyNames = getTransportPropertyNames(attributesHolder);sourceMapper.init(streamDefinition, mapType, mapOptionHolder, attributesHolder.payloadMappings,
                             sourceType, attributesHolder.transportMappings,
-                            siddhiAppContext.getSiddhiContext().getConfigManager().generateConfigReader
-                                    (mapperExtension.getNamespace(), mapperExtension.getName()), siddhiAppContext);
-                    source.init(sourceType, sourceOptionHolder, sourceMapper, transportPropertyNames,
                             siddhiAppContext.getSiddhiContext().getConfigManager()
-                                    .generateConfigReader(sourceExtension.getNamespace(), sourceExtension.getName()),
-                            streamDefinition, siddhiAppContext);
+                                    .generateConfigReader(mapperExtension.getNamespace(), mapperExtension.getName()), siddhiAppContext);
+                    source.init(sourceType,sourceOptionHolder, sourceMapper, transportPropertyNames,
+                            siddhiAppContext.getSiddhiContext()
+                            .getConfigManager()
+                                    .generateConfigReader(sourceExtension.getNamespace(), sourceExtension.getName()), streamDefinition, siddhiAppContext);
 
                     List<Source> eventSources = eventSourceMap.get(streamDefinition.getId());
                     if (eventSources == null) {
@@ -394,8 +394,8 @@ public class DefinitionParserHelper {
                         isMultiClient = isMultiClientDistributedTransport(sink, streamDefinition,
                                 distributionAnnotation);
                         supportedDynamicOptions = sink.getSupportedDynamicOptions();
-                        destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
-                                streamDefinition, sink);
+                        destinationOptHolders = createDestinationOptionHolders(distributionAnnotation, streamDefinition,
+                                sink);
                     }
 
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
@@ -443,8 +443,9 @@ public class DefinitionParserHelper {
                                     .generateConfigReader(strategyExtension.getNamespace(),
                                             strategyExtension.getName());
                             DistributionStrategy distributionStrategy = (DistributionStrategy) SiddhiClassLoader
-                                    .loadExtensionImplementation(strategyExtension,
-                                            DistributionStrategyExtensionHolder.getInstance(siddhiAppContext));
+                                    .loadExtensionImplementation(
+                                            strategyExtension, DistributionStrategyExtensionHolder.getInstance
+                                                    (siddhiAppContext));
                             distributionStrategy.init(streamDefinition, transportOptionHolder, distributionOptHolder,
                                     destinationOptHolders, configReader);
 
@@ -513,12 +514,10 @@ public class DefinitionParserHelper {
                     "' classes but it's sink '" + sinkType + "' cannot not consume any of those class, where " +
                     "sink can only consume '" + Arrays.deepToString(inputEventClasses) + "' classes.");
         }
-    }
-
-    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptHolder,
-                                                                        OptionHolder distributedOptHolder,
-                                                                        StreamDefinition streamDef,
-                                                                        int destinationCount) {
+    }private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptHolder,
+            OptionHolderdistributedOptHolder,
+                                                                        StreamDefinition streamDef, int
+                                                                                destinationCount) {
 
         OutputGroupDeterminer groupDeterminer = null;
         if (distributedOptHolder != null) {
@@ -546,7 +545,7 @@ public class DefinitionParserHelper {
     }
 
     public static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
-                                               Annotation annotation, String defaultNamespace) {
+            Annotation annotation, String defaultNamespace) {
         String[] namespaceAndName = typeValue.split(SiddhiConstants.EXTENSION_SEPARATOR);
         String namespace;
         String name;
@@ -580,14 +579,14 @@ public class DefinitionParserHelper {
         DefinitionParserHelper.AttributesHolder attributesHolder = new DefinitionParserHelper.AttributesHolder();
         if (attributeAnnotations.size() > 0) {
             Map<String, String> elementMap = new HashMap<>(
-            );
+                    );
             List<String> elementList = new ArrayList<>();
             Boolean attributesNameDefined = null;
-            for (Element element : attributeAnnotations
-                    .get(0)
-                    .getElements()
-                    ) {
-                if (element.getKey() == null) {
+            for (Element element :attributeAnnotations
+                            .get(0)
+                            .getElements()
+                            ){
+                            if(element .getKey() == null) {
                     if (attributesNameDefined != null && attributesNameDefined) {
                         throw new SiddhiAppCreationException("Error at '" + mapType + "' defined atstream'" +
                                 streamDefinition.getId() + "', some attributes are defined and some are not defined.");
@@ -601,7 +600,7 @@ public class DefinitionParserHelper {
                     }
                     attributesNameDefined = true;
                     elementMap.put(element.getKey(), element.getValue());
-                }
+                            }
             }
             if (elementMap.size() > 0) {
                 List<Attribute> attributeList = streamDefinition.getAttributeList();
@@ -651,8 +650,8 @@ public class DefinitionParserHelper {
                 throw new SiddhiAppCreationException("@payload() annotation should only contain single element.");
             }
         } else if (attributeAnnotations.size() > 1) {
-            throw new SiddhiAppCreationException(
-                    "@map() annotation should only contain single @payload() " + "annotation.");
+            throw new SiddhiAppCreationException("@map() annotation should only contain single @payload() " +
+                    "annotation.");
         } else {
             return null;
         }
@@ -660,8 +659,7 @@ public class DefinitionParserHelper {
 
     private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition,
                                                          Annotation annotation,
-                                                         org.wso2.siddhi.annotation.Extension extension,
-                                                         String[] supportedDynamicOptions) {
+            org.wso2.siddhi.annotation.Extension extension, String[] supportedDynamicOptions) {
         List<String> supportedDynamicOptionList = new ArrayList<>();
         if (supportedDynamicOptions != null) {
             supportedDynamicOptionList = Arrays.asList(supportedDynamicOptions);
@@ -674,10 +672,11 @@ public class DefinitionParserHelper {
                 if (supportedDynamicOptionList.contains(element.getKey())) {
                     dynamicOptions.put(element.getKey(), element.getValue());
                 } else {
-                    throw new SiddhiAppCreationException(
-                            "'" + element.getKey() + "' is not a supported " + "DynamicOption " + "for the Extension '"
-                                    + extension.namespace() + ":" + extension.name() + "', it only " + "supports "
-                                    + "following as its DynamicOptions: " + supportedDynamicOptionList);
+                    throw new SiddhiAppCreationException("'" + element.getKey() + "' is not a supported " +
+                            "DynamicOption " +
+                            "for the Extension '" + extension.namespace() + ":" + extension.name() + "', it only " +
+                            "supports "
+                            +"following as its DynamicOptions: " + supportedDynamicOptionList);
                 }
             } else {
                 options.put(element.getKey(), element.getValue());
@@ -686,8 +685,8 @@ public class DefinitionParserHelper {
         return new OptionHolder(streamDefinition, options, dynamicOptions, extension);
     }
 
-    private static boolean isMultiClientDistributedTransport(Sink clientTransport, StreamDefinition streamDefinition,
-                                                             Annotation distributionAnnotation) {
+    private static boolean isMultiClientDistributedTransport(Sink clientTransport, StreamDefinition
+            streamDefinition, Annotation distributionAnnotation) {
 
         // fetch the @distribution annotations from the @sink annotation
         List<OptionHolder> destinationOptHolders = createDestinationOptionHolders(distributionAnnotation,
@@ -722,8 +721,7 @@ public class DefinitionParserHelper {
     }
 
     private static List<OptionHolder> createDestinationOptionHolders(Annotation distributionAnnotation,
-                                                                     StreamDefinition streamDefinition,
-                                                                     Sink clientTransport) {
+            StreamDefinitionstreamDefinition, Sink clientTransport) {
 
         org.wso2.siddhi.annotation.Extension sinkExt = clientTransport.getClass()
                 .getAnnotation(org.wso2.siddhi.annotation.Extension.class);

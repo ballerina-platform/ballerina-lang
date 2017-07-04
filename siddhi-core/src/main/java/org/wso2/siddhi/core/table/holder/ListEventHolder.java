@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
+import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 
 import java.util.LinkedList;
 
@@ -48,6 +49,16 @@ public class ListEventHolder extends LinkedList<StreamEvent> implements EventHol
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
+            this.add(streamEvent);
+        }
+    }
+
+    public void addIncrementalEvent(long timeStamp, Object[] addingEvent) {
+        // This method is used only for writing data
+        // to tables in incremental aggregator. // TODO: 5/29/17 need to change? change-if instance of ListEventHolder
+        StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
+        if (eventConverter instanceof ZeroStreamEventConverter) {
+            eventConverter.convertData(timeStamp, addingEvent, streamEvent);
             this.add(streamEvent);
         }
     }

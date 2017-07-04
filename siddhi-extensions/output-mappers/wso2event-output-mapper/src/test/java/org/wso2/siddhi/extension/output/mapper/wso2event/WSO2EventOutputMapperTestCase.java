@@ -226,7 +226,7 @@ public class WSO2EventSinkmapperTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 1, ibmCount.get());
         //assert event mapping
         for (Event aEvent : onMessageList) {
-            aEvent.setTimeStamp(0);
+            aEvent.setTimestamp(0);
         }
         Assert.assertEquals("Mapping is incorrect!", onMessageList, eventList);
         siddhiAppRuntime.shutdown();

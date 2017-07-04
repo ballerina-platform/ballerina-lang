@@ -33,9 +33,9 @@ public class EventPrinter {
     }
 
 
-    public static void print(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+    public static void print(long timestamp, Event[] inEvents, Event[] removeEvents) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Events{ @timestamp = ").append(timeStamp).
+        sb.append("Events{ @timestamp = ").append(timestamp).
                 append(", inEvents = ").append(Arrays.deepToString(inEvents)).
                 append(", RemoveEvents = ").append(Arrays.deepToString(removeEvents)).append(" }");
         log.info(sb.toString());

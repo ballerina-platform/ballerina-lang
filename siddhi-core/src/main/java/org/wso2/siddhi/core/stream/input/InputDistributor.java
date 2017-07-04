@@ -45,8 +45,8 @@ public class InputDistributor implements InputProcessor {
     }
 
     @Override
-    public void send(long timeStamp, Object[] data, int streamIndex) {
-        inputProcessors.get(streamIndex).send(timeStamp, data, streamIndex);
+    public void send(long timestamp, Object[] data, int streamIndex) {
+        inputProcessors.get(streamIndex).send(timestamp, data, streamIndex);
     }
 
     public void addInputProcessor(InputProcessor inputProcessor) {

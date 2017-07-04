@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.holder.ListEventHolder;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -56,11 +57,9 @@ public class InMemoryTable extends Table implements Snapshotable {
     private EventHolder eventHolder;
     private String elementId;
 
-
     @Override
-    public void init(TableDefinition tableDefinition,
-                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+            StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
@@ -88,6 +87,17 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     }
 
+    public void add(long timeStamp, Object[] addingEvent) { // used only in incremental aggregator TODO: 5/29/17 change?
+        try {
+            readWriteLock.writeLock().lock();
+            if (eventHolder instanceof ListEventHolder) {
+                ((ListEventHolder) eventHolder).addIncrementalEvent(timeStamp, addingEvent);
+            }
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
+    }
+
     @Override
     public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
         try {
@@ -100,7 +110,7 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+            UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
             ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
@@ -112,13 +122,11 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-                            UpdateAttributeMapper[] updateAttributeMappers,
-                            AddingStreamEventExtractor addingStreamEventExtractor) {
+            UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
-                    (updateOrAddingEventChunk,
-                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(
+                    updateOrAddingEventChunk, eventHolder, updateAttributeMappers, addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -173,7 +181,6 @@ public class InMemoryTable extends Table implements Snapshotable {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
-
 
     @Override
     public Map<String, Object> currentState() {

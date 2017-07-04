@@ -62,8 +62,8 @@ public class StdDevAttributeAggregatorTestCase {
 
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 inEventCount++;
             }
         });
@@ -93,8 +93,8 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < epsilon);
             }
         });
@@ -127,8 +127,8 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0) < epsilon);
             }
         });
@@ -163,8 +163,8 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 0.40825) < epsilon);
                 Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.40825) < epsilon);
             }
@@ -203,8 +203,8 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 Assert.assertTrue(Math.abs((Double) inEvents[0].getData(0) - 400.13025) < epsilon);
                 Assert.assertTrue(Math.abs((Double) inEvents[1].getData(0) - 0.00103) < epsilon);
             }
@@ -245,8 +245,8 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(windowExecPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
+            public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timestamp, inEvents, removeEvents);
                 for (Event event : inEvents) {
                     Assert.assertTrue(Math.abs(results[inEventCount] - (Double) event.getData(0)) < epsilon);
                     inEventCount++;
