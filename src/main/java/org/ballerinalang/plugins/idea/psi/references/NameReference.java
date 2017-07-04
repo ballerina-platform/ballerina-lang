@@ -16,11 +16,15 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
@@ -31,8 +35,12 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class NameReference extends BallerinaElementReference {
 
@@ -63,7 +71,27 @@ public class NameReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+        IdentifierPSINode identifier = getElement();
+        PsiFile containingFile = identifier.getContainingFile();
+
+        List<LookupElement> results = new LinkedList<>();
+
+        if (containingFile != null) {
+
+            PsiDirectory containingPackage = containingFile.getParent();
+
+            if (containingPackage != null) {
+                // Todo - Get all functions, connectors, structs, variables
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+
+                for (PsiElement function : functions) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
+                    results.add(lookupElement);
+                }
+            }
+        }
+
+        return results.toArray(new LookupElement[results.size()]);
     }
 
     @Nullable
@@ -77,213 +105,217 @@ public class NameReference extends BallerinaElementReference {
         //        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
-//    // Todo - remove
-//    @NotNull
-//    @Override
-//    public ResolveResult[] multiResolve(boolean incompleteCode) {
-//        //        // Get the NameReferenceNode parent. This is to resolve functions from other packages. Ex-
-//        // system:println().
-//        //        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), NameReferenceNode.class);
-//        //        if (parentElement == null) {
-//        //            // Get the TypeNameNode parent. This is to resolve Connectors from packages. Ex-
-//        // http:ClientConnector.
-//        //            parentElement = PsiTreeUtil.getParentOfType(getElement(), TypeNameNode.class);
-//        //        }
-//        //
-//        //        // Get the PackagePath node. We need the package path to resolve the corresponding
-//        // Function/Connector. We use
-//        //        // XPath.findAll() here because the PackagePath node might not be a direct child of the parentElement.
-//        //        Collection<? extends PsiElement> packagePath =
-//        //                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//nameReference");
-//        //
-//        //        // Check whether a packagePath is found.
-//        //        if (!packagePath.iterator().hasNext()) {
-//        //            return new ResolveResult[0];
-//        //        }
-//        //        // There cannot be multiple packagePath nodes. So we get the fist package path.
-//        //        PsiElement packagePathNode = packagePath.iterator().next();
-//        //        if (packagePathNode == null) {
-//        //            return new ResolveResult[0];
-//        //        }
-//        //        // Create a new List to save resolved elements.
-//        //        List<ResolveResult> results = new ArrayList<>();
-//        //        // Get the PackageNameNode. We need this to resolve the package.
-//        //        PackageNameNode[] packageNameNodes =
-//        //                PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
-//        //
-//        //        if (packageNameNodes == null || isDotOperatorAtEnd()) {
-//        //            PsiFile file = myElement.getContainingFile();
-//        //            if (file == null) {
-//        //                return new ResolveResult[0];
-//        //            }
-//        //            PsiElement prevSibling = myElement.getPrevSibling();
-//        //            if (prevSibling instanceof LeafPsiElement) {
-//        //                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-//        //                if (elementType != BallerinaTypes.COLON) {
-//        //                    return results.toArray(new ResolveResult[results.size()]);
-//        //                }
-//        //                PsiElement packageNode = file.findElementAt(prevSibling.getTextOffset() - 2);
-//        //                if (packageNode == null) {
-//        //                    return results.toArray(new ResolveResult[results.size()]);
-//        //                }
-//        //                PsiReference reference = packageNode.getReference();
-//        //                if (reference == null) {
-//        //                    return results.toArray(new ResolveResult[results.size()]);
-//        //                }
-//        //                PsiElement resolvedElement = reference.resolve();
-//        //                if (resolvedElement == null) {
-//        //                    return results.toArray(new ResolveResult[results.size()]);
-//        //                }
-//        //                if (resolvedElement instanceof PackageNameNode) {
-//        //                    reference = resolvedElement.getReference();
-//        //                    if (reference == null) {
-//        //                        return results.toArray(new ResolveResult[results.size()]);
-//        //                    }
-//        //                    resolvedElement = reference.resolve();
-//        //                    if (resolvedElement == null) {
-//        //                        return results.toArray(new ResolveResult[results.size()]);
-//        //                    }
-//        //                }
-//        //                if (!(resolvedElement instanceof PsiDirectory)) {
-//        //                    return results.toArray(new ResolveResult[results.size()]);
-//        //                }
-//        //                List<PsiElement> connectors =
-//        //                        BallerinaPsiImplUtil.getAllConnectorsInPackage(((PsiDirectory) resolvedElement));
-//        //                // Add matching annotations to results.
-//        //                for (PsiElement connector : connectors) {
-//        //                    if (getElement().getText().equals(connector.getText())) {
-//        //                        results.add(new PsiElementResolveResult(connector));
-//        //                    }
-//        //                }
-//        //            }
-//        ////            else if (prevSibling == null) {
-//        ////                PsiReference reference = myElement.getReference();
-//        ////                if (reference != null) {
-//        ////                    PsiElement resolvedResult = reference.resolve();
-//        ////                    if (resolvedResult != null) {
-//        ////                        results.add(new PsiElementResolveResult(resolvedResult));
-//        ////                    }
-//        ////                }
-//        ////            }
-//        //            return results.toArray(new ResolveResult[results.size()]);
-//        //        }
-//        //        // Get the last PackageNameNode because we only need to resolve the corresponding package.
-//        //        PackageNameNode lastPackage = packageNameNodes[packageNameNodes.length - 1];
-//        //        if (lastPackage == null) {
-//        //            return new ResolveResult[0];
-//        //        }
-//        //        // Get the identifier from the last package name.
-//        //        PsiElement nameIdentifier = lastPackage.getNameIdentifier();
-//        //        if (nameIdentifier == null) {
-//        //            return new ResolveResult[0];
-//        //        }
-//        //        // Get the reference.
-//        //        PsiReference reference = nameIdentifier.getReference();
-//        //        if (reference == null) {
-//        //            return new ResolveResult[0];
-//        //        }
-//        //        // Multi resolve the reference.
-//        //        ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
-//        //        // Iterate through all resolve results.
-//        //        for (ResolveResult resolveResult : resolveResults) {
-//        //            // Get the element from the resolve result.
-//        //            PsiElement element = resolveResult.getElement();
-//        //            if (element == null) {
-//        //                continue;
-//        //            }
-//        //            PsiDirectory psiDirectory = null;
-//        //            if (element instanceof PackageNameNode) {
-//        //
-//        //                PsiElement packageNameIdentifier = ((PackageNameNode) element).getNameIdentifier();
-//        //                if (packageNameIdentifier == null) {
-//        //                    return new ResolveResult[0];
-//        //                }
-//        //
-//        //                // Check whether this is in a import statement.
-//        //                ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element,
-//        //                        ImportDeclarationNode.class);
-//        //                if (importDeclarationNode != null) {
-//        //                    // If this is an import declaration, resolve the directory.
-//        //                    PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(packageNameIdentifier);
-//        //                    for (PsiDirectory directory : directories) {
-//        //                        psiDirectory = directory;
-//        //                        break;
-//        //                    }
-//        //                }
-//        //            } else {
-//        //                // Get all functions in the package.
-//        //                psiDirectory = (PsiDirectory) element;
-//        //            }
-//        //
-//        //
-//        //            if (psiDirectory == null) {
-//        //                return new ResolveResult[0];
-//        //            }
-//        //
-//        //            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
-//        //            // Add matching functions to results.
-//        //            for (PsiElement psiElement : functions) {
-//        //                if (getElement().getText().equals(psiElement.getText())) {
-//        //                    results.add(new PsiElementResolveResult(psiElement));
-//        //                }
-//        //            }
-//        //            // Get all connectors in the package.
-//        //            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectory);
-//        //            // Add matching connectors to results.
-//        //            for (PsiElement connector : connectors) {
-//        //                if (getElement().getText().equals(connector.getText())) {
-//        //                    results.add(new PsiElementResolveResult(connector));
-//        //                }
-//        //            }
-//        //            // Get all annotations in the package.
-//        //            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
-//        //            // Add matching annotations to results.
-//        //            for (PsiElement annotation : annotations) {
-//        //                if (getElement().getText().equals(annotation.getText())) {
-//        //                    results.add(new PsiElementResolveResult(annotation));
-//        //                }
-//        //            }
-//        //            // Get all structs in the package.
-//        //            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectory);
-//        //            // Add matching structs to results.
-//        //            for (PsiElement struct : structs) {
-//        //                if (getElement().getText().equals(struct.getText())) {
-//        //                    results.add(new PsiElementResolveResult(struct));
-//        //                }
-//        //            }
-//        //            // Get all constants in the package.
-//        //            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectory);
-//        //            // Add matching constants to results.
-//        //            for (PsiElement constant : constants) {
-//        //                if (getElement().getText().equals(constant.getText())) {
-//        //                    results.add(new PsiElementResolveResult(constant));
-//        //                }
-//        //            }
-//        //            // Get all global variables in the package.
-//        //            List<PsiElement> globalVariables =
-//        //                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectory);
-//        //            // Add matching global variables to results.
-//        //            for (PsiElement variable : globalVariables) {
-//        //                if (getElement().getText().equals(variable.getText())) {
-//        //                    results.add(new PsiElementResolveResult(variable));
-//        //                }
-//        //            }
-//        //        }
-//        //        return results.toArray(new ResolveResult[results.size()]);
-//        return new ResolveResult[0];
-//    }
+    //    // Todo - remove
+    //    @NotNull
+    //    @Override
+    //    public ResolveResult[] multiResolve(boolean incompleteCode) {
+    //        //        // Get the NameReferenceNode parent. This is to resolve functions from other packages. Ex-
+    //        // system:println().
+    //        //        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), NameReferenceNode.class);
+    //        //        if (parentElement == null) {
+    //        //            // Get the TypeNameNode parent. This is to resolve Connectors from packages. Ex-
+    //        // http:ClientConnector.
+    //        //            parentElement = PsiTreeUtil.getParentOfType(getElement(), TypeNameNode.class);
+    //        //        }
+    //        //
+    //        //        // Get the PackagePath node. We need the package path to resolve the corresponding
+    //        // Function/Connector. We use
+    //        //        // XPath.findAll() here because the PackagePath node might not be a direct child of the
+    // parentElement.
+    //        //        Collection<? extends PsiElement> packagePath =
+    //        //                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//nameReference");
+    //        //
+    //        //        // Check whether a packagePath is found.
+    //        //        if (!packagePath.iterator().hasNext()) {
+    //        //            return new ResolveResult[0];
+    //        //        }
+    //        //        // There cannot be multiple packagePath nodes. So we get the fist package path.
+    //        //        PsiElement packagePathNode = packagePath.iterator().next();
+    //        //        if (packagePathNode == null) {
+    //        //            return new ResolveResult[0];
+    //        //        }
+    //        //        // Create a new List to save resolved elements.
+    //        //        List<ResolveResult> results = new ArrayList<>();
+    //        //        // Get the PackageNameNode. We need this to resolve the package.
+    //        //        PackageNameNode[] packageNameNodes =
+    //        //                PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
+    //        //
+    //        //        if (packageNameNodes == null || isDotOperatorAtEnd()) {
+    //        //            PsiFile file = myElement.getContainingFile();
+    //        //            if (file == null) {
+    //        //                return new ResolveResult[0];
+    //        //            }
+    //        //            PsiElement prevSibling = myElement.getPrevSibling();
+    //        //            if (prevSibling instanceof LeafPsiElement) {
+    //        //                IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+    //        //                if (elementType != BallerinaTypes.COLON) {
+    //        //                    return results.toArray(new ResolveResult[results.size()]);
+    //        //                }
+    //        //                PsiElement packageNode = file.findElementAt(prevSibling.getTextOffset() - 2);
+    //        //                if (packageNode == null) {
+    //        //                    return results.toArray(new ResolveResult[results.size()]);
+    //        //                }
+    //        //                PsiReference reference = packageNode.getReference();
+    //        //                if (reference == null) {
+    //        //                    return results.toArray(new ResolveResult[results.size()]);
+    //        //                }
+    //        //                PsiElement resolvedElement = reference.resolve();
+    //        //                if (resolvedElement == null) {
+    //        //                    return results.toArray(new ResolveResult[results.size()]);
+    //        //                }
+    //        //                if (resolvedElement instanceof PackageNameNode) {
+    //        //                    reference = resolvedElement.getReference();
+    //        //                    if (reference == null) {
+    //        //                        return results.toArray(new ResolveResult[results.size()]);
+    //        //                    }
+    //        //                    resolvedElement = reference.resolve();
+    //        //                    if (resolvedElement == null) {
+    //        //                        return results.toArray(new ResolveResult[results.size()]);
+    //        //                    }
+    //        //                }
+    //        //                if (!(resolvedElement instanceof PsiDirectory)) {
+    //        //                    return results.toArray(new ResolveResult[results.size()]);
+    //        //                }
+    //        //                List<PsiElement> connectors =
+    //        //                        BallerinaPsiImplUtil.getAllConnectorsInPackage(((PsiDirectory)
+    // resolvedElement));
+    //        //                // Add matching annotations to results.
+    //        //                for (PsiElement connector : connectors) {
+    //        //                    if (getElement().getText().equals(connector.getText())) {
+    //        //                        results.add(new PsiElementResolveResult(connector));
+    //        //                    }
+    //        //                }
+    //        //            }
+    //        ////            else if (prevSibling == null) {
+    //        ////                PsiReference reference = myElement.getReference();
+    //        ////                if (reference != null) {
+    //        ////                    PsiElement resolvedResult = reference.resolve();
+    //        ////                    if (resolvedResult != null) {
+    //        ////                        results.add(new PsiElementResolveResult(resolvedResult));
+    //        ////                    }
+    //        ////                }
+    //        ////            }
+    //        //            return results.toArray(new ResolveResult[results.size()]);
+    //        //        }
+    //        //        // Get the last PackageNameNode because we only need to resolve the corresponding package.
+    //        //        PackageNameNode lastPackage = packageNameNodes[packageNameNodes.length - 1];
+    //        //        if (lastPackage == null) {
+    //        //            return new ResolveResult[0];
+    //        //        }
+    //        //        // Get the identifier from the last package name.
+    //        //        PsiElement nameIdentifier = lastPackage.getNameIdentifier();
+    //        //        if (nameIdentifier == null) {
+    //        //            return new ResolveResult[0];
+    //        //        }
+    //        //        // Get the reference.
+    //        //        PsiReference reference = nameIdentifier.getReference();
+    //        //        if (reference == null) {
+    //        //            return new ResolveResult[0];
+    //        //        }
+    //        //        // Multi resolve the reference.
+    //        //        ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
+    //        //        // Iterate through all resolve results.
+    //        //        for (ResolveResult resolveResult : resolveResults) {
+    //        //            // Get the element from the resolve result.
+    //        //            PsiElement element = resolveResult.getElement();
+    //        //            if (element == null) {
+    //        //                continue;
+    //        //            }
+    //        //            PsiDirectory psiDirectory = null;
+    //        //            if (element instanceof PackageNameNode) {
+    //        //
+    //        //                PsiElement packageNameIdentifier = ((PackageNameNode) element).getNameIdentifier();
+    //        //                if (packageNameIdentifier == null) {
+    //        //                    return new ResolveResult[0];
+    //        //                }
+    //        //
+    //        //                // Check whether this is in a import statement.
+    //        //                ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element,
+    //        //                        ImportDeclarationNode.class);
+    //        //                if (importDeclarationNode != null) {
+    //        //                    // If this is an import declaration, resolve the directory.
+    //        //                    PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory
+    // (packageNameIdentifier);
+    //        //                    for (PsiDirectory directory : directories) {
+    //        //                        psiDirectory = directory;
+    //        //                        break;
+    //        //                    }
+    //        //                }
+    //        //            } else {
+    //        //                // Get all functions in the package.
+    //        //                psiDirectory = (PsiDirectory) element;
+    //        //            }
+    //        //
+    //        //
+    //        //            if (psiDirectory == null) {
+    //        //                return new ResolveResult[0];
+    //        //            }
+    //        //
+    //        //            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
+    //        //            // Add matching functions to results.
+    //        //            for (PsiElement psiElement : functions) {
+    //        //                if (getElement().getText().equals(psiElement.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(psiElement));
+    //        //                }
+    //        //            }
+    //        //            // Get all connectors in the package.
+    //        //            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectory);
+    //        //            // Add matching connectors to results.
+    //        //            for (PsiElement connector : connectors) {
+    //        //                if (getElement().getText().equals(connector.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(connector));
+    //        //                }
+    //        //            }
+    //        //            // Get all annotations in the package.
+    //        //            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage
+    // (psiDirectory);
+    //        //            // Add matching annotations to results.
+    //        //            for (PsiElement annotation : annotations) {
+    //        //                if (getElement().getText().equals(annotation.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(annotation));
+    //        //                }
+    //        //            }
+    //        //            // Get all structs in the package.
+    //        //            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectory);
+    //        //            // Add matching structs to results.
+    //        //            for (PsiElement struct : structs) {
+    //        //                if (getElement().getText().equals(struct.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(struct));
+    //        //                }
+    //        //            }
+    //        //            // Get all constants in the package.
+    //        //            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectory);
+    //        //            // Add matching constants to results.
+    //        //            for (PsiElement constant : constants) {
+    //        //                if (getElement().getText().equals(constant.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(constant));
+    //        //                }
+    //        //            }
+    //        //            // Get all global variables in the package.
+    //        //            List<PsiElement> globalVariables =
+    //        //                    BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectory);
+    //        //            // Add matching global variables to results.
+    //        //            for (PsiElement variable : globalVariables) {
+    //        //                if (getElement().getText().equals(variable.getText())) {
+    //        //                    results.add(new PsiElementResolveResult(variable));
+    //        //                }
+    //        //            }
+    //        //        }
+    //        //        return results.toArray(new ResolveResult[results.size()]);
+    //        return new ResolveResult[0];
+    //    }
 
-    private boolean isDotOperatorAtEnd() {
-        int offset = myElement.getTextOffset() + myElement.getTextLength();
-        PsiElement element = myElement.getContainingFile().findElementAt(offset);
-        if (element != null && element instanceof LeafPsiElement) {
-            IElementType elementType = ((LeafPsiElement) element).getElementType();
-            if (elementType == BallerinaTypes.DOT) {
-                return true;
-            }
-        }
-        return false;
-    }
+    //    private boolean isDotOperatorAtEnd() {
+    //        int offset = myElement.getTextOffset() + myElement.getTextLength();
+    //        PsiElement element = myElement.getContainingFile().findElementAt(offset);
+    //        if (element != null && element instanceof LeafPsiElement) {
+    //            IElementType elementType = ((LeafPsiElement) element).getElementType();
+    //            if (elementType == BallerinaTypes.DOT) {
+    //                return true;
+    //            }
+    //        }
+    //        return false;
+    //    }
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {

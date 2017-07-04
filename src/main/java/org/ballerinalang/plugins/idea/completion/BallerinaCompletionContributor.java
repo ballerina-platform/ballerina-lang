@@ -27,7 +27,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
@@ -36,12 +35,12 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -49,11 +48,8 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -69,15 +65,12 @@ import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
-import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
-import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -110,73 +103,138 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
-        PsiElement parentPrevSibling = parent.getPrevSibling();
+        PsiFile originalFile = parameters.getOriginalFile();
+
+        PsiDirectory containingPackage = originalFile.getParent();
+
+        if (parent instanceof NameReferenceNode) {
+            if (containingPackage != null) {
+                // Todo - Get all functions, connectors, structs, variables
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+
+                for (PsiElement function : functions) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
+                    resultSet.addElement(lookupElement);
+                }
+            }
+        }
+//        else if (parent instanceof AnnotationReferenceNode) {
+//            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+//            if (packageNameNode == null) {
+//                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
+//                // Todo - add unimported packages
+//                for (PsiElement importedPackage : importedPackages) {
+//                    PsiReference reference = importedPackage.findReferenceAt(0);
+//                    if (reference != null) {
+//                        PsiElement resolvedElement = reference.resolve();
+//                        if (resolvedElement != null) {
+//                            PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+//                            LookupElement lookupElement =
+//                                    BallerinaCompletionUtils.createPackageLookupElement(psiDirectory,
+//                                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+//                            resultSet.addElement(lookupElement);
+//                        }
+//                    }
+//                }
+//            } else {
+//                PsiReference reference = packageNameNode.findReferenceAt(0);
+//                if (reference != null) {
+//                    PsiElement resolvedElement = reference.resolve();
+//                    if (resolvedElement != null) {
+//                        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+//
+//
+//                        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
+//
+//                        for (PsiElement annotation : annotations) {
+//
+//                            LookupElement lookupElement =
+//                                    BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
+//                            resultSet.addElement(lookupElement);
+//                        }
+//                        //
+//                        //                        LookupElementBuilder lookupElement = BallerinaCompletionUtils
+//                        // .createPackageLookupElement
+//                        //                                (psiDirectory,
+//                        //                                        PackageCompletionInsertHandler
+//                        //                                                .INSTANCE_WITH_AUTO_POPUP);
+//                        //                        resultSet.addElement(lookupElement);
+//                    }
+//                }
+//            }
+//        }
+
+
+        //        PsiElement parentPrevSibling = parent.getPrevSibling();
 
         // If the parent is a simple literal value node, no need to add lookup elements.
-        if (parent instanceof SimpleLiteralNode) {
-            return;
-        }
-
-        // If the current element is a Quoted string, we don't need to add suggestions.
-        if (element instanceof LeafPsiElement) {
-            if (((LeafPsiElement) element).getElementType() == BallerinaTypes.QUOTED_STRING) {
-                return;
-            }
-        }
-
-        if (parent instanceof PsiFile) {
-            // If the parent is PsiFile, that means we can only suggest keywords including 'package' and 'import'
-            // keywords.
-            addFileLevelKeywordsAsLookups(resultSet, true, true);
-        } else if (parentPrevSibling instanceof ImportDeclarationNode
-                || parentPrevSibling instanceof PackageDeclarationNode) {
-            // If the previous sibling of the parent is PackageDeclarationNode, that means we have already added
-            // package declaration. If it is ImportDeclarationNode, no need to suggest 'package' keyword because we
-            // cannot add package declaration after an import.
-            addFileLevelKeywordsAsLookups(resultSet, false, true);
-        } else if (parent instanceof PackageNameNode) {
-            handlePackageNameNode(parameters, resultSet);
-        } else if (parent instanceof ImportDeclarationNode) {
-            handleImportDeclarationNode(parameters, resultSet);
-        } else if (parent instanceof ConstantDefinitionNode) {
-            handleConstantDefinitionNode(parameters, resultSet);
-        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
-            handleNameReferenceNode(parameters, resultSet);
-        } else if (parent instanceof StatementNode || parent instanceof WorkerInterationStatementNode) {
-            handleStatementNode(parameters, resultSet);
-        } else if (parent instanceof VariableReferenceNode) {
-            handleVariableReferenceNode(parameters, resultSet);
-        } else if (parent instanceof ActionInvocationNode) {
-            handleActionInvocationNode(parameters, resultSet);
-        } else if (parent instanceof FunctionInvocationStatementNode) {
-            handleFunctionInvocationStatementNode(parameters, resultSet);
-        } else if (parent instanceof PsiErrorElement) {
-            handlePsiErrorElement(parameters, resultSet);
-        } else if (parent instanceof VariableDefinitionNode) {
-            identifyAndAddSuggestions(parameters, resultSet);
-        } else if (parent instanceof AnnotationAttributeNode) {
-            handleAnnotationAttributeNode(parameters, resultSet);
-        } else if (parent instanceof ResourceDefinitionNode) {
-            handleResourceDefinitionNode(parameters, resultSet);
-        } else if (parent instanceof ActionDefinitionNode) {
-            handleActionDefinitionNode(parameters, resultSet);
-        } else if (parent instanceof WorkerReplyNode || parent instanceof TriggerWorkerNode) {
-            handleWorkerReferenceNode(parameters, resultSet);
-        } else if (parent instanceof JoinConditionNode) {
-            handleJoinConditionNode(parameters, resultSet);
-        } else if (parent instanceof FieldNode) {
-            handleFieldNode(parameters, resultSet);
-        } else {
-            // If we are currently at an identifier node or a comment node, no need to suggest.
-            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
-                return;
-            }
-            if (parentPrevSibling == null) {
-                addFileLevelKeywordsAsLookups(resultSet, true, true);
-            } else {
-                addFileLevelKeywordsAsLookups(resultSet, false, true);
-            }
-        }
+        //        if (parent instanceof SimpleLiteralNode) {
+        //            return;
+        //        }
+        //
+        //        // If the current element is a Quoted string, we don't need to add suggestions.
+        //        if (element instanceof LeafPsiElement) {
+        //            if (((LeafPsiElement) element).getElementType() == BallerinaTypes.QUOTED_STRING) {
+        //                return;
+        //            }
+        //        }
+        //
+        //        if (parent instanceof PsiFile) {
+        //            // If the parent is PsiFile, that means we can only suggest keywords including 'package' and
+        // 'import'
+        //            // keywords.
+        //            addFileLevelKeywordsAsLookups(resultSet, true, true);
+        //        } else if (parentPrevSibling instanceof ImportDeclarationNode
+        //                || parentPrevSibling instanceof PackageDeclarationNode) {
+        //            // If the previous sibling of the parent is PackageDeclarationNode, that means we have already
+        // added
+        //            // package declaration. If it is ImportDeclarationNode, no need to suggest 'package' keyword
+        // because we
+        //            // cannot add package declaration after an import.
+        //            addFileLevelKeywordsAsLookups(resultSet, false, true);
+        //        } else if (parent instanceof PackageNameNode) {
+        //            handlePackageNameNode(parameters, resultSet);
+        //        } else if (parent instanceof ImportDeclarationNode) {
+        //            handleImportDeclarationNode(parameters, resultSet);
+        //        } else if (parent instanceof ConstantDefinitionNode) {
+        //            handleConstantDefinitionNode(parameters, resultSet);
+        //        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
+        //            handleNameReferenceNode(parameters, resultSet);
+        //        } else if (parent instanceof StatementNode || parent instanceof WorkerInterationStatementNode) {
+        //            handleStatementNode(parameters, resultSet);
+        //        } else if (parent instanceof VariableReferenceNode) {
+        //            handleVariableReferenceNode(parameters, resultSet);
+        //        } else if (parent instanceof ActionInvocationNode) {
+        //            handleActionInvocationNode(parameters, resultSet);
+        //        } else if (parent instanceof FunctionInvocationStatementNode) {
+        //            handleFunctionInvocationStatementNode(parameters, resultSet);
+        //        } else if (parent instanceof PsiErrorElement) {
+        //            handlePsiErrorElement(parameters, resultSet);
+        //        } else if (parent instanceof VariableDefinitionNode) {
+        //            identifyAndAddSuggestions(parameters, resultSet);
+        //        } else if (parent instanceof AnnotationAttributeNode) {
+        //            handleAnnotationAttributeNode(parameters, resultSet);
+        //        } else if (parent instanceof ResourceDefinitionNode) {
+        //            handleResourceDefinitionNode(parameters, resultSet);
+        //        } else if (parent instanceof ActionDefinitionNode) {
+        //            handleActionDefinitionNode(parameters, resultSet);
+        //        } else if (parent instanceof WorkerReplyNode || parent instanceof TriggerWorkerNode) {
+        //            handleWorkerReferenceNode(parameters, resultSet);
+        //        } else if (parent instanceof JoinConditionNode) {
+        //            handleJoinConditionNode(parameters, resultSet);
+        //        } else if (parent instanceof FieldNode) {
+        //            handleFieldNode(parameters, resultSet);
+        //        } else {
+        //            // If we are currently at an identifier node or a comment node, no need to suggest.
+        //            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
+        //                return;
+        //            }
+        //            if (parentPrevSibling == null) {
+        //                addFileLevelKeywordsAsLookups(resultSet, true, true);
+        //            } else {
+        //                addFileLevelKeywordsAsLookups(resultSet, false, true);
+        //            }
+        //        }
     }
 
     private void handleFieldNode(CompletionParameters parameters, CompletionResultSet resultSet) {
@@ -1436,34 +1494,35 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // unique. So the maximum size of this should be 1. If this is 0, that means the package is
                 // not imported. If this is more than 1, it means there are duplicate package imports or
                 // there are multiple packages with the same name.
-//                PsiDirectory[] psiDirectories =
-//                        BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
-//                if (psiDirectories.length == 1) {
-//                    if (withFunctions) {
-//                        List<PsiElement> functions =
-//                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectories[0]);
-//                        addFunctionsAsLookups(resultSet, functions);
-//                    }
-//                    if (withConnectors) {
-//                        List<PsiElement> connectors =
-//                                BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
-//                        addConnectorsAsLookups(resultSet, connectors);
-//                    }
-//                    if (withStructs) {
-//                        List<PsiElement> structs =
-//                                BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectories[0]);
-//                        addStructsAsLookups(resultSet, structs);
-//                    }
-//                    if (withConstants) {
-//                        List<PsiElement> constants =
-//                                BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectories[0]);
-//                        addConstantsAsLookups(resultSet, constants);
-//                    }
-//
-//                    List<PsiElement> globalVariables =
-//                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
-//                    addGlobalVariablesAsLookups(resultSet, globalVariables);
-//                }
+                //                PsiDirectory[] psiDirectories =
+                //                        BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack)
+                // .getNameIdentifier());
+                //                if (psiDirectories.length == 1) {
+                //                    if (withFunctions) {
+                //                        List<PsiElement> functions =
+                //                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectories[0]);
+                //                        addFunctionsAsLookups(resultSet, functions);
+                //                    }
+                //                    if (withConnectors) {
+                //                        List<PsiElement> connectors =
+                //                                BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
+                //                        addConnectorsAsLookups(resultSet, connectors);
+                //                    }
+                //                    if (withStructs) {
+                //                        List<PsiElement> structs =
+                //                                BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectories[0]);
+                //                        addStructsAsLookups(resultSet, structs);
+                //                    }
+                //                    if (withConstants) {
+                //                        List<PsiElement> constants =
+                //                                BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectories[0]);
+                //                        addConstantsAsLookups(resultSet, constants);
+                //                    }
+                //
+                //                    List<PsiElement> globalVariables =
+                //                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
+                //                    addGlobalVariablesAsLookups(resultSet, globalVariables);
+                //                }
                 // Else situation cannot/should not happen since all the imported packages are unique.
                 // This should be highlighted using an annotator.
             }

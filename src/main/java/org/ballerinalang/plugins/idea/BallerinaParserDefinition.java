@@ -45,6 +45,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
@@ -334,6 +335,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new JoinConditionNode(node);
             case BallerinaParser.RULE_field:
                 return new FieldNode(node);
+            case BallerinaParser.RULE_annotationReference:
+                return new AnnotationReferenceNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

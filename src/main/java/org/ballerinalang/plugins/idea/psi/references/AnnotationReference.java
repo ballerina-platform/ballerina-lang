@@ -16,9 +16,21 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class AnnotationReference extends BallerinaElementReference {
 
@@ -34,6 +46,43 @@ public class AnnotationReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
+        PsiFile containingFile = parent.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
+
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        List<LookupElement> results = new LinkedList<>();
+        if (packageNameNode == null) {
+            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
+            for (PsiElement importedPackage : importedPackages) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        LookupElementBuilder lookupElement =
+                                BallerinaCompletionUtils.createPackageLookupElement(((PsiDirectory) resolvedElement));
+                        results.add(lookupElement);
+                    }
+                }
+            }
+        } else {
+            PsiReference reference = packageNameNode.findReferenceAt(0);
+            if (reference != null) {
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement != null) {
+                    PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+                    List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
+                    for (PsiElement annotation : annotations) {
+                        LookupElement lookupElement =
+                                BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
+                        results.add(lookupElement);
+                    }
+                }
+            }
+        }
+
+        return results.toArray(new LookupElement[results.size()]);
     }
 }

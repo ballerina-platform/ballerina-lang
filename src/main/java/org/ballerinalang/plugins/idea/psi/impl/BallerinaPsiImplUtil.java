@@ -165,8 +165,13 @@ public class BallerinaPsiImplUtil {
 
         Project project = identifier.getProject();
         PsiFile containingFile = identifier.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
 
-        Module module = ModuleUtilCore.findModuleForFile(containingFile.getVirtualFile(), project);
+        VirtualFile virtualFile = originalFile.getVirtualFile();
+        if (virtualFile == null) {
+            return results;
+        }
+        Module module = ModuleUtilCore.findModuleForFile(virtualFile, project);
         if (module == null) {
             return results;
         }
@@ -177,6 +182,7 @@ public class BallerinaPsiImplUtil {
 
     /**
      * Find all matching packages in current module, dependencies(modules)
+     *
      * @param module
      * @param packages
      * @return
@@ -476,7 +482,6 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
-     *
      * @param directory
      * @return
      */
@@ -496,7 +501,6 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
-     *
      * @param file
      * @return
      */
@@ -509,7 +513,6 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
-     *
      * @param file
      * @return
      */
@@ -535,7 +538,6 @@ public class BallerinaPsiImplUtil {
     }
 
     /**
-     *
      * @param file
      * @return
      */

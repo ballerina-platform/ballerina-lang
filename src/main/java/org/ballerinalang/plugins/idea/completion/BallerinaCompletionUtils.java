@@ -496,14 +496,18 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElementBuilder createDirectoryLookupElement(@NotNull PsiDirectory directory) {
+    public static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory) {
         return LookupElementBuilder.createWithSmartPointer(directory.getName(), directory)
-                .withIcon(BallerinaIcons.PACKAGE)
-                .withTypeText("Package")
+                .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                 .withInsertHandler(directory.getFiles().length == 0 ?
                         PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP : null);
     }
 
+    @NotNull
+    public static LookupElement createPackageLookupElement(@NotNull PsiDirectory directory,
+                                                           @Nullable InsertHandler<LookupElement> handler) {
+        return createPackageLookupElement(directory).withInsertHandler(handler);
+    }
 
     /**
      * Suggests annotations from a package according to the current context .
@@ -522,22 +526,28 @@ public class BallerinaCompletionUtils {
             List<PsiElement> packages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
             for (PsiElement pack : packages) {
                 // Compare text to identify the correct package
-//                if (packageElement.getText().equals(pack.getText())) {
-//                    // Resolve the package and get all matching directories. But all imported packages should be
-//                    // unique. So the maximum size of this should be 1. If this is 0, that means the package is
-//                    // not imported. If this is more than 1, it means there are duplicate package imports or
-//                    // there are multiple packages with the same name.
-//                    PsiDirectory[] psiDirectories =
-//                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
-//                    if (psiDirectories.length == 1) {
-//                        // Get all annotations in the package.
-//                        List<PsiElement> attachmentsForType =
-//                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(psiDirectories[0], type);
-//                        addAnnotationsAsLookups(resultSet, attachmentsForType);
-//                    }
-//                    // Else situation cannot/should not happen since all the imported packages are unique.
-//                    // This should be highlighted using an annotator.
-//                }
+                //                if (packageElement.getText().equals(pack.getText())) {
+                //                    // Resolve the package and get all matching directories. But all imported
+                // packages should be
+                //                    // unique. So the maximum size of this should be 1. If this is 0, that means
+                // the package is
+                //                    // not imported. If this is more than 1, it means there are duplicate package
+                // imports or
+                //                    // there are multiple packages with the same name.
+                //                    PsiDirectory[] psiDirectories =
+                //                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack)
+                // .getNameIdentifier());
+                //                    if (psiDirectories.length == 1) {
+                //                        // Get all annotations in the package.
+                //                        List<PsiElement> attachmentsForType =
+                //                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType
+                // (psiDirectories[0], type);
+                //                        addAnnotationsAsLookups(resultSet, attachmentsForType);
+                //                    }
+                //                    // Else situation cannot/should not happen since all the imported packages are
+                // unique.
+                //                    // This should be highlighted using an annotator.
+                //                }
             }
         } else {
             // If the packageElement is null, that means we want to get all annotations in the current package.
@@ -565,6 +575,15 @@ public class BallerinaCompletionUtils {
         }
     }
 
+
+    public static LookupElement createAnnotationLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
+                .withInsertHandler(BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
+    }
+
+
     /**
      * Helper method to add packages as lookup elements.
      *
@@ -579,7 +598,8 @@ public class BallerinaCompletionUtils {
         for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
             PsiElement packageNameNode;
             String packagePath;
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType
+                    (importDeclarationNode, FullyQualifiedPackageNameNode.class);
             if (fullyQualifiedPackageNameNode == null) {
                 continue;
             }
@@ -688,6 +708,14 @@ public class BallerinaCompletionUtils {
     private static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(file.getContainingDirectory());
         addFunctionsAsLookups(resultSet, functions);
+    }
+
+    public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
+                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
+                .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+        return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
     /**
