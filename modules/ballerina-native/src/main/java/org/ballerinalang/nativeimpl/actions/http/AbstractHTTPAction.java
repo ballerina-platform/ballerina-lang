@@ -198,10 +198,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         handleTransportException(callback.getValueRef());
     }
 
-    // Handle operations for empty content messages initiated from the backend service
     @Override
     public void prepareNoMessageBodyResponse(BValue valueRef) {
-        if (this.getIdentifier().getName().equals("head") || this.getIdentifier().getName().equals("option")) {
+        if (this.getIdentifier().getName().equals("head") || this.getIdentifier().getName().equals("options")) {
             if (valueRef instanceof BMessage) {
                 BMessage bMsg = (BMessage) valueRef;
                 bMsg.value().setEndOfMsgAdded(true);
