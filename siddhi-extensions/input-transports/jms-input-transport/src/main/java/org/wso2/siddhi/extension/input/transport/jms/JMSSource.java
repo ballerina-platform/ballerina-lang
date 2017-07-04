@@ -56,12 +56,17 @@ public class JMSSource extends Source {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
-            transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         // todo: thread pool size should be read from the configuration file, since it's not available at the time of
         // this impl, it's hardcoded.
         this.threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class, Map.class};
     }
 
     @Override

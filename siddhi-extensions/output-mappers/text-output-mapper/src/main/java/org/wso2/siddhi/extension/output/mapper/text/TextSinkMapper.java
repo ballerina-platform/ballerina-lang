@@ -50,6 +50,7 @@ public class TextSinkMapper extends SinkMapper {
     /**
      * Initialize the mapper and the mapping configurations
      * * @param streamDefinition       The stream definition
+     *
      * @param optionHolder           Unmapped dynamic options
      * @param payloadTemplateBuilder
      * @param mapperConfigReader
@@ -60,6 +61,11 @@ public class TextSinkMapper extends SinkMapper {
             payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.payloadTemplateBuilder = payloadTemplateBuilder;
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override

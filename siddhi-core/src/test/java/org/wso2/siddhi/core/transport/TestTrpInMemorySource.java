@@ -58,8 +58,8 @@ public class TestTrpInMemorySource extends InMemorySource {
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
-            transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
-        super.init(sourceEventListener, optionHolder, transportPropertyNames, configReader, siddhiAppContext);
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+        super.init(sourceEventListener, optionHolder, requestedTransportPropertyNames, configReader, siddhiAppContext);
         prop1 = optionHolder.validateAndGetStaticValue("prop1");
         prop2 = optionHolder.validateAndGetStaticValue("prop2");
         fail = optionHolder.validateAndGetStaticValue("fail", "false");

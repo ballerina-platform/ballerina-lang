@@ -60,18 +60,57 @@ public abstract class Source implements Snapshotable {
         scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
     }
 
+    /**
+     * To initialize the source. (This will be called only once, no connection to external systems should be made at
+     * this point).
+     *
+     * @param sourceEventListener             The listener to pass the events for processing which are consumed
+     *                                        by the source
+     * @param optionHolder                    Contains static options of the source
+     * @param requestedTransportPropertyNames Requested transport properties that should be passed to
+     *                                        SourceEventListener
+     * @param configReader                    System configuration reader for source
+     * @param siddhiAppContext                Siddhi application context
+     */
     public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                              String[] transportPropertyNames, ConfigReader configReader,
+                              String[] requestedTransportPropertyNames, ConfigReader configReader,
                               SiddhiAppContext siddhiAppContext);
 
+    /**
+     * Get produced event class types
+     *
+     * @return Array of classes that will be produced by the source,
+     * null or empty array if it can produce any type of class.
+     */
+    public abstract Class[] getOutputEventClasses();
+
+    /**
+     * Called to connect to the source backend for receiving events
+     *
+     * @param connectionCallback Callback to pass the ConnectionUnavailableException for connection failure after
+     *                           initial successful connection
+     * @throws ConnectionUnavailableException if it cannot connect to the source backend
+     */
     public abstract void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException;
 
+    /**
+     * Called to disconnect from the source backend, or when ConnectionUnavailableException is thrown
+     */
     public abstract void disconnect();
 
+    /**
+     * Called at the end to clean all the resources consumed
+     */
     public abstract void destroy();
 
+    /**
+     * Called to pause event consumption
+     */
     public abstract void pause();
 
+    /**
+     * Called to resume event consumption
+     */
     public abstract void resume();
 
     public void connectWithRetry() {

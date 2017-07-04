@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
         description = "TBD",
         examples = @Example(description = "TBD", syntax = "TBD")
 )
-public class KafkaSource extends Source{
+public class KafkaSource extends Source {
 
     final static String SINGLE_THREADED = "single.thread";
     final static String TOPIC_WISE = "topic.wise";
@@ -92,11 +92,16 @@ public class KafkaSource extends Source{
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
-            transportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         this.executorService = siddhiAppContext.getScheduledExecutorService();
         siddhiAppContext.getSnapshotService().addSnapshotable("kafka-sink", this);
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override
@@ -113,9 +118,9 @@ public class KafkaSource extends Source{
         String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
                 null);
         consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions,
-                                                    KafkaSource.createConsumerConfig(zkServerList, groupID,
-                                                                                            optionalConfigs),
-                                                    topicOffsetMap, threadingOption, this.executorService);
+                KafkaSource.createConsumerConfig(zkServerList, groupID,
+                        optionalConfigs),
+                topicOffsetMap, threadingOption, this.executorService);
         consumerKafkaGroup.run(sourceEventListener);
     }
 

@@ -286,6 +286,8 @@ public class DefinitionParserHelper {
                     SourceMapper sourceMapper = (SourceMapper) SiddhiClassLoader.loadExtensionImplementation(
                             mapperExtension, SourceMapperExecutorExtensionHolder.getInstance(siddhiAppContext));
 
+                    validateSourceMapperCompatibility(streamDefinition, sourceType, mapType, source, sourceMapper);
+
                     OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
                             source.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
                     OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
@@ -315,6 +317,37 @@ public class DefinitionParserHelper {
                     throw new SiddhiAppCreationException("Both @Sink(type=) and @map(type=) are required.");
                 }
             }
+        }
+    }
+
+    private static void validateSourceMapperCompatibility(StreamDefinition streamDefinition, String sourceType,
+                                                          String mapType, Source source, SourceMapper sourceMapper) {
+        Class[] inputEventClasses = sourceMapper.getSupportedInputEventClasses();
+        Class[] outputEventClasses = source.getOutputEventClasses();
+
+        //skipping validation for unknown output types
+        if (outputEventClasses == null || outputEventClasses.length == 0) {
+            return;
+        }
+
+        boolean matchingSinkAndMapperClasses = false;
+        for (Class inputEventClass : inputEventClasses) {
+            for (Class outputEventClass : outputEventClasses) {
+                if (inputEventClass.isAssignableFrom(outputEventClass)) {
+                    matchingSinkAndMapperClasses = true;
+                    break;
+                }
+            }
+            if (matchingSinkAndMapperClasses) {
+                break;
+            }
+        }
+        if (!matchingSinkAndMapperClasses) {
+            throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
+                    "source '" + sourceType + "' produces incompatible '" +
+                    Arrays.deepToString(outputEventClasses) +
+                    "' classes, while it's source mapper '" + mapType + "' can only consume '" +
+                    Arrays.deepToString(inputEventClasses) + "' classes.");
         }
     }
 
@@ -389,7 +422,6 @@ public class DefinitionParserHelper {
                         org.wso2.siddhi.annotation.Extension sinkExt
                                 = sink.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class);
 
-                        // Initialing output transport
                         OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition,
                                 sinkAnnotation, sinkExt, supportedDynamicOptions);
                         OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
@@ -397,7 +429,6 @@ public class DefinitionParserHelper {
                                 sinkMapper.getSupportedDynamicOptions());
                         String payload = getPayload(mapAnnotation);
 
-                        // Initializing the transports
                         OptionHolder distributionOptHolder = null;
                         if (isDistributedTransport) {
                             distributionOptHolder = constructOptionProcessor(streamDefinition,
@@ -430,6 +461,8 @@ public class DefinitionParserHelper {
                                     mapType, mapOptionHolder, payload, mapperConfigReader, siddhiAppContext);
                         }
 
+                        validateSinkMapperCompatibility(streamDefinition, sinkType, mapType, sink, sinkMapper);
+
                         // Setting the output group determiner
                         OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
                                 distributionOptHolder, streamDefinition, destinationOptHolders.size());
@@ -450,6 +483,36 @@ public class DefinitionParserHelper {
                     throw new SiddhiAppCreationException("Both @sink(type=) and @map(type=) are required.");
                 }
             }
+        }
+    }
+
+    private static void validateSinkMapperCompatibility(StreamDefinition streamDefinition, String sinkType,
+                                                        String mapType, Sink sink, SinkMapper sinkMapper) {
+        Class[] inputEventClasses = sink.getSupportedInputEventClasses();
+        Class[] outputEventClasses = sinkMapper.getOutputEventClasses();
+
+        //skipping validation for unknown output types
+        if (outputEventClasses == null || outputEventClasses.length == 0) {
+            return;
+        }
+
+        boolean matchingSinkAndMapperClasses = false;
+        for (Class inputEventClass : inputEventClasses) {
+            for (Class outputEventClass : outputEventClasses) {
+                if (inputEventClass.isAssignableFrom(outputEventClass)) {
+                    matchingSinkAndMapperClasses = true;
+                    break;
+                }
+            }
+            if (matchingSinkAndMapperClasses) {
+                break;
+            }
+        }
+        if (!matchingSinkAndMapperClasses) {
+            throw new SiddhiAppCreationException("At stream '" + streamDefinition.getId() + "', " +
+                    "sink mapper '" + mapType + "' processes '" + Arrays.deepToString(outputEventClasses) +
+                    "' classes but it's sink '" + sinkType + "' cannot not consume any of those class, where " +
+                    "sink can only consume '" + Arrays.deepToString(inputEventClasses) + "' classes.");
         }
     }
 

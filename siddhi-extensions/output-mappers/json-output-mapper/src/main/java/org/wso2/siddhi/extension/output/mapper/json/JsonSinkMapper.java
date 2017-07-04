@@ -134,7 +134,8 @@ public class JsonSinkMapper extends SinkMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition       The stream definition
+     *
+     * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param siddhiAppContext
@@ -142,11 +143,16 @@ public class JsonSinkMapper extends SinkMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext
-                                 siddhiAppContext) {
+                             siddhiAppContext) {
         attributeNameArray = streamDefinition.getAttributeNameArray();
         enclosingElement = optionHolder.validateAndGetStaticValue(ENCLOSING_ELEMENT_IDENTIFIER, null);
         isJsonValidationEnabled = Boolean.parseBoolean(optionHolder
                 .validateAndGetStaticValue(JSON_VALIDATION_IDENTIFIER, "false"));
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override

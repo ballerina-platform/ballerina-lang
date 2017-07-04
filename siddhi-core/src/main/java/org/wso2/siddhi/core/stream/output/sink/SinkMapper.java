@@ -72,9 +72,9 @@ public abstract class SinkMapper {
      *
      * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder un mapped payload for reference
-     * @param mapperConfigReader     this hold the {@link SinkMapper} extensions configuration reader.
-     * @param siddhiAppContext
+     * @param payloadTemplateBuilder Un mapped payload for reference
+     * @param mapperConfigReader     System configuration reader for Sink-mapper.
+     * @param siddhiAppContext       Siddhi Application Context
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder,
@@ -83,7 +83,15 @@ public abstract class SinkMapper {
                               SiddhiAppContext siddhiAppContext);
 
     /**
-     * Called to map the events and send them to {@link SinkListener}
+     * Get produced event class types
+     *
+     * @return Array of classes that will be produced by the sink-mapper,
+     * null or empty array if it can produce any type of class.
+     */
+    public abstract Class[] getOutputEventClasses();
+
+    /**
+     * Called to map the events and send them to {@link SinkListener} for publishing
      *
      * @param events {@link Event}s that need to be mapped
      */
@@ -113,7 +121,7 @@ public abstract class SinkMapper {
     }
 
     /**
-     * Called to map the event and send it to {@link SinkListener}
+     * Called to map the event and send it to {@link SinkListener} for publishing
      *
      * @param event The {@link Event} that need to be mapped
      */
@@ -128,7 +136,7 @@ public abstract class SinkMapper {
     }
 
     /**
-     * Called to map the events and send them to {@link SinkListener}
+     * Called to map the events and send them to {@link SinkListener} for publishing
      *
      * @param events                 {@link Event}s that need to be mapped
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
@@ -139,7 +147,7 @@ public abstract class SinkMapper {
                                     SinkListener sinkListener);
 
     /**
-     * Called to map the event and send it to {@link SinkListener}
+     * Called to map the event and send it to {@link SinkListener} for publishing
      *
      * @param event                  {@link Event} that need to be mapped
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper

@@ -34,12 +34,12 @@ import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Mapper class to convert a Siddhi message to a XML message. User can provide a XML template or else we will be
@@ -126,6 +126,7 @@ public class XMLSinkMapper extends SinkMapper {
     /**
      * Initialize the mapper and the mapping configurations.
      * * @param streamDefinition       The stream definition
+     *
      * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param mapperConfigReader
@@ -134,7 +135,7 @@ public class XMLSinkMapper extends SinkMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
                      TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext
-                                 siddhiAppContext) {
+                             siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.getOrCreateOption(OPTION_ENCLOSING_ELEMENT, null).getValue();
         if (enclosingElement != null) {
@@ -155,6 +156,11 @@ public class XMLSinkMapper extends SinkMapper {
                 }
             }
         }
+    }
+
+    @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override
@@ -197,7 +203,8 @@ public class XMLSinkMapper extends SinkMapper {
 
     /**
      * Map and publish the given {@link Event} array
-     *  @param events                 Event object array
+     *
+     * @param events                 Event object array
      * @param optionHolder           option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param sinkListener           output transport callback

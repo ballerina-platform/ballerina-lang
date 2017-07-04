@@ -614,4 +614,46 @@ public class InMemoryTransportTestCase {
         siddhiAppRuntime.shutdown();
 
     }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void inMemoryTestCase8() throws InterruptedException {
+        log.info("Test inMemory 8");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "@source(type='testEventInMemory', topic='Foo', prop1='hi', prop2='test', fail='true', " +
+                "   @map(type='testString', @attributes(symbol='trp:symbol'," +
+                "        volume='volume',price='trp:price'))) " +
+                "define stream FooStream (symbol string, price string, volume long); " +
+                "define stream BarStream (symbol string, price string, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+    }
+
+    @Test(expected = SiddhiAppCreationException.class)
+    public void inMemoryTestCase9() throws InterruptedException {
+        log.info("Test inMemory 9");
+
+        String streams = "" +
+                "@app:name('TestSiddhiApp')" +
+                "define stream FooStream (symbol string, price float, volume long); " +
+                "@sink(type='testStringInMemory', topic='{{symbol}}', @map(type='passThrough')) " +
+                "define stream BarStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select * " +
+                "insert into BarStream; ";
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+
+    }
 }

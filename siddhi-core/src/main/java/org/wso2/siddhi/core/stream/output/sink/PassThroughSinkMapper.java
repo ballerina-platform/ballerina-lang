@@ -56,6 +56,11 @@ public class PassThroughSinkMapper extends SinkMapper {
     }
 
     @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{Event[].class, Event.class};
+    }
+
+    @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                            SinkListener sinkListener) {
         sinkListener.publish(events);

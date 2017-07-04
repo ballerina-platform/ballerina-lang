@@ -53,6 +53,11 @@ public class PassThroughSourceMapper extends SourceMapper {
     }
 
     @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{Event.class, Event[].class, Object[].class};
+    }
+
+    @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
         if (eventObject != null) {
             if (eventObject instanceof Event[]) {

@@ -52,15 +52,13 @@ import java.util.regex.Pattern;
 public class TextSourceMapper extends SourceMapper {
 
     /**
-     * Logger to log the events.
-     */
-    private static final Logger log = Logger.getLogger(TextSourceMapper.class);
-
-    /**
      * Default regex assumes that the attributes in the text are separated by comma in order.
      */
     public static final String DEFAULT_MAPPING_REGEX = "([^,;]+)";
-
+    /**
+     * Logger to log the events.
+     */
+    private static final Logger log = Logger.getLogger(TextSourceMapper.class);
     /**
      * Output StreamDefinition of the input mapper.
      */
@@ -80,6 +78,7 @@ public class TextSourceMapper extends SourceMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
+     *
      * @param streamDefinition     the  StreamDefinition
      * @param optionHolder         mapping options
      * @param attributeMappingList list of attributes mapping
@@ -134,12 +133,17 @@ public class TextSourceMapper extends SourceMapper {
         }
     }
 
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
+    }
+
 
     /**
      * Receive TEXT string from {@link Source}, convert to {@link ComplexEventChunk} and send to the
      * {@link OutputCallback}.
-     * @param eventObject  the TEXT string
      *
+     * @param eventObject the TEXT string
      */
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
