@@ -99,9 +99,15 @@ class Application {
         _.set(langserverOptions, 'application', this);
         _.set(_.get('application'), 'config', this.config);
         this.langseverClientController = new LangServerClientController(langserverOptions);
+        this.langseverClientController
+                .init()
+                .then(() => {
+                    // lets initialize the ballerina environment.
+                    BallerinaEnvironment.initialize({ app: this });
+                })
+                .catch(error => log.error('Error while initializing lang server. ' + error));
 
         // init debugger
-
         const debuggerOpts = _.get(this.config, 'debugger');
         _.set(debuggerOpts, 'application', this);
         _.set(debuggerOpts, 'launchManager', LaunchManager);
@@ -141,9 +147,7 @@ class Application {
     }
 
     render() {
-        // lets initialize the ballerina environment before we render UI.
-        BallerinaEnvironment.initialize({ app: this });
-
+        
         log.debug('start: rendering menu_bar control');
         this.menuBar.render();
         log.debug('end: rendering menu_bar control');

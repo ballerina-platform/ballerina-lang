@@ -41,7 +41,7 @@ class LangserverChannel extends EventChannel {
         websocket.onmessage = (strMessage) => { this.parseMessage(strMessage); };
         websocket.onopen = () => { this.onOpen(); };
         websocket.onclose = (event) => { this.onClose(event); };
-        websocket.onerror = () => { this.onError(); };
+        websocket.onerror = (error) => { this.onError(error); };
         this.websocket = websocket;
     }
 
@@ -73,9 +73,10 @@ class LangserverChannel extends EventChannel {
         this.connect();
     }
 
-    onError() {
+    onError(error) {
         this.clientController.active = false;
         this.clientController.trigger('session-error');
+        this.trigger('error', error);
     }
 
     onOpen() {

@@ -37,16 +37,21 @@ class LangServerClientController extends EventChannel {
         this.endpoint = _.get(options, 'application.config.services.langserver.endpoint');
         this.requestSessions = [];
         this.isInitialized = false;
-        this.init();
     }
 
     /**
      * Initialize LangServerClientController
      */
     init() {
-        this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
-        this.langserverChannel.on('connected', () => {
-            this.initializeRequest();
+        return new Promise((resolve, reject) => {
+            this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
+            this.langserverChannel.on('connected', () => {
+                this.initializeRequest();
+                resolve();
+            });
+            this.langserverChannel.on('error', (error) => {
+                reject(error);
+            });
         });
     }
 
@@ -76,6 +81,10 @@ class LangServerClientController extends EventChannel {
      * @param {function} callback Callback method for handling the response
      */
     workspaceSymbolRequest(query, callback) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.workspaceSymbolRequest(query, callback));
+            return;
+        }
         const session = new RequestSession();
         const message = {
             id: session.getId(),
@@ -102,6 +111,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did open options
      */
     documentDidOpenNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidOpenNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didOpen',
@@ -118,6 +131,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did close options
      */
     documentDidCloseNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidCloseNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didClose',
@@ -134,6 +151,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did save options
      */
     documentDidSaveNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didSave',
@@ -149,6 +170,10 @@ class LangServerClientController extends EventChannel {
      * @param {function} callback - callback function to set the completions in the editor
      */
     getCompletions(options, callback) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.getCompletions(options, callback));
+            return;
+        }
         const session = new RequestSession();
         const message = {
             id: session.getId(),

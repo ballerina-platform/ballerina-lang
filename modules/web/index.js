@@ -3,33 +3,26 @@ window.$ = window.jQuery = require('jquery');
 window.simulate = window.jQuerySimulate = require('./lib/jquery-simulate-1.0.0/jquery.simulate.js');
 window.scope = window.location.pathname;
 
-
+const log = require('log').default;
+const _ = require('lodash');
+const { fetchAPIEndpointConfigs } = require('./js/api-client/api-client');
 const Application = require('./js/main').default;
 const config = require('./config').default;
-const app = new Application(config);
 
-if (!app.getLangserverClientController().initialized()) {
-    waitForLangserverInitialization(app, () => {
-        app.render();
-        app.displayInitialView();
-        window.composer = app;
-    });
-}
+// Before start rendering, fetch api endpoint information from config service
+fetchAPIEndpointConfigs()
+    .then((response) => {
+        // merge existing config and received endpoint configs
+        const newConfig = _.merge(response.data, config);
+        try {
+            const app = new Application(newConfig);
+            app.render();
+            app.displayInitialView();
+            window.composer = app;
+        } catch (ex) {
+            throw Error(ex.message + '. ' + ex.stack);
+        }
+        return Promise.resolve();
+    })
+    .catch(error => log.error('Error while starting app. ' + error.message));
 
-/**
- * Wait until the language server initialization completes
- * @param app
- * @param callback
- */
-function waitForLangserverInitialization(app, callback) {
-    setTimeout(
-        () => {
-            if (app.getLangserverClientController().initialized()) {
-                console.log('Language Server Connection initialized...');
-                callback();
-            } else {
-                console.log('Wait for Language Server Connection...');
-                waitForLangserverInitialization(app, callback);
-            }
-        }, 100);
-}

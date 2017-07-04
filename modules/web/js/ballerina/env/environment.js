@@ -44,6 +44,7 @@ class BallerinaEnvironment extends EventChannel {
             this.initializePackages(opts.app);
             this.initializeAnnotationAttachmentPoints(opts.app);
             this.initialized = true;
+            this.trigger('initialized');
         }
     }
 
