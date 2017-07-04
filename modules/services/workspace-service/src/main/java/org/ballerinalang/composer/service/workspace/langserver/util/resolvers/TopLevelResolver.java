@@ -6,7 +6,11 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 
 import java.util.ArrayList;
 
+/**
+ * Resolves all items that can appear as a top level element in the file.
+ */
 public class TopLevelResolver implements ItemResolver {
+
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -14,23 +18,31 @@ public class TopLevelResolver implements ItemResolver {
         CompletionItem importItem = new CompletionItem();
         importItem.setLabel(ItemResolverConstants.IMPORT);
         importItem.setInsertText(ItemResolverConstants.IMPORT + " ");
-        importItem.setDetail(ItemResolverConstants.KEYWORD);
+        importItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         importItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(importItem);
 
         CompletionItem packageItem = new CompletionItem();
         packageItem.setLabel(ItemResolverConstants.PACKAGE);
         packageItem.setInsertText(ItemResolverConstants.PACKAGE + " ");
-        packageItem.setDetail(ItemResolverConstants.KEYWORD);
+        packageItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         packageItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(packageItem);
 
         CompletionItem functionItem = new CompletionItem();
-        functionItem.setLabel("function");
-        functionItem.setInsertText("function ${1:name} (${2}) { \n    ${3}\n}");
-        functionItem.setDetail(ItemResolverConstants.KEYWORD);
+        functionItem.setLabel(ItemResolverConstants.FUNCTION);
+        functionItem.setInsertText(ItemResolverConstants.FUNCTION_TEMPLATE);
+        functionItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         functionItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(functionItem);
+
+
+        CompletionItem serviceItem = new CompletionItem();
+        serviceItem.setLabel(ItemResolverConstants.SERVICE);
+        serviceItem.setInsertText(ItemResolverConstants.SERVICE_TEMPLATE);
+        serviceItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        serviceItem.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItems.add(serviceItem);
         return completionItems;
     }
 }

@@ -1909,6 +1909,10 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
     }
 
+    public SymbolScope getClosestScope() {
+        return closestScope;
+    }
+
     /**
      * This class holds the results of the type assignability check.
      *

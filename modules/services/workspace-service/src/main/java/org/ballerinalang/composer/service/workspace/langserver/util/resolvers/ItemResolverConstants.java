@@ -55,6 +55,12 @@ public class ItemResolverConstants {
             WORKER, TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
             BREAK, THROW};
 
+    public static final String FUNCTION = "function";
+    public static final String SERVICE = "service";
+
+    public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
+    public static final String SERVICE_TEMPLATE = "service<${1}> ${2:name}{\n    ${3}\n}";
+
     // End of Basic Constructs
 
     public static ArrayList<String> getBasicConstructs () {
@@ -72,6 +78,7 @@ public class ItemResolverConstants {
     public static final String PACKAGE_TYPE = "package";
     public static final String FUNCTION_TYPE = "function";
     public static final String ACTION_TYPE = "action";
+    public static final String KEYWORD_TYPE = "keyword";
     public static final String NONE = "none";
     // Symbol Types Constants
 

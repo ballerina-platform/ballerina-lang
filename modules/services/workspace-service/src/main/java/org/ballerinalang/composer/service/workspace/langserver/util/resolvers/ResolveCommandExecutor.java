@@ -31,6 +31,7 @@ import java.util.HashMap;
  */
 public class ResolveCommandExecutor {
     private static final HashMap<Class, ItemResolver> resolvers = new HashMap<>();
+    private static final DefaultResolver DEFAULT_RESOLVER = new DefaultResolver();
 
     public ResolveCommandExecutor() {
         StatementContextResolver statementContextResolver = new StatementContextResolver();
@@ -39,7 +40,6 @@ public class ResolveCommandExecutor {
         PackageNameContextResolver packageNameContextResolver = new PackageNameContextResolver();
         AnnotationAttachmentContextResolver annotationAttachmentContextResolver =
                 new AnnotationAttachmentContextResolver();
-        DefaultResolver defaultResolver = new DefaultResolver();
 
         resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
@@ -50,7 +50,9 @@ public class ResolveCommandExecutor {
         // Differentiate accordingly in the future
         resolvers.put(BallerinaParser.ImportDeclarationContext.class, packageNameContextResolver);
         resolvers.put(BallerinaParser.AnnotationAttachmentContext.class, annotationAttachmentContextResolver);
-        resolvers.put(null, defaultResolver);
+        TopLevelResolver topLevelResolver = new TopLevelResolver();
+        resolvers.put(BallerinaParser.GlobalVariableDefinitionContext.class, topLevelResolver);
+        resolvers.put(null, topLevelResolver);
     }
 
     /**
@@ -62,6 +64,11 @@ public class ResolveCommandExecutor {
      */
     public ArrayList<CompletionItem> resolveCompletionItems
     (Class resolveCriteria, SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
-        return resolvers.get(resolveCriteria).resolveItems(dataModel, symbols);
+        ItemResolver itemResolver = resolvers.get(resolveCriteria);
+        if (itemResolver == null) {
+            return DEFAULT_RESOLVER.resolveItems(dataModel, symbols);
+        } else {
+            return itemResolver.resolveItems(dataModel, symbols);
+        }
     }
 }
