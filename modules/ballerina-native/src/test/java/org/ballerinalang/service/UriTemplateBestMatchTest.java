@@ -314,15 +314,16 @@ public class UriTemplateBestMatchTest {
         Assert.assertEquals(trueResponse, 405, "Method not found");
     }
 
-    @Test(description = "Test suitable method with URL. /echo55/foo ")
-    public void testWrongPath() {
-        String path = "/echo55/foo";
+    @Test(description = "Test suitable method with URL. /echo12/bar/bar ")
+    public void testValueWithNextSegmentStartCharacter() {
+        String path = "/hello/echo12/bar/bar";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         CarbonMessage response = Services.invoke(cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(Constants.HTTP_STATUS_CODE);
-        Assert.assertEquals(trueResponse, 404, "Method not found");
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("echo12").asText(), "bar"
+                , "Resource dispatched to wrong template");
     }
 
     @AfterClass
