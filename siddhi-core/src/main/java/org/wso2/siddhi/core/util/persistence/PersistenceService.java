@@ -58,7 +58,7 @@ public class PersistenceService {
             return revision;
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                          siddhiAppName);
+                    siddhiAppName);
         }
 
     }
@@ -76,7 +76,7 @@ public class PersistenceService {
             }
         } else {
             throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                          siddhiAppName);
+                    siddhiAppName);
         }
 
     }
@@ -91,8 +91,17 @@ public class PersistenceService {
                 }
             } else {
                 throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
-                                                              siddhiAppName);
+                        siddhiAppName);
             }
+        } finally {
+            threadBarrier.unlock();
+        }
+    }
+
+    public void restore(byte[] snapshot) {
+        try {
+            this.threadBarrier.lock();
+            snapshotService.restore(snapshot);
         } finally {
             threadBarrier.unlock();
         }
