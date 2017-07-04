@@ -26,7 +26,6 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
-import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.BLangPackage;
@@ -49,7 +48,6 @@ import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
@@ -64,7 +62,6 @@ import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
-import org.ballerinalang.model.expressions.BinaryArithmeticExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.BinaryLogicalExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
@@ -126,22 +123,15 @@ import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
-import org.ballerinalang.util.codegen.InstructionCodes;
-import org.ballerinalang.util.exceptions.LinkerException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangPrograms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -428,7 +418,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
 
-        resolveWorkerInteractions(resource);
 
         int sizeOfStackFrame = stackFrameOffset + 1;
         resource.setStackFrameSize(sizeOfStackFrame);
@@ -437,157 +426,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         stackFrameOffset = -1;
         currentCallableUnit = null;
         closeScope();
-    }
-
-    private void buildWorkerInteractions(CallableUnit callableUnit, Worker[] workers, boolean isWorkerInWorker,
-                                         boolean isForkJoinStmt) {
-        // This map holds the worker data channels against the respective source and target workers
-        Map<String, WorkerDataChannel> workerDataChannels = new HashMap<>();
-        boolean statementCompleted = false;
-        List<Statement> processedStatements = new ArrayList<>();
-
-        if (callableUnit.getWorkerInteractionStatements() != null &&
-                !callableUnit.getWorkerInteractionStatements().isEmpty()) {
-            String sourceWorkerName;
-            String targetWorkerName;
-            for (Statement statement : callableUnit.getWorkerInteractionStatements()) {
-                if (statement instanceof WorkerInvocationStmt) {
-                    targetWorkerName = ((WorkerInvocationStmt) statement).getName();
-                    if (targetWorkerName == "fork" && isForkJoinStmt) {
-                        break;
-                    }
-                    if (callableUnit instanceof Worker) {
-                        sourceWorkerName = callableUnit.getName();
-                    } else {
-                        sourceWorkerName = "default";
-                    }
-                    // Find a matching worker reply statment
-                    for (Worker worker : workers) {
-                        if (worker.getWorkerInteractionStatements().peek() instanceof WorkerReplyStmt) {
-                            String complimentSourceWorkerName = ((WorkerReplyStmt) worker.
-                                    getWorkerInteractionStatements().peek()).getWorkerName();
-                            String complimentTargetWorkerName = worker.getName();
-                            if (sourceWorkerName.equals(complimentSourceWorkerName)
-                                    && targetWorkerName.equals(complimentTargetWorkerName)) {
-                                // Statements are matching for their names. Check the parameters
-                                // Check for number of variables send and received
-                                Expression[] invokeParams = ((WorkerInvocationStmt) statement).getExpressionList();
-                                Expression[] receiveParams = ((WorkerReplyStmt) worker.
-                                        getWorkerInteractionStatements().peek()).getExpressionList();
-                                if (invokeParams.length != receiveParams.length) {
-                                    break;
-                                } else {
-                                    int i = 0;
-                                    for (Expression invokeParam : invokeParams) {
-                                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                // Nothing wrong with the statements. Now create the data channel and pop the statement.
-                                String interactionName = sourceWorkerName + "->" + targetWorkerName;
-                                WorkerDataChannel workerDataChannel;
-                                if (!workerDataChannels.containsKey(interactionName)) {
-                                    workerDataChannel = new
-                                            WorkerDataChannel(sourceWorkerName, targetWorkerName);
-                                    workerDataChannels.put(interactionName, workerDataChannel);
-                                } else {
-                                    workerDataChannel = workerDataChannels.get(interactionName);
-                                }
-
-                                ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
-                                ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
-                                        setWorkerDataChannel(workerDataChannel);
-                                ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
-                                        setEnclosingCallableUnitName(callableUnit.getName());
-                                ((WorkerInvocationStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
-                                ((WorkerInvocationStmt) statement).setPackagePath(callableUnit.getPackagePath());
-                                worker.getWorkerInteractionStatements().remove();
-                                processedStatements.add(statement);
-                                statementCompleted = true;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    sourceWorkerName = ((WorkerReplyStmt) statement).getWorkerName();
-                    if (callableUnit instanceof Worker) {
-                        targetWorkerName = callableUnit.getName();
-                    } else {
-                        targetWorkerName = "default";
-                    }
-                    // Find a matching worker invocation statment
-                    for (Worker worker : callableUnit.getWorkers()) {
-                        if (worker.getWorkerInteractionStatements().peek() instanceof WorkerInvocationStmt) {
-                            String complimentTargetWorkerName = ((WorkerInvocationStmt) worker.
-                                    getWorkerInteractionStatements().peek()).getName();
-                            String complimentSourceWorkerName = worker.getName();
-                            if (sourceWorkerName.equals(complimentSourceWorkerName) &&
-                                    targetWorkerName.equals(complimentTargetWorkerName)) {
-                                // Statements are matching for their names. Check the parameters
-                                // Check for number of variables send and received
-                                Expression[] invokeParams = ((WorkerReplyStmt) statement).getExpressionList();
-                                Expression[] receiveParams = ((WorkerInvocationStmt) worker.
-                                        getWorkerInteractionStatements().peek()).getExpressionList();
-                                if (invokeParams.length != receiveParams.length) {
-                                    break;
-                                } else {
-                                    int i = 0;
-                                    for (Expression invokeParam : invokeParams) {
-                                        if (!(receiveParams[i++].getType().equals(invokeParam.getType()))) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                // Nothing wrong with the statements. Now create the data channel and pop the statement.
-                                String interactionName = sourceWorkerName + "->" + targetWorkerName;
-                                WorkerDataChannel workerDataChannel;
-                                if (!workerDataChannels.containsKey(interactionName)) {
-                                    workerDataChannel = new
-                                            WorkerDataChannel(sourceWorkerName, targetWorkerName);
-                                    workerDataChannels.put(interactionName, workerDataChannel);
-                                } else {
-                                    workerDataChannel = workerDataChannels.get(interactionName);
-                                }
-
-                                ((WorkerReplyStmt) statement).setWorkerDataChannel(workerDataChannel);
-                                ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
-                                        setWorkerDataChannel(workerDataChannel);
-                                ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
-                                        setEnclosingCallableUnitName(callableUnit.getName());
-                                ((WorkerReplyStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
-                                ((WorkerReplyStmt) statement).setPackagePath(callableUnit.getPackagePath());
-                                worker.getWorkerInteractionStatements().remove();
-                                processedStatements.add(statement);
-                                statementCompleted = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-
-            }
-            callableUnit.getWorkerInteractionStatements().removeAll(processedStatements);
-        }
-    }
-
-    private void resolveWorkerInteractions(CallableUnit callableUnit) {
-        //CallableUnit callableUnit = function;
-        boolean isWorkerInWorker = callableUnit instanceof Worker;
-        boolean isForkJoinStmt = callableUnit instanceof ForkJoinStmt;
-        Worker[] workers = callableUnit.getWorkers();
-        if (workers.length > 0) {
-            Worker[] tempWorkers = new Worker[workers.length];
-            System.arraycopy(workers, 0, tempWorkers, 0, tempWorkers.length);
-            int i = 0;
-            do {
-                buildWorkerInteractions(callableUnit, tempWorkers, isWorkerInWorker, isForkJoinStmt);
-                callableUnit = workers[i];
-                i++;
-                System.arraycopy(workers, i, tempWorkers, 0, workers.length - i);
-            } while (i < workers.length);
-        }
     }
 
     private void resolveForkJoin(ForkJoinStmt forkJoinStmt) {
@@ -655,7 +493,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             //checkAndAddReturnStmt(function.getReturnParamTypes().length, blockStmt);
         }
 
-        resolveWorkerInteractions(function);
 
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -774,7 +611,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
             checkAndAddReturnStmt(action.getReturnParameters().length, blockStmt);
         }
-        resolveWorkerInteractions(action);
 
         // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -895,127 +731,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
     }
 
-    /**
-     * Visit and validate attributes of an annotation attachment.
-     *
-     * @param annotation    Annotation attachment to validate attributes
-     * @param annotationDef Definition of the annotation
-     */
-    private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
-        annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
-            // Check attribute existence
-            BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
-
-            // Check types
-            AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
-            SimpleTypeName attributeType = attributeDef.getTypeName();
-            SimpleTypeName valueType = attributeValue.getType();
-            BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
-            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(),
-                    attributeType.getPackagePath()));
-
-            if (attributeType.isArrayType()) {
-
-                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
-                for (AnnotationAttributeValue value : valuesArray) {
-                    valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
-
-                    // If the value of the attribute is another annotation, then recursively
-                    // traverse to its attributes and validate
-                    AnnotationAttachment childAnnotation = value.getAnnotationValue();
-                    if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
-                        validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
-                    }
-                }
-            } else {
-                // If the value of the attribute is another annotation, then recursively
-                // traverse to its attributes and validate
-                AnnotationAttachment childAnnotation = attributeValue.getAnnotationValue();
-                if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
-                    validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
-                }
-            }
-        });
-    }
-
-    /**
-     * Populate default values to the annotation attributes.
-     *
-     * @param annotation    Annotation attachment to populate default values
-     * @param annotationDef Definition of the annotation corresponds to the provided annotation attachment
-     */
-    private void populateDefaultValues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
-        Map<String, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
-        for (AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
-            String attributeName = attributeDef.getName();
-
-            // if the current attribute is not defined in the annotation attachment, populate it with default value
-            if (!attributeValPairs.containsKey(attributeName)) {
-                BasicLiteral defaultValue = attributeDef.getAttributeValue();
-                if (defaultValue != null) {
-                    annotation.addAttributeNameValuePair(attributeName,
-                            new AnnotationAttributeValue(defaultValue.getBValue(),
-                                    defaultValue.getTypeName(), null, null));
-                }
-                continue;
-            }
-
-            // If the annotation attachment contains the current attribute, and if the value is another
-            // annotationAttachment, then recursively populate its default values
-            AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
-            SimpleTypeName valueType = attributeValue.getType();
-            if (valueType.isArrayType()) {
-                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
-                for (AnnotationAttributeValue value : valuesArray) {
-                    AnnotationAttachment annotationTypeVal = value.getAnnotationValue();
-
-                    // skip if the array element is not an annotation
-                    if (annotationTypeVal == null) {
-                        continue;
-                    }
-
-                    SimpleTypeName attributeType = attributeDef.getTypeName();
-                    BLangSymbol attributeTypeSymbol = annotationDef.resolve(
-                            new SymbolName(attributeType.getName(), attributeType.getPackagePath()));
-                    if (attributeTypeSymbol instanceof AnnotationDef) {
-                        populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
-                    }
-                }
-            } else {
-                AnnotationAttachment annotationTypeVal = attributeValue.getAnnotationValue();
-
-                // skip if the value is not an annotation
-                if (annotationTypeVal == null) {
-                    continue;
-                }
-
-                BLangSymbol attributeTypeSymbol = annotationDef.resolve(attributeDef.getTypeName().getSymbolName());
-                if (attributeTypeSymbol instanceof AnnotationDef) {
-                    populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeTypeSymbol);
-                }
-            }
-        }
-    }
-
     @Override
     public void visit(AnnotationAttributeDef annotationAttributeDef) {
         checkAndSetClosestScope(annotationAttributeDef);
-        SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
         BasicLiteral fieldVal = annotationAttributeDef.getAttributeValue();
 
         if (fieldVal != null) {
             fieldVal.accept(this);
-        } else {
-            BLangSymbol typeSymbol;
-            if (fieldType.isArrayType()) {
-                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
-            } else {
-                typeSymbol = currentScope.resolve(fieldType.getSymbolName());
-            }
-
-            if (!(typeSymbol instanceof BType)) {
-                fieldType.setPkgPath(annotationAttributeDef.getPackagePath());
-            }
         }
     }
 
@@ -1035,9 +757,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(ParameterDef paramDef) {
         checkAndSetClosestScope(paramDef);
-
-        BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
-        paramDef.setType(bType);
 
         if (paramDef.getAnnotations() == null) {
             return;
@@ -1105,20 +824,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             rExpr.accept(this);
             return;
         }
-
-        // Now we know that this is a single value assignment statement.
-        Expression lExpr = assignStmt.getLExprs()[0];
-        BType lhsType = lExpr.getType();
-
-        if (rExpr instanceof RefTypeInitExpr) {
-            RefTypeInitExpr refTypeInitExpr = getNestedInitExpr(rExpr, lhsType);
-            assignStmt.setRExpr(refTypeInitExpr);
-            refTypeInitExpr.accept(this);
-            return;
-        }
-
-        visitSingleValueExpr(rExpr);
-
     }
 
     private void checkAndSetClosestScope(Node node) {
@@ -1275,25 +980,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     public void visit(ThrowStmt throwStmt) {
         checkAndSetClosestScope(throwStmt);
         throwStmt.getExpr().accept(this);
-        BType expressionType = null;
-        if (throwStmt.getExpr() instanceof SimpleVarRefExpr && throwStmt.getExpr().getType() instanceof StructDef) {
-            expressionType = throwStmt.getExpr().getType();
-        } else if (throwStmt.getExpr() instanceof FunctionInvocationExpr) {
-            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
-            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length == 1 && funcIExpr.getTypes()[0]
-                    instanceof StructDef) {
-                expressionType = funcIExpr.getTypes()[0];
-            }
-        }
-        if (expressionType != null) {
-            BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_ERROR, ERRORS_PACKAGE));
 
-            if (error.equals(expressionType) || TypeLattice.getExplicitCastLattice().getEdgeFromTypes
-                    (expressionType, error, null) != null) {
-                throwStmt.setAlwaysReturns(true);
-                return;
-            }
-        }
     }
 
     @Override
@@ -1310,55 +997,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-
         checkAndSetClosestScope(workerInvocationStmt);
-        Expression[] expressions = workerInvocationStmt.getExpressionList();
-        BType[] bTypes = new BType[expressions.length];
-        int p = 0;
-        for (Expression expression : expressions) {
-            expression.accept(this);
-            bTypes[p++] = expression.getType();
-        }
-
-        workerInvocationStmt.setTypes(bTypes);
-
-
-        if (workerInvocationStmt.getCallableUnitName() != null &&
-                !workerInvocationStmt.getCallableUnitName().equals("default") &&
-                !workerInvocationStmt.getCallableUnitName().equals("fork")) {
-            linkWorker(workerInvocationStmt);
-
-            //Find the return types of this function invocation expression.
-//            ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
-//            BType[] returnTypes = new BType[returnParams.length];
-//            for (int i = 0; i < returnParams.length; i++) {
-//                returnTypes[i] = returnParams[i].getType();
-//            }
-//            workerInvocationStmt.setTypes(returnTypes);
-        }
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
         checkAndSetClosestScope(workerReplyStmt);
-        String workerName = workerReplyStmt.getWorkerName();
-        SymbolName workerSymbol = new SymbolName(workerName);
-
-        Expression[] expressions = workerReplyStmt.getExpressionList();
-        BType[] bTypes = new BType[expressions.length];
-        int p = 0;
-        for (Expression expression : expressions) {
-            expression.accept(this);
-            bTypes[p++] = expression.getType();
-        }
-
-        workerReplyStmt.setTypes(bTypes);
-
-        if (!workerName.equals("default")) {
-            BLangSymbol worker = currentScope.resolve(workerSymbol);
-
-            workerReplyStmt.setWorker((Worker) worker);
-        }
     }
 
     @Override
@@ -1434,7 +1078,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             stmtReturns &= timeoutBody.isAlwaysReturns();
         }
 
-        resolveWorkerInteractions(forkJoinStmt);
         resolveForkJoin(forkJoinStmt);
         closeScope();
 
@@ -1482,52 +1125,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Expressions that this return statement contains.
         Expression[] returnArgExprs = returnStmt.getExprs();
 
-        // Return parameters of the current function or actions
-        ParameterDef[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
-
-        if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
-            // Return stmt has no expressions and function/action does not return anything. Just return.
-            return;
-        }
-
-        // Return stmt has no expressions, but function/action has returns. Check whether they are named returns
-        if (returnArgExprs.length == 0 && returnParamsOfCU[0].getName() != null) {
-            // This function/action has named return parameters.
-            Expression[] returnExprs = new Expression[returnParamsOfCU.length];
-            for (int i = 0; i < returnParamsOfCU.length; i++) {
-                SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(returnStmt.getNodeLocation(),
-                        returnStmt.getWhiteSpaceDescriptor(), returnParamsOfCU[i].getSymbolName().getName(), null,
-                        returnParamsOfCU[i].getSymbolName().getPkgPath());
-                visit(variableRefExpr);
-                returnExprs[i] = variableRefExpr;
-            }
-            returnStmt.setExprs(returnExprs);
-            return;
-
-        }
-
         for (int i = 0; i < returnArgExprs.length; i++) {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
-        }
-
-        // Now check whether this return contains a function invocation expression which returns multiple values
-        if (returnArgExprs.length == 1 && returnArgExprs[0] instanceof FunctionInvocationExpr) {
-            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) returnArgExprs[0];
-            // Return types of the function invocations expression
-            BType[] funcIExprReturnTypes = funcIExpr.getTypes();
-
-            for (int i = 0; i < returnParamsOfCU.length; i++) {
-                BType lhsType = returnParamsOfCU[i].getType();
-                BType rhsType = funcIExprReturnTypes[i];
-
-                // Check whether the right-hand type can be assigned to the left-hand type.
-                if (isAssignableTo(lhsType, rhsType)) {
-                    continue;
-                }
-            }
-
-            return;
         }
     }
 
@@ -1565,31 +1165,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
-
         checkAndSetClosestScope(actionIExpr);
-
-        String pkgPath = actionIExpr.getPackagePath();
-        String name = actionIExpr.getConnectorName();
-
-        // First check action invocation happens on a variable def
-        SymbolName symbolName = new SymbolName(name, pkgPath);
-        BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
-
-        if (bLangSymbol instanceof VariableDef) {
-            Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
-            SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(),
-                    null, name, null, pkgPath);
-            exprs[0] = variableRefExpr;
-            for (int i = 0; i < actionIExpr.getArgExprs().length; i++) {
-                exprs[i + 1] = actionIExpr.getArgExprs()[i];
-            }
-            actionIExpr.setArgExprs(exprs);
-            VariableDef varDef = (VariableDef) bLangSymbol;
-            actionIExpr.setConnectorName(varDef.getTypeName().getName());
-            actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
-            actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
-        }
-
         Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             visitSingleValueExpr(expr);
@@ -1606,15 +1182,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(DivideExpr divideExpr) {
         checkAndSetClosestScope(divideExpr);
-        BType binaryExprType = verifyBinaryArithmeticExprType(divideExpr);
-        validateBinaryExprTypeForIntFloat(divideExpr, binaryExprType);
     }
 
     @Override
     public void visit(ModExpression modExpr) {
         checkAndSetClosestScope(modExpr);
-        BType binaryExprType = verifyBinaryArithmeticExprType(modExpr);
-        validateBinaryExprTypeForIntFloat(modExpr, binaryExprType);
     }
 
     @Override
@@ -1632,15 +1204,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(MultExpression multExpr) {
         checkAndSetClosestScope(multExpr);
-        BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
-        validateBinaryExprTypeForIntFloat(multExpr, binaryExprType);
     }
 
     @Override
     public void visit(SubtractExpression subtractExpr) {
         checkAndSetClosestScope(subtractExpr);
-        BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
-        validateBinaryExprTypeForIntFloat(subtractExpr, binaryExprType);
     }
 
     @Override
@@ -1670,29 +1238,21 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         checkAndSetClosestScope(greaterEqualExpr);
-        BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
-        validateBinaryExprTypeForIntFloat(greaterEqualExpr, compareExprType);
     }
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
         checkAndSetClosestScope(greaterThanExpr);
-        BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
-        validateBinaryExprTypeForIntFloat(greaterThanExpr, compareExprType);
     }
 
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         checkAndSetClosestScope(lessEqualExpr);
-        BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-        validateBinaryExprTypeForIntFloat(lessEqualExpr, compareExprType);
     }
 
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         checkAndSetClosestScope(lessThanExpr);
-        BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-        validateBinaryExprTypeForIntFloat(lessThanExpr, compareExprType);
     }
 
     @Override
@@ -1830,39 +1390,13 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(SimpleVarRefExpr simpleVarRefExpr) {
-        SymbolName symbolName = simpleVarRefExpr.getSymbolName();
-        // Check whether this symName is declared
-        BLangSymbol varDefSymbol = currentScope.resolve(symbolName);
 
-        simpleVarRefExpr.setVariableDef((VariableDef) varDefSymbol);
     }
 
     @Override
     public void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr) {
-        String fieldName = fieldBasedVarRefExpr.getFieldName();
         VariableReferenceExpr varRefExpr = fieldBasedVarRefExpr.getVarRefExpr();
         varRefExpr.accept(this);
-
-        // Type of the varRefExpr can be either Struct, Map, JSON, Array
-        BType varRefType = varRefExpr.getType();
-        if (varRefType instanceof StructDef) {
-            StructDef structDef = (StructDef) varRefType;
-            BLangSymbol fieldSymbol = structDef.resolveMembers(new SymbolName(fieldName, structDef.getPackagePath()));
-
-            VariableDef fieldDef = (VariableDef) fieldSymbol;
-            fieldBasedVarRefExpr.setFieldDef(fieldDef);
-            fieldBasedVarRefExpr.setType(fieldDef.getType());
-
-        } else if (varRefType == BTypes.typeMap) {
-            fieldBasedVarRefExpr.setType(((BMapType) varRefType).getElementType());
-
-        } else if (varRefType == BTypes.typeJSON) {
-            fieldBasedVarRefExpr.setType(BTypes.typeJSON);
-
-        } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
-            fieldBasedVarRefExpr.setType(BTypes.typeInt);
-
-        }
     }
 
     @Override
@@ -1877,100 +1411,17 @@ public class CompletionItemAccumulator implements NodeVisitor {
     @Override
     public void visit(TypeCastExpression typeCastExpr) {
         checkAndSetClosestScope(typeCastExpr);
-        // Evaluate the expression and set the type
-        boolean isMultiReturn = typeCastExpr.isMultiReturnExpr();
         Expression rExpr = typeCastExpr.getRExpr();
         visitSingleValueExpr(rExpr);
 
-        BType sourceType = rExpr.getType();
-        BType targetType = typeCastExpr.getType();
-        if (targetType == null) {
-            targetType = BTypes.resolveType(typeCastExpr.getTypeName(), currentScope, typeCastExpr.getNodeLocation());
-            typeCastExpr.setType(targetType);
-        }
-
-        // Find the eval function from explicit casting lattice
-        TypeEdge newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
-        if (newEdge != null) {
-            typeCastExpr.setOpcode(newEdge.getOpcode());
-
-            // TODO 0.89 release
-//            if (!newEdge.isSafe() && !isMultiReturn) {
-//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
-//                        sourceType, targetType);
-//            }
-
-            if (!isMultiReturn) {
-                typeCastExpr.setTypes(new BType[]{targetType});
-                return;
-            }
-
-        } else if (sourceType == targetType) {
-            typeCastExpr.setOpcode(InstructionCodes.NOP);
-            if (!isMultiReturn) {
-                typeCastExpr.setTypes(new BType[]{targetType});
-                return;
-            }
-
-        } else {
-            boolean isUnsafeCastPossible = false;
-            if (isMultiReturn) {
-                isUnsafeCastPossible = checkUnsafeCastPossible(sourceType, targetType);
-            }
-
-            if (isUnsafeCastPossible) {
-                typeCastExpr.setOpcode(InstructionCodes.CHECKCAST);
-            }
-        }
-
-        // If this is a multi-value return conversion expression, set the return types.
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CAST_ERROR, ERRORS_PACKAGE));
-        typeCastExpr.setTypes(new BType[]{targetType, (BType) error});
     }
 
 
     @Override
     public void visit(TypeConversionExpr typeConversionExpr) {
         checkAndSetClosestScope(typeConversionExpr);
-        // Evaluate the expression and set the type
-        boolean isMultiReturn = typeConversionExpr.isMultiReturnExpr();
         Expression rExpr = typeConversionExpr.getRExpr();
         visitSingleValueExpr(rExpr);
-
-        BType sourceType = rExpr.getType();
-        BType targetType = typeConversionExpr.getType();
-        if (targetType == null) {
-            targetType = BTypes.resolveType(typeConversionExpr.getTypeName(), currentScope, null);
-            typeConversionExpr.setType(targetType);
-        }
-
-        // Find the eval function from the conversion lattice
-        TypeEdge newEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType, targetType, null);
-        if (newEdge != null) {
-            typeConversionExpr.setOpcode(newEdge.getOpcode());
-
-            // TODO 0.89 release
-//            if (!newEdge.isSafe() && !isMultiReturn) {
-//                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.UNSAFE_CAST_ATTEMPT,
-//                        sourceType, targetType);
-//            }
-
-            if (!isMultiReturn) {
-                typeConversionExpr.setTypes(new BType[]{targetType});
-                return;
-            }
-
-        } else if (sourceType == targetType) {
-            typeConversionExpr.setOpcode(InstructionCodes.NOP);
-            if (!isMultiReturn) {
-                typeConversionExpr.setTypes(new BType[]{targetType});
-                return;
-            }
-        }
-
-        // If this is a multi-value return conversion expression, set the return types.
-        BLangSymbol error = currentScope.resolve(new SymbolName(BALLERINA_CONVERSION_ERROR, ERRORS_PACKAGE));
-        typeConversionExpr.setTypes(new BType[]{targetType, (BType) error});
     }
 
     @Override
@@ -1999,65 +1450,10 @@ public class CompletionItemAccumulator implements NodeVisitor {
         expr.accept(this);
     }
 
-    private void validateBinaryExprTypeForIntFloat(BinaryExpression binaryExpr, BType binaryExprType) {
-
-    }
-
-    private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
-        visitBinaryExpr(binaryArithmeticExpr);
-        BType type = verifyBinaryExprType(binaryArithmeticExpr);
-        binaryArithmeticExpr.setType(type);
-        return type;
-    }
-
-    private BType verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
-        visitBinaryExpr(binaryExpression);
-        BType type = verifyBinaryExprType(binaryExpression);
-        binaryExpression.setType(BTypes.typeBoolean);
-        return type;
-    }
-
     private void verifyBinaryEqualityExprType(BinaryExpression binaryExpr) {
         visitBinaryExpr(binaryExpr);
 
         binaryExpr.setType(BTypes.typeBoolean);
-    }
-
-    private BType verifyBinaryExprType(BinaryExpression binaryExpr) {
-        Expression rExpr = binaryExpr.getRExpr();
-        Expression lExpr = binaryExpr.getLExpr();
-        BType rType = rExpr.getType();
-        BType lType = lExpr.getType();
-
-        if (!(rType.equals(lType))) {
-            TypeCastExpression newExpr;
-            TypeEdge newEdge;
-
-            if (((rType.equals(BTypes.typeString) || lType.equals(BTypes.typeString))
-                    && binaryExpr.getOperator().equals(Operator.ADD)) || (!(rType.equals(BTypes.typeString)) &&
-                    !(lType.equals(BTypes.typeString)))) {
-                newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rType, lType, null);
-                if (newEdge != null) { // Implicit cast from right to left
-                    newExpr = new TypeCastExpression(rExpr.getNodeLocation(), rExpr.getWhiteSpaceDescriptor(),
-                            rExpr, lType);
-                    newExpr.setOpcode(newEdge.getOpcode());
-                    newExpr.accept(this);
-                    binaryExpr.setRExpr(newExpr);
-                    return lType;
-                } else {
-                    newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(lType, rType, null);
-                    if (newEdge != null) { // Implicit cast from left to right
-                        newExpr = new TypeCastExpression(lExpr.getNodeLocation(), lExpr.getWhiteSpaceDescriptor(),
-                                lExpr, rType);
-                        newExpr.setOpcode(newEdge.getOpcode());
-                        newExpr.accept(this);
-                        binaryExpr.setLExpr(newExpr);
-                        return rType;
-                    }
-                }
-            }
-        }
-        return rType;
     }
 
     private void visitBinaryLogicalExpr(BinaryLogicalExpression expr) {
@@ -2114,18 +1510,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
     }
 
-    private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
-        String workerName = workerInvocationStmt.getCallableUnitName();
-        SymbolName workerSymbolName = new SymbolName(workerName);
-        Worker worker = (Worker) currentScope.resolve(workerSymbolName);
-        if (worker == null) {
-            throw new LinkerException(workerInvocationStmt.getNodeLocation().getFileName() + ":" +
-                    workerInvocationStmt.getNodeLocation().getLineNumber() +
-                    ": undefined worker '" + workerInvocationStmt.getCallableUnitName() + "'");
-        }
-        workerInvocationStmt.setCallableUnit(worker);
-    }
-
     private TypeCastExpression checkWideningPossible(BType lhsType, Expression rhsExpr) {
         TypeCastExpression typeCastExpr = null;
         BType rhsType = rhsExpr.getType();
@@ -2174,14 +1558,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
                     function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
-            BLangSymbol functionSymbol = currentScope.resolve(symbolName);
-
-            if (function.isNative() && functionSymbol == null) {
-                functionSymbol = nativeScope.resolve(symbolName);
-                if (function instanceof BallerinaFunction) {
-                    ((BallerinaFunction) function).setNativeFunction((NativeUnitProxy) functionSymbol);
-                }
-            }
 
             currentScope.define(symbolName, function);
 
@@ -2205,35 +1581,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
             // Define ConnectorDef Symbol in the package scope..
             SymbolName connectorSymbolName = new SymbolName(connectorName, connectorDef.getPackagePath());
             currentScope.define(connectorSymbolName, connectorDef);
-
-            BLangSymbol actionSymbol;
-            SymbolName name = new SymbolName("NativeAction." + connectorName
-                    + ".<init>", connectorDef.getPackagePath());
-            actionSymbol = nativeScope.resolve(name);
-            if (actionSymbol != null) {
-                if (actionSymbol instanceof NativeUnitProxy) {
-                    AbstractNativeAction nativeUnit = (AbstractNativeAction) ((NativeUnitProxy) actionSymbol).load();
-                    BallerinaAction.BallerinaActionBuilder ballerinaActionBuilder = new BallerinaAction
-                            .BallerinaActionBuilder(connectorDef);
-                    ballerinaActionBuilder.setIdentifier(nativeUnit.getIdentifier());
-                    ballerinaActionBuilder.setPkgPath(nativeUnit.getPackagePath());
-                    ballerinaActionBuilder.setNative(nativeUnit.isNative());
-                    ballerinaActionBuilder.setSymbolName(nativeUnit.getSymbolName());
-                    ParameterDef paramDef = new ParameterDef(connectorDef.getNodeLocation(), null,
-                            new Identifier(nativeUnit.getArgumentNames()[0]),
-                            nativeUnit.getArgumentTypeNames()[0],
-                            new SymbolName(nativeUnit.getArgumentNames()[0], connectorDef.getPackagePath()),
-                            ballerinaActionBuilder.getCurrentScope());
-                    paramDef.setType(connectorDef);
-                    ballerinaActionBuilder.addParameter(paramDef);
-                    BallerinaAction ballerinaAction = ballerinaActionBuilder.buildAction();
-                    ballerinaAction.setNativeAction((NativeUnitProxy) actionSymbol);
-                    ballerinaAction.setConnectorDef(connectorDef);
-                    BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
-                    ballerinaAction.setParameterTypes(new BType[]{bType});
-                    connectorDef.setInitAction(ballerinaAction);
-                }
-            }
         }
 
         for (BallerinaConnectorDef connectorDef : connectorDefArray) {
@@ -2264,13 +1611,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         action.setSymbolName(symbolName);
 
         currentScope.define(symbolName, action);
-
-        if (action.isNative()) {
-            SymbolName nativeActionSymName = new SymbolName("");
-            BLangSymbol nativeAction = nativeScope.resolve(nativeActionSymName);
-
-            action.setNativeAction((NativeUnitProxy) nativeAction);
-        }
 
         // Resolve return parameters
         ParameterDef[] returnParameters = action.getReturnParameters();
@@ -2513,34 +1853,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 keyValueExpr.setValueExpr(valueExpr);
             }
             valueExpr.accept(this);
-            BType valueExprType = valueExpr.getType();
-
-            // Generate type cast expression if the rhs type is a value type
-            if (inheritedType == BTypes.typeMap) {
-                if (BTypes.isValueType(valueExprType)) {
-                    TypeCastExpression newExpr = checkWideningPossible(BTypes.typeAny, valueExpr);
-                    if (newExpr != null) {
-                        keyValueExpr.setValueExpr(newExpr);
-                    }
-                }
-                continue;
-            }
-
-            // for JSON init expr, check the type compatibility of the value.
-            if (BTypes.isValueType(valueExprType)) {
-                TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
-                if (typeCastExpr != null) {
-                    keyValueExpr.setValueExpr(typeCastExpr);
-                }
-                continue;
-            }
-
-            if (valueExprType != BTypes.typeNull && isAssignableTo(BTypes.typeJSON, valueExprType)) {
-                continue;
-            }
-
-            TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
-            keyValueExpr.setValueExpr(typeCastExpr);
         }
 
     }
@@ -2566,80 +1878,6 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         return lhsType == rhsType;
-    }
-
-    private boolean checkUnsafeCastPossible(BType sourceType, BType targetType) {
-
-        // 1) If either source type or target type is of type 'any', then an unsafe cast possible;
-        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny) {
-            return true;
-        }
-
-        // 2) If both types are struct types, unsafe cast is possible
-        if (sourceType instanceof StructDef && targetType instanceof StructDef) {
-            return true;
-        }
-
-        // 3) If both types are not array types, unsafe cast is not possible now.
-        if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            return isUnsafeArrayCastPossible(sourceType, targetType);
-        }
-
-        return false;
-    }
-
-    private boolean isUnsafeArrayCastPossible(BType sourceType, BType targetType) {
-        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            BArrayType sourceArrayType = (BArrayType) sourceType;
-            BArrayType targetArrayType = (BArrayType) targetType;
-            return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
-
-        } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
-            // If only the target type is an array type, then the source type must be of type 'any'
-            return sourceType == BTypes.typeAny;
-
-        } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            // If only the source type is an array type, then the target type must be of type 'any'
-            return targetType == BTypes.typeAny;
-        }
-
-        // Now both types are not array types
-        if (sourceType == targetType) {
-            return true;
-        }
-
-        // In this case, target type should be of type 'any' and the source type cannot be a value type
-        if (targetType == BTypes.typeAny && !BTypes.isValueType(sourceType)) {
-            return true;
-        }
-
-        return !BTypes.isValueType(targetType) && sourceType == BTypes.typeAny;
-    }
-
-    private boolean isImplicitArrayCastPossible(BType lhsType, BType rhsType) {
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) lhsType;
-            BArrayType rhsArrayType = (BArrayType) rhsType;
-            return isImplicitArrayCastPossible(lhrArrayType.getElementType(), rhsArrayType.getElementType());
-
-        } else if (rhsType.getTag() == TypeTags.ARRAY_TAG) {
-            // Only the right-hand side is an array type
-            // Then lhs type should 'any' type
-            return lhsType == BTypes.typeAny;
-
-        } else if (lhsType.getTag() == TypeTags.ARRAY_TAG) {
-            // Only the left-hand side is an array type
-            return false;
-        }
-
-        // Now both types are not array types
-        if (lhsType == rhsType) {
-            return true;
-        }
-
-        // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
-        return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
