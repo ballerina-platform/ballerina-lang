@@ -188,6 +188,8 @@ public final class Constants {
 
     public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
 
+    public static final String MESSAGE_PROCESSOR_ID = "MESSAGE_PROCESSOR_ID";
+
     public static final String SRC_HANDLER = "SRC_HANDLER";
 
     //Server Connection Related Parameters

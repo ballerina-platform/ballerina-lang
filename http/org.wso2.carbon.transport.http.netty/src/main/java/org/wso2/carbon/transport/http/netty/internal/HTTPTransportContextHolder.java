@@ -29,6 +29,7 @@ import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DataHolder for the HTTP transport.
@@ -38,13 +39,13 @@ public class HTTPTransportContextHolder {
 
     private static HTTPTransportContextHolder instance = new HTTPTransportContextHolder();
     private BundleContext bundleContext;
-    private CarbonMessageProcessor messageProcessor;
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private TransportListenerManager manager;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-
+    private CarbonMessageProcessor singleCarbonMessageProcessor;
+    private Map<String, CarbonMessageProcessor> messageProcessorMap = new ConcurrentHashMap<>();
     public EventLoopGroup getBossGroup() {
         return bossGroup;
     }
@@ -77,7 +78,6 @@ public class HTTPTransportContextHolder {
         return instance;
     }
 
-
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
@@ -86,17 +86,37 @@ public class HTTPTransportContextHolder {
         return this.bundleContext;
     }
 
-    public CarbonMessageProcessor getMessageProcessor() {
-        return messageProcessor;
+    public CarbonMessageProcessor getMessageProcessor(String id) {
+        CarbonMessageProcessor carbonMessageProcessor = singleCarbonMessageProcessor;
+        if (carbonMessageProcessor != null) {
+            return carbonMessageProcessor;
+        } else if (id == null) {
+            log.error("More than one message processor has registered and cannot proceed with 'null' message " +
+                    "processor ID.");
+            return null;
+        } else {
+            return messageProcessorMap.get(id);
+        }
     }
 
     public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        this.messageProcessor = carbonMessageProcessor;
+        if (carbonMessageProcessor.getId() == null) {
+            throw new IllegalStateException("Message processor ID cannot be 'null'");
+        }
+        messageProcessorMap.put(carbonMessageProcessor.getId(), carbonMessageProcessor);
+        if (messageProcessorMap.size() == 1) {
+            singleCarbonMessageProcessor = carbonMessageProcessor;
+        } else {
+            singleCarbonMessageProcessor = null;
+        }
     }
 
     public void removeMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
-        if (carbonMessageProcessor.getId().equals(messageProcessor.getId())) {
-            messageProcessor = null;
+        if (messageProcessorMap.size() > 1) {
+            messageProcessorMap.remove(carbonMessageProcessor.getId());
+        } else {
+            messageProcessorMap.clear();
+            singleCarbonMessageProcessor = null;
         }
     }
 
@@ -118,6 +138,5 @@ public class HTTPTransportContextHolder {
 
     public HandlerExecutor getHandlerExecutor() {
         return handlerExecutor;
-
     }
 }
