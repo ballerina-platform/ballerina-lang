@@ -28,6 +28,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     private static final List<String> FILE_LEVEL_KEYWORDS = Arrays.asList("package", "import", "const", "service",
             "function", "connector", "struct", "typemapper", "annotation");
     private static final List<String> ANY_TYPE = Collections.singletonList("any");
+    private static final List<String> XMLNS_TYPE = Collections.singletonList("xmlns");
     private static final List<String> DATA_TYPES = Arrays.asList("boolean", "int", "float", "string", "blob");
     private static final List<String> REFERENCE_TYPES = Arrays.asList("message", "map", "xml", "xmlDocument", "json",
             "datatable");
@@ -52,6 +53,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -69,6 +71,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -86,6 +89,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -103,6 +107,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("\n<caret>\n", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -119,6 +124,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testImportAfterPackage() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("import");
@@ -139,6 +145,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testImportAfterPackageBeforeFunction() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("import");
@@ -161,6 +168,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -174,6 +182,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(FILE_LEVEL_KEYWORDS);
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         doTest("<caret>\nimport test; \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -187,6 +196,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testImportAfterImport() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(DATA_TYPES);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("import");
@@ -433,11 +443,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testGlobalVariableInSamePackageSameFile() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("any");
         expectedLookups.add("S");
         expectedLookups.add("F");
         doTest("string S=\"\"; function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -447,11 +458,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         myFixture.addFileToProject("file.bal", "string S=\"\";");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("any");
         expectedLookups.add("S");
         expectedLookups.add("F");
         doTest("function F(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -533,12 +545,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Collections.singletonList("test");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
-        expectedLookups.add("any");
         doTest("function test () { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -546,19 +559,22 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_SUGGESTIONS);
-        expectedLookups.add("any");
         doTest("function test (int arg) { <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionBodyWithConst() {
-        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING", "any");
+        List<String> FUNCTION_LEVEL_SUGGESTIONS = Arrays.asList("test", "arg", "GREETING");
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -571,13 +587,14 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionBodyWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("pack");
         expectedLookups.add("test");
-        expectedLookups.add("any");
         doTest("import org.pack; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -630,6 +647,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testInvocationInFunctionWithTraileringCode() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -637,7 +656,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("args");
         expectedLookups.add("test");
         expectedLookups.add("main");
-        expectedLookups.add("any");
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ <caret> \ntest:getA(); }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
@@ -904,19 +922,22 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVariablesInitializationAfterDeclaration() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("s");
         expectedLookups.add("A");
-        expectedLookups.add("any");
         doTest("function A(){ string s; <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testVariablesLaterInitialization() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -924,7 +945,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("s");
         expectedLookups.add("s1");
         expectedLookups.add("A");
-        expectedLookups.add("any");
         doTest("function A(){ string s; string s1; <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -961,6 +981,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -968,7 +990,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
-        expectedLookups.add("any");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -976,6 +997,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVariablesInNewLineWhenMultipleVariablesAvailableWithVariablesAfter() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -983,7 +1006,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("s1");
         expectedLookups.add("s2");
         expectedLookups.add("A");
-        expectedLookups.add("any");
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\";\n <caret> \nstring s4 = \"\";}",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1008,6 +1030,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("transaction");
         expectedLookups.add("transform");
         expectedLookups.add("false");
+        expectedLookups.addAll(XMLNS_TYPE);
         doTest("function test(){ if(a==a){}\n s<caret> \nint a; }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1029,17 +1052,19 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
         doTest("function test(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testFunctionParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
         doTest("import org.test; function B(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1055,25 +1080,28 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testCaretAfterFunctionParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
         doTest("function test(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testCaretBeforeFunctionParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
         doTest("function test(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testCaretAfterFunctionParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
         doTest("import org.test; function test(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1081,9 +1109,10 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testCaretBeforeFunctionParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
         doTest("import org.test; function test(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1133,14 +1162,15 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testServiceBody() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
         expectedLookups.add("resource");
-        doTest("service S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S{<caret>}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testServiceBodyAfterAnnotation() {
-        doTest("service S{ @http:GET {} <caret>}", "resource");
+        doTest("service<http> S{ @http:GET {} <caret>}", "resource");
     }
 
     public void testServiceAnnotation() {
@@ -1202,6 +1232,15 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
                 "TEST");
     }
 
+    public void testServiceSourceNotation() {
+        doTest("import org.test; service<<caret>> S {}", "test");
+    }
+
+    public void testServiceSourceNotationAutoCompletion() {
+        doCheckResult("test.bal", "import org.test; service<t<caret>> S {}",
+                "import org.test; service<test> S {}", null);
+    }
+
     /**
      * Test resource level lookups.
      */
@@ -1214,7 +1253,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testResourceAnnotationWithImports() {
-        doCheckResult("test.bal", "import org.test; service S{<caret>}", null, '@', "test");
+        doCheckResult("test.bal", "import org.test; service<http> S{<caret>}", null, '@', "test");
     }
 
     public void testResourceAnnotationWithImportsNoAnnotationDefinitions() {
@@ -1230,41 +1269,41 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {} " +
                 "annotation TEST2 attach service {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null, "TEST");
+        doCheckResult("test.bal", "import org.test; service<http> S{@test:<caret>}", null, null, "TEST");
     }
 
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitionsAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:T<caret>}",
-                "import org.test; service S{@test:TEST {}}", null);
+        doCheckResult("test.bal", "import org.test; service<http> S{@test:T<caret>}",
+                "import org.test; service<http> S{@test:TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageSameFile() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>}", null, '@', "TEST");
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{<caret>}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageSameFileAutoComplete() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{@T<caret>}",
-                "annotation TEST attach resource {} service S{@TEST {}}", null);
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{@T<caret>}",
+                "annotation TEST attach resource {} service<http> S{@TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFile() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{<caret>}", null, '@', "TEST");
+        doCheckResult("test.bal", "service<http> S{<caret>}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFileAutoComplete() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{@T<caret>}", "service S{@TEST {}}", null);
+        doCheckResult("test.bal", "service<http> S{@T<caret>}", "service<http> S{@TEST {}}", null);
     }
 
     public void testResourceAnnotationInCurrentPackageDifferentFileHasMoreDefinitionsAfter() {
         myFixture.addFileToProject("file.bal", "annotation TEST attach resource {}");
-        doCheckResult("test.bal", "service S{<caret>} service R{}", null, '@', "TEST");
+        doCheckResult("test.bal", "service<http> S{<caret>} service R{}", null, '@', "TEST");
     }
 
     public void testResourceAnnotationInCurrentPackageSameFileHasMoreDefinitionsAfter() {
-        doCheckResult("test.bal", "annotation TEST attach resource {} service S{<caret>} service R{}", null, '@',
+        doCheckResult("test.bal", "annotation TEST attach resource {} service<http> S{<caret>} service R{}", null, '@',
                 "TEST");
     }
 
@@ -1278,63 +1317,72 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testResourceParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
-        doTest("service S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testResourceParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(<caret>)",
+        doTest("import org.test; service<http> S { resource R(<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testResourceParamWithoutImportsAutoCompletion() {
-        doCheckResult("test.bal", "service S { resource R(st<caret>)", "service S { resource R(string )", null);
+        doCheckResult("test.bal", "service<http> S { resource R(st<caret>)", "service<http> S { resource R(string )",
+                null);
     }
 
     public void testResourceParamWithImportsAutoCompletion() {
-        doCheckResult("test.bal", "import org.test; service S { resource R(te<caret>)",
-                "import org.test; service S { resource R(test:)", null);
+        doCheckResult("test.bal", "import org.test; service<http> S { resource R(te<caret>)",
+                "import org.test; service<http> S { resource R(test:)", null);
     }
 
     public void testCaretAfterResourceParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
-        doTest("service S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups
+                .size()]));
     }
 
     public void testCaretBeforeResourceParamWithoutImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        expectedLookups.add("any");
-        doTest("service S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups.size()]));
+        doTest("service<http> S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups
+                .size()]));
     }
 
     public void testCaretAfterResourceParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(string s,<caret>)",
+        doTest("import org.test; service<http> S { resource R(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testCaretBeforeResourceParamWithImports() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
-        expectedLookups.add("any");
-        doTest("import org.test; service S { resource R(<caret>string s)",
+        doTest("import org.test; service<http> S { resource R(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1407,9 +1455,10 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorBody() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("C");
-        expectedLookups.add("any");
         expectedLookups.add("action");
         doTest("connector C(){ <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1812,12 +1861,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testCommonKeywordsAfterStatement() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("a");
-        expectedLookups.add("any");
         expectedLookups.add("test");
         doTest("function test(){ int a; <caret> }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1825,11 +1875,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testCommonKeywordsBeforeStatement() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("any");
         expectedLookups.add("test");
         doTest("function test(){ <caret> int a; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1837,12 +1888,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testCommonKeywordsBetweenStatements() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
         expectedLookups.add("a");
-        expectedLookups.add("any");
         expectedLookups.add("test");
         doTest("function test(){ int a; <caret> int b; }", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1850,6 +1902,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testSuggestionsInTransformStatement() {
         List<String> expectedLookups = new LinkedList<>();
         expectedLookups.addAll(DATA_TYPES);
+        expectedLookups.addAll(ANY_TYPE);
+        expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
@@ -1857,7 +1911,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("a");
         expectedLookups.add("b");
         expectedLookups.add("g");
-        expectedLookups.add("any");
         expectedLookups.add("test");
         doTest("int g = 1; function test(){ int a = 10; transform { int b = 5; <caret> } }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));

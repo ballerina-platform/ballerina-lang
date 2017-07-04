@@ -16,7 +16,8 @@
 
 package org.ballerinalang.plugins.idea.debugger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleViewContentType;
@@ -67,6 +68,7 @@ import javax.swing.event.HyperlinkListener;
 public class BallerinaDebugProcess extends XDebugProcess {
 
     private static final Logger LOGGER = Logger.getInstance(BallerinaDebugProcess.class);
+    private static final Gson GSON = new Gson();
 
     private final ProcessHandler myProcessHandler;
     private final ExecutionConsole myExecutionConsole;
@@ -197,11 +199,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     private void debugHit(String response) {
         LOGGER.debug("Received: " + response);
-        ObjectMapper mapper = new ObjectMapper();
         Message message;
         try {
-            message = mapper.readValue(response, Message.class);
-        } catch (IOException e) {
+            message = GSON.fromJson(response, Message.class);
+        } catch (JsonSyntaxException e) {
             LOGGER.debug(e);
             return;
         }

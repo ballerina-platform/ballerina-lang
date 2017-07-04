@@ -10,7 +10,7 @@ package org.ballerinalang.plugins.idea.grammar;
 // starting point for parsing a bal file
 compilationUnit
     :   packageDeclaration?
-        importDeclaration*
+        (importDeclaration | namespaceDeclaration)*
         (annotationAttachment* definition)*
         EOF
     ;
@@ -47,7 +47,11 @@ definition
     ;
 
 serviceDefinition
-    :   'service' Identifier '{' serviceBody '}'
+    :   'service' sourceNotation Identifier '{' serviceBody '}'
+    ;
+
+sourceNotation
+    :   '<' packageName '>'
     ;
 
 serviceBody
@@ -216,6 +220,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   namespaceDeclaration
     ;
 
 transformStatement
@@ -223,7 +228,10 @@ transformStatement
     ;
 
 transformStatementBody
-    :   (expressionAssignmentStatement | expressionVariableDefinitionStatement | transformStatement | commentStatement)*
+    :   (expressionAssignmentStatement
+    |   expressionVariableDefinitionStatement
+    |   transformStatement
+    |   commentStatement)*
     ;
 
 expressionAssignmentStatement
@@ -255,7 +263,7 @@ connectorInitExpression
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
+    :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
@@ -333,13 +341,22 @@ commentStatement
     ;
 
 variableReference
-    :   nameReference                               # simpleVariableIdentifier// simple identifier
-    |   mapArrayVariableReference                   # mapArrayVariableIdentifier// arrays and map reference
-    |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
+    :   nameReference                               # simpleVariableReference
+    |   variableReference index                     # mapArrayVariableReference
+    |   variableReference field                     # fieldVariableReference
+    |   variableReference xmlAttrib                 # xmlAttribVariableReference
     ;
 
-mapArrayVariableReference
-    :   nameReference ('['expression']')+
+field
+    : '.' Identifier
+    ;
+
+index
+    : '[' expression ']'
+    ;
+
+xmlAttrib
+    : '@' ('[' expression ']')?
     ;
 
 expressionList
@@ -366,6 +383,10 @@ abortStatement
 
 actionInvocation
     :   nameReference '.' Identifier '(' expressionList? ')'
+    ;
+
+namespaceDeclaration
+    :   'xmlns' QuotedStringLiteral ('as' Identifier)? ';'
     ;
 
 backtickString
@@ -477,8 +498,10 @@ TRANSACTION     : 'transaction';
 TRANSFORM       : 'transform';
 TRY             : 'try';
 TYPEMAPPER      : 'typemapper';
+VAR             : 'var';
 WHILE           : 'while';
 WORKER          : 'worker';
+XMLNS           : 'xmlns';
 
 BOOLEAN         : 'boolean';
 INT             : 'int';

@@ -64,49 +64,49 @@ public class BallerinaWorkerSuggestionsTest extends BallerinaCompletionTestBase 
 
     // In services.
     public void testWorkerSuggestionsInWorkerInvocationStatementInService() {
-        doTest("service test { resource testWorker () { message msg = {}; msg -> <caret> worker worker1 { } " +
+        doTest("service<http> test { resource testWorker () { message msg = {}; msg -> <caret> worker worker1 { } " +
                 "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerInvocationStatementInServiceAutoCompletion() {
-        doCheckResult("test.bal", "service test { resource testWorker () { message msg = {}; msg -> w<caret> worker" +
-                " worker1 { } } }", "service test { resource testWorker () { message msg = {}; msg -> worker1" +
+        doCheckResult("test.bal", "service<http> test { resource testWorker () { message msg = {}; msg -> w<caret> " +
+                "worker worker1 { } } }", "service<http> test { resource testWorker () { message msg = {}; msg -> worker1" +
                 " worker worker1 { } } }", null);
     }
 
     public void testWorkerSuggestionsInWorkerReplyStatementInService() {
-        doTest("service test { resource testWorker () { message msg = {}; msg <- <caret> worker worker1 { } " +
+        doTest("service<http> test { resource testWorker () { message msg = {}; msg <- <caret> worker worker1 { } " +
                 "worker worker2 { } } }", "default", "worker1", "worker2");
     }
 
     public void testWorkerSuggestionsInWorkerReplyStatementInServiceAutoCompletion() {
-        doCheckResult("test.bal", "service test { resource testWorker () { message msg = {}; msg <- w<caret> worker" +
-                " worker1 { } } }", "service test { resource testWorker () { message msg = {}; msg <- worker1" +
+        doCheckResult("test.bal", "service<http> test { resource testWorker () { message msg = {}; msg <- w<caret> " +
+                "worker worker1 { } } }", "service<http> test { resource testWorker () { message msg = {}; msg <- worker1" +
                 " worker worker1 { } } }", null);
     }
 
     public void testWorkerSuggestionsInSomeJoinConditionInService() {
-        doTest("service test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join (some " +
-                "1 <caret>) (map responses) { } } }", "ABC_Airline", "XYZ_Airline");
+        doTest("service<http> test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join " +
+                "(some 1 <caret>) (map responses) { } } }", "ABC_Airline", "XYZ_Airline");
     }
 
     public void testWorkerSuggestionsInSomeJoinConditionInServiceAutoCompletion() {
-        doCheckResult("test.bal", "service test { resource test ()  { fork { worker ABC_Airline { } worker " +
+        doCheckResult("test.bal", "service<http> test { resource test ()  { fork { worker ABC_Airline { } worker " +
                         "XYZ_Airline { } } join (some 1 AB<caret>) (map responses) { } } }",
-                "service test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join (some" +
-                        " 1 ABC_Airline) (map responses) { } } }", null);
+                "service<http> test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join" +
+                        " (some 1 ABC_Airline) (map responses) { } } }", null);
     }
 
     public void testWorkerSuggestionsInSomeJoinConditionAfterCommaInService() {
-        doTest("service test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join (some " +
-                "1 ABC_Airline, <caret>) (map responses) { } } }", "ABC_Airline", "XYZ_Airline");
+        doTest("service<http> test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join " +
+                "(some 1 ABC_Airline, <caret>) (map responses) { } } }", "ABC_Airline", "XYZ_Airline");
     }
 
     public void testWorkerSuggestionsInSomeJoinConditionAfterCommaInServiceAutoCompletion() {
-        doCheckResult("test.bal", "service test { resource test ()  { fork { worker ABC_Airline { } worker " +
+        doCheckResult("test.bal", "service<http> test { resource test ()  { fork { worker ABC_Airline { } worker " +
                         "XYZ_Airline { } } join (some 1 ABC_Airline, X<caret>) (map responses) { } } }",
-                "service test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join (some" +
-                        " 1 ABC_Airline, XYZ_Airline) (map responses) { } } }", null);
+                "service<http> test { resource test ()  { fork { worker ABC_Airline { } worker XYZ_Airline { } } join" +
+                        " (some 1 ABC_Airline, XYZ_Airline) (map responses) { } } }", null);
     }
 
     // In actions.

@@ -17,9 +17,29 @@
 package org.ballerinalang.completion;
 
 import org.ballerinalang.BallerinaSDKAware;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 
 @BallerinaSDKAware
 public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase {
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls("temp:///");
+        if (isSdkAware()) {
+            setUpProjectSdk();
+        }
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        try {
+            BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls();
+        } finally {
+            //noinspection ThrowFromFinallyBlock
+            super.tearDown();
+        }
+    }
 
     public void testImportFromSDKFirstLevel() {
         doTest("import <caret>", "ballerina");

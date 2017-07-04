@@ -332,7 +332,7 @@ public class BallerinaAnnotator implements Annotator {
             return;
         }
         String text = lastChild.getText();
-        if (!"length".equals(text)) {
+        if (!".length".equals(text)) {
             return;
         }
         PsiElement firstChild = element.getFirstChild();

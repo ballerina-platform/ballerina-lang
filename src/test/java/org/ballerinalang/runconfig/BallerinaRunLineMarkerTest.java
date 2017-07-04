@@ -27,7 +27,7 @@ public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestC
     }
 
     public void testServiceWithoutPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "service <caret>main{}");
+        myFixture.configureByText("a.bal", "service<http> <caret>main{}");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(1, myFixture.findAllGutters().size());
     }
@@ -39,19 +39,19 @@ public class BallerinaRunLineMarkerTest extends BallerinaCodeInsightFixtureTestC
     }
 
     public void testServiceWithPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "package test;\nservice <caret>main{}");
+        myFixture.configureByText("a.bal", "package test;\nservice<http> <caret>main{}");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(1, myFixture.findAllGutters().size());
     }
 
     public void testMainAndServiceWithoutPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "function <caret>main(string[] args){}\nservice main{}\n");
+        myFixture.configureByText("a.bal", "function <caret>main(string[] args){}\nservice<http> main{}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(2, myFixture.findAllGutters().size());
     }
 
     public void testMainAndServiceWithPackageRunLineMarker() {
-        myFixture.configureByText("a.bal", "package test; function <caret>main(string[] args){}\nservice main{}\n");
+        myFixture.configureByText("a.bal", "package test; function <caret>main(string[] args){}\nservice<http> main{}\n");
         assertEquals(1, myFixture.findGuttersAtCaret().size());
         assertEquals(2, myFixture.findAllGutters().size());
     }
