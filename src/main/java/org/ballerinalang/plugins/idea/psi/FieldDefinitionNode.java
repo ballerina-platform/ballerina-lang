@@ -20,7 +20,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ import javax.swing.*;
 public class FieldDefinitionNode extends IdentifierDefSubtree {
 
     public FieldDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Override

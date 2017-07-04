@@ -14,16 +14,26 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
-import com.intellij.lang.ASTNode;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
+import com.intellij.psi.PsiElement;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 
-public class ActionInvocationNode extends IdentifierDefSubtree {
+public class ConnectorReference extends BallerinaElementReference {
 
-    public ActionInvocationNode(@NotNull ASTNode node) {
-        super(node, BallerinaTypes.IDENTIFIER);
+    public ConnectorReference(@NotNull IdentifierPSINode element) {
+        super(element);
+    }
+
+    @Override
+    public boolean isDefinitionNode(PsiElement def) {
+        return false;
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[0];
     }
 }

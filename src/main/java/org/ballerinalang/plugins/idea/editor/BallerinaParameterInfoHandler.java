@@ -25,7 +25,6 @@ import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
 import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -41,8 +40,6 @@ import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
-import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
-import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -271,60 +268,60 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                     // definition is not in the same package, we need to use the getReferences() method as below.
                     PsiReference[] references = nameIdentifier.getReferences();
                     // Iterate through all references. In most cases, there will be only one item.
-                    for (PsiReference psiReference : references) {
-                        if (psiReference instanceof NameReference) {
-                            // Multi resolve the reference.
-                            ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
-                            //If it cannot be resolved, continue with the next item.
-                            if (resolveResults.length == 0) {
-                                continue;
-                            }
-                            // If it can be resolved, iterate through all resolve results.
-                            for (ResolveResult resolveResult : resolveResults) {
-                                // Get the resolved element. This will be a identifier node.
-                                PsiElement resolvedElement = resolveResult.getElement();
-                                if (resolvedElement == null) {
-                                    continue;
-                                }
-                                isResolved = true;
-                                // Get the parent node (FunctionDefinitionNode).
-                                PsiElement parentElement = resolvedElement.getParent();
-                                // Get the ParameterListNode.
-                                ParameterListNode parameterListNode =
-                                        PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
-                                // Add to the list if it is not null;
-                                if (parameterListNode != null) {
-                                    list.add(parameterListNode);
-                                }
-                            }
-                        } else if (psiReference instanceof ActionInvocationReference) {
-                            // Multi resolve the reference.
-                            ResolveResult[] resolveResults = ((ActionInvocationReference) psiReference).multiResolve
-                                    (false);
-                            //If it cannot be resolved, continue with the next item.
-                            if (resolveResults.length == 0) {
-                                continue;
-                            }
-                            // If it can be resolved, iterate through all resolve results.
-                            for (ResolveResult resolveResult : resolveResults) {
-                                // Get the resolved element. This will be a identifier node.
-                                PsiElement resolvedElement = resolveResult.getElement();
-                                if (resolvedElement == null) {
-                                    continue;
-                                }
-                                isResolved = true;
-                                // Get the parent node (FunctionDefinitionNode).
-                                PsiElement parentElement = resolvedElement.getParent();
-                                // Get the ParameterListNode.
-                                ParameterListNode parameterListNode =
-                                        PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
-                                // Add to the list if it is not null;
-                                if (parameterListNode != null) {
-                                    list.add(parameterListNode);
-                                }
-                            }
-                        }
-                    }
+//                    for (PsiReference psiReference : references) {
+//                        if (psiReference instanceof NameReference) {
+//                            // Multi resolve the reference.
+//                            ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
+//                            //If it cannot be resolved, continue with the next item.
+//                            if (resolveResults.length == 0) {
+//                                continue;
+//                            }
+//                            // If it can be resolved, iterate through all resolve results.
+//                            for (ResolveResult resolveResult : resolveResults) {
+//                                // Get the resolved element. This will be a identifier node.
+//                                PsiElement resolvedElement = resolveResult.getElement();
+//                                if (resolvedElement == null) {
+//                                    continue;
+//                                }
+//                                isResolved = true;
+//                                // Get the parent node (FunctionDefinitionNode).
+//                                PsiElement parentElement = resolvedElement.getParent();
+//                                // Get the ParameterListNode.
+//                                ParameterListNode parameterListNode =
+//                                        PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
+//                                // Add to the list if it is not null;
+//                                if (parameterListNode != null) {
+//                                    list.add(parameterListNode);
+//                                }
+//                            }
+//                        } else if (psiReference instanceof ActionInvocationReference) {
+//                            // Multi resolve the reference.
+//                            ResolveResult[] resolveResults = ((ActionInvocationReference) psiReference).multiResolve
+//                                    (false);
+//                            //If it cannot be resolved, continue with the next item.
+//                            if (resolveResults.length == 0) {
+//                                continue;
+//                            }
+//                            // If it can be resolved, iterate through all resolve results.
+//                            for (ResolveResult resolveResult : resolveResults) {
+//                                // Get the resolved element. This will be a identifier node.
+//                                PsiElement resolvedElement = resolveResult.getElement();
+//                                if (resolvedElement == null) {
+//                                    continue;
+//                                }
+//                                isResolved = true;
+//                                // Get the parent node (FunctionDefinitionNode).
+//                                PsiElement parentElement = resolvedElement.getParent();
+//                                // Get the ParameterListNode.
+//                                ParameterListNode parameterListNode =
+//                                        PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
+//                                // Add to the list if it is not null;
+//                                if (parameterListNode != null) {
+//                                    list.add(parameterListNode);
+//                                }
+//                            }
+//                        }
+//                    }
                 }
             }
             // If there are no items to show, set a custom object. Otherwise set the list as an array.

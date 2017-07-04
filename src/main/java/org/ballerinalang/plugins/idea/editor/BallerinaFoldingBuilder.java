@@ -32,9 +32,9 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -69,11 +69,11 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
             ImportDeclarationNode firstImport = importDeclarationNodesArray[0];
             ImportDeclarationNode lastImport = importDeclarationNodesArray[importDeclarationNodes.size() - 1];
 
-            PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(firstImport, PackagePathNode.class);
-            if (packagePathNode == null || packagePathNode.getText().isEmpty()) {
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(firstImport, FullyQualifiedPackageNameNode.class);
+            if (fullyQualifiedPackageNameNode == null || fullyQualifiedPackageNameNode.getText().isEmpty()) {
                 return;
             }
-            int startOffset = packagePathNode.getTextRange().getStartOffset();
+            int startOffset = fullyQualifiedPackageNameNode.getTextRange().getStartOffset();
             int endOffset = lastImport.getTextRange().getEndOffset();
             descriptors.add(new NamedFoldingDescriptor(firstImport, startOffset, endOffset, null, "..."));
         }

@@ -30,9 +30,10 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
+import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -64,11 +65,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (getParent() == null) {
             return this;
         }
-        PsiElement newID = Trees.createLeafFromText(getProject(),
-                BallerinaLanguage.INSTANCE,
-                getContext(),
-                name,
-                BallerinaParserDefinition.ID);
+        PsiElement newID = Trees.createLeafFromText(getProject(), BallerinaLanguage.INSTANCE, getContext(), name,
+                BallerinaTypes.IDENTIFIER);
         if (newID != null) {
             // use replace on leaves but replaceChild on ID nodes that are part of defs/decls.
             return this.replace(newID);
@@ -104,8 +102,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_statement:
                     return new StatementReference(this);
                 case RULE_nameReference:
-                case RULE_field:
                     return new NameReference(this);
+                case RULE_field:
+                    return new FieldReference(this);
                 case RULE_variableReference:
                 case RULE_parameter:
                     // If "package:" is typed as an argument, it will be identified as a variableReference. So we

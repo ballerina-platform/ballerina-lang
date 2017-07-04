@@ -37,42 +37,46 @@ public class CallableUnitBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         PsiElement parent = element.getParent();
-        if (parent instanceof NameReferenceNode || parent instanceof FieldNode
-                || parent instanceof StatementNode) {
 
-            // Don't find definition for array length.
-            if ("length".equals(element.getText())) {
-                PsiElement prevSibling = parent.getPrevSibling();
-                if (prevSibling != null && prevSibling instanceof VariableReferenceNode) {
-                    PsiReference referenceAt = prevSibling.findReferenceAt(0);
-                    if (referenceAt != null) {
-                        PsiElement resolved = referenceAt.resolve();
-                        if (resolved != null) {
-                            if (BallerinaPsiImplUtil.isArrayDefinition(resolved.getParent())) {
-                                return null;
-                            }
-                        }
-                    }
-                }
-            }
+        if (parent instanceof NameReferenceNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
 
-            FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(element,
-                    FunctionInvocationNode.class);
-            if (functionInvocationNode == null) {
-                PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
-                        "//variableDefinitionStatement/Identifier");
-                if (resolvedElement != null) {
-                    if (!BallerinaPsiImplUtil.isStructField(element)) {
-                        PsiElement commonContext = PsiTreeUtil.findCommonContext(element, resolvedElement);
-                        if (!(commonContext instanceof BallerinaFile)) {
-                            return resolvedElement;
-                        }
-                    } else if (resolvedElement.getParent() instanceof GlobalVariableDefinitionNode) {
-                        return resolvedElement;
-                    }
-                }
-            }
-            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
+            //        if (parent instanceof NameReferenceNode || parent instanceof StatementNode) {
+            //
+            //            // Don't find definition for array length.
+            //            if ("length".equals(element.getText())) {
+            //                PsiElement prevSibling = parent.getPrevSibling();
+            //                if (prevSibling != null && prevSibling instanceof VariableReferenceNode) {
+            //                    PsiReference referenceAt = prevSibling.findReferenceAt(0);
+            //                    if (referenceAt != null) {
+            //                        PsiElement resolved = referenceAt.resolve();
+            //                        if (resolved != null) {
+            //                            if (BallerinaPsiImplUtil.isArrayDefinition(resolved.getParent())) {
+            //                                return null;
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //
+            //            FunctionInvocationNode functionInvocationNode = PsiTreeUtil.getParentOfType(element,
+            //                    FunctionInvocationNode.class);
+            //            if (functionInvocationNode == null) {
+            //                PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
+            //                        "//variableDefinitionStatement/Identifier");
+            //                if (resolvedElement != null) {
+            //                    if (!BallerinaPsiImplUtil.isStructField(element)) {
+            //                        PsiElement commonContext = PsiTreeUtil.findCommonContext(element,
+            // resolvedElement);
+            //                        if (!(commonContext instanceof BallerinaFile)) {
+            //                            return resolvedElement;
+            //                        }
+            //                    } else if (resolvedElement.getParent() instanceof GlobalVariableDefinitionNode) {
+            //                        return resolvedElement;
+            //                    }
+            //                }
+            //            }
+            //            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
         } else if (parent instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (parent instanceof TypeNameNode) {

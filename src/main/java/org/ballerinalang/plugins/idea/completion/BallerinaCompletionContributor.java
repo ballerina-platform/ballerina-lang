@@ -19,14 +19,11 @@ package org.ballerinalang.plugins.idea.completion;
 import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
-import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -34,11 +31,9 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.util.ProcessingContext;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
@@ -84,8 +79,6 @@ import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.psi.references.NameReference;
-import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,24 +86,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
 
 public class BallerinaCompletionContributor extends CompletionContributor implements DumbAware {
 
-    public BallerinaCompletionContributor() {
-        extend(CompletionType.BASIC,
-                PlatformPatterns.psiElement(),
-                new CompletionProvider<CompletionParameters>() {
-                    public void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
-                                               @NotNull CompletionResultSet resultSet) {
-                        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
-                        // contains the original file. parameters.getPosition().getContainingFile() will return null
-                        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
-                        // if you want to get the details like containing directory, etc.
-                        addSuggestions(parameters, resultSet);
-                    }
-                }
-        );
+    @Override
+    public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
+        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
+        // contains the original file. parameters.getPosition().getContainingFile() will return null
+        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
+        // if you want to get the details like containing directory, etc.
+        addSuggestions(parameters, result);
     }
 
     /**
@@ -1371,7 +1358,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 resolvedVariableDefElement = resolvedVariableDefElement.getParent();
             }
         }
-        PsiElement structDefinitionNode = BallerinaPsiImplUtil.resolveStruct(resolvedVariableDefElement);
+        // Todo - change method signature to var def
+        PsiElement structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
+                (((VariableDefinitionNode) resolvedVariableDefElement));
         if (structDefinitionNode == null) {
             if (prevElement != null && resolvedVariableDefElement instanceof VariableDefinitionNode
                     || resolvedVariableDefElement instanceof ParameterNode
@@ -1447,34 +1436,34 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 // unique. So the maximum size of this should be 1. If this is 0, that means the package is
                 // not imported. If this is more than 1, it means there are duplicate package imports or
                 // there are multiple packages with the same name.
-                PsiDirectory[] psiDirectories =
-                        BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
-                if (psiDirectories.length == 1) {
-                    if (withFunctions) {
-                        List<PsiElement> functions =
-                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectories[0]);
-                        addFunctionsAsLookups(resultSet, functions);
-                    }
-                    if (withConnectors) {
-                        List<PsiElement> connectors =
-                                BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
-                        addConnectorsAsLookups(resultSet, connectors);
-                    }
-                    if (withStructs) {
-                        List<PsiElement> structs =
-                                BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectories[0]);
-                        addStructsAsLookups(resultSet, structs);
-                    }
-                    if (withConstants) {
-                        List<PsiElement> constants =
-                                BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectories[0]);
-                        addConstantsAsLookups(resultSet, constants);
-                    }
-
-                    List<PsiElement> globalVariables =
-                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
-                    addGlobalVariablesAsLookups(resultSet, globalVariables);
-                }
+//                PsiDirectory[] psiDirectories =
+//                        BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
+//                if (psiDirectories.length == 1) {
+//                    if (withFunctions) {
+//                        List<PsiElement> functions =
+//                                BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectories[0]);
+//                        addFunctionsAsLookups(resultSet, functions);
+//                    }
+//                    if (withConnectors) {
+//                        List<PsiElement> connectors =
+//                                BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
+//                        addConnectorsAsLookups(resultSet, connectors);
+//                    }
+//                    if (withStructs) {
+//                        List<PsiElement> structs =
+//                                BallerinaPsiImplUtil.getAllStructsFromPackage(psiDirectories[0]);
+//                        addStructsAsLookups(resultSet, structs);
+//                    }
+//                    if (withConstants) {
+//                        List<PsiElement> constants =
+//                                BallerinaPsiImplUtil.getAllConstantsFromPackage(psiDirectories[0]);
+//                        addConstantsAsLookups(resultSet, constants);
+//                    }
+//
+//                    List<PsiElement> globalVariables =
+//                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(psiDirectories[0]);
+//                    addGlobalVariablesAsLookups(resultSet, globalVariables);
+//                }
                 // Else situation cannot/should not happen since all the imported packages are unique.
                 // This should be highlighted using an annotator.
             }
@@ -1528,30 +1517,30 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             return;
         }
         // Multi resolve the reference.
-        ResolveResult[] resolvedElement;
-        if (reference instanceof NameReference) {
-            resolvedElement = ((NameReference) reference).multiResolve(false);
-        } else if (reference instanceof StatementReference) {
-            resolvedElement = ((StatementReference) reference).multiResolve(false);
-        } else {
-            return;
-        }
-
-        // For each resolve result, get all actions and add them as lookup elements.
-        for (ResolveResult resolveResult : resolvedElement) {
-            PsiElement resolveResultElement = resolveResult.getElement();
-            if (resolveResultElement == null) {
-                continue;
-            }
-            // Resolved element will be an identifier. So we need to get the parent which is a connector or
-            // native connector.
-            List<PsiElement> allActions =
-                    BallerinaPsiImplUtil.getAllActionsFromAConnector(resolveResultElement.getParent());
-            if (!allActions.isEmpty()) {
-                // Add all actions as lookup elements.
-                addActionsAsLookups(resultSet, allActions);
-            }
-        }
+        //        ResolveResult[] resolvedElement;
+        //        if (reference instanceof NameReference) {
+        //            resolvedElement = ((NameReference) reference).multiResolve(false);
+        //        } else if (reference instanceof StatementReference) {
+        //            resolvedElement = ((StatementReference) reference).multiResolve(false);
+        //        } else {
+        //            return;
+        //        }
+        //
+        //        // For each resolve result, get all actions and add them as lookup elements.
+        //        for (ResolveResult resolveResult : resolvedElement) {
+        //            PsiElement resolveResultElement = resolveResult.getElement();
+        //            if (resolveResultElement == null) {
+        //                continue;
+        //            }
+        //            // Resolved element will be an identifier. So we need to get the parent which is a connector or
+        //            // native connector.
+        //            List<PsiElement> allActions =
+        //                    BallerinaPsiImplUtil.getAllActionsFromAConnector(resolveResultElement.getParent());
+        //            if (!allActions.isEmpty()) {
+        //                // Add all actions as lookup elements.
+        //                addActionsAsLookups(resultSet, allActions);
+        //            }
+        //        }
     }
 
     private void handleAnnotationAttributeNode(@NotNull CompletionParameters parameters,

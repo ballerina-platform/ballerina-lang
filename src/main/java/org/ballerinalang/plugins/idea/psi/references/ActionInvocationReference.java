@@ -49,19 +49,21 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @Nullable
     @Override
     public PsiElement resolve() {
-        ResolveResult[] resolveResults = multiResolve(false);
-        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+//        ResolveResult[] resolveResults = multiResolve(false);
+//        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+
+        return super.resolve();
     }
 
-    @NotNull
-    @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
-        List<PsiElement> actions = BallerinaPsiImplUtil.resolveAction(getElement());
-        List<ResolveResult> results = actions.stream()
-                .map(PsiElementResolveResult::new)
-                .collect(Collectors.toList());
-        return results.toArray(new ResolveResult[results.size()]);
-    }
+//    @NotNull
+//    @Override
+//    public ResolveResult[] multiResolve(boolean incompleteCode) {
+//        List<PsiElement> actions = BallerinaPsiImplUtil.resolveAction(getElement());
+//        List<ResolveResult> results = actions.stream()
+//                .map(PsiElementResolveResult::new)
+//                .collect(Collectors.toList());
+//        return results.toArray(new ResolveResult[results.size()]);
+//    }
 
     @Override
     public boolean isReferenceTo(PsiElement definitionElement) {

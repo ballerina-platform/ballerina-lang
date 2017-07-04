@@ -41,7 +41,7 @@ import javax.swing.Icon;
 public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public FunctionDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Nullable
@@ -60,15 +60,15 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
                 PsiElement prevToken =
                         BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
                                 element.getTextOffset());
-                if (prevToken instanceof LeafPsiElement) {
-                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
-                    if (elementType == BallerinaTypes.DOT) {
-                        PsiElement prevSibling =
-                                BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
-                                        prevToken.getTextOffset());
-                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
-                    }
-                }
+//                if (prevToken instanceof LeafPsiElement) {
+//                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
+//                    if (elementType == BallerinaTypes.DOT) {
+//                        PsiElement prevSibling =
+//                                BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+//                                        prevToken.getTextOffset());
+//                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
+//                    }
+//                }
                 return null;
             }
 

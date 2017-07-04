@@ -23,7 +23,7 @@ import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ import javax.swing.*;
 public class ResourceDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public ResourceDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Nullable

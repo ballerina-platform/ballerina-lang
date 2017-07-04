@@ -43,11 +43,11 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
@@ -367,7 +367,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet     result list which is used to add lookups
      * @param lookupElement lookup element which needs to be added to the result list
      */
-    private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
+    private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement
+            lookupElement) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
     }
 
@@ -494,6 +495,16 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(builder);
     }
 
+    @NotNull
+    public static LookupElementBuilder createDirectoryLookupElement(@NotNull PsiDirectory directory) {
+        return LookupElementBuilder.createWithSmartPointer(directory.getName(), directory)
+                .withIcon(BallerinaIcons.PACKAGE)
+                .withTypeText("Package")
+                .withInsertHandler(directory.getFiles().length == 0 ?
+                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP : null);
+    }
+
+
     /**
      * Suggests annotations from a package according to the current context .
      *
@@ -511,22 +522,22 @@ public class BallerinaCompletionUtils {
             List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
             for (PsiElement pack : packages) {
                 // Compare text to identify the correct package
-                if (packageElement.getText().equals(pack.getText())) {
-                    // Resolve the package and get all matching directories. But all imported packages should be
-                    // unique. So the maximum size of this should be 1. If this is 0, that means the package is
-                    // not imported. If this is more than 1, it means there are duplicate package imports or
-                    // there are multiple packages with the same name.
-                    PsiDirectory[] psiDirectories =
-                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
-                    if (psiDirectories.length == 1) {
-                        // Get all annotations in the package.
-                        List<PsiElement> attachmentsForType =
-                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(psiDirectories[0], type);
-                        addAnnotationsAsLookups(resultSet, attachmentsForType);
-                    }
-                    // Else situation cannot/should not happen since all the imported packages are unique.
-                    // This should be highlighted using an annotator.
-                }
+//                if (packageElement.getText().equals(pack.getText())) {
+//                    // Resolve the package and get all matching directories. But all imported packages should be
+//                    // unique. So the maximum size of this should be 1. If this is 0, that means the package is
+//                    // not imported. If this is more than 1, it means there are duplicate package imports or
+//                    // there are multiple packages with the same name.
+//                    PsiDirectory[] psiDirectories =
+//                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack).getNameIdentifier());
+//                    if (psiDirectories.length == 1) {
+//                        // Get all annotations in the package.
+//                        List<PsiElement> attachmentsForType =
+//                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(psiDirectories[0], type);
+//                        addAnnotationsAsLookups(resultSet, attachmentsForType);
+//                    }
+//                    // Else situation cannot/should not happen since all the imported packages are unique.
+//                    // This should be highlighted using an annotator.
+//                }
             }
         } else {
             // If the packageElement is null, that means we want to get all annotations in the current package.
@@ -568,15 +579,15 @@ public class BallerinaCompletionUtils {
         for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
             PsiElement packageNameNode;
             String packagePath;
-            PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(importDeclarationNode, PackagePathNode.class);
-            if (packagePathNode == null) {
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType(importDeclarationNode, FullyQualifiedPackageNameNode.class);
+            if (fullyQualifiedPackageNameNode == null) {
                 continue;
             }
-            packagePath = packagePathNode.getText();
+            packagePath = fullyQualifiedPackageNameNode.getText();
 
             // We need to get all package name nodes from the package path node.
             List<PackageNameNode> packageNameNodes = new ArrayList<>(
-                    PsiTreeUtil.findChildrenOfType(packagePathNode, PackageNameNode.class)
+                    PsiTreeUtil.findChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class)
             );
             if (packageNameNodes.isEmpty()) {
                 continue;

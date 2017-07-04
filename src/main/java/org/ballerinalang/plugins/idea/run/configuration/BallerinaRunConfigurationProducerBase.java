@@ -28,9 +28,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -66,10 +66,10 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             isPackageDeclared = true;
         }
         // Get the package path node. We need this to get the package path of the file.
-        PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
-        if (packagePathNode != null) {
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+        if (fullyQualifiedPackageNameNode != null) {
             // Regardless of the OS, separator character will be "/".
-            packageInFile = packagePathNode.getText().replaceAll("\\.", "/");
+            packageInFile = fullyQualifiedPackageNameNode.getText().replaceAll("\\.", "/");
         }
 
         // Get existing configuration if available.

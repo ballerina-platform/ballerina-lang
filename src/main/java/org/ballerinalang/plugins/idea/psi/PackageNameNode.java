@@ -18,12 +18,12 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 
 public class PackageNameNode extends IdentifierDefSubtree {
 
     public PackageNameNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 }

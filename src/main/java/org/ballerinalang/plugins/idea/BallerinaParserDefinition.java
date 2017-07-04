@@ -54,8 +54,8 @@ import org.ballerinalang.plugins.idea.psi.ExpressionAssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionVariableDefinitionStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
@@ -71,13 +71,12 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ReplyStatementNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
 import org.ballerinalang.plugins.idea.psi.ReturnStatementNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -113,14 +112,11 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     private static final IFileElementType FILE = new IFileElementType(BallerinaLanguage.INSTANCE);
 
-    public static TokenIElementType ID;
-
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(BallerinaLanguage.INSTANCE,
                 BallerinaParser.tokenNames, BallerinaParser.ruleNames);
         List<TokenIElementType> tokenIElementTypes =
                 PSIElementTypeFactory.getTokenIElementTypes(BallerinaLanguage.INSTANCE);
-        ID = tokenIElementTypes.get(BallerinaLexer.Identifier);
     }
 
     public static final TokenSet IDENTIFIER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
@@ -232,8 +228,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_packageName:
                 return new PackageNameNode(node);
-            case BallerinaParser.RULE_packagePath:
-                return new PackagePathNode(node);
+            case BallerinaParser.RULE_fullyQualifiedPackageName:
+                return new FullyQualifiedPackageNameNode(node);
             case BallerinaParser.RULE_expressionList:
                 return new ExpressionListNode(node);
             case BallerinaParser.RULE_expression:
@@ -308,8 +304,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ForkJoinStatementNode(node);
             case BallerinaParser.RULE_workerInteractionStatement:
                 return new WorkerInterationStatementNode(node);
-            case BallerinaParser.RULE_functionInvocation:
-                return new FunctionInvocationNode(node);
+            //            case BallerinaParser.RULE_functionInvocation:
+            //                return new FunctionInvocationNode(node);
             case BallerinaParser.RULE_returnStatement:
                 return new ReturnStatementNode(node);
             case BallerinaParser.RULE_throwStatement:

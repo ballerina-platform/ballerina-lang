@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class PackagePathNode extends ANTLRPsiNode {
+public class FullyQualifiedPackageNameNode extends ANTLRPsiNode {
 
-    public PackagePathNode(@NotNull ASTNode node) {
+    public FullyQualifiedPackageNameNode(@NotNull ASTNode node) {
         super(node);
     }
 }

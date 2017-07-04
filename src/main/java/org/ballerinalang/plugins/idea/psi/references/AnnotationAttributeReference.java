@@ -37,8 +37,9 @@ public class AnnotationAttributeReference extends BallerinaElementReference{
     @Nullable
     @Override
     public PsiElement resolve() {
-        ResolveResult[] resolveResults = multiResolve(false);
-        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+//        ResolveResult[] resolveResults = multiResolve(false);
+//        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+        return super.resolve();
     }
 
     @NotNull

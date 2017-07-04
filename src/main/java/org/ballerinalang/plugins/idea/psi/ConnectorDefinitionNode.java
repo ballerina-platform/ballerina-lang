@@ -25,18 +25,18 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class ConnectorDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public ConnectorDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Nullable

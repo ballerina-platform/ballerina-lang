@@ -14,16 +14,19 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.completion;
 
-import com.intellij.lang.ASTNode;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
+import com.intellij.codeInsight.completion.CompletionParameters;
+import com.intellij.codeInsight.completion.CompletionProvider;
+import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
-public class ActionInvocationNode extends IdentifierDefSubtree {
+public class BallerinaKeywordsCompletionProvider extends CompletionProvider<CompletionParameters> {
 
-    public ActionInvocationNode(@NotNull ASTNode node) {
-        super(node, BallerinaTypes.IDENTIFIER);
+    @Override
+    protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context,
+                                  @NotNull CompletionResultSet result) {
+
     }
 }

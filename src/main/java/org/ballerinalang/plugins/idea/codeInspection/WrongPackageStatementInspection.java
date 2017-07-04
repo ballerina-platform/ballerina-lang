@@ -33,9 +33,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,8 +97,8 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
         if (packageDeclarationNode == null) {
             return new ProblemDescriptor[0];
         }
-        PackagePathNode packagePathNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
-        if (packagePathNode == null) {
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.findChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+        if (fullyQualifiedPackageNameNode == null) {
             return new ProblemDescriptor[0];
         }
 
@@ -115,27 +115,28 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
             return new ProblemDescriptor[0];
         }
         List<LocalQuickFix> availableFixes = new ArrayList<>();
-        availableFixes.add(new AdjustPackageNameFix(packagePathNode, packageName));
+        availableFixes.add(new AdjustPackageNameFix(fullyQualifiedPackageNameNode, packageName));
         PsiElement packageNameIdentifier = lastElement.getNameIdentifier();
         if (packageNameIdentifier == null) {
-            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, fullyQualifiedPackageNameNode,
                     lastElement);
         }
         PsiReference reference = packageNameIdentifier.getReference();
         if (reference == null) {
-            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, fullyQualifiedPackageNameNode,
                     lastElement);
         }
         PsiElement resolvedElement = reference.resolve();
         if (!(resolvedElement instanceof PsiDirectory)) {
-            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+            return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, fullyQualifiedPackageNameNode,
                     lastElement);
         }
         String containingDirectoryPackageName =
                 BallerinaUtil.suggestPackageNameForDirectory(((PsiDirectory) resolvedElement));
         if (!Comparing.equal(packageName, containingDirectoryPackageName, true)) {
             if (!availableFixes.isEmpty()) {
-                return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes, packagePathNode,
+                return getProblemDescriptors(manager, isOnTheFly, packageName, availableFixes,
+                        fullyQualifiedPackageNameNode,
                         lastElement);
             }
         }
@@ -145,11 +146,11 @@ public class WrongPackageStatementInspection extends LocalInspectionTool {
     @NotNull
     private ProblemDescriptor[] getProblemDescriptors(@NotNull InspectionManager manager, boolean isOnTheFly,
                                                       String packageName, List<LocalQuickFix> availableFixes,
-                                                      PackagePathNode packagePathNode, PackageNameNode lastElement) {
+                                                      FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode, PackageNameNode lastElement) {
         String description = JavaErrorMessages.message("package.name.file.path.mismatch", lastElement.getText(),
                 packageName);
         LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
-        ProblemDescriptor descriptor = manager.createProblemDescriptor(packagePathNode, description, isOnTheFly,
+        ProblemDescriptor descriptor = manager.createProblemDescriptor(fullyQualifiedPackageNameNode, description, isOnTheFly,
                 fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
         return new ProblemDescriptor[]{descriptor};
     }

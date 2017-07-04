@@ -24,8 +24,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTestCase {
@@ -73,9 +73,9 @@ public class BallerinaCreateFileActionTest extends BallerinaCodeInsightFixtureTe
         // declaration available. Otherwise there will be a package declaration node.
         if (!expectedPackage.isEmpty()) {
             assertNotNull(packageDeclarationNode);
-            PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode, PackagePathNode.class);
-            assertNotNull(packagePathNode);
-            assertEquals(expectedPackage, packagePathNode.getText());
+            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
+            assertNotNull(fullyQualifiedPackageNameNode);
+            assertEquals(expectedPackage, fullyQualifiedPackageNameNode.getText());
         } else {
             assertNull(packageDeclarationNode);
         }

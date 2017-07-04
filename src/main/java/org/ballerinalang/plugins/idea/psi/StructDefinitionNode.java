@@ -23,7 +23,7 @@ import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -34,18 +34,21 @@ import javax.swing.Icon;
 public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public StructDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node, BallerinaTypes.IDENTIFIER);
     }
 
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        PsiElement parent = element.getParent();
-        if (parent instanceof VariableReferenceNode || parent instanceof StatementNode
-                || parent instanceof NameReferenceNode || parent instanceof FieldNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        }
-        return null;
+        //        PsiElement parent = element.getParent();
+
+        return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
+
+        //        if (parent instanceof VariableReferenceNode || parent instanceof StatementNode
+        //                || parent instanceof NameReferenceNode || parent instanceof FieldNode) {
+        //            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
+        //        }
+        //        return null;
     }
 
     @Override

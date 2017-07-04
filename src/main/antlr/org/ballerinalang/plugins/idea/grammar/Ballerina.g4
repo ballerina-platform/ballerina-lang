@@ -16,15 +16,15 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packagePath ';'
+    :   'package' fullyQualifiedPackageName ';'
     ;
 
 importDeclaration
-    :   'import' packagePath ('as' alias)? ';'
+    :   'import' fullyQualifiedPackageName ('as' alias)? ';'
     ;
 
-packagePath
-    :   (packageName '.')* packageName
+fullyQualifiedPackageName
+    :   packageName ('.' packageName)*
     ;
 
 packageName
@@ -176,7 +176,7 @@ xmlLocalName
     ;
 
  annotationAttachment
-     :   '@' nameReference '{' annotationAttributeList? '}'
+     :   '@' annotationReference '{' annotationAttributeList? '}'
      ;
 
  annotationAttributeList
@@ -259,7 +259,7 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   'create' nameReference '(' expressionList? ')'
+    :   'create' connectorReference '(' expressionList? ')'
     ;
 
 assignmentStatement
@@ -364,7 +364,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   nameReference '(' expressionList? ')' ';'
+    :   functionReference '(' expressionList? ')' ';'
     ;
 
 actionInvocationStatement
@@ -382,7 +382,7 @@ abortStatement
     ;
 
 actionInvocation
-    :   nameReference '.' Identifier '(' expressionList? ')'
+    :   connectorReference '.' Identifier '(' expressionList? ')'
     ;
 
 namespaceDeclaration
@@ -401,7 +401,7 @@ expression
     |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
-    |   functionInvocation                              # functionInvocationExpression
+    |   functionReference '(' expressionList? ')'       # functionInvocationExpression
     |   '(' typeName ')' simpleExpression               # typeCastingExpression
     |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
@@ -419,13 +419,22 @@ simpleExpression
     :   expression
     ;
 
-functionInvocation
-    :   nameReference '(' expressionList? ')'
-    ;
-
 //reusable productions
 
 nameReference
+    :   (packageName ':')? Identifier
+    ;
+
+
+functionReference
+    :   (packageName ':')? Identifier
+    ;
+
+connectorReference
+    :   (packageName ':')? Identifier
+    ;
+
+annotationReference
     :   (packageName ':')? Identifier
     ;
 
