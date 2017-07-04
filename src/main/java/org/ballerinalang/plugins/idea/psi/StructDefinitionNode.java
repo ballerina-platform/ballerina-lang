@@ -29,7 +29,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -40,11 +40,9 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        } else if (element.getParent() instanceof StatementNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
+        PsiElement parent = element.getParent();
+        if (parent instanceof VariableReferenceNode || parent instanceof StatementNode
+                || parent instanceof NameReferenceNode || parent instanceof FieldNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
         }
         return null;

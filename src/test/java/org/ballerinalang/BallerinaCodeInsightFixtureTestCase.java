@@ -34,25 +34,6 @@ import java.io.File;
 
 abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls("temp:///");
-        if (isSdkAware()) {
-            setUpProjectSdk();
-        }
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        try {
-            BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls();
-        } finally {
-            //noinspection ThrowFromFinallyBlock
-            super.tearDown();
-        }
-    }
-
     protected static String getTestDataPath(String path) {
         return "src/test/resources/testData/" + path;
     }
@@ -75,7 +56,7 @@ abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
         };
     }
 
-    private void setUpProjectSdk() {
+    protected void setUpProjectSdk() {
         ApplicationManager.getApplication().runWriteAction(() -> {
             Sdk sdk = getProjectDescriptor().getSdk();
             ProjectJdkTable.getInstance().addJdk(sdk);
@@ -98,7 +79,7 @@ abstract public class BallerinaCodeInsightFixtureTestCase extends LightPlatformC
         return isSdkAware() ? createMockProjectDescriptor() : null;
     }
 
-    private boolean isSdkAware() {
+    protected boolean isSdkAware() {
         return annotatedWith(BallerinaSDKAware.class);
     }
 }

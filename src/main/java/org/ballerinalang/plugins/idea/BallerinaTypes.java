@@ -80,6 +80,10 @@ public class BallerinaTypes {
             ruleIElementTypes.get(BallerinaParser.RULE_transformStatementBody);
     public static RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(BallerinaParser.RULE_xmlLocalName);
     public static RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(BallerinaParser.RULE_nameReference);
+    public static RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(BallerinaParser.RULE_variableReference);
+    public static RuleIElementType INDEX = ruleIElementTypes.get(BallerinaParser.RULE_index);
+    public static RuleIElementType FIELD = ruleIElementTypes.get(BallerinaParser.RULE_field);
+    public static RuleIElementType XML_ATTRIB = ruleIElementTypes.get(BallerinaParser.RULE_xmlAttrib);
 
     public static RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(BallerinaParser.RULE_parameterList);
     public static RuleIElementType ANNOTATION_ATTACHMENT =
@@ -99,6 +103,8 @@ public class BallerinaTypes {
     public static RuleIElementType VALUE_TYPE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_valueTypeName);
     public static RuleIElementType ACTION_INVOCATION = ruleIElementTypes.get(BallerinaParser.RULE_actionInvocation);
     public static RuleIElementType XML_NAMESPACE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_xmlNamespaceName);
+    public static RuleIElementType SOURCE_NOTATION = ruleIElementTypes.get(BallerinaParser.RULE_sourceNotation);
+    public static RuleIElementType PACKAGE_NAME = ruleIElementTypes.get(BallerinaParser.RULE_packageName);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
@@ -137,8 +143,10 @@ public class BallerinaTypes {
     public static TokenIElementType TRANSACTION = tokenIElementTypes.get(BallerinaLexer.TRANSACTION);
     public static TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
     public static TokenIElementType TYPEMAPPER = tokenIElementTypes.get(BallerinaLexer.TYPEMAPPER);
+    public static TokenIElementType VAR = tokenIElementTypes.get(BallerinaLexer.VAR);
     public static TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
+    public static TokenIElementType XMLNS = tokenIElementTypes.get(BallerinaLexer.XMLNS);
     public static TokenIElementType XML = tokenIElementTypes.get(BallerinaLexer.XML);
     public static TokenIElementType XML_DOCUMENT = tokenIElementTypes.get(BallerinaLexer.XML_DOCUMENT);
 

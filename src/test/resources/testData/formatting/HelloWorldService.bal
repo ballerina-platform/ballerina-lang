@@ -2,7 +2,7 @@
     import  ballerina      .  net  . http ;
 
     @   http   :  BasePath  {    value   :  "/hello"  }
-    service  helloWorld   {
+    service   <  http  > helloWorld   {
 
      @   http   :  GET    { }
      resource    sayHello   ( message   m    )    {

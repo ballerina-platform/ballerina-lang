@@ -1,6 +1,6 @@
 import org.test;
 
-service test {
+service<http> test {
 
     resource test () {
         test:testStruct ts = {};

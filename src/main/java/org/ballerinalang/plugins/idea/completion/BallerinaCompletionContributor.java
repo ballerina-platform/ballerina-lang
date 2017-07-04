@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.completion;
 
+import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
@@ -53,6 +54,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FieldNode;
 import org.ballerinalang.plugins.idea.psi.ForkJoinStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
@@ -64,6 +66,7 @@ import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
@@ -174,6 +177,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             handleWorkerReferenceNode(parameters, resultSet);
         } else if (parent instanceof JoinConditionNode) {
             handleJoinConditionNode(parameters, resultSet);
+        } else if (parent instanceof FieldNode) {
+            handleFieldNode(parameters, resultSet);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
             if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
@@ -185,6 +190,24 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFileLevelKeywordsAsLookups(resultSet, false, true);
             }
         }
+    }
+
+    private void handleFieldNode(CompletionParameters parameters, CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
+        int offset = parameters.getOffset();
+        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, offset);
+        PsiElement previousNonEmptyElement = getPreviousNonEmptyElement(originalFile,
+                prevElement.getTextOffset());
+        if (previousNonEmptyElement instanceof LeafPsiElement &&
+                ((LeafPsiElement) previousNonEmptyElement).getElementType() == BallerinaTypes.RBRACK) {
+            if (resolveElementAndSuggestArrayLength(parameters, resultSet, previousNonEmptyElement)) {
+                return;
+            }
+            return;
+        }
+        // Eg: person.<caret>
+        PsiElement structReference = originalFile.findElementAt(prevElement.getTextOffset() - 1);
+        addStructFields(parameters, resultSet, structReference, null, false, false);
     }
 
     private void handleJoinConditionNode(CompletionParameters parameters, CompletionResultSet resultSet) {
@@ -254,6 +277,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      */
     private void handlePackageNameNode(@NotNull CompletionParameters parameters,
                                        @NotNull CompletionResultSet resultSet) {
+        PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
         PsiElement superParent = parent.getParent();
@@ -266,6 +290,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             // If the parent is not an AliasNode and is inside the ImportDeclarationNode, we need to suggest
             // packages.
             addImportSuggestions(resultSet, element);
+        } else {
+            BasicInsertHandler basicInsertHandler = new BasicInsertHandler();
+            InsertHandler[] insertHandlers = new InsertHandler[]{basicInsertHandler,
+                    BallerinaAutoImportInsertHandler.INSTANCE};
+            addLookups(resultSet, originalFile, true, false, false, false, insertHandlers);
         }
     }
 
@@ -375,6 +404,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                          @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+        PsiFile originalFile = parameters.getOriginalFile();
 
         ParameterNode parameterNode = PsiTreeUtil.getParentOfType(parent, ParameterNode.class);
         if (parameterNode != null) {
@@ -384,6 +414,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     this::handleOtherTypesInParameter);
             return;
         }
+
+        ReturnTypeListNode returnTypeListNode = PsiTreeUtil.getParentOfType(parent, ReturnTypeListNode.class);
+        if (returnTypeListNode != null) {
+            addTypeNamesAsLookups(resultSet);
+            addLookups(resultSet, originalFile, true, false, true, true);
+        }
+
         AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(element,
                 AnnotationDefinitionNode.class);
         if (annotationDefinitionNode != null) {
@@ -644,8 +681,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                             }
                             addTypeNamesAsLookups(resultSet);
                         }
-                    } else if (isExpressionSeparator(elementType)) {
-                        // Eg: int a = 10 + t<caret>
+                    } else if (isExpressionSeparator(elementType) || elementType == BallerinaTypes.LPAREN) {
+                        // Eg: int a = 10 +
+                        // Eg: system:println(<caret>)
                         addLookups(resultSet, originalFile, true, true, true, false);
                         addVariableTypesAsLookups(resultSet, originalFile, element);
                     } else {
@@ -745,8 +783,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 }
                 addTypeNamesAsLookups(resultSet);
             }
-        } else if (isExpressionSeparator(elementType)) {
+        } else if (isExpressionSeparator(elementType) || elementType == BallerinaTypes.LPAREN) {
             // Eg: int a = 10 +
+            // Eg: system:println(<caret>)
             addLookups(resultSet, originalFile, true, true, true, false);
             addVariableTypesAsLookups(resultSet, originalFile, element);
         } else {
@@ -1282,7 +1321,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiElement parentNode = resolvedElement.getParent();
             if (parentNode instanceof VariableDefinitionNode || parentNode instanceof ParameterNode
                     || parentNode instanceof GlobalVariableDefinitionNode) {
-                suggestArrayLength(resultSet, parentNode, parent);
+                VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(parent,
+                        VariableReferenceNode.class, false, ExpressionNode.class);
+                if (variableReferenceNode != null) {
+                    suggestArrayLength(resultSet, parentNode, variableReferenceNode);
+                } else {
+                    suggestArrayLength(resultSet, parentNode, parent);
+                }
             }
         }
         return false;
