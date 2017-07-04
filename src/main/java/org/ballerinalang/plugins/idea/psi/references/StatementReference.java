@@ -92,7 +92,7 @@ public class StatementReference extends BallerinaElementReference {
 //        }
 //        PsiFile file = myElement.getContainingFile();
 //
-//        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(file);
+//        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(file);
 //        for (PsiElement importedPackage : importedPackages) {
 //            if (myElement.getText().equals(importedPackage.getText())) {
 //                if (!(importedPackage instanceof PackageNameNode)) {

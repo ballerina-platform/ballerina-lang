@@ -519,7 +519,7 @@ public class BallerinaCompletionUtils {
         PsiFile originalFile = parameters.getOriginalFile();
         if (packageElement != null) {
             // Get all imported packages in current file
-            List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+            List<PsiElement> packages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
             for (PsiElement pack : packages) {
                 // Compare text to identify the correct package
 //                if (packageElement.getText().equals(pack.getText())) {

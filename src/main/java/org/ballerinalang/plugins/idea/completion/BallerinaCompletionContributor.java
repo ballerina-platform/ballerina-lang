@@ -320,7 +320,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         PsiDirectory[] packageDirectories = BallerinaPsiImplUtil.suggestImportPackages(identifierNode);
         // Get names of all imported packages.
         List<String> allImportedPackages =
-                BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(identifierNode.getContainingFile()).stream()
+                BallerinaPsiImplUtil.getImportedPackages(identifierNode.getContainingFile()).stream()
                         .map(PsiElement::getText)
                         .collect(Collectors.toList());
 
@@ -1425,7 +1425,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                              boolean withConstants) {
         PsiFile originalFile = parameters.getOriginalFile();
         // Get all imported packages in current file
-        List<PsiElement> packages = BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(originalFile);
+        List<PsiElement> packages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
         for (PsiElement pack : packages) {
             if (!(pack instanceof PackageNameNode)) {
                 continue;

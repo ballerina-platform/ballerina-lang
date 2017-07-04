@@ -475,6 +475,11 @@ public class BallerinaPsiImplUtil {
         return getAllMatchingElementsFromPackage(directory, STRUCT_DEFINITION);
     }
 
+    /**
+     *
+     * @param directory
+     * @return
+     */
     @NotNull
     public static List<PsiElement> getAllFunctionsFromPackage(@NotNull PsiDirectory directory) {
         return getAllMatchingElementsFromPackage(directory, FUNCTION_DEFINITION);
@@ -490,14 +495,24 @@ public class BallerinaPsiImplUtil {
         return getAllMatchingElementsFromPackage(directory, GLOBAL_VARIABLE_DEFINITION);
     }
 
+    /**
+     *
+     * @param file
+     * @return
+     */
     @NotNull
-    public static List<PsiElement> getAllImportedPackagesInCurrentFile(@NotNull PsiFile file) {
+    public static List<PsiElement> getImportedPackages(@NotNull PsiFile file) {
         ArrayList<PsiElement> filteredPackages = new ArrayList<>();
         filteredPackages.addAll(getImportedPackagesInCurrentFile(file));
         filteredPackages.addAll(getPackagesImportedAsAliasInCurrentFile(file));
         return filteredPackages;
     }
 
+    /**
+     *
+     * @param file
+     * @return
+     */
     @NotNull
     public static List<PsiElement> getImportedPackagesInCurrentFile(@NotNull PsiFile file) {
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,
@@ -519,6 +534,11 @@ public class BallerinaPsiImplUtil {
         return filteredPackages;
     }
 
+    /**
+     *
+     * @param file
+     * @return
+     */
     @NotNull
     public static List<PsiElement> getPackagesImportedAsAliasInCurrentFile(@NotNull PsiFile file) {
         Collection<ImportDeclarationNode> allImports = PsiTreeUtil.findChildrenOfType(file,

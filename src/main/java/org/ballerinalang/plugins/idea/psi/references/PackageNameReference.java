@@ -19,7 +19,9 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPolyVariantReference;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -90,6 +92,28 @@ public class PackageNameReference extends BallerinaElementReference implements P
             return results.toArray(new ResolveResult[results.size()]);
         }
 
-        return new ResolveResult[0];
+        PsiFile containingFile = identifier.getContainingFile();
+        if (containingFile == null) {
+            return new ResolveResult[0];
+        }
+
+        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+        for (PsiElement importedPackage : importedPackages) {
+            String packageName = importedPackage.getText();
+            if (packageName == null || packageName.isEmpty()) {
+                continue;
+            }
+            if (packageName.equals(identifier.getText())) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        results.add(new PsiElementResolveResult(resolvedElement));
+                    }
+                }
+            }
+        }
+
+        return results.toArray(new ResolveResult[results.size()]);
     }
 }
