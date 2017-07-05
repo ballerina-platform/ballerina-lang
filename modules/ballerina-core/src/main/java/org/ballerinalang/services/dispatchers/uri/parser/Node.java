@@ -19,15 +19,19 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnotationAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Node represents different types of path segments in the uri-template.
@@ -217,5 +221,107 @@ public abstract class Node {
             }
         }
         return null;
+    }
+
+    public ResourceInfo validateProduceConsumeFormat(ResourceInfo resource, CarbonMessage cMsg) {
+        if (resource == null) {
+            return null;
+        }
+        boolean isConsumeMatched = false;
+        boolean isProduceMatched = false;
+        String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
+        List<String> acceptMediaType = extractAcceptMediaType(cMsg.getHeader(Constants.ACCEPT_HEADER));
+
+        AnnotationAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_CONSUMES);
+        AnnotationAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_PRODUCES);
+        if (consumeInfo != null) {
+            //when Content-Type header is not set, treat it as "application/octet-stream"
+            contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
+            for (AnnotationAttributeValue attributeValue : consumeInfo.getAnnotationAttributeValue
+                    (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                if (contentMediaType.equals(attributeValue.getStringValue().trim())) {
+                    isConsumeMatched = true;
+                    break;
+                }
+            }
+            if (!isConsumeMatched) {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 415);
+                throw new BallerinaException();
+            }
+        }
+        //If Accept header field is not present, then it is assumed that the client accepts all media types.
+        if (produceInfo != null && acceptMediaType != null) {
+            if (acceptMediaType.contains("*/*")) {
+                isProduceMatched = true;
+            } else {
+                if (acceptMediaType.stream().anyMatch(s -> s.contains("/*"))) {
+                    List<String> subTypeWildCardMediaTypeList = acceptMediaType.stream().filter(s -> s.contains("/*"))
+                            .map(s -> s.substring(0, s.indexOf("/"))).collect(Collectors.toList());
+                    List<String> subAttributeValueList = Arrays.stream(produceInfo
+                            .getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
+                            .map(s -> s.getStringValue().trim().substring(0, s.getStringValue().indexOf("/")))
+                            .distinct().collect(Collectors.toList());
+                    for (String token : subAttributeValueList) {
+                        for (String mediaType : subTypeWildCardMediaTypeList) {
+                            if (mediaType.equals(token)) {
+                                isProduceMatched = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!isProduceMatched) {
+                    List<String> noWildCardMediaTypeList = acceptMediaType.stream().filter(s -> !s.contains("/*"))
+                            .collect(Collectors.toList());
+                    for (AnnotationAttributeValue attributeValue : produceInfo.getAnnotationAttributeValue
+                            (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                        for (String mediaType : noWildCardMediaTypeList) {
+                            if (mediaType.equals(attributeValue.getStringValue())) {
+                                isProduceMatched = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!isProduceMatched) {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 406);
+                throw new BallerinaException();
+            }
+        }
+        return resource;
+    }
+
+    private List<String> extractAcceptMediaType(String header) {
+        List<String> acceptMediaType = new ArrayList();
+        if (header == null) {
+            return null;
+        } else {
+            if (header.contains(",")) {
+                //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
+                acceptMediaType = Arrays.stream(header.split(","))
+                        .map(s -> s.contains(";") ? s.substring(0, s.indexOf(";")) : s).map(String::trim)
+                        .distinct().collect(Collectors.toList());
+            } else if (header.contains(";")) {
+                //process headers like this: text/*;q=0.3
+                acceptMediaType.add(header.substring(0, header.indexOf(";")).trim());
+            } else {
+                acceptMediaType.add(header.trim());
+            }
+        }
+        return acceptMediaType;
+    }
+
+    private String extractContentMediaType(String header) {
+        if (header == null) {
+            return null;                    
+        } else {
+            if (header.contains(";")) {
+                header = header.substring(0, header.indexOf(";")).trim();
+            }
+        }
+        return header;
     }
 }
