@@ -959,6 +959,16 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
+    public static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                         @NotNull TypeNameNode fieldType,
+                                                         @NotNull IdentifierPSINode ownerName) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
+                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD)
+                .withTailText(" -> " + ownerName.getText(), true)
+                .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
     static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {
         LookupElementBuilder builder = LookupElementBuilder.create("length");
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
