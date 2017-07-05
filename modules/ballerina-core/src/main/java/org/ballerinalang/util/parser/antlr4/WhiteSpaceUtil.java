@@ -304,7 +304,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_LITERAL_END_TO_NEXT_TOKEN,
-                getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.expression().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
