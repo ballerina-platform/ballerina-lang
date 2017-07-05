@@ -1,5 +1,5 @@
-# To run the program, put the code in `file-write.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main files.bal`.
+# To run the program, put the code in `file-api.bal`
+# and use "ballerina run main" command.
 
 $ $BALLERINA_HOME/bin/ballerina run main file-api.bal
 file written: /tmp/result.txt
