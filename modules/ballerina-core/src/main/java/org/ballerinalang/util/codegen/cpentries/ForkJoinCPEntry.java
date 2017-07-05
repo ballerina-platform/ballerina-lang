@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen.cpentries;
 
 import org.ballerinalang.model.statements.ForkJoinStmt;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.Arrays;
@@ -40,6 +41,7 @@ public class ForkJoinCPEntry implements ConstantPoolEntry {
 
     protected ForkJoinStmt forkJoinStmt;
     private boolean isTimeoutAvailable;
+    private CallableUnitInfo parentCallableUnitInfo;
 
     public ForkJoinCPEntry(int[] argRegs, int[] retRegs, ForkJoinStmt forkJoinStmt) {
         this.argRegs = argRegs;
@@ -99,4 +101,13 @@ public class ForkJoinCPEntry implements ConstantPoolEntry {
         return obj instanceof ForkJoinCPEntry && Arrays.equals(argRegs, ((ForkJoinCPEntry) obj).argRegs)
                 && Arrays.equals(retRegs, ((ForkJoinCPEntry) obj).retRegs);
     }
+
+    public CallableUnitInfo getParentCallableUnitInfo() {
+        return parentCallableUnitInfo;
+    }
+
+    public void setParentCallableUnitInfo(CallableUnitInfo parentCallableUnitInfo) {
+        this.parentCallableUnitInfo = parentCallableUnitInfo;
+    }
+
 }

@@ -1337,9 +1337,8 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Staring parsing catch clause.
-        TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock(currentScope);
+        TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock();
         tryCatchStmtBuilder.addCatchBlock(catchBlock);
-        currentScope = catchBlock;
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(catchBlockBuilder);
@@ -1361,13 +1360,13 @@ public class BLangModelBuilder {
         catchBlockBuilder.setLocation(nodeLocation);
         catchBlockBuilder.setBlockKind(StatementKind.CATCH_BLOCK);
         BlockStmt catchBlock = catchBlockBuilder.build();
-        currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
         ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, identifier, errorType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
+        currentScope = catchBlock.getEnclosingScope();
         tryCatchStmtBuilder.getLastCatchBlock().setParameterDef(paramDef);
         tryCatchStmtBuilder.setLastCatchBlockStmt(catchBlock);
     }
@@ -1376,9 +1375,8 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Start Parsing finally clause.
-        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock(currentScope);
+        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock();
         tryCatchStmtBuilder.setFinallyBlock(finallyBlock);
-        currentScope = finallyBlock;
 
         BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(finallyBlockStmtBuilder);

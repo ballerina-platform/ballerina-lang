@@ -20,8 +20,10 @@ package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
+/**
+ * URITemplateParser parses the provided uri-template and build the tree.
+ */
 public class URITemplateParser {
 
     private static final char[] operators = new char[] { '+', '.', '/', ';', '?', '&', '#' };
@@ -75,7 +77,8 @@ public class URITemplateParser {
                         if (expression) {
                             expression = false;
                             if (pointerIndex > startIndex) {
-                                createExpressionNode(segment.substring(startIndex, pointerIndex));
+                                String token = segment.substring(startIndex, pointerIndex);
+                                createExpressionNode(token, maxIndex, pointerIndex);
                                 startIndex = pointerIndex + 1;
                             } else {
                                 throw new URITemplateException("Illegal empty expression");
@@ -89,12 +92,13 @@ public class URITemplateParser {
                         if (pointerIndex == 0 && currentElement != segments.length - 1) {
                             throw new URITemplateException("/* is only allowed at the end of the Path");
                         }
+                        // fallthru
 
                     default:
                         if (pointerIndex == maxIndex) {
                             String token = segment.substring(startIndex);
                             if (expression) {
-                                createExpressionNode(token);
+                                createExpressionNode(token, maxIndex, pointerIndex);
                             } else {
                                 addNode(new Literal(token));
                             }
@@ -120,16 +124,21 @@ public class URITemplateParser {
         }
     }
 
-    private void createExpressionNode(String expression) throws URITemplateException {
+    private void createExpressionNode(String expression, int maxIndex, int pointerIndex) throws URITemplateException {
         Node node = null;
         if (isSimpleString(expression)) {
-            node = new SimpleStringExpression(expression);
+            if (maxIndex == pointerIndex) {
+                node = new SimpleStringExpression(expression);
+            } else {
+                node = new SimpleSplitStringExpression(expression);
+            }
         }
 
         if (expression.length() <= 1) {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }
 
+        // TODO: Re-verify the usage of these nodes
         if (expression.startsWith("#")) {
             node = new FragmentExpression(expression.substring(1));
         } else if (expression.startsWith("+")) {

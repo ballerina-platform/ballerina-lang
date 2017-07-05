@@ -13,6 +13,10 @@ service<ws> testEndpoint {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
+        string  text = messages:getStringPayload(m);
+        if ("closeMe" == text) {
+            ws:closeConnection();
+        }
         ws:pushText(messages:getStringPayload(m));
     }
 

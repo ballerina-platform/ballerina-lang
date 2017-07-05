@@ -51,11 +51,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
         subPath = sanitizeSubPath(subPath);
         Map<String, String> resourceArgumentValues = new HashMap<>();
-        Map<String, String> requestDetails = new HashMap<>();
-
         try {
-            requestDetails.put(Constants.HTTP_METHOD, method);
-
             ResourceInfo resource = service.getUriTemplate().matches(subPath, resourceArgumentValues, cMsg);
             if (resource != null) {
                 if (cMsg.getProperty(Constants.QUERY_STR) != null) {
@@ -66,14 +62,11 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                 return resource;
             }
-            // Throw an exception if the resource is not found.
             cMsg.setProperty(Constants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("no matching resource found for path : "
                     + cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO) + " , method : " + method);
 
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException(e.getMessage());
-        } catch (URITemplateException e) {
+        } catch (UnsupportedEncodingException | URITemplateException e) {
             throw new BallerinaException(e.getMessage());
         }
     }

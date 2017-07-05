@@ -36,8 +36,10 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -77,6 +79,10 @@ public class BLangProgramRunner {
                     throw new BLangRuntimeException("error: " + stackTraceStr);
                 }
 
+                if (!DispatcherRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                            serviceInfo.getProtocolPkgPath());
+                }
                 // Deploy service
                 DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
                         .serviceRegistered(serviceInfo);

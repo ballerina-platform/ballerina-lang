@@ -23,7 +23,7 @@ annotation config attach service {
     string host;
     int port;
     string basePath;
-    string schema;
+    string scheme;
     string keyStoreFile;
     string keyStorePass;
     string certPass;

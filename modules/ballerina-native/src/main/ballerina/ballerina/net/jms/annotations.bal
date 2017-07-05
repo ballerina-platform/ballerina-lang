@@ -1,13 +1,15 @@
 package ballerina.net.jms;
 
-annotation JMSSource attach service {
-    string destination;
-    string factoryInitial;
+annotation config attach service {
+    string initialContextFactory;
     string providerUrl;
     string connectionFactoryType;
-}
-
-annotation ConnectionProperty attach service {
-    string key;
-    string value;
+    string connectionFactoryName;
+    string destination;
+    string acknowledgmentMode;
+    string subscriptionId;
+    string clientId;
+    string configFilePath;
+    string connectionFactoryNature;
+    string[] properties;
 }
