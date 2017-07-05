@@ -107,17 +107,17 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         PsiDirectory containingPackage = originalFile.getParent();
 
-        if (parent instanceof NameReferenceNode) {
-            if (containingPackage != null) {
-                // Todo - Get all functions, connectors, structs, variables
-                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-
-                for (PsiElement function : functions) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
-                    resultSet.addElement(lookupElement);
-                }
-            }
-        }
+//        if (parent instanceof NameReferenceNode) {
+//            if (containingPackage != null) {
+//                // Todo - Get all functions, connectors, structs, variables
+//                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+//
+//                for (PsiElement function : functions) {
+//                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
+//                    resultSet.addElement(lookupElement);
+//                }
+//            }
+//        }
 //        else if (parent instanceof AnnotationReferenceNode) {
 //            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
 //            if (packageNameNode == null) {

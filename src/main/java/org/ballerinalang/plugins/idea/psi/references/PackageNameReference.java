@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
@@ -24,6 +25,9 @@ import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
@@ -49,7 +53,45 @@ public class PackageNameReference extends BallerinaElementReference implements P
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+        IdentifierPSINode identifier = getElement();
+        FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getParentOfType(identifier,
+                FullyQualifiedPackageNameNode.class);
+
+        List<LookupElement> results = new ArrayList<>();
+
+        if (fullyQualifiedPackageNameNode == null) {
+            PsiFile containingFile = identifier.getContainingFile();
+            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+
+            for (PsiElement importedPackage : importedPackages) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference == null) {
+                    continue;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                results.add(lookupElement);
+            }
+
+            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages(containingFile);
+
+            for (PsiDirectory unImportedPackage : unImportedPackages) {
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                results.add(lookupElement);
+            }
+
+
+        } else {
+
+        }
+
+        return results.toArray(new ResolveResult[results.size()]);
     }
 
     @Nullable

@@ -72,6 +72,7 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
+import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -1620,6 +1621,64 @@ public class BallerinaPsiImplUtil {
         Collection<WorkerDeclarationNode> workerDeclarationNodes = PsiTreeUtil.findChildrenOfType(definitionNode,
                 WorkerDeclarationNode.class);
         results.addAll(workerDeclarationNodes);
+        return results;
+    }
+
+    @NotNull
+    public static List<PsiDirectory> getAllUnImportedPackages(@NotNull PsiFile currentFile) {
+        List<PsiDirectory> results = new LinkedList<>();
+
+        // Get all imported packages in the current file.
+        Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(currentFile);
+        // Get all packages in the resolvable scopes (project and libraries).
+        List<PsiDirectory> directories =
+                BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(currentFile.getProject());
+        // Iterate through all available  packages.
+        for (PsiDirectory directory : directories) {
+            // Suggest a package name for the directory.
+            // Eg: ballerina/lang/system -> ballerina.lang.system
+            String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
+            // There are two possibilities.
+            //
+            // 1) The package is already imported.
+            //
+            //    import ballerina.lang.system;
+            //    In this case, map will contain "system -> ballerina.lang.system". So we need to check whether the
+            //    directory name (as an example "system") is a key in the map.
+            //
+            // 2) The package is already imported using an alias.
+            //
+            //    import ballerina.lang.system as builtin;
+            //    In this case, map will contain "builtin -> ballerina.lang.system". So we need to check whether the
+            //    suggested import path (as an example "ballerina.lang.system") is already in the map as a value.
+
+            // Check whether the package is already in the imports.
+            if (importsMap.containsKey(directory.getName())) {
+                // Even though the package name is in imports, the name might be an alias.
+                // Eg: import org.tools as system;
+                //     In this case, map will contain "system -> org.tools". So when we type "sys", matching package
+                //     will be "ballerina.lang.system". Directory name is "system" which matches the "system" in
+                //     imports, but the paths are different.
+                //
+                // If the paths are same, we will not add it as a lookup since the {@code
+                // addAllImportedPackagesAsLookups} will add it as a lookup.
+                String packagePath = importsMap.get(directory.getName());
+                if (packagePath.equals(suggestedImportPath) || importsMap.containsValue(suggestedImportPath)) {
+                    // Condition importsMap.containsValue(suggestedImportPath) can happen when both package and
+                    // alias is available.
+                    // Eg: import ballerina.lang.system;
+                    //     import org.system as mySystem;
+                    // Now when we type "system", both above imports will be lookups if we don't continue here.
+                    continue;
+                }
+            } else if (importsMap.containsValue(suggestedImportPath)) {
+                // This means we have already imported this package. This will be suggested by {@code
+                // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
+                continue;
+            }
+
+            results.add(directory);
+        }
         return results;
     }
 }

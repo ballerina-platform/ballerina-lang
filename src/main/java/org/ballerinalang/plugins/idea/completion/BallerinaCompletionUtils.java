@@ -497,8 +497,10 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory) {
+        String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
         return LookupElementBuilder.createWithSmartPointer(directory.getName(), directory)
                 .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
+                .withTailText("(" + suggestedImportPath + ")", true)
                 .withInsertHandler(directory.getFiles().length == 0 ?
                         PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP : null);
     }
@@ -760,11 +762,12 @@ public class BallerinaCompletionUtils {
         }
     }
 
-    public static LookupElement createConnectorLookupElement(@NotNull PsiElement element) {
+    public static LookupElement createConnectorLookupElement(@NotNull PsiElement element,
+                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
                 .withTailText(BallerinaDocumentationProvider.getParameterString(element.getParent(), true))
-                .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+                .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY);
     }
 

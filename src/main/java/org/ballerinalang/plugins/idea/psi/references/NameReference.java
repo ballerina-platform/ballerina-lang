@@ -16,11 +16,15 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
+import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +56,29 @@ public class NameReference extends BallerinaElementReference {
 
         if (containingPackage != null) {
 
+            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+            for (PsiElement importedPackage : importedPackages) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference == null) {
+                    continue;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                results.add(lookupElement);
+            }
+
+            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages(containingFile);
+            for (PsiDirectory unImportedPackage : unImportedPackages) {
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                        BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                results.add(lookupElement);
+            }
+
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
             for (PsiElement function : functions) {
                 LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
@@ -60,7 +87,8 @@ public class NameReference extends BallerinaElementReference {
 
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
             for (PsiElement connector : connectors) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector);
+                LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
+                        AddSpaceInsertHandler.INSTANCE);
                 results.add(lookupElement);
             }
 
