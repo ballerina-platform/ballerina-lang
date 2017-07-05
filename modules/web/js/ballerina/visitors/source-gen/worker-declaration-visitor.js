@@ -15,52 +15,94 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclaration from '../../ast/worker-declaration';
 
 /**
- * @param parent
- * @constructor
+ * Source generation for the worker Declaration
  */
 class WorkerDeclarationVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the worker declaration
+     * @param {WorkerDeclaration} workerDeclaration - Worker DeclarationASTNode
+     * @return {boolean} true|false - whether the worker declaration can visit or not
+     */
     canVisitWorkerDeclaration(workerDeclaration) {
         return workerDeclaration instanceof WorkerDeclaration && !workerDeclaration.isDefaultWorker();
     }
 
+    /**
+     * Begin visit for the Worker Declaration
+     * @param {WorkerDeclaration} workerDeclaration - worker Declaration ASTNode
+     */
     beginVisitWorkerDeclaration(workerDeclaration) {
         const useDefaultWS = workerDeclaration.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        const constructedSourceSegment = 'worker' + workerDeclaration.getWSRegion(1) +
-            workerDeclaration.getWorkerDeclarationStatement() + workerDeclaration.getWSRegion(2) + '{' +
-            workerDeclaration.getWSRegion(3);
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        workerDeclaration.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = 'worker' + workerDeclaration.getWSRegion(1)
+            + workerDeclaration.getWorkerDeclarationStatement() + workerDeclaration.getWSRegion(2) + '{'
+            + workerDeclaration.getWSRegion(3);
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
+    /**
+     * Visit Worker Declaration
+     */
     visitWorkerDeclaration() {
     }
 
+    /**
+     * End visit for the While Statement
+     * @param {WorkerDeclaration} workerDeclaration - Worker Declaration ASTNode
+     */
     endVisitWorkerDeclaration(workerDeclaration) {
         this.outdent();
+        let constructedSourceSegment = '';
         if (workerDeclaration.whiteSpace.useDefault) {
-            this.appendSource(this.getIndentation());
+            constructedSourceSegment += this.getIndentation();
         }
-        this.appendSource('}' + workerDeclaration.getWSRegion(4));
+
+        constructedSourceSegment += '}' + workerDeclaration.getWSRegion(4);
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
+    /**
+     * Visit Statement
+     * @param {Statement} statement - Statement ASTNode
+     */
     visitStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
         const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
+    /**
+     * Visit variable declaration
+     * @param {VariableDeclaration} variableDeclaration - variable declaration ASTNode
+     */
     visitVariableDeclaration(variableDeclaration) {
         const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(variableDeclarationVisitor);

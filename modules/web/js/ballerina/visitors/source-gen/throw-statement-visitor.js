@@ -15,29 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
+/**
+ * Source generation for throw statement
+ */
 class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the throw statement
+     * @return {boolean} true|false - whether the throw statement can visit or not
+     */
     canVisitThrowStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the throw statement
+     * @param {ThrowStatement} throwStatement - throw statement ASTNode
+     */
     beginVisitThrowStatement(throwStatement) {
         if (throwStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(throwStatement.getStatementString());
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        throwStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = throwStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Visit the throw statement
+     */
     visitThrowStatement() {
     }
 
+    /**
+     * End visit for the throw statement
+     * @param {ThrowStatement} throwStatement - throw statement ASTNode
+     */
     endVisitThrowStatement(throwStatement) {
-        this.appendSource(';' + throwStatement.getWSRegion(2));
-        this.appendSource((throwStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + throwStatement.getWSRegion(2)
+            + ((throwStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

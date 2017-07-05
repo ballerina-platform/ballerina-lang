@@ -15,17 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import SourceGenUtil from './source-gen-util';
 
+/**
+ * Annotation Definition source generation
+ */
 class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the Annotation Definition Statement
+     * @return {boolean} true|false whether the Annotation Definition can visit or not
+     */
     canVisitAnnotationDefinition() {
         return true;
     }
 
+    /**
+     * Begin visit for the Annotation Definition Statement
+     * @param {AnnotationDefinition} annotationDefinition - Annotation Definition ASTNode
+     */
     beginVisitAnnotationDefinition(annotationDefinition) {
         const useDefaultWS = annotationDefinition.whiteSpace.useDefault;
 
@@ -33,6 +44,11 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        annotationDefinition.setLineNumber(lineNumber, { doSilently: true });
+
         let constructedSourceSegment = '';
         _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation),
                 (annotationNode) => {
@@ -74,19 +90,33 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
-        log.debug('Begin Visit Annotation Definition');
     }
 
+    /**
+     * Visit Annotation Definition
+     */
     visitAnnotationDefinition() {
-        log.debug('Visit Annotation Definition');
     }
 
+    /**
+     * End visit for the Annotation Definition Statement
+     * @param {AnnotationDefinition} annotationDefinition - Annotation Definition ASTNode
+     */
     endVisitAnnotationDefinition(annotationDefinition) {
         this.outdent();
-        this.appendSource('}' + annotationDefinition.getWSRegion(4));
+        const constructedSourceSegment = '}' + annotationDefinition.getWSRegion(4);
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Annotation Definition');
     }
 }
 

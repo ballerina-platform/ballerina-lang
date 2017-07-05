@@ -15,30 +15,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Generation for the Else Statement
+ */
 class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Else statement
+     * @return {boolean} true|false - whether the Else statement can visit or not
+     */
     canVisitElseStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Else statement
+     * @param {ElseStatement} elseStatement - Else statement ASTNode
+     */
     beginVisitElseStatement(elseStatement) {
         this.node = elseStatement;
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        elseStatement.setLineNumber(lineNumber, { doSilently: true });
+
         /**
         * set the configuration start for the if statement definition language construct
         * If we need to add additional parameters which are dynamically added to the configuration start
         * that particular source generation has to be constructed here
         */
-        this.appendSource('else' + elseStatement.getWSRegion(1) + '{' + elseStatement.getWSRegion(2));
-        this.appendSource((elseStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+        const constructedSourceSegment = 'else' + elseStatement.getWSRegion(1) + '{' + elseStatement.getWSRegion(2)
+            + ((elseStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin visit Else Statement Definition');
     }
 
+    /**
+     * Visit Statements
+     * @param {Statement} statement - statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();
@@ -47,11 +72,20 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
+    /**
+     * End visit for the Else Statement
+     * @param {ElseStatement} elseStatement - Else Statement ASTNode
+     */
     endVisitElseStatement(elseStatement) {
         this.outdent();
-        this.appendSource('}' + elseStatement.getWSRegion(3));
+        const constructedSourceSegment = '}' + elseStatement.getWSRegion(3);
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Else Statement Definition');
     }
 }
 

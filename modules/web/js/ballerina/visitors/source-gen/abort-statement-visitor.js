@@ -15,53 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AbortStatement from '../../ast/statements/abort-statement';
 
+/**
+ * Source generation visitor for abort statement
+ */
 class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
 
     /**
      * Can visit Abort Statement.
-     * @param {AbortStatement} abortStatement
+     * @param {AbortStatement} abortStatement - abort statement ast visitor
      * @return {boolean} true if instance of AbortStatement, else false.
-     * */
+     */
     canVisitAbortStatement(abortStatement) {
         return abortStatement instanceof AbortStatement;
     }
 
     /**
      * Begin Visit Abort Statement.
-     * @param {AbortStatement} abortStatement
-     * */
+     * @param {AbortStatement} abortStatement - abort statement ASTNode
+     */
     beginVisitAbortStatement(abortStatement) {
         this.node = abortStatement;
         if (abortStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(abortStatement.getStatementString());
-        log.debug('Begin Visit Abort Statement');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        abortStatement.setLineNumber(lineNumber);
+        const constructedSourceSegment = abortStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
     }
 
     /**
      * Visit Abort Statement.
-     * @param {AbortStatement} abortStatement
-     * */
+     */
     visitAbortStatement() {
-        log.debug('visit Abort Statement');
     }
 
     /**
      * End visit Abort Statement.
-     * @param {AbortStatement} abortStatement
-     * */
+     * @param {AbortStatement} abortStatement - abort statement ASTNode
+     */
     endVisitAbortStatement(abortStatement) {
-        this.appendSource(abortStatement.getWSRegion(1) + ';' + abortStatement.getWSRegion(2));
-        this.appendSource((abortStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = abortStatement.getWSRegion(1) + ';' + abortStatement.getWSRegion(2)
+            + ((abortStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Abort Statement');
     }
 }
 

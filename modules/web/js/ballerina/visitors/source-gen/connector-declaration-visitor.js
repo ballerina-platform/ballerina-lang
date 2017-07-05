@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
@@ -40,7 +41,18 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(connectorDeclaration.getStatementString());
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        connectorDeclaration.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = connectorDeclaration.getStatementString();
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
     }
 
     /**
@@ -55,10 +67,16 @@ class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
      * @returns {void}
      */
     endVisitConnectorDeclaration(connectorDeclaration) {
-        this.appendSource(connectorDeclaration.getWSRegion(3) + ';'
-                + connectorDeclaration.getWSRegion(4));
-        this.appendSource((connectorDeclaration.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = connectorDeclaration.getWSRegion(3)
+            + ';' + connectorDeclaration.getWSRegion(4)
+            + ((connectorDeclaration.whiteSpace.useDefault)
+                ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

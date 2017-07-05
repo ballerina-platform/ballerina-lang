@@ -15,33 +15,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Gen visitor for the Catch statement
+ */
 class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Catch Statement
+     * @return {boolean} true|false whether the Catch statement can visit or not
+     */
     canVisitCatchStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Catch statement
+     * @param {TryStatement} catchStatement - Catch statement ASTNode
+     */
     beginVisitCatchStatement(catchStatement) {
         this.node = catchStatement;
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        catchStatement.setLineNumber(lineNumber, { doSilently: true });
+
         /**
          * set the configuration start for the catch statement
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('catch' + catchStatement.getWSRegion(1) + '('
-                            + catchStatement.getWSRegion(2)
-                            + catchStatement.getParameterDefString() // FIXME fix the model to support different catches
-                            + catchStatement.getWSRegion(4) + ')'
-                            + catchStatement.getWSRegion(5) + '{'
-                            + catchStatement.getWSRegion(6));
-        this.appendSource((catchStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+        const constructedSourceSegment = 'catch' + catchStatement.getWSRegion(1) + '('
+            + catchStatement.getWSRegion(2)
+            + catchStatement.getParameterDefString() // FIXME fix the model to support different catches
+            + catchStatement.getWSRegion(4) + ')'
+            + catchStatement.getWSRegion(5) + '{'
+            + catchStatement.getWSRegion(6)
+            + ((catchStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
+    /**
+     * Visit Statements
+     * @param {Statement} statement - statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();
@@ -50,9 +77,19 @@ class CatchStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
+    /**
+     * End visit for the Catch Statement
+     * @param {CatchStatement} catchStatement - Catch Statement ASTNode
+     */
     endVisitCatchStatement(catchStatement) {
         this.outdent();
-        this.appendSource('}' + catchStatement.getWSRegion(7));
+        const constructedSourceSegment = '}' + catchStatement.getWSRegion(7);
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

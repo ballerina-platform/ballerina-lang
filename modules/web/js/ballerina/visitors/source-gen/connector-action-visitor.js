@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
-import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
@@ -24,18 +24,21 @@ import VariableDeclarationVisitor from './variable-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
 /**
- * @param {ASTVisitor} parent - Parent AST Visitor
- * @constructor
+ * Visitor for connector action
  */
 class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for connector action
+     * @return {boolean} true|false
+     */
     canVisitConnectorAction() {
         return true;
     }
 
     /**
      * Begin visit of the connector action
-     * @param {ConnectorAction} connectorAction
+     * @param {ConnectorAction} connectorAction - Connector action ASTNode
      */
     beginVisitConnectorAction(connectorAction) {
         /**
@@ -66,24 +69,35 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
+        // Set the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource()
+            + this.getEndLinesInSegment(constructedSourceSegment) + 1;
+        connectorAction.setLineNumber(lineNumber, { doSilently: true });
+        
         constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
             + connectorAction.getActionName()
             + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
             + ')' + connectorActionReturnTypesSource
             + connectorAction.getWSRegion(4) + '{' + connectorAction.getWSRegion(5);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
+
+        // Set the new line number count
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit Connector Action');
     }
 
+    /**
+     * Visit Connector action
+     */
     visitConnectorAction() {
-        log.debug('Visit Connector Action');
     }
 
     /**
      * End visit of the Connector Action
-     * @param {ConnectorAction} connectorAction
+     * @param {ConnectorAction} connectorAction - Connector action ASTNode
      */
     endVisitConnectorAction(connectorAction) {
         this.outdent();
@@ -91,12 +105,11 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         this.appendSource((connectorAction.whiteSpace.useDefault) ?
                       this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit FunctionDefinition');
     }
 
     /**
      * Visit Statements
-     * @param {Statement} statement
+     * @param {Statement} statement - statement ASTNode
      */
     visitStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
@@ -106,7 +119,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit Connector Declarations
-     * @param {ConnectorDeclaration} connectorDeclaration
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration ASTNode
      */
     visitConnectorDeclaration(connectorDeclaration) {
         const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
@@ -115,7 +128,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit variable Declaration
-     * @param {VariableDeclaration} variableDeclaration
+     * @param {VariableDeclaration} variableDeclaration - variable Definition ASTNode
      */
     visitVariableDeclaration(variableDeclaration) {
         const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
@@ -124,7 +137,7 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit Worker Declaration
-     * @param workerDeclaration
+     * @param {WorkerDeclaration} workerDeclaration - worker declaration ASTNode
      */
     visitWorkerDeclaration(workerDeclaration) {
         const workerDeclarationVisitor = new WorkerDeclarationVisitor(this);

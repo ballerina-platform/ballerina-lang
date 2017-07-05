@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
@@ -22,15 +23,22 @@ import ConnectorDeclarationVisitor from './connector-declaration-visitor';
 import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
 /**
- * @param parent
- * @constructor
+ * Source generation visitor for Resource definition
  */
 class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the resource definition
+     * @return {boolean} true|false
+     */
     canVisitResourceDefinition() {
         return true;
     }
 
+    /**
+     * Begin visit for the resource definition
+     * @param {ResourceDefinition} resourceDefinition - resource definition node
+     */
     beginVisitResourceDefinition(resourceDefinition) {
         /**
          * set the configuration start for the resource definition language construct
@@ -51,6 +59,10 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
                 }
             });
 
+        const lineNumber = this.getTotalNumberOfLinesInSource()
+            + this.getEndLinesInSegment(constructedSourceSegment) + 1;
+        resourceDefinition.setLineNumber(lineNumber, { doSilently: true });
+
         constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
                   + resourceDefinition.getWSRegion(1)
@@ -58,36 +70,59 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
 
         constructedSourceSegment += resourceDefinition.getParametersAsString()
                 + ')' + resourceDefinition.getWSRegion(3)
-                + '{' + resourceDefinition.getWSRegion(4);
+                + '{' + resourceDefinition.getWSRegion(4)
+                + ((useDefaultWS) ? this.getIndentation() : '');
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.appendSource(constructedSourceSegment);
-        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
     }
 
+    /**
+     * Visit resource definition
+     */
     visitResourceDefinition() {
     }
 
+    /**
+     * Visit resource level statements
+     * @param {ASTNode} statement - Statement Node
+     */
     visitStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
         const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
+    /**
+     * Visit resource level connector declarations
+     * @param {ConnectorDeclaration} connectorDeclaration - connector declaration AST node
+     */
     visitConnectorDeclaration(connectorDeclaration) {
         const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
     }
 
+    /**
+     * Visit resource level worker declarations
+     * @param {ASTNode} workerDeclaration - worker declaration AST Node
+     */
     visitWorkerDeclaration(workerDeclaration) {
         const workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
     }
 
+    /**
+     * End visit for resource definition source generation
+     * @param {ASTNode} resourceDefinition - resource definition ASTNode
+     */
     endVisitResourceDefinition(resourceDefinition) {
         this.outdent();
-        this.appendSource('}' + resourceDefinition.getWSRegion(5));
-        this.appendSource((resourceDefinition.whiteSpace.useDefault) ?
-                      this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = '}' + resourceDefinition.getWSRegion(5)
+            + ((resourceDefinition.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

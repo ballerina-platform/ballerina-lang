@@ -15,25 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
  * Visitor for a global variable definition.
- * @param {ASTVisitor} parent - Parent visitor.
- * @constructor
  */
 class GlobalVariableDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the global variable definition
+     * @return {boolean} true|false
+     */
     canVisitGlobalVariableDefinition() {
         return true;
     }
 
+    /**
+     * Begin source generation visit for the Global variable Definition
+     * @param {GlobalVariableDefinition} globalVariableDefinition - Global variable Definition ASTNode
+     */
     beginVisitGlobalVariableDefinition(globalVariableDefinition) {
         const useDefaultWS = globalVariableDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        globalVariableDefinition.setLineNumber(lineNumber, { doSilently: true });
 
         // Adding annotations
         let constructedSourceSegment = '';
@@ -46,16 +57,32 @@ class GlobalVariableDefinitionVisitor extends AbstractSourceGenVisitor {
         }
 
         constructedSourceSegment += globalVariableDefinition.getGlobalVariableDefinitionAsString();
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Visit Global Variable Definition
+     */
     visitGlobalVariableDefinition() {
     }
 
+    /**
+     * End source generation visit for the Global variable Definition
+     * @param {GlobalVariableDefinition} globalVariableDefinition - Global variable Definition ASTNode
+     */
     endVisitGlobalVariableDefinition(globalVariableDefinition) {
-        this.appendSource(';' + globalVariableDefinition.getWSRegion(4));
-        this.appendSource((globalVariableDefinition.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + globalVariableDefinition.getWSRegion(4)
+            + ((globalVariableDefinition.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

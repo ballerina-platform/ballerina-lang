@@ -20,20 +20,46 @@ import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Gen visitor for the Transaction statement
+ */
 class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Transaction Statement
+     * @return {boolean} true|false whether the Transaction statement can visit or not
+     */
     canVisitTransactionStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Transaction Statement
+     * @param {TransactionStatement} transactionStatement - Transaction Statement ASTNode
+     */
     beginVisitTransactionStatement(transactionStatement) {
         this.node = transactionStatement;
-        this.appendSource('transaction' + transactionStatement.getWSRegion(1) + '{'
-            + transactionStatement.getWSRegion(2));
-        this.appendSource((transactionStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        transactionStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = 'transaction' + transactionStatement.getWSRegion(1)
+            + '{' + transactionStatement.getWSRegion(2)
+            + ((transactionStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
+    /**
+     * Visit Statements
+     * @param {Statement} statement - statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();
@@ -42,6 +68,10 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
+    /**
+     * End visit for the Transaction Statement
+     * @param {TransactionStatement} transactionStatement - Transaction Statement ASTNode
+     */
     endVisitTransactionStatement(transactionStatement) {
         this.outdent();
         /* if using default ws, add a new line to end unless there are any aborted
@@ -51,7 +81,14 @@ class TransactionStatementVisitor extends AbstractStatementSourceGenVisitor {
         && (_.isEmpty(parent.getAbortedStatement())
         && _.isEmpty(parent.getCommittedStatement())))
             ? '\n' : transactionStatement.getWSRegion(3);
-        this.appendSource('}' + tailingWS);
+
+        const constructedSourceSegment = '}' + tailingWS;
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }
