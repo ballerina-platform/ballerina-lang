@@ -2620,7 +2620,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                //continue to next iteration if variable symbol is underscore '_' == ignore
+                // Continue to next iteration if variable symbol is underscore '_' == ignore
                 if (varName.equals("_")) {
                     declaredVarCount++;
                     continue;
