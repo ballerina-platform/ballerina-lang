@@ -1842,6 +1842,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTemplateLiteralExpression(BallerinaParser.TemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitTemplateLiteralExpression(BallerinaParser.TemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
     public void enterArrayLiteralExpression(ArrayLiteralExpressionContext ctx) {
 
     }
@@ -2083,6 +2093,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         modelBuilder.addFieldDefinition(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, fieldName,
                 isDefaultValueAvalibale);
+    }
+
+    @Override
+    public void enterTemplateLiteral(BallerinaParser.TemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void exitTemplateLiteral(BallerinaParser.TemplateLiteralContext ctx) {
+
     }
 
     @Override
