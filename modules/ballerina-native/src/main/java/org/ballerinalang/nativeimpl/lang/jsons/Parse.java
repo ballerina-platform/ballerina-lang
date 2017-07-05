@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Native function ballerina.model.json:Parse.
  * Parses and gets a JSON from a string.
+ * 
+ * @since 0.90
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.jsons",
