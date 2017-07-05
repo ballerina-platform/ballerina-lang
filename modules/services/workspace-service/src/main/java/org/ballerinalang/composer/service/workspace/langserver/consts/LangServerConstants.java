@@ -77,17 +77,4 @@ public class LangServerConstants {
      */
     public static final String BUILTIN_TYPES = "builtinTypes";
     public static final String PACKAGES = "packages";
-
-    /**
-     * Resolving Criteria
-     */
-    public static final int INVALID_CRITERIA = -1;
-    public static final int FUNCTION_INVOCATION_CRITERIA = 1;
-
-    /**
-     * Types of programs that are executable.
-     */
-    public static enum ProgramType {
-        RUN, SERVICE
-    }
 }
