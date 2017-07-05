@@ -2611,6 +2611,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (assignStmt.isDeclaredWithVar()) {
             // This set data structure is used to check for repeated variable names in the assignment statement
             Set<String> varNameSet = new HashSet<>();
+            int declaredVarCount = 0;
             for (Expression expr : lExprs) {
                 if (!(expr instanceof SimpleVarRefExpr)) {
                     throw BLangExceptionHelper.getSemanticError(assignStmt.getNodeLocation(),
@@ -2619,7 +2620,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                if (!varName.equals("_") && !varNameSet.add(varName)) {
+                // Continue to next iteration if variable symbol is underscore '_' == ignore
+                if (varName.equals("_")) {
+                    declaredVarCount++;
+                    continue;
+                }
+
+                if (!varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
                 }
@@ -2632,14 +2639,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
-                BLangSymbol varSymbol = currentScope.resolve(symbolName);
+                BLangSymbol varSymbol = currentScope.resolve(varDefSymName);
                 if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
-                    BLangExceptionHelper.throwSemanticError(variableDef, SemanticErrors.REDECLARED_SYMBOL,
-                            variableDef.getName());
+                    declaredVarCount++;
+                    continue;
                 }
                 currentScope.define(varDefSymName, variableDef);
                 // Set memory location
                 setMemoryLocation(variableDef);
+            }
+            if (declaredVarCount == lExprs.length) {
+                throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                        assignStmt.getNodeLocation(), SemanticErrors.NO_NEW_VARIABLES_VAR_ASSIGNMENT));
             }
         }
 
