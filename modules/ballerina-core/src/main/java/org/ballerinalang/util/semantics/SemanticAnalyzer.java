@@ -2650,7 +2650,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             if (declaredVarCount == lExprs.length) {
                 throw new SemanticException(BLangExceptionHelper.constructSemanticError(
-                        assignStmt.getNodeLocation(), SemanticErrors.IGNORED_VAR_ASSIGNMENT));
+                        assignStmt.getNodeLocation(), SemanticErrors.NO_NEW_VARIABLES_VAR_ASSIGNMENT));
             }
         }
 

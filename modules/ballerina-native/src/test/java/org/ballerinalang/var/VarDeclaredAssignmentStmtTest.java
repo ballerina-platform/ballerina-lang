@@ -189,16 +189,14 @@ public class VarDeclaredAssignmentStmtTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class },
-          expectedExceptionsMessageRegExp = "var-declared-symbols.bal:7: var keyword declared assignment " +
-                  "statement should have at least one non declared variable")
+          expectedExceptionsMessageRegExp = "var-declared-symbols.bal:7: no new variables on left side")
     public void testVarDeclarationWithAllDeclaredSymbols() {
         //var declarations should at least one non declared var ref symbol
         BTestUtils.getProgramFile("lang/var/var-declared-symbols.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "var-all-ignored-symbols.bal:3: var keyword declared assignment " +
-                    "statement should have at least one non declared variable")
+            expectedExceptionsMessageRegExp = "var-all-ignored-symbols.bal:3: no new variables on left side")
     public void testVarDeclarationWithAllIgnoredSymbols() {
         //var declarations should at least one non declared var ref symbol
         BTestUtils.getProgramFile("lang/var/var-all-ignored-symbols.bal");
