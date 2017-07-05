@@ -15,34 +15,61 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Generation for the Else Statement
+ */
 class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Else If statement
+     * @return {boolean} true|false - whether the Else If statement can visit or not
+     */
     canVisitElseIfStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Else statement
+     * @param {ElseIfStatement} elseIfStatement - Else If statement ASTNode
+     */
     beginVisitElseIfStatement(elseIfStatement) {
         this.node = elseIfStatement;
-        this.appendSource('else' + elseIfStatement.getWSRegion(1) + 'if' + elseIfStatement.getWSRegion(2)
-                            + '(' + elseIfStatement.getWSRegion(3) + elseIfStatement.getConditionString()
-                            + ')' + elseIfStatement.getWSRegion(4) + '{' + elseIfStatement.getWSRegion(5));
-        this.appendSource((elseIfStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        elseIfStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = 'else' + elseIfStatement.getWSRegion(1) + 'if' + elseIfStatement.getWSRegion(2)
+            + '(' + elseIfStatement.getWSRegion(3) + elseIfStatement.getConditionString()
+            + ')' + elseIfStatement.getWSRegion(4) + '{' + elseIfStatement.getWSRegion(5)
+            + ((elseIfStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
     }
 
+    /**
+     * End visit for the Else If Statement
+     * @param {ElseIfStatement} elseIfStatement - Else If Statement ASTNode
+     */
     endVisitElseIfStatement(elseIfStatement) {
         this.outdent();
-        const elseIfStmts = elseIfStatement.getParent().getElseIfStatements(),
-              elseStmt = elseIfStatement.getParent().getElseStatement();
+        const elseIfStmts = elseIfStatement.getParent().getElseIfStatements();
+        const elseStmt = elseIfStatement.getParent().getElseStatement();
         // if using default ws, add a new line to end unless there are anymore elseif stmts available
         // or an else statement is available
-        let tailingWS = (elseIfStatement.whiteSpace.useDefault 
-                            && (_.isNil(elseStmt) && _.isEqual(_.last(elseIfStmts), elseIfStatement)))
-                        ? '\n' : elseIfStatement.getWSRegion(6);
+        let tailingWS = (elseIfStatement.whiteSpace.useDefault
+            && (_.isNil(elseStmt) && _.isEqual(_.last(elseIfStmts), elseIfStatement)))
+            ? '\n' : elseIfStatement.getWSRegion(6);
 
         // if there is a newly added else-if or an else stmt after this
         // reset tailing whitespace
@@ -54,10 +81,21 @@ class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
         tailingWS = (!_.isNil(nextBlock) && nextBlock.whiteSpace.useDefault)
                         ? ' ' : tailingWS;
-        this.appendSource('}' + tailingWS);
+
+        const constructedSourceSegment = '}' + tailingWS;
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 
+    /**
+     * Visit Statements
+     * @param {Statement} statement - statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();

@@ -16,25 +16,49 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Gen visitor for the Aborted statement
+ */
 class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Aborted Statement
+     * @return {boolean} true|false whether the Aborted statement can visit or not
+     */
     canVisitAbortedStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Aborted Statement
+     * @param {AbortedStatement} abortedStatement - Aborted Statement ASTNode
+     */
     beginVisitAbortedStatement(abortedStatement) {
         this.node = abortedStatement;
-        this.appendSource('aborted' + abortedStatement.getWSRegion(1) + '{'
-            + abortedStatement.getWSRegion(2));
-        this.appendSource((abortedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        abortedStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = 'aborted' + abortedStatement.getWSRegion(1) + '{'
+            + abortedStatement.getWSRegion(2)
+            + ((abortedStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit Aborted Statement');
     }
 
+    /**
+     * Visit Statements
+     * @param {Statement} statement - statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();
@@ -43,6 +67,10 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
+    /**
+     * End visit for the Aborted Statement
+     * @param {AbortedStatement} abortedStatement - Aborted Statement ASTNode
+     */
     endVisitAbortedStatement(abortedStatement) {
         this.outdent();
         /* if using default ws, add a new line to end unless there are any
@@ -62,9 +90,14 @@ class AbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
             }
         }
 
-        this.appendSource('}' + tailingWS);
+        const constructedSourceSegment = '}' + tailingWS;
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Aborted Statement');
     }
 }
 

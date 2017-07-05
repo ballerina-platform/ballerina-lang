@@ -15,15 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
- * Visitor for a constant definition.
- * @param {ASTVisitor} parent - Parent visitor.
- * @constructor
+ * Visitor for a constant definition source generation
  */
 class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the constant Definition
+     * @return {boolean} true|false - whether the constant definition can visit or not
+     */
     canVisitConstantDefinition() {
         return true;
     }
@@ -37,6 +40,9 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        constantDefinition.setLineNumber(lineNumber, { doSilently: true });
 
         // Adding annotations
         let constructedSourceSegment = '';
@@ -49,16 +55,33 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
         }
 
         constructedSourceSegment += constantDefinition.getConstantDefinitionAsString();
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Visit the constant definition
+     */
     visitConstantDefinition() {
     }
 
+    /**
+     * End visit for constant Definition statement
+     * @param {ConstantDefinition} constantDefinition - constant Definition statement ASTNode
+     */
     endVisitConstantDefinition(constantDefinition) {
-        this.appendSource(';' + constantDefinition.getWSRegion(5));
-        this.appendSource((constantDefinition.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + constantDefinition.getWSRegion(5)
+            + ((constantDefinition.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

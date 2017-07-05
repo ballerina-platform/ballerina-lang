@@ -15,17 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
-import log from 'log';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source generation visitor for Transform Statement
+ */
 class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Transform Statement
+     * @return {boolean} true|false
+     */
     canVisitTransformStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the resource definition
+     * @param {TransformStatement} transformStatement - transform statement node
+     */
     beginVisitTransformStatement(transformStatement) {
         this.node = transformStatement;
 
@@ -35,21 +46,34 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
 
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        transformStatement.setLineNumber(lineNumber, { doSilently: true });
+
         let constructedSourceSegment = '';
 
         constructedSourceSegment += transformStatement.getStatementString()
                   + transformStatement.getWSRegion(1)
-                  + '{' + transformStatement.getWSRegion(2);
+                  + '{' + transformStatement.getWSRegion(2) + ((useDefaultWS) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
-        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
-        log.debug('Begin Visit TransformStatement');
     }
 
+    /**
+     * Visit Transform Statement
+     */
     visitTransformStatement() {
-        log.debug('Visit TransformStatement');
     }
 
+    /**
+     * Visit resource level statements
+     * @param {ASTNode} statement - Statement Node
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();
@@ -58,13 +82,21 @@ class TransformStatementVisitor extends AbstractStatementSourceGenVisitor {
         }
     }
 
+    /**
+     * End visit for resource definition source generation
+     * @param {ASTNode} transformStatement - transform statement ASTNode
+     */
     endVisitTransformStatement(transformStatement) {
         this.outdent();
-        this.appendSource('}' + transformStatement.getWSRegion(3));
-        this.appendSource((transformStatement.whiteSpace.useDefault) ?
-                      this.currentPrecedingIndentation : '');
+
+        const constructedSourceSegment = '}' + transformStatement.getWSRegion(3)
+            + ((transformStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit TransformStatement');
     }
 }
 

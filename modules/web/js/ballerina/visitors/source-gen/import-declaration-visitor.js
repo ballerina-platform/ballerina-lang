@@ -15,22 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
- * @param parent
- * @constructor
+ * Source generation for the Import declaration
  */
 class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the import declaration
+     * @return {boolean} true|false
+     */
     canVisitImportDeclaration() {
         return true;
     }
 
+    /**
+     * Begin visit for the Import Declaration source generation
+     * @param {ImportDeclaration} importDeclaration - Import Declaration ASTNode
+     */
     beginVisitImportDeclaration(importDeclaration) {
-        let constructedSourceSegment =
-          ((importDeclaration.whiteSpace.useDefault) ? this.getIndentation() : '')
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        importDeclaration.setLineNumber(lineNumber, { doSilently: true });
+
+        let constructedSourceSegment = ((importDeclaration.whiteSpace.useDefault) ? this.getIndentation() : '')
           + 'import'
           + importDeclaration.getWSRegion(0)
           + importDeclaration.getPackageName()
@@ -43,27 +54,45 @@ class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
                 + importDeclaration.getWSRegion(3)
             );
         }
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Visit Import Declaration
+     */
     visitImportDeclaration() {
     }
 
+    /**
+     * End visit for the Import Declaration source generation
+     * @param {ImportDeclaration} importDeclaration - Import Declaration ASTNode
+     */
     endVisitImportDeclaration(importDeclaration) {
-        const nodeIndex = importDeclaration.getNodeIndex(),
-              root = importDeclaration.getParent(),
-              nextNode = _.nth(root.getChildren(), nodeIndex + 1);
+        const nodeIndex = importDeclaration.getNodeIndex();
+        const root = importDeclaration.getParent();
+        const nextNode = _.nth(root.getChildren(), nodeIndex + 1);
         let tailingWS = importDeclaration.getWSRegion(4);
         if (!_.isNil(nextNode) && root.getFactory().isImportDeclaration(nextNode)
                 && nextNode.whiteSpace.useDefault) {
-           tailingWS = '\n';
+            tailingWS = '\n';
         } else if (importDeclaration.whiteSpace.useDefault &&
                         !_.isNil(nextNode) && !root.getFactory().isImportDeclaration(nextNode)
                         && !nextNode.whiteSpace.useDefault) {
-                tailingWS = '\n\n';
+            tailingWS = '\n\n';
         }
-        this.appendSource(';' + tailingWS);
 
+        const constructedSourceSegment = ';' + tailingWS;
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

@@ -19,31 +19,85 @@ import ExpressionVisitor from '../expression-visitor';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
- * Constructor for the Abstract Source Generation Visitor for the expressions
- * @param parent
- * @constructor
+ * Source generation for the Abstract Source Generation Visitor for the expressions
  */
 class AbstractExpressionSourceGenVisitor extends ExpressionVisitor {
+
+    /**
+     * Constructor for abstract expression source generation visitor
+     * @param {ASTVisitor} parent - parent visitor
+     * @constructor
+     */
     constructor(parent) {
         super();
         this._generatedSource = '';
         this.parent = parent;
+        this._sourceGenMeta = (parent) ? parent.getSourceGenMeta() : { sourceTotalLineCount: 0 };
     }
 
+    /**
+     * Get the current Generated code
+     * @return {string} - current generated code
+     */
     getGeneratedSource() {
         return this._generatedSource;
     }
 
+    /**
+     * Set the generated code
+     * @param {string} generatedSource - Generated code
+     */
     setGeneratedSource(generatedSource) {
         this._generatedSource = generatedSource;
     }
 
+    /**
+     * Append source segment to the generated source
+     * @param {string} source - code segment
+     */
     appendSource(source) {
         this._generatedSource += source;
     }
 
+    /**
+     * Get the parent source generation visitor
+     * @return {object} - parent
+     */
     getParent() {
         return this.parent;
+    }
+
+    /**
+     * Get the source generation related meta info object
+     * @return {{sourceTotalLineCount: number}} source generation meta information
+     */
+    getSourceGenMeta() {
+        return this._sourceGenMeta;
+    }
+
+    /**
+     * Increase the total line count of the source by certain number of lines
+     * @param {number} lines - number of lines from which the total is increased
+     */
+    increaseTotalSourceLineCountBy(lines) {
+        this.getSourceGenMeta().sourceTotalLineCount += lines;
+    }
+
+    /**
+     * Get the current total line numbers of the source
+     * @return {number} - total number of lines in the source
+     */
+    getTotalNumberOfLinesInSource() {
+        return this.getSourceGenMeta().sourceTotalLineCount;
+    }
+
+    /**
+     * Get the number of endlines/carriage returns in the given segment
+     * @param {string} sourceSegment - source segment
+     * @return {number} - number of endLines
+     */
+    getEndLinesInSegment(sourceSegment) {
+        return (sourceSegment.match(/\n/g) || []).length;
     }
 }
 

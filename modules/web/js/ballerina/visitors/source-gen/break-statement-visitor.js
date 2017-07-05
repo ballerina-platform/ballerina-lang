@@ -15,32 +15,65 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import BreakStatement from '../../ast/statements/break-statement';
 
+/**
+ * Source generation visitor for Break statement
+ */
 class BreakStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the break statement
+     * @param {BreakStatement} breakStatement - break statementASTNode
+     * @return {boolean} true| false - whether the break statement can visit or not
+     */
     canVisitBreakStatement(breakStatement) {
         return breakStatement instanceof BreakStatement;
     }
 
+    /**
+     * Begin visit for break statement
+     * @param {BreakStatement} breakStatement - break statementASTNode
+     */
     beginVisitBreakStatement(breakStatement) {
         this.node = breakStatement;
         if (breakStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(breakStatement.getStatementString());
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        breakStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = breakStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Visit the break statement
+     */
     visitBreakStatement() {
     }
 
+    /**
+     * End visit for break statement
+     * @param {BreakStatement} breakStatement - break statementASTNode
+     */
     endVisitBreakStatement(breakStatement) {
-        this.appendSource(breakStatement.getWSRegion(1) + ';'
-                            + breakStatement.getWSRegion(2));
-        this.appendSource((breakStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = breakStatement.getWSRegion(1) + ';' + breakStatement.getWSRegion(2)
+            + ((breakStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

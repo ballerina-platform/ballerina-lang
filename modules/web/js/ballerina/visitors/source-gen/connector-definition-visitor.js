@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
@@ -29,6 +30,10 @@ import StatementVisitorFactory from './statement-visitor-factory';
  */
 class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the connector source generation
+     * @return {boolean} - true|false
+     */
     canVisitConnectorDefinition() {
         return true;
     }
@@ -57,16 +62,23 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
                 }
             });
 
+        const lineNumber = this.getTotalNumberOfLinesInSource()
+            + this.getEndLinesInSegment(constructedSourceSegment) + 1;
+        connectorDefinition.setLineNumber(lineNumber, { doSilently: true });
         constructedSourceSegment += 'connector'
           + connectorDefinition.getWSRegion(0) + connectorDefinition.getConnectorName()
           + connectorDefinition.getWSRegion(1) + '(' + connectorDefinition.getArgumentsAsString() + ')'
           + connectorDefinition.getWSRegion(2) + '{' + connectorDefinition.getWSRegion(3);
         constructedSourceSegment += (useDefaultWS) ? this.getIndentation() : '';
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
         this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit Connector Definition');
     }
 
+    /**
+     * Visit Connector Definition
+     */
     visitConnectorDefinition() {
         log.debug('Visit Connector Definition');
     }
@@ -77,16 +89,17 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
      */
     endVisitConnectorDefinition(connectorDefinition) {
         this.outdent();
-        this.appendSource('}' + connectorDefinition.getWSRegion(4));
-        this.appendSource((connectorDefinition.whiteSpace.useDefault) ?
-                      this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = '}' + connectorDefinition.getWSRegion(4)
+            + ((connectorDefinition.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Connector Definition');
     }
 
     /**
      * Visit Connector Action
-     * @param {ConnectorAction} connectorAction
+     * @param {ConnectorAction} connectorAction - Connector action ASTNode
      */
     visitConnectorAction(connectorAction) {
         const connectorActionVisitor = new ConnectorActionVisitor(this);
@@ -95,7 +108,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit Connector Declaration
-     * @param {ConnectorDeclaration} connectorDeclaration
+     * @param {ConnectorDeclaration} connectorDeclaration - Connector Declaration ASTNode
      */
     visitConnectorDeclaration(connectorDeclaration) {
         const connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
@@ -104,7 +117,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit Variable Declaration
-     * @param {VariableDeclaration} variableDeclaration
+     * @param {VariableDeclaration} variableDeclaration - Variable Declaration ASTNode
      */
     visitVariableDeclaration(variableDeclaration) {
         const variableDeclarationVisitor = new VariableDeclarationVisitor(this);
@@ -113,7 +126,7 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
 
     /**
      * Visit Statements
-     * @param {Statement} statement
+     * @param {Statement} statement - statement ASTNode
      */
     visitStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();

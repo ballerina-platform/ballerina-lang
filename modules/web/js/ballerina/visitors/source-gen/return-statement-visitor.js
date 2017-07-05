@@ -15,17 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import ReturnStatement from '../../ast/statements/return-statement';
 import ExpressionVisitorFactory from './expression-visitor-factory';
 
+/**
+ * Source generation for return statement
+ */
 class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for return statement
+     * @param {ReturnStatement} returnStatement - return statement ASTNode
+     * @return {boolean} true|false - whether the return statement can visit or not
+     */
     canVisitReturnStatement(returnStatement) {
         return returnStatement instanceof ReturnStatement;
     }
 
+    /**
+     * Begin visit for return statement
+     * @param {ReturnStatement} returnStatement - Return statement ASTNode
+     */
     beginVisitReturnStatement(returnStatement) {
         /**
          * set the configuration start for the reply statement definition language construct
@@ -36,23 +48,41 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(returnStatement.getReturnExpression());
-        log.debug('Begin Visit Return Statement Definition');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        returnStatement.setLineNumber(lineNumber, { doSilently: true });
+        const constructedSourceSegment = returnStatement.getReturnExpression();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * End visit for return statement
+     * @param {ReturnStatement} returnStatement - Return statement ASTNode
+     */
     endVisitReturnStatement(returnStatement) {
-        this.appendSource(';' + returnStatement.getWSRegion(3));
-        this.appendSource((returnStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + returnStatement.getWSRegion(3)
+            + ((returnStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Return Statement Definition');
     }
 
+    /**
+     * Visit expression
+     * @param {Expression} expression - Expression ASTNode
+     */
     visitExpression(expression) {
         const expressionVisitorFactory = new ExpressionVisitorFactory();
         const expressionVisitor = expressionVisitorFactory.getExpressionView({ model: expression, parent: this });
         expression.accept(expressionVisitor);
-        log.debug('Visit Expression');
     }
 }
 

@@ -15,38 +15,70 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import _ from 'lodash';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Join statement Source generation visitor
+ */
 class JoinStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Join Statement
+     * @return {boolean} true|false
+     */
     canVisitJoinStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Join statement source generation
+     * @param {JoinStatement} joinStatement - Join Statement ASTNode
+     */
     beginVisitJoinStatement(joinStatement) {
         this.node = joinStatement;
         const JOIN_CONDITION_KEY = 'joinCondition';
-        this.appendSource('join' + joinStatement.getWSRegion(1) + '(' +
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        joinStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = 'join' + joinStatement.getWSRegion(1) + '(' +
             joinStatement.getChildWSRegion(JOIN_CONDITION_KEY, 0) + joinStatement.getJoinConditionString() +
             joinStatement.getChildWSRegion(JOIN_CONDITION_KEY, 2) + ')' + joinStatement.getWSRegion(2) +
             '(' + joinStatement.getParameter().getWSRegion(0) +
             joinStatement.getParameter().getParameterDefinitionAsString() + ')' + joinStatement.getWSRegion(5) + '{' +
-            joinStatement.getWSRegion(6));
-        this.appendSource((joinStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+            joinStatement.getWSRegion(6) + ((joinStatement.whiteSpace.useDefault) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.indent();
-        log.debug('Begin Visit Join Statement');
     }
 
+    /**
+     * End visit for the Join statement source generation
+     * @param {JoinStatement} joinStatement - Join Statement ASTNode
+     */
     endVisitJoinStatement(joinStatement) {
-        this.appendSource('}' + joinStatement.getWSRegion(7));
+        const constructedSourceSegment = '}' + joinStatement.getWSRegion(7);
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Join Statement');
     }
 
-
+    /**
+     * Visit Statement
+     * @param {Statement} statement - Statement ASTNode
+     */
     visitStatement(statement) {
         if (!_.isEqual(this.node, statement)) {
             const statementVisitorFactory = new StatementVisitorFactory();

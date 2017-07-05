@@ -15,27 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import WorkerInvocationStatement from '../../ast/statements/worker-invocation-statement';
 
+/**
+ * Worker invocation statement source generation
+ */
 class WorkerInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the worker invocation statement
+     * @param {WorkerInvocationStatement} workerInvocationStatement - worker invocation statement ASTNode
+     * @return {boolean} true|false - whether the worker invocation can visit or not
+     */
     canVisitWorkerInvocationStatement(workerInvocationStatement) {
         return workerInvocationStatement instanceof WorkerInvocationStatement;
     }
 
+    /**
+     * Begin visit for the worker invocation statement
+     * @param {WorkerInvocationStatement} workerInvocationStatement - worker invocation statement ASTNode
+     */
     beginVisitWorkerInvocationStatement(workerInvocationStatement) {
         if (workerInvocationStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(workerInvocationStatement.getStatementString());
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        workerInvocationStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = workerInvocationStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * Begin visit for the worker invocation statement
+     * @param {WorkerInvocationStatement} workerInvocationStatement - worker invocation statement ASTNode
+     */
     endVisitWorkerInvocationStatement(workerInvocationStatement) {
-        this.appendSource(';' + workerInvocationStatement.getWSRegion(4));
-        this.appendSource((workerInvocationStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + workerInvocationStatement.getWSRegion(4)
+            + ((workerInvocationStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

@@ -15,29 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
+/**
+ * Source generation visitor for function invocation statement
+ */
 class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for function invocation statement
+     * @return {boolean} true|false
+     */
     canVisitFuncInvocationStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for function invocation statement
+     * @param {FunctionInvocationStatement} functionInvocation - function invocation statement ASTNode
+     */
     beginVisitFuncInvocationStatement(functionInvocation) {
         if (functionInvocation.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        functionInvocation.setLineNumber(lineNumber, { doSilently: true });
     }
 
+    /**
+     * Visit Function Invocation Expression
+     * @param {FunctionInvocationExpression} functionInvocation - function invocation expression ASTNode
+     */
     visitFuncInvocationExpression(functionInvocation) {
-        this.appendSource(functionInvocation.getExpressionString());
+        const constructedSourceSegment = functionInvocation.getExpressionString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * End visit for function invocation statement
+     * @param {FunctionInvocationStatement} functionInvocation - function invocation statement ASTNode
+     */
     endVisitFuncInvocationStatement(functionInvocation) {
-        this.appendSource(';' + functionInvocation.getWSRegion(4));
-        this.appendSource((functionInvocation.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + functionInvocation.getWSRegion(4)
+            + ((functionInvocation.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

@@ -15,41 +15,72 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * Source Generation for the Transaction Aborted Statement
+ */
 class TransactionAbortedStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Transaction Aborted Statement
+     * @return {boolean} true|false - whether the transaction aborted statement can visit or not
+     */
     canVisitTransactionAbortedStatement() {
         return true;
     }
 
+    /**
+     * Begin visit fot the Transaction Aborted Statement
+     * @param {TransactionAbortedStatement} statement - Transaction Aborted statement ASTNode
+     */
     beginVisitTransactionAbortedStatement(statement) {
         this.parentNode = statement;
         if (statement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        statement.setLineNumber(lineNumber, { doSilently: true });
     }
 
+    /**
+     * Visit Transaction Statement
+     * @param {TransactionStatement} statement - Transaction Statement ASTNode
+     */
     visitTransactionStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
         const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
+    /**
+     * Visit Aborted Statement
+     * @param {AbortedStatement} statement - Aborted Statement ASTNode
+     */
     visitAbortedStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
         const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
+    /**
+     * Visit Committed Statement
+     * @param {CommittedStatement} statement - Committed Statement ASTNode
+     */
     visitCommittedStatement(statement) {
         const statementVisitorFactory = new StatementVisitorFactory();
         const statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     }
 
+    /**
+     * End Visit Transaction Aborted Statement
+     * @param {TransactionAbortedStatement} statement - Transaction Aborted statement ASTNode
+     */
     endVisitTransactionAbortedStatement(statement) {
         this.appendSource((statement.whiteSpace.useDefault)
             ? this.currentPrecedingIndentation : '');
