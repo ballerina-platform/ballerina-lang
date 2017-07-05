@@ -27,17 +27,39 @@ import PropTypes from 'prop-types';
  */
 class ServicePreviewView extends React.PureComponent {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            imagesLoadStatus: {},
+        };
+    }
+
     render() {
         let previewThumbnails = (null);
         if (this.props.sampleConfigs) {
-            previewThumbnails = this.props.sampleConfigs.map(config => (
+            previewThumbnails = this.props.sampleConfigs.map((config, index) => (
                 <div
                     className="col-sm-12 col-md-6 col-lg-3 thumbnail-wrapper"
                     onClick={config.clickEventCallback}
                     key={config.sampleName}
                 >
-                    <div className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}>
-                        <img id="previewImg" src={`images/${config.image}.png`} alt={config.sampleName} />
+                    <div
+                        className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}
+                        style={{ 'text-align': 'center' }}
+                    >
+                        <img
+                            id="previewImg"
+                            src={`images/${config.image}.png`}
+                            alt={config.sampleName}
+                            onLoad={() => {
+                                const statusObj = this.state.imagesLoadStatus;
+                                statusObj[index] = true;
+                                this.forceUpdate();
+                            }}
+                        />
+                        {!this.state.imagesLoadStatus[index] &&
+                            <i className="fw fw-loader5 fw-spin fw-2x" />
+                        }
                         <div className="caption">
                             <h4>{config.sampleName}</h4>
                         </div>

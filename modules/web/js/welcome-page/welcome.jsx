@@ -24,43 +24,62 @@ import React from 'react';
  * @class WelcomeView
  * @extends {React.PureComponent}
  */
-const WelcomeView = () => (<div className="initial-background-container">
-    <div className="container-fluid welcome-wrapper">
-        <div className="media media-welcome-container">
-            <div className="media-left">
-                <div className="logo">
-                    <a href={undefined}>
-                        <img className="img-responsive" src="images/ballerina_logo.png" alt="logo" />
-                    </a>
-                </div>
+class WelcomeView extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            logoLoaded: false,
+        };
+    }
 
-                <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
-                <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
-                <button id="btn-welcome-open-dir" className="btn btn-secondary"> Open Directory</button>
+    render() {
+        return (<div className="initial-background-container">
+            <div className="container-fluid welcome-wrapper">
+                <div className="media media-welcome-container">
+                    <div className="media-left">
+                        <div className="logo" style={{ 'text-align': 'center' }}>
+                            <a href={undefined}>
+                                <img
+                                    className="img-responsive"
+                                    src="images/ballerina_logo.png"
+                                    alt="logo"
+                                    onLoad={() => this.setState({ logoLoaded: true })}
+                                />
+                                {!this.state.logoLoaded &&
+                                    <i className="fw fw-loader5 fw-spin fw-2x" />
+                                }
+                            </a>
+                        </div>
 
-                <ul className="nav nav-pills">
-                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
-                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
-                    {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
-                    <li >
-                        <a href="http://ballerinalang.org/docs/user-guide/0.8/" target="_blank" rel="noopener noreferrer">
-                            <i className="fw fw-document" /> User Guide </a></li>
-                </ul>
-            </div>
-            <div className="media-body">
-                <div className="welcome-details-wrapper ">
-                    <div className="header-title">
-                          Try out our samples / templates
-                      </div>
-                    <div className="details-container">
-                        <div id="inner-samples" className="row" />
+                        <button id="btn-welcome-new" className="btn btn-primary">Create New </button>
+                        <button id="btn-welcome-open" className="btn btn-secondary"> Open File</button>
+                        <button id="btn-welcome-open-dir" className="btn btn-secondary"> Open Directory</button>
+
+                        <ul className="nav nav-pills">
+                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Settings</a></li>*/}
+                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Select a Theme</a></li>*/}
+                            {/* <li ><a href="#"><i className="fw fw-settings"></i> Shortcuts</a></li>*/}
+                            <li >
+                                <a href="http://ballerinalang.org/docs/user-guide/0.8/" target="_blank" rel="noopener noreferrer">
+                                    <i className="fw fw-document" /> User Guide </a></li>
+                        </ul>
+                    </div>
+                    <div className="media-body">
+                        <div className="welcome-details-wrapper ">
+                            <div className="header-title">
+                                Try out our samples / templates
+                            </div>
+                            <div className="details-container">
+                                <div id="inner-samples" className="row" />
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-
             </div>
-        </div>
-    </div>
-</div>);
+        </div>);
+    }
+}
 
 
 export default WelcomeView;
