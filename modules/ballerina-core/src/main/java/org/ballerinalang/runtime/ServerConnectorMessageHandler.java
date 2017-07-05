@@ -185,9 +185,7 @@ public class ServerConnectorMessageHandler {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        if (btype == BTypes.typeString) {
-                            stringLocalVars[stringParamCount++] = "";
-                        }
+                        stringLocalVars[stringParamCount++] = "";
                     }
                     continue;
                 }
