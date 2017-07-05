@@ -23,11 +23,8 @@ import PositionCalcVisitor from '../visitors/position-calculator-visitor';
 import DimensionCalcVisitor from '../visitors/dimension-calculator-visitor';
 import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor';
 import { getComponentForNodeArray } from './utils';
-import DragDropManager from '../tool-palette/drag-drop-manager';
-import MessageManager from './../visitors/message-manager';
-import Renderer from './renderer';
+import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import ActiveArbiter from './active-arbiter';
-import StructOperationsRenderer from './struct-operations-renderer';
 
 /**
  * React component for diagram.
@@ -44,21 +41,8 @@ class Diagram extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.editor = props.editor;
-        this.container = props.container;
-
-        this.setModel(this.editor.getModel());
-
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
-
-        this.editor.on('update-diagram', () => {
-            // only update model if it's new
-            if (this.getModel().id !== this.editor.getModel().id) {
-                this.setModel(this.editor.getModel());
-            }
-            this.forceUpdate();
-        });
     }
 
     /**
@@ -67,44 +51,8 @@ class Diagram extends React.Component {
      */
     getChildContext() {
         return {
-            editor: this.props.editor,
-            dragDropManager: this.props.dragDropManager,
-            messageManager: this.props.messageManager,
-            container: this.props.container,
-            renderer: this.props.renderer,
-            overlay: this.props.overlay,
-            renderingContext: this.props.renderingContext,
-            structOperationsRenderer: this.props.structOperationsRenderer,
             activeArbiter: new ActiveArbiter(),
         };
-    }
-
-    /**
-     * Getter for getting the model.
-     *
-     * @returns {ASTNode} The model.
-     * @memberof Diagram
-     */
-    getModel() {
-        return this.model;
-    }
-
-    /**
-     * Setter for model.
-     *
-     * @param {ASTNode} model The model.
-     * @memberof Diagram
-     */
-    setModel(model) {
-        this.model = model;
-
-        this.model.on('tree-modified', () => {
-            this.forceUpdate();
-        });
-
-        // following code is a debounce to throttle redundant tree-modified events
-        // we need to fix our tree modified and remove the debounce.
-        // this.model.on('tree-modified', _.debounce(_.bind(() => { this.forceUpdate(); }, this), 150));
     }
 
     /**
@@ -115,21 +63,21 @@ class Diagram extends React.Component {
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
-        this.model.accept(this.dimentionCalc);
+        this.props.model.accept(this.dimentionCalc);
         // 1.5 We need to adjest the width of the panel to accomodate width of the screen.
         // - This is done by passing the container width to position calculater to readjest.
-        const viewState = this.model.getViewState();
+        const viewState = this.props.model.getViewState();
         viewState.container = {
             width: this.container.width(),
             height: this.container.height(),
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
-        this.model.accept(this.positionCalc);
+        this.props.model.accept(this.positionCalc);
         // 3. Now we need to create component for each child of root node.
         let [others] = [undefined, [], [], []];
         const otherNodes = [];
-        this.model.children.forEach((child) => {
+        this.props.model.children.forEach((child) => {
             switch (child.constructor.name) {
             case 'ImportDeclaration':
                 break;
@@ -144,7 +92,7 @@ class Diagram extends React.Component {
         others = getComponentForNodeArray(otherNodes);
         // 3.1 lets filter out annotations so we can overlay html on top of svg.
         const annotationRenderer = new AnnotationRenderingVisitor();
-        this.model.accept(annotationRenderer);
+        this.props.model.accept(annotationRenderer);
         let annotations = [];
         if (annotationRenderer.getAnnotations()) {
             annotations = getComponentForNodeArray(annotationRenderer.getAnnotations());
@@ -165,26 +113,15 @@ class Diagram extends React.Component {
 }
 
 Diagram.propTypes = {
+    model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+};
+
+Diagram.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
-    container: PropTypes.instanceOf(Object).isRequired,
-    overlay: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
-    structOperationsRenderer: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.childContextTypes = {
-    editor: PropTypes.instanceOf(Object).isRequired,
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
-    messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
-    overlay: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
-    structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
 };
 
 export default Diagram;

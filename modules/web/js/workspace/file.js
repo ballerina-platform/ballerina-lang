@@ -66,7 +66,7 @@ let File = Backbone.Model.extend(
                         text: this.getContent()
                     }
                 };
-                this.getLangserverCallbacks().documentDidSaveNotification(didSaveOptions);
+                //this.getLangserverCallbacks().documentDidSaveNotification(didSaveOptions);
             }
             return this;
         },

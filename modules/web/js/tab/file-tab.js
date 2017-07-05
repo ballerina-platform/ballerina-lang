@@ -20,6 +20,9 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import EventChannel from 'event_channel';
+// FIXME: importing ast visitor here as it magically resolve subsequent module loading issue
+// should be due to an unresolved cyclic dependency
+import ASTVisitor from 'ballerina/visitors/ast-visitor';
 import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor.jsx';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
@@ -31,7 +34,6 @@ import DebugManager from '../debugger/debug-manager';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
 import SourceModifyOperation from '../ballerina/undo-manager/source-modify-operation';
-import DiagramManipulationOperation from '../ballerina/undo-manager/diagram-manipulation-operation';
 
 
 /**
@@ -52,36 +54,36 @@ class FileTab extends Tab {
     constructor(options) {
         super(options);
         if (!_.has(options, 'file')) {
-            this._file = new File({
+            this.file = new File({
                 isTemp: true, isDirty: false,
             }, {
                 storage: this.getParent().getBrowserStorage(),
             });
         } else {
-            this._file = _.get(options, 'file');
+            this.file = _.get(options, 'file');
         }
-        if (_.has(options, 'astRoot')) {
-            this._astRoot = _.get(options, 'astRoot');
-        }
-        if (_.has(options, 'parseResponse')) {
-            this._parseResponse = _.get(options, 'parseResponse');
-        }
-        if (_.has(options, 'programPackages')) {
-            this._programPackages = _.get(options, 'programPackages');
-        } else {
-            this._programPackages = [];
-        }
+        // if (_.has(options, 'astRoot')) {
+        //     this._astRoot = _.get(options, 'astRoot');
+        // }
+        // if (_.has(options, 'parseResponse')) {
+        //     this._parseResponse = _.get(options, 'parseResponse');
+        // }
+        // if (_.has(options, 'programPackages')) {
+        //     this._programPackages = _.get(options, 'programPackages');
+        // } else {
+        //     this._programPackages = [];
+        // }
         // TODO convert Backend to a singleton
         this.app = options.application;
-        this.parseBackend = new Backend({ url: this.app.config.services.parser.endpoint });
-        this.validateBackend = new Backend({ url: this.app.config.services.validator.endpoint });
-        this.programPackagesBackend = new Backend({ url: this.app.config.services.programPackages.endpoint });
-        this.deserializer = BallerinaASTDeserializer;
-        this._file.setLangserverCallbacks({
-            documentDidSaveNotification: (langServerOptions) => {
-                this.app.langseverClientController.documentDidSaveNotification(langServerOptions);
-            },
-        });
+        // this.parseBackend = new Backend({ url: this.app.config.services.parser.endpoint });
+        // this.validateBackend = new Backend({ url: this.app.config.services.validator.endpoint });
+        // this.programPackagesBackend = new Backend({ url: this.app.config.services.programPackages.endpoint });
+        // this.deserializer = BallerinaASTDeserializer;
+        // this._file.setLangserverCallbacks({
+        //     documentDidSaveNotification: (langServerOptions) => {
+        //         this.app.langseverClientController.documentDidSaveNotification(langServerOptions);
+        //     },
+        // });
         this._undoManager = new UndoManager();
     }
 
@@ -92,7 +94,7 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     getTitle() {
-        return _.isNil(this._file) ? 'untitled' : this._file.getName();
+        return _.isNil(this.file) ? 'untitled' : this.file.getName();
     }
 
     /**
@@ -102,7 +104,7 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     getFile() {
-        return this._file;
+        return this.file;
     }
 
     /**
@@ -131,71 +133,80 @@ class FileTab extends Tab {
      */
     render() {
         Tab.prototype.render.call(this);
-        // if file already has content
-        if (!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())) {
-            if (!_.isEmpty(this._file.getContent().trim())) {
-                const validateResponse = this.validateBackend.parse({
-                    name: this._file.getName(),
-                    path: this._file.getPath(),
-                    package: this._astRoot,
-                    content: this._file.getContent(),
-                });
-                if (validateResponse.errors !== undefined && !_.isEmpty(validateResponse.errors)) {
-                    this.renderBallerinaEditor(this._parseResponse, true);
-                    return;
-                }
-            }
-            const parseResponse = this.parseBackend.parse({
-                name: this._file.getName(),
-                path: this._file.getPath(),
-                package: this._astRoot,
-                content: this._file.getContent(),
-            });
-            // if no errors display the design.
-            this.renderBallerinaEditor(parseResponse);
-
-            const model = this._fileEditor.getModel();
-            let packageName = '.';
-            if (!_.isNil(model.getChildrenOfType(model.getFactory().isPackageDefinition)[0])) {
-                packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
-            }
-            const content = {
-                fileName: this._file.getName(),
-                filePath: this._file.getPath(),
-                packageName,
-                content: this._file.getContent(),
-            };
-            this.programPackagesBackend.call({
-                method: 'POST',
-                content,
-                async: true,
-                callback: this.onResponseRecieved,
-                callbackObj: this,
-            });
-        } else if (!_.isNil(this._parseResponse)) {
-            this.renderBallerinaEditor(this._parseResponse, false);
-            const updatedContent = this.getBallerinaFileEditor().generateSource();
-            this._file.setContent(updatedContent);
-            this._file.setDirty(true);
-            this._file.save();
-        } else {
-            this.renderBallerinaEditor(undefined, false, this.createEmptyBallerinaRoot());
-            const updatedContent = this.getBallerinaFileEditor().generateSource();
-            this._file.setContent(updatedContent);
-            this._file.save();
-        }
-        // Send document open notification to the language server
-        const docUri = this._file.isPersisted() ? this._file.getPath() : (`/temp/${this._file.id}`);
-        const documentOptions = {
-            textDocument: {
-                documentUri: docUri,
-                languageId: 'ballerina',
-                version: 1,
-                text: this._file.getContent(),
-            },
+        const fileEditorEventChannel = new EventChannel();
+        const editorProps = {
+            file: this.file,
+            application: this.app,
         };
-        this.app.langseverClientController.documentDidOpenNotification(documentOptions);
-        $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
+
+        // create Rect component for diagram
+        const editorReactRoot = React.createElement(BallerinaFileEditor, editorProps, null);
+        ReactDOM.render(editorReactRoot, this.getContentContainer());
+        // if file already has content
+        // if (!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())) {
+        //     if (!_.isEmpty(this._file.getContent().trim())) {
+        //         const validateResponse = this.validateBackend.parse({
+        //             name: this._file.getName(),
+        //             path: this._file.getPath(),
+        //             package: this._astRoot,
+        //             content: this._file.getContent(),
+        //         });
+        //         if (validateResponse.errors !== undefined && !_.isEmpty(validateResponse.errors)) {
+        //             this.renderBallerinaEditor(this._parseResponse, true);
+        //             return;
+        //         }
+        //     }
+        //     const parseResponse = this.parseBackend.parse({
+        //         name: this._file.getName(),
+        //         path: this._file.getPath(),
+        //         package: this._astRoot,
+        //         content: this._file.getContent(),
+        //     });
+        //     // if no errors display the design.
+        //     this.renderBallerinaEditor(parseResponse);
+
+        //     const model = this._fileEditor.getModel();
+        //     let packageName = '.';
+        //     if (!_.isNil(model.getChildrenOfType(model.getFactory().isPackageDefinition)[0])) {
+        //         packageName = model.getChildrenOfType(model.getFactory().isPackageDefinition)[0].getPackageName();
+        //     }
+        //     const content = {
+        //         fileName: this._file.getName(),
+        //         filePath: this._file.getPath(),
+        //         packageName,
+        //         content: this._file.getContent(),
+        //     };
+        //     this.programPackagesBackend.call({
+        //         method: 'POST',
+        //         content,
+        //         async: true,
+        //         callback: this.onResponseRecieved,
+        //         callbackObj: this,
+        //     });
+        // } else if (!_.isNil(this._parseResponse)) {
+        //     this.renderBallerinaEditor(this._parseResponse, false);
+        //     const updatedContent = this.getBallerinaFileEditor().generateSource();
+        //     this._file.setContent(updatedContent);
+        //     this._file.setDirty(true);
+        //     this._file.save();
+        // } else {
+        //     this.renderBallerinaEditor(undefined, false, this.createEmptyBallerinaRoot());
+        //     const updatedContent = this.getBallerinaFileEditor().generateSource();
+        //     this._file.setContent(updatedContent);
+        //     this._file.save();
+        // }
+        // // Send document open notification to the language server
+        // const docUri = this._file.isPersisted() ? this._file.getPath() : (`/temp/${this._file.id}`);
+        // const documentOptions = {
+        //     textDocument: {
+        //         documentUri: docUri,
+        //         languageId: 'ballerina',
+        //         version: 1,
+        //         text: this._file.getContent(),
+        //     },
+        // };
+        // this.app.langseverClientController.documentDidOpenNotification(documentOptions);
+        // $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
     }
 
     /**
@@ -221,13 +232,7 @@ class FileTab extends Tab {
 
         const fileEditorEventChannel = new EventChannel();
         const editorProps = {
-            model: astRoot,
-            parseFailed,
             file: this._file,
-            container: this.$el.get(0),
-            viewOptions: ballerinaEditorOptions,
-            backendEndpointsOptions,
-            debugger: DebugManager,
             application: this.app,
         };
 
@@ -321,7 +326,7 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     updateHeader() {
-        if (this._file.isDirty()) {
+        if (this.file.isDirty()) {
             this.getHeader().setText(`* ${this.getTitle()}`);
         } else {
             this.getHeader().setText(this.getTitle());
@@ -372,7 +377,7 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     removeAllBreakpoints() {
-        DebugManager.removeAllBreakpoints(this._file.getName());
+        DebugManager.removeAllBreakpoints(this.file.getName());
     }
 
     /**
@@ -382,7 +387,7 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     getBreakPoints() {
-        return DebugManager.getDebugPoints(this._file.getName());
+        return DebugManager.getDebugPoints(this.file.getName());
     }
 
     /**

@@ -5,15 +5,15 @@ window.scope = window.location.pathname;
 
 const log = require('log').default;
 const _ = require('lodash');
-const { fetchAPIEndpointConfigs } = require('./js/api-client/api-client');
+const { fetchConfigs } = require('./js/api-client/api-client');
 const Application = require('./js/main').default;
 const config = require('./config').default;
 
-// Before start rendering, fetch api endpoint information from config service
-fetchAPIEndpointConfigs()
-    .then((response) => {
+// Before start rendering, fetch api endpoint information & other configs from config service
+fetchConfigs()
+    .then((configs) => {
         // merge existing config and received endpoint configs
-        const newConfig = _.merge(response.data, config);
+        const newConfig = _.merge(configs, config);
         try {
             const app = new Application(newConfig);
             app.render();

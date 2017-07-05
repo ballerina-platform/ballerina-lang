@@ -15,15 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
+import File from './../../workspace/file';
+import { parseFile } from '../../api-client/api-client';
+import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
+import BallerinaASTRoot from './../ast/ballerina-ast-root';
 
-const DESIGN_VIEW = 'DESIGN_VIEW';
-const SOURCE_VIEW = 'SOURCE_VIEW';
-const SWAGGER_VIEW = 'SWAGGER_VIEW';
+export const DESIGN_VIEW = 'DESIGN_VIEW';
+export const SOURCE_VIEW = 'SOURCE_VIEW';
+export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 
 /**
  * React component for BallerinaFileEditor.
@@ -41,32 +46,54 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            parseFailed: false,
+            model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
+        };
+        this.onViewChange = this.onViewChange.bind(this);
+        this.parseFile()
+                .then((resp) => {
+                    this.setState({
+                        model: BallerinaASTDeserializer.getASTModel(resp),
+                    });
+                    this.forceUpdate();
+                })
+                .catch((error) => {
+                    log.error(error);
+                });
+    }
+
+    componentDidMount() {
+    }
+
+    /**
+     * Parse current content of the file
+     * and build AST
+     */
+    parseFile() {
+        return new Promise((resolve, reject) => {
+            parseFile(this.props.file)
+            .then(response => resolve(response))
+            .catch(error => reject(error));
+        });
+    }
+
+    /**
+     * @override
+     * @memberof Diagram
+     */
+    getChildContext() {
+        return {
+            editor: this,
         };
     }
 
     /**
-     * Getter for getting the model.
-     *
-     * @returns {ASTNode} The model.
-     * @memberof BallerinaFileEditor
+     * Invoked when view is changed
+     * @param {STRING} newView ID of the new View
      */
-    getModel() {
-        return this.model;
-    }
-
-    /**
-     * Setter for model.
-     *
-     * @param {ASTNode} model The model.
-     * @memberof BallerinaFileEditor
-     */
-    setModel(model) {
-        this.model = model;
-
-        this.model.on('tree-modified', () => {
-            this.forceUpdate();
-        });
+    onViewChange(newView) {
+        this.setState({ activeView: newView });
     }
 
     /**
@@ -76,18 +103,26 @@ class BallerinaFileEditor extends React.Component {
     render() {
         return (
             <div id="tab-template">
-                {this.state.activeView === DESIGN_VIEW
-                    && <DesignView />
+                {!this.state.parseFailed && this.state.activeView === DESIGN_VIEW
+                    && <DesignView model={this.state.model} onViewChange={this.onViewChange} />
                 }
-                {this.state.activeView === SOURCE_VIEW
-                    && <SourceView />
+                {(this.state.parseFailed || this.state.activeView === SOURCE_VIEW)
+                    && <SourceView content={this.props.file.getContent()} />
                 }
-                {this.state.activeView === SWAGGER_VIEW
+                {!this.state.parseFailed && this.state.activeView === SWAGGER_VIEW
                     && <SwaggerView />
                 }
             </div>
         );
     }
 }
+
+BallerinaFileEditor.propTypes = {
+    file: PropTypes.instanceOf(File).isRequired,
+};
+
+BallerinaFileEditor.childContextTypes = {
+    editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
+};
 
 export default BallerinaFileEditor;
