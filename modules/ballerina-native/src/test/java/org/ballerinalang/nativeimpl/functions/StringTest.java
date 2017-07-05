@@ -310,4 +310,12 @@ public class StringTest {
                             "Produced Blob value is wrong");
     }
 
+    @Test
+    public void testStringExpression() {
+        BValue[] args = {new BInteger(3), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "stringExpr", args);
+
+        Assert.assertEquals(returns[0].stringValue(), "The sum of 3 and 5 = 8");
+    }
+
 }

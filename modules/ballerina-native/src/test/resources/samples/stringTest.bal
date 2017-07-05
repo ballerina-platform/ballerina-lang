@@ -91,3 +91,7 @@ function split(string j, string k) (string[]) {
 function toBlob(string l, string m) (blob) {
     return strings:toBlob(l, m);
 }
+
+function stringExpr(int x, int y) (string) {
+    return "The sum of ${x} and ${y} = ${x + y}";
+}
