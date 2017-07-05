@@ -101,8 +101,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new PackageNameReference(this);
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
-                case RULE_statement:
-                    return new StatementReference(this);
                 case RULE_nameReference:
                     return new NameReference(this);
                 case RULE_field:
@@ -125,13 +123,28 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new VariableReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
+                case RULE_statement:
+                    PsiElement prev = parent.getPrevSibling();
+                    if (prev == null) {
+                        // Todo - add reference
+                    } else {
+                        if (prev.getText().isEmpty()) {
+                            prev = prev.getPrevSibling();
+                        }
+                        if (prev != null) {
+                            if (prev.getText().endsWith("\\.")) {
+                                return new FieldReference(this);
+                            }
+                        }
+                    }
+                    break;
                 default:
                     return null;
             }
         }
         if (parent instanceof PsiErrorElement) {
             if (parent.getParent() instanceof StatementNode) {
-                return new StatementReference(this);
+                return new NameReference(this);
             }
         }
         return null;

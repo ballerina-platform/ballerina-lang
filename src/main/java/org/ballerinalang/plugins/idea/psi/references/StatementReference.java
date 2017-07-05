@@ -162,7 +162,7 @@ public class StatementReference extends BallerinaElementReference {
 //                            }
 //
 //                            List<PsiElement> connectors =
-//                                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) resolvedElement);
+//                                    BallerinaPsiImplUtil.getAllConnectorsFromPackage((PsiDirectory) resolvedElement);
 //                            for (PsiElement connector : connectors) {
 //                                if (myElement.getText().startsWith(connector.getText())) {
 //                                    results.add(new PsiElementResolveResult(connector));

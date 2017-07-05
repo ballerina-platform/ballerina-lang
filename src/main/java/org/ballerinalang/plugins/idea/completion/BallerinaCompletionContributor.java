@@ -1505,7 +1505,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 //                    }
                 //                    if (withConnectors) {
                 //                        List<PsiElement> connectors =
-                //                                BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
+                //                                BallerinaPsiImplUtil.getAllConnectorsFromPackage(psiDirectories[0]);
                 //                        addConnectorsAsLookups(resultSet, connectors);
                 //                    }
                 //                    if (withStructs) {

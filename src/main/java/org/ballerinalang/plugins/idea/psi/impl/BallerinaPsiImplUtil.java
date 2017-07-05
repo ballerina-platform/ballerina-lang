@@ -433,17 +433,17 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllConnectorsInCurrentPackage(PsiElement element) {
         if (element instanceof PsiDirectory) {
-            return getAllConnectorsInPackage((PsiDirectory) element);
+            return getAllConnectorsFromPackage((PsiDirectory) element);
         }
         PsiElement parent = element.getParent();
         if (parent != null) {
-            return getAllConnectorsInPackage((PsiDirectory) parent);
+            return getAllConnectorsFromPackage((PsiDirectory) parent);
         }
         return new LinkedList<>();
     }
 
     @NotNull
-    public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
+    public static List<PsiElement> getAllConnectorsFromPackage(PsiDirectory packageElement) {
         return getAllMatchingElementsFromPackage(packageElement, CONNECTOR_DEFINITION);
     }
 

@@ -760,6 +760,14 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    public static LookupElement createConnectorLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
+                .withTailText(BallerinaDocumentationProvider.getParameterString(element.getParent(), true))
+                .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+        return PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY);
+    }
+
     /**
      * Helper method to add actions as lookup elements.
      *
@@ -799,6 +807,13 @@ public class BallerinaCompletionUtils {
                     .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
         }
+    }
+
+    public static LookupElement createStructLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT)
+                .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+        return PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY);
     }
 
     /**
