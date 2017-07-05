@@ -106,7 +106,7 @@ function remove(json msg, string jsonPath) (json){
 
 function rename(json msg, string jsonPath, string oldKey, string newKey) (string){
     jsons:rename(msg, jsonPath, oldKey, newKey);
-    jsonPath = "$.name.firstName";
+    jsonPath = "$$.name.firstName";
     return jsons:getString(msg, jsonPath);
 }
 
