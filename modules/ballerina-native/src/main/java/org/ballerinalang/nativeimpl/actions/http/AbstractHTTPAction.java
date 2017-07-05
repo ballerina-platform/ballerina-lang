@@ -163,6 +163,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                 }
             }
             handleTransportException(balConnectorCallback.getValueRef());
+            prepareNoMessageBodyResponse(balConnectorCallback.getValueRef());
             return balConnectorCallback.getValueRef();
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
