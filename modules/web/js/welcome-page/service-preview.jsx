@@ -45,7 +45,7 @@ class ServicePreviewView extends React.PureComponent {
                 >
                     <div
                         className={config.isFile ? 'thumbnail' : 'thumbnail multiple'}
-                        style={{ 'text-align': 'center' }}
+                        style={{ textAlign: 'center' }}
                     >
                         <img
                             id="previewImg"

@@ -37,7 +37,7 @@ class WelcomeView extends React.Component {
             <div className="container-fluid welcome-wrapper">
                 <div className="media media-welcome-container">
                     <div className="media-left">
-                        <div className="logo" style={{ 'text-align': 'center' }}>
+                        <div className="logo" style={{ textAlign: 'center' }}>
                             <a href={undefined}>
                                 <img
                                     className="img-responsive"
