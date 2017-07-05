@@ -33,6 +33,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -68,7 +69,7 @@ public class BallerinaAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if (element instanceof NameReferenceNode) {
+        if (element instanceof AnnotationReferenceNode) {
             annotateNameReferenceNodes(element, holder);
         } else if (element instanceof LeafPsiElement) {
             annotateLeafPsiElementNodes(element, holder);
@@ -88,10 +89,8 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotateNameReferenceNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if (element.getParent() instanceof AnnotationAttachmentNode) {
-            Annotation annotation = holder.createInfoAnnotation(element, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
-        }
+        Annotation annotation = holder.createInfoAnnotation(element, null);
+        annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
     }
 
     private void annotateLeafPsiElementNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
