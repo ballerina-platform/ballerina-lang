@@ -1,7 +1,6 @@
 # To run the program, create a file named `strings.bal`
 # and run the command below.
-
-$ $BALLERINA_HOME/bin/ballerina run main strings.bal
+$ ballerina run main strings.bal
 ToUpper: LION IN TOWN. CATCH THE LION
 ToLower: lion in town. catch the lion
 EqualsIgnoreCase: true
@@ -22,3 +21,5 @@ Split: Lion
 Split: in
 Split: Town.
 Blob: Lion in Town. Catch the Lion
+
+
