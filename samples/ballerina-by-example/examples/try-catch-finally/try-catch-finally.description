@@ -1,11 +1,4 @@
-//Another way to handle Ballerina errors is, use try-catch-finally block.
-
-//A Catch block executes, when an error is thrown from the enclosing try
-//block and the thrown error type and catch clause's error type are matched, or
-//if there is no match, then the catch is the first in the order, where thrown
-//error type and catch clause's error type are structurally equivalent.
-
-//Finally block always executes when the execution exits from the try block or
-//catch block when an error occurred. It is also useful, not only in an anomalous
-//situation, where the execution exit the try block using a return, break, abort.
-//Use finally block to do cleanup tasks i.e File Close, SQL Connection Close etc.
+//Throwing an error generally means an unexpected error has happend, and the code that
+// handles the thrown error is not expected to be able to do much to recover from it,
+// rather than perhaps catch and log it.
+// Throwing errors will be very rare and will happen under exceptional circumstances such as server going out of memory, running out of disk space.

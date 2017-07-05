@@ -1,47 +1,26 @@
-import ballerina.doc;
 import ballerina.lang.errors;
 import ballerina.lang.system;
+import ballerina.doc;
 
-@doc:Description {value:"The Developer can create their own error types. Defining both 'msg' and 'cause' struct fields make this struct structurally equivalent to ballerina.lang.errors:Error struct. Additional fields explain more about the error occurred."}
-struct CalculationError {
-    string msg;
-    errors:Error cause;
-    string operation;
-}
-
-@doc:Description {value:"By convention, any returned error should be the last return value."}
-function calculate (int x, int y, string operation) (int result, CalculationError error) {
-    if (operation != "add") {
-        //Constructing a CalculationError by explaining the error occurred.
-        error = {msg:"Not supported Operation", operation:operation};
-        return 0, error;
+@doc:Description {value:"As a best practice, error will be the last return value. It's type should be 'errors:Error', a built-in reference type."}
+function getAccountBalance (int accountID) (int, errors:Error) {
+    //Here we create an instance of the error struct and return.
+    //This logic is used only to explain the concept.
+    if (accountID < 100) {
+        errors:Error err = {msg:"Account with id:" +
+                                accountID + " is not found"};
+        return 0, err;
+    } else {
+        return 600, null;
     }
-    result = x + y;
-    //Assigning a null value to the error indicates that there was no error.
-    error = null;
-    return;
 }
 
 function main (string[] args) {
-    int result;
-    //The Developer can ignore the error return by the function (or any return value) using the underscore "_".
-    result, _ = calculate(5, 10, "add");
-    system:println("result 1 is " + result);
-
-    CalculationError error;
-    result, error = calculate(5, 10, "multiply");
-    //Checks for errors.
-    if (error != null) {
-        //Recover from the error.
-        system:println("Error1, " + error.msg + ", operation : " + error.operation);
-        result = 5 * 10;
+    // Best practice is to check whether an error has occurred.
+    int balance;
+    errors:Error err;
+    balance, err = getAccountBalance(23);
+    if (err != null) {
+        system:println("error: " + err.msg);
     }
-    system:println("result 2 is " + result);
-
-    result, error = calculate(5, 10, "subtract");
-    system:println("Error2, " + error.msg + ", operation : " + error.operation);
-    system:println("result 3 is " + result);
-    // It is not always a good idea to ignore errors, as it may lead to other errors.
-    int value = 100 / result;
-    system:println("final value " + value);
 }

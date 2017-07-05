@@ -1,7 +1,3 @@
 $ ballerina run main worker.bal
-[default worker]
-    Value of integer variable is [100]
-    Value of float variable is [2.34]
-[W1 worker]
-    Value of integer variable is [200]
-    Value of float variable is [5.44]
+[default] i: 100 k: 2.34
+[w1] iw: 200 kw: 5.44

@@ -23,6 +23,17 @@ connector XManagementConnector () {
 
 }
 
+@doc:Description {value:"Here's how you can throw an error. Next example shows you how to catch thrown errors."}
+function toUpperCase (string value) (string) {
+    if (value == "") {
+        errors:Error err =
+        {msg:"Value the arg 'value' is invalid"};
+        throw err;
+    } else {
+        return strings:toUpperCase(value);
+    }
+}
+
 
 function main (string[] args) {
     XManagementConnector conn = create XManagementConnector();
