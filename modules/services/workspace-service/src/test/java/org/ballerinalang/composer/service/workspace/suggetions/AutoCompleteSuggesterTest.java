@@ -61,6 +61,7 @@ public class AutoCompleteSuggesterTest {
         ArrayList completionItem = new ArrayList<>();
         CompletionItemAccumulator jsonModelBuilder = new CompletionItemAccumulator(completionItem, position);
         dm.getBallerinaFile().accept(jsonModelBuilder);
+        dm.setClosestScope(jsonModelBuilder.getClosestScope());
 
         SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
         suggestionsFilter.getCompletionItems(dm, completionItem);

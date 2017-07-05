@@ -398,9 +398,11 @@ public class LangServerManager {
                 SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
                 ArrayList symbols = new ArrayList<>();
 
-                CompletionItemAccumulator jsonModelBuilder = new CompletionItemAccumulator(symbols, position);
-                dm.getBallerinaFile().accept(jsonModelBuilder);
+                CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
+                ballerinaFile.accept(completionItemAccumulator);
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
+                dm.setClosestScope(completionItemAccumulator.getClosestScope());
+
                 completionItems = suggestionsFilter.getCompletionItems(dm, symbols);
             } catch (IOException e) {
                 this.sendErrorResponse(LangServerConstants.INTERNAL_ERROR_LINE,
