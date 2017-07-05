@@ -68,3 +68,6 @@ native function toString (json j) (string);
 @doc:Param { value:"newKey: The new key value to use" }
 native function rename (json j, string jsonPath, string oldKey, string newKey);
 
+@doc:Description { value:"Parse and get a JSON from a string."}
+@doc:Param { value:"jsonStr: String representation of JSON" }
+native function parse(string jsonStr) (json);
