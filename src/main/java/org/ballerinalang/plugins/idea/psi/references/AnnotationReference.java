@@ -17,17 +17,18 @@
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -43,46 +44,103 @@ public class AnnotationReference extends BallerinaElementReference {
         return false;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public Object[] getVariants() {
-
+    public PsiElement resolve() {
         IdentifierPSINode identifier = getElement();
         PsiElement parent = identifier.getParent();
         PsiFile containingFile = parent.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
 
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
-        List<LookupElement> results = new LinkedList<>();
         if (packageNameNode == null) {
-            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
-            for (PsiElement importedPackage : importedPackages) {
-                PsiReference reference = importedPackage.findReferenceAt(0);
-                if (reference != null) {
-                    PsiElement resolvedElement = reference.resolve();
-                    if (resolvedElement != null) {
-                        LookupElementBuilder lookupElement =
-                                BallerinaCompletionUtils.createPackageLookupElement(((PsiDirectory) resolvedElement));
-                        results.add(lookupElement);
-                    }
+            PsiDirectory currentPackage = originalFile.getParent();
+            if (currentPackage == null) {
+                return null;
+            }
+            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(currentPackage);
+            for (PsiElement annotation : annotations) {
+                String text = annotation.getText();
+                if (text != null && text.equals(identifier.getText())) {
+                    return annotation;
                 }
             }
         } else {
             PsiReference reference = packageNameNode.findReferenceAt(0);
-            if (reference != null) {
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement != null) {
-                    PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-                    List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
-                    for (PsiElement annotation : annotations) {
-                        LookupElement lookupElement =
-                                BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
-                        results.add(lookupElement);
-                    }
+            if (reference == null) {
+                return null;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return null;
+            }
+            PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+            List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
+            for (PsiElement annotation : annotations) {
+                String text = annotation.getText();
+                if (text != null && text.equals(identifier.getText())) {
+                    return annotation;
                 }
             }
         }
+        return null;
+    }
 
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
+        PsiFile containingFile = parent.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
+
+        List<LookupElement> results = new LinkedList<>();
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            results.addAll(getLocalAnnotations(originalFile));
+        } else {
+            results.addAll(getAnnotationsFromPackage(packageNameNode));
+        }
         return results.toArray(new LookupElement[results.size()]);
+    }
+
+    @NotNull
+    private List<LookupElement> getLocalAnnotations(@NotNull PsiFile originalFile) {
+        List<LookupElement> results = new LinkedList<>();
+        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
+        for (PsiElement importedPackage : importedPackages) {
+            PsiReference reference = importedPackage.findReferenceAt(0);
+            if (reference == null) {
+                continue;
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                continue;
+            }
+            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            results.add(lookupElement);
+        }
+        return results;
+    }
+
+    private List<LookupElement> getAnnotationsFromPackage(@NotNull PackageNameNode packageNameNode) {
+        List<LookupElement> results = new LinkedList<>();
+        PsiReference reference = packageNameNode.findReferenceAt(0);
+        if (reference == null) {
+            return results;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return results;
+        }
+        PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(resolvedPackage);
+        for (PsiElement annotation : annotations) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
+            results.add(lookupElement);
+        }
+        return results;
     }
 }
