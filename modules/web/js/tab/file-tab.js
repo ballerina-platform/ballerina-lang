@@ -17,7 +17,10 @@
  */
 import $ from 'jquery';
 import _ from 'lodash';
-import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import EventChannel from 'event_channel';
+import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor.jsx';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
 import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
@@ -29,6 +32,7 @@ import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
 import SourceModifyOperation from '../ballerina/undo-manager/source-modify-operation';
 import DiagramManipulationOperation from '../ballerina/undo-manager/diagram-manipulation-operation';
+
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -215,7 +219,8 @@ class FileTab extends Tab {
             astRoot = root;
         }
 
-        const fileEditor = new BallerinaFileEditor({
+        const fileEditorEventChannel = new EventChannel();
+        const editorProps = {
             model: astRoot,
             parseFailed,
             file: this._file,
@@ -224,32 +229,36 @@ class FileTab extends Tab {
             backendEndpointsOptions,
             debugger: DebugManager,
             application: this.app,
-        });
+        };
+
+        // create Rect component for diagram
+        const editorReactRoot = React.createElement(BallerinaFileEditor, editorProps, null);
+        ReactDOM.render(editorReactRoot, this.getContentContainer());
 
         // change tab header class to match look and feel of source view
-        fileEditor.on('source-view-activated swagger-view-activated', function () {
+        fileEditorEventChannel.on('source-view-activated swagger-view-activated', function () {
             this.getHeader().addClass('inverse');
             this.app.workspaceManager.updateMenuItems();
         }, this);
-        fileEditor.on('design-view-activated', function () {
+        fileEditorEventChannel.on('design-view-activated', function () {
             this.getHeader().removeClass('inverse');
             this.app.workspaceManager.updateMenuItems();
         }, this);
 
-        fileEditor.on('design-view-activated', () => {
+        fileEditorEventChannel.on('design-view-activated', () => {
             const breakpoints = fileEditor.getSourceView().getBreakpoints() || [];
             fileEditor.showDesignViewBreakpoints(breakpoints);
         }, this);
 
-        fileEditor.on('source-view-activated', () => {
+        fileEditorEventChannel.on('source-view-activated', () => {
             fileEditor.showSourceViewBreakPoints();
         });
 
-        fileEditor.on('add-breakpoint', function (row) {
+        fileEditorEventChannel.on('add-breakpoint', function (row) {
             DebugManager.addBreakPoint(row, this._file.getName());
         }, this);
 
-        fileEditor.on('remove-breakpoint', function (row) {
+        fileEditorEventChannel.on('remove-breakpoint', function (row) {
             DebugManager.removeBreakPoint(row, this._file.getName());
         }, this);
 
@@ -276,10 +285,7 @@ class FileTab extends Tab {
             }
         }, this);
 
-        this._fileEditor = fileEditor;
-        fileEditor.render(diagramRenderingContext);
-
-        fileEditor.on('content-modified', function (event) {
+        fileEditorEventChannel.on('content-modified', function (event) {
             const updatedContent = fileEditor.getContent();
             // if the modification happened from design view
             // updadte source view content
@@ -299,13 +305,13 @@ class FileTab extends Tab {
             this.updateHeader();
         }, this);
 
-        fileEditor.on('dispatch-command', function (id) {
+        fileEditorEventChannel.on('dispatch-command', function (id) {
             this.app.commandManager.dispatch(id);
         }, this);
 
         // bind app commands to source editor commands
         this.app.commandManager.getCommands().forEach((command) => {
-            fileEditor.getSourceView().bindCommand(command);
+            //fileEditor.getSourceView().bindCommand(command);
         });
     }
 
