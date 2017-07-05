@@ -175,9 +175,9 @@ public class ProducesConsumesAnnotationTest {
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
-    @Test(description = "Test without Pro-Con annotation with URL. /echo1 ")
+    @Test(description = "Test without Pro-Con annotation with URL. /echo67/echo1 ")
     public void testWithoutProducesConsumeAnnotation() {
-        String path = "/echo1";
+        String path = "/echo67/echo1";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(Constants.CONTENT_TYPE_HEADER, "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(Constants.ACCEPT_HEADER, "text/*;q=0.3, text/html;Level=1;q=0.7");

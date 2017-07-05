@@ -35,8 +35,8 @@ service<http> echo66 {
     }
 }
 
-@http:config {basePath:"/"}
-service<http> echo33 {
+@http:config {basePath:"/echo67"}
+service<http> echo67 {
     resource echo1 (message m, string foo) {
         message response = {};
         json responseJson = {"third":foo, "echo33": "echo1"};
