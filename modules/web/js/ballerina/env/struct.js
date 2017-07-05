@@ -20,21 +20,34 @@ import _ from 'lodash';
 /**
  * @class Struct
  * @augments
- * @param {Object} args - data to create the Struct
- * @param {string} args.name - name of struct
- * @param {string} args.id - id of struct
+ * @param {Object} args data to create the Struct
+ * @param {string} args.name name of struct
+ * @param {string} args.id id of struct
+ * @param {string} args.fullPackageName full package name of the struct
+ * @param {[StructField]} args.fields fields of the struct
  * @constructor
  */
 class Struct {
+
+    /**
+     * Constructor for struct
+     * @param {Object} args - data to create the Struct
+     * @param {int} args.id id of the struct
+     * @param {string} args.name name of the struct
+     * @param {string} args.fullPackageName full package name of the struct
+     * @param {[StructField]} args.fields fields of the struct
+     * @memberof Struct
+     */
     constructor(args) {
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this._fullPackageName = _.get(args, 'fullPackageName', '.');
+        this._fields = _.get(args, 'fields', []);
     }
 
    /**
     * sets the name
-    * @param {string} name
+    * @param {string} name struct name
     */
     setName(name) {
         this._name = name;
@@ -42,7 +55,7 @@ class Struct {
 
    /**
     * returns the name
-    * @returns {string}
+    * @returns {string} struct name
     */
     getName() {
         return this._name;
@@ -58,7 +71,7 @@ class Struct {
 
    /**
     * returns the full package name
-    * @returns {string}
+    * @returns {string} full package name
     */
     getFullPackageName() {
         return this._fullPackageName;
@@ -66,17 +79,34 @@ class Struct {
 
     /**
      * get package name
-     * @returns {string}
+     * @returns {string} package identifier
      * @memberof Struct
      */
     getPackageName() {
         return _.last(_.split(this.getFullPackageName(), '.'));
     }
 
+    /**
+     * set struct fields
+     * @param {[StructField]} structFields fields of the struct
+     * @memberof Struct
+     */
+    setFields(structFields) {
+        this._fields = structFields;
+    }
+
+    /**
+     * Get struct fields
+     * @returns {[StructField]} struct fields
+     * @memberof Struct
+     */
+    getFields() {
+        return this._fields;
+    }
 
    /**
     * sets the id
-    * @param {string} id
+    * @param {string} id id of the struct
     */
     setId(id) {
         this._id = id;
@@ -93,6 +123,8 @@ class Struct {
    /**
     * sets values from a json object
     * @param {Object} jsonNode
+    * @param {string} jsonNode.name name of the struct
+    * @param {int} jsonNode.id id of the struct
     */
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);

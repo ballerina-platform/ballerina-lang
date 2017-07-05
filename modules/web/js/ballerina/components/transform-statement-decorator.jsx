@@ -229,7 +229,7 @@ class TransformStatementDecorator extends React.Component {
         _.forEach(transformVars,(arg) => {
             let isStruct = false;
             _.forEach(this._package.getStructDefinitions(), (predefinedStruct) => {
-                if (arg.type == predefinedStruct.getStructName()) {
+                if (arg.type == predefinedStruct.getName()) {
                     let struct = self.createType(arg.name, arg.type, predefinedStruct);
                     self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
                     self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
@@ -734,10 +734,10 @@ class TransformStatementDecorator extends React.Component {
         struct.type = 'struct';
         struct.typeName = typeName;
 
-        _.forEach(predefinedStruct.getVariableDefinitionStatements(), (stmt) => {
+        _.forEach(predefinedStruct.getFields(), (field) => {
             let property = {};
-            property.name = stmt.children[0].getVariableName();
-            property.type = stmt.children[0].getVariableType();
+            property.name = field.getName();
+            property.type = field.getType();
 
             let innerStruct = _.find(self._package.getStructDefinitions(), { _structName: property.type });
             if (innerStruct != null) {
