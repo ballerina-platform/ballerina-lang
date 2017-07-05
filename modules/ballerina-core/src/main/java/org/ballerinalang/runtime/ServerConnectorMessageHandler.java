@@ -185,13 +185,9 @@ public class ServerConnectorMessageHandler {
                 // Set default values
                 if (value == null || "".equals(value)) {
                     if (btype == BTypes.typeString) {
-                        stringLocalVars[stringParamCount++] = "";
-                    } else if (btype == BTypes.typeBoolean) {
-                        intLocalVars[intParamCount++] = 0;
-                    } else if (btype == BTypes.typeFloat) {
-                        doubleLocalVars[doubleParamCount++] = 0.0D;
-                    } else if (btype == BTypes.typeInt) {
-                        longLocalVars[longParamCount++] = 0L;
+                        if (btype == BTypes.typeString) {
+                            stringLocalVars[stringParamCount++] = "";
+                        }
                     }
                     continue;
                 }
