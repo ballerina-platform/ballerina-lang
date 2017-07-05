@@ -18,6 +18,7 @@
 
 package org.ballerinalang.constant;
 
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -60,4 +61,38 @@ public class ConstantAssignmentTest {
         }
     }
 
+    @Test(description = "Test accessing constant evaluated by a function return value.")
+    public void testConstantAssignmentViaFunction() {
+        ProgramFile file = BTestUtils.getProgramFile("lang/constant/constant-expr.bal");
+        BValue[] returns = BLangFunctions.invokeNew(file, "accessConstantViaFunction");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "dummy");
+    }
+
+    @Test(description = "Test accessing constant evaluated by a native function return value.")
+    public void testConstantAssignmentViaNativeFunction() {
+        ProgramFile file = BTestUtils.getProgramFile("lang/constant/constant-expr.bal");
+        BValue[] returns = BLangFunctions.invokeNew(file, "accessConstantViaNativeFunction");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "ballerina is awesome");
+    }
+
+    @Test(description = "Test accessing constant evaluated by a integer addition expr.")
+    public void testConstantAssignmentViaIntegerAddition() {
+        ProgramFile file = BTestUtils.getProgramFile("lang/constant/constant-expr.bal");
+        BValue[] returns = BLangFunctions.invokeNew(file, "accessConstantEvalIntegerExpression");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BInteger)returns[0]).intValue(), 30);
+    }
+
+    @Test(description = "Test accessing constant evaluated by another already defined constant.")
+    public void testConstantAssignmentViaConstant() {
+        setEnv("env_var", "test");
+        ProgramFile file = BTestUtils.getProgramFile("lang/constant/constant-expr.bal");
+        BValue[] returns = BLangFunctions.invokeNew(file, "accessConstantEvalWithMultipleConst");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "testdummyballerina is awesome");
+    }
+
 }
+
