@@ -16,9 +16,18 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.ParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class ConnectorReference extends BallerinaElementReference {
 
@@ -34,6 +43,21 @@ public class ConnectorReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[0];
+        IdentifierPSINode identifier = getElement();
+        PsiFile containingFile = identifier.getContainingFile();
+        PsiFile originalFile = containingFile.getOriginalFile();
+        List<LookupElement> results = new LinkedList<>();
+
+        PsiDirectory containingPackage = originalFile.getParent();
+
+        if (containingPackage != null) {
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
+            for (PsiElement connector : connectors) {
+                LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
+                        ParenthesisInsertHandler.INSTANCE);
+                results.add(lookupElement);
+            }
+        }
+        return results.toArray(new LookupElement[results.size()]);
     }
 }

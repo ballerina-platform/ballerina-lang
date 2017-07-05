@@ -52,7 +52,7 @@ public class ParenthesisInsertHandler implements InsertHandler<LookupElement> {
         Project project = editor.getProject();
         if (project != null) {
             if (!isCompletionCharAtSpace(editor)) {
-                EditorModificationUtil.insertStringAtCaret(editor, " ()", false, 2);
+                EditorModificationUtil.insertStringAtCaret(editor, "()", false, 1);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);

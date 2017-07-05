@@ -34,6 +34,7 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
+import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
@@ -109,6 +110,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new FunctionReference(this);
                 case RULE_annotationReference:
                     return new AnnotationReference(this);
+                case RULE_connectorReference:
+                    return new ConnectorReference(this);
                 case RULE_variableReference:
                 case RULE_parameter:
                     // If "package:" is typed as an argument, it will be identified as a variableReference. So we
