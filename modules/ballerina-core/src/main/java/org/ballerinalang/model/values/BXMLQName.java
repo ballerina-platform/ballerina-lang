@@ -21,7 +21,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 /**
- *
+ * Represents a XML qualified name in ballerina.
+ * 
  * @since 0.89
  */
 public final class BXMLQName implements BRefType {

@@ -2027,14 +2027,13 @@ public class CodeGenerator implements NodeVisitor {
         indexExpr.accept(this);
         int qnameRegIndex = indexExpr.getTempOffset();
         
-        if (indexExpr instanceof XMLQNameExpr) {
-
-        } else { // this means its a string representation of qname
+        // If this is a string representation of qname
+        if (!(indexExpr instanceof XMLQNameExpr)) {
             int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
             emit(InstructionCodes.S2QNAME, qnameRegIndex, qnameLoadedRegIndex);
             qnameRegIndex = qnameLoadedRegIndex;
             
-            createConditions(xmlAttributesRefExpr, qnameRegIndex);
+            generateUriLookupInstructions(xmlAttributesRefExpr, qnameRegIndex);
         }
         
         if (variableStore) {
@@ -2046,57 +2045,6 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
     
-    private void createConditions(XMLAttributesRefExpr xmlAttributesRefExpr, int qnameRegIndex) {
-        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
-        if (namespaces.isEmpty()) {
-            return;
-        }
-        int uriLoadedRegIndex = ++regIndexes[STRING_OFFSET];
-        emit(InstructionCodes.QNAMEURILOAD, qnameRegIndex, uriLoadedRegIndex);
-        
-        List<Instruction> gotoInstructionList = new ArrayList<>();
-        Instruction ifInstruction;
-        Instruction gotoInstruction;
-        for (Entry<String, String> keyValues : namespaces.entrySet()) {
-            
-            // Below section creates the condition to compare the namespace uri's
-            
-            // store the comparing uri as string
-            BasicLiteral uriLiteral = new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(),
-                null, new BString(keyValues.getValue()));
-            uriLiteral.setType(BTypes.typeString);
-            uriLiteral.accept(this);
-
-            int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
-            int exprIndex = ++regIndexes[BOOL_OFFSET];
-            emit(opcode, uriLoadedRegIndex, uriLiteral.getTempOffset(), exprIndex);
-
-            ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE, exprIndex, -1);
-            emit(ifInstruction);
-
-            // Below section creates instructions to run, if the above condition succeeds (then body)
-            
-            // create the prifix literal
-            BasicLiteral prefixLiteral =
-                new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(), null, new BString(keyValues.getKey()));
-            prefixLiteral.setType(BTypes.typeString);
-            prefixLiteral.accept(this);
-
-            // update the qname's prefix
-            emit(InstructionCodes.QNAMEPREFIXSTORE, qnameRegIndex, prefixLiteral.getTempOffset());
-
-            gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
-            emit(gotoInstruction);
-            gotoInstructionList.add(gotoInstruction);
-            ifInstruction.setOperand(1, nextIP());
-        }
-        
-        int nextIP = nextIP();
-        for (Instruction instruction : gotoInstructionList) {
-            instruction.setOperand(0, nextIP);
-        }
-    }
-
     @Override
     public void visit(XMLQNameExpr xmlQNameRefExpr) {
         // If the QName is use outside of XML, treat it as string.
@@ -2792,6 +2740,64 @@ public class CodeGenerator implements NodeVisitor {
             parent = parent.getParent();
         }
         this.regIndexes = regIndexesOriginal;
+    }
+    
+    /**
+     * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
+     * get the prefix of it as the prefix to be used.
+     *  
+     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr}
+     * @param qnameRegIndex Registry index of the qname
+     */
+    private void generateUriLookupInstructions(XMLAttributesRefExpr xmlAttributesRefExpr, int qnameRegIndex) {
+        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
+        if (namespaces.isEmpty()) {
+            return;
+        }
+        int uriLoadedRegIndex = ++regIndexes[STRING_OFFSET];
+        emit(InstructionCodes.QNAMEURILOAD, qnameRegIndex, uriLoadedRegIndex);
+        
+        List<Instruction> gotoInstructionList = new ArrayList<>();
+        Instruction ifInstruction;
+        Instruction gotoInstruction;
+        for (Entry<String, String> keyValues : namespaces.entrySet()) {
+            
+            // Below section creates the condition to compare the namespace uri's
+            
+            // store the comparing uri as string
+            BasicLiteral uriLiteral = new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(),
+                null, new BString(keyValues.getValue()));
+            uriLiteral.setType(BTypes.typeString);
+            uriLiteral.accept(this);
+
+            int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
+            int exprIndex = ++regIndexes[BOOL_OFFSET];
+            emit(opcode, uriLoadedRegIndex, uriLiteral.getTempOffset(), exprIndex);
+
+            ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE, exprIndex, -1);
+            emit(ifInstruction);
+
+            // Below section creates instructions to be executed, if the above condition succeeds (then body)
+            
+            // create the prifix literal
+            BasicLiteral prefixLiteral =
+                new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(), null, new BString(keyValues.getKey()));
+            prefixLiteral.setType(BTypes.typeString);
+            prefixLiteral.accept(this);
+
+            // update the qname's prefix
+            emit(InstructionCodes.QNAMEPREFIXSTORE, qnameRegIndex, prefixLiteral.getTempOffset());
+
+            gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
+            emit(gotoInstruction);
+            gotoInstructionList.add(gotoInstruction);
+            ifInstruction.setOperand(1, nextIP());
+        }
+        
+        int nextIP = nextIP();
+        for (Instruction instruction : gotoInstructionList) {
+            instruction.setOperand(0, nextIP);
+        }
     }
 
     /**

@@ -27,7 +27,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
  * xmlns "http://example.com/ns/c"
  * <p>
  * A ballerina namespace declaration contains namspaceUri and the prefix (optional). 
- * The last element of the package path is prefix referring to the namspaceUri
+ * A namespace declaration without the prefix would declare a default namespace.
  * <p>
  * e.g.
  * NamespaceUri: "http://example.com/ns/a"

@@ -60,7 +60,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private Resource[] resources;
     private URITemplate uriTemplate;
     private VariableDefStmt[] variableDefStmts;
-    
+
     private BallerinaFunction initFunction;
 
     // Scope related variables
