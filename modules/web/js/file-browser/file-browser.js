@@ -68,6 +68,7 @@ const FileBrowser = Backbone.View.extend({
                         return { id: node.id };
                     },
                 },
+                dblclick_toggle : false,
                 multiple: false,
                 check_callback: false,
                 force_text: true,
@@ -178,6 +179,9 @@ const FileBrowser = Backbone.View.extend({
                     const item = $(event.target).closest('li');
                     const node = this._$parent_el.jstree(true).get_node(item[0].id);
                     this.trigger('double-click-node', node);
+                })
+                .on('click', (e, data) => {
+                        this._$parent_el.jstree(true).toggle_node(e.target);
                 });
         return this;
     },
