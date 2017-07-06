@@ -27,7 +27,7 @@ import java.util.ArrayList;
 /**
  * AnnotationAttachments resolver for the completion Items
  */
-public class AnnotationAttachmentContextResolver implements ItemResolver {
+public class AnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         return new ArrayList<>();

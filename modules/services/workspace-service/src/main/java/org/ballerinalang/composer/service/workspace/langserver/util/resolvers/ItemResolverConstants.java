@@ -88,5 +88,7 @@ public class ItemResolverConstants {
     public static final int PRIORITY_3 = 3;
     public static final int PRIORITY_4 = 4;
     public static final int PRIORITY_5 = 5;
+    public static final int PRIORITY_6 = 6;
+    public static final int PRIORITY_7 = 7;
 
 }

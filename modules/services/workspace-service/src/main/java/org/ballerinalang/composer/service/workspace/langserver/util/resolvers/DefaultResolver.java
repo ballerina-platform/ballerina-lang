@@ -24,9 +24,7 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
@@ -34,41 +32,13 @@ import java.util.ArrayList;
 /**
  * Default resolver for the completion items
  */
-class DefaultResolver implements ItemResolver {
+class DefaultResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> searchList = symbols;
 
-        searchList.forEach((symbolInfo -> {
-            // For each token call the api to get the items related to the token
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(symbolInfo.getSymbolName());
-            String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-            completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-            if (symbolInfo.getSymbol() instanceof NativeUnitProxy
-                    && symbolInfo.getSymbolName().contains("ClientConnector")) {
-                completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_1);
-            } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
-                NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
-                completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
-                completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
-            } else if ((symbolInfo.getSymbol() instanceof BallerinaFunction)) {
-                completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
-                completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
-                completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            } else if (symbolInfo.getSymbol() instanceof VariableDef) {
-                String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
-                completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
-            }
-            completionItems.add(completionItem);
-        }));
+        populateCompletionItemList(searchList, completionItems);
 
         // Add the basic constructs
         ItemResolverConstants.getBasicConstructs().forEach((bConstruct) -> {
@@ -81,6 +51,19 @@ class DefaultResolver implements ItemResolver {
         });
 
         return completionItems;
+    }
+
+    void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
+        completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
+        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+        completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+    }
+
+    void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
+        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+        completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
     }
 
     private String getFunctionSignature(BallerinaFunction ballerinaFunction) {

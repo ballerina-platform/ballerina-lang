@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Resolves the functions in a package
  */
-public class FunctionsResolver implements ItemResolver {
+public class FunctionsResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         String packageName = dataModel.getContext().getStart().getText();
