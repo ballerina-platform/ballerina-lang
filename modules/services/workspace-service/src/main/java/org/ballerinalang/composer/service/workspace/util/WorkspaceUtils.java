@@ -23,6 +23,7 @@ import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
 import org.ballerinalang.composer.service.workspace.model.Struct;
+import org.ballerinalang.composer.service.workspace.model.StructField;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaAction;
@@ -30,6 +31,8 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -43,6 +46,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -231,11 +235,11 @@ public class WorkspaceUtils {
                                           org.ballerinalang.model.StructDef structDef) {
         if (packages.containsKey(packagePath)) {
             ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addStructsItem(createNewStruct(structDef.getName()));
+            modelPackage.addStructsItem(createNewStruct(structDef.getName(), structDef.getFieldDefStmts()));
         } else {
             ModelPackage modelPackage = new ModelPackage();
             modelPackage.setName(packagePath);
-            modelPackage.addStructsItem(createNewStruct(structDef.getName()));
+            modelPackage.addStructsItem(createNewStruct(structDef.getName(), structDef.getFieldDefStmts()));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -342,12 +346,33 @@ public class WorkspaceUtils {
     /**
      * Create new struct
      * @param name name of the struct
+     * @param fieldDefStmts field definiton statements
      * @return {Function} function
      * */
-    private static Struct createNewStruct(String name) {
-        Struct struct = new Struct();
-        struct.setName(name);
+    private static Struct createNewStruct(String name, VariableDefStmt[] fieldDefStmts) {
+        Struct struct = new Struct(name);
+        Arrays.stream(fieldDefStmts).forEach(
+                fieldStmt -> {
+                    StructField structField = createNewStructField(fieldStmt.getVariableDef().getName(),
+                                                     fieldStmt.getVariableDef().getTypeName().getName());
+                    if (fieldStmt.getRExpr() != null && fieldStmt.getRExpr() instanceof BasicLiteral) {
+                        structField.setDefaultValue(((BasicLiteral) fieldStmt.getRExpr()).getBValue().stringValue());
+                    }
+                    struct.addStructField(structField);
+                });
+
         return struct;
+    }
+
+    /**
+     * create a new struct field
+     * @param name name of the field
+     * @param type type of the field
+     * @return
+     */
+    private static StructField createNewStructField(String name, String type) {
+        StructField structField = new StructField(name, type);
+        return structField;
     }
 
     /**

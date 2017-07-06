@@ -15,22 +15,18 @@
  */
 package org.ballerinalang.composer.service.workspace.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Struct.
+ * Struct Field.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
-        date = "2017-01-27T07:45:46.625Z")
-public class Struct {
+public class StructField {
 
     private String name;
-    private List<StructField> structFields;
+    private String type;
+    private String defaultValue;
 
-    public Struct(String name) {
+    public StructField(String name, String type) {
         this.name = name;
-        this.structFields = new ArrayList<>();
+        this.type = type;
     }
 
     public String getName() {
@@ -41,7 +37,19 @@ public class Struct {
         this.name = name;
     }
 
-    public void addStructField(StructField structField) {
-        structFields.add(structField);
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }
