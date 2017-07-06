@@ -51,7 +51,7 @@ public class BallerinaParser extends Parser {
 		RULE_connectorInitExpression = 46, RULE_assignmentStatement = 47, RULE_variableReferenceList = 48, 
 		RULE_ifElseStatement = 49, RULE_ifClause = 50, RULE_elseIfClause = 51, 
 		RULE_elseClause = 52, RULE_iterateStatement = 53, RULE_whileStatement = 54, 
-		RULE_continueStatement = 55, RULE_breakStatement = 56, RULE_forkJoinStatement = 57, 
+		RULE_nextStatement = 55, RULE_breakStatement = 56, RULE_forkJoinStatement = 57, 
 		RULE_joinClause = 58, RULE_joinConditions = 59, RULE_timeoutClause = 60, 
 		RULE_tryCatchStatement = 61, RULE_catchClauses = 62, RULE_catchClause = 63, 
 		RULE_finallyClause = 64, RULE_throwStatement = 65, RULE_returnStatement = 66, 
@@ -79,7 +79,7 @@ public class BallerinaParser extends Parser {
 		"variableDefinitionStatement", "mapStructLiteral", "mapStructKeyValue", 
 		"arrayLiteral", "connectorInitExpression", "assignmentStatement", "variableReferenceList", 
 		"ifElseStatement", "ifClause", "elseIfClause", "elseClause", "iterateStatement", 
-		"whileStatement", "continueStatement", "breakStatement", "forkJoinStatement", 
+		"whileStatement", "nextStatement", "breakStatement", "forkJoinStatement", 
 		"joinClause", "joinConditions", "timeoutClause", "tryCatchStatement", 
 		"catchClauses", "catchClause", "finallyClause", "throwStatement", "returnStatement", 
 		"replyStatement", "workerInteractionStatement", "triggerWorker", "workerReply", 
@@ -99,7 +99,7 @@ public class BallerinaParser extends Parser {
 		"'['", "']'", "'boolean'", "'int'", "'float'", "'string'", "'blob'", "'message'", 
 		"'map'", "'xml'", "'xmlDocument'", "'json'", "'datatable'", "'@'", "':'", 
 		"'transform'", "'create'", "'var'", "'if'", "'else'", "'iterate'", "'while'", 
-		"'continue'", "'break'", "'fork'", "'join'", "'some'", "'all'", "'timeout'", 
+		"'next'", "'break'", "'fork'", "'join'", "'some'", "'all'", "'timeout'", 
 		"'try'", "'catch'", "'finally'", "'throw'", "'return'", "'reply'", "'->'", 
 		"'<-'", "'@['", "'transaction'", "'aborted'", "'committed'", "'abort'", 
 		"'+'", "'-'", "'!'", "'^'", "'/'", "'*'", "'%'", "'<='", "'>='", "'=='", 
@@ -2698,8 +2698,8 @@ public class BallerinaParser extends Parser {
 		public WhileStatementContext whileStatement() {
 			return getRuleContext(WhileStatementContext.class,0);
 		}
-		public ContinueStatementContext continueStatement() {
-			return getRuleContext(ContinueStatementContext.class,0);
+		public NextStatementContext nextStatement() {
+			return getRuleContext(NextStatementContext.class,0);
 		}
 		public BreakStatementContext breakStatement() {
 			return getRuleContext(BreakStatementContext.class,0);
@@ -2800,7 +2800,7 @@ public class BallerinaParser extends Parser {
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(575);
-				continueStatement();
+				nextStatement();
 				}
 				break;
 			case 7:
@@ -4023,24 +4023,24 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ContinueStatementContext extends ParserRuleContext {
-		public ContinueStatementContext(ParserRuleContext parent, int invokingState) {
+	public static class NextStatementContext extends ParserRuleContext {
+		public NextStatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_continueStatement; }
+		@Override public int getRuleIndex() { return RULE_nextStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterContinueStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterNextStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitContinueStatement(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitNextStatement(this);
 		}
 	}
 
-	public final ContinueStatementContext continueStatement() throws RecognitionException {
-		ContinueStatementContext _localctx = new ContinueStatementContext(_ctx, getState());
-		enterRule(_localctx, 110, RULE_continueStatement);
+	public final NextStatementContext nextStatement() throws RecognitionException {
+		NextStatementContext _localctx = new NextStatementContext(_ctx, getState());
+		enterRule(_localctx, 110, RULE_nextStatement);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{

@@ -34,7 +34,7 @@ public enum StatementKind {
     IF_ELSE(8),
     WHILE(9),
     BREAK(10),
-    CONTINUE(11),
+    NEXT(11),
     TRY_CATCH(12),
     THROW(13),
     FORK_JOIN(14),

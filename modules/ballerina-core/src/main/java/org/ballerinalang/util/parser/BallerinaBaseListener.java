@@ -676,13 +676,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterContinueStatement(BallerinaParser.ContinueStatementContext ctx) { }
+	@Override public void enterNextStatement(BallerinaParser.NextStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) { }
+	@Override public void exitNextStatement(BallerinaParser.NextStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

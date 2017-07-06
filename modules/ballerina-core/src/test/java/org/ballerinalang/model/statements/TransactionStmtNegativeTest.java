@@ -52,16 +52,16 @@ public class TransactionStmtNegativeTest {
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
 
-    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*continue statement " +
+    @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*next statement " +
             "cannot be used to exit from a transaction.*")
-    public void testTransactionWithContinueInvalid() {
-        BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-continue-invalid.bal");
+    public void testTransactionWithNextInvalid() {
+        BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-next-invalid.bal");
     }
 
     @Test()
-    public void testTransactionWithContinueValid() {
+    public void testTransactionWithNextValid() {
         ProgramFile programFile =
-                BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-continue-valid.bal");
+                BTestUtils.getProgramFile("lang/statements/transactionStmt/trx-with-next-valid.bal");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "test", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");

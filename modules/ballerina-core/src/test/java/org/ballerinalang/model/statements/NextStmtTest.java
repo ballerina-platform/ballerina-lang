@@ -28,20 +28,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test continue statement in a while loop.
+ * This contains methods to test next statement in a while loop.
  *
  * @since 0.89
  */
-public class ContinueStmtTest {
+public class NextStmtTest {
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("lang/statements/continue-stmt.bal");
+        programFile = BTestUtils.getProgramFile("lang/statements/next-stmt.bal");
     }
 
-    @Test(description = "Test continue statement in a while loop.")
-    public void testContinueStmtConditionTrue() {
+    @Test(description = "Test next statement in a while loop.")
+    public void testNextStmtConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
 
@@ -53,8 +53,8 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test continue statement in a while loop, where continue not in execution path ")
-    public void testContinueStmtConditionFalse() {
+    @Test(description = "Test next statement in a while loop, where next not in execution path ")
+    public void testNextStmtConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "calculateExp1", args);
 
@@ -66,10 +66,10 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test continue statement in a nested while loop.")
-    public void testContinueStmtInNestedWhileConditionTrue() {
+    @Test(description = "Test next statement in a nested while loop.")
+    public void testNextStmtInNestedWhileConditionTrue() {
         BValue[] args = {new BInteger(15), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedContinueStmt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -79,10 +79,10 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test continue statement in a nested while loop.")
-    public void testContinueStmtInNestedWhileConditionFalse() {
+    @Test(description = "Test next statement in a nested while loop.")
+    public void testNextStmtInNestedWhileConditionFalse() {
         BValue[] args = {new BInteger(25), new BInteger(15)};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedContinueStmt", args);
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "nestedNextStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -92,16 +92,16 @@ public class ContinueStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check invalid continue statement location.", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*continue statement is not allowed here*")
+    @Test(description = "Check invalid next statement location.", expectedExceptions = SemanticException.class,
+            expectedExceptionsMessageRegExp = ".*next statement is not allowed here*")
     public void testNegative() {
-        BTestUtils.getProgramFile("lang/statements/continue-stmt-negative.bal");
+        BTestUtils.getProgramFile("lang/statements/next-stmt-negative.bal");
     }
 
     @Test(description = "Check not reachable statements.", expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = ".*continue-stmt-unreachable.bal:11.*.*unreachable statement*")
+            expectedExceptionsMessageRegExp = ".*next-stmt-unreachable.bal:11.*.*unreachable statement*")
     public void testNegativeUnreachable() {
-        BTestUtils.getProgramFile("lang/statements/continue-stmt-unreachable.bal");
+        BTestUtils.getProgramFile("lang/statements/next-stmt-unreachable.bal");
     }
 
 }

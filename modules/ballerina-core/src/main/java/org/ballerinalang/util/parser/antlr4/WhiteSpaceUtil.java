@@ -648,14 +648,14 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
-    public static WhiteSpaceDescriptor getContinueStatementWS(CommonTokenStream tokenStream,
-                                                              BallerinaParser.ContinueStatementContext ctx) {
+    public static WhiteSpaceDescriptor getNextStatementWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.NextStatementContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.CONTINUE_STMT_PRECEDING_WHITESPACE,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NEXT_STMT_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.CONTINUE_STMT_CONTINUE_KEYWORD_TO_END,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NEXT_STMT_NEXT_KEYWORD_TO_END,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.CONTINUE_STMT_END_TO_NEXT_TOKEN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NEXT_STMT_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }

@@ -4,7 +4,7 @@ function test () (string) {
         while (i < 5) {
             i = i + 1;
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }
@@ -18,7 +18,7 @@ function test2 () (string) {
             i = i + 1;
         } committed {
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }
@@ -33,7 +33,7 @@ function test3 () (string) {
             abort;
         } aborted {
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }
