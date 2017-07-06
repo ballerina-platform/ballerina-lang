@@ -15,20 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
 
 /**
- * @param parent
- * @constructor
+ * Source generation visitor for Struct definition
  */
 class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
+    /**
+     * Can visit check for the struct definition
+     * @return {boolean} true|false
+     */
     canVisitStructDefinition() {
         return true;
     }
 
+    /**
+     * Begin visit for the resource definition
+     * @param {StructDefinition} structDefinition - struct definition node
+     */
     beginVisitStructDefinition(structDefinition) {
         const useDefaultWS = structDefinition.whiteSpace.useDefault;
         if (useDefaultWS) {
@@ -45,11 +53,18 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
+        const lineNumber = this.getTotalNumberOfLinesInSource()
+            + this.getEndLinesInSegment(constructedSourceSegment) + 1;
+        structDefinition.setLineNumber(lineNumber, { doSilently: true });
+
         constructedSourceSegment += 'struct' + structDefinition.getWSRegion(0)
               + structDefinition.getStructName() + structDefinition.getWSRegion(1)
-              + '{' + structDefinition.getWSRegion(2);
+              + '{' + structDefinition.getWSRegion(2) + ((useDefaultWS) ? this.getIndentation() : '');
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
         this.appendSource(constructedSourceSegment);
-        this.appendSource((useDefaultWS) ? this.getIndentation() : '');
         this.indent();
         _.forEach(structDefinition.getVariableDefinitionStatements(), (variableDefStatement) => {
             const varDefVisitor = new VariableDefinitionStatementVisitor(this);
@@ -57,9 +72,16 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
         });
     }
 
+    /**
+     * Visit Struct Definition
+     */
     visitStructDefinition() {
     }
 
+    /**
+     * End visit for struct definition source generation
+     * @param {ASTNode} structDefinition - struct definition ASTNode
+     */
     endVisitStructDefinition(structDefinition) {
         this.outdent();
         this.appendSource('}' + structDefinition.getWSRegion(3));

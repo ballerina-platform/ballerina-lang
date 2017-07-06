@@ -288,7 +288,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         // Define the constant in the package scope
         currentScope.define(symbolName, constDef);
 
-        constDef.getRhsExpr().accept(this);
+        constDef.getVariableDefStmt().accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
@@ -304,7 +304,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
                 constDef.getWhiteSpaceDescriptor(), constDef.getName(), null, null);
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
-                new Expression[]{varRefExpr}, constDef.getRhsExpr());
+                new Expression[]{varRefExpr}, constDef.getVariableDefStmt().getRExpr());
         pkgInitFuncStmtBuilder.addStmt(assignStmt);
 
         addToCompletionItems(constDef);
@@ -1923,6 +1923,10 @@ public class CompletionItemAccumulator implements NodeVisitor {
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
         }
+    }
+
+    public SymbolScope getClosestScope() {
+        return closestScope;
     }
 
     /**

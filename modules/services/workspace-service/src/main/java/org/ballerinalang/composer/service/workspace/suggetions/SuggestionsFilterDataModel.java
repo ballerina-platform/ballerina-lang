@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.SymbolScope;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class SuggestionsFilterDataModel {
     private Vocabulary vocabulary;
     private int tokenIndex;
     private BallerinaFile ballerinaFile;
+    private SymbolScope closestScope;
 
     /**
      * Constructor for SuggestionsFilterDataModel
@@ -118,5 +120,13 @@ public class SuggestionsFilterDataModel {
 
     public void setBallerinaFile(BallerinaFile ballerinaFile) {
         this.ballerinaFile = ballerinaFile;
+    }
+
+    public SymbolScope getClosestScope() {
+        return closestScope;
+    }
+
+    public void setClosestScope(SymbolScope closestScope) {
+        this.closestScope = closestScope;
     }
 }

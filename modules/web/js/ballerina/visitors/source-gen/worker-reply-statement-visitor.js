@@ -15,27 +15,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import WorkerReplyStatement from '../../ast/statements/worker-reply-statement';
 
+/**
+ * Worker reply statement source generation visitor
+ */
 class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the worker reply statement
+     * @param {WorkerReplyStatement} workerReplyStatement - worker reply statement ASTNode
+     * @return {boolean} true|false - whether the worker reply statement can visit or not
+     */
     canVisitWorkerReplyStatement(workerReplyStatement) {
         return workerReplyStatement instanceof WorkerReplyStatement;
     }
 
+    /**
+     * Begin visit for the worker reply statement
+     * @param {WorkerReplyStatement} workerReplyStatement - worker reply statement ASTNode
+     */
     beginVisitWorkerReplyStatement(workerReplyStatement) {
         if (workerReplyStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        this.appendSource(workerReplyStatement.getStatementString());
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        workerReplyStatement.setLineNumber(lineNumber, { doSilently: true });
+
+        const constructedSourceSegment = workerReplyStatement.getStatementString();
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * End visit for the worker reply statement
+     * @param {WorkerReplyStatement} workerReplyStatement - worker reply statement ASTNode
+     */
     endVisitWorkerReplyStatement(workerReplyStatement) {
-        this.appendSource(';' + workerReplyStatement.getWSRegion(4));
-        this.appendSource((workerReplyStatement.whiteSpace.useDefault)
-            ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ';' + workerReplyStatement.getWSRegion(4)
+            + ((workerReplyStatement.whiteSpace.useDefault) ? this.currentPrecedingIndentation : '');
+
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+        
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
     }
 }

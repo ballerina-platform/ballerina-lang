@@ -21,6 +21,7 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
+import org.ballerinalang.model.SymbolScope;
 
 import java.util.ArrayList;
 
@@ -35,12 +36,16 @@ public class SuggestionsFilter {
      * Get the completion items list
      * @param dataModel - Suggestion filter data model
      * @param symbols - Symbols list
-     * @return {@link ArrayList} - completion items list
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {
         if (dataModel.getContext() == null) {
-            return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+            SymbolScope closestScope = dataModel.getClosestScope();
+            if (closestScope == null) {
+                return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+            } else {
+                return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+            }
         } else {
             return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
         }

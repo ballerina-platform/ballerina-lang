@@ -15,33 +15,65 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
+/**
+ * Source Gen visitor for the Comment statement
+ */
 class CommentStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Can visit check for the Comment Statement
+     * @return {boolean} true|false whether the Comment statement can visit or not
+     */
     canVisitCommentStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for the Comment Statement
+     * @param {CommentStatement} commentStatement - Comment Statement ASTNode
+     */
     beginVisitCommentStatement(commentStatement) {
         if (commentStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
-        log.debug('Begin Visit Comment Statement Definition');
+
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        commentStatement.setLineNumber(lineNumber, { doSilently: true });
     }
 
+    /**
+     * Visit Comment Statement
+     * @param {CommentStatement} commentStatement - comment Statement ASTNode
+     */
     visitCommentStatement(commentStatement) {
-        this.appendSource(commentStatement.getStatementString() + commentStatement.getWSRegion(1));
-        log.debug('Visit Comment Statement Definition');
+        const constructedSourceSegment = commentStatement.getStatementString() + commentStatement.getWSRegion(1);
+
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        // Increase the total number of lines
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * End visit for the Comment Statement
+     * @param {CommentStatement} commentStatement - Comment Statement ASTNode
+     */
     endVisitCommentStatement(commentStatement) {
-        this.appendSource((commentStatement.whiteSpace.useDefault)
-          ? this.currentPrecedingIndentation : '');
+        const constructedSourceSegment = ((commentStatement.whiteSpace.useDefault)
+            ? this.currentPrecedingIndentation : '');
+        
+        // Add the increased number of lines
+        const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
+        this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
+
+        this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Comment Statement Definition');
     }
 }
 

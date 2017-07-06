@@ -1686,30 +1686,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(ConstDef constant) {
-        JsonObject constantDefinitionDefine = new JsonObject();
-        this.addPosition(constantDefinitionDefine, constant.getNodeLocation());
-        this.addWhitespaceDescriptor(constantDefinitionDefine, constant.getWhiteSpaceDescriptor());
-        constantDefinitionDefine.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
+    public void visit(ConstDef constantDefinition) {
+        JsonObject constantDefinitionObj = new JsonObject();
+        this.addPosition(constantDefinitionObj, constantDefinition.getNodeLocation());
+        this.addWhitespaceDescriptor(constantDefinitionObj, constantDefinition.getWhiteSpaceDescriptor());
+        constantDefinitionObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .CONSTANT_DEFINITION);
-        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
-                constant.getTypeName().getName());
-        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_IDENTIFIER,
-                constant.getName());
-        constantDefinitionDefine.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_VALUE,
-                ((BasicLiteral) constant.getRhsExpr()).getBValue().stringValue());
-    
-        // Adding annotations.
-        tempJsonArrayRef.push(new JsonArray());
-        if (constant.getAnnotations() != null) {
-            for (AnnotationAttachment annotation : constant.getAnnotations()) {
-                annotation.accept(this);
-            }
-        }
-        constantDefinitionDefine.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-
-        tempJsonArrayRef.peek().add(constantDefinitionDefine);
+        constantDefinition.getVariableDefStmt().accept(this);
     }
 
     @Override

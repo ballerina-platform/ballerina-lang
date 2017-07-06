@@ -17,16 +17,31 @@
  */
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
+/**
+ * Source generation for action invocation statement
+ */
 class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
 
+    /**
+     * Check can visit for action invocation expression
+     * @return {boolean} true|false whether can visit or not
+     */
     canVisitActionInvocationExpression() {
         return true;
     }
 
+    /**
+     * Check can visit for action invocation statement
+     * @return {boolean} true|false whether can visit or not
+     */
     canVisitActionInvocationStatement() {
         return true;
     }
 
+    /**
+     * Begin visit for action invocation Statement
+     * @param {ActionInvocationStatement} actionInvocationStatement - action invocation statement ASTNode
+     */
     beginVisitActionInvocationStatement(actionInvocationStatement) {
         if (actionInvocationStatement.whiteSpace.useDefault) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
@@ -34,10 +49,23 @@ class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor
         }
     }
 
+    /**
+     * Begin visit for action invocation Statement
+     * @param {ActionInvocationExpression} actionInvocationExpr - action invocation expression ASTNode
+     */
     beginVisitActionInvocationExpression(actionInvocationExpr) {
-        this.appendSource(actionInvocationExpr.getExpressionString());
+        // Calculate the line number
+        const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
+        this.getParent().setLineNumber(lineNumber);
+
+        const constructedSourceSegment = actionInvocationExpr.getExpressionString();
+        this.appendSource(constructedSourceSegment);
     }
 
+    /**
+     * End visit for action invocation Statement
+     * @param {ActionInvocationStatement} actionInvocationStatement - action invocation statement ASTNode
+     */
     endVisitActionInvocationStatement(actionInvocationStatement) {
         this.appendSource(';' + actionInvocationStatement.getWSRegion(1));
         this.appendSource((actionInvocationStatement.whiteSpace.useDefault) ?

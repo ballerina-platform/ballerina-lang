@@ -45,6 +45,13 @@ const HelpMenu = {
             },
         },
         {
+            id: 'report_issue',
+            label: 'Report Issue',
+            command: {
+                id: 'go-to-report-issue',
+            },
+        },
+        {
             id: 'about',
             label: 'About',
             command: {

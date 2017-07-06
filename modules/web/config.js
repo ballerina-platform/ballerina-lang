@@ -128,6 +128,7 @@ let config = {
         },
         help_urls: {
             user_guide_url: 'http://ballerinalang.org/docs/user-guide/0.8/',
+            report_issue_url: 'https://github.com/ballerinalang/composer/issues/',
         },
     },
     breadcrumbs: {

@@ -318,13 +318,14 @@ class Package {
      */
     addStructDefinitions(structDefinitions) {
         this._structDefinitions = this._structDefinitions || [];
-        // Join all struct definitions to one array(concat). Reversing the struct definitions so that the last
-        // modified elements comes first(reverse). Then remove the duplicates using struct name(uniqBy).
-        // Then reverse it back(reverse).
-        this._structDefinitions = _.reverse(
-            _.uniqBy((_.reverse(_.concat(this._structDefinitions, structDefinitions))), (structDefinition) => {
-                return structDefinition.getName();
-            }));
+        let err;
+        if (!_.isArray(structDefinitions) && !(BallerinaEnvFactory.isStruct(structDefinitions))) {
+            err = 'Adding struct def failed. Not an instance of StructDefinition' + structDefinitions;
+            log.error(err);
+            throw err;
+        }
+        this._structDefinitions = this._structDefinitions || [];
+        this._structDefinitions = _.concat(this._structDefinitions, structDefinitions);
     }
 
     /**

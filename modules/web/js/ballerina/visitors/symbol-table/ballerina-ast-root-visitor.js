@@ -116,8 +116,23 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         });
     }
 
+    /**
+     * Visit struct definition
+     * @param {any} structDefinition struct definition
+     * @memberof BallerinaASTRootVisitor
+     */
     visitStructDefinition(structDefinition) {
-        this.getPackage().addStructDefinitions(structDefinition);
+        const structDef = BallerinaEnvFactory.createStruct();
+        structDef.setName(structDefinition.getStructName());
+        const structFields = structDefinition.getVariableDefinitionStatements().map((varDefStmt) => {
+            const structField = BallerinaEnvFactory.createStructField();
+            structField.setName(varDefStmt.getIdentifier());
+            structField.setType(varDefStmt.getBType());
+            structField.setDefaultValue(varDefStmt.getValue());
+            return structField;
+        });
+        structDef.setFields(structFields);
+        this.getPackage().addStructDefinitions(structDef);
     }
 
     visitTypeMapperDefinition(typeMapperDefinition) {

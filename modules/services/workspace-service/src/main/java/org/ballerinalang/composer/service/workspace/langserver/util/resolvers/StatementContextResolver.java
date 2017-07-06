@@ -117,7 +117,8 @@ public class StatementContextResolver implements ItemResolver {
                 completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_1);
             } else if (symbolInfo.getSymbol() instanceof VariableDef) {
-                completionItem.setDetail(((VariableDef) symbolInfo.getSymbol()).getType().getName());
+                String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
+                    completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
             }
             completionItems.add(completionItem);

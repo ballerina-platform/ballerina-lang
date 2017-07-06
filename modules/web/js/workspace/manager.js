@@ -96,6 +96,9 @@ class WorkspaceManager {
         // Go to User Guide.
         this.app.commandManager.registerHandler('go-to-user-guide', this.showUserGuide, this);
 
+        // Go to Report Issues.
+        this.app.commandManager.registerHandler('go-to-report-issue', this.showReportIssue, this);
+
         // Import a swagger definition.
         this.app.commandManager.registerHandler('import-swagger-def', this.importSwaggerDefinition, this);
 
@@ -499,6 +502,10 @@ class WorkspaceManager {
 
     showUserGuide() {
         window.open(this.app.config.menu_bar.help_urls.user_guide_url);
+    }
+
+    showReportIssue() {
+        window.open(this.app.config.menu_bar.help_urls.report_issue_url);
     }
 
     handleCreateNewItemAtPath(data) {
