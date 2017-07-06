@@ -113,22 +113,11 @@ class BallerinaASTRoot extends ASTNode {
     }
 
     /**
-     * Setter function for PackageDefinition
-     * @param packageDefinition
-     */
-    setPackageDefinition(packageDefinition, options) {
-        if (!_.isNil(packageDefinition)) {
-            packageDefinition.setParent(this, options);
-            this.setAttribute('packageDefinition', packageDefinition, options);
-        }
-    }
-
-    /**
      * Getter function for PackageDefinition
      * @return {*}
      */
     getPackageDefinition() {
-        return this.packageDefinition;
+        return this.getChildrenOfType(this.getFactory().isPackageDefinition);
     }
 
     /**

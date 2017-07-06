@@ -136,7 +136,7 @@ class FileTab extends Tab {
         const fileEditorEventChannel = new EventChannel();
         const editorProps = {
             file: this.file,
-            application: this.app,
+            tabContainer: this.getContentContainer(),
         };
 
         // create Rect component for diagram
@@ -354,9 +354,7 @@ class FileTab extends Tab {
         // package definition
         const packageDefinition = BallerinaASTFactory.createPackageDefinition();
         packageDefinition.setPackageName('');
-        // packageDefinition.setPackageName("samples.echo");
         ballerinaAstRoot.addChild(packageDefinition);
-        ballerinaAstRoot.setPackageDefinition(packageDefinition);
 
         return ballerinaAstRoot;
     }

@@ -68,8 +68,8 @@ class Diagram extends React.Component {
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.getViewState();
         viewState.container = {
-            width: this.container.width(),
-            height: this.container.height(),
+            width: 800, //this.container.width(),
+            height: 600,
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
@@ -102,7 +102,7 @@ class Diagram extends React.Component {
         //    s CsnvasDecorator and pass child components for that.
 
         return (<CanvasDecorator
-            dropTarget={this.model}
+            dropTarget={this.props.model}
             title="StatementContainer"
             bBox={viewState.bBox}
             annotations={annotations}

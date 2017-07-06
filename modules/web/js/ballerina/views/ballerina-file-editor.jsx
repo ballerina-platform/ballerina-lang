@@ -25,6 +25,7 @@ import File from './../../workspace/file';
 import { parseFile } from '../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import PackageScopedEnvironment from './../env/package-scoped-environment';
 
 export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
@@ -46,36 +47,13 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            parseFailed: false,
+            parseFailed: true,
             model: new BallerinaASTRoot(),
+            environment: new PackageScopedEnvironment(),
             activeView: DESIGN_VIEW,
         };
         this.onViewChange = this.onViewChange.bind(this);
-        this.parseFile()
-                .then((resp) => {
-                    this.setState({
-                        model: BallerinaASTDeserializer.getASTModel(resp),
-                    });
-                    this.forceUpdate();
-                })
-                .catch((error) => {
-                    log.error(error);
-                });
-    }
-
-    componentDidMount() {
-    }
-
-    /**
-     * Parse current content of the file
-     * and build AST
-     */
-    parseFile() {
-        return new Promise((resolve, reject) => {
-            parseFile(this.props.file)
-            .then(response => resolve(response))
-            .catch(error => reject(error));
-        });
+        this.parseFile();
     }
 
     /**
@@ -85,6 +63,7 @@ class BallerinaFileEditor extends React.Component {
     getChildContext() {
         return {
             editor: this,
+            tabContainer: this.props.tabContainer,
         };
     }
 
@@ -97,12 +76,34 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Parse current content of the file
+     * and build AST
+     */
+    parseFile() {
+        parseFile(this.props.file)
+            .then((jsonTree) => {
+                // get ast from json
+                const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
+                const pkgName = ast.getPackageDefinition().getPackageName();
+                
+                this.setState({
+                    parseFailed: false,
+                    model: ast,
+                });
+                this.forceUpdate();
+            })
+            .catch((error) => {
+                log.error(error);
+            });
+    }
+
+    /**
      * @override
      * @memberof BallerinaFileEditor
      */
     render() {
         return (
-            <div id="tab-template">
+            <div id={`bal-file-editor-${this.props.file.id}`}>
                 {!this.state.parseFailed && this.state.activeView === DESIGN_VIEW
                     && <DesignView model={this.state.model} onViewChange={this.onViewChange} />
                 }
@@ -119,10 +120,12 @@ class BallerinaFileEditor extends React.Component {
 
 BallerinaFileEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
+    tabContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 BallerinaFileEditor.childContextTypes = {
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
+    tabContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default BallerinaFileEditor;

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import BallerinaDiagram from './../components/diagram';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
+import BallerinaASTRoot from './../ast/ballerina-ast-root';
 
 class DesignView extends React.Component {
 
@@ -14,7 +15,7 @@ class DesignView extends React.Component {
         return {
             dragDropManager: new DragDropManager(),
             messageManager: new MessageManager(),
-            overlayContainer: 'html-overlay',
+            overlayContainerSelector: '.html-overlay',
         };
     }
 
@@ -68,6 +69,10 @@ class DesignView extends React.Component {
     }
 }
 
+DesignView.propTypes = {
+    model: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+};
+
 DesignView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
@@ -75,7 +80,7 @@ DesignView.contextTypes = {
 DesignView.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    overlayContainer: PropTypes.instanceOf(String).isRequired,
+    overlayContainerSelector: PropTypes.string.isRequired,
 };
 
 export default DesignView;

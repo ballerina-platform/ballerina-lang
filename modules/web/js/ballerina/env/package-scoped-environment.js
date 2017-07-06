@@ -23,7 +23,6 @@ class PackageScopedEnvironment {
     constructor(args) {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
-        this.init();
     }
 
     init() {

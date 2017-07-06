@@ -62,12 +62,6 @@ const OpenFileDialog = Backbone.View.extend(
             const ballerinaEditorOptions = this.ballerina_editor;
                 // var sourceViewContainer =  this.source_view_container;
             const diagramRenderingContext = new DiagramRenderContext();
-            const ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-            const packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName('samples.passthrough');
-            ballerinaAstRoot1.addChild(packageDefinition);
-            ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
             if (!_.isNil(this._fileOpenModal)) {
                 this._fileOpenModal.remove();
