@@ -82,7 +82,7 @@ public class ConstantAssignmentTest {
         ProgramFile file = BTestUtils.getProgramFile("lang/constant/constant-expr.bal");
         BValue[] returns = BLangFunctions.invokeNew(file, "accessConstantEvalIntegerExpression");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 30);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
     }
 
     @Test(description = "Test accessing constant evaluated by another already defined constant.")
