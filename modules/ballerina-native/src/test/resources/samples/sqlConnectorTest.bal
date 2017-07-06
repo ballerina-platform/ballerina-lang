@@ -202,8 +202,7 @@ function testConnectionPoolProperties () (string firstName) {
                         "minimumIdle":1, "poolName":"testHSQLPool", "initializationFailTimeout":1,
                         "isolateInternalQueries":"false", "allowPoolSuspension":"false", "readOnly":"false",
                         "registerMbeans":"false", "validationTimeout":5000, "leakDetectionThreshold":0,
-                        "connectionInitSql":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
-                        "transactionIsolation":"2", "catalog":"PUBLIC",
+                        "connectionInitSql":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS", "catalog":"PUBLIC",
                         "connectionTestQuery":"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 

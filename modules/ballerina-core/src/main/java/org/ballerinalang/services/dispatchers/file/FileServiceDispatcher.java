@@ -1,0 +1,139 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.ballerinalang.services.dispatchers.file;
+
+import org.ballerinalang.model.Service;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnotationAttributeValue;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+/**
+ * Service dispatcher for File server connector.
+ */
+public class FileServiceDispatcher implements ServiceDispatcher {
+
+    Map<String, Service> servicesMap = new HashMap<>();
+
+    Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+
+    @Override
+    public String getProtocol() {
+        return Constants.PROTOCOL_FILE;
+    }
+
+    @Override
+    public String getProtocolPackage() {
+        return Constants.PROTOCOL_PACKAGE_FILE;
+    }
+
+    @Override
+    public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
+        Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
+        String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
+        if (serviceName == null) {
+            throw new BallerinaException("Service name is not found with the file input stream.");
+        }
+        ServiceInfo service = serviceInfoMap.get(serviceName);
+        if (service == null) {
+            throw new BallerinaException("No file service is registered with the service name " + serviceName);
+        }
+        return service;
+    }
+
+    @Override
+    public void serviceRegistered(ServiceInfo service) {
+        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants.FILE_PACKAGE_NAME,
+                Constants.ANNOTATION_FILE_SOURCE);
+
+        if (annotationInfo != null) {
+            Map<String, String> elementsMap = new HashMap<>();
+            AnnotationAttributeValue value =
+                    annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_POLLING_INTERVAL);
+            if (value != null) {
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_POLLING_INTERVAL, value.getStringValue());
+            }
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_PROTOCOL);
+            if (value != null) {
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_PROTOCOL, value.getStringValue());
+            }
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_START_POSTION);
+            if (value != null) {
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_START_POSTION, value.getStringValue());
+            }
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_PATH);
+            if (value != null) {
+                String uri = value.getStringValue();
+                if (!uri.contains("://")) {
+                    uri = new File(uri).getAbsolutePath();
+                }
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_PATH, uri);
+            }
+            value = annotationInfo.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL);
+            if (value != null) {
+                elementsMap.put(Constants.ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL, value.getStringValue());
+            }
+            String serviceName = service.getName();
+            ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
+                    Constants.PROTOCOL_FILE, serviceName, elementsMap);
+            try {
+                fileServerConnector.start();
+                serviceInfoMap.put(serviceName, service);
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Could not start File Server Connector for service: " +
+                        serviceName, e);
+            }
+        }
+    }
+
+    @Override
+    public void serviceUnregistered(ServiceInfo service) {
+        String serviceName = service.getName();
+        if (servicesMap.get(serviceName) != null) {
+            servicesMap.remove(serviceName);
+            try {
+                BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
+            } catch (ServerConnectorException e) {
+                throw new BallerinaException("Could not stop file server connector for " +
+                        "service: " + serviceName, e);
+            }
+        }
+    }
+
+    private static Map<String, String> getServerConnectorParamMap(Map<String, AnnotationAttributeValue> map) {
+        Map<String, String> convertedMap = new HashMap<>();
+        Set<Entry<String, AnnotationAttributeValue>> entrySet = map.entrySet();
+        for (Map.Entry<String, AnnotationAttributeValue> entry : entrySet) {
+            convertedMap.put(entry.getKey(), entry.getValue().toString());
+        }
+        return convertedMap;
+    }
+}
