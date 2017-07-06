@@ -16,6 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
+import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * @class Struct
@@ -129,6 +130,16 @@ class Struct {
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);
         this.setId(jsonNode.name);
+        if (jsonNode.structFields !== undefined) {
+            const structFields = jsonNode.structFields.map((structField) => {
+                return BallerinaEnvFactory.createStructField(
+                    { name: structField.name,
+                        type: structField.type,
+                        defaultValue: structField.defaultValue,
+                        packageName: structField.packageName });
+            });
+            this.setFields(structFields);
+        }
     }
 }
 

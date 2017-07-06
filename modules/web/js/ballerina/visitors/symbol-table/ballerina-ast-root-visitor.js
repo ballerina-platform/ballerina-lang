@@ -129,6 +129,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             structField.setName(varDefStmt.getIdentifier());
             structField.setType(varDefStmt.getBType());
             structField.setDefaultValue(varDefStmt.getValue());
+            structField.setPackageName(varDefStmt.getBTypePkgName());
             return structField;
         });
         structDef.setFields(structFields);

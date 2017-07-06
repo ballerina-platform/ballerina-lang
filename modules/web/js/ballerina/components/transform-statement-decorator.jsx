@@ -126,7 +126,8 @@ class TransformStatementDecorator extends React.Component {
                 let arg = {
                     id : argument.getID(),
                     type : argument.children[0].getVariableType(),
-                    name : argument.children[0].getVariableName()
+                    name : argument.children[0].getVariableName(),
+                    pkgName : argument.children[0].children[0].getPkgName()
                 };
                 argArray.push(arg);
             } else if (BallerinaASTFactory.isParameterDefinition(argument)) {
@@ -143,7 +144,6 @@ class TransformStatementDecorator extends React.Component {
 
     onExpand() {
         self = this;
-        this._package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
         let sourceId = 'sourceStructs' + this.props.model.id;
         let targetId = 'targetStructs' + this.props.model.id;
 
@@ -228,14 +228,14 @@ class TransformStatementDecorator extends React.Component {
 
         _.forEach(transformVars,(arg) => {
             let isStruct = false;
-            _.forEach(this._package.getStructDefinitions(), (predefinedStruct) => {
-                if (arg.type == predefinedStruct.getName()) {
-                    let struct = self.createType(arg.name, arg.type, predefinedStruct);
-                    self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
-                    self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
-                    isStruct = true;
-                }
-            });
+            let structDef = this.getStructDefinition(arg.pkgName, arg.type);
+
+            if (structDef !== undefined) {
+                let struct = self.createType(arg.name, arg.type, structDef);
+                self.loadSchemaToComboBox(sourceId, struct.name, struct.typeName);
+                self.loadSchemaToComboBox(targetId, struct.name, struct.typeName);
+                isStruct = true;
+            }
 
             if (!isStruct) {
                 let variableType = {};
@@ -430,6 +430,19 @@ class TransformStatementDecorator extends React.Component {
 
         // update the tool palette.
         this.context.editor.setTransformState(true);
+    }
+
+    getStructDefinition(packageIdentifier, structName) {
+        let _package;
+        if (packageIdentifier !== undefined) {
+            _package = this.context.renderingContext.getPackagedScopedEnvironment().getPackageByIdentifier(packageIdentifier);
+        } else {
+            _package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+        }
+
+        return _.find(_package.getStructDefinitions(), (structDef) => {
+            return structName === structDef.getName();
+        });
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -738,8 +751,9 @@ class TransformStatementDecorator extends React.Component {
             let property = {};
             property.name = field.getName();
             property.type = field.getType();
+            property.packageName = field.getPackageName();
 
-            let innerStruct = _.find(self._package.getStructDefinitions(), { _structName: property.type });
+            let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
                 property.innerType = self.createType(property.name, typeName, innerStruct);
             }

@@ -81,6 +81,22 @@ class PackageScopedEnvironment {
         return _.find(this._packages, pckg => pckg.getName() === packageName);
     }
 
+    /**
+     * Get packages by identifier.
+     * E.g. : for system:println(), system will be the package identifier. This method will
+     * go through all the package names and split by last index.
+     * @param {any} packageIdentifier package identifier
+     * @returns package with identifier
+     * @memberof PackageScopedEnvironment
+     */
+    getPackageByIdentifier(packageIdentifier) {
+        // TODO : this will break when imports have custom identifiers
+        if (_.isEqual(packageIdentifier, 'Current Package')) {
+            return this._currentPackage;
+        }
+        return _.find(this._packages, pckg => _.last(_.split(pckg.getName(), '.')) === packageIdentifier);
+    }
+
     searchPackage(query, excludePackages) {
         const result = _.filter(this._packages, (pckg) => {
             const existing = _.filter(excludePackages, exclude => pckg.getName() === exclude);
