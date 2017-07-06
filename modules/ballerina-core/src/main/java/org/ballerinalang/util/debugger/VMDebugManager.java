@@ -27,6 +27,7 @@ import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -42,27 +43,28 @@ public class VMDebugManager {
     /**
      * The Execution sem. used to block debugger till client connects.
      */
-    private volatile Semaphore executionSem;
+    private volatile Semaphore executionWaitSem;
 
     private VMDebugServer debugServer;
-    
+
     private boolean debugEnabled;
 
     /**
      * Object to hold debug session related context.
-     * @todo , allow managing multiple debug sessions.
      */
     private VMDebugSession debugSession;
 
     private static VMDebugManager debugManagerInstance = null;
 
-    private Context mainThreadContext;
+    private static boolean debugManagerInitialized = false;
 
     /**
      * Instantiates a new Debug manager.
      */
-    protected VMDebugManager() {
-        executionSem = new Semaphore(0);
+    private VMDebugManager() {
+        executionWaitSem = new Semaphore(0);
+        debugServer = new VMDebugServer();
+        debugSession = new VMDebugSession();
     }
 
     /**
@@ -82,26 +84,27 @@ public class VMDebugManager {
     /**
      * Initializes the debug manager single instance.
      */
-    public void serviceInit() {
-        // start the debug server if it is not started yet.
-        if (this.debugServer == null) {
-            this.debugServer = new VMDebugServer();
-            this.debugServer.startServer();
+    public synchronized void serviceInit() {
+        if (this.debugManagerInitialized) {
+            throw new BallerinaException("Debugger instance already initialized");
         }
+        // start the debug server if it is not started yet.
+        this.debugServer.startServer();
+        this.debugManagerInitialized = true;
     }
 
-    public void mainInit(ProgramFile programFile, Context mainThreadContext) {
-        this.mainThreadContext = mainThreadContext;
+    public synchronized void mainInit(ProgramFile programFile, Context mainThreadContext) {
+        if (this.debugManagerInitialized) {
+            throw new BallerinaException("Debugger instance already initialized");
+        }
         mainThreadContext.setDebugInfoHolder(new DebugInfoHolder());
         mainThreadContext.setDebugEnabled(true);
         DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, mainThreadContext);
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
+        mainThreadContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
         executor.submit(debuggerExecutor);
         // start the debug server if it is not started yet.
-        if (this.debugServer == null) {
-            this.debugServer = new VMDebugServer();
-            this.debugServer.startServer();
-        }
+        this.debugServer.startServer();
     }
 
     /**
@@ -138,6 +141,7 @@ public class VMDebugManager {
                 break;
             case DebugConstants.CMD_STOP:
                 holder.clearDebugLocations();
+                debugSession.clearSession();
                 holder.resume();
                 break;
             case DebugConstants.CMD_SET_POINTS:
@@ -164,14 +168,8 @@ public class VMDebugManager {
      *
      * @param channel the channel
      */
-    public void addDebugSession(Channel channel) {
-        //@todo need to handle multiple connections
-        this.debugSession = new VMDebugSession(channel);
-        if (this.mainThreadContext != null) {
-            this.mainThreadContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
-            this.debugSession.addContext("main", mainThreadContext); //todo fix
-            this.mainThreadContext = null;
-        }
+    public void addDebugSession(Channel channel) throws DebugException {
+        this.debugSession.setChannel(channel);
         sendAcknowledge(this.debugSession, "Channel registered.");
     }
 
@@ -181,7 +179,7 @@ public class VMDebugManager {
     public void holdON() {
         //suspend the current thread till debugging process finishes
         try {
-            executionSem.acquire();
+            executionWaitSem.acquire();
             debugSession.notifyExit();
         } catch (InterruptedException e) {
             // Do nothing probably someone wants to shutdown the thread.
@@ -190,19 +188,18 @@ public class VMDebugManager {
     }
 
     /**
-     * Set {@link Context} to current execution.
+     * Add {@link Context} to current execution.
      *
-     * @param threadId of the running thread
      * @param bContext context to run
      */
-    public void setDebuggerContext(String threadId, Context bContext) {
+    public void setDebuggerContext(Context bContext) {
         // if we are handling multiple connections
         // we need to check and set to correct debugger session
         if (!isDebugSessionActive()) {
             throw new IllegalStateException("Debug session has not initialize, Unable to set debugger.");
         }
         bContext.getDebugInfoHolder().setDebugSessionObserver(debugSession);
-        this.debugSession.addContext(threadId, bContext);
+        this.debugSession.addContext(bContext);
     }
 
     public boolean isDebugEnabled() {
@@ -214,11 +211,11 @@ public class VMDebugManager {
     }
 
     public void releaseExecutionLock() {
-        this.executionSem.release();
+        this.executionWaitSem.release();
     }
 
     public boolean isDebugSessionActive() {
-        return (this.debugSession != null);
+        return (this.debugSession.getChannel() != null);
     }
 
 

@@ -258,6 +258,10 @@ public class BLangVM {
             ip++;
             StackFrame sf = controlStack.getCurrentFrame();
 
+            if (isDebugging) {
+                debugging(ip);
+            }
+
             switch (opcode) {
                 case InstructionCodes.ICONST:
                     cpIndex = operands[0];
@@ -1508,9 +1512,6 @@ public class BLangVM {
                     break;
                 default:
                     throw new UnsupportedOperationException();
-            }
-            if (isDebugging) {
-                debugging(ip);
             }
         }
     }

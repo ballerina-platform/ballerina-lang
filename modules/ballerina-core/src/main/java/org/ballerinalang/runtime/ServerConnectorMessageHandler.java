@@ -233,7 +233,7 @@ public class ServerConnectorMessageHandler {
             context.setDebugInfoHolder(new DebugInfoHolder());
             context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             context.setDebugEnabled(true);
-            debugManager.setDebuggerContext("main", context); //todo fix
+            debugManager.setDebuggerContext(context);
         }
         bLangVM.run(context);
     }

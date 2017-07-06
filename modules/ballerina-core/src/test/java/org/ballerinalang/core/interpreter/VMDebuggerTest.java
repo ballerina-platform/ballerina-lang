@@ -255,6 +255,11 @@ public class VMDebuggerTest {
         }
 
         @Override
+        public void addContext(Context bContext) {
+            
+        }
+
+        @Override
         public void notifyComplete() {
         }
 

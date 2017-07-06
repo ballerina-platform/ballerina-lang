@@ -25,6 +25,7 @@ import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.model.NodeLocation;
 
+import javax.websocket.OnError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,18 +46,17 @@ public class VMDebugSession implements DebugSessionObserver {
     //key - threadid
     private Map<String, Context> contextMap;
 
-    public VMDebugSession(Channel channel) {
-        this.channel = channel;
+    public VMDebugSession() {
         this.contextMap = new HashMap<>();
     }
 
-    public void addContext(String threadId, Context bContext) {
+    @Override
+    public void addContext(Context bContext) {
+//        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+        String threadId = "main"; //TODO use above line
+        //TODO check if that thread id already exist in the map
         this.contextMap.put(threadId, bContext);
-        if (null != breakPoints) {
-            for (NodeLocation point: breakPoints) {
-                bContext.getDebugInfoHolder().addDebugPoint(point);
-            }
-        }
+        setBreakPoints(bContext);
     }
 
     public Context getContext(String threadId) {
@@ -71,7 +71,18 @@ public class VMDebugSession implements DebugSessionObserver {
     public void addDebugPoints(ArrayList<NodeLocation> breakPoints) {
         this.breakPoints = breakPoints;
         for (Context bContext : this.contextMap.values()) {
-            for (NodeLocation point : breakPoints) {
+            setBreakPoints(bContext);
+        }
+    }
+
+    /**
+     * Helper method to set debug points to the given context.
+     *
+     * @param bContext
+     */
+    private void setBreakPoints(Context bContext) {
+        if (null != breakPoints) {
+            for (NodeLocation point: breakPoints) {
                 bContext.getDebugInfoHolder().addDebugPoint(point);
             }
         }
@@ -86,6 +97,19 @@ public class VMDebugSession implements DebugSessionObserver {
         return channel;
     }
 
+    public synchronized void setChannel(Channel channel) throws DebugException {
+        if (this.channel != null) {
+            throw new DebugException("Debug session already exist");
+        }
+        this.channel = channel;
+    }
+
+    /**
+     * Method to clear the channel so that another debug session can connect.
+     */
+    public void clearSession() {
+        this.channel = null;
+    }
 
     @Override
     public void notifyComplete() {
