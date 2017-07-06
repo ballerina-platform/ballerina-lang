@@ -25,10 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -38,8 +36,11 @@ import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.sender.websocket.WebSocketClientConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import javax.websocket.CloseReason;
+import javax.websocket.Session;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -67,82 +68,58 @@ public class WebSocketClientTest {
     }
 
     @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
-    public void testTextReceived() throws ClientConnectorException, InterruptedException {
-        handshake(clientId1);
+    public void testTextReceived() throws ClientConnectorException, InterruptedException, IOException {
+        Session session = handshake();
         String text = "testText";
-        TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(textCarbonMessage, null);
+        session.getBasicRemote().sendText(text);
         Thread.sleep(sleepTime);
         Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text);
-        shutDownClient(clientId1);
+        shutDownClient(session);
     }
 
     @Test(description = "Test binary message sending and receiving.")
-    public void testBinaryReceived() throws ClientConnectorException, InterruptedException {
-        handshake(clientId1);
+    public void testBinaryReceived() throws ClientConnectorException, InterruptedException, IOException {
+        Session session = handshake();
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        BinaryCarbonMessage binaryCarbonMessage = new BinaryCarbonMessage(buffer, true);
-        binaryCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(binaryCarbonMessage, null);
+        session.getBasicRemote().sendBinary(buffer);
         Thread.sleep(sleepTime);
         Assert.assertEquals(messageProcessor.getReceivedByteBufferToClient(), buffer);
-        shutDownClient(clientId1);
+        shutDownClient(session);
     }
 
     @Test(description = "Test ping pong messaging. ")
-    public void testPingPong() throws ClientConnectorException, InterruptedException {
-        handshake(clientId1);
+    public void testPingPong() throws ClientConnectorException, InterruptedException, IOException {
+        Session session = handshake();
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_HEARTBEAT, buffer, true);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(controlCarbonMessage, null);
+        session.getBasicRemote().sendPing(buffer);
         Thread.sleep(sleepTime);
         Assert.assertTrue(messageProcessor.isPongReceivedToClient());
-        shutDownClient(clientId1);
-    }
-
-    @Test(description = "Test removal of a client",
-          expectedExceptions = ClientConnectorException.class)
-    public void testRemovedClient() throws ClientConnectorException {
-        handshake(clientId1);
-        shutDownClient(clientId1);
-        String text = "testText";
-        TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(textCarbonMessage, null);
+        shutDownClient(session);
     }
 
     @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
-    public void testMultipleClients() throws ClientConnectorException, InterruptedException {
-        handshake(clientId1);
-        handshake(clientId2);
+    public void testMultipleClients() throws ClientConnectorException, InterruptedException, IOException {
+        Session session1 = handshake();
+        Session session2 = handshake();
         String text1 = "testText1";
         String text2 = "testText2";
 
-        TextCarbonMessage textCarbonMessage = new TextCarbonMessage(text1);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(textCarbonMessage, null);
+        session1.getBasicRemote().sendText(text1);
         Thread.sleep(sleepTime);
         Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text1);
 
-        textCarbonMessage = new TextCarbonMessage(text2);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId2);
-        clientConnector.send(textCarbonMessage, null);
+        session2.getBasicRemote().sendText(text2);
         Thread.sleep(sleepTime);
         Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text2);
 
-        textCarbonMessage = new TextCarbonMessage(text2);
-        textCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId1);
-        clientConnector.send(textCarbonMessage, null);
+        session1.getBasicRemote().sendText(text2);
         Thread.sleep(sleepTime);
         Assert.assertEquals(messageProcessor.getReceivedTextToClient(), text2);
 
-        shutDownClient(clientId1);
-        shutDownClient(clientId2);
+        shutDownClient(session1);
+        shutDownClient(session2);
     }
 
     @AfterClass
@@ -154,21 +131,17 @@ public class WebSocketClientTest {
         );
     }
 
-    private void handshake(String clientId) throws ClientConnectorException {
+    private Session handshake() throws ClientConnectorException {
         ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                 org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
         controlCarbonMessage.setProperty(Constants.TO, url);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId);
-        clientConnector.send(controlCarbonMessage, null);
+        return (Session) clientConnector.init(controlCarbonMessage, null, null);
     }
 
-    private void shutDownClient(String clientId) throws ClientConnectorException {
-        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal Closure");
-        controlCarbonMessage.setProperty(Constants.TO, url);
-        controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId);
-        clientConnector.send(controlCarbonMessage, null);
+    private void shutDownClient(Session session) throws ClientConnectorException, IOException {
+        session.close(new CloseReason(
+                () -> 1000,
+                "Normal Closure"
+        ));
     }
 }

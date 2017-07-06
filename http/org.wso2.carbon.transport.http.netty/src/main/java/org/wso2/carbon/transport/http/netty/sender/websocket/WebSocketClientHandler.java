@@ -44,8 +44,12 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionImpl;
+import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
+import javax.websocket.Session;
 
 /**
  * WebSocket Client Handler. This class responsible for handling the inbound messages for the WebSocket Client.
@@ -57,14 +61,21 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private final String clientId;
     private final WebSocketClientHandshaker handshaker;
+    private final boolean isSecure;
+    private final String requestedUri;
+    private final WebSocketSourceHandler sourceHandler;
+    private WebSocketSessionImpl clientSession;
+    private Session serverSession;
     private ChannelPromise handshakeFuture;
     private CarbonMessage cMsg;
 
-    public WebSocketClientHandler(String clientId, WebSocketClientHandshaker handshaker) {
-        this.clientId = clientId;
+    public WebSocketClientHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
+                                  boolean isSecure, String requestedUri) {
         this.handshaker = handshaker;
+        this.sourceHandler = sourceHandler;
+        this.isSecure = isSecure;
+        this.requestedUri = requestedUri;
         cMsg = null;
         handshakeFuture = null;
     }
@@ -73,14 +84,23 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         return handshakeFuture;
     }
 
+    public Session getClientSession() {
+        return clientSession;
+    }
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
+    public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         handshaker.handshake(ctx.channel());
+        clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
+        if (sourceHandler != null) {
+            sourceHandler.setClientSession(clientSession);
+            serverSession = sourceHandler.getServerSession();
+        }
     }
 
     @Override
@@ -93,12 +113,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
+    public void channelRead0(ChannelHandlerContext ctx, Object msg)
+            throws UnknownWebSocketFrameTypeException, URISyntaxException {
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             log.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
+            clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
+            if (sourceHandler != null) {
+                sourceHandler.setClientSession(clientSession);
+                serverSession = sourceHandler.getServerSession();
+            }
             return;
         }
 
@@ -140,8 +166,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
 
-        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                .getMessageProcessor();
+        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance().getMessageProcessor();
         if (carbonMessageProcessor != null) {
             try {
                 carbonMessageProcessor.receive(cMsg, null);
@@ -170,7 +195,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
         cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, false);
-        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientId);
+        if (sourceHandler != null) {
+            cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, serverSession);
+        }
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, clientSession);
     }
 
     @Override

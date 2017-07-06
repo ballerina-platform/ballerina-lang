@@ -19,24 +19,20 @@
 
 package org.wso2.carbon.transport.http.netty.sender.websocket;
 
-import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.net.ssl.SSLException;
+import javax.websocket.Session;
 
 /**
  * WebSocket Client connector which connects to a remote WebSocket Endpoint.This store the WebSocket Clients
@@ -45,29 +41,24 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketClientConnector implements ClientConnector {
 
-    // Map<uniqueID, webSocketClient>
-    private final Map<String, WebSocketClient> webSocketClientMap = new ConcurrentHashMap<>();
+    @Override
+    public Object init(CarbonMessage carbonMessage, CarbonCallback carbonCallback, Map<String, Object> map)
+            throws ClientConnectorException {
+        // Return the relevant session of the client.
+        return handleHandshake(carbonMessage);
+    }
 
     @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
-        if (msg instanceof TextCarbonMessage) {
-            TextCarbonMessage textCarbonMessage = (TextCarbonMessage) msg;
-            sendText(textCarbonMessage);
-        } else if (msg instanceof ControlCarbonMessage) {
-            ControlCarbonMessage controlCarbonMessage = (ControlCarbonMessage) msg;
-            handleControlMessage(controlCarbonMessage);
-        } else if (msg instanceof BinaryCarbonMessage) {
-            BinaryCarbonMessage binaryCarbonMessage = (BinaryCarbonMessage) msg;
-            sendBinary(binaryCarbonMessage);
-        }
-        return true;
+        // This method is not used since the Session is used in WebSocket scenarios.
+        throw new ClientConnectorException("Method not supported for WebSocket. Use session to send messages.");
     }
 
     @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback, Map<String, String> parameters)
             throws ClientConnectorException {
-        send(msg, callback);
-        return true;
+        // This method is not used since the Session is used in WebSocket scenarios.
+        throw new ClientConnectorException("Method not supported for WebSocket. Use session to send messages.");
     }
 
     @Override
@@ -80,35 +71,21 @@ public class WebSocketClientConnector implements ClientConnector {
         HTTPTransportContextHolder.getInstance().setMessageProcessor(messageProcessor);
     }
 
-    private void handleControlMessage(ControlCarbonMessage controlCarbonMessage) throws ClientConnectorException {
-        String controlSignal = controlCarbonMessage.getControlSignal();
-        if (org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN.equals(controlSignal)) {
-            handleHandshake(controlCarbonMessage);
-        } else if (org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE.equals(controlSignal)) {
-            shutdownClient(controlCarbonMessage);
-        } else if (org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_HEARTBEAT.equals(controlSignal)) {
-            sendPing(controlCarbonMessage);
-        }
-    }
-
-    private boolean handleHandshake(ControlCarbonMessage carbonMessage) throws ClientConnectorException {
+    private Session handleHandshake(CarbonMessage carbonMessage) throws ClientConnectorException {
         String url = (String) carbonMessage.getProperty(Constants.TO);
-        String clientId = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
+        WebSocketSourceHandler sourceHandler =
+                (WebSocketSourceHandler) carbonMessage.getProperty(Constants.SRC_HANDLER);
         String subprotocols = (String) carbonMessage.getProperty(Constants.WEBSOCKET_SUBPROTOCOLS);
         Boolean allowExtensions = (Boolean) carbonMessage.getProperty(Constants.WEBSOCKET_ALLOW_EXTENSIONS);
         if (allowExtensions == null) {
             allowExtensions = true;
         }
         Headers headers = carbonMessage.getHeaders();
-        WebSocketClient webSocketClient = new WebSocketClient(clientId, url, subprotocols, allowExtensions, headers);
-        boolean handshakeDone;
+        WebSocketClient webSocketClient = new WebSocketClient(url, subprotocols, allowExtensions,
+                                                              headers, sourceHandler);
         try {
-            handshakeDone = webSocketClient.handhshake();
-            if (handshakeDone) {
-                webSocketClientMap.put(clientId, webSocketClient);
-            } else {
-                throw new ClientConnectorException("Handshake is unsuccessful");
-            }
+            webSocketClient.handshake();
+            return webSocketClient.getSession();
         } catch (InterruptedException e) {
             throw new ClientConnectorException("Handshake interrupted", e);
         } catch (URISyntaxException e) {
@@ -116,69 +93,5 @@ public class WebSocketClientConnector implements ClientConnector {
         } catch (SSLException e) {
             throw new ClientConnectorException("URI Syntax exception occurred during handshake", e);
         }
-        return handshakeDone;
-    }
-
-    private void shutdownClient(ControlCarbonMessage controlCarbonMessage) throws ClientConnectorException {
-        WebSocketClient websocketClient = getClient(controlCarbonMessage);
-        try {
-            Integer closeCode = (Integer) controlCarbonMessage.getProperty(Constants.WEBSOCKET_CLOSE_CODE);
-            String closeReason = (String) controlCarbonMessage.getProperty(Constants.WEBSOCKET_CLOSE_REASON);
-            if (closeCode == null) {
-                closeCode = 1001; // Means "Going away"
-            }
-            websocketClient.shutDown(closeCode, closeReason);
-        } catch (InterruptedException e) {
-            throw new ClientConnectorException("Interruption occurred while shutting down the WebSocket Client.", e);
-        } finally {
-            removeClient(controlCarbonMessage);
-        }
-    }
-
-    private void removeClient(CarbonMessage carbonMessage) {
-        String id = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
-        webSocketClientMap.remove(id);
-    }
-
-    private void sendText(TextCarbonMessage textCarbonMessage) throws ClientConnectorException {
-        String text = textCarbonMessage.getText();
-        WebSocketClient webSocketClient = getClient(textCarbonMessage);
-        try {
-            webSocketClient.sendText(text);
-        } catch (IOException e) {
-            throw new ClientConnectorException("Interruption occurred while sending text message to " +
-                                                       "the WebSocket Client.", e);
-        }
-    }
-
-    private void sendBinary(BinaryCarbonMessage binaryCarbonMessage) throws ClientConnectorException {
-        ByteBuffer byteBuf = binaryCarbonMessage.readBytes();
-        WebSocketClient webSocketClient = getClient(binaryCarbonMessage);
-        try {
-            webSocketClient.sendBinary(byteBuf);
-        } catch (IOException e) {
-            throw new ClientConnectorException("Interruption occurred while sending binary message to " +
-                                                       "the WebSocket Client.", e);
-        }
-    }
-
-    private void sendPing(ControlCarbonMessage controlCarbonMessage) throws ClientConnectorException {
-        ByteBuffer buffer = controlCarbonMessage.readBytes();
-        WebSocketClient webSocketClient = getClient(controlCarbonMessage);
-        try {
-            webSocketClient.sendPing(buffer);
-        } catch (IOException e) {
-            throw new ClientConnectorException("Interruption occurred while sending ping message to" +
-                                                       " the WebSocket Client.", e);
-        }
-    }
-
-    private WebSocketClient getClient(CarbonMessage carbonMessage) throws ClientConnectorException {
-        String id = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
-        WebSocketClient webSocketClient = webSocketClientMap.get(id);
-        if (webSocketClient == null) {
-            throw new ClientConnectorException("Cannot find a WebSocket Client for ID: " + id);
-        }
-        return webSocketClient;
     }
 }
