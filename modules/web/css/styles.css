@@ -1667,7 +1667,7 @@ span.fw-stack.fw-lg {
 * Override the size of the autocomplete panel of ace editor
 */
 .ace_editor.ace_autocomplete {
-    width: 400px !important;
+    width: 700px !important;
 }
 
 

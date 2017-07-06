@@ -21,7 +21,11 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.NativeUnit;
+import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
@@ -47,8 +51,14 @@ class DefaultResolver implements ItemResolver {
                 completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_1);
             } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
+                NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
+                completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
                 completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
+            } else if ((symbolInfo.getSymbol() instanceof BallerinaFunction)) {
+                completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
+                completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
                 completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
@@ -71,5 +81,48 @@ class DefaultResolver implements ItemResolver {
         });
 
         return completionItems;
+    }
+
+    private String getFunctionSignature(BallerinaFunction ballerinaFunction) {
+        StringBuffer signature = new StringBuffer(ballerinaFunction.getName());
+        String initString = "(";
+        for (ParameterDef simpleTypeName : ballerinaFunction.getParameterDefs()) {
+            signature.append(initString).append(simpleTypeName.getTypeName()).append(" ").
+                    append(simpleTypeName.getName());
+            initString = ", ";
+        }
+        signature.append(")");
+        initString = "(";
+        String endString = "";
+        for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
+            signature.append(initString).append(simpleTypeName.getTypeName());
+            initString = ", ";
+            endString = ")";
+        }
+        signature.append(endString);
+        return signature.toString();
+    }
+
+
+    private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
+        StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
+        int i = 0;
+        String initString = "";
+        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
+            signature.append(initString).append(simpleTypeName.getName()).append(" ").
+                    append(nativeUnit.getArgumentNames()[i]);
+            ++i;
+            initString = ", ";
+        }
+        signature.append(")");
+        initString = "(";
+        String endString = "";
+        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
+            signature.append(initString).append(simpleTypeName.getName());
+            initString = ", ";
+            endString = ")";
+        }
+        signature.append(endString);
+        return signature.toString();
     }
 }
