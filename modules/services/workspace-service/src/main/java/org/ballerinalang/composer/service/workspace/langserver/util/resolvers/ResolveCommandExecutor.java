@@ -40,6 +40,7 @@ public class ResolveCommandExecutor {
         PackageNameContextResolver packageNameContextResolver = new PackageNameContextResolver();
         AnnotationAttachmentContextResolver annotationAttachmentContextResolver =
                 new AnnotationAttachmentContextResolver();
+        ParameterContextResolver parameterContextResolver = new ParameterContextResolver();
 
         resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
@@ -52,6 +53,7 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.AnnotationAttachmentContext.class, annotationAttachmentContextResolver);
         TopLevelResolver topLevelResolver = new TopLevelResolver();
         resolvers.put(BallerinaParser.GlobalVariableDefinitionContext.class, topLevelResolver);
+        resolvers.put(BallerinaParser.ParameterContext.class, parameterContextResolver);
         resolvers.put(null, topLevelResolver);
     }
 
