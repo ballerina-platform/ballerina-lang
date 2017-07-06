@@ -25,10 +25,12 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NativeUnit;
+import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
@@ -132,11 +134,14 @@ public abstract class AbstractItemResolver {
     }
 
     void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
+        completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
     }
 
     void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
     }
@@ -156,5 +161,48 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+    }
+
+
+    private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
+        StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
+        int i = 0;
+        String initString = "";
+        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
+            signature.append(initString).append(simpleTypeName.getName()).append(" ").
+                    append(nativeUnit.getArgumentNames()[i]);
+            ++i;
+            initString = ", ";
+        }
+        signature.append(")");
+        initString = "(";
+        String endString = "";
+        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
+            signature.append(initString).append(simpleTypeName.getName());
+            initString = ", ";
+            endString = ")";
+        }
+        signature.append(endString);
+        return signature.toString();
+    }
+
+    private String getFunctionSignature(BallerinaFunction ballerinaFunction) {
+        StringBuffer signature = new StringBuffer(ballerinaFunction.getName());
+        String initString = "(";
+        for (ParameterDef simpleTypeName : ballerinaFunction.getParameterDefs()) {
+            signature.append(initString).append(simpleTypeName.getTypeName()).append(" ").
+                    append(simpleTypeName.getName());
+            initString = ", ";
+        }
+        signature.append(")");
+        initString = "(";
+        String endString = "";
+        for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
+            signature.append(initString).append(simpleTypeName.getTypeName());
+            initString = ", ";
+            endString = ")";
+        }
+        signature.append(endString);
+        return signature.toString();
     }
 }

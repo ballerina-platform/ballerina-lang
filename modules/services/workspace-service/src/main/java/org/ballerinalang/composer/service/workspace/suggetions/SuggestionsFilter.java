@@ -40,11 +40,15 @@ public class SuggestionsFilter {
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {
-        SymbolScope closestScope = dataModel.getClosestScope();
-        if (closestScope == null) {
-            return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+        if (dataModel.getContext() == null) {
+            SymbolScope closestScope = dataModel.getClosestScope();
+            if (closestScope == null) {
+                return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
+            } else {
+                return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+            }
         } else {
-            return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+            return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
         }
     }
 }
