@@ -61,6 +61,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -712,12 +713,23 @@ public class BallerinaCompletionUtils {
         addFunctionsAsLookups(resultSet, functions);
     }
 
+    @NotNull
     public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
                 .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
                 .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
         return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<PsiElement> functions) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement function : functions) {
+            LookupElement lookupElement = createFunctionsLookupElement(function);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
     }
 
     /**
@@ -762,6 +774,7 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    @NotNull
     public static LookupElement createConnectorLookupElement(@NotNull PsiElement element,
                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
@@ -769,6 +782,18 @@ public class BallerinaCompletionUtils {
                 .withTailText(BallerinaDocumentationProvider.getParameterString(element.getParent(), true))
                 .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createConnectorLookupElements(@NotNull List<PsiElement> connectors,
+                                                                    @Nullable InsertHandler<LookupElement>
+                                                                            insertHandler) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement connector : connectors) {
+            LookupElement lookupElement = createConnectorLookupElement(connector, insertHandler);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
     }
 
     /**
@@ -812,11 +837,21 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    @NotNull
     public static LookupElement createStructLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT)
                 .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
         return PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createStructLookupElements(@NotNull List<PsiElement> structs) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement struct : structs) {
+            lookupElements.add(createStructLookupElement(struct));
+        }
+        return lookupElements;
     }
 
     /**
@@ -871,6 +906,16 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
+    @NotNull
+    public static List<LookupElement> createParameterLookupElements(@NotNull List<PsiElement> parameters) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement parameter : parameters) {
+            LookupElement lookupElement = createParameterLookupElement(parameter);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
     /**
      * Helper method to add constants as lookup elements.
      *
@@ -903,6 +948,16 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
+    @NotNull
+    public static List<LookupElement> createConstantLookupElements(@NotNull List<PsiElement> constants) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement constant : constants) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
     /**
      * Helper method to add global variables as lookup elements.
      *
@@ -933,6 +988,16 @@ public class BallerinaCompletionUtils {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createGlobalVariableLookupElements(@NotNull List<PsiElement> variables) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement variable : variables) {
+            LookupElement lookupElement = createGlobalVariableLookupElement(variable);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
     }
 
     /**

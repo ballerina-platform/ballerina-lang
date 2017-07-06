@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -116,11 +117,10 @@ public class ConnectorReference extends BallerinaElementReference {
         PsiDirectory containingPackage = originalFile.getParent();
         if (containingPackage != null) {
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
-            for (PsiElement connector : connectors) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
-                        ParenthesisInsertHandler.INSTANCE);
-                results.add(lookupElement);
-            }
+            results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
+                    ParenthesisInsertHandler.INSTANCE));
+        } else {
+            // Todo - suggest all packages
         }
         return results.toArray(new LookupElement[results.size()]);
     }

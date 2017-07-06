@@ -39,6 +39,7 @@ import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
+import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -126,25 +127,28 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_statement:
-                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-                    return new NameReference(this);
-                //                    PsiElement prev = parent.getPrevSibling();
-                //                    if (prev == null) {
-                //                        // Todo - add reference
-                //                    } else {
-                //                        if (prev.getText().isEmpty()) {
-                //                            prev = prev.getPrevSibling();
-                //                        }
-                //                        if (prev != null) {
-                //                            if (prev.getText().endsWith("\\.")) {
-                //                                return new FieldReference(this);
-                //                            }
-                //                        }
-                //                    }
-                //                break;
+                    return new StatementReference(this);
+                    //                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+                    //                    return new NameReference(this);
+
+                    //                    PsiElement prev = parent.getPrevSibling();
+                    //                    if (prev == null) {
+                    //                        // Todo - add reference
+                    //                    } else {
+                    //                        if (prev.getText().isEmpty()) {
+                    //                            prev = prev.getPrevSibling();
+                    //                        }
+                    //                        if (prev != null) {
+                    //                            if (prev.getText().endsWith("\\.")) {
+                    //                                return new FieldReference(this);
+                    //                            }
+                    //                        }
+                    //                    }
+                    //                break;
                 default:
-                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
-                    return new NameReference(this);
+                    //                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
+                    //                    return new NameReference(this);
+                    return null;
             }
         }
         if (parent instanceof PsiErrorElement) {

@@ -105,24 +105,14 @@ public class NameReference extends BallerinaElementReference {
                 }
 
                 List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-                for (PsiElement function : functions) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement
-                            (function);
-                    results.add(lookupElement);
-                }
+                results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
                 List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
-                for (PsiElement connector : connectors) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
-                            AddSpaceInsertHandler.INSTANCE);
-                    results.add(lookupElement);
-                }
+                results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
+                        AddSpaceInsertHandler.INSTANCE));
 
                 List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
-                for (PsiElement struct : structs) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createStructLookupElement(struct);
-                    results.add(lookupElement);
-                }
+                results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
                 //            List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope
                 // (identifier,
@@ -172,23 +162,13 @@ public class NameReference extends BallerinaElementReference {
                     }
 
                     List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
-                    for (PsiElement parameter : parameters) {
-                        LookupElement lookupElement = BallerinaCompletionUtils.createParameterLookupElement(parameter);
-                        results.add(lookupElement);
-                    }
+                    results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
                     List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
-                    for (PsiElement variable : globalVariables) {
-                        LookupElement lookupElement = BallerinaCompletionUtils.createGlobalVariableLookupElement
-                                (variable);
-                        results.add(lookupElement);
-                    }
+                    results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
                     List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
-                    for (PsiElement constant : constants) {
-                        LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
-                        results.add(lookupElement);
-                    }
+                    results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                 }
             }
         } else {
@@ -206,25 +186,14 @@ public class NameReference extends BallerinaElementReference {
             PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-            for (PsiElement function : functions) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement
-                        (function);
-                results.add(lookupElement);
-            }
+            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
-            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage
-                    (containingPackage);
-            for (PsiElement connector : connectors) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
-                        AddSpaceInsertHandler.INSTANCE);
-                results.add(lookupElement);
-            }
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
+            results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,
+                    AddSpaceInsertHandler.INSTANCE));
 
             List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
-            for (PsiElement struct : structs) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createStructLookupElement(struct);
-                results.add(lookupElement);
-            }
+            results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
         }
         return results.toArray(new LookupElement[results.size()]);
     }
@@ -489,6 +458,41 @@ public class NameReference extends BallerinaElementReference {
             }
         }
 
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                ConnectorDefinitionNode.class);
+        if (scope != null) {
+
+            int caretOffset = identifier.getStartOffset();
+
+            List<PsiElement> variables = getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            for (PsiElement variable : variables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
+            for (PsiElement parameter : parameters) {
+                if (identifier.getText().equals(parameter.getText())) {
+                    return parameter;
+                }
+            }
+
+            List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
+            for (PsiElement variable : globalVariables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
+            for (PsiElement constant : constants) {
+                if (identifier.getText().equals(constant.getText())) {
+                    return constant;
+                }
+            }
+        }
 
         // Todo - Resolve global variables, constants
         return null;
