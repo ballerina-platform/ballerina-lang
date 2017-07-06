@@ -21,11 +21,6 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
 
