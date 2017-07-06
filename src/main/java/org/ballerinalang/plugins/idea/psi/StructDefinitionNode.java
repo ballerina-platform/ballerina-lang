@@ -60,7 +60,7 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
         for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
             IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
             if (fieldName != null) {
-                if (fieldName.getText().equals(this.getText())) {
+                if (fieldName.getText().equals(element.getText())) {
                     return fieldName;
                 }
             }

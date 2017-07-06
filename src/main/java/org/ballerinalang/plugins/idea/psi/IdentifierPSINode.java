@@ -127,24 +127,30 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_statement:
+                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+                    if (prevVisibleLeaf != null)
+                        if (".".equals(prevVisibleLeaf.getText())) {
+                            return new FieldReference(this);
+                        }
                     return new StatementReference(this);
-                    //                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-                    //                    return new NameReference(this);
 
-                    //                    PsiElement prev = parent.getPrevSibling();
-                    //                    if (prev == null) {
-                    //                        // Todo - add reference
-                    //                    } else {
-                    //                        if (prev.getText().isEmpty()) {
-                    //                            prev = prev.getPrevSibling();
-                    //                        }
-                    //                        if (prev != null) {
-                    //                            if (prev.getText().endsWith("\\.")) {
-                    //                                return new FieldReference(this);
-                    //                            }
-                    //                        }
-                    //                    }
-                    //                break;
+                //                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+                //                    return new NameReference(this);
+
+                //                    PsiElement prev = parent.getPrevSibling();
+                //                    if (prev == null) {
+                //                        // Todo - add reference
+                //                    } else {
+                //                        if (prev.getText().isEmpty()) {
+                //                            prev = prev.getPrevSibling();
+                //                        }
+                //                        if (prev != null) {
+                //                            if (prev.getText().endsWith("\\.")) {
+                //                                return new FieldReference(this);
+                //                            }
+                //                        }
+                //                    }
+                //                break;
                 default:
                     //                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
                     //                    return new NameReference(this);
@@ -171,8 +177,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
     private PsiReference suggestReferenceType() {
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
-        if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
-            return new PackageNameReference(this);
+        if (nextVisibleLeaf != null) {
+            if (":".equals(nextVisibleLeaf.getText())) {
+                return new PackageNameReference(this);
+            } else if (".".equals(nextVisibleLeaf.getText())) {
+                return new NameReference(this);
+            }
         }
 
         return new NameReference(this);

@@ -1070,13 +1070,22 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
+    @NotNull
+    public static LookupElementBuilder createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
+                                                                @NotNull TypeNameNode fieldType,
+                                                                @NotNull IdentifierPSINode ownerName) {
+        return LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
+                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD)
+                .withTailText(" -> " + ownerName.getText(), true);
+    }
+
+    @NotNull
     public static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
                                                          @NotNull TypeNameNode fieldType,
-                                                         @NotNull IdentifierPSINode ownerName) {
-        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(), fieldName)
-                .withTypeText(fieldType.getText()).withIcon(BallerinaIcons.FIELD)
-                .withTailText(" -> " + ownerName.getText(), true)
-                .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                                                         @NotNull IdentifierPSINode ownerName,
+                                                         @NotNull InsertHandler<LookupElement> insertHandler) {
+        LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType, ownerName)
+                .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 

@@ -21,6 +21,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -120,7 +121,7 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
                 continue;
             }
             LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                    (IdentifierPSINode) annotationName);
+                    (IdentifierPSINode) annotationName, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             results.add(lookupElement);
         }
         return results.toArray(new LookupElement[results.size()]);
