@@ -21,6 +21,10 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
+import { getServiceEndpoint } from './../api-client/api-client';
+
+//holds the singleton of lang server client
+let instance = undefined;
 
 /**
  * Class for language server client controller
@@ -34,7 +38,6 @@ class LangServerClientController extends EventChannel {
     constructor(options) {
         super();
         this.langserverChannel = undefined;
-        this.endpoint = _.get(options, 'application.config.services.langserver.endpoint');
         this.requestSessions = [];
         this.isInitialized = false;
     }
@@ -44,12 +47,16 @@ class LangServerClientController extends EventChannel {
      */
     init() {
         return new Promise((resolve, reject) => {
-            this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
+            this.langserverChannel = new LangserverChannel({ 
+                /** fetch endpoint from util */
+                endpoint: getServiceEndpoint('langserver'), 
+                clientController: this });
             this.langserverChannel.on('connected', () => {
                 this.initializeRequest();
                 resolve();
             });
             this.langserverChannel.on('error', (error) => {
+                instance = undefined;
                 reject(error);
             });
         });
@@ -228,4 +235,32 @@ class LangServerClientController extends EventChannel {
     // End language server response handlers
 }
 
-export default LangServerClientController;
+/**
+ * Method to initialize the singleton of lang server client
+ */
+function initLangServerClientInstance() {
+    instance = new LangServerClientController();
+    return new Promise((resolve, reject) => {
+        instance.init()
+            .then(resolve)
+            .catch((error) => {
+                instance = undefined;
+                reject(error);
+            })
+    });
+}
+
+/**
+ * method to fetch langserver client sigleton
+ */
+export function getLangServerClientInstance() {
+    return new Promise((resolve, reject) => {
+        if (instance !== undefined) {
+            resolve(instance);
+        } else {
+            initLangServerClientInstance()
+                .then(() => { resolve(instance) })
+                .catch(reject);
+        }
+    })
+}

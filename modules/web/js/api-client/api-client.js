@@ -37,7 +37,7 @@ export function parseFile(file) {
         packageName: 'test.package',
         content: file.getContent(),
     };
-    const endpoint = endpoints.parser.endpoint;
+    const endpoint = getServiceEndpoint('parser');
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };
@@ -48,4 +48,13 @@ export function parseFile(file) {
                 resolve(response.data);
             }).catch(error => reject(error));
     });
+}
+
+/**
+ * Gives the endpoint for a paticular backend service
+ * 
+ * @param {string} serviceName Name of the service
+ */
+export function getServiceEndpoint(serviceName) {
+    return endpoints[serviceName].endpoint;
 }

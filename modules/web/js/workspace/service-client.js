@@ -139,7 +139,7 @@ class ServiceClient extends EventChannel {
                 text: fileData.content,
             },
         };
-        this.application.langseverClientController.documentDidOpenNotification(documentOptions);
+        //this.application.langseverClientController.documentDidOpenNotification(documentOptions);
 
         return new File({
             name: fileName,

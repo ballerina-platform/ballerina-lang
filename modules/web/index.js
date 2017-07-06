@@ -6,7 +6,7 @@ window.scope = window.location.pathname;
 const log = require('log').default;
 const _ = require('lodash');
 const { fetchConfigs } = require('./js/api-client/api-client');
-const Application = require('./js/main').default;
+const Application = require('./js/app').default;
 const config = require('./config').default;
 
 // Before start rendering, fetch api endpoint information & other configs from config service

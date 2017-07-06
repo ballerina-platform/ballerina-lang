@@ -117,7 +117,7 @@ class BallerinaASTRoot extends ASTNode {
      * @return {*}
      */
     getPackageDefinition() {
-        return this.getChildrenOfType(this.getFactory().isPackageDefinition);
+        return this.getChildrenOfType(this.getFactory().isPackageDefinition)[0];
     }
 
     /**

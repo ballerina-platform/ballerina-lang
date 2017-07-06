@@ -276,7 +276,7 @@ class FileTab extends Tab {
                     documentId: this._file.id,
                 },
             };
-            this.app.langseverClientController.documentDidCloseNotification(documentOptions);
+            //this.app.langseverClientController.documentDidCloseNotification(documentOptions);
             this.removeAllBreakpoints();
         });
 

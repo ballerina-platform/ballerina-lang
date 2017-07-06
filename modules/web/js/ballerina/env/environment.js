@@ -20,6 +20,7 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import EnvironmentContent from './environment-content';
+import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 
 /**
  * @class BallerinaEnvironment
@@ -38,9 +39,14 @@ class BallerinaEnvironment extends EventChannel {
 
     initialize(opts) {
         if (!this.initialized) {
-            opts.app.langseverClientController.workspaceSymbolRequest('builtinTypes', (data) => {
-                this.initializeBuiltinTypes(data.result);
-            });
+            getLangServerClientInstance()
+                .then((langServerClient) => {
+                    langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
+                        this.initializeBuiltinTypes(data.result);
+                    });
+                })
+                .catch(error => log.error('Error while connecting to langserver. ' + error));
+
             this.initializePackages(opts.app);
             this.initializeAnnotationAttachmentPoints(opts.app);
             this.initialized = true;
