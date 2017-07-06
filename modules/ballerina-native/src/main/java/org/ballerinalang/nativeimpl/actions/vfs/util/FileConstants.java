@@ -21,7 +21,8 @@ package org.ballerinalang.nativeimpl.actions.vfs.util;
  * Constants for vfs client connector.
  */
 public class FileConstants {
-    public static final String VFS_CONNECTOR_NAME = "vfs";
+    //TODO: Rethink VFS_CONNECTOR_NAME
+    public static final String VFS_CONNECTOR_NAME = "file";
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String PROPERTY_URI = "uri";
     public static final String PROPERTY_SOURCE = "source";
