@@ -40,7 +40,6 @@ import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
-import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,18 +111,19 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new AnnotationReference(this);
                 case RULE_connectorReference:
                     return new ConnectorReference(this);
-                case RULE_variableReference:
-                case RULE_parameter:
-                    // If "package:" is typed as an argument, it will be identified as a variableReference. So we
-                    // need to match it with a regex and return a PackageNameReference.
-                    if (parent.getText().matches(".+:")) {
-                        return new PackageNameReference(this);
-                    }
-                    PsiElement prevSibling = getPrevSibling();
-                    if (prevSibling != null && prevSibling.getText().matches(".+:")) {
-                        return new PackageNameReference(this);
-                    }
-                    return new VariableReference(this);
+                //                case RULE_variableReference:
+                //                case RULE_parameter:
+                //                    // If "package:" is typed as an argument, it will be identified as a
+                // variableReference. So we
+                //                    // need to match it with a regex and return a PackageNameReference.
+                //                    if (parent.getText().matches(".+:")) {
+                //                        return new PackageNameReference(this);
+                //                    }
+                //                    PsiElement prevSibling = getPrevSibling();
+                //                    if (prevSibling != null && prevSibling.getText().matches(".+:")) {
+                //                        return new PackageNameReference(this);
+                //                    }
+                //                    return new VariableReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_statement:
@@ -133,43 +133,11 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             return new FieldReference(this);
                         }
                     return new StatementReference(this);
-
-                //                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-                //                    return new NameReference(this);
-
-                //                    PsiElement prev = parent.getPrevSibling();
-                //                    if (prev == null) {
-                //                        // Todo - add reference
-                //                    } else {
-                //                        if (prev.getText().isEmpty()) {
-                //                            prev = prev.getPrevSibling();
-                //                        }
-                //                        if (prev != null) {
-                //                            if (prev.getText().endsWith("\\.")) {
-                //                                return new FieldReference(this);
-                //                            }
-                //                        }
-                //                    }
-                //                break;
                 default:
-                    //                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
-                    //                    return new NameReference(this);
                     return null;
             }
         }
         if (parent instanceof PsiErrorElement) {
-
-            //            PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
-            //            if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
-            //                return new PackageNameReference(this);
-            //            }
-            //
-            //            // Todo - find matching element and return corresponding reference type
-            //
-            //            if (parent.getParent() instanceof StatementNode) {
-            //                return new NameReference(this);
-            //            }
-
             return suggestReferenceType();
         }
         return null;

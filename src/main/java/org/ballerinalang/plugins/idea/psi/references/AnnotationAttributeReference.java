@@ -40,11 +40,6 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
         super(element);
     }
 
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FieldDefinitionNode;
-    }
-
     @Nullable
     @Override
     public PsiElement resolve() {
@@ -71,6 +66,8 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
         PsiElement annotationDefinition = annotationName.getParent();
         Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
                 FieldDefinitionNode.class);
+
+        // Todo - use an util method?
         for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
             IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
             if (fieldName == null) {
@@ -108,6 +105,8 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
             return new Object[0];
         }
         PsiElement annotationDefinition = annotationName.getParent();
+
+        // Todo - use an util method?
         Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
                 FieldDefinitionNode.class);
         List<LookupElement> results = new LinkedList<>();

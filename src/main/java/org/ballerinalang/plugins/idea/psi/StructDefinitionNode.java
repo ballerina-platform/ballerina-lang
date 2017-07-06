@@ -26,7 +26,6 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,14 +64,6 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
                 }
             }
         }
-        //        PsiElement parent = element.getParent();
-
-        //        return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-
-        //        if (parent instanceof VariableReferenceNode || parent instanceof StatementNode
-        //                || parent instanceof NameReferenceNode || parent instanceof FieldNode) {
-        //            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        //        }
         return null;
     }
 }

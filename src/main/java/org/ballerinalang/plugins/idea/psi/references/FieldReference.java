@@ -27,7 +27,6 @@ import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,11 +39,6 @@ public class FieldReference extends BallerinaElementReference {
 
     public FieldReference(@NotNull IdentifierPSINode element) {
         super(element);
-    }
-
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return false;
     }
 
     @Nullable

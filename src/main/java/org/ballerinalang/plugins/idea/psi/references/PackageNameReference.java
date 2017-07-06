@@ -45,11 +45,6 @@ public class PackageNameReference extends BallerinaElementReference implements P
         super(element);
     }
 
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof PsiDirectory || def instanceof PackageNameNode;
-    }
-
     @NotNull
     @Override
     public Object[] getVariants() {

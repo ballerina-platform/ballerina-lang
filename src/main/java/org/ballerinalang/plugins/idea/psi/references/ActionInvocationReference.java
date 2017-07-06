@@ -33,11 +33,6 @@ public class ActionInvocationReference extends BallerinaElementReference {
         super(element);
     }
 
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof ActionDefinitionNode;
-    }
-
     @NotNull
     @Override
     public Object[] getVariants() {

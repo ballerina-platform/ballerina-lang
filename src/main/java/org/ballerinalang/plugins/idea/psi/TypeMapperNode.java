@@ -21,7 +21,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,12 +33,6 @@ public class TypeMapperNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-//        if (element.getParent() instanceof VariableReferenceNode) {
-//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-//        } else if (element.getParent() instanceof TypeNameNode || element.getParent() instanceof NameReferenceNode) {
-//            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-//                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
-//        }
         return null;
     }
 }

@@ -35,11 +35,6 @@ public class FunctionReference extends BallerinaElementReference {
         super(element);
     }
 
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return false;
-    }
-
     @NotNull
     @Override
     public Object[] getVariants() {

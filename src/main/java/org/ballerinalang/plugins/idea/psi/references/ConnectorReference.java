@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
-import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -38,11 +37,6 @@ public class ConnectorReference extends BallerinaElementReference {
 
     public ConnectorReference(@NotNull IdentifierPSINode element) {
         super(element);
-    }
-
-    @Override
-    public boolean isDefinitionNode(PsiElement def) {
-        return false;
     }
 
     @Nullable

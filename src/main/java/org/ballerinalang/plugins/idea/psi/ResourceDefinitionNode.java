@@ -25,11 +25,10 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class ResourceDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -52,13 +51,6 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-//        if (element.getParent() instanceof VariableReferenceNode) {
-//            // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
-//            // cause issues when using find usage, etc. So use BallerinaPsiImplUtil.resolveElement() instead.
-//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-//        } else if (element.getParent() instanceof NameReferenceNode) {
-//            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
-//        }
         return null;
     }
 }

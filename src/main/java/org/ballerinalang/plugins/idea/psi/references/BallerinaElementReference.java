@@ -67,10 +67,4 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         }
         return scope.resolve(myElement);
     }
-
-    /**
-     * Is the targeted def a subtree associated with this ref's kind of node?
-     * E.g., for a variable def, this should return true for VardefSubtree.
-     */
-    public abstract boolean isDefinitionNode(PsiElement def);
 }
