@@ -98,29 +98,29 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         if (parent instanceof PsiFile) {
             // If the parent is PsiFile, that means we can only suggest keywords including 'package' and 'import'
             // keywords.
-            addFileLevelKeywordsAsLookups(result, true, true);
+            //            addFileLevelKeywordsAsLookups(result, true, true);
         } else if (parentPrevSibling instanceof ImportDeclarationNode
                 || parentPrevSibling instanceof PackageDeclarationNode) {
             // If the previous sibling of the parent is PackageDeclarationNode, that means we have already added
             // package declaration. If it is ImportDeclarationNode, no need to suggest 'package' keyword because we
             // cannot add package declaration after an import.
-            addFileLevelKeywordsAsLookups(result, false, true);
+            //            addFileLevelKeywordsAsLookups(result, false, true);
         } else if (parent instanceof PackageNameNode) {
             handlePackageNameNode(parameters, result);
         } else if (parent instanceof ImportDeclarationNode) {
             handleImportDeclarationNode(parameters, result);
         } else if (parent instanceof PsiErrorElement) {
-//            handlePsiErrorElement(parameters, result);
+            //            handlePsiErrorElement(parameters, result);
         } else {
             // If we are currently at an identifier node or a comment node, no need to suggest.
-//            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
-//                return;
-//            }
-            if (parentPrevSibling == null) {
-                addFileLevelKeywordsAsLookups(result, true, true);
-            } else {
-                addFileLevelKeywordsAsLookups(result, false, true);
-            }
+            //            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
+            //                return;
+            //            }
+            //            if (parentPrevSibling == null) {
+            //                addFileLevelKeywordsAsLookups(result, true, true);
+            //            } else {
+            //                addFileLevelKeywordsAsLookups(result, false, true);
+            //            }
         }
     }
 

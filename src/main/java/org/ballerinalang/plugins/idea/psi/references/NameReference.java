@@ -213,9 +213,33 @@ public class NameReference extends BallerinaElementReference {
         Collection<VariableDefinitionNode> variableDefinitionNodes = PsiTreeUtil.findChildrenOfType(scope,
                 VariableDefinitionNode.class);
         for (VariableDefinitionNode variableDefinitionNode : variableDefinitionNodes) {
-            PsiElement identifier = variableDefinitionNode.getNameIdentifier();
-            if (identifier != null && identifier.getTextOffset() < caretOffset) {
-                results.add(identifier);
+            PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);
+            if (elementAtCaret != null) {
+                PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
+
+                // Todo - temp fix
+                if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
+
+                    PsiElement prevVisibleLeafParent = PsiTreeUtil.getParentOfType(prevVisibleLeaf,
+                            VariableDefinitionNode.class);
+                    if (prevVisibleLeafParent != null) {
+                        PsiElement identifier = variableDefinitionNode.getNameIdentifier();
+                        if (identifier != null && identifier.getTextOffset() < caretOffset
+                                && !variableDefinitionNode.equals(prevVisibleLeafParent)) {
+                            results.add(identifier);
+                        }
+                    } else {
+                        PsiElement identifier = variableDefinitionNode.getNameIdentifier();
+                        if (identifier != null && identifier.getTextOffset() < caretOffset) {
+                            results.add(identifier);
+                        }
+                    }
+                } else {
+                    PsiElement identifier = variableDefinitionNode.getNameIdentifier();
+                    if (identifier != null && identifier.getTextOffset() < caretOffset) {
+                        results.add(identifier);
+                    }
+                }
             }
         }
         return results;

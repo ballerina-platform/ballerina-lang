@@ -127,20 +127,21 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_statement:
-                    PsiElement prev = parent.getPrevSibling();
-                    if (prev == null) {
-                        // Todo - add reference
-                    } else {
-                        if (prev.getText().isEmpty()) {
-                            prev = prev.getPrevSibling();
-                        }
-                        if (prev != null) {
-                            if (prev.getText().endsWith("\\.")) {
-                                return new FieldReference(this);
-                            }
-                        }
-                    }
-                    break;
+                    return new NameReference(this);
+                //                    PsiElement prev = parent.getPrevSibling();
+                //                    if (prev == null) {
+                //                        // Todo - add reference
+                //                    } else {
+                //                        if (prev.getText().isEmpty()) {
+                //                            prev = prev.getPrevSibling();
+                //                        }
+                //                        if (prev != null) {
+                //                            if (prev.getText().endsWith("\\.")) {
+                //                                return new FieldReference(this);
+                //                            }
+                //                        }
+                //                    }
+                //                break;
                 default:
                     return null;
             }
