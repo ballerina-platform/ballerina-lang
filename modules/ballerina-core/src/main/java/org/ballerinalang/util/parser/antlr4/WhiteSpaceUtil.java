@@ -48,6 +48,7 @@ public class WhiteSpaceUtil {
     public static final String NATIVE_KEYWORD = "native";
     public static final String KEYWORD_THROWS = "throws";
     public static final String EQUAL_OPERATOR = "=";
+    public static final String VAR_KEYWORD = "var";
     public static final String IF_KEYWORD = "if";
     public static final String DOT_OPERATOR = ".";
     public static final String COMMITTED_CLAUSE = "CommittedClause";
@@ -304,7 +305,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_LITERAL_END_TO_NEXT_TOKEN,
-                getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.expression().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -527,6 +528,10 @@ public class WhiteSpaceUtil {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.ASSIGN_STMT_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        if (getFirstTokenWithText(ctx.children, VAR_KEYWORD) != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.ASSIGN_STMT_VAR_KEYWORD_TO_VAR_REF_LIST,
+                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, VAR_KEYWORD).getTokenIndex()));
+        }
         ws.addWhitespaceRegion(WhiteSpaceRegions.ASSIGN_STMT_VAR_REF_LIST_TO_EQUAL_OPERATOR,
                 getWhitespaceToRight(tokenStream, ctx.variableReferenceList().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ASSIGN_STMT_EQUAL_OPERATOR_TO_EXPRESSION_START,

@@ -12,6 +12,13 @@ struct Person {
     boolean alive;
 }
 
+function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, errors:TypeConversionError) {
+    int a;
+    float f = 10.0;
+    var a, err = <int>f;
+    return a, err;
+}
+
 function testIntToVarAssignment() (int) {
     var age = 81;
     return age;
