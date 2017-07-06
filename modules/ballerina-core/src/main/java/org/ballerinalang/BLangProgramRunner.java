@@ -72,6 +72,7 @@ public class BLangProgramRunner {
 
             for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
                 // Invoke service init function
+                bContext.setServiceInfo(serviceInfo);
                 BLangFunctions.invokeFunction(programFile, packageInfo,
                         serviceInfo.getInitFunctionInfo(), bContext);
                 if (bContext.getError() != null) {

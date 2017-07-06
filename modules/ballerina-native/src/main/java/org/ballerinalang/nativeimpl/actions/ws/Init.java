@@ -19,9 +19,6 @@
 package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.Connector;
-import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
@@ -32,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
 import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.util.codegen.ServiceInfo;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.UUID;
@@ -65,19 +63,13 @@ public class Init extends AbstractWebSocketAction {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         ConnectorControllerRegistry controllerRegistry = ConnectorControllerRegistry.getInstance();
         if (!controllerRegistry.contains(bconnector)) {
-            String remoteUrl = bconnector.getValue(0).stringValue();
-            String clientServiceName = bconnector.getValue(1).stringValue();
-            Connector connector = bconnector.value();
+            String remoteUrl = bconnector.getStringField(0);
+            String clientServiceName = bconnector.getStringField(1);
 
-            SymbolScope enclosingScope = connector.getEnclosingScope();
-            while (!(enclosingScope instanceof BLangProgram)) {
-                enclosingScope = enclosingScope.getEnclosingScope();
-            }
-            BLangProgram bLangProgram = (BLangProgram) enclosingScope;
+            ServiceInfo parentService = context.getServiceInfo();
             String connectorID = UUID.randomUUID().toString();
-            if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-                String parentServiceName = ((BLangProgram) enclosingScope).
-                        getServicePackageList().get(0).getServices()[0].getName();
+            if (parentService != null) {
+                String parentServiceName = parentService.getName();
                 controllerRegistry.addConnectorController(bconnector, connectorID, parentServiceName,
                                                           clientServiceName, remoteUrl);
             } else {
