@@ -39,7 +39,6 @@ public class AggregationDefinition extends AbstractDefinition {
     private transient Selector selector = null;
     private Variable aggregateAttribute = null;
     private transient TimePeriod timePeriod = null;
-    // private Annotation annotation = null; // TODO: 5/9/17 list of annotations?
     private transient List<Annotation> annotations = new ArrayList<>();
 
     protected AggregationDefinition(String id) {
@@ -47,10 +46,6 @@ public class AggregationDefinition extends AbstractDefinition {
     }
 
     public AggregationDefinition select(BasicSelector selector) {
-        // if(selector.getHavingExpression()!=null){
-        // throw new OperationNotSupportedException ("Having condition cannot be added for Aggregate Definition," +
-        // " but found in '"+id+"'");
-        // }
         this.selector = selector;
         return this;
     }
@@ -139,8 +134,4 @@ public class AggregationDefinition extends AbstractDefinition {
         return result;
     }
 
-    private void readObject(ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
-        annotations = (List<Annotation>) stream.readObject();
-    }
 }

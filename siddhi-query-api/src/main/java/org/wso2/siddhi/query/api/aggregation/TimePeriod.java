@@ -18,6 +18,7 @@
 package org.wso2.siddhi.query.api.aggregation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,19 +59,16 @@ public class TimePeriod {
         return this.durations;
     }
 
-    // TODO: 5/12/17 check whether names "range", "interval" are ok
-    public static TimePeriod range(Duration left, Duration right) { // range sec ... min
+    public static TimePeriod range(Duration begging, Duration end) { // range sec ... min
         TimePeriod timePeriod = new TimePeriod(Operator.RANGE);
-        timePeriod.durations.add(left);
-        timePeriod.durations.add(right);
+        timePeriod.durations.add(begging);
+        timePeriod.durations.add(end);
         return timePeriod;
     }
 
     public static TimePeriod interval(Duration... durations) { // interval sec, min, time
         TimePeriod timePeriod = new TimePeriod(Operator.INTERVAL);
-        for (Duration duration : durations) {
-            timePeriod.durations.add(duration);
-        }
+        Collections.addAll(timePeriod.durations, durations);
         return timePeriod;
     }
 

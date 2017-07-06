@@ -31,7 +31,9 @@ public class DefineAggregationTestCase {
                         .select("symbol", Expression.variable("symbol").ofStream("StockStream"))
                         .select("price", Expression.variable("price").ofStream("StockStream"))
                         .groupBy(Expression.variable("price").ofStream("StockStream")))
-                .aggregateBy(Expression.variable("timestamp")).every(TimePeriod.interval(TimePeriod.Duration.SECONDS,
-                        TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
+                .aggregateBy(Expression.variable("timestamp"))
+                .every(TimePeriod.interval(TimePeriod.Duration.SECONDS,
+                        TimePeriod.Duration.MINUTES,
+                        TimePeriod.Duration.HOURS));
     }
 }
