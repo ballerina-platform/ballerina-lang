@@ -25,6 +25,7 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NativeUnit;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
@@ -118,6 +119,8 @@ public abstract class AbstractItemResolver {
                 this.populateNativePackageProxyCompletionItem(completionItem, symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof VariableDef) {
                 this.populateVariableDefCompletionItem(completionItem, symbolInfo);
+            } else if ((symbolInfo.getSymbol() instanceof StructDef)) {
+                this.populateStructDefCompletionItem(completionItem, symbolInfo);
             }
             completionItems.add(completionItem);
         });
@@ -130,12 +133,12 @@ public abstract class AbstractItemResolver {
 
     void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
     }
 
     void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
+        completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
     }
 
     void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
@@ -147,5 +150,11 @@ public abstract class AbstractItemResolver {
         String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+    }
+
+    void populateStructDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
+        completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
+        completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
     }
 }

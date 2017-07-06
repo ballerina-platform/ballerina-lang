@@ -77,6 +77,7 @@ public class ItemResolverConstants {
     // Symbol Types Constants
     public static final String PACKAGE_TYPE = "package";
     public static final String FUNCTION_TYPE = "function";
+    public static final String STRUCT_TYPE = "struct";
     public static final String ACTION_TYPE = "action";
     public static final String KEYWORD_TYPE = "keyword";
     public static final String NONE = "none";

@@ -34,20 +34,17 @@ public class SuggestionsFilter {
 
     /**
      * Get the completion items list
+     *
      * @param dataModel - Suggestion filter data model
-     * @param symbols - Symbols list
+     * @param symbols   - Symbols list
      */
     public ArrayList<CompletionItem> getCompletionItems(SuggestionsFilterDataModel dataModel,
                                                         ArrayList<SymbolInfo> symbols) {
-        if (dataModel.getContext() == null) {
-            SymbolScope closestScope = dataModel.getClosestScope();
-            if (closestScope == null) {
-                return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
-            } else {
-                return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
-            }
+        SymbolScope closestScope = dataModel.getClosestScope();
+        if (closestScope == null) {
+            return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
         } else {
-            return resolveCommandExecutor.resolveCompletionItems(dataModel.getContext().getClass(), dataModel, symbols);
+            return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
         }
     }
 }
