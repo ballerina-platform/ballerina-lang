@@ -22,6 +22,9 @@ import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 
+/**
+ * FragmentExpression represents a fragment in the path segment of the uri.
+ */
 public class FragmentExpression extends ReservedStringExpression {
 
     public FragmentExpression(String token) throws URITemplateException {

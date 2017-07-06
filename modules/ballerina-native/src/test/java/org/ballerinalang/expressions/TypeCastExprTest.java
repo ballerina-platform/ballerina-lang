@@ -472,7 +472,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a struct to map",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
-                    "to 'map'")
+                    "to 'map', try conversion")
     public void testStructToMap() {
         BTestUtils.getProgramFile("lang/expressions/type/cast/struct-to-map.bal");
     }
@@ -480,7 +480,7 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a map to struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
-                    "'Person'")
+                    "'Person', try conversion")
     public void testMapToStruct() {
         BTestUtils.getProgramFile("lang/expressions/type/cast/map-to-struct.bal");
     }
@@ -495,9 +495,17 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a json to struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
-                    " 'Person'")
+                    " 'Person', try conversion")
     public void testJsonToStruct() {
         BTestUtils.getProgramFile("lang/expressions/type/cast/json-to-struct.bal");
+    }
+
+    @Test(description = "Test casting a map to json",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "map-to-json-error.bal:7: incompatible types: 'map' cannot " +
+                    "be cast to 'json'")
+    public void testMapToJsonCastingError() {
+        BTestUtils.getProgramFile("lang/expressions/type/cast/map-to-json-error.bal");
     }
 
     @Test(description = "Test casting struct stored as any to struct")
