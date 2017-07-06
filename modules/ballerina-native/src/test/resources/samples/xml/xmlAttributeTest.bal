@@ -191,3 +191,13 @@ function testRuntimeNamespaceLookupPriority() (xml) {
     
     return x;
 }
+
+function testSetAttributes() (xml) {
+    map attributesMap = {"foo1":"bar1", "{http://wso2.com}foo2":"bar2"};
+    attributesMap[ns0:foo3] = "bar3";
+    xml x = xmls:parse("<root xmlns:p1=\"http://wso2.com\" xmlns:p2=\"http://sample.com/wso2/a1\"/>");
+    
+    xmls:setAttributes(x, attributesMap);
+    
+    return x;
+}

@@ -38,6 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -223,7 +224,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
-        // treat this attribute add operation as a namespace addition.
+        // treat this attribute-add operation as a namespace addition.
         if ((node.getDefaultNamespace() != null &&
                 namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI())) ||
                 namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
@@ -308,6 +309,44 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public void setAttributes(BMap<String, ?> attributes) {
+        if (nodeType != XMLNodeType.ELEMENT) {
+            return;
+        }
+        
+        // Remove existing attributes
+        OMElement omElement = ((OMElement) omNode);
+        Iterator<OMAttribute> attrIterator = omElement.getAllAttributes();
+        while (attrIterator.hasNext()) {
+            omElement.removeAttribute(attrIterator.next());
+        }
+        
+        // Remove existing namespace declarations
+        Iterator<OMNamespace> namespaceIterator = omElement.getAllDeclaredNamespaces();
+        while (namespaceIterator.hasNext()) {
+            namespaceIterator.next();
+            namespaceIterator.remove();
+        }
+        
+        String localName, uri;
+        Set<String> attributeQNames = attributes.keySet();
+        for (String qname : attributeQNames) {
+            if (qname.startsWith("{") && qname.indexOf('}') > 0) {
+                localName = qname.substring(qname.indexOf('}') + 1, qname.length());
+                uri = qname.substring(1, qname.indexOf('}'));
+            } else {
+                localName = qname;
+                uri = "";
+            }
+            
+            setAttribute(localName, uri, "", attributes.get(qname).stringValue());
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public BXML<?> elements() {
         BRefValueArray elementsSeq = new BRefValueArray();
         switch (nodeType) {
@@ -387,7 +426,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void setChildren(BXML seq) {
+    public void setChildren(BXML<?> seq) {
         OMElement currentNode;
         switch (nodeType) {
             case ELEMENT:

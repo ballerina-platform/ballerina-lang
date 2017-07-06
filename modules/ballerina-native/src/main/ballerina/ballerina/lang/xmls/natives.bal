@@ -157,3 +157,8 @@ native function strip(xml x) (xml);
 @doc:Param { value:"startIndex: Start index, inclusive" }
 @doc:Param { value:"endIndex: End index, exclusive" }
 native function slice(xml x, int startIndex, int endIndex) (xml);
+
+@doc:Description { value:"Sets the attributes to the provided attributes map."}
+@doc:Param { value:"x: An XML object" }
+@doc:Param { value:"attributes: Attributes map" }
+native function setAttributes(xml x, map attributes);

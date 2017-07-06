@@ -157,6 +157,13 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         return BTypes.typeMap.getEmptyValue();
     }
 
+    @Override
+    public void setAttributes(BMap<String, ?> attributes) {
+        if (sequence.size() == 1) {
+            ((BXMLItem) sequence.get(0)).setAttributes(attributes);
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */

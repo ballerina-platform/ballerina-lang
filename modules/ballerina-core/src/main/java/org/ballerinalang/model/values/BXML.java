@@ -129,13 +129,20 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public abstract void setAttribute(String localName, String namespace, String prefix, String value);
 
-    
     /**
      * Get attributes as a {@link BMap}.
      * 
      * @return Attributes as a {@link BMap}
      */
     public abstract BMap<?, ?> getAttributesMap();
+    
+
+    /**
+     * Set the attributes of the XML{@link BMap}.
+     * 
+     * @param attributes Attributes to be set.
+     */
+    public abstract void setAttributes(BMap<String, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.
