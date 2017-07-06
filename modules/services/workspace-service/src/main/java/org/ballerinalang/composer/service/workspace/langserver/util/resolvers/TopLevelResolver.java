@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * Resolves all items that can appear as a top level element in the file.
  */
-public class TopLevelResolver implements ItemResolver {
+public class TopLevelResolver extends AbstractItemResolver {
 
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {

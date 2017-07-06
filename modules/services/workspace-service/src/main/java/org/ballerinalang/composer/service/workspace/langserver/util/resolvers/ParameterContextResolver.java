@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * Parameter context resolver for resolving the items of the parameter context
  */
-public class ParameterContextResolver implements ItemResolver {
+public class ParameterContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

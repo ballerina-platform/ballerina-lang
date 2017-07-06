@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for the Package name context
  */
-class PackageNameContextResolver implements ItemResolver {
+class PackageNameContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();

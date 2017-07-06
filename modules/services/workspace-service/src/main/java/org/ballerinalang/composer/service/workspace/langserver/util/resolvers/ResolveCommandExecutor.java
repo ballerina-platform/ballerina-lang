@@ -30,7 +30,7 @@ import java.util.HashMap;
  * ResolveCommandExecutor will accept the command to execute
  */
 public class ResolveCommandExecutor {
-    private static final HashMap<Class, ItemResolver> resolvers = new HashMap<>();
+    private static final HashMap<Class, AbstractItemResolver> resolvers = new HashMap<>();
     private static final DefaultResolver DEFAULT_RESOLVER = new DefaultResolver();
 
     public ResolveCommandExecutor() {
@@ -66,7 +66,7 @@ public class ResolveCommandExecutor {
      */
     public ArrayList<CompletionItem> resolveCompletionItems
     (Class resolveCriteria, SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
-        ItemResolver itemResolver = resolvers.get(resolveCriteria);
+        AbstractItemResolver itemResolver = resolvers.get(resolveCriteria);
         if (itemResolver == null) {
             return DEFAULT_RESOLVER.resolveItems(dataModel, symbols);
         } else {
