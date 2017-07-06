@@ -107,7 +107,7 @@ function testSelectData () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -126,7 +126,7 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
     datatable dt = sql:ClientConnector.select (testDB, "SELECT  int_type, long_type, float_type, double_type
               from DataTypeTable where row_id = 1", parameters);
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultDataType) dataStruct;
         int_type = rs.INT_TYPE;
         long_type = rs.LONG_TYPE;
@@ -149,7 +149,7 @@ function testCallProcedure () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -167,7 +167,7 @@ function testCallProcedureWithResultSet () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -187,7 +187,7 @@ function testConnectorWithDataSource () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -213,7 +213,7 @@ function testConnectionPoolProperties () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -233,7 +233,7 @@ function testQueryParameters () (string firstName) {
     errors:TypeCastError err;
     ResultCustomers rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
@@ -462,7 +462,7 @@ function testCloseConnectionPool () (int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount) dataStruct;
         count = rs.COUNTVAL;
     }
@@ -493,7 +493,7 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
         string_array, float_array from ArrayTypes where row_id = 2", params);
     ResultArrayType rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultArrayType) dataStruct;
         int_arr = rs.INT_ARRAY;
         long_arr = rs.LONG_ARRAY;
@@ -595,7 +595,7 @@ function testLocalTransacton () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -627,7 +627,7 @@ function testTransactonRollback () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -662,7 +662,7 @@ function testTransactonAbort () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -697,7 +697,7 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
                                    registrationID = 260", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -733,7 +733,7 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
     datatable dt = sql:ClientConnector.select(testDB, "Select COUNT(*) as countval from Customers where
                                    registrationID = 250", parameters);
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -761,7 +761,7 @@ function testTransactonCommitted () (int returnVal, int count) {
     errors:TypeCastError err;
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -806,7 +806,7 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
                                       registrationID = 400", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -832,7 +832,7 @@ function testTransactonWithoutHandlers () (int count) {
                                       registrationID = 350", parameters);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
@@ -896,7 +896,7 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
                                   where row_id = 10", emptyParam);
     ResultCount rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
