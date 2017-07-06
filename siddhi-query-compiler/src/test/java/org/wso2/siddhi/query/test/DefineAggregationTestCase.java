@@ -28,7 +28,7 @@ import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
-public class DefineAggrigationTestCase {
+public class DefineAggregationTestCase {
 
     @Test
     public void test1() throws SiddhiParserException {
