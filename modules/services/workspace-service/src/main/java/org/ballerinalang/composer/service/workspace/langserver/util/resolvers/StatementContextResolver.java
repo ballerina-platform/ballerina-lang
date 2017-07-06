@@ -23,10 +23,12 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
@@ -103,6 +105,7 @@ public class StatementContextResolver implements ItemResolver {
         searchList.forEach((symbolInfo -> {
             // For each token call the api to get the items related to the token
             CompletionItem completionItem = new CompletionItem();
+            NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
             completionItem.setLabel(symbolInfo.getSymbolName());
             String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
             completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
@@ -110,7 +113,27 @@ public class StatementContextResolver implements ItemResolver {
                     && symbolInfo.getSymbolName().contains("ClientConnector")) {
                 completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
-            } else if (symbolInfo.getSymbol() instanceof NativeUnitProxy) {
+            } else if ((symbolInfo.getSymbol() instanceof NativeUnitProxy)
+                    || (symbolInfo.getSymbol() instanceof BallerinaFunction)) {
+                StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
+                int i = 0;
+                String initString = "(";
+                for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
+                    signature.append(initString).append(simpleTypeName.getName()).append(" ")
+                            .append(nativeUnit.getArgumentNames()[i]);
+                    ++i;
+                    initString = ", ";
+                }
+                signature.append(")");
+                initString = "(";
+                String endString = "";
+                for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
+                    signature.append(initString).append(simpleTypeName.getName());
+                    initString = ", ";
+                    endString = ")";
+                }
+                signature.append(endString);
+                completionItem.setLabel(signature.toString());
                 completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
             } else if (symbolInfo.getSymbol() instanceof NativePackageProxy) {
