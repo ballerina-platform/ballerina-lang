@@ -133,9 +133,12 @@ class Struct {
         if (jsonNode.structFields !== undefined) {
             const structFields = jsonNode.structFields.map((structField) => {
                 return BallerinaEnvFactory.createStructField(
-                    { name: structField.name, type: structField.type, defaultValue: structField.defaultValue });
+                    { name: structField.name,
+                        type: structField.type,
+                        defaultValue: structField.defaultValue,
+                        packageName: structField.packageName });
             });
-        this.setFields(structFields);
+            this.setFields(structFields);
         }
     }
 }

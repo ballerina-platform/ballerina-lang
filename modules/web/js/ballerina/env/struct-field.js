@@ -34,12 +34,14 @@ class StructField {
      * @param {string} args.name name of the struct field
      * @param {string} args.type type of the struct field
      * @param {string} args.defaultValue default value of the struct field
+     * @param {string} args.packageName package of the struct field - applicable for struct types
      * @memberof Struct
      */
     constructor(args) {
         this._name = _.get(args, 'name', '');
         this._type = _.get(args, 'type', '');
         this._defaultValue = _.get(args, 'defaultValue');
+        this._packageName = _.get(args, 'packageName');
     }
 
    /**
@@ -76,7 +78,7 @@ class StructField {
 
     /**
     * sets the default value
-    * @param {string} name struct field default value
+    * @param {string} defaultValue struct field default value
     */
     setDefaultValue(defaultValue) {
         this._defaultValue = defaultValue;
@@ -90,17 +92,35 @@ class StructField {
         return this._defaultValue;
     }
 
+    /**
+    * sets the package name
+    * @param {string} packageName struct field package name
+    */
+    setPackageName(packageName) {
+        this._packageName = packageName;
+    }
+
+   /**
+    * returns the package value
+    * @returns {string} struct field package name
+    */
+    getPackageName() {
+        return this._packageName;
+    }
+
    /**
     * sets values from a json object
     * @param {Object} jsonNode json object containing struct field data
     * @param {string} jsonNode.name name of the struct field
     * @param {string} jsonNode.type type of the struct field
     * @param {string} jsonNode.defaultValue default value of the struct field
+    * @param {string} jsonNode.packageName package name of the struct field
     */
     initFromJson(jsonNode) {
         this.setName(jsonNode.name);
         this.setType(jsonNode.type);
         this.setDefaultValue(jsonNode.defaultValue);
+        this.setPackageName(jsonNode.packageName);
     }
 }
 

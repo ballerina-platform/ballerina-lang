@@ -751,8 +751,9 @@ class TransformStatementDecorator extends React.Component {
             let property = {};
             property.name = field.getName();
             property.type = field.getType();
+            property.packageName = field.getPackageName();
 
-            let innerStruct = this.getStructDefinition(property.pkgName, property.type);
+            let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
                 property.innerType = self.createType(property.name, typeName, innerStruct);
             }

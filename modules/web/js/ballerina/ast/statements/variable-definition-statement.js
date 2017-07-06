@@ -82,6 +82,15 @@ class VariableDefinitionStatement extends Statement {
     }
 
     /**
+     * Get the package name of the variable type
+     * @returns {string} package name of the variable type
+     * @memberof VariableDefinitionStatement
+     */
+    getBTypePkgName() {
+        return this.getChildren()[0].getChildren()[0].getPkgName();
+    }
+
+    /**
      * Gets the identifier of the variable definition statement.
      * @return {string} - The identifier.
      */

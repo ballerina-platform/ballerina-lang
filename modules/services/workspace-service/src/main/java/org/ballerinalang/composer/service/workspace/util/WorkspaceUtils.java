@@ -355,6 +355,7 @@ public class WorkspaceUtils {
                 fieldStmt -> {
                     StructField structField = createNewStructField(fieldStmt.getVariableDef().getName(),
                                                      fieldStmt.getVariableDef().getTypeName().getName());
+                    structField.setPackageName(fieldStmt.getVariableDef().getTypeName().getPackageName());
                     if (fieldStmt.getRExpr() != null && fieldStmt.getRExpr() instanceof BasicLiteral) {
                         structField.setDefaultValue(((BasicLiteral) fieldStmt.getRExpr()).getBValue().stringValue());
                     }
