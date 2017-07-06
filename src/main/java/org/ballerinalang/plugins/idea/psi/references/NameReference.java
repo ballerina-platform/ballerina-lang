@@ -41,7 +41,6 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -65,41 +64,148 @@ public class NameReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        IdentifierPSINode identifier = getElement();
-        PsiFile containingFile = identifier.getContainingFile();
-        PsiFile originalFile = containingFile.getOriginalFile();
         List<LookupElement> results = new LinkedList<>();
 
-        PsiDirectory containingPackage = originalFile.getParent();
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
 
-        if (containingPackage != null) {
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
 
-            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-            for (PsiElement importedPackage : importedPackages) {
-                PsiReference reference = importedPackage.findReferenceAt(0);
-                if (reference == null) {
-                    continue;
+            PsiFile containingFile = identifier.getContainingFile();
+            PsiFile originalFile = containingFile.getOriginalFile();
+
+
+            PsiDirectory containingPackage = originalFile.getParent();
+
+            if (containingPackage != null) {
+
+                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+                for (PsiElement importedPackage : importedPackages) {
+                    PsiReference reference = importedPackage.findReferenceAt(0);
+                    if (reference == null) {
+                        continue;
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                    LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                    results.add(lookupElement);
                 }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
+
+                List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
+                        (containingFile);
+                for (PsiDirectory unImportedPackage : unImportedPackages) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                            BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                    results.add(lookupElement);
                 }
-                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
+
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+                for (PsiElement function : functions) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement
+                            (function);
+                    results.add(lookupElement);
+                }
+
+                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
+                for (PsiElement connector : connectors) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createConnectorLookupElement(connector,
+                            AddSpaceInsertHandler.INSTANCE);
+                    results.add(lookupElement);
+                }
+
+                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
+                for (PsiElement struct : structs) {
+                    LookupElement lookupElement = BallerinaCompletionUtils.createStructLookupElement(struct);
+                    results.add(lookupElement);
+                }
+
+                //            List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope
+                // (identifier,
+                //                    identifier.getParent().getContext());
+                //            for (PsiElement variable : variables) {
+                //                LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement
+                // (variable);
+                //                results.add(lookupElement);
+                //            }
+                //
+                //            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope
+                // (identifier,
+                //                    identifier.getParent().getContext());
+                //            for (PsiElement parameter : parameters) {
+                //                LookupElement lookupElement = BallerinaCompletionUtils.createParameterLookupElement
+                // (parameter);
+                //                results.add(lookupElement);
+                //            }
+                //
+                //            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage
+                // (containingPackage);
+                //            for (PsiElement globalVariable : globalVariables) {
+                //                LookupElement lookupElement =
+                //                        BallerinaCompletionUtils.createGlobalVariableLookupElement(globalVariable);
+                //                results.add(lookupElement);
+                //            }
+                //
+                //            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage
+                // (containingPackage);
+                //            for (PsiElement constant : constants) {
+                //                LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement
+                // (constant);
+                //                results.add(lookupElement);
+                //            }
+
+                ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                        ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                        ConnectorDefinitionNode.class);
+                if (scope != null) {
+
+                    int caretOffset = identifier.getStartOffset();
+
+                    List<PsiElement> variables = getAllLocalVariablesInResolvableScope(scope, caretOffset);
+                    for (PsiElement variable : variables) {
+                        LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
+                        results.add(lookupElement);
+                    }
+
+                    List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
+                    for (PsiElement parameter : parameters) {
+                        LookupElement lookupElement = BallerinaCompletionUtils.createParameterLookupElement(parameter);
+                        results.add(lookupElement);
+                    }
+
+                    List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
+                    for (PsiElement variable : globalVariables) {
+                        LookupElement lookupElement = BallerinaCompletionUtils.createGlobalVariableLookupElement
+                                (variable);
+                        results.add(lookupElement);
+                    }
+
+                    List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
+                    for (PsiElement constant : constants) {
+                        LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
+                        results.add(lookupElement);
+                    }
+                }
+            }
+        } else {
+
+            PsiReference reference = packageNameNode.findReferenceAt(0);
+            if (reference == null) {
+                return new LookupElement[0];
             }
 
-            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-                    (containingFile);
-            for (PsiDirectory unImportedPackage : unImportedPackages) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                        BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
+            PsiElement resolvedElement = reference.resolve();
+            if (!(resolvedElement instanceof PsiDirectory)) {
+                return new LookupElement[0];
             }
 
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage
-                    (containingPackage);
+            PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
+
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
             for (PsiElement function : functions) {
                 LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement
                         (function);
@@ -118,71 +224,6 @@ public class NameReference extends BallerinaElementReference {
             for (PsiElement struct : structs) {
                 LookupElement lookupElement = BallerinaCompletionUtils.createStructLookupElement(struct);
                 results.add(lookupElement);
-            }
-
-            //            List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(identifier,
-            //                    identifier.getParent().getContext());
-            //            for (PsiElement variable : variables) {
-            //                LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement
-            // (variable);
-            //                results.add(lookupElement);
-            //            }
-            //
-            //            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope
-            // (identifier,
-            //                    identifier.getParent().getContext());
-            //            for (PsiElement parameter : parameters) {
-            //                LookupElement lookupElement = BallerinaCompletionUtils.createParameterLookupElement
-            // (parameter);
-            //                results.add(lookupElement);
-            //            }
-            //
-            //            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage
-            // (containingPackage);
-            //            for (PsiElement globalVariable : globalVariables) {
-            //                LookupElement lookupElement =
-            //                        BallerinaCompletionUtils.createGlobalVariableLookupElement(globalVariable);
-            //                results.add(lookupElement);
-            //            }
-            //
-            //            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage
-            // (containingPackage);
-            //            for (PsiElement constant : constants) {
-            //                LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement
-            // (constant);
-            //                results.add(lookupElement);
-            //            }
-
-            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                    ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                    ConnectorDefinitionNode.class);
-            if (scope != null) {
-
-                int caretOffset = identifier.getStartOffset();
-
-                List<PsiElement> variables = getAllLocalVariablesInResolvableScope(scope, caretOffset);
-                for (PsiElement variable : variables) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
-                    results.add(lookupElement);
-                }
-
-                List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
-                for (PsiElement parameter : parameters) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createParameterLookupElement(parameter);
-                    results.add(lookupElement);
-                }
-
-                List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
-                for (PsiElement variable : globalVariables) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createGlobalVariableLookupElement(variable);
-                    results.add(lookupElement);
-                }
-
-                List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
-                for (PsiElement constant : constants) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createConstantLookupElement(constant);
-                    results.add(lookupElement);
-                }
             }
         }
         return results.toArray(new LookupElement[results.size()]);
@@ -425,8 +466,6 @@ public class NameReference extends BallerinaElementReference {
     @Nullable
     private PsiElement findMatchingElement(@NotNull PsiDirectory directory,
                                            @NotNull IdentifierPSINode identifier) {
-        // Todo - Resolve global variables, constants
-
         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage
                 (directory);
         for (PsiElement function : functions) {
@@ -449,6 +488,9 @@ public class NameReference extends BallerinaElementReference {
                 return struct;
             }
         }
+
+
+        // Todo - Resolve global variables, constants
         return null;
     }
 }
