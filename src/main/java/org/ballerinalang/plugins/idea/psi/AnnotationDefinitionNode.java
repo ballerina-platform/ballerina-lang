@@ -52,9 +52,9 @@ public class AnnotationDefinitionNode extends IdentifierDefSubtree implements Sc
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
-        }
+        //        if (element.getParent() instanceof NameReferenceNode) {
+        //            return BallerinaPsiImplUtil.resolveElement(this, element, "//fieldDefinition/Identifier");
+        //        }
         return null;
     }
 }

@@ -425,7 +425,6 @@ nameReference
     :   (packageName ':')? Identifier
     ;
 
-
 functionReference
     :   (packageName ':')? Identifier
     ;

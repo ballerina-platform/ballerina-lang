@@ -19,17 +19,15 @@ package org.ballerinalang.plugins.idea.completion;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaKeywordsCompletionContributor extends CompletionContributor {
 
-    public BallerinaKeywordsCompletionContributor() {
-//        extend(CompletionType.BASIC,,new BallerinaKeywordsCompletionProvider());
-    }
-
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
-        super.fillCompletionVariants(parameters, result);
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+
     }
 }

@@ -36,18 +36,18 @@ public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier");
-        } else if (element.getParent() instanceof PackageNameNode) {
-            // todo - check and remove
-//            return BallerinaPsiImplUtil.findPackageNameReference(element);
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
-        }
+//        if (element.getParent() instanceof VariableReferenceNode) {
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
+//        } else if (element.getParent() instanceof NameReferenceNode) {
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+//                    "//connectorDefinition/Identifier");
+//        } else if (element.getParent() instanceof PackageNameNode) {
+//            // todo - check and remove
+////            return BallerinaPsiImplUtil.findPackageNameReference(element);
+//        } else if (element.getParent() instanceof TypeNameNode) {
+//            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+//                    "//connectorDefinition/Identifier");
+//        }
         return null;
     }
 }

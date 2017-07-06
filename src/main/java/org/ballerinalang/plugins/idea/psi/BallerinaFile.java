@@ -64,33 +64,33 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
-            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(element.getParent(), PackageNameNode.class);
-            if (packageNameNode == null) {
-                return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                        "//connectorDefinition/Identifier", "//structDefinition/Identifier",
-                        "//constantDefinition/Identifier", "//globalVariableDefinition/Identifier",
-                        "//annotationDefinition/Identifier");
-            }
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
-        } else if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier");
-        } else if (element.getParent() instanceof AnnotationAttributeNode) {
-            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
-                    AnnotationAttachmentNode.class);
-            if (annotationAttachmentNode == null) {
-                return null;
-            }
-            AnnotationDefinitionNode annotationDefinitionNode = BallerinaPsiImplUtil.getAnnotationDefinitionNode
-                    (annotationAttachmentNode);
-            if (annotationDefinitionNode == null) {
-                return null;
-            }
-            return BallerinaPsiImplUtil.resolveElement(annotationDefinitionNode, element,
-                    "//fieldDefinition/Identifier");
-        }
+//        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
+//            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(element.getParent(), PackageNameNode.class);
+//            if (packageNameNode == null) {
+//                return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+//                        "//connectorDefinition/Identifier", "//structDefinition/Identifier",
+//                        "//constantDefinition/Identifier", "//globalVariableDefinition/Identifier",
+//                        "//annotationDefinition/Identifier");
+//            }
+//        } else if (element.getParent() instanceof TypeNameNode) {
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
+//                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
+//        } else if (element.getParent() instanceof VariableReferenceNode) {
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier");
+//        } else if (element.getParent() instanceof AnnotationAttributeNode) {
+//            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
+//                    AnnotationAttachmentNode.class);
+//            if (annotationAttachmentNode == null) {
+//                return null;
+//            }
+//            AnnotationDefinitionNode annotationDefinitionNode = BallerinaPsiImplUtil.getAnnotationDefinitionNode
+//                    (annotationAttachmentNode);
+//            if (annotationDefinitionNode == null) {
+//                return null;
+//            }
+//            return BallerinaPsiImplUtil.resolveElement(annotationDefinitionNode, element,
+//                    "//fieldDefinition/Identifier");
+//        }
         return null;
     }
 }

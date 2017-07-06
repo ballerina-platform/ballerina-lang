@@ -27,6 +27,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
@@ -40,7 +41,6 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -79,18 +79,49 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.intellij.patterns.PlatformPatterns.psiElement;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
 
 public class BallerinaCompletionContributor extends CompletionContributor implements DumbAware {
 
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
-        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
-        // contains the original file. parameters.getPosition().getContainingFile() will return null
-        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
-        // if you want to get the details like containing directory, etc.
-        addSuggestions(parameters, result);
+        //        // The file will be loaded to memory and and will be edited. parameters.getOriginalFile()
+        //        // contains the original file. parameters.getPosition().getContainingFile() will return null
+        //        // because it only exists in the memory. So use parameters.getOriginalFile().getContainingFile()
+        //        // if you want to get the details like containing directory, etc.
+        //        addSuggestions(parameters, result);
+
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+        PsiElement parentPrevSibling = parent.getPrevSibling();
+
+        if (parent instanceof PsiFile) {
+            // If the parent is PsiFile, that means we can only suggest keywords including 'package' and 'import'
+            // keywords.
+            addFileLevelKeywordsAsLookups(result, true, true);
+        } else if (parentPrevSibling instanceof ImportDeclarationNode
+                || parentPrevSibling instanceof PackageDeclarationNode) {
+            // If the previous sibling of the parent is PackageDeclarationNode, that means we have already added
+            // package declaration. If it is ImportDeclarationNode, no need to suggest 'package' keyword because we
+            // cannot add package declaration after an import.
+            addFileLevelKeywordsAsLookups(result, false, true);
+        } else if (parent instanceof PackageNameNode) {
+            handlePackageNameNode(parameters, result);
+        } else if (parent instanceof ImportDeclarationNode) {
+            handleImportDeclarationNode(parameters, result);
+        } else if (parent instanceof PsiErrorElement) {
+//            handlePsiErrorElement(parameters, result);
+        } else {
+            // If we are currently at an identifier node or a comment node, no need to suggest.
+//            if (element instanceof IdentifierPSINode || element instanceof PsiComment) {
+//                return;
+//            }
+            if (parentPrevSibling == null) {
+                addFileLevelKeywordsAsLookups(result, true, true);
+            } else {
+                addFileLevelKeywordsAsLookups(result, false, true);
+            }
+        }
     }
 
     /**
@@ -107,62 +138,66 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         PsiDirectory containingPackage = originalFile.getParent();
 
-//        if (parent instanceof NameReferenceNode) {
-//            if (containingPackage != null) {
-//                // Todo - Get all functions, connectors, structs, variables
-//                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-//
-//                for (PsiElement function : functions) {
-//                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement(function);
-//                    resultSet.addElement(lookupElement);
-//                }
-//            }
-//        }
-//        else if (parent instanceof AnnotationReferenceNode) {
-//            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
-//            if (packageNameNode == null) {
-//                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
-//                // Todo - add unimported packages
-//                for (PsiElement importedPackage : importedPackages) {
-//                    PsiReference reference = importedPackage.findReferenceAt(0);
-//                    if (reference != null) {
-//                        PsiElement resolvedElement = reference.resolve();
-//                        if (resolvedElement != null) {
-//                            PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-//                            LookupElement lookupElement =
-//                                    BallerinaCompletionUtils.createPackageLookupElement(psiDirectory,
-//                                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-//                            resultSet.addElement(lookupElement);
-//                        }
-//                    }
-//                }
-//            } else {
-//                PsiReference reference = packageNameNode.findReferenceAt(0);
-//                if (reference != null) {
-//                    PsiElement resolvedElement = reference.resolve();
-//                    if (resolvedElement != null) {
-//                        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-//
-//
-//                        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(psiDirectory);
-//
-//                        for (PsiElement annotation : annotations) {
-//
-//                            LookupElement lookupElement =
-//                                    BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
-//                            resultSet.addElement(lookupElement);
-//                        }
-//                        //
-//                        //                        LookupElementBuilder lookupElement = BallerinaCompletionUtils
-//                        // .createPackageLookupElement
-//                        //                                (psiDirectory,
-//                        //                                        PackageCompletionInsertHandler
-//                        //                                                .INSTANCE_WITH_AUTO_POPUP);
-//                        //                        resultSet.addElement(lookupElement);
-//                    }
-//                }
-//            }
-//        }
+        //        if (parent instanceof NameReferenceNode) {
+        //            if (containingPackage != null) {
+        //                // Todo - Get all functions, connectors, structs, variables
+        //                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage
+        // (containingPackage);
+        //
+        //                for (PsiElement function : functions) {
+        //                    LookupElement lookupElement = BallerinaCompletionUtils.createFunctionsLookupElement
+        // (function);
+        //                    resultSet.addElement(lookupElement);
+        //                }
+        //            }
+        //        }
+        //        else if (parent instanceof AnnotationReferenceNode) {
+        //            PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        //            if (packageNameNode == null) {
+        //                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
+        //                // Todo - add unimported packages
+        //                for (PsiElement importedPackage : importedPackages) {
+        //                    PsiReference reference = importedPackage.findReferenceAt(0);
+        //                    if (reference != null) {
+        //                        PsiElement resolvedElement = reference.resolve();
+        //                        if (resolvedElement != null) {
+        //                            PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+        //                            LookupElement lookupElement =
+        //                                    BallerinaCompletionUtils.createPackageLookupElement(psiDirectory,
+        //                                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        //                            resultSet.addElement(lookupElement);
+        //                        }
+        //                    }
+        //                }
+        //            } else {
+        //                PsiReference reference = packageNameNode.findReferenceAt(0);
+        //                if (reference != null) {
+        //                    PsiElement resolvedElement = reference.resolve();
+        //                    if (resolvedElement != null) {
+        //                        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+        //
+        //
+        //                        List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage
+        // (psiDirectory);
+        //
+        //                        for (PsiElement annotation : annotations) {
+        //
+        //                            LookupElement lookupElement =
+        //                                    BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
+        //                            resultSet.addElement(lookupElement);
+        //                        }
+        //                        //
+        //                        //                        LookupElementBuilder lookupElement =
+        // BallerinaCompletionUtils
+        //                        // .createPackageLookupElement
+        //                        //                                (psiDirectory,
+        //                        //                                        PackageCompletionInsertHandler
+        //                        //                                                .INSTANCE_WITH_AUTO_POPUP);
+        //                        //                        resultSet.addElement(lookupElement);
+        //                    }
+        //                }
+        //            }
+        //        }
 
 
         //        PsiElement parentPrevSibling = parent.getPrevSibling();

@@ -91,7 +91,7 @@ public class PackageNameReference extends BallerinaElementReference implements P
 
         }
 
-        return results.toArray(new ResolveResult[results.size()]);
+        return results.toArray(new LookupElement[results.size()]);
     }
 
     @Nullable

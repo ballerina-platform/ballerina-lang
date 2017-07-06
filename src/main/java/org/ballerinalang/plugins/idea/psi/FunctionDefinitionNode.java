@@ -44,68 +44,6 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
         super(node, BallerinaTypes.IDENTIFIER);
     }
 
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
-        // cause issues when using find usage, etc.
-        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
-            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-            if (resolvedElement != null) {
-                return resolvedElement;
-            }
-            VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
-                    VariableReferenceNode.class);
-            if (variableReferenceNode == null) {
-                PsiElement prevToken =
-                        BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
-                                element.getTextOffset());
-//                if (prevToken instanceof LeafPsiElement) {
-//                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
-//                    if (elementType == BallerinaTypes.DOT) {
-//                        PsiElement prevSibling =
-//                                BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
-//                                        prevToken.getTextOffset());
-//                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
-//                    }
-//                }
-                return null;
-            }
-
-            while (variableReferenceNode != null) {
-                PsiElement prevSibling = variableReferenceNode.getPrevSibling();
-                if (prevSibling != null) {
-
-                    if (prevSibling instanceof LeafPsiElement) {
-                        IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
-                        if (elementType == BallerinaTypes.DOT) {
-                            return null;
-                        }
-                    }
-                }
-                PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
-                if (variableReferenceNodeParent instanceof VariableReferenceNode) {
-                    variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
-                } else {
-                    variableReferenceNode = null;
-                }
-            }
-
-            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
-            if (expressionNode != null) {
-                if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
-                    return null;
-                }
-            }
-        } else if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
-        }
-        return null;
-    }
-
     @Override
     public ItemPresentation getPresentation() {
         return new BallerinaItemPresentation(getNameIdentifier()) {
@@ -116,5 +54,67 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
                 return BallerinaIcons.FUNCTION;
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+//        // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
+//        // cause issues when using find usage, etc.
+//        if (element.getParent() instanceof NameReferenceNode || element.getParent() instanceof StatementNode) {
+//            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+//            if (resolvedElement != null) {
+//                return resolvedElement;
+//            }
+//            VariableReferenceNode variableReferenceNode = PsiTreeUtil.getParentOfType(element,
+//                    VariableReferenceNode.class);
+//            if (variableReferenceNode == null) {
+//                PsiElement prevToken =
+//                        BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+//                                element.getTextOffset());
+////                if (prevToken instanceof LeafPsiElement) {
+////                    IElementType elementType = ((LeafPsiElement) prevToken).getElementType();
+////                    if (elementType == BallerinaTypes.DOT) {
+////                        PsiElement prevSibling =
+////                                BallerinaCompletionUtils.getPreviousNonEmptyElement(element.getContainingFile(),
+////                                        prevToken.getTextOffset());
+////                        return BallerinaPsiImplUtil.resolveField(element, prevSibling);
+////                    }
+////                }
+//                return null;
+//            }
+//
+//            while (variableReferenceNode != null) {
+//                PsiElement prevSibling = variableReferenceNode.getPrevSibling();
+//                if (prevSibling != null) {
+//
+//                    if (prevSibling instanceof LeafPsiElement) {
+//                        IElementType elementType = ((LeafPsiElement) prevSibling).getElementType();
+//                        if (elementType == BallerinaTypes.DOT) {
+//                            return null;
+//                        }
+//                    }
+//                }
+//                PsiElement variableReferenceNodeParent = variableReferenceNode.getParent();
+//                if (variableReferenceNodeParent instanceof VariableReferenceNode) {
+//                    variableReferenceNode = ((VariableReferenceNode) variableReferenceNodeParent);
+//                } else {
+//                    variableReferenceNode = null;
+//                }
+//            }
+//
+//            ExpressionNode expressionNode = PsiTreeUtil.getParentOfType(element, ExpressionNode.class);
+//            if (expressionNode != null) {
+//                if (expressionNode.getParent() instanceof MapStructKeyValueNode) {
+//                    return null;
+//                }
+//            }
+//        } else if (element.getParent() instanceof VariableReferenceNode) {
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+//        } else if (element.getParent() instanceof TypeNameNode) {
+//            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+//                    "//connectorDefinition/Identifier");
+//        }
+        return null;
     }
 }

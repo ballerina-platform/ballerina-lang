@@ -40,21 +40,6 @@ public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeN
         super(node, BallerinaTypes.IDENTIFIER);
     }
 
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//parameter/Identifier");
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
-        }
-        return null;
-    }
-
     @Override
     public ItemPresentation getPresentation() {
         return new BallerinaItemPresentation(getNameIdentifier()) {
@@ -65,5 +50,20 @@ public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeN
                 return BallerinaIcons.ACTION;
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        //        if (element.getParent() instanceof VariableReferenceNode) {
+        //            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+        //        } else if (element.getParent() instanceof NameReferenceNode) {
+        //            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+        //                    "//parameter/Identifier");
+        //        } else if (element.getParent() instanceof TypeNameNode) {
+        //            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+        //                    "//connectorDefinition/Identifier");
+        //        }
+        return null;
     }
 }

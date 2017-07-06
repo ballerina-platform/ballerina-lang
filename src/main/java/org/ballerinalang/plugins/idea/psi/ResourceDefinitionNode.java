@@ -37,19 +37,6 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
         super(node, BallerinaTypes.IDENTIFIER);
     }
 
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
-            // cause issues when using find usage, etc. So use BallerinaPsiImplUtil.resolveElement() instead.
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
-        }
-        return null;
-    }
-
     @Override
     public ItemPresentation getPresentation() {
         return new BallerinaItemPresentation(getNameIdentifier()) {
@@ -60,5 +47,18 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
                 return BallerinaIcons.RESOURCE;
             }
         };
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+//        if (element.getParent() instanceof VariableReferenceNode) {
+//            // WARNING: SymtabUtils.resolve() will return the element node instead of the Identifier node. This might
+//            // cause issues when using find usage, etc. So use BallerinaPsiImplUtil.resolveElement() instead.
+//            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+//        } else if (element.getParent() instanceof NameReferenceNode) {
+//            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
+//        }
+        return null;
     }
 }

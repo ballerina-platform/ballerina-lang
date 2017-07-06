@@ -79,6 +79,8 @@
         <!--completion-->
         <completion.contributor language="Ballerina"
                                 implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaCompletionContributor"/>
+        <completion.contributor language="Ballerina"
+                                implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaKeywordsCompletionContributor"/>
 
         <lang.braceMatcher language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.codeInsight.highlighting.BallerinaPairedBraceMatcher"/>

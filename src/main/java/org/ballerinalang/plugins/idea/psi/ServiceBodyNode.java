@@ -36,17 +36,17 @@ public class ServiceBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
-                    "//variableDefinitionStatement/Identifier", "//parameter/Identifier");
-            if (resolvedElement != null) {
-                return resolvedElement;
-            }
-            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
-        }
+//        if (element.getParent() instanceof VariableReferenceNode) {
+//            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
+//                    "//variableDefinitionStatement/Identifier");
+//        } else if (element.getParent() instanceof NameReferenceNode) {
+//            PsiElement resolvedElement = BallerinaPsiImplUtil.resolveElement(this, element,
+//                    "//variableDefinitionStatement/Identifier", "//parameter/Identifier");
+//            if (resolvedElement != null) {
+//                return resolvedElement;
+//            }
+//            return BallerinaPsiImplUtil.resolveNameReferenceNode(this, element);
+//        }
         return null;
     }
 }

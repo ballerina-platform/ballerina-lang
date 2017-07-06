@@ -17,40 +17,13 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+public class ConnectorReferenceNode extends IdentifierDefSubtree {
 
-public class ServiceDefinitionNode extends IdentifierDefSubtree implements ScopeNode{
-
-    public ServiceDefinitionNode(@NotNull ASTNode node) {
+    public ConnectorReferenceNode(@NotNull ASTNode node) {
         super(node, BallerinaTypes.IDENTIFIER);
-    }
-
-    @Override
-    public ItemPresentation getPresentation() {
-        return new BallerinaItemPresentation(getNameIdentifier()) {
-
-            @Nullable
-            @Override
-            public Icon getIcon(boolean unused) {
-                return BallerinaIcons.SERVICE;
-            }
-        };
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
     }
 }

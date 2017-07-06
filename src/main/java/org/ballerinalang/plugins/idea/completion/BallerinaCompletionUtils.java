@@ -838,6 +838,13 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    @NotNull
+    public static LookupElement createVariableLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
     /**
      * Adds variables in the resolvable scopes as lookup elements.
      *
@@ -855,6 +862,13 @@ public class BallerinaCompletionUtils {
                     .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
+    }
+
+    @NotNull
+    public static LookupElement createParameterLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     /**
@@ -882,6 +896,13 @@ public class BallerinaCompletionUtils {
         }
     }
 
+    @NotNull
+    public static LookupElement createConstantLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Constant").withIcon(BallerinaIcons.CONSTANT);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
     /**
      * Helper method to add global variables as lookup elements.
      *
@@ -905,6 +926,13 @@ public class BallerinaCompletionUtils {
                     .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
         }
+    }
+
+    @NotNull
+    public static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
     /**
