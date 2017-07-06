@@ -41,7 +41,7 @@ import java.util.List;
         defaultPhase = LifecyclePhase.INSTALL,
         requiresDependencyResolution = ResolutionScope.TEST
 )
-public class DocumentationGenerationMojo extends AbstractMojo {
+public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
     /**
      * The maven project object for the current module
      */
@@ -59,14 +59,8 @@ public class DocumentationGenerationMojo extends AbstractMojo {
      * The directory in which the docs will be generated
      * Optional
      */
-    @Parameter(property = "doc.gen.directory")
-    private File docGenDirectory;
-
-    /**
-     * The final output file name of the documentation
-     */
-    @Parameter(property = "doc.gen.file.name")
-    private String docGenFileName;
+    @Parameter(property = "doc.gen.base.directory")
+    private File docGenBaseDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -80,18 +74,10 @@ public class DocumentationGenerationMojo extends AbstractMojo {
 
         // Setting the documentation output directory if not set by user
         String docGenPath;
-        if (docGenDirectory != null) {
-            docGenPath = docGenDirectory.getAbsolutePath();
+        if (docGenBaseDirectory != null) {
+            docGenPath = docGenBaseDirectory.getAbsolutePath();
         } else {
             docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
-        }
-
-        // Setting the documentation output file name if not set by user
-        String outputFileName;
-        if (docGenFileName != null) {
-            outputFileName = docGenFileName;
-        } else {
-            outputFileName = Constants.MARKDOWN_DOCUMENTATION_TEMPLATE;
         }
 
         List<NamespaceMetaData> namespaceMetaDataList;
@@ -108,7 +94,7 @@ public class DocumentationGenerationMojo extends AbstractMojo {
         if (namespaceMetaDataList.size() > 0) {
             DocumentationUtils.generateDocumentation(
                     namespaceMetaDataList, docGenPath,
-                    outputFileName + Constants.MARKDOWN_FILE_EXTENSION
+                    Constants.API_SUB_DIRECTORY + File.separator + mavenProject.getVersion()
             );
         }
     }

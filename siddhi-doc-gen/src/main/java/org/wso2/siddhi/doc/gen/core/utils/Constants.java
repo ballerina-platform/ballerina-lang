@@ -24,11 +24,17 @@ public class Constants {
     public static final String DOCS_DIRECTORY = "docs";
     public static final String CLASSES_DIRECTORY = "classes";
     public static final String TEMPLATES_DIRECTORY = "templates";
+    public static final String API_SUB_DIRECTORY = "api";
 
     public static final String FREEMARKER_TEMPLATE_FILE_EXTENSION = ".ftl";
     public static final String CLASS_FILE_EXTENSION = ".class";
     public static final String MARKDOWN_FILE_EXTENSION = ".md";
 
     public static final String MARKDOWN_DOCUMENTATION_TEMPLATE = "documentation";
+    public static final String MARKDOWN_EXTENSIONS_INDEX_TEMPLATE = "extensions";
+
+    public static final String GITHUB_GPL_EXTENSION_REPOSITORY_PREFIX = "siddhi-gpl-";
+    public static final String GITHUB_APACHE_EXTENSION_REPOSITORY_PREFIX = "siddhi-";
+
     public static final String CORE_NAMESPACE = "core";
 }

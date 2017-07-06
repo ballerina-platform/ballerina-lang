@@ -42,8 +42,7 @@
                 </executions>
                 <configuration>
                     <moduleTargetDirectory>../target/</moduleTargetDirectory>
-                    <docGenDirectory>../../../docs/</docGenDirectory>
-                    <docGenFileName>documentation</docGenFileName>
+                    <docGenBaseDirectory>../../../docs/</docGenBaseDirectory>
                 </configuration>
             </plugin>
         </plugins>

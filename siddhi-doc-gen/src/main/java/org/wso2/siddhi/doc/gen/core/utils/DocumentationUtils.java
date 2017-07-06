@@ -142,10 +142,11 @@ public class DocumentationUtils {
      *
      * @param namespaceMetaDataList Metadata in this repository
      * @param outputDirectory       The path of the directory in which the documentation will be generated
+     * @param outputFileName        The name of the documentation file that will be generated
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String outputDirectory, String outputFileName) throws MojoFailureException {
+    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList, String outputDirectory,
+                                             String outputFileName) throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
         rootDataModel.put("metaData", namespaceMetaDataList);
@@ -154,9 +155,42 @@ public class DocumentationUtils {
         generateFileFromTemplate(
                 Constants.MARKDOWN_DOCUMENTATION_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel,
-                outputDirectory,
-                outputFileName
+                rootDataModel, outputDirectory, outputFileName + Constants.MARKDOWN_FILE_EXTENSION
+        );
+    }
+
+    /**
+     * Generate a extension index file from the template file
+     *
+     * @param extensionRepositories    The list of extension repository names
+     * @param indexOutputDirectory     The output directory path in which the extension index will be generated
+     * @param extensionRepositoryOwner The extension repository owner's name
+     * @param outputFileName           The name of the index file that will be generated
+     */
+    public static void createExtensionsIndex(List<String> extensionRepositories, String indexOutputDirectory,
+                                             String extensionRepositoryOwner, String outputFileName)
+            throws MojoFailureException {
+        // Generating data model
+        Map<String, Object> rootDataModel = new HashMap<>();
+        rootDataModel.put("extensionsOwner", extensionRepositoryOwner);
+
+        // Separating Apache and GPL extensions based on siddhi repository prefix conventions
+        List<String> gplExtensionRepositories = new ArrayList<>();
+        List<String> apacheExtensionRepositories = new ArrayList<>();
+        for (String extensionRepository : extensionRepositories) {
+            if (extensionRepository.startsWith(Constants.GITHUB_GPL_EXTENSION_REPOSITORY_PREFIX)) {
+                gplExtensionRepositories.add(extensionRepository);
+            } else if (extensionRepository.startsWith(Constants.GITHUB_APACHE_EXTENSION_REPOSITORY_PREFIX)) {
+                apacheExtensionRepositories.add(extensionRepository);
+            }
+        }
+        rootDataModel.put("gplExtensionRepositories", gplExtensionRepositories);
+        rootDataModel.put("apacheExtensionRepositories", apacheExtensionRepositories);
+
+        generateFileFromTemplate(
+                Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
+                        + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
+                rootDataModel, indexOutputDirectory, outputFileName + Constants.MARKDOWN_FILE_EXTENSION
         );
     }
 
@@ -350,11 +384,11 @@ public class DocumentationUtils {
 
     /**
      * Generate a file from a template
-     * The output file name will be inferred based on the template file name
      *
      * @param templateFile    The template file name
      * @param dataModel       The data model to be used for generating the output files from template files
      * @param outputDirectory The output directory in which the file will be generated
+     * @param outputFileName  The name of the file that will be generated
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     private static void generateFileFromTemplate(String templateFile, Object dataModel,
