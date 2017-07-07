@@ -443,16 +443,14 @@ public class NameReference extends BallerinaElementReference {
     @Nullable
     private PsiElement findMatchingElement(@NotNull PsiDirectory directory,
                                            @NotNull IdentifierPSINode identifier) {
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage
-                (directory);
+        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(directory);
         for (PsiElement function : functions) {
             if (identifier.getText().equals(function.getText())) {
                 return function;
             }
         }
 
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage
-                (directory);
+        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(directory);
         for (PsiElement connector : connectors) {
             if (identifier.getText().equals(connector.getText())) {
                 return connector;
@@ -502,7 +500,20 @@ public class NameReference extends BallerinaElementReference {
             }
         }
 
-        // Todo - Resolve global variables, constants
+        List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(directory);
+        for (PsiElement variable : globalVariables) {
+            if (identifier.getText().equals(variable.getText())) {
+                return variable;
+            }
+        }
+
+        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(directory);
+        for (PsiElement constant : constants) {
+            if (identifier.getText().equals(constant.getText())) {
+                return constant;
+            }
+        }
+
         return null;
     }
 }

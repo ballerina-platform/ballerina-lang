@@ -58,7 +58,6 @@ public class StatementReference extends BallerinaElementReference {
                 PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
                 if (packageName != null) {
 
-
                     PsiReference reference = packageName.findReferenceAt(0);
                     if (reference == null) {
                         return new Object[0];
@@ -71,7 +70,6 @@ public class StatementReference extends BallerinaElementReference {
 
                     PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
-
                     List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
                     results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
@@ -83,23 +81,12 @@ public class StatementReference extends BallerinaElementReference {
                     results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
 
-                    // Todo - Add global variables and constants
+                    List<PsiElement> globalVariables =
+                            BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage);
+                    results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
-                    //                List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
-                    //                for (PsiElement variable : globalVariables) {
-                    //                    LookupElement lookupElement = BallerinaCompletionUtils
-                    // .createGlobalVariableLookupElement
-                    //                            (variable);
-                    //                    results.add(lookupElement);
-                    //                }
-                    //
-                    //                List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
-                    //                for (PsiElement constant : constants) {
-                    //                    LookupElement lookupElement = BallerinaCompletionUtils
-                    // .createConstantLookupElement(constant);
-                    //                    results.add(lookupElement);
-                    //                }
-
+                    List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage);
+                    results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                 }
             } else if (".".equals(prevVisibleLeaf.getText())) {
                 // Todo - suggest length field
