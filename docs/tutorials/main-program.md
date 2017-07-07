@@ -25,6 +25,9 @@ You can access the weather forecast API and obtain the API key from it using the
 The weather forecast API can be done for any country. Washington (USA) is used in our example. You need to identify the exact code to use to pass this parameter in the URL.
 
 1. Click **API** in the top level menu and click the **API doc** button under **5 day / 3 hour forecast**.
+    ![alt text](../images/WeatherAPIdoc.png)
+1. The page that appears provides details about the API and provides sample calls for different types of requirements. Under the **By city ID** section, you can access a JSON file that includes all the country codes: http://bulk.openweathermap.org/sample/
+    ![alt text](../images/WeatherJSON.png)
 
 ## Set up Ballerina for integration
 
