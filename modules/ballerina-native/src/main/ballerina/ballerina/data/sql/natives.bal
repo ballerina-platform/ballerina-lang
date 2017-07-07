@@ -10,7 +10,33 @@ struct Parameter {
 	string structuredType;
 }
 
-connector ClientConnector (map options) {
+@doc:Description { value: "DB Connection properties struct "}
+struct ConnectionProperties {
+	string jdbcUrl;
+	string userName;
+	string password;
+	string dataSourceClassName;
+	string connectionTestQuery;
+	string poolName;
+	string catalog;
+	string connectionInitSql;
+	string driverClassName;
+	string transactionIsolation;
+	boolean autoCommit = true;
+	boolean isolateInternalQueries;
+	boolean allowPoolSuspension;
+	boolean readOnly;
+	int maximumPoolSize = -1;
+	int connectionTimeout = -1;
+	int idleTimeout = -1;
+	int minimumIdle = -1;
+	int maxLifetime = -1;
+	int validationTimeout = -1;
+	int leakDetectionThreshold = -1;
+	map datasourceProperties;
+}
+
+connector ClientConnector (ConnectionProperties options) {
     map sharedMap = {};
 
 	@doc:Description { value:"The call action implementation for SQL connector."}

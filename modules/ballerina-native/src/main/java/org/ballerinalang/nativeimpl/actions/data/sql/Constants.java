@@ -25,36 +25,6 @@ package org.ballerinalang.nativeimpl.actions.data.sql;
 public final class Constants {
 
     /**
-     * Constants for HikariCP pool configurations.
-     */
-    public static final class PoolProperties {
-
-        public static final String DATA_SOURCE_CLASSNAME = "dataSourceClassName";
-        public static final String JDBC_URL = "jdbcUrl";
-        public static final String USER_NAME = "username";
-        public static final String PASSWORD = "password";
-        public static final String AUTO_COMMIT = "autoCommit";
-        public static final String CONNECTION_TIMEOUT = "connectionTimeout";
-        public static final String IDLE_TIMEOUT = "idleTimeout";
-        public static final String MAX_LIFETIME = "maxLifetime";
-        public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
-        public static final String MINIMUM_IDLE = "minimumIdle";
-        public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
-        public static final String POOL_NAME = "poolName";
-        public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
-        public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
-        public static final String READ_ONLY = "readOnly";
-        public static final String REGISTER_MBEANS = "registerMbeans";
-        public static final String CATALOG = "catalog";
-        public static final String CONNECTION_INIT_SQL = "connectionInitSql";
-        public static final String DRIVER_CLASSNAME = "driverClassName";
-        public static final String TRANSACTION_ISOLATION = "transactionIsolation";
-        public static final String VALIDATION_TIMEOUT = "validationTimeout";
-        public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
-        public static final String DATASOURCE = "dataSource.";
-    }
-
-    /**
      * Constants for SQL DataTypes.
      */
     public static final class SQLDataTypes {

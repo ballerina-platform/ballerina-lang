@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.actions.data.sql.Constants;
 import org.ballerinalang.nativeimpl.actions.data.sql.SQLDatasource;
@@ -60,11 +61,11 @@ public class Init extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
-        BMap optionMap = (BMap) bConnector.getRefField(0);
+        BStruct optionStruct = (BStruct) bConnector.getRefField(0);
         BMap sharedMap = (BMap) bConnector.getRefField(1);
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
             SQLDatasource datasource = new SQLDatasource();
-            datasource.init(optionMap);
+            datasource.init(optionStruct);
             sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
         }
         return null;
