@@ -36,7 +36,7 @@ public class WebSocketServicesRegistry {
     // Map<interface, Map<uri, service>>
     private final Map<String, Map<String, ServiceInfo>> serviceEndpoints = new ConcurrentHashMap<>();
     // Map<clientServiceName, ClientService>
-    private final Map<String, ServiceInfo> clientServices = new ConcurrentHashMap<>();
+    private final Map<String, ClientServiceInfo> clientServices = new ConcurrentHashMap<>();
 
     private WebSocketServicesRegistry() {
     }
@@ -50,18 +50,13 @@ public class WebSocketServicesRegistry {
      *
      * @param service service to register.
      */
-    public void registerService(ServiceInfo service) {
+    public void registerServiceEndpoint(ServiceInfo service) {
         if (!service.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
             return;
         }
         boolean isClientService = isWebSocketClientService(service);
         if (isClientService) {
-            if (service.getAnnotationAttachmentInfoList().size() > 1) {
-                throw new BallerinaException(
-                        "Cannot define any other service annotation with WebSocket Client service");
-            } else {
-                clientServices.put(service.getName(), service);
-            }
+            throw new BallerinaException("Cannot register client service as a service endpoint");
         } else {
             String upgradePath = findFullWebSocketUpgradePath(service);
             String listenerInterface = getListenerInterface(service);
@@ -74,6 +69,20 @@ public class WebSocketServicesRegistry {
                     serviceEndpoints.put(listenerInterface, servicesOnInterface);
                 }
             }
+        }
+    }
+
+    public void registerClientService(ServiceInfo clientService, ServiceInfo parentService) {
+        if (!clientService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+            return;
+        }
+
+        boolean isClientService = isWebSocketClientService(clientService);
+        if (isClientService) {
+            ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService, parentService);
+            clientServices.put(clientService.getName(), clientServiceInfo);
+        } else {
+            throw new BallerinaException("Cannot register as a client service");
         }
     }
 
@@ -111,9 +120,12 @@ public class WebSocketServicesRegistry {
      * @return the service by service name if exists. Else return null.
      */
     public ServiceInfo getClientService(String serviceName) {
-        return clientServices.get(serviceName);
+        return clientServices.get(serviceName).getClientService();
     }
 
+    public ServiceInfo getParentServiceOfClientService(String serviceName) {
+        return clientServices.get(serviceName).getParentService();
+    }
     /**
      * Check whether the given service name is a client service or not.
      *
@@ -212,6 +224,25 @@ public class WebSocketServicesRegistry {
         // TODO : Handle correct interface addition to default interface.
         String listenerInterface = org.ballerinalang.services.dispatchers.http.Constants.DEFAULT_INTERFACE;
         return listenerInterface;
+    }
+
+    private class ClientServiceInfo{
+        private final ServiceInfo clientService;
+        private final ServiceInfo parentService;
+
+
+        private ClientServiceInfo(ServiceInfo clientService, ServiceInfo parentServie) {
+            this.clientService = clientService;
+            this.parentService = parentServie;
+        }
+
+        public ServiceInfo getClientService() {
+            return clientService;
+        }
+
+        public ServiceInfo getParentService() {
+            return parentService;
+        }
     }
 
 }

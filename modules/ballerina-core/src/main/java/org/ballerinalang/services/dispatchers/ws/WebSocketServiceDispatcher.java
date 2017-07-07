@@ -83,7 +83,7 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        WebSocketServicesRegistry.getInstance().registerService(service);
+        WebSocketServicesRegistry.getInstance().registerServiceEndpoint(service);
     }
 
     @Override
