@@ -31,11 +31,13 @@ The weather forecast API can be done for any country. Washington (USA) is used i
 
 ### The URL to call
 
-Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=61619572aeb46c268edd0b7750c3f4c2&q=Washington,US.
+Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
 
 Here the `appid` is the API key and the country code is `Washington,US`.
 
 ## Set up Ballerina for integration
+
+Now it's time to set things up in Ballerina.
 
 ### Create a new main program
 
@@ -61,3 +63,5 @@ Connectors may need to have usage specific parameters and hence must be instanti
 
 1. On the tool palette, click **More Connectors** to see a list of all available connectors.
     ![alt text](../images/MoreConnectors.png)
+1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
+    ![alt text](../images/addConnector.gif)
