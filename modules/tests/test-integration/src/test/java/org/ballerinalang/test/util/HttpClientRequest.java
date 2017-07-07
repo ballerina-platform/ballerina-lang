@@ -43,8 +43,7 @@ public class HttpClientRequest {
      * @return - HttpResponse from the end point
      * @throws IOException If an error occurs while sending the GET request
      */
-    public static HttpResponse doGet(String requestUrl, Map<String, String> headers)
-            throws IOException {
+    public static HttpResponse doGet(String requestUrl, Map<String, String> headers) throws IOException {
         HttpURLConnection conn = null;
         HttpResponse httpResponse;
         try {
@@ -100,7 +99,7 @@ public class HttpClientRequest {
     }
 
     /**
-     * Send a Http POST request to a service.
+     * Send an HTTP POST request to a service.
      *
      * @param endpoint - service endpoint
      * @param postBody - message payload
@@ -181,8 +180,7 @@ public class HttpClientRequest {
      * @return - HttpResponse from the end point
      * @throws IOException If an error occurs while sending the HEAD request
      */
-    public static HttpResponse doHead(String requestUrl, Map<String, String> headers)
-            throws IOException {
+    public static HttpResponse doHead(String requestUrl, Map<String, String> headers) throws IOException {
         HttpURLConnection conn = null;
         HttpResponse httpResponse;
         try {
@@ -196,8 +194,7 @@ public class HttpClientRequest {
             StringBuilder sb = new StringBuilder();
             BufferedReader rd = null;
             try {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                        , Charset.defaultCharset()));
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()));
                 String line;
                 while ((line = rd.readLine()) != null) {
                     sb.append(line);
@@ -226,10 +223,7 @@ public class HttpClientRequest {
         }
     }
 
-
-
-    private static HttpURLConnection getURLConnection(String requestUrl)
-            throws IOException {
+    private static HttpURLConnection getURLConnection(String requestUrl) throws IOException {
         URL url = new URL(requestUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
