@@ -228,7 +228,6 @@ svg.plumbConnect path {
 }
 
 .transformOverlay {
-    display: none;
     position: fixed;
     padding-left: 280px;
     padding-top: 83px;
