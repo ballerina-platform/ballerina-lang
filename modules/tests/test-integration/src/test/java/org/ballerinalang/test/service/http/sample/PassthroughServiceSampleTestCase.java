@@ -44,14 +44,14 @@ public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test the response payload of HEAD request")
     public void testPayloadForHEAD() throws IOException {
-        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("/headQuote/stocks"));
+        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("headQuote/stocks"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "", "Message content mismatched");
     }
 
     @Test(description = "Test simple passthrough test case For HEAD")
     public void testPassthroughSampleForHEAD() throws IOException {
-        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("/sampleHead"));
+        HttpResponse response = HttpClientRequest.doHead(getServiceURLHttp("sampleHead"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "", "Message content mismatched");
     }
