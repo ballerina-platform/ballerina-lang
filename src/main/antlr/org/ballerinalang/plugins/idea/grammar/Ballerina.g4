@@ -251,7 +251,15 @@ mapStructLiteral
     ;
 
 mapStructKeyValue
-    :   expression ':' expression
+    :   mapStructKey ':' mapStructValue
+    ;
+
+mapStructKey
+    :   expression
+    ;
+
+mapStructValue
+    :   expression
     ;
 
 arrayLiteral

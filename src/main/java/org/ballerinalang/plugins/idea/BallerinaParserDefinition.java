@@ -61,8 +61,10 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
+import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructLiteralNode;
+import org.ballerinalang.plugins.idea.psi.MapStructValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -340,6 +342,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new AnnotationReferenceNode(node);
             case BallerinaParser.RULE_connectorReference:
                 return new ConnectorReferenceNode(node);
+            case BallerinaParser.RULE_mapStructKey:
+                return new MapStructKeyNode(node);
+            case BallerinaParser.RULE_mapStructValue:
+                return new MapStructValueNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

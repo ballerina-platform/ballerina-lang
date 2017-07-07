@@ -83,6 +83,7 @@ public class NameReference extends BallerinaElementReference {
 
         if (containingPackage != null) {
 
+            // Todo - use util?
             List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
             for (PsiElement importedPackage : importedPackages) {
                 PsiReference reference = importedPackage.findReferenceAt(0);
@@ -402,15 +403,52 @@ public class NameReference extends BallerinaElementReference {
 
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
-            return resolveLocalElement(identifier);
+            return resolveLocalElement();
         } else {
             return resolveElementInPackage(packageNameNode, identifier);
         }
     }
 
     @Nullable
-    private PsiElement resolveLocalElement(IdentifierPSINode identifier) {
-        // Todo - Resolve variables
+    private PsiElement resolveLocalElement() {
+        IdentifierPSINode identifier = getElement();
+
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                ConnectorDefinitionNode.class);
+        if (scope != null) {
+
+            int caretOffset = identifier.getStartOffset();
+
+            List<PsiElement> variables = getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            for (PsiElement variable : variables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
+            for (PsiElement parameter : parameters) {
+                if (identifier.getText().equals(parameter.getText())) {
+                    return parameter;
+                }
+            }
+
+            List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
+            for (PsiElement variable : globalVariables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
+            for (PsiElement constant : constants) {
+                if (identifier.getText().equals(constant.getText())) {
+                    return constant;
+                }
+            }
+        }
+
         PsiFile containingFile = identifier.getContainingFile();
         if (containingFile == null) {
             return null;
@@ -461,42 +499,6 @@ public class NameReference extends BallerinaElementReference {
         for (PsiElement struct : structs) {
             if (identifier.getText().equals(struct.getText())) {
                 return struct;
-            }
-        }
-
-        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                ConnectorDefinitionNode.class);
-        if (scope != null) {
-
-            int caretOffset = identifier.getStartOffset();
-
-            List<PsiElement> variables = getAllLocalVariablesInResolvableScope(scope, caretOffset);
-            for (PsiElement variable : variables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> parameters = getAllParametersInResolvableScope(scope);
-            for (PsiElement parameter : parameters) {
-                if (identifier.getText().equals(parameter.getText())) {
-                    return parameter;
-                }
-            }
-
-            List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
-            for (PsiElement variable : globalVariables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
-            for (PsiElement constant : constants) {
-                if (identifier.getText().equals(constant.getText())) {
-                    return constant;
-                }
             }
         }
 

@@ -158,6 +158,7 @@ public class FieldReference extends BallerinaElementReference {
 
         List<LookupElement> results = new LinkedList<>();
 
+        // Todo - use an util method?
         Collection<FieldDefinitionNode> fieldDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
         for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {

@@ -17,8 +17,10 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
@@ -31,6 +33,7 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
@@ -40,9 +43,13 @@ import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
+import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaParser.*;
 
@@ -94,6 +101,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
     public PsiReference getReference() {
         PsiElement parent = getParent();
         IElementType elType = parent.getNode().getElementType();
+
+        PsiElement prevVisibleLeaf;
+
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
             switch (((RuleIElementType) elType).getRuleIndex()) {
@@ -102,6 +112,70 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
                 case RULE_nameReference:
+
+
+//                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+//                    if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
+//                        PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+//                        if (packageName != null) {
+//                            PsiFile containingFile = parent.getContainingFile();
+//                            // Todo - use util?
+//                            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages
+//                                    (containingFile);
+//                            for (PsiElement importedPackage : importedPackages) {
+//                                PsiReference reference = importedPackage.findReferenceAt(0);
+//                                if (reference == null) {
+//                                    continue;
+//                                }
+//                                PsiElement resolvedElement = reference.resolve();
+//                                if (resolvedElement == null) {
+//                                    continue;
+//                                }
+//                                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+//                                if (packageName.getText().equals(resolvedPackage.getName())) {
+//                                    return new NameReference(this);
+//                                }
+//                            }
+//                        }
+//                    }
+
+                    MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getParentOfType(parent, MapStructKeyNode.class);
+                    if (mapStructKeyNode != null) {
+
+                        // Eg: {test:'firstName':firstName}
+                        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(mapStructKeyNode,
+                                PackageNameNode.class);
+                        if (packageNameNode != null) {
+                            return new NameReference(this);
+                        }
+
+                        PsiFile containingFile = parent.getContainingFile();
+                        // Todo - use util?
+                        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages
+                                (containingFile);
+                        for (PsiElement importedPackage : importedPackages) {
+                            PsiReference reference = importedPackage.findReferenceAt(0);
+                            if (reference == null) {
+                                continue;
+                            }
+                            PsiElement resolvedElement = reference.resolve();
+                            if (resolvedElement == null) {
+                                continue;
+                            }
+                            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                            if (parent.getText().equals(resolvedPackage.getName())) {
+                                return new PackageNameReference(this);
+                            }
+
+                        }
+
+                        return new StructKeyReference(this);
+                    }
+                    MapStructValueNode mapStructValueNode = PsiTreeUtil.getParentOfType(parent,
+                            MapStructValueNode.class);
+                    if (mapStructValueNode != null) {
+                        return new StructValueReference(this);
+                    }
                     return new NameReference(this);
                 case RULE_field:
                     return new FieldReference(this);
@@ -127,7 +201,7 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_statement:
-                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
                     if (prevVisibleLeaf != null)
                         if (".".equals(prevVisibleLeaf.getText())) {
                             return new FieldReference(this);
