@@ -17,10 +17,8 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
@@ -33,7 +31,6 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;

@@ -22,12 +22,15 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -103,10 +106,12 @@ public class StructKeyReference extends BallerinaElementReference {
                 VariableDefinitionNode.class);
         if (variableDefinitionNode == null) {
 
+            // Todo - resolve variable to definition
+
         } else {
             TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
             if (typeNameNode == null) {
-                // Todo - resolve variable to definition
+                return results;
             } else {
                 PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
                 if (reference == null) {
@@ -152,6 +157,88 @@ public class StructKeyReference extends BallerinaElementReference {
     @Nullable
     @Override
     public PsiElement resolve() {
-        return super.resolve();
+
+        IdentifierPSINode identifier = getElement();
+
+        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
+                VariableDefinitionNode.class);
+        if (variableDefinitionNode == null) {
+
+            // Todo - resolve variable to definition
+
+            AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
+                    AssignmentStatementNode.class);
+            if (assignmentStatementNode == null) {
+
+            } else {
+
+                VariableReferenceListNode variableReferenceListNode =
+                        PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
+                if (variableReferenceListNode == null) {
+                    return null;
+                }
+
+                PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
+                if (variableReferenceNode == null) {
+                    return null;
+                }
+
+                PsiReference reference = variableReferenceNode.findReferenceAt(0);
+                if (reference == null) {
+                    return null;
+                }
+
+                PsiElement resolvedElement = reference.resolve();
+                PsiElement parent = resolvedElement.getParent();
+                if (resolvedElement == null || !(parent instanceof VariableDefinitionNode)) {
+                    return null;
+                }
+
+                return resolveDefinition(((VariableDefinitionNode) parent));
+            }
+
+        } else {
+            return resolveDefinition(variableDefinitionNode);
+        }
+        return null;
+    }
+
+    @Nullable
+    private PsiElement resolveDefinition(@NotNull VariableDefinitionNode variableDefinitionNode) {
+
+        IdentifierPSINode identifier = getElement();
+
+        TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
+        if (typeNameNode == null) {
+
+            return null;
+
+        } else {
+            PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
+            if (reference == null) {
+                return null;
+            }
+
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return null;
+            }
+
+            PsiElement resolvedElementParent = resolvedElement.getParent();
+            if (resolvedElementParent instanceof StructDefinitionNode) {
+
+                // Todo - use an util method?
+                Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                        PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
+                for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+                    IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
+                            IdentifierPSINode.class);
+                    if (fieldName != null && identifier.getText().equals(fieldName.getText())) {
+                        return fieldName;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
