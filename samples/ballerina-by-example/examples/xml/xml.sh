@@ -34,5 +34,5 @@ Hello, World!<name>Book1</name><!-- comment about the book-->
 # Stripped XML
 Hello, World!<name>Book1</name><!-- comment about the book-->
 <?doc document="book.doc" ?>
-# Coppied XML
+# Copied XML
 <!-- comment about the book-->
