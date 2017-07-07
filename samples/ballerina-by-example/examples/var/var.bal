@@ -17,12 +17,12 @@ function main (string[] args) {
     //Variable type is inferred from the right-hand side.
     var q, r = divideBy10(6);
     system:println("24/10: " + "quotient=" + q + " " +
-                   "reminder=" + r);
+                   "remainder=" + r);
 
     //To ignore a particular return value in a multiple assignment statement, use '_'.
     var q1, _ = divideBy10(57);
     system:println("57/10: " + "quotient=" + q1);
 
     var _, r1 = divideBy10(9);
-    system:println("05/10: " + "reminder=" + r1);
+    system:println("05/10: " + "remainder=" + r1);
 }
