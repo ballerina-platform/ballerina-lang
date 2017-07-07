@@ -1,8 +1,4 @@
-//Fork-Join statement allows users to spawn new workers and wait until all or
-//some of the workers completed their execution.
-// Workers within fork-join can send any number of variables as their
-// results to the join block.
-//Users can choose to wait for all, few or one worker to finish till it
-//continues the execution of join block.
-//Join block receives a map of any type array which contains the data sent from
-//the respective workers.
+//A fork statement allows one to replicate a message to any number of parallel workers and have them
+//independently operate on the copies of the message.
+//The join part of the fork statement allows one to define how the caller of fork will wait for the parallel workers to complete.
+

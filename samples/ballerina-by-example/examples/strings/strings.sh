@@ -1,5 +1,3 @@
-# To run the program, create a file named `strings.bal`
-# and run the command below.
 $ ballerina run main strings.bal
 ToUpper: LION IN TOWN. CATCH THE LION
 ToLower: lion in town. catch the lion

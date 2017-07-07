@@ -1,10 +1,1 @@
-//Worker interactions allows the users to share data across multiple workers.
-//A worker can send multiple variables to another worker using worker invocation
-//statement.
-//Receiving worker should accept the data with a worker reply statement.
-//Worker invocation statement should exactly match the number of
-//variables and their type and order of the worker reply statement.
-//Worker reply statement will block the execution of that worker until it
-//receives the data.
-//Workers can only interact with other workers which are defined within the
-//same enclosing block of function, resource or action.
+//Workers interact with each other by sending messages. Messages are sent over a channel but the channels are anonymous.

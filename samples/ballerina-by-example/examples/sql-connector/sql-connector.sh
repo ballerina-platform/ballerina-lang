@@ -1,7 +1,4 @@
-# To run the program, put the code in `sql-connector.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main sql-connector.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run main sql-connector.bal
+$ ballerina run main sql-connector.bal
 Table creation status:0
 Stored proc creation status:0
 Inserted row count:1

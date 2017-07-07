@@ -1,60 +1,37 @@
 import ballerina.lang.system;
-import ballerina.doc;
 
-@doc:Description { value:"fork-join functionality in ballerina allows users to spawn(fork) multiple workers within a ballerina program and join the results from those workers and execute code on joined results."}
-function main(string[] args) {
+function main (string[] args) {
+    //fork-join allows developers to spawn(fork) multiple workers within a ballerina program and join
+    //the results from those workers and execute code on joined results.
+    fork {
+        worker w1 {
+            int i = 23;
+            string s = "Colombo";
+            system:println("[w1] i: " + i + " s: " + s);
+            // Reply to the join block from worker w1.
+            i, s -> fork;
+        }
 
-  // Declare the fork-join statement
-  fork {
-    worker W1 {
-      // Define an integer variable within the worker to send to join block
-      int i = 23;
-      // Define a string variable within the worker to send to join block
-      string n = "Colombo";
-      // Print the values of variables visible to worker W2
-      system:println("[W1 worker]: inside worker
-      Value of integer variable is [" + i + "]
-      Value of string variable is [" + n + "]");
-      // Send data to join block of the fork-join from worker W1
-      i, n -> fork;
+        worker w2 {
+            float f = 10.344;
+            system:println("[w2] f: " + f);
+            // Reply to the join block from worker w2.
+            f -> fork;
+        }
+
+    } join (all) (map results) {
+        //Here we use "all" as the join condition which means wait for all the workers.
+        //When the join condition has been satisfied, results 'map' will be filled with
+        //the returned messages from the workers.
+        
+        // Get values received from worker 'w1'.
+        var resW1, _ = (any[])results["w1"];
+        var iW1, _ = (int)resW1[0];
+        var sW1, _ = (string)resW1[1];
+        system:println("[join-block] iW1: " + iW1 + " sW1: " + sW1);
+        // Get values received from worker 'w2'.
+        var resW2, _ = (any[])results["w2"];
+        var fW2, _ = (float)resW2[0];
+        system:println("[join-block] fW2: " + fW2);
     }
-
-    worker W2 {
-      // Define a float variable within the worker to send to join block
-      float f = 10.344;
-      // Print the values of variables within worker W2
-      system:println("[W2 worker]: starting worker
-      Value of float variable is [" + f + "]");
-      // Send data to join block of the fork-join from worker W2
-      f -> fork;
-    }
-  } join (all) (map results){
-      // In the above join block, "all" is given to wait for all workers.
-      // Declare variables to receive the results from forked workers W1 and W2
-      any[] r1;
-      any[] r2;
-      // results map contains a map of any type array from each worker
-      // defined within the fork-join statement
-      // Values received from worker W1 are assigned to any array of r1
-      r1,_   = (any[]) results["W1"];
-      // Values received from worker W2 are assigned to any array of r2
-      r2,_   = (any[]) results["W2"];
-      // Getting the 0th index of array returned from worker W1
-      int p;
-      p, _ = (int) r1[0];
-      // Getting the 1th index of array returned from worker W1
-      string l;
-      l, _ = (string) r1[1];
-      // Getting the 0th index of array returned from worker W2
-      float q;
-      q, _ = (float) r2[0];
-      // Print values received from workers within join block
-      system:println("[default worker] within join:
-      Value of integer from W1 is [" + p + "]");
-      system:println("[default worker] within join:
-      Value of string from W1 is [" + l + "]");
-      system:println("[default worker] within join:
-      Value of float from W2 [" + q + "]");
-  }
-
 }

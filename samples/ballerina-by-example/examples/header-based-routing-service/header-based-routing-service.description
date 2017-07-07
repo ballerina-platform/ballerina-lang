@@ -1,1 +1,0 @@
-//The Header-Based Router service (HBR) reads a particular Header of a message and routes it to a specific recipient based on the Header value.

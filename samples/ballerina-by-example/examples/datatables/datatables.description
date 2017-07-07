@@ -1,5 +1,6 @@
-// Ballerina datatable is used to retrive data from database
-// table. Use the following sql scripts to create table and
+//The datatable type is used to hold tabular data, such as those returned from
+//an SQL database query and provides cursor based access to the data.
+//Use the following sql scripts to create table and
 // sample data in a mysql database.
 //
 //create table employees (
@@ -17,3 +18,4 @@
 //
 //insert into employees values(2, 'Anne', 4060.50, true, '1999-12-31',
 //'13:40:24', '2017-05-23 09:15:28');
+
