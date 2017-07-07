@@ -16,7 +16,7 @@ function main (string[] args) {
     //Multiple assignment with 'var' allows you to define the variable then and there.
     //Variable type is inferred from the right-hand side.
     var q, r = divideBy10(6);
-    system:println("24/10: " + "quotient=" + q + " " +
+    system:println("06/10: " + "quotient=" + q + " " +
                    "remainder=" + r);
 
     //To ignore a particular return value in a multiple assignment statement, use '_'.
@@ -24,5 +24,5 @@ function main (string[] args) {
     system:println("57/10: " + "quotient=" + q1);
 
     var _, r1 = divideBy10(9);
-    system:println("05/10: " + "remainder=" + r1);
+    system:println("09/10: " + "remainder=" + r1);
 }
