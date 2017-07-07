@@ -1,3 +1,19 @@
 # Write a Main Program
 
-Now that you have [written your first program](../first-program.md), you can write some more programs to do various integration-related tasks. This topic provides instructions on how to write a main program.
+Now that you have [written your first program](../first-program.md), you can write some more programs to do various integration-related tasks. 
+
+> This tutorial provides instructions on how to write a main program. This involves a simple integration scenario where you can call a public weather forecast API and do some customization to the data obtained. The weather forecast API provides the weather forecast for the next five days and provides new records every three hours. Using this data, you will learn how to use Ballerina to find the average temperature and convert the result from kelvin to celsius.
+
+> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md).
+
+## Set up Ballerina for integration
+
+### Create a new main program
+
+There are main programs and services, but this tutorial focuses on main programs only. It is time to create a main program to solve your integration problem.
+
+1. If the Composer is not already running, run it as described in the [Quick Tour](../quick-tour.md).
+1. On the Welcome page, click **File** and select **New** from the dropdown list.
+1. On the tool palette that you see on the left of the Composer, click the **Main Function** icon and drag it to the canvas.
+
+![alt text](../images/AddMainProgram.gif)
