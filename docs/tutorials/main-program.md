@@ -65,5 +65,5 @@ Connectors may need to have usage specific parameters and hence must be instanti
     ![alt text](../images/MoreConnectors.png)
 1. From the list that appears, expand **ballerina.net.http** and drag a **ClientConnector** onto the canvas.
     ![alt text](../images/addConnector.gif)
-1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) as the connector endpoint.
+1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
     ![alt text](../images/ConnectorEndpoint.gif)
