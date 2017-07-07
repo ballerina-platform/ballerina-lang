@@ -65,7 +65,7 @@ public class BLangVMWorkers {
 
             // Copy arg values from the current StackFrame to the new StackFrame
             // TODO fix this. Move the copyArgValues method to another util function
-            BLangVM.copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+            BLangVM.copyArgValuesWorker(callerSF, calleeSF, argRegs, paramTypes);
 
             BLangVM bLangVM = new BLangVM(programFile);
             ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();

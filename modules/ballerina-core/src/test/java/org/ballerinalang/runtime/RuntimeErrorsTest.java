@@ -19,7 +19,6 @@
 package org.ballerinalang.runtime;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.core.EnvironmentInitializer;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.core.utils.MessageUtils;
 import org.ballerinalang.model.BLangProgram;
@@ -154,6 +153,6 @@ public class RuntimeErrorsTest {
 
 //    @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(undeclaredPackageProgram);
+//        EnvironmentInitializer.cleanup(undeclaredPackageProgram);
     }
 }

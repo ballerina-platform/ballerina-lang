@@ -13,14 +13,18 @@ groups as separate messages.
 oddEvenHttpService
 ------------------
 This is a http service which has several endpoints
-* /data/even
+* /groupInfo/even
  The message will be delivered to the evenGroup which is created in oddEvenWebSocketService.
-* /data/odd
+* /groupInfo/odd
  The message will be delivered to the oddGroup which is created in oddEvenWebSocketService.
-* /data/rm-even
+* /groupInfo/rm-even
  This will delete the evenGroup which is created in oddEvenWebSocketService.
-* /data/rm-odd
+* /groupInfo/rm-odd
  This will delete the oddGroup which is created in oddEvenWebSocketService.
+* /groupInfo/close-even
+ This will close the evenGroup which is created in oddEvenWebSocketService.
+* /groupInfo/close-odd
+ This will close the oddGroup which is created in oddEvenWebSocketService.
 
 Pre-requisites
 ==============

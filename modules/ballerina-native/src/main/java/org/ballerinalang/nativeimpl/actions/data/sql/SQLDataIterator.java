@@ -25,6 +25,7 @@ import org.ballerinalang.nativeimpl.actions.data.sql.client.SQLDatasourceUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -36,6 +37,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,11 +52,13 @@ public class SQLDataIterator implements DataIterator {
     private Connection conn;
     private Statement stmt;
     private ResultSet rs;
+    private Calendar utcCalendar;
 
-    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs) throws SQLException {
+    public SQLDataIterator(Connection conn, Statement stmt, ResultSet rs, Calendar utcCalendar) throws SQLException {
         this.conn = conn;
         this.stmt = stmt;
         this.rs = rs;
+        this.utcCalendar = utcCalendar;
     }
 
     @Override
@@ -69,6 +73,15 @@ public class SQLDataIterator implements DataIterator {
     public boolean next() {
         try {
             return rs.next();
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean isLast() {
+        try {
+            return rs.isLast();
         } catch (SQLException e) {
             throw new BallerinaException(e.getMessage(), e);
         }
@@ -150,6 +163,9 @@ public class SQLDataIterator implements DataIterator {
         try {
             switch (type) {
             case Types.BLOB:
+            case Types.BINARY:
+            case Types.LONGVARBINARY:
+            case Types.VARBINARY:
                 Blob value = rs.getBlob(columnName);
                 return new BBlob(value.getBytes(1L, (int) value.length()));
             case Types.CLOB:
@@ -159,14 +175,18 @@ public class SQLDataIterator implements DataIterator {
             case Types.DATE:
                 return getBString(rs.getDate(columnName));
             case Types.TIME:
-                return getBString(rs.getTime(columnName));
+            case Types.TIME_WITH_TIMEZONE:
+                return getBString(rs.getTime(columnName, utcCalendar));
             case Types.TIMESTAMP:
-                return getBString(rs.getTimestamp(columnName));
-            case Types.BINARY:
-                return getBString(rs.getBinaryStream(columnName));
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+                return getBString(rs.getTimestamp(columnName, utcCalendar));
+            case Types.ROWID:
+                return new BString(new String(rs.getRowId(columnName).getBytes(), "UTF-8"));
             }
         } catch (SQLException e) {
             throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
         }
         return null;
     }

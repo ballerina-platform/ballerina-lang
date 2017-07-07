@@ -1,8 +1,8 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:BasePath {value:"/echo"}
-service echo {
+@http:config {basePath:"/echo"}
+service<http> echo {
 
     string serviceLevelStr;
 

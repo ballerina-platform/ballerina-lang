@@ -12,6 +12,13 @@ struct Person {
     boolean alive;
 }
 
+function testVarDeclarationWithAtLeaseOneNonDeclaredSymbol () (int, errors:TypeConversionError) {
+    int a;
+    float f = 10.0;
+    var a, err = <int>f;
+    return a, err;
+}
+
 function testIntToVarAssignment() (int) {
     var age = 81;
     return age;
@@ -20,6 +27,21 @@ function testIntToVarAssignment() (int) {
 function testMultipleIntToVarAssignment() (int,int,int,int) {
     var age, age1, age2, age3 = retFourInt();
     return age, age1, age2, age3;
+}
+
+function testMultipleIntToVarAssignmentWithUnderscore() (int,int) {
+    var age, age1, _, _ = retFourInt();
+    return age, age1;
+}
+
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() (int,int) {
+    var age, _, age1, _ = retFourInt();
+    return age, age1;
+}
+
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() (int,int) {
+    var age, _, _, age1 = retFourInt();
+    return age, age1;
 }
 
 function retFourInt()(int,int,int,int){

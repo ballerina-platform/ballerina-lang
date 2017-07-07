@@ -116,6 +116,26 @@ public class TryCatchThrowStmtTest {
 
     }
 
+    @Test(description = "Test scope issue when using try catch inside while loop")
+    public void testScopeIssueInTryCatch() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "scopeIssueTest", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        long value = ((BInteger) returns[0]).intValue();
+        Assert.assertEquals(value, 25);
+    }
+
+    @Test(description = "Test function call in finally block when error there is a error thrown.",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: test.*")
+    public void testMethodCallInFinally() {
+        BValue[] args = {};
+        BLangFunctions.invokeNew(programFile, "testMethodCallInFinally", args);
+    }
+
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*redeclared symbol 'e'.*")
     public void testDuplicateExceptionVariable() {
         BTestUtils.getProgramFile("lang/errors/duplicate-var-try-catch.bal");

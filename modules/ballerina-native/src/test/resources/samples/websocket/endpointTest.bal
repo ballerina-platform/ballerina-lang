@@ -2,9 +2,9 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:BasePath {value:"/test"}
+@http:config {basePath:"/test"}
 @ws:WebSocketUpgradePath {value:"/websocket"}
-service testEndpoint {
+service<ws> testEndpoint {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
@@ -13,6 +13,10 @@ service testEndpoint {
 
     @ws:OnTextMessage {}
     resource onTextMessage(message m) {
+        string  text = messages:getStringPayload(m);
+        if ("closeMe" == text) {
+            ws:closeConnection();
+        }
         ws:pushText(messages:getStringPayload(m));
     }
 

@@ -8,7 +8,7 @@ import ballerina.lang.system;
 protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "QueueConnectionFactory",
 factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
 connectionFactoryType = "queue")
-service jmsActiveMqQueueService {
+service<jms> jmsActiveMqQueueService {
 
     resource onMessage (message m) {
         string messageType;

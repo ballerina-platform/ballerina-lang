@@ -33,6 +33,7 @@ public abstract class AbstractStatement implements Statement {
     protected NodeLocation location;
     protected WhiteSpaceDescriptor whiteSpaceDescriptor;
     protected boolean alwaysReturns;
+    protected Statement parent;
 
     public AbstractStatement(NodeLocation location) {
         this.location = location;
@@ -40,6 +41,10 @@ public abstract class AbstractStatement implements Statement {
 
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    public void setLocation(NodeLocation location) {
+        this.location = location;
     }
 
     public void setWhiteSpaceDescriptor(WhiteSpaceDescriptor whiteSpaceDescriptor) {
@@ -58,4 +63,15 @@ public abstract class AbstractStatement implements Statement {
     public boolean isAlwaysReturns() {
         return alwaysReturns;
     }
+
+    @Override
+    public void setParent(Statement parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public Statement getParent() {
+        return this.parent;
+    }
+
 }

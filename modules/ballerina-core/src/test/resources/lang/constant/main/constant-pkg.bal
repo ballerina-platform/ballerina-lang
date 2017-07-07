@@ -24,3 +24,11 @@ function getNegativeConstants()(int, int, float, float) {
     return constNegativeInt, constNegativeIntWithSpace, constNegativeFloat, constNegativeFloatWithSpace;
 }
 
+
+const float a = 4;
+
+function floatIntConversion() (float, float, float){
+    float[] f = [1,2,3,4,5,6,8];
+    return a, f[5], 10;
+}
+

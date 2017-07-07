@@ -3,8 +3,8 @@ import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
 
-@http:BasePath {value:"/ecommerceservice"}
-service Ecommerce {
+@http:config {basePath:"/ecommerceservice"}
+service<http> Ecommerce {
     @http:GET{}
     @http:Path {value:"/products/{productId}/{regId}"}
     resource productsInfo1 (message m, @http:PathParam {value:"productId"} string prdID, @http:PathParam {value:"regId"} string rID) {
