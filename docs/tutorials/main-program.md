@@ -51,4 +51,13 @@ It is time to create a main program to solve your integration problem.
 
 ### Add a connector
 
-Now that you have added a main program, you need a connector to connect to the external weather API. The connector ideal for this is the **HTTP Connector**.
+Now that you have added a main program, you need a connector to connect to the external weather API. The connector ideal for this is the **HTTP Client Connector** since you are invoking an HTTP endpoint.
+
+Connectors represents network services that are used by a Ballerina program. The term "network services" here is meant in the broadest possible sense - Ballerina is designed to connect with everything from a database to a JMS queue to an OAuth protected API to LDAP servers and more. Thus connectors are the representation of any such remote service in Ballerina.
+
+Graphically, connectors are modeled as a separate lifeline to represent its independent and parallel execution. However, that lifeline is not a programmable thread of execution for the Ballerina developer - it only exists to represent the remote system.
+
+Connectors may need to have usage specific parameters and hence must be instantiated prior to use. For example, an HTTP connector will need the URL to connect to in the minimum.
+
+1. On the tool palette, click **More Connectors** to see a list of all available connectors.
+    ![alt text](../images/MoreConnectors.png)
