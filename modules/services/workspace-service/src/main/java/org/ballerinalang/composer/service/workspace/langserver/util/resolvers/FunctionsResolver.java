@@ -26,6 +26,7 @@ import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,7 +34,8 @@ import java.util.List;
  */
 public class FunctionsResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
         String packageName = dataModel.getContext().getStart().getText();
         PackageItemResolver packageItemResolver = PackageItemResolver.getInstance();
         List<Function> functions = packageItemResolver.getFunctionInvocations(packageName);

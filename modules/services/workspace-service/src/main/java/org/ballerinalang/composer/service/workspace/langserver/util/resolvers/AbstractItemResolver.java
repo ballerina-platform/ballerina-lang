@@ -35,6 +35,7 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractItemResolver {
     abstract ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel,
-                                                    ArrayList<SymbolInfo> symbols);
+                                                    ArrayList<SymbolInfo> symbols, HashMap<Class,
+                                                        AbstractItemResolver> resolvers);
 
     List<SymbolInfo> filterPackageActionsAndFunctions(SuggestionsFilterDataModel dataModel,
                                                       ArrayList<SymbolInfo> symbols) {
