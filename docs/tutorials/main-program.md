@@ -6,14 +6,27 @@ Now that you have [written your first program](../first-program.md), you can wri
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md).
 
+## Get information from the weather forecast API
+
+You can access the weather forecast API and obtain the required information from it using the following steps.
+
+1. Go to https://openweathermap.org/ and click **Sign Up** to register your account.
+1. Once you have signed up for an account, log in using your credentials.
+1. In the home page that appears, click **API keys**. You can copy the **Key** that is already generated for you.
+
+![alt text](../images/OpenWeatherAPI.png)
+
 ## Set up Ballerina for integration
 
 ### Create a new main program
 
-There are main programs and services, but this tutorial focuses on main programs only. It is time to create a main program to solve your integration problem.
+There are main programs and services, but this tutorial focuses on main programs only. A service normally continues to run and can be invoked by a REST API when required. A main program, on the other hand, will just run once. Main programs can be executed just like a Java main program. 
+
+It is time to create a main program to solve your integration problem.
 
 1. If the Composer is not already running, run it as described in the [Quick Tour](../quick-tour.md).
 1. On the Welcome page, click **File** and select **New** from the dropdown list.
 1. On the tool palette that you see on the left of the Composer, click the **Main Function** icon and drag it to the canvas.
 
 ![alt text](../images/AddMainProgram.gif)
+
