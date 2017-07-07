@@ -32,7 +32,7 @@ function main(string[] args) {
         message request = {};
         message gitHubResponse = http:ClientConnector.get(gitHubEP, repoPRpath, request);
         json gitHubJsonResponse = messages:getJsonPayload(gitHubResponse);
-        int noOfPRs = jsons:getInt(gitHubJsonResponse, "$.length()");
+        int noOfPRs = jsons:getInt(gitHubJsonResponse, "$$.length()");
         string noOfPRstr = strings:valueOf(noOfPRs);
         string textMsg = "Number of pending pull requests in " + repo + " is " + noOfPRstr;
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
