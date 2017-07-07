@@ -23,13 +23,15 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Default resolver for the completion items
  */
 class DefaultResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> searchList = symbols;
 

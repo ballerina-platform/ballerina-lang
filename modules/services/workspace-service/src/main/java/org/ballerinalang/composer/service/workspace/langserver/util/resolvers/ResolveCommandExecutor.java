@@ -21,6 +21,8 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.Service;
 import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
@@ -41,6 +43,8 @@ public class ResolveCommandExecutor {
         AnnotationAttachmentContextResolver annotationAttachmentContextResolver =
                 new AnnotationAttachmentContextResolver();
         ParameterContextResolver parameterContextResolver = new ParameterContextResolver();
+        ServiceContextResolver serviceContextResolver = new ServiceContextResolver();
+        AnnotationAttachmentResolver annotationAttachmentResolver = new AnnotationAttachmentResolver();
 
         resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
@@ -55,6 +59,8 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.GlobalVariableDefinitionContext.class, topLevelResolver);
         resolvers.put(BallerinaParser.ParameterContext.class, parameterContextResolver);
         resolvers.put(null, topLevelResolver);
+        resolvers.put(Service.class, serviceContextResolver);
+        resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
     }
 
     /**
@@ -68,9 +74,9 @@ public class ResolveCommandExecutor {
     (Class resolveCriteria, SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
         AbstractItemResolver itemResolver = resolvers.get(resolveCriteria);
         if (itemResolver == null) {
-            return DEFAULT_RESOLVER.resolveItems(dataModel, symbols);
+            return DEFAULT_RESOLVER.resolveItems(dataModel, symbols, resolvers);
         } else {
-            return itemResolver.resolveItems(dataModel, symbols);
+            return itemResolver.resolveItems(dataModel, symbols , resolvers);
         }
     }
 }

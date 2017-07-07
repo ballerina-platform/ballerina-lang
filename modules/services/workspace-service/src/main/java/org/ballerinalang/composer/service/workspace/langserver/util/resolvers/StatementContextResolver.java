@@ -21,19 +21,17 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.NativeUnit;
-import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Statement context resolver for resolving the items of the statement context
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols) {
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
 
         //TODO: This code is a copy of the Variable Definition context. Variable Definition context code will be
         // improved in the future
@@ -42,36 +40,8 @@ public class StatementContextResolver extends AbstractItemResolver {
         // the number of : and the . from the current token and search is terminated when an endline met
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        List<SymbolInfo> searchList = filterPackageActionsAndFunctions(dataModel, symbols);
-
-        populateCompletionItemList(searchList, completionItems);
+        populateCompletionItemList(symbols, completionItems);
 
         return completionItems;
-    }
-
-    void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
-        StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
-        int i = 0;
-        String initString = "(";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getArgumentTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName()).append(" ")
-                    .append(nativeUnit.getArgumentNames()[i]);
-            ++i;
-            initString = ", ";
-        }
-        signature.append(")");
-        initString = "(";
-        String endString = "";
-        for (SimpleTypeName simpleTypeName : nativeUnit.getReturnParamTypeNames()) {
-            signature.append(initString).append(simpleTypeName.getName());
-            initString = ", ";
-            endString = ")";
-        }
-        signature.append(endString);
-        completionItem.setLabel(signature.toString());
-        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
     }
 }
