@@ -2,7 +2,7 @@ struct /*def*/testStruct {
     string a;
 }
 
-service test {
+service<http> test {
 
     resource test (message m) {
         /*ref*/testStruct ts;
