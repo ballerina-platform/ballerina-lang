@@ -440,6 +440,11 @@ class TransformStatementDecorator extends React.Component {
             _package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
         }
 
+        if (_package === undefined) {
+            alerts.error('Referred package ' + packageIdentifier + ' cannot be resolved');
+            return;
+        }
+
         return _.find(_package.getStructDefinitions(), (structDef) => {
             return structName === structDef.getName();
         });
@@ -526,7 +531,7 @@ class TransformStatementDecorator extends React.Component {
         this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression), functionInvocationExpression);
     }
 
-    drawInnerFunctionInvocationExpression(functionInvocationExpression, parentFunctionInvocationExpression,
+    drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
                                                       parentFunctionDefinition, parentParameterIndex, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
@@ -578,7 +583,7 @@ class TransformStatementDecorator extends React.Component {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(expression, functionInvocationExpression, func, i, statement);
+                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, func, i, statement);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
