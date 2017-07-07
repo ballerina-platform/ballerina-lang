@@ -8,13 +8,23 @@ Now that you have [written your first program](../first-program.md), you can wri
 
 ## Get information from the weather forecast API
 
-You can access the weather forecast API and obtain the required information from it using the following steps.
+In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
+
+### Get the API key
+
+You can access the weather forecast API and obtain the API key from it using the following steps. The key is used as part of the URL that is called by Ballerina.
 
 1. Go to https://openweathermap.org/ and click **Sign Up** to register your account.
 1. Once you have signed up for an account, log in using your credentials.
 1. In the home page that appears, click **API keys**. You can copy the **Key** that is already generated for you.
 
 ![alt text](../images/OpenWeatherAPI.png)
+
+### Identify the country code
+
+The weather forecast API can be done for any country. Washington (USA) is used in our example. You need to identify the exact code to use to pass this parameter in the URL.
+
+1. Click **API** in the top level menu and click the **API doc** button under **5 day / 3 hour forecast**.
 
 ## Set up Ballerina for integration
 
@@ -30,3 +40,6 @@ It is time to create a main program to solve your integration problem.
 
 ![alt text](../images/AddMainProgram.gif)
 
+### Add a connector
+
+Now that you have added a main program, you need a connector to connect to the external weather API. The connector ideal for this is the **HTTP Connector**.
