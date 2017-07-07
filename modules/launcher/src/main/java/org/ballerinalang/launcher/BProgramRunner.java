@@ -20,6 +20,7 @@ package org.ballerinalang.launcher;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.carbon.messaging.ServerConnector;
@@ -52,7 +53,8 @@ class BProgramRunner {
 
     static void runServices(Path[] serviceFilePaths) {
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-
+        // TODO : Fix this properly.
+        BLangRuntimeRegistry.getInstance().initialize();
         for (Path servicePath : serviceFilePaths) {
             // TODO Handle errors
             ProgramFile programFile = new BLangProgramLoader().loadServiceProgramFile(programDirPath, servicePath);

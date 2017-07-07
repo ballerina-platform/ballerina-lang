@@ -33,4 +33,10 @@ public interface Statement extends Node {
     void setAlwaysReturns(boolean returns);
 
     boolean isAlwaysReturns();
+
+    void setParent(Statement parent);
+
+    Statement getParent();
+
+    StatementKind getKind();
 }

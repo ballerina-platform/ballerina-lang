@@ -17,10 +17,8 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.model.values.BValue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +28,9 @@ import java.util.List;
  * @since 0.8.0
  */
 public class ConstDef extends VariableDef implements CompilationUnit {
-    private Expression rhsExpr;
-    private BValue value;
+
     private List<AnnotationAttachment> annotations;
+    private VariableDefStmt variableDefStmt;
 
     public ConstDef(NodeLocation location,
                     WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -40,25 +38,19 @@ public class ConstDef extends VariableDef implements CompilationUnit {
                     SimpleTypeName typeName,
                     String pkgPath,
                     SymbolName symbolName,
-                    SymbolScope symbolScope,
-                    Expression rhsExpr) {
+                    SymbolScope symbolScope) {
 
         super(location, whiteSpaceDescriptor, identifier, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
-        this.rhsExpr = rhsExpr;
         this.annotations = new ArrayList<>();
     }
 
-    public Expression getRhsExpr() {
-        return rhsExpr;
+    public VariableDefStmt getVariableDefStmt() {
+        return variableDefStmt;
     }
 
-    public BValue getValue() {
-        return value;
-    }
-
-    public void setValue(BValue value) {
-        this.value = value;
+    public void setVariableDefStmt(VariableDefStmt variableDefStmt) {
+        this.variableDefStmt = variableDefStmt;
     }
 
     /**

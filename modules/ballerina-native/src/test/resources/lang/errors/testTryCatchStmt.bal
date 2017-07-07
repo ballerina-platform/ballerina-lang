@@ -93,3 +93,35 @@ function testStackTrace()(errors:StackTrace){
     }
     return trace;
 }
+
+function mockFunction ()(string) {
+    return "done";
+}
+
+function testMethodCallInFinally ()(string) {
+    string s = "start";
+    try {
+        errors:Error e = {msg:"test"};
+        throw e;
+    }finally {
+         s = s + mockFunction();
+    }
+    return s;
+}
+
+function scopeIssueTest () (int) {
+    int i = 0;
+    while (i < 10) {
+        try {
+        } catch (errors:Error e) {
+        }
+        i = i + 1;
+    }
+    int j6 = 5;
+    while (i < 20) {
+        int val = j6;
+        i = i + 1;
+    }
+    j6 = i + j6;
+    return j6;
+}
