@@ -9,4 +9,4 @@ ballerina: started server connector http-9090
 # one or more packages to be included into the archive.
 $ ballerina build service hello-world-service.bal
 $ ls
-hello-world-service.bsz	hello-world-service.go
+hello-world-service.bsz	hello-world-service.bal

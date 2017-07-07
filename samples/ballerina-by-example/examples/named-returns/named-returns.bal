@@ -2,14 +2,14 @@ import ballerina.lang.system;
 import ballerina.doc;
 
 @doc:Description {value:"These names are treated as variables defined at the top of the function."}
-function divideBy10 (int d) (int quotient, int reminder) {
+function divideBy10 (int d) (int quotient, int remainder) {
     return d / 10, d % 10;
 }
 
 @doc:Description {value:"If the return statement does not contain any argument then the named return values will be returned."}
-function divideBy5 (int d) (int quotient, int reminder) {
+function divideBy5 (int d) (int quotient, int remainder) {
     quotient = d / 10;
-    reminder = d % 10;
+    remainder = d % 10;
     return;
 }
 
@@ -23,11 +23,11 @@ function getDefaultValues () (int a, float b,
 function main (string[] args) {
     var q1, r1 = divideBy10(93);
     system:println("93/10: " + "quotient=" + q1 + " " +
-                   "reminder=" + r1);
+                   "remainder=" + r1);
 
     var q2, r2 = divideBy5(93);
     system:println("93/5: " + "quotient=" + q2 + " " +
-                   "reminder=" + r2);
+                   "remainder=" + r2);
 
     int a;
     float b;
