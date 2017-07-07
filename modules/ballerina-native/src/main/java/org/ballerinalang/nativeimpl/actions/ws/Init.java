@@ -31,6 +31,7 @@ import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
 import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.osgi.service.component.annotations.Component;
+import org.wso2.carbon.messaging.ClientConnector;
 
 import java.util.UUID;
 
