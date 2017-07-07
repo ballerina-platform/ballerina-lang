@@ -36,7 +36,8 @@
         <Class name="org.ballerinalang.natives.annotation.processor.ConstructProviderClassBuilder"/>
         <Or>
             <Method name="writeBuiltInBalPackages"/>
-            <!--<Note>Potential Path Traversal (file read).This is not a input parameter (SrcDir) </Note>-->
+            <!--<Note>Potential Path Traversal (file read).This is not a user provided input parameter (SrcDir).
+            </Note>-->
         </Or>
     </Match>
 </FindBugsFilter>
