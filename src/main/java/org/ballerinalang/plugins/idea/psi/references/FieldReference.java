@@ -50,31 +50,33 @@ public class FieldReference extends BallerinaElementReference {
         PsiElement parent = identifier.getParent();
 
         PsiElement prevSibling;
+        // If the current statement is not completed properly, the parent will be a StatementNode. This is used to
+        // resolve multi level structs. Eg: user.name.<caret>
         if (parent instanceof StatementNode) {
             // Get the previous element.
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
             if (prevVisibleLeaf == null) {
                 return null;
             }
+            // Previous leaf element should be "." if the references are correctly defined.
             if (!".".equals(prevVisibleLeaf.getText())) {
                 return null;
             }
+            // Get the prevSibling. This is used to resolve the current field.
             prevSibling = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
             if (prevSibling == null) {
                 return null;
             }
         } else {
-            prevSibling = parent.getPrevSibling();
+            // If the current statement is correctly resolved, that means all the fields are identified properly.
+            // Get the prevSibling. This is used to resolve the current field.
+            prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
         }
 
+        // If the prevSibling is null, we return from this method because we cannot resolve the element.
         if (prevSibling == null) {
             return null;
         }
-        // If the previous element is not null and is an instance of VariableReferenceNode, that means we have
-        // encountered the following situation.
-        // user.id - In here, current node is the 'id' node. previous node is the 'user' node.
-        //        if (prevSibling instanceof VariableReferenceNode || ) {
-
 
         // We get the reference at end. This is because struct field access can be multiple levels deep.
         // Eg: user.name.first - If the current node is 'first', then the previous node will be 'user.name'. If
@@ -86,14 +88,60 @@ public class FieldReference extends BallerinaElementReference {
         }
         // Resolve the reference. The resolved element can be an identifier of either a struct of a field
         // depending on the current node.
-        // Eg: user.name.first - If the current node is 'name', resolved element will be a struct definition. if
-        // the current element is 'first', then the resolved element will be a field definition.
+        // Eg: user.name.firstName - If the current node is 'name', resolved element will be a struct definition. if
+        // the current element is 'firstName', then the resolved element will be a field definition.
         PsiElement resolvedElement = variableReference.resolve();
         if (resolvedElement == null) {
             return null;
         }
 
         // Get the parent of the resolved element.
+        PsiElement resolvedElementParent = resolvedElement.getParent();
+        StructDefinitionNode structDefinitionNode = null;
+        // Resolve the corresponding resolvedElementParent to get the struct definition.
+        if (resolvedElementParent instanceof VariableDefinitionNode) {
+            // Resolve the Type of the VariableDefinitionNode to get the corresponding struct.
+            // Eg: User user = {}
+            //     In here, "User" is resolved and struct identifier is returned.
+            structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
+                    (((VariableDefinitionNode) resolvedElementParent));
+        } else if (resolvedElementParent instanceof FieldDefinitionNode) {
+            // If the resolvedElementParent is of type FieldDefinitionNode, that means we need to resolve the type of
+            // the field to get the struct definition.
+            // Eg: user.name.firstName - In here, if we want to resolve the 'firstName' we will get the 'Name name;'
+            // field. So we need to resolve the type of the field which is 'Name'. Then we will get the Name struct.
+            // Then we need to get the 'firstName' field from that.
+            structDefinitionNode =
+                    BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
+        }
+        if (structDefinitionNode == null) {
+            return null;
+        }
+        // Resolve the field and return the resolved element.
+        return structDefinitionNode.resolve(identifier);
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        IdentifierPSINode identifier = getElement();
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
+        // Todo - remove hard coded "."
+        if (prevVisibleLeaf == null || !".".equals(prevVisibleLeaf.getText())) {
+            return new LookupElement[0];
+        }
+        PsiElement previousField = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+        if (previousField == null) {
+            return new LookupElement[0];
+        }
+        PsiReference reference = previousField.findReferenceAt(0);
+        if (reference == null) {
+            return new LookupElement[0];
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement == null) {
+            return new LookupElement[0];
+        }
         PsiElement resolvedElementParent = resolvedElement.getParent();
         StructDefinitionNode structDefinitionNode = null;
         // Resolve the corresponding resolvedElementParent to get the struct definition.
@@ -105,69 +153,22 @@ public class FieldReference extends BallerinaElementReference {
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
         }
         if (structDefinitionNode == null) {
-            return null;
-        }
-        // Resolve the field and return the resolved element.
-        return structDefinitionNode.resolve(identifier);
-        //        }
-        //        return null;
-    }
-
-    @NotNull
-    @Override
-    public Object[] getVariants() {
-
-        IdentifierPSINode identifier = getElement();
-
-        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
-        if (prevVisibleLeaf == null || !".".equals(prevVisibleLeaf.getText())) {
             return new LookupElement[0];
         }
 
         List<LookupElement> results = new LinkedList<>();
 
-        PsiElement previousField = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-        if (previousField != null) {
-            PsiReference reference = previousField.findReferenceAt(0);
-            if (reference == null) {
-                return new Object[0];
+        Collection<FieldDefinitionNode> fieldDefinitionNodes =
+                PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
+        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
+            if (fieldName == null || fieldType == null) {
+                continue;
             }
-
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement != null) {
-                PsiElement resolvedElementParent = resolvedElement.getParent();
-                StructDefinitionNode structDefinitionNode = null;
-                // Resolve the corresponding resolvedElementParent to get the struct definition.
-                if (resolvedElementParent instanceof VariableDefinitionNode) {
-                    structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                            (((VariableDefinitionNode) resolvedElementParent));
-                } else if (resolvedElementParent instanceof FieldDefinitionNode) {
-                    structDefinitionNode =
-                            BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
-                }
-                if (structDefinitionNode == null) {
-                    return results.toArray(new LookupElement[results.size()]);
-                }
-
-                Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                        PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
-                for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-                    IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
-                            IdentifierPSINode.class);
-                    if (fieldName == null) {
-                        continue;
-                    }
-                    TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
-                            TypeNameNode.class);
-                    if (fieldType == null) {
-                        continue;
-                    }
-                    LookupElement lookupElement =
-                            BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                                    (IdentifierPSINode) resolvedElement);
-                    results.add(lookupElement);
-                }
-            }
+            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
+                    (IdentifierPSINode) resolvedElement);
+            results.add(lookupElement);
         }
 
         return results.toArray(new LookupElement[results.size()]);

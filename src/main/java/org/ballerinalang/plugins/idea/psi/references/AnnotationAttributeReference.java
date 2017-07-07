@@ -112,11 +112,8 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
         List<LookupElement> results = new LinkedList<>();
         for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
             IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            if (fieldName == null) {
-                continue;
-            }
             TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-            if (fieldType == null) {
+            if (fieldName == null || fieldType == null) {
                 continue;
             }
             LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
