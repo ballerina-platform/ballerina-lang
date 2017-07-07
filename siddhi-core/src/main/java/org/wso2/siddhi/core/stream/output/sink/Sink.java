@@ -96,29 +96,24 @@ public abstract class Sink implements SinkListener, Snapshotable {
 
     @Override
     public final void publish(Object payload) {
-        try {
-            if (isConnected.get()) {
-                try {
-                    DynamicOptions dynamicOptions = trpDynamicOptions.get();
-                    publish(payload, dynamicOptions);
-                } catch (ConnectionUnavailableException e) {
-                    isConnected.set(false);
-                    LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
+        if (isConnected.get()) {
+            try {
+                DynamicOptions dynamicOptions = trpDynamicOptions.get();
+                publish(payload, dynamicOptions);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Sink '" + type + "' at '" + streamDefinition.getId() +
                             "', " + e.getMessage() + ", will retry connection immediately.", e);
-                    connectWithRetry();
-                    publish(payload);
-                }
-            } else if (isTryingToConnect.get()) {
-                LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
-                        "' as its still trying to reconnect!, events dropped '" + payload + "'");
-            } else {
                 connectWithRetry();
                 publish(payload);
             }
-        } finally {
-            trpDynamicOptions.remove();
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Sink '" + type + "' at '" + streamDefinition.getId() +
+                        "' as its still trying to reconnect!, events dropped '" + payload + "'");
+        } else {
+            connectWithRetry();
+            publish(payload);
         }
-
     }
 
     /**
