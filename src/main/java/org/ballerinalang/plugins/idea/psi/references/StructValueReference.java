@@ -55,6 +55,11 @@ public class StructValueReference extends BallerinaElementReference {
 
 
         PsiElement identifier = getElement();
+
+
+
+
+
         PsiFile containingFile = identifier.getContainingFile();
 
         // Todo -  Add functions, global variables, constants in current package from name reference

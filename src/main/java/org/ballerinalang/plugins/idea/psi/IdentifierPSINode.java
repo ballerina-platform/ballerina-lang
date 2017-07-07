@@ -114,60 +114,63 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_nameReference:
 
 
-//                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
-//                    if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
-//                        PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-//                        if (packageName != null) {
-//                            PsiFile containingFile = parent.getContainingFile();
-//                            // Todo - use util?
-//                            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages
-//                                    (containingFile);
-//                            for (PsiElement importedPackage : importedPackages) {
-//                                PsiReference reference = importedPackage.findReferenceAt(0);
-//                                if (reference == null) {
-//                                    continue;
-//                                }
-//                                PsiElement resolvedElement = reference.resolve();
-//                                if (resolvedElement == null) {
-//                                    continue;
-//                                }
-//                                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-//                                if (packageName.getText().equals(resolvedPackage.getName())) {
-//                                    return new NameReference(this);
-//                                }
-//                            }
-//                        }
-//                    }
+                    //                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+                    //                    if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
+                    //                        PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+                    //                        if (packageName != null) {
+                    //                            PsiFile containingFile = parent.getContainingFile();
+                    //                            // Todo - use util?
+                    //                            List<PsiElement> importedPackages = BallerinaPsiImplUtil
+                    // .getImportedPackages
+                    //                                    (containingFile);
+                    //                            for (PsiElement importedPackage : importedPackages) {
+                    //                                PsiReference reference = importedPackage.findReferenceAt(0);
+                    //                                if (reference == null) {
+                    //                                    continue;
+                    //                                }
+                    //                                PsiElement resolvedElement = reference.resolve();
+                    //                                if (resolvedElement == null) {
+                    //                                    continue;
+                    //                                }
+                    //                                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                    //                                if (packageName.getText().equals(resolvedPackage.getName())) {
+                    //                                    return new NameReference(this);
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                    }
 
                     MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getParentOfType(parent, MapStructKeyNode.class);
                     if (mapStructKeyNode != null) {
 
-                        // Eg: {test:'firstName':firstName}
-                        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(mapStructKeyNode,
-                                PackageNameNode.class);
-                        if (packageNameNode != null) {
-                            return new NameReference(this);
-                        }
-
-                        PsiFile containingFile = parent.getContainingFile();
-                        // Todo - use util?
-                        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages
-                                (containingFile);
-                        for (PsiElement importedPackage : importedPackages) {
-                            PsiReference reference = importedPackage.findReferenceAt(0);
-                            if (reference == null) {
-                                continue;
-                            }
-                            PsiElement resolvedElement = reference.resolve();
-                            if (resolvedElement == null) {
-                                continue;
-                            }
-                            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                            if (parent.getText().equals(resolvedPackage.getName())) {
-                                return new PackageNameReference(this);
-                            }
-
-                        }
+                        //                        // Eg: {test:'firstName':firstName}
+                        //                        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType
+                        // (mapStructKeyNode,
+                        //                                PackageNameNode.class);
+                        //                        if (packageNameNode != null) {
+                        //                            return new NameReference(this);
+                        //                        }
+                        //
+                        //                        PsiFile containingFile = parent.getContainingFile();
+                        //                        // Todo - use util?
+                        //                        List<PsiElement> importedPackages = BallerinaPsiImplUtil
+                        // .getImportedPackages
+                        //                                (containingFile);
+                        //                        for (PsiElement importedPackage : importedPackages) {
+                        //                            PsiReference reference = importedPackage.findReferenceAt(0);
+                        //                            if (reference == null) {
+                        //                                continue;
+                        //                            }
+                        //                            PsiElement resolvedElement = reference.resolve();
+                        //                            if (resolvedElement == null) {
+                        //                                continue;
+                        //                            }
+                        //                            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                        //                            if (parent.getText().equals(resolvedPackage.getName())) {
+                        //                                return new PackageNameReference(this);
+                        //                            }
+                        //
+                        //                        }
 
                         return new StructKeyReference(this);
                     }
@@ -175,6 +178,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             MapStructValueNode.class);
                     if (mapStructValueNode != null) {
                         return new StructValueReference(this);
+                    }
+
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+
+                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+                        return new FieldReference(this);
                     }
                     return new NameReference(this);
                 case RULE_field:
