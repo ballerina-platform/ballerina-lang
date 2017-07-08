@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.doc.gen.core.utils;
 
+import com.google.common.io.Files;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -47,10 +48,15 @@ import org.wso2.siddhi.doc.gen.commons.metadata.ParameterMetaData;
 import org.wso2.siddhi.doc.gen.commons.metadata.ReturnAttributeMetaData;
 import org.wso2.siddhi.doc.gen.commons.metadata.SystemParameterMetaData;
 import org.wso2.siddhi.doc.gen.core.freemarker.FormatDescriptionMethod;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -140,40 +146,85 @@ public class DocumentationUtils {
     /**
      * Generate documentation related files using metadata
      *
-     * @param namespaceMetaDataList Metadata in this repository
-     * @param outputDirectory       The path of the directory in which the documentation will be generated
-     * @param outputFileName        The name of the documentation file that will be generated
+     * @param namespaceMetaDataList      Metadata in this repository
+     * @param documentationBaseDirectory The path of the directory in which the documentation will be generated
+     * @param documentationVersion       The version of the documentation being generated
+     * @param mkdocsConfigFile           The name of the mkdocs file
+     * @param logger              The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
-    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList, String outputDirectory,
-                                             String outputFileName) throws MojoFailureException {
+    public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
+                                             String documentationBaseDirectory, String documentationVersion,
+                                             File mkdocsConfigFile, Log logger)
+            throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
         rootDataModel.put("metaData", namespaceMetaDataList);
         rootDataModel.put("formatDescription", new FormatDescriptionMethod());
 
+        String outputFileRelativePath = Constants.API_SUB_DIRECTORY + File.separator + documentationVersion
+                + Constants.MARKDOWN_FILE_EXTENSION;
+
         generateFileFromTemplate(
                 Constants.MARKDOWN_DOCUMENTATION_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel, outputDirectory, outputFileName + Constants.MARKDOWN_FILE_EXTENSION
+                rootDataModel, documentationBaseDirectory, outputFileRelativePath
+        );
+
+        try {
+            addNewPageToMkdocsConfig(mkdocsConfigFile, documentationVersion, outputFileRelativePath);
+        } catch (FileNotFoundException e) {
+            logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
+                    + ". Mkdocs configuration file not updated.");
+        }
+    }
+
+    /**
+     * Update the documentation home page
+     *
+     * @param readMeFile                 The path to the read me file
+     * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
+     * @param homePageFileName           The name of the documentation file that will be generated
+     * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
+     */
+    public static void updateHomePage(File readMeFile, String documentationBaseDirectory,
+                                      String homePageFileName) throws MojoFailureException {
+        // Retrieving the content of the README.md file
+        List<String> readMeFileLines = new ArrayList<>();
+        try {
+            readMeFileLines = Files.readLines(readMeFile, Constants.DEFAULT_CHARSET);
+        } catch (IOException ignored) {
+        }
+
+        // Retrieving the documentation file names
+        File documentationDirectory = new File(documentationBaseDirectory
+                + File.separator + Constants.API_SUB_DIRECTORY);
+        String[] documentationFiles = documentationDirectory.list();
+
+        // Generating data model
+        Map<String, Object> rootDataModel = new HashMap<>();
+        rootDataModel.put("readMeFileLines", readMeFileLines);
+        rootDataModel.put("documentationFiles", documentationFiles);
+
+        generateFileFromTemplate(
+                Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
+                        + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
+                rootDataModel, documentationBaseDirectory,
+                homePageFileName + Constants.MARKDOWN_FILE_EXTENSION
         );
     }
 
     /**
      * Generate a extension index file from the template file
      *
-     * @param extensionRepositories    The list of extension repository names
-     * @param indexOutputDirectory     The output directory path in which the extension index will be generated
-     * @param extensionRepositoryOwner The extension repository owner's name
-     * @param outputFileName           The name of the index file that will be generated
+     * @param extensionRepositories      The list of extension repository names
+     * @param extensionRepositoryOwner   The extension repository owner's name
+     * @param documentationBaseDirectory The output directory path in which the extension index will be generated
+     * @param extensionsIndexFileName    The name of the index file that will be generated
      */
-    public static void createExtensionsIndex(List<String> extensionRepositories, String indexOutputDirectory,
-                                             String extensionRepositoryOwner, String outputFileName)
+    public static void createExtensionsIndex(List<String> extensionRepositories, String extensionRepositoryOwner,
+                                             String documentationBaseDirectory, String extensionsIndexFileName)
             throws MojoFailureException {
-        // Generating data model
-        Map<String, Object> rootDataModel = new HashMap<>();
-        rootDataModel.put("extensionsOwner", extensionRepositoryOwner);
-
         // Separating Apache and GPL extensions based on siddhi repository prefix conventions
         List<String> gplExtensionRepositories = new ArrayList<>();
         List<String> apacheExtensionRepositories = new ArrayList<>();
@@ -184,13 +235,18 @@ public class DocumentationUtils {
                 apacheExtensionRepositories.add(extensionRepository);
             }
         }
+
+        // Generating data model
+        Map<String, Object> rootDataModel = new HashMap<>();
+        rootDataModel.put("extensionsOwner", extensionRepositoryOwner);
         rootDataModel.put("gplExtensionRepositories", gplExtensionRepositories);
         rootDataModel.put("apacheExtensionRepositories", apacheExtensionRepositories);
 
         generateFileFromTemplate(
                 Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
-                rootDataModel, indexOutputDirectory, outputFileName + Constants.MARKDOWN_FILE_EXTENSION
+                rootDataModel, documentationBaseDirectory,
+                extensionsIndexFileName + Constants.MARKDOWN_FILE_EXTENSION
         );
     }
 
@@ -287,7 +343,7 @@ public class DocumentationUtils {
 
             // Discarding the extension if it belongs to an unknown type
             if (extensionType == null) {
-                logger.warn("Discarding extension belonging to an unknown extension type: "
+                logger.warn("Discarding extension (belonging to an unknown extension type): "
                         + extensionClass.getCanonicalName());
                 return;
             }
@@ -380,6 +436,74 @@ public class DocumentationUtils {
 
             extensionMetaDataList.add(extensionMetaData);
         }
+    }
+
+    /**
+     * This add a new page to the list of pages in the mkdocs configuration
+     *
+     * @param mkdocsConfigFile The mkdocs configuration file
+     * @param newPageName         The name of the page to be added
+     * @param newPagePath         The location of the page to be added
+     */
+    private static void addNewPageToMkdocsConfig(File mkdocsConfigFile, String newPageName, String newPagePath)
+            throws MojoFailureException, FileNotFoundException {
+        // Creating yaml parser
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(dumperOptions);
+
+        // Reading the mkdocs configuration
+        Map<String, Object> yamlConfig;
+        yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
+                new FileInputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
+        );
+
+        // Getting the pages list
+        List<Map<String, Object>> yamlConfigPagesList =
+                (List<Map<String, Object>>) yamlConfig.get(Constants.MKDOCS_CONFIG_PAGES_KEY);
+
+        // Getting the api pages
+        List<Map<String, Object>> apiPagesList = null;
+        for (Map<String, Object> yamlConfigPage : yamlConfigPagesList) {
+            Object page = yamlConfigPage.get(Constants.MKDOCS_CONFIG_PAGES_API_KEY);
+            if (page != null) {
+                if (page instanceof List) {
+                    apiPagesList = (List<Map<String, Object>>) page;
+                } else if (page instanceof Map) {
+                    apiPagesList = new ArrayList<>();
+                    apiPagesList.add((Map<String, Object>) page);
+                }
+                break;
+            }
+        }
+        if (apiPagesList == null) {
+            Map<String, Object> pagesConfig = new HashMap<>();
+            yamlConfigPagesList.add(pagesConfig);
+
+            apiPagesList = new ArrayList<>();
+            pagesConfig.put(Constants.MKDOCS_CONFIG_PAGES_API_KEY, apiPagesList);
+        }
+
+        // Checking if the page already exists
+        Map<String, Object> newPage = null;
+        for (Map<String, Object> yamlConfigPage : apiPagesList) {
+            if (yamlConfigPage.get(newPageName) != null) {
+                newPage = yamlConfigPage;
+                break;
+            }
+        }
+
+        // Adding the new page or updating old page
+        if (newPage == null) {
+            newPage = new HashMap<>();
+            apiPagesList.add(newPage);
+        }
+        newPage.put(newPageName, newPagePath);
+
+        // Saving the updated configuration
+        yaml.dump(yamlConfig, new OutputStreamWriter(
+                new FileOutputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
+        );
     }
 
     /**

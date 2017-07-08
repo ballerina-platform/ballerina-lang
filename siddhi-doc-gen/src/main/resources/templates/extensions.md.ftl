@@ -55,7 +55,7 @@ Siddhi currently have several prewritten extensions as follows;
 <#list extensionRepositories>
 ### ${title}
 <#items as extensionRepository>
-1. <a target="_blank" href="https://github.com/${extensionsOwner}/${extensionRepository}/blob/master/docs/documentation.md">${extensionRepository?replace("^siddhi-gpl-", "", "rf")?replace("^siddhi-", "", "rf")?replace("-", " ")?capitalize}</a><br>
+1. <a target="_blank" href="https://github.com/${extensionsOwner}/${extensionRepository}/blob/master/docs/index.md">${extensionRepository?replace("^siddhi-gpl-", "", "rf")?replace("^siddhi-", "", "rf")?replace("-", " ")?capitalize}</a>
 </#items>
 </#list>
 

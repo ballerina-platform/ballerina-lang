@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Mojo for creating an index Siddhi documentation
  */
-@Mojo(name = "generate-extensions-index", defaultPhase = LifecyclePhase.PACKAGE)
+@Mojo(name = "generate-extensions-index", defaultPhase = LifecyclePhase.INSTALL)
 public class ExtensionsIndexGenerationMojo extends AbstractMojo {
     /**
      * The directory in which the documentation will be generated
@@ -96,7 +96,7 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
 
         // Creating a extensions index
         DocumentationUtils.createExtensionsIndex(
-                extensionRepositories, docGenPath, extensionRepositoryOwner, outputFileName
+                extensionRepositories, extensionRepositoryOwner, docGenPath, outputFileName
         );
     }
 }

@@ -56,11 +56,32 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
     private File moduleTargetDirectory;
 
     /**
+     * The path of the readme file in the base directory
+     * Optional
+     */
+    @Parameter(property = "read.me.file")
+    private File readMeFile;
+
+    /**
+     * The path of the mkdocs.yml file in the base directory
+     * Optional
+     */
+    @Parameter(property = "mkdocs.config.file")
+    private File mkdocsConfigFile;
+
+    /**
      * The directory in which the docs will be generated
      * Optional
      */
     @Parameter(property = "doc.gen.base.directory")
     private File docGenBaseDirectory;
+
+    /**
+     * The name of the index file
+     * Optional
+     */
+    @Parameter(property = "index.file.name")
+    private String indexFileName;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -80,6 +101,28 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
             docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
+        // Setting the read me file path if not set by user
+        String readMeFilePath;
+        if (readMeFile == null) {
+            readMeFile = new File(mavenProject.getParent().getBasedir() + File.separator + Constants.README_FILE_NAME
+                    + Constants.MARKDOWN_FILE_EXTENSION);
+        }
+
+        // Setting the mkdocs config file path if not set by user
+        if (mkdocsConfigFile == null) {
+            mkdocsConfigFile = new File(mavenProject.getParent().getBasedir() + File.separator
+                    + Constants.MKDOCS_CONFIG_FILE_NAME + Constants.YAML_FILE_EXTENSION);
+        }
+
+        // Setting the index file name if not set by user
+        String homePageFileName;
+        if (indexFileName != null) {
+            homePageFileName = indexFileName;
+        } else {
+            homePageFileName = Constants.MARKDOWN_HOME_PAGE_TEMPLATE;
+        }
+
+        // Retrieving metadata
         List<NamespaceMetaData> namespaceMetaDataList;
         try {
             namespaceMetaDataList = DocumentationUtils.getExtensionMetaData(
@@ -91,11 +134,15 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
             throw new MojoFailureException("Unable to resolve dependencies of the project", e);
         }
 
+        // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
             DocumentationUtils.generateDocumentation(
                     namespaceMetaDataList, docGenPath,
-                    Constants.API_SUB_DIRECTORY + File.separator + mavenProject.getVersion()
+                    mavenProject.getVersion(),
+                    mkdocsConfigFile,
+                    getLog()
             );
+            DocumentationUtils.updateHomePage(readMeFile, docGenPath, homePageFileName);
         }
     }
 }
