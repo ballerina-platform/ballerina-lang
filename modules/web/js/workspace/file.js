@@ -24,6 +24,7 @@ let File = Backbone.Model.extend(
         defaults: {
             path: 'temp',
             name: 'untitled',
+            packageName: '',
             content: undefined,
             isPersisted: false,
             lastPersisted: _.now(),
@@ -107,6 +108,11 @@ let File = Backbone.Model.extend(
             return this;
         },
 
+        setPackageName(pkgName){
+            this.set('packageName', pkgName);
+            return this;
+        },
+
         getPath(){
             return this.get('path');
         },
@@ -123,6 +129,9 @@ let File = Backbone.Model.extend(
             return this.get('lastPersisted');
         },
 
+        getPackageName(){
+            return this.get('packageName');
+        },
 
         isPersisted(){
             return this.get('isPersisted');

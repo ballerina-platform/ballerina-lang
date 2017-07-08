@@ -34,7 +34,7 @@ export function parseFile(file) {
     const payload = {
         fileName: file.getName(),
         filePath: file.getPath(),
-        packageName: 'test.package',
+        packageName: file.getPackageName(),
         content: file.getContent(),
     };
     const endpoint = getServiceEndpoint('parser');
@@ -63,6 +63,32 @@ export function parseContent(content) {
         content: content,
     };
     const endpoint = getServiceEndpoint('parser');
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, payload, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+
+/**
+ * Invoke packages service for the given file
+ * and returns a promise with packages
+ * @param {File} file
+ */
+export function getProgramPackages(file) {
+    const payload = {
+        fileName: file.getName(),
+        filePath: file.getPath(),
+        packageName: file.getPackageName(),
+        content: file.getContent(),
+    };
+    const endpoint = getServiceEndpoint('programPackages');
     const headers = {
         'content-type': 'application/json; charset=utf-8',
     };

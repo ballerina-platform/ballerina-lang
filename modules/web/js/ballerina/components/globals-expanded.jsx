@@ -155,5 +155,5 @@ export default class GlobalExpanded extends React.Component {
 
 GlobalExpanded.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
-    enviornment: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };

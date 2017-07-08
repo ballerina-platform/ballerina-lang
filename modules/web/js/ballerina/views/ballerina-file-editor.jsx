@@ -22,10 +22,11 @@ import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
 import File from './../../workspace/file';
-import { parseFile } from '../../api-client/api-client';
+import { parseFile, getProgramPackages } from '../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
+import BallerinaEnvFactory from './../env/ballerina-env-factory';
 
 export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
@@ -87,21 +88,32 @@ class BallerinaFileEditor extends React.Component {
      * and build AST
      */
     parseFile() {
-        parseFile(this.props.file)
+        const file = this.props.file;
+        parseFile(file)
             .then((jsonTree) => {
                 // get ast from json
                 const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
-                const pkgName = ast.getPackageDefinition().getPackageName();
-                
                 this.setState({
                     parseFailed: false,
                     model: ast,
                 });
-                this.forceUpdate();
+                const pkgName = ast.getPackageDefinition().getPackageName();
+                // update package name of the file
+                file.setPackageName(pkgName);
+                // fetch program packages
+                getProgramPackages(file)
+                    .then((data) => {
+                        const pkges = [];
+                        data.packages.forEach((pkgNode) => {
+                            const pkg = BallerinaEnvFactory.createPackage();
+                            pkg.initFromJson(pkgNode);
+                        });
+                        this.environment.addPackages(pkges);
+                        this.forceUpdate();
+                    })
+                    .catch(error => log.error(error))
             })
-            .catch((error) => {
-                log.error(error);
-            });
+            .catch(error => log.error(error));
     }
 
     /**
