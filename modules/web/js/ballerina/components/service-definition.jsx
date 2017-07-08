@@ -91,7 +91,7 @@ class ServiceDefinition extends React.Component {
      */
     handleVarialblesBadgeClick() {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
     /**

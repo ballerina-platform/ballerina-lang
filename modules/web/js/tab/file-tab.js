@@ -135,8 +135,7 @@ class FileTab extends Tab {
         Tab.prototype.render.call(this);
         const fileEditorEventChannel = new EventChannel();
         const editorProps = {
-            file: this.file,
-            tabContainer: this.getContentContainer(),
+            file: this.file
         };
 
         // create Rect component for diagram

@@ -7,6 +7,32 @@ import BallerinaASTRoot from './../ast/ballerina-ast-root';
 
 class DesignView extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.overlayContainer = undefined;
+        this.diagramContainer = undefined;
+        this.setOverlayContainer = this.setOverlayContainer.bind(this);
+        this.getOverlayContainer = this.getOverlayContainer.bind(this);
+        this.setDiagramContainer = this.setDiagramContainer.bind(this);
+        this.getDiagramContainer = this.getDiagramContainer.bind(this);
+    }
+
+    setDiagramContainer(ref) {
+        this.diagramContainer = ref;
+    }
+
+    getDiagramContainer() {
+        return this.diagramContainer;
+    }
+
+    setOverlayContainer(ref) {
+        this.overlayContainer = ref;
+    }
+
+    getOverlayContainer() {
+        return this.overlayContainer;
+    }
+
     /**
      * @override
      * @memberof Diagram
@@ -15,7 +41,8 @@ class DesignView extends React.Component {
         return {
             dragDropManager: new DragDropManager(),
             messageManager: new MessageManager(),
-            overlayContainerSelector: '.html-overlay',
+            getOverlayContainer: this.getOverlayContainer,
+            getDiagramContainer: this.getDiagramContainer,
         };
     }
 
@@ -24,10 +51,10 @@ class DesignView extends React.Component {
             <div className="design-view-container">
                 <div className="canvas-container">
                     <div className="canvas-top-controls-container"></div>
-                    <div className="diagram root" >
+                    <div className="html-overlay" ref={this.setOverlayContainer} />
+                    <div className="diagram root" ref={this.setDiagramContainer} >
                         <BallerinaDiagram model={this.props.model} />
                     </div>
-                    <div className="html-overlay" ></div>
                 </div>
                 <div className="tool-palette-container" />
                 <div className="top-right-controls-container">
@@ -80,7 +107,8 @@ DesignView.contextTypes = {
 DesignView.childContextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    overlayContainerSelector: PropTypes.string.isRequired,
+    getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default DesignView;

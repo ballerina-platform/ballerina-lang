@@ -51,6 +51,7 @@ class Diagram extends React.Component {
      */
     getChildContext() {
         return {
+            astRoot: this.props.model,
             activeArbiter: new ActiveArbiter(),
         };
     }
@@ -68,8 +69,8 @@ class Diagram extends React.Component {
         // - This is done by passing the container width to position calculater to readjest.
         const viewState = this.props.model.getViewState();
         viewState.container = {
-            width: 800, //this.container.width(),
-            height: 600,
+            width: $(this.context.getDiagramContainer()).width(),
+            height: $(this.context.getDiagramContainer()).height(),
         };
         // 2. Now we will visit the model again and calculate position of each node
         //    in the tree. We will use PositionCalcVisitor for this.
@@ -118,9 +119,11 @@ Diagram.propTypes = {
 
 Diagram.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 Diagram.childContextTypes = {
+    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 

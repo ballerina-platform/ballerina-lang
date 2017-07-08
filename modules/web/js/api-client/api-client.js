@@ -51,6 +51,31 @@ export function parseFile(file) {
 }
 
 /**
+ * Invoke parser service for the given content
+ * and returns a promise with parsed json
+ * @param {string} content
+ */
+export function parseContent(content) {
+    const payload = {
+        fileName: 'untitle',
+        filePath: '/temp',
+        packageName: 'test.package',
+        content: content,
+    };
+    const endpoint = getServiceEndpoint('parser');
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, payload, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
  * Gives the endpoint for a paticular backend service
  * 
  * @param {string} serviceName Name of the service

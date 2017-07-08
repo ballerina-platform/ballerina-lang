@@ -45,7 +45,7 @@ class DiagramManipulationOperation extends UndoableOperation {
         } else {
             let root = editor.deserializer.getASTModel(response);
             editor.setModel(root);
-            editor.trigger('update-diagram');
+            editor.update();
         }
     }
 
@@ -63,7 +63,7 @@ class DiagramManipulationOperation extends UndoableOperation {
         } else {
             let root = editor.deserializer.getASTModel(response);
             editor.setModel(root);
-            editor.trigger('update-diagram');
+            editor.update();
         }
     }
 }

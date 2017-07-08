@@ -49,11 +49,18 @@ class BallerinaFileEditor extends React.Component {
         this.state = {
             parseFailed: true,
             model: new BallerinaASTRoot(),
-            environment: new PackageScopedEnvironment(),
             activeView: DESIGN_VIEW,
         };
         this.onViewChange = this.onViewChange.bind(this);
+        this.environment = new PackageScopedEnvironment();
         this.parseFile();
+    }
+
+    /**
+     * Update the diagram
+     */
+    update() {
+        this.forceUpdate();
     }
 
     /**
@@ -63,7 +70,7 @@ class BallerinaFileEditor extends React.Component {
     getChildContext() {
         return {
             editor: this,
-            tabContainer: this.props.tabContainer,
+            environment: this.environment,
         };
     }
 
@@ -119,13 +126,12 @@ class BallerinaFileEditor extends React.Component {
 }
 
 BallerinaFileEditor.propTypes = {
-    file: PropTypes.instanceOf(File).isRequired,
-    tabContainer: PropTypes.instanceOf(Object).isRequired,
+    file: PropTypes.instanceOf(File).isRequired
 };
 
 BallerinaFileEditor.childContextTypes = {
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
-    tabContainer: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
 
 export default BallerinaFileEditor;

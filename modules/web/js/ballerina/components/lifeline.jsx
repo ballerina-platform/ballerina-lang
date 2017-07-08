@@ -26,6 +26,7 @@ import DragDropManager from '../tool-palette/drag-drop-manager';
 import ReactDOM from 'react-dom';
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
+import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
 
 class LifeLine extends React.Component {
 
@@ -45,10 +46,8 @@ class LifeLine extends React.Component {
      *
      */
     onJumptoCodeLine() {
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
-        ballerinaFileEditor.getSourceView().jumpToLine({});
+        editor.switchToView(SOURCE_VIEW);
+        editor.jumpToLine({});
     }
 
     onUpdate(text) {
@@ -79,10 +78,10 @@ class LifeLine extends React.Component {
 
     openExpressionEditor(e) {
         const options = this.props.editorOptions;
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.enviornment;
         if (options) {
             new ExpressionEditor(this.topBox, text => this.onUpdate(text), options, packageScope)
-                .render(this.context.container);
+                .render(this.context.getOverlayContainer());
         }
     }
 
@@ -141,8 +140,9 @@ class LifeLine extends React.Component {
 }
 
 LifeLine.contextTypes = {
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
