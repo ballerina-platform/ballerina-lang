@@ -27,17 +27,13 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL,
   blob_type      BLOB(1024),
   clob_type      CLOB(1024),
-  time_type      TIME,
-  date_type      DATE,
-  timestamp_type timestamp,
-  datetime_type  DATETIME,
   binary_type  BINARY(27),
   PRIMARY KEY (row_id)
 );
 /
-insert into ComplexTypes (row_id, blob_type, clob_type, time_type, date_type, timestamp_type, datetime_type, binary_type) values
-  (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB), '11:35:45', '2017-02-03',
-   '2017-02-03 11:53:00', '2017-02-03 11:53:00', X'77736F322062616C6C6572696E612062696E61727920746573742E');
+insert into ComplexTypes (row_id, blob_type, clob_type, binary_type) values
+  (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB),
+  X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER NOT NULL,

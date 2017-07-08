@@ -110,11 +110,15 @@ public enum SemanticErrors {
     RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
     RETURN_TYPES_NOT_ALLOWED_INSIDE_FILTER_CONNECTOR_ACTIONS
             ("return.types.not.allowed.inside.filter.connector.actions", "SEMANTIC_0085"),
+    BREAK_USED_IN_TRANSACTION("break.used.in.transaction", "SEMANTIC_0085"),
+    CONTINUE_USED_IN_TRANSACTION("continue.used.in.transaction", "SEMANTIC_0085"),
+    REPLY_CANNOT_USED_IN_TRANSACTION("reply.cannot.used.in.transaction",  "SEMANTIC_0086"),
     UNSAFE_CAST_ATTEMPT("unsafe.cast.attempt", "SEMANTIC_0090"),
     UNSAFE_CONVERSION_ATTEMPT("unsafe.conversion.attempt", "SEMANTIC_0091"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
+    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
     ;
 
     private String errorMsgKey;

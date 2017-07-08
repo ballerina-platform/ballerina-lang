@@ -65,7 +65,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaAction initAction;
 
     private BallerinaConnectorDef filterConnector;
-    private SimpleTypeName connectorType;
+    private ParameterDef connectorType;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -133,11 +133,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         isFilterConnector = filterConnector;
     }
 
-    public SimpleTypeName getConnectorType() {
+    public ParameterDef getConnectorType() {
         return connectorType;
     }
 
-    public void setConnectorType(SimpleTypeName connectorType) {
+    public void setConnectorType(ParameterDef connectorType) {
         this.connectorType = connectorType;
     }
 

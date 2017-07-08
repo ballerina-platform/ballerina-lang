@@ -35,7 +35,7 @@ definition
     ;
 
 serviceDefinition
-    :   'service' Identifier serviceBody
+    :   'service' ('<' Identifier '>') Identifier serviceBody
     ;
 
 serviceBody
@@ -60,7 +60,11 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   'connector' Identifier ('<' nameReference '>')? '(' parameterList? ')' connectorBody
+    :   'connector' Identifier (filterConnectorBaseTypeVariableDef)? '(' parameterList? ')' connectorBody
+    ;
+
+filterConnectorBaseTypeVariableDef
+    :   '<' referenceTypeName Identifier '>'
     ;
 
 connectorBody

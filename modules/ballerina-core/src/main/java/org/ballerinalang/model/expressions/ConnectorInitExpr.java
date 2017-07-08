@@ -31,6 +31,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
 public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
     private ConnectorInitExpr referenceConnectorInitExpr;
+    private ConnectorInitExpr baseConnectorInitExpr;
     // This variable has been introduced to support the filter connector framework
     private BType filterSupportedType;
 
@@ -58,6 +59,14 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
 
     public void setFilterSupportedType(BType filterSupportedType) {
         this.filterSupportedType = filterSupportedType;
+    }
+
+    public ConnectorInitExpr getBaseConnectorInitExpr() {
+        return baseConnectorInitExpr;
+    }
+
+    public void setBaseConnectorInitExpr(ConnectorInitExpr baseConnectorInitExpr) {
+        this.baseConnectorInitExpr = baseConnectorInitExpr;
     }
 
 

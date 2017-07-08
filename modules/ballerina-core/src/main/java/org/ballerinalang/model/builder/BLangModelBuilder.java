@@ -86,6 +86,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -106,6 +107,7 @@ import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.util.parser.antlr4.WhiteSpaceRegions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,10 +126,15 @@ import java.util.function.Supplier;
  */
 public class BLangModelBuilder {
     public static final String ATTACHMENT_POINTS = "attachmentPoints";
+    public static final String JOIN_WORKERS = "joinWorkers";
+
     public static final String IF_CLAUSE = "IfClause";
+    public static final String JOIN_CLAUSE = "JoinClause";
     public static final String ELSE_CLAUSE = "ElseClause";
     public static final String TRY_CLAUSE = "TryClause";
     public static final String FINALLY_CLAUSE = "FinallyClause";
+    public static final String TIMEOUT_CLAUSE = "TimeoutClause";
+    public static final String JOIN_CONDITION = "joinCondition";
 
     protected String currentPackagePath;
     protected BallerinaFile.BFileBuilder bFileBuilder;
@@ -182,6 +189,8 @@ public class BLangModelBuilder {
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
+
+    protected Stack<ParameterDef> filterConnectorBaseTypeStack = new Stack<>();
 
     protected List<String> errorMsgs = new ArrayList<>();
 
@@ -600,7 +609,6 @@ public class BLangModelBuilder {
 
         SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
                 nameReference.pkgName, nameReference.pkgPath);
-        simpleVarRefExpr.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         exprStack.push(simpleVarRefExpr);
     }
 
@@ -623,7 +631,7 @@ public class BLangModelBuilder {
         varRefExpr.setParentVarRefExpr(fieldBasedVarRefExpr);
         exprStack.push(fieldBasedVarRefExpr);
     }
-    
+
 
     public void createBinaryExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String opStr) {
         Expression rExpr = exprStack.pop();
@@ -896,6 +904,7 @@ public class BLangModelBuilder {
     public void endCallableUnitBody(NodeLocation location) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
@@ -903,6 +912,7 @@ public class BLangModelBuilder {
 
     public void setCallableUnitBody() {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setBlockKind(StatementKind.CALLABLE_UNIT_BLOCK);
         BlockStmt blockStmt = blockStmtBuilder.build();
         currentCUBuilder.setBody(blockStmt);
         currentScope = blockStmt.getEnclosingScope();
@@ -1057,10 +1067,14 @@ public class BLangModelBuilder {
         currentScope = currentCUGroupBuilder.getCurrentScope();
     }
 
-    public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                              String protocolPkgName) {
         currentCUGroupBuilder.setNodeLocation(location);
+        String protocolPkgPath = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
+        currentCUGroupBuilder.setProtocolPkgName(protocolPkgName);
+        currentCUGroupBuilder.setProtocolPkgPath(protocolPkgPath);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
@@ -1081,28 +1095,39 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
+        if (!filterConnectorBaseTypeStack.isEmpty()) {
+            connector.setFilterConnector(true);
+            connector.setConnectorType(filterConnectorBaseTypeStack.pop());
+        }
         bFileBuilder.addConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
 
-    public void createFilterConnector(WhiteSpaceDescriptor whiteSpaceDescriptor, String name, String connectorType) {
-        currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        currentCUGroupBuilder.setIdentifier(new Identifier(name));
-        currentCUGroupBuilder.setPkgPath(currentPackagePath);
+    public void createFilterConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                      String baseConnectorName, SimpleTypeName typeName) {
 
-        SimpleTypeName typeName = new SimpleTypeName(connectorType);
+        validateIdentifier(baseConnectorName, location);
+        Identifier identifier = new Identifier(baseConnectorName);
 
-        getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
+        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
+        WhiteSpaceDescriptor paramWS = null;
+        if (whiteSpaceDescriptor != null) {
+            paramWS = new WhiteSpaceDescriptor();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
+            Map<Integer, String> filterConnectorWSRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                    filterConnectorWSRegions.get(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_TYPENAME_TO_IDENTIFIER));
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                    filterConnectorWSRegions.get(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_IDENTIFIER_TO_GT_SIGN));
+        }
+        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName
+                , currentScope);
 
-        BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
-        connector.setFilterConnector(true);
-        connector.setConnectorType(typeName);
-        bFileBuilder.addFilterConnector(connector);
-
-        currentScope = connector.getEnclosingScope();
-        currentCUGroupBuilder = null;
+        filterConnectorBaseTypeStack.push(paramDef);
     }
 
 
@@ -1201,6 +1226,7 @@ public class BLangModelBuilder {
         // Get the statement block at the top of the block statement stack and set as the while body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.WHILE_BLOCK);
         BlockStmt blockStmt = blockStmtBuilder.build();
         whileStmtBuilder.setWhileBody(blockStmt);
 
@@ -1237,6 +1263,7 @@ public class BLangModelBuilder {
         // Get the statement block at the top of the block statement stack and set as the transform body.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.TRANSFORM_BLOCK);
         BlockStmt blockStmt = blockStmtBuilder.build();
         transformStmtBuilder.setTransformBody(blockStmt);
 
@@ -1291,6 +1318,7 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.THEN_BLOCK);
         BlockStmt blockStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setThenBody(blockStmt);
 
@@ -1302,6 +1330,7 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.ELSE_IF_BLOCK);
         BlockStmt elseIfStmtBlock = blockStmtBuilder.build();
 
         Expression condition = exprStack.pop();
@@ -1331,6 +1360,7 @@ public class BLangModelBuilder {
         }
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.ELSE_BLOCK);
         BlockStmt elseStmt = blockStmtBuilder.build();
         ifElseStmtBuilder.setElseBody(elseStmt);
 
@@ -1360,6 +1390,7 @@ public class BLangModelBuilder {
 
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setBlockKind(StatementKind.TRY_BLOCK);
         BlockStmt tryBlock = blockStmtBuilder.build();
         tryCatchStmtBuilder.setTryBlock(tryBlock);
         currentScope = tryBlock.getEnclosingScope();
@@ -1391,6 +1422,7 @@ public class BLangModelBuilder {
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
         catchBlockBuilder.setLocation(nodeLocation);
+        catchBlockBuilder.setBlockKind(StatementKind.CATCH_BLOCK);
         BlockStmt catchBlock = catchBlockBuilder.build();
         currentScope = catchBlock.getEnclosingScope();
 
@@ -1429,6 +1461,7 @@ public class BLangModelBuilder {
         }
         BlockStmt.BlockStmtBuilder catchBlockBuilder = blockStmtBuilderStack.pop();
         catchBlockBuilder.setLocation(location);
+        catchBlockBuilder.setBlockKind(StatementKind.FINALLY_BLOCK);
         BlockStmt finallyBlock = catchBlockBuilder.build();
         currentScope = finallyBlock.getEnclosingScope();
         tryCatchStmtBuilder.setFinallyBlockStmt(finallyBlock);
@@ -1475,12 +1508,20 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
-    public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+    public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName,
+                              WhiteSpaceDescriptor joinWhiteSpaceDescriptor) {
         validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkWhiteSpaceDescriptor = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkWhiteSpaceDescriptor == null) {
+            forkWhiteSpaceDescriptor = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkWhiteSpaceDescriptor);
+        }
+        forkWhiteSpaceDescriptor.addChildDescriptor(JOIN_CLAUSE, joinWhiteSpaceDescriptor);
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.JOIN_BLOCK);
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
 
@@ -1491,16 +1532,35 @@ public class BLangModelBuilder {
                     SemanticErrors.REDECLARED_SYMBOL, identifier.getName());
             errorMsgs.add(errMsg);
         }
+        WhiteSpaceDescriptor paramWS = null;
+        if (joinWhiteSpaceDescriptor != null) {
+            paramWS = new WhiteSpaceDescriptor();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
+            Map<Integer, String> joinWhiteSpaceRegions = joinWhiteSpaceDescriptor.getWhiteSpaceRegions();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.JOIN_PARAM_TYPE_TO_PARAM_IDENTIFIER));
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.JOIN_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END));
+        }
 
-        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
+        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName
+                , currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
         currentScope = forkJoinStmtBuilder.getJoin().getEnclosingScope();
     }
 
-    public void createAnyJoinCondition(String joinType, String joinCount, NodeLocation location) {
+    public void createAnyJoinCondition(String joinType, String joinCount, NodeLocation location,
+                                       WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
-
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        forkJoinWS.addChildDescriptor(JOIN_CONDITION, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setJoinType(joinType);
         if (Integer.parseInt(joinCount) != 1) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1510,13 +1570,30 @@ public class BLangModelBuilder {
         forkJoinStmtBuilder.setJoinCount(Integer.parseInt(joinCount));
     }
 
-    public void createAllJoinCondition(String joinType) {
+    public void createAllJoinCondition(String joinType, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        forkJoinWS.addChildDescriptor(JOIN_CONDITION, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setJoinType(joinType);
     }
 
-    public void createJoinWorkers(String workerName) {
+    public void createJoinWorkers(String workerName, WhiteSpaceDescriptor workerWhiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
+        WhiteSpaceDescriptor forkJoinWS = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkJoinWS == null) {
+            forkJoinWS = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkJoinWS);
+        }
+        WhiteSpaceDescriptor workersWS = forkJoinWS.getChildDescriptor(JOIN_WORKERS);
+        if (workersWS == null) {
+            workersWS = new WhiteSpaceDescriptor();
+            forkJoinWS.addChildDescriptor(JOIN_WORKERS, workersWS);
+        }
+        workersWS.addChildDescriptor(workerName, workerWhiteSpaceDescriptor);
         forkJoinStmtBuilder.addJoinWorker(workerName);
     }
 
@@ -1525,12 +1602,14 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(null, currentScope));
     }
 
-    public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
+    public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName,
+                                 WhiteSpaceDescriptor whiteSpaceDescriptor) {
         validateIdentifier(paramName, location);
         Identifier identifier = new Identifier(paramName);
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         blockStmtBuilder.setLocation(location);
+        blockStmtBuilder.setBlockKind(StatementKind.TIMEOUT_BLOCK);
         BlockStmt timeoutStmt = blockStmtBuilder.build();
         forkJoinStmtBuilder.setTimeoutBlock(timeoutStmt);
         forkJoinStmtBuilder.setTimeoutExpression(exprStack.pop());
@@ -1544,13 +1623,32 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        ParameterDef paramDef = new ParameterDef(location, null, identifier, typeName, symbolName, currentScope);
+        WhiteSpaceDescriptor paramWS = null;
+        if (whiteSpaceDescriptor != null) {
+            paramWS = new WhiteSpaceDescriptor();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
+                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
+                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
+            Map<Integer, String> joinWhiteSpaceRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.TIMEOUT_PARAM_TYPE_TO_PARAM_IDENTIFIER));
+            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
+                    joinWhiteSpaceRegions.get(WhiteSpaceRegions.TIMEOUT_PARAM_IDENTIFIER_TO_PARAM_WRAPPER_END));
+        }
 
+        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName, currentScope);
+
+        WhiteSpaceDescriptor forkWhiteSpaceDescriptor = forkJoinStmtBuilder.getWhiteSpaceDescriptor();
+        if (forkWhiteSpaceDescriptor == null) {
+            forkWhiteSpaceDescriptor = new WhiteSpaceDescriptor();
+            forkJoinStmtBuilder.setWhiteSpaceDescriptor(forkWhiteSpaceDescriptor);
+        }
+        forkWhiteSpaceDescriptor.addChildDescriptor(TIMEOUT_CLAUSE, whiteSpaceDescriptor);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
     }
 
-    public void endForkJoinStmt(NodeLocation location) {
+    public void endForkJoinStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.pop();
 
         List<Worker> workerList = workerStack.pop();
@@ -1560,6 +1658,12 @@ public class BLangModelBuilder {
         //forkJoinStmtBuilder.setMessageReference((VariableRefExpr) exprStack.pop());
         forkJoinStmtBuilder.setNodeLocation(location);
         ForkJoinStmt forkJoinStmt = forkJoinStmtBuilder.build();
+        WhiteSpaceDescriptor joinSpaceDescriptor = forkJoinStmt.getWhiteSpaceDescriptor();
+        if (joinSpaceDescriptor != null && whiteSpaceDescriptor != null) {
+            joinSpaceDescriptor.setWhiteSpaceRegions(whiteSpaceDescriptor.getWhiteSpaceRegions());
+        } else {
+            forkJoinStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+        }
         addToBlockStmt(forkJoinStmt);
         currentScope = forkJoinStmt.getEnclosingScope();
 
@@ -1619,6 +1723,7 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         // Creating Try clause.
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
+        blockStmtBuilder.setBlockKind(StatementKind.TRANSACTION_BLOCK);
         BlockStmt transactionBlock = blockStmtBuilder.build();
         transactionStmtBuilder.setTransactionBlock(transactionBlock);
         currentScope = transactionBlock.getEnclosingScope();
@@ -1639,6 +1744,7 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder abortedBlockBuilder = blockStmtBuilderStack.pop();
         abortedBlockBuilder.setLocation(location);
+        abortedBlockBuilder.setBlockKind(StatementKind.ABORTED_BLOCK);
         BlockStmt abortedBlock = abortedBlockBuilder.build();
         currentScope = abortedBlock.getEnclosingScope();
         transactionStmtBuilder.setAbortedBlockStmt(abortedBlock);
@@ -1659,6 +1765,7 @@ public class BLangModelBuilder {
         TransactionStmt.TransactionStmtBuilder transactionStmtBuilder = transactionStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder committedBlockBuilder = blockStmtBuilderStack.pop();
         committedBlockBuilder.setLocation(location);
+        committedBlockBuilder.setBlockKind(StatementKind.COMMITTED_BLOCK);
         BlockStmt committedBlock = committedBlockBuilder.build();
         currentScope = committedBlock.getEnclosingScope();
         transactionStmtBuilder.setCommittedBlockStmt(committedBlock);
@@ -1733,6 +1840,17 @@ public class BLangModelBuilder {
 
         importPkg.markUsed();
         nameReference.setPkgPath(importPkg.getPath());
+    }
+
+    private String validateAndGetPackagePathForServiceProtocol(NodeLocation location, String protocolPkgName) {
+        ImportPackage importPkg = getImportPackage(protocolPkgName);
+        checkForUndefinedPackagePath(location, protocolPkgName, importPkg, () -> protocolPkgName);
+
+        if (importPkg == null) {
+            return currentPackagePath;
+        }
+        importPkg.markUsed();
+        return importPkg.getPath();
     }
 
 

@@ -128,6 +128,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#filterConnectorBaseTypeVariableDef}.
+	 * @param ctx the parse tree
+	 */
+	void enterFilterConnectorBaseTypeVariableDef(BallerinaParser.FilterConnectorBaseTypeVariableDefContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#filterConnectorBaseTypeVariableDef}.
+	 * @param ctx the parse tree
+	 */
+	void exitFilterConnectorBaseTypeVariableDef(BallerinaParser.FilterConnectorBaseTypeVariableDefContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#connectorBody}.
 	 * @param ctx the parse tree
 	 */

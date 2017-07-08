@@ -10,6 +10,9 @@ native function pushText (string text);
 @doc:Param { value:"text: Text which should be sent" }
 native function broadcastText (string text);
 
+@doc:Description { value:"Close the current client connection"}
+native function closeConnection ();
+
 @doc:Description { value:"Store the connection globally for the use of other services."}
 @doc:Param { value:"connectionName: Name of the connection" }
 native function storeConnection (string connectionName);
@@ -22,6 +25,10 @@ native function removeStoredConnection (string connectionName);
 @doc:Param { value:"connectionName: Name of the connection" }
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToConnection (string connectionName, string text);
+
+@doc:Description { value:"Close stored connection."}
+@doc:Param { value:"connectionName: Name of the connection" }
+native function closeStoredConnection (string connectionName);
 
 @doc:Description { value:"This pushes text from server to all the connected clients of the service."}
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
@@ -39,6 +46,10 @@ native function removeConnectionGroup (string connectionGroupName);
 @doc:Param { value:"connectionGroupName: Name of the connection group" }
 @doc:Param { value:"text: Text which should be sent" }
 native function pushTextToGroup (string connectionGroupName, string text);
+
+@doc:Description { value:"Close all the connections in connection group."}
+@doc:Param { value:"connectionGroupName: Name of the connection group" }
+native function closeConnectionGroup(string connectionGroupName);
 
 
 

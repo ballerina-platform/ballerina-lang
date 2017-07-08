@@ -22,6 +22,21 @@ function testMultipleIntToVarAssignment() (int,int,int,int) {
     return age, age1, age2, age3;
 }
 
+function testMultipleIntToVarAssignmentWithUnderscore() (int,int) {
+    var age, age1, _, _ = retFourInt();
+    return age, age1;
+}
+
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseOne() (int,int) {
+    var age, _, age1, _ = retFourInt();
+    return age, age1;
+}
+
+function testMultipleIntToVarAssignmentWithUnderscoreOrderCaseTwo() (int,int) {
+    var age, _, _, age1 = retFourInt();
+    return age, age1;
+}
+
 function retFourInt()(int,int,int,int){
     return 100, 200, 300, 400;
 }

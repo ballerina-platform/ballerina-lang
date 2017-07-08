@@ -19,8 +19,11 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.util.TestHTTPServiceDispatcher;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -51,8 +54,10 @@ public class VariableScopeTest {
     }
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:10: undefined symbol 'b'")
+          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:12: undefined symbol 'b'")
     public void testResourceScope() {
+        ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
+        DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
         BTestUtils.getProgramFile("lang/statements/variable-resource-scope.bal");
     }
 

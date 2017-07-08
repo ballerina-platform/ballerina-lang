@@ -12,7 +12,7 @@ Pre-requisites
 
 How to run this sample
 ======================
-bin$ ./ballerina service ../samples/jmsServiceWithMB.bsz
+bin$ ./ballerina run service ../samples/jmsServiceWithMB.bsz
 
 the above command will start the ballerina server in the current terminal and deploy the jmsServiceWithMB.baz
 and publish the 'jmsWSO2MBQueueService' and 'jmsWSO2MBTopicService' services

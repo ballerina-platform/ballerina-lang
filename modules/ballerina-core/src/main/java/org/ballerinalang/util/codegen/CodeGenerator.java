@@ -101,6 +101,7 @@ import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.StatementKind;
 import org.ballerinalang.model.statements.ThrowStmt;
 import org.ballerinalang.model.statements.TransactionStmt;
 import org.ballerinalang.model.statements.TransformStmt;
@@ -180,10 +181,12 @@ public class CodeGenerator implements NodeVisitor {
     private String currentPkgPath;
     private int currentPkgCPIndex = -1;
     private PackageInfo currentPkgInfo;
+    private int baseConnectorIndex = -1;
 
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private CallableUnitInfo currentCallableUnitInfo;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -191,10 +194,12 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
+    // Variable required to keep filter connector execution
+    private boolean isFilterGenerated = false;
+
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
-    private Stack<TryCatchStmt.FinallyBlock> finallyBlocks = new Stack<>();
 
     public ProgramFile getProgramFile() {
         return programFile;
@@ -307,7 +312,8 @@ public class CodeGenerator implements NodeVisitor {
             UTF8CPEntry serviceNameCPEntry = new UTF8CPEntry(service.getName());
             int serviceNameCPIndex = currentPkgInfo.addCPEntry(serviceNameCPEntry);
 
-            ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex);
+            ServiceInfo serviceInfo = new ServiceInfo(currentPkgCPIndex, serviceNameCPIndex,
+                    service.getProtocolPkgName(), service.getProtocolPkgPath());
             currentPkgInfo.addServiceInfo(service.getName(), serviceInfo);
 
             List<LocalVariableInfo> localVarInfo = new ArrayList<LocalVariableInfo>();
@@ -464,7 +470,12 @@ public class CodeGenerator implements NodeVisitor {
             localVarAttribInfo.setLocalVariables(localVarInfo);
             connectorInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
 
-            connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            if (connectorDef.getConnectorType() != null) {
+                fieldIndexes[REF_OFFSET] += 1;
+                connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            } else {
+                connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
+            }
             connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
 
@@ -603,11 +614,13 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(Resource resource) {
         ResourceInfo resourceInfo = currentServiceInfo.getResourceInfo(resource.getName());
+        currentCallableUnitInfo = resourceInfo;
         visitCallableUnit(resource, resourceInfo, resource.getWorkers());
     }
 
     @Override
     public void visit(BallerinaFunction function) {
+        currentCallableUnitInfo = currentPkgInfo.getFunctionInfo(function.getName());
         visitCallableUnit(function, currentPkgInfo.getFunctionInfo(function.getName()), function.getWorkers());
     }
 
@@ -623,6 +636,7 @@ public class CodeGenerator implements NodeVisitor {
         // Now find out the ActionInfo
 
         ActionInfo actionInfo = connectorInfo.getActionInfo(action.getName());
+        currentCallableUnitInfo = actionInfo;
         visitCallableUnit(action, actionInfo, action.getWorkers());
     }
 
@@ -730,7 +744,10 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         if (assignStmt.isDeclaredWithVar()) {
             for (Expression expr : assignStmt.getLExprs()) {
-                assignVariableDefMemoryLocation(((SimpleVarRefExpr) expr).getVariableDef());
+                // non resolved VariableDef == '_' ignored variable ref underscore syntax
+                if (((SimpleVarRefExpr) expr).getVariableDef() != null) {
+                    assignVariableDefMemoryLocation(((SimpleVarRefExpr) expr).getVariableDef());
+                }
             }
         }
 
@@ -876,17 +893,7 @@ public class CodeGenerator implements NodeVisitor {
                 emit(new Instruction(getOpcode(expr.getType().getTag(), InstructionCodes.IRET), i, regIndexes[i]));
             }
         }
-
-        if (finallyBlocks.size() > 0) {
-            resetIndexes(this.regIndexes);
-            Stack<TryCatchStmt.FinallyBlock> original = (Stack<TryCatchStmt.FinallyBlock>) finallyBlocks.clone();
-            while (!finallyBlocks.empty()) {
-                TryCatchStmt.FinallyBlock finallyBlock = finallyBlocks.pop();
-                finallyBlock.getFinallyBlockStmt().accept(this);
-            }
-            // restore.
-            finallyBlocks = original;
-        }
+        generateFinallyInstructions(returnStmt, StatementKind.CALLABLE_UNIT_BLOCK);
 
         emit(InstructionCodes.RET);
     }
@@ -915,11 +922,13 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
+        generateFinallyInstructions(breakStmt, StatementKind.WHILE_BLOCK);
         emit(breakInstructions.peek());
     }
 
     @Override
     public void visit(ContinueStmt continueStmt) {
+        generateFinallyInstructions(continueStmt, StatementKind.WHILE_BLOCK);
         emit(continueInstructions.peek());
     }
 
@@ -927,9 +936,6 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(TryCatchStmt tryCatchStmt) {
         resetIndexes(regIndexes);
         Instruction gotoEndOfTryCatchBlock = new Instruction(InstructionCodes.GOTO, -1);
-        if (tryCatchStmt.getFinallyBlock() != null) {
-            finallyBlocks.push(tryCatchStmt.getFinallyBlock());
-        }
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         // Handle try block.
         int fromIP = nextIP();
@@ -981,7 +987,6 @@ public class CodeGenerator implements NodeVisitor {
                 errorTableEntry.setPackageInfo(currentPkgInfo);
             }
             // Append finally block instruction.
-            finallyBlocks.pop();
             tryCatchStmt.getFinallyBlock().getFinallyBlockStmt().accept(this);
             emit(new Instruction(InstructionCodes.THROW, -1));
         }
@@ -1136,6 +1141,7 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(AbortStmt abortStmt) {
+        generateFinallyInstructions(abortStmt, StatementKind.TRANSACTION_BLOCK);
         emit(abortInstructions.peek());
     }
 
@@ -1410,54 +1416,61 @@ public class CodeGenerator implements NodeVisitor {
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
 
         // Generate instructions for filter connectors
-        BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
-        if (filterConnectorDef != null && actionIExpr.getFilterCallableUnit() != null) {
-            ActionInvocationExpr filterActionIExpr = actionIExpr.getFilterCallableUnit();
-            //visit(filterActionIExpr);
-            int pkgCPIndexFilter = addPackageCPEntry(filterActionIExpr.getPackagePath());
-
-            String pkgPathFilter = filterActionIExpr.getPackagePath();
-            PackageInfo actionPackageInfoFilter = programFile.getPackageInfo(pkgPathFilter);
-
-            // Get the connector ref CP index
-            ConnectorInfo connectorInfoFilter = actionPackageInfoFilter.getConnectorInfo(filterConnectorDef.getName());
-            int connectorRefCPIndexFilter = getConnectorRefCPIndex(filterConnectorDef);
-
-            String actionNameFilter = filterActionIExpr.getName();
-            UTF8CPEntry actionNameCPEntryFilter = new UTF8CPEntry(actionNameFilter);
-            int actionNameCPIndexFilter = currentPkgInfo.addCPEntry(actionNameCPEntryFilter);
-
-            ActionRefCPEntry actionRefCPEntryFilter = new ActionRefCPEntry(pkgCPIndexFilter,
-                    connectorRefCPIndexFilter, actionNameCPIndexFilter);
-
-            ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
-            actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
-            actionRefCPEntryFilter.setFilterAction(true);
-            int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
-            int actionCallIndexFilter = getCallableUnitCallCPIndex(filterActionIExpr);
-
-            if (actionInfoFilter.isNative()) {
-                // TODO Move this to the place where we create action info entry
-                actionInfoFilter.setNativeAction((AbstractNativeAction) actionIExpr.getCallableUnit());
-                emit(InstructionCodes.NACALL, actionRefCPIndexFilter, actionCallIndexFilter);
-            } else {
-                emit(InstructionCodes.ACALL, actionRefCPIndexFilter, actionCallIndexFilter);
-            }
-            for (int i = 0; i < maxRegIndexes.length; i++) {
-                if (maxRegIndexes[i] < regIndexes[i]) {
-                    maxRegIndexes[i] = regIndexes[i];
-                }
-            }
-
-            resetIndexes(regIndexes);
-        }
-
+//        BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
+//        if (filterConnectorDef != null && actionIExpr.getFilterCallableUnit() != null) {
+//            ActionInvocationExpr filterActionIExpr = actionIExpr.getFilterCallableUnit();
+//            //visit(filterActionIExpr);
+//            int pkgCPIndexFilter = addPackageCPEntry(filterActionIExpr.getPackagePath());
+//
+//            String pkgPathFilter = filterActionIExpr.getPackagePath();
+//            PackageInfo actionPackageInfoFilter = programFile.getPackageInfo(pkgPathFilter);
+//
+//            // Get the connector ref CP index
+//            ConnectorInfo connectorInfoFilter = actionPackageInfoFilter.getConnectorInfo(filterConnectorDef.getName());
+//            int connectorRefCPIndexFilter = getConnectorRefCPIndex(filterConnectorDef);
+//
+//            String actionNameFilter = filterActionIExpr.getName();
+//            UTF8CPEntry actionNameCPEntryFilter = new UTF8CPEntry(actionNameFilter);
+//            int actionNameCPIndexFilter = currentPkgInfo.addCPEntry(actionNameCPEntryFilter);
+//
+//            ActionRefCPEntry actionRefCPEntryFilter = new ActionRefCPEntry(pkgCPIndexFilter,
+//                    connectorRefCPIndexFilter, actionNameCPIndexFilter);
+//
+//            ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
+//            actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
+//            actionRefCPEntryFilter.setFilterAction(true);
+//            int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
+//            int actionCallIndexFilter = getCallableUnitCallCPIndex(filterActionIExpr);
+//
+//            if (actionInfoFilter.isNative()) {
+//                // TODO Move this to the place where we create action info entry
+//                actionInfoFilter.setNativeAction((AbstractNativeAction) filterActionIExpr.getCallableUnit());
+//                emit(InstructionCodes.NACALL, actionRefCPIndexFilter, actionCallIndexFilter);
+//            } else {
+//                emit(InstructionCodes.ACALL, actionRefCPIndexFilter, actionCallIndexFilter);
+//            }
+//            for (int i = 0; i < maxRegIndexes.length; i++) {
+//                if (maxRegIndexes[i] < regIndexes[i]) {
+//                    maxRegIndexes[i] = regIndexes[i];
+//                }
+//            }
+//            resetIndexes(regIndexes);
+//        } else {
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
         // Get the connector ref CP index
-        ConnectorInfo connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
-        int connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
+        ConnectorInfo connectorInfo;
+        int connectorRefCPIndex;
+        BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
+        if (filterConnectorDef != null && !isFilterGenerated) {
+            connectorInfo = actionPackageInfo.getConnectorInfo(filterConnectorDef.getName());
+            connectorRefCPIndex = getConnectorRefCPIndex(filterConnectorDef);
+            isFilterGenerated = true;
+        } else {
+            connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
+            connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
+        }
 
         String actionName = actionIExpr.getName();
         UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(actionName);
@@ -1467,7 +1480,13 @@ public class CodeGenerator implements NodeVisitor {
         ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
         actionRefCPEntry.setActionInfo(actionInfo);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        int actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+        int actionCallIndex;
+        actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+//        if (isFilterGenerated) {
+//            actionCallIndex = getFilterCallableUnitCallCPIndex(actionIExpr);
+//        } else {
+//            actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+//        }
 
         if (actionInfo.isNative()) {
             // TODO Move this to the place where we create action info entry
@@ -1476,6 +1495,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
+//        }
 
     }
 
@@ -1646,7 +1666,9 @@ public class CodeGenerator implements NodeVisitor {
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-        connectorInitExpr.setTempOffset(connectorRegIndex);
+        if (connectorInitExpr.getReferenceConnectorInitExpr() == null) {
+            connectorInitExpr.setTempOffset(connectorRegIndex);
+        }
 
         // Set all the connector arguments
         Expression[] argExprs = connectorInitExpr.getArgExprs();
@@ -1659,6 +1681,29 @@ public class CodeGenerator implements NodeVisitor {
 
             int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
+        }
+
+        if (connectorDef.getConnectorType() != null) {
+            isFilterGenerated = false;
+            ParameterDef paramDef = connectorDef.getConnectorType();
+            int lvIndex = getNextIndex(paramDef.getType().getTag(), lvIndexes);
+            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+
+            //int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.RFIELDSTORE);
+            emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, lvIndex, baseConnectorIndex);
+            connectorInitExpr.getBaseConnectorInitExpr().setTempOffset(connectorRegIndex);
+//
+//            lvIndex = getNextIndex(TypeTags.CONNECTOR_TAG, lvIndexes);
+//            emit(InstructionCodes.RSTORE, connectorRegIndex-1, lvIndex);
+//            lvIndex = getNextIndex(TypeTags.CONNECTOR_TAG, lvIndexes);
+//            emit(InstructionCodes.RSTORE, connectorRegIndex, lvIndex);
+
+//            if (parameterDef.getName() != null) {
+//                int lvIndex = getNextIndex(parameterDef.getType().getTag(), lvIndexes);
+//                parameterDef.setMemoryLocation(new StackVarLocation(lvIndex));
+//            }
+//
+//            parameterDef.accept(this);
         }
 
         // Invoke Connector init function
@@ -1679,13 +1724,14 @@ public class CodeGenerator implements NodeVisitor {
         // Generate code for filterConnectors if there are any
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getReferenceConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
-            for (int i = 0; i < maxRegIndexes.length; i++) {
-                if (maxRegIndexes[i] < regIndexes[i]) {
-                    maxRegIndexes[i] = regIndexes[i];
-                }
-            }
-
-            resetIndexes(regIndexes);
+            filterConnectorInitExpr.setBaseConnectorInitExpr(connectorInitExpr);
+            baseConnectorIndex = connectorRegIndex;
+//            for (int i = 0; i < maxRegIndexes.length; i++) {
+//                if (maxRegIndexes[i] < regIndexes[i]) {
+//                    maxRegIndexes[i] = regIndexes[i];
+//                }
+//            }
+            //resetIndexes(regIndexes);
             visit(filterConnectorInitExpr);
             //connectorDef.setFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
         }
@@ -2062,7 +2108,7 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
-    
+
     // Private methods
 
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
@@ -2384,7 +2430,8 @@ public class CodeGenerator implements NodeVisitor {
             if (!argExpr.hasTemporaryValues()) {
                 argExpr.accept(this);
             }
-            argRegs[i] = argExpr.getTempOffset();
+            argRegs[i] = argExpr.getTempOffset() + 1;
+
         }
 
         // Calculate registers to store return values
@@ -2417,6 +2464,7 @@ public class CodeGenerator implements NodeVisitor {
 
         int[] argRegs = lvIndexes;
         ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
+        forkJoinCPEntry.setParentCallableUnitInfo(currentCallableUnitInfo);
         if (argExpr != null) {
             forkJoinCPEntry.setTimeoutAvailable(true);
         }
@@ -2730,6 +2778,22 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(variableDef);
             currentlLocalVarAttribInfo.addLocalVarInfo(localVarInfo);
         }
+    }
+
+    private void generateFinallyInstructions(Statement statement, StatementKind scope) {
+        int[] regIndexesOriginal = this.regIndexes.clone();
+        Statement parent = statement;
+        while (scope != parent.getKind()) {
+            if (StatementKind.TRY_BLOCK == parent.getKind() || StatementKind.CATCH_BLOCK == parent.getKind()) {
+                TryCatchStmt.FinallyBlock finallyBlock = ((TryCatchStmt) parent.getParent()).getFinallyBlock();
+                if (finallyBlock != null) {
+                    resetIndexes(this.regIndexes);
+                    finallyBlock.getFinallyBlockStmt().accept(this);
+                }
+            }
+            parent = parent.getParent();
+        }
+        this.regIndexes = regIndexesOriginal;
     }
 
     /**

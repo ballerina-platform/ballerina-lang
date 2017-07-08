@@ -59,4 +59,9 @@ public class VariableDefStmt extends AbstractStatement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public StatementKind getKind() {
+        return StatementKind.VARIABLE_DEF;
+    }
 }

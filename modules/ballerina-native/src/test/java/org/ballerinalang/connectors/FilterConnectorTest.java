@@ -51,12 +51,12 @@ public class FilterConnectorTest {
 
     @Test(description = "Test passing arguments for filter connectors")
     public void testFilterConnectorArgumentPassing() {
-        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-argument-passing-test.bal");
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-ap-test.bal");
         BValue[] args = {new BString("WSO2")};
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testArgumentPassing", args);
         Assert.assertEquals(returns.length, 1);
         BInteger actionReturned = (BInteger) returns[0];
-        int expected = 100;
+        int expected = 500;
         Assert.assertEquals(actionReturned.intValue(), expected);
     }
 }

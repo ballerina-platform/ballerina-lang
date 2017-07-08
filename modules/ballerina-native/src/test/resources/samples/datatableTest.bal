@@ -27,11 +27,7 @@ struct ResultSetTestAlias {
 struct ResultObject {
     blob BLOB_TYPE;
     string CLOB_TYPE;
-    string TIME_TYPE;
-    string DATE_TYPE;
-    string TIMESTAMP_TYPE;
-    string DATETIME_TYPE;
-    string BINARY_TYPE;
+    blob BINARY_TYPE;
 }
 
 struct ResultMap {
@@ -52,7 +48,6 @@ struct ResultDates {
     string TIMESTAMP_TYPE;
     string DATETIME_TYPE;
 }
-
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
@@ -151,15 +146,14 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
     return;
 }
 
-function testGetComplexTypes () (string blobValue, string clob, string time, string date, string timestamp,
-                                 string datetime, string binary) {
+function testGetComplexTypes () (string blobValue, string clob, string binary) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type,
-              timestamp_type, datetime_type, binary_type from ComplexTypes where row_id = 1", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type,
+                  binary_type from ComplexTypes where row_id = 1", parameters);
     ResultObject rs;
     while (datatables:hasNext(dt)) {
         any dataStruct = datatables:next(dt);
@@ -168,11 +162,8 @@ function testGetComplexTypes () (string blobValue, string clob, string time, str
         blob blobData = rs.BLOB_TYPE;
         blobValue = blobs:toString(blobData, "UTF-8");
         clob = rs.CLOB_TYPE;
-        time = rs.TIME_TYPE;
-        date = rs.DATE_TYPE;
-        timestamp = rs.TIMESTAMP_TYPE;
-        datetime = rs.DATETIME_TYPE;
-        binary = rs.BINARY_TYPE;
+        blob binaryData = rs.BINARY_TYPE;
+        binary = blobs:toString(binaryData, "UTF-8");
     }
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
@@ -323,4 +314,28 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
+}
+
+function testBlobInsert () (int i) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter[] params = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", params);
+    blob blobData;
+    while (datatables:hasNext(dt)) {
+        any dataStruct = datatables:next(dt);
+        var rs, err = (ResultBlob)dataStruct;
+        blobData = rs.BLOB_TYPE;
+    }
+    datatables:close(dt);
+    sql:Parameter para0 = {sqlType:"integer", value:10};
+    sql:Parameter para1 = {sqlType:"blob", value:blobData};
+    params = [para0, para1];
+    int insertCount = sql:ClientConnector.update(testDB, "Insert into ComplexTypes (row_id, blob_type) values (?,?)",
+                                                 params);
+
+    return insertCount;
+
 }
