@@ -4,11 +4,15 @@ import BallerinaDiagram from './../components/diagram';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import ToolPaletteView from './../tool-palette/tool-palette-view';
 
 class DesignView extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            isTransformActive: false
+        }
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
         this.setOverlayContainer = this.setOverlayContainer.bind(this);
@@ -56,7 +60,9 @@ class DesignView extends React.Component {
                         <BallerinaDiagram model={this.props.model} />
                     </div>
                 </div>
-                <div className="tool-palette-container" />
+                <div className="tool-palette-container">
+                    <ToolPaletteView isTransformActive={this.state.isTransformActive} />
+                </div>
                 <div className="top-right-controls-container">
                     <div className={`top-right-controls-container-editor-pane 
                             main-action-wrapper import-packages-pane`}

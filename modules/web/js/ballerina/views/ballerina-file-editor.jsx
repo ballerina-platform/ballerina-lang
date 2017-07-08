@@ -54,6 +54,13 @@ class BallerinaFileEditor extends React.Component {
         };
         this.onViewChange = this.onViewChange.bind(this);
         this.environment = new PackageScopedEnvironment();
+    }
+
+    /**
+     * lifecycle hook for component did mount
+     */
+    componentDidMount() {
+        // parse the file & build the tree
         this.parseFile();
     }
 
@@ -71,6 +78,7 @@ class BallerinaFileEditor extends React.Component {
     getChildContext() {
         return {
             editor: this,
+            astRoot: this.state.model,
             environment: this.environment,
         };
     }
@@ -93,6 +101,10 @@ class BallerinaFileEditor extends React.Component {
             .then((jsonTree) => {
                 // get ast from json
                 const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
+                // re-draw upon ast changes
+                ast.on('tree-modified', () => {
+                    this.update();
+                });
                 this.setState({
                     parseFailed: false,
                     model: ast,
@@ -142,6 +154,7 @@ BallerinaFileEditor.propTypes = {
 };
 
 BallerinaFileEditor.childContextTypes = {
+    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };

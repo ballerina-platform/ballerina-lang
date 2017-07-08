@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Package from './package';
 import Environment from './environment';
+import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 
 class PackageScopedEnvironment {
     constructor(args) {
@@ -111,6 +112,35 @@ class PackageScopedEnvironment {
     getTypes() {
         const structs = this.getCurrentPackage().getStructDefinitions().map(struct => struct.getStructName());
         return _.union(this._types, structs);
+    }
+
+    /**
+     * Create current package from the the given AST
+     * @param {BallerinaASTRoot} astRoot 
+     */
+    createCurrentPackageFromAST(astRoot) {
+        // get the latest symbols from this file.
+        let currentPackage = new Package();
+        currentPackage.setName('Current Package');
+        const symbolTableGenVisitor = new SymbolTableGenVisitor(currentPackage, astRoot);
+        astRoot.accept(symbolTableGenVisitor);
+        currentPackage = symbolTableGenVisitor.getPackage();
+
+        // check if a similar package exists.
+        const packages = this.getPackages();
+        const currentPackageArray = _.filter(packages, pkg => !_.isEmpty(astRoot.children) && (pkg.getName() ===
+            astRoot.children[0].getPackageName()));
+        // Check whether the program contains a package name or it is in the dafault package
+        if (!_.isEmpty(currentPackageArray)) {
+            // Update Current package object after the package resolving
+            const currentPackageInEvn = _.clone(currentPackageArray[0]);
+            // todo merge the package with this.
+            currentPackage = this.mergePackages(currentPackageInEvn, currentPackage);
+        }
+        // update the package scoped environment with current package
+        this.setCurrentPackage(currentPackage);
+
+        return currentPackage;
     }
 }
 
