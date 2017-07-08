@@ -21,6 +21,7 @@ class TransformExpanded extends React.Component {
 
     componentWillUnmount() {
         this.props.editor.setTransformState(false);
+        this.props.onUnmount();
     }
 
     onSourceSelect(e) {

@@ -40,6 +40,18 @@ import alerts from 'alerts';
 
 const text_offset = 50;
 
+// We need to keep this state in the viewstate of the model
+// But the model is reset by undo redo operations and coming back from source view
+// So for now its kept in this static variable
+let expanded = false;
+
+// Need static references to the mapper object and predefined structs used to draw the expanded view
+// Because new transform-statement-decorator component instances need aceess to mapper
+// used to draw the expanded view if undo redo happens at expanded view
+let mapper;
+let predefinedStructs;
+let self;
+
 class TransformStatementDecorator extends React.Component {
 
     constructor(props, context) {
@@ -53,6 +65,33 @@ class TransformStatementDecorator extends React.Component {
 	        innerDropZoneExist: false,
             active: 'hidden',
         };
+    }
+
+    static getComponentInstance(){
+        return self;
+    }
+
+    componentWillMount() {
+        self = this;
+        if(expanded){
+            mapper.disconnectAll(); // remove all connections made from the previous mapper
+            this.predefinedStructs = predefinedStructs;
+            this.mapper = mapper
+
+            _.forEach(this.props.model.getInput(), (input) => {
+                //trim expression to remove any possible white spaces
+                this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
+            });
+
+            _.forEach(this.props.model.getOutput(), (output) => {
+                //trim expression to remove any possible white spaces
+                this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
+            });
+
+            _.forEach(this.props.model.getChildren(), (statement) => {
+                this.createConnection(statement);
+            });
+        }
     }
 
     componentDidMount() {
@@ -78,6 +117,7 @@ class TransformStatementDecorator extends React.Component {
     onDelete() {
         this.props.model.remove();
     }
+
     /**
      * Navigates to codeline in the source view from the design view node
      *
@@ -89,6 +129,7 @@ class TransformStatementDecorator extends React.Component {
         editor.setActiveView('SOURCE_VIEW');
         editor.jumpToLine({ expression: fullExpression });
     }
+
     /**
      * Renders breakpoint indicator
      */
@@ -203,18 +244,19 @@ class TransformStatementDecorator extends React.Component {
         }
     }
 
-    onConnectionCallback(connection) {
-        const sourceStruct = _.find(this.predefinedStructs, { name:connection.sourceStruct});
-        const targetStruct = _.find(this.predefinedStructs, { name:connection.targetStruct});
+    static onConnectionCallback(connection) {
+        const self = TransformStatementDecorator.getComponentInstance();
+        const sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
+        const targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
         let sourceExpression;
         let targetExpression;
 
         if (sourceStruct !== undefined) {
-            sourceExpression = this.getStructAccessNode(
+            sourceExpression = self.getStructAccessNode(
                 connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
         }
         if (targetStruct !== undefined) {
-            targetExpression = this.getStructAccessNode(
+            targetExpression = self.getStructAccessNode(
                 connection.targetStruct, connection.targetProperty, (targetStruct.type == 'struct'));
         }
 
@@ -227,22 +269,22 @@ class TransformStatementDecorator extends React.Component {
             rightOperand.addChild(sourceExpression);
             assignmentStmt.addChild(leftOperand);
             assignmentStmt.addChild(rightOperand);
-            this.props.model.addChild(assignmentStmt);
+            self.props.model.addChild(assignmentStmt);
             return assignmentStmt.id;
         }
-        
+
         if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source could be a function node.
-            const assignmentStmtSource = this.findEnclosingAssignmentStatement(connection.targetReference.id);
+            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
             assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
             return assignmentStmtSource.id;
         }
-        
+
         if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
             // Connection target is not a struct and source is a struct.
             // Target is a function node.
-            const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
             assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
             return assignmentStmtTarget.id;
         }
@@ -254,7 +296,7 @@ class TransformStatementDecorator extends React.Component {
         // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
         // will be different from removing a param from a function and then drawing the connection
         // to the parent function invocation.
-        const assignmentStmtTarget = this.getParentAssignmentStmt(connection.targetReference);
+        const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
         assignmentStmtTarget.getRightExpression().getChildren()[0].addChild(assignmentStmtSource.getRightExpression().getChildren()[0]);
@@ -267,40 +309,40 @@ class TransformStatementDecorator extends React.Component {
     };
 
 
-
-    onDisconnectionCallback(connection) {
+    static onDisconnectionCallback(connection) {
+        const self = TransformStatementDecorator.getComponentInstance();
         // on removing a connection
-        const sourceStruct = _.find(this.predefinedStructs, { name: connection.sourceStruct });
-        const targetStruct = _.find(this.predefinedStructs, { name: connection.targetStruct });
+        const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
+        const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
 
         let sourceExpression, targetExpression;
 
         if (targetStruct !== undefined){
-            sourceExpression = this.getStructAccessNode(
+            sourceExpression = self.getStructAccessNode(
                 connection.targetStruct, connection.targetProperty, (targetStruct.type === 'struct'));
         } else {
-            sourceExpression = this.getStructAccessNode(
+            sourceExpression = self.getStructAccessNode(
                 connection.targetStruct, connection.targetProperty, false);
         }
 
         if (sourceStruct !== undefined) {
-            targetExpression = this.getStructAccessNode(
+            targetExpression = self.getStructAccessNode(
                 connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
         } else {
-            targetExpression = this.getStructAccessNode(
+            targetExpression = self.getStructAccessNode(
                 connection.sourceStruct, connection.sourceProperty, false);
         }
 
         if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-            const assignmentStmt = _.find(this.props.model.children, { id: connection.id });
-            this.props.model.removeChild(assignmentStmt);
+            const assignmentStmt = _.find(self.props.model.children, { id: connection.id });
+            self.props.model.removeChild(assignmentStmt);
         } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
             // Connection source is not a struct and target is a struct.
             // Source is a function node.
-            const assignmentStmtSource = this.findEnclosingAssignmentStatement(connection.targetReference.id);
+            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
 
             // get the function invocation expression for nested and single cases.
-            const funcInvocationExpression = this.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+            const funcInvocationExpression = self.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === targetExpression.getExpressionString().trim());
             });
@@ -308,7 +350,7 @@ class TransformStatementDecorator extends React.Component {
         } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
             // Connection target is not a struct and source is a struct.
             // Target could be a function node.
-            const assignmentStmtTarget = this.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
             const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
                 return (child.getExpressionString().trim() === sourceExpression.getExpressionString().trim());
             });
@@ -323,8 +365,15 @@ class TransformStatementDecorator extends React.Component {
         }
     };
 
+    onUnmount() {
+        expanded=false;
+    }
+
     onExpand() {
+        self = this;
+        expanded = true;
         this.predefinedStructs = [];
+        predefinedStructs = this.predefinedStructs;
 
         ReactDom.render(
             <TransformExpanded
@@ -336,10 +385,13 @@ class TransformStatementDecorator extends React.Component {
                 onTransformDropZoneDeactivate={this.onTransformDropZoneDeactivate.bind(this)}
                 onSourceAdd={this.onSourceAdd.bind(this)}
                 onTargetAdd={this.onTargetAdd.bind(this)}
+                onUnmount={this.onUnmount}
             />,
             $('#transform-expanded-container')[0]);
 
-        this.mapper = new TransformRender(this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
+        this.mapper = new TransformRender(
+            TransformStatementDecorator.onConnectionCallback, TransformStatementDecorator.onDisconnectionCallback);
+        mapper = this.mapper;
 
         _.forEach(this.props.model.getInput(), (input) => {
             //trim expression to remove any possible white spaces
@@ -353,6 +405,14 @@ class TransformStatementDecorator extends React.Component {
 
         _.forEach(this.props.model.getChildren(), (statement) => {
             this.createConnection(statement);
+        });
+
+        $(window).on('resize', () => {
+            self.mapper.reposition(self.mapper);
+        });
+
+        $('.leftType, .rightType, .middle-content').on('scroll', () => {
+            self.mapper.reposition(self.mapper);
         });
 
         this.props.model.on('child-added', (node) => {
@@ -373,6 +433,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     onRetract() {
+        expanded = false;
         ReactDom.unmountComponentAtNode($('#transform-expanded-container')[0]);
     }
 
