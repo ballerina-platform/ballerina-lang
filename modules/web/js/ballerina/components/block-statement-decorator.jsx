@@ -155,13 +155,13 @@ class BlockStatementDecorator extends React.Component {
      * @param {object} options - options to be sent to ExpressionEditor.
      */
     openEditor(value, options) {
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.environment;
         if (value && options) {
             new ExpressionEditor(
                 this.conditionBox,
                 this.onUpdate.bind(this),
                 options,
-                packageScope).render(this.context.container);
+                packageScope).render(this.context.getOverlayContainer());
         }
     }
 
@@ -354,8 +354,8 @@ BlockStatementDecorator.propTypes = {
 };
 
 BlockStatementDecorator.contextTypes = {
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };

@@ -74,9 +74,10 @@ export default class GlobalExpanded extends React.Component {
             setterMethod: this.props.onAddNewValue,
         };
 
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.enviornment;
 
-        new ExpressionEditor(bBox, s => {} /*no-op*/, options, packageScope).render(this.context.container);
+        new ExpressionEditor(bBox, s => {} /*no-op*/, options, packageScope)
+            .render(this.context.getOverlayContainer());
     }
 
     render() {
@@ -153,6 +154,6 @@ export default class GlobalExpanded extends React.Component {
 }
 
 GlobalExpanded.contextTypes = {
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    enviornment: PropTypes.instanceOf(Object).isRequired,
 };

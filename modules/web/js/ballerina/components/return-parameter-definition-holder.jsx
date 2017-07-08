@@ -113,7 +113,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
         let isValid = false;
         const typeList = this.getTypeDropdownValues();
         let type;
-        const structs = this.context.renderingContext.getPackagedScopedEnvironment()._currentPackage._structDefinitions;
+        const structs = this.context.environment._currentPackage._structDefinitions;
         const types = _.map(typeList, 'id');
 
         if (typeString.substring(typeString.length - 2) === '[]') {

@@ -56,7 +56,7 @@ class ServiceDefinition extends React.Component {
      * @memberof ServiceDefinition
      */
     onSwaggerButtonClicked() {
-        this.context.renderingContext.ballerinaFileEditor.showSwaggerView();
+        this.context.editor.setActiveView('SWAGGER_VIEW');
     }
 
     /**
@@ -192,7 +192,6 @@ ServiceDefinition.propTypes = {
 };
 
 ServiceDefinition.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 

@@ -119,7 +119,7 @@ class Annotation extends React.Component {
             const importToBeAdded = ASTFactory.createImportDeclaration({
                 packageName: suggestionValue,
             });
-            this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
+            this.context.astRoot.addImport(importToBeAdded);
 
             // Removing the children of the annotation.
             for (const annotationAttribute of this.props.model.getChildren()) {
@@ -398,7 +398,7 @@ Annotation.defaultProps = {
 
 Annotation.contextTypes = {
     // Used for accessing ast-root to add imports
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
 

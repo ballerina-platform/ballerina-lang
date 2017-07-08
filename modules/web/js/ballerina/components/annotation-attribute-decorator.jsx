@@ -72,10 +72,10 @@ class AnnotationAttributeDecorator extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { renderingContext } = this.context;
+        const { environment } = this.context;
         const dropdownData = [];
         // Adding items to the type dropdown.
-        const bTypes = renderingContext.environment.getTypes();
+        const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
             dropdownData.push({ id: bType, text: bType });
         });
@@ -219,7 +219,7 @@ class AnnotationAttributeDecorator extends React.Component {
 }
 
 AnnotationAttributeDecorator.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttributeDecorator;
