@@ -24,6 +24,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import javax.websocket.OnError;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class VMDebugSession implements DebugSessionObserver {
 
     private Channel channel = null;
 
-    private ArrayList<NodeLocation> breakPoints;
+    private ArrayList<BreakPointDTO> breakPoints;
 
     //key - threadid
     private Map<String, Context> contextMap;
@@ -54,6 +55,7 @@ public class VMDebugSession implements DebugSessionObserver {
     public void addContext(Context bContext) {
 //        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
         String threadId = "main"; //TODO use above line
+        bContext.setThreadId(threadId);
         //TODO check if that thread id already exist in the map
         this.contextMap.put(threadId, bContext);
         setBreakPoints(bContext);
@@ -68,7 +70,7 @@ public class VMDebugSession implements DebugSessionObserver {
      *
      * @param breakPoints the debug points
      */
-    public void addDebugPoints(ArrayList<NodeLocation> breakPoints) {
+    public void addDebugPoints(ArrayList<BreakPointDTO> breakPoints) {
         this.breakPoints = breakPoints;
         for (Context bContext : this.contextMap.values()) {
             setBreakPoints(bContext);
@@ -82,9 +84,7 @@ public class VMDebugSession implements DebugSessionObserver {
      */
     private void setBreakPoints(Context bContext) {
         if (null != breakPoints) {
-            for (NodeLocation point: breakPoints) {
-                bContext.getDebugInfoHolder().addDebugPoint(point);
-            }
+            bContext.getDebugInfoHolder().addDebugPoints(breakPoints);
         }
     }
 
@@ -105,9 +105,17 @@ public class VMDebugSession implements DebugSessionObserver {
     }
 
     /**
+     * Method to start debugging process in all the threads.
+     */
+    public void startDebug() {
+        this.contextMap.values().stream().forEach(c -> c.getDebugInfoHolder().resume());
+    }
+
+    /**
      * Method to clear the channel so that another debug session can connect.
      */
     public void clearSession() {
+        this.channel.close();
         this.channel = null;
     }
 

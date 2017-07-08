@@ -17,16 +17,21 @@
 */
 package org.ballerinalang.util.debugger;
 
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 /**
  * {@link DebugInfoHolder} holds information relevant to current debugging session.
@@ -34,25 +39,42 @@ import java.util.concurrent.Semaphore;
  * @since 0.88
  */
 public class DebugInfoHolder {
-    public static final int FUNCTION_CALL_STACK_INIT_SIZE = 10;
-
     private volatile Semaphore executionSem;
-    private Map<String, NodeLocation> breakPoints;
     private DebugSessionObserver debugSessionObserver;
-    private Stack<LineNumberInfo> currentLineStack;
     private DebugCommand currentCommand;
-    private int previousIp = -1;
-    private int nextIp = -1;
-    private int[] functionCalls;
-    private int functionCallPointer = -1;
     private boolean mainProgram = false;
 
+    private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
+    private LineNumberInfo currentLine;
+    private Stack<LineNumberInfo> methodCallLines;
+    private StackFrame currentFrame;
 
     public DebugInfoHolder() {
-        this.breakPoints = new HashMap<>();
-        this.currentLineStack = new Stack<>();
-        this.functionCalls = new int[FUNCTION_CALL_STACK_INIT_SIZE];
         this.executionSem = new Semaphore(0);
+        this.methodCallLines = new Stack<>();
+    }
+
+    public void init(ProgramFile programFile) {
+        Arrays.stream(programFile.getPackageInfoCollection()).forEach(p -> processPkgInfo(p));
+    }
+
+    public void processPkgInfo(PackageInfo packageInfo) {
+        DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo();
+        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList().stream().sorted(
+                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
+        //TODO remove above line if already sorted
+        LineNumberInfo currentLineNoInfo = null;
+        for (LineNumberInfo lineNoInfo : lineNumberInfos) {
+            if (currentLineNoInfo == null) {
+                currentLineNoInfo = lineNoInfo;
+                continue;
+            }
+            debuggerPkgInfo.addLineNumberInfo(currentLineNoInfo.getIp(), lineNoInfo.getIp(), currentLineNoInfo);
+            currentLineNoInfo = lineNoInfo;
+        }
+        debuggerPkgInfo.addLineNumberInfo(currentLineNoInfo.getIp(),
+                packageInfo.getInstructionCount(), currentLineNoInfo);
+        packageInfoMap.put(packageInfo.getPkgPath(), debuggerPkgInfo);
     }
 
     public void waitTillDebuggeeResponds() {
@@ -67,22 +89,28 @@ public class DebugInfoHolder {
         executionSem.release();
     }
 
-    public void addDebugPoint(NodeLocation nodeLocation) {
-        breakPoints.put(nodeLocation.toString(), nodeLocation);
+    private void addDebugPoint(BreakPointDTO breakPointDTO) {
+        //TODO remove below line later
+        breakPointDTO.setPackagePath(".");
+        if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
+            return;
+        }
+        packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
     }
 
-    public void addDebugPoints(List<NodeLocation> nodeLocations) {
-        for (NodeLocation nodeLocation : nodeLocations) {
+    public void addDebugPoints(List<BreakPointDTO> nodeLocations) {
+        packageInfoMap.values().stream().forEach(p -> p.clearDebugPoints());
+        for (BreakPointDTO nodeLocation : nodeLocations) {
             addDebugPoint(nodeLocation);
         }
     }
 
     public void clearDebugLocations() {
-        breakPoints.clear();
+        packageInfoMap.values().stream().forEach(p -> p.clearDebugPoints());
     }
 
-    public NodeLocation getDebugPoint(String key) {
-        return breakPoints.get(key);
+    public LineNumberInfo getLineNumber(String packagePath, int ip) {
+        return packageInfoMap.get(packagePath).getLineNumberInfo(ip);
     }
 
     public void setDebugSessionObserver(DebugSessionObserver debugSessionObserver) {
@@ -93,10 +121,6 @@ public class DebugInfoHolder {
         return debugSessionObserver;
     }
 
-    public Stack<LineNumberInfo> getCurrentLineStack() {
-        return currentLineStack;
-    }
-
     public DebugCommand getCurrentCommand() {
         return currentCommand;
     }
@@ -105,46 +129,20 @@ public class DebugInfoHolder {
         this.currentCommand = currentCommand;
     }
 
-    public int getPreviousIp() {
-        return previousIp;
+    public LineNumberInfo getCurrentLine() {
+        return currentLine;
     }
 
-    public void setPreviousIp(int previousIp) {
-        this.previousIp = previousIp;
+    public StackFrame getCurrentFrame() {
+        return currentFrame;
     }
 
-    public int getNextIp() {
-        return nextIp;
+    public void setCurrentFrame(StackFrame currentFrame) {
+        this.currentFrame = currentFrame;
     }
 
-    public void setNextIp(int nextIp) {
-        this.nextIp = nextIp;
-    }
-
-    public void pushFunctionCallNextIp(int nextIp) {
-        if (functionCallPointer >= functionCalls.length) {
-            functionCalls = Arrays.copyOf(functionCalls,
-                    functionCalls.length + FUNCTION_CALL_STACK_INIT_SIZE);
-        }
-        functionCalls[++functionCallPointer] = nextIp;
-    }
-
-    public int popFunctionCallNextIp() {
-        int nextIp = -1;
-        if (functionCallPointer > 0) {
-            nextIp = functionCalls[functionCallPointer];
-            functionCalls[functionCallPointer] = -1;
-        }
-        functionCallPointer--;
-        return nextIp;
-    }
-
-    public int peekFunctionCallNextIp() {
-        int nextIp = -1;
-        if (functionCallPointer >= 0) {
-            nextIp = functionCalls[functionCallPointer];
-        }
-        return nextIp;
+    public void setCurrentLine(LineNumberInfo currentLine) {
+        this.currentLine = currentLine;
     }
 
     public boolean isMainProgram() {
@@ -181,8 +179,61 @@ public class DebugInfoHolder {
     public enum DebugCommand {
         STEP_IN,
         STEP_OVER,
+        STEP_OVER_INTMDT,
         STEP_OUT,
-        RESUME,
-        NEXT_LINE
+        STEP_OUT_INTMDT,
+        RESUME
+    }
+
+    class DebuggerPkgInfo {
+        //key - ip, value - ipRange
+        Map<Integer, IpRange> ipRangeMap = new HashMap<>();
+        //key - ipRange, value linenumber info
+        Map<IpRange, LineNumberInfo> rangeLineNoMap = new HashMap<>();
+        //key - fileName:ln, value - ipRange
+        Map<String, IpRange> lineNumRangeMap = new HashMap<>();
+
+        public void addLineNumberInfo(int beginIp, int endIp, LineNumberInfo lineNumberInfo) {
+            IpRange ipRange = new IpRange(beginIp, endIp);
+            for (int i = beginIp; i < endIp; i++) {
+                ipRangeMap.put(i, ipRange);
+            }
+            lineNumberInfo.setEndIp(endIp);
+            rangeLineNoMap.put(ipRange, lineNumberInfo);
+            String fileNameAndNo = lineNumberInfo.getFileName() + ":" + lineNumberInfo.getLineNumber();
+            lineNumRangeMap.put(fileNameAndNo, ipRange);
+        }
+
+        public void markDebugPoint(BreakPointDTO breakPointDTO) {
+            String fileNameAndNo = breakPointDTO.getFileName() + ":" + breakPointDTO.getLineNumber();
+            IpRange range = lineNumRangeMap.get(fileNameAndNo);
+            if (range == null) {
+                return;
+            }
+            LineNumberInfo lineNumberInfo = rangeLineNoMap.get(range);
+            if (lineNumberInfo == null) {
+                return;
+            }
+            lineNumberInfo.setDebugPoint(true);
+        }
+
+        public void clearDebugPoints() {
+            rangeLineNoMap.values().stream().forEach(l -> l.setDebugPoint(false));
+        }
+
+        public LineNumberInfo getLineNumberInfo(int ip) {
+            return rangeLineNoMap.get(ipRangeMap.get(ip));
+        }
+
+    }
+
+    class IpRange {
+        int fromIp;
+        int toIp;
+        public IpRange(int fromIp, int toIp) {
+            this.fromIp = fromIp;
+            this.toIp = toIp;
+        }
+
     }
 }

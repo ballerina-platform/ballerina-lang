@@ -73,6 +73,9 @@ public class VMDebugManager {
      * @return DebugManager instance
      */
     public static VMDebugManager getInstance() {
+        if (debugManagerInstance != null) {
+            return debugManagerInstance;
+        }
         synchronized (VMDebugManager.class) {
             if (debugManagerInstance == null) {
                 debugManagerInstance = new VMDebugManager();
@@ -105,6 +108,7 @@ public class VMDebugManager {
         executor.submit(debuggerExecutor);
         // start the debug server if it is not started yet.
         this.debugServer.startServer();
+        this.debugManagerInitialized = true;
     }
 
     /**
@@ -113,54 +117,69 @@ public class VMDebugManager {
      * @param json the json
      */
     public void processDebugCommand(String json) {
+        try {
+            processCommand(json);
+        } catch (Exception e) {
+            MessageDTO message = new MessageDTO();
+            message.setCode(DebugConstants.CODE_INVALID);
+            message.setMessage(e.getMessage());
+            debugServer.pushMessageToClient(debugSession, message);
+        }
+    }
+
+    private void processCommand(String json) {
+        System.out.println("incoming to server   - " + json);
         ObjectMapper mapper = new ObjectMapper();
         CommandDTO command = null;
         try {
             command = mapper.readValue(json, CommandDTO.class);
         } catch (IOException e) {
-            // Set the command to invalid so an invalid message will be passed from -
-            // default block
-            command.setCommand("invalid");
+            //invalid message will be passed
+            throw new DebugException(DebugConstants.MSG_INVALID);
         }
-        DebugInfoHolder holder = null;
-        if (debugSession.getContext("main") != null) {
-            holder = debugSession.getContext("main").getDebugInfoHolder(); //todo fix
-        }
+
         switch (command.getCommand()) {
             case DebugConstants.CMD_RESUME:
-                holder.resume();
+                getHolder(command.getThreadId()).resume();
                 break;
             case DebugConstants.CMD_STEP_OVER:
-                holder.stepOver();
+                getHolder(command.getThreadId()).stepOver();
                 break;
             case DebugConstants.CMD_STEP_IN:
-                holder.stepIn();
+                getHolder(command.getThreadId()).stepIn();
                 break;
             case DebugConstants.CMD_STEP_OUT:
-                holder.stepOut();
+                getHolder(command.getThreadId()).stepOut();
                 break;
             case DebugConstants.CMD_STOP:
+                //TODO check and fix
+                DebugInfoHolder holder = getHolder(command.getThreadId());
                 holder.clearDebugLocations();
                 debugSession.clearSession();
                 holder.resume();
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
-                debugSession.addDebugPoints(command.getBreakPoints());
+                debugSession.addDebugPoints(command.getPoints());
                 sendAcknowledge(this.debugSession, "Debug points updated");
                 break;
             case DebugConstants.CMD_START:
                 // Client needs to explicitly start the execution once connected.
                 // This will allow client to set the breakpoints before starting the execution.
                 sendAcknowledge(this.debugSession, "Debug started.");
-                holder.resume();
+                debugSession.startDebug();
                 break;
             default:
-                MessageDTO message = new MessageDTO();
-                message.setCode(DebugConstants.CODE_INVALID);
-                message.setMessage(DebugConstants.MSG_INVALID);
-                debugServer.pushMessageToClient(debugSession, message);
+                throw new DebugException(DebugConstants.MSG_INVALID);
         }
+    }
+
+    private DebugInfoHolder getHolder(String threadId) {
+        threadId = "main"; //TODO fix later
+        if (debugSession.getContext(threadId) == null) {
+            throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
+        }
+        return debugSession.getContext(threadId).getDebugInfoHolder();
     }
 
     /**
@@ -229,6 +248,7 @@ public class VMDebugManager {
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_HIT);
         message.setMessage(DebugConstants.MSG_HIT);
+        message.setThreadId(breakPointInfo.getThreadId());
         message.setLocation(breakPointInfo.getHaltLocation());
         message.setFrames(breakPointInfo.getCurrentFrames());
         debugServer.pushMessageToClient(debugSession, message);
