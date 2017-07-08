@@ -26,7 +26,6 @@ import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -65,42 +64,6 @@ public class StructKeyReference extends BallerinaElementReference {
         List<LookupElement> results = new LinkedList<>();
 
         IdentifierPSINode identifier = getElement();
-        //        PsiFile containingFile = identifier.getContainingFile();
-        //        PsiFile originalFile = containingFile.getOriginalFile();
-        //        PsiDirectory containingPackage = originalFile.getParent();
-
-        //        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-        //        for (PsiElement importedPackage : importedPackages) {
-        //            PsiReference reference = importedPackage.findReferenceAt(0);
-        //            if (reference == null) {
-        //                continue;
-        //            }
-        //            PsiElement resolvedElement = reference.resolve();
-        //            if (resolvedElement == null) {
-        //                continue;
-        //            }
-        //            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-        //                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        //            results.add(lookupElement);
-        //        }
-        //
-        //        List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-        //                (containingFile);
-        //        for (PsiDirectory unImportedPackage : unImportedPackages) {
-        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
-        // (unImportedPackage,
-        //                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        //            results.add(lookupElement);
-        //        }
-        //
-        //        if (containingPackage != null) {
-        //
-        //            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-        //            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
-        //
-        //        }
-
 
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
@@ -189,8 +152,11 @@ public class StructKeyReference extends BallerinaElementReference {
                 }
 
                 PsiElement resolvedElement = reference.resolve();
+                if(resolvedElement==null){
+                    return null;
+                }
                 PsiElement parent = resolvedElement.getParent();
-                if (resolvedElement == null || !(parent instanceof VariableDefinitionNode)) {
+                if (!(parent instanceof VariableDefinitionNode)) {
                     return null;
                 }
 

@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -66,6 +67,11 @@ public class FieldReference extends BallerinaElementReference {
             prevSibling = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
             if (prevSibling == null) {
                 return null;
+            }
+        } else if (parent instanceof NameReferenceNode) {
+            prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+            if (prevSibling != null && ".".equals(prevSibling.getText())) {
+                prevSibling = PsiTreeUtil.prevVisibleLeaf(prevSibling);
             }
         } else {
             // If the current statement is correctly resolved, that means all the fields are identified properly.
