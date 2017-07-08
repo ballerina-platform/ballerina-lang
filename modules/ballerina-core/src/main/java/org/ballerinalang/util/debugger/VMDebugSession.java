@@ -23,10 +23,8 @@ import io.netty.channel.Channel;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
-import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
-import javax.websocket.OnError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,8 +51,8 @@ public class VMDebugSession implements DebugSessionObserver {
 
     @Override
     public void addContext(Context bContext) {
-//        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
-        String threadId = "main"; //TODO use above line
+        String threadId = Thread.currentThread().getName() + ":" + Thread.currentThread().getId();
+//        String threadId = "main"; //TODO use above line
         bContext.setThreadId(threadId);
         //TODO check if that thread id already exist in the map
         this.contextMap.put(threadId, bContext);

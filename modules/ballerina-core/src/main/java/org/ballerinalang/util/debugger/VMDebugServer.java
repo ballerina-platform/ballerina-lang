@@ -112,7 +112,6 @@ public class VMDebugServer {
         String json = null;
         try {
             json = mapper.writeValueAsString(status);
-            System.out.println("outgoing from server - " + json);
         } catch (JsonProcessingException e) {
             json = DebugConstants.ERROR_JSON;
         }

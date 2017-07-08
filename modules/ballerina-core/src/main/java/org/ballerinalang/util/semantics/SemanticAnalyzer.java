@@ -3615,8 +3615,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
+    /**
+     * Helper method to add return statement if required.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to which to add the return statement.
+     */
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        ReturnStmt returnStmt = checkAndAddReturnStmt1(returnParamCount, blockStmt);
+        ReturnStmt returnStmt = buildReturnStatement(returnParamCount, blockStmt);
         if (returnStmt != null) {
             Statement[] statements = blockStmt.getStatements();
             int length = statements.length;
@@ -3625,7 +3631,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             blockStmt.setStatements(statements);
         }
     }
-    private ReturnStmt checkAndAddReturnStmt1(int returnParamCount, BlockStmt blockStmt) {
+
+    /**
+     * Helper method to build the correct return statement.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to help generate return.
+     * @return                  Generated returnStmt.
+     */
+    private ReturnStmt buildReturnStatement(int returnParamCount, BlockStmt blockStmt) {
         if (returnParamCount != 0) {
             return null;
         }
@@ -3638,7 +3652,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (lastStatement instanceof IfElseStmt) {
                 IfElseStmt ifElseStmt = (IfElseStmt) lastStatement;
                 if (ifElseStmt.getElseBody() != null) {
-                    return checkAndAddReturnStmt1(returnParamCount, (BlockStmt) ifElseStmt.getElseBody());
+                    return buildReturnStatement(returnParamCount, (BlockStmt) ifElseStmt.getElseBody());
                 } else if (ifElseStmt.getElseIfBlocks().length > 0) {
                     int lastElseIf = ifElseStmt.getElseIfBlocks().length - 1;
                     location = ifElseStmt.getElseIfBlocks()[lastElseIf].getNodeLocation();

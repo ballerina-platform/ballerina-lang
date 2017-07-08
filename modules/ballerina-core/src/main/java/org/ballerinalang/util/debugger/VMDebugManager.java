@@ -128,7 +128,6 @@ public class VMDebugManager {
     }
 
     private void processCommand(String json) {
-        System.out.println("incoming to server   - " + json);
         ObjectMapper mapper = new ObjectMapper();
         CommandDTO command = null;
         try {
@@ -175,7 +174,7 @@ public class VMDebugManager {
     }
 
     private DebugInfoHolder getHolder(String threadId) {
-        threadId = "main"; //TODO fix later
+//        threadId = "main"; //TODO fix later
         if (debugSession.getContext(threadId) == null) {
             throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
         }

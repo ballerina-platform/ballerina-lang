@@ -92,11 +92,9 @@ import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
@@ -155,44 +153,6 @@ public class BLangVM {
             printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
                     getOperandsLine(code[i].getOperands()));
         }
-        for (LineNumberInfo line : packageInfo.getLineNumberInfoList()) {
-            printStream.println(line.toString());
-        }
-        int index = 0;
-        for (ConstantPoolEntry entry : constPool) {
-            switch (entry.getEntryType()) {
-                case CP_ENTRY_UTF8:
-                    printStream.println("index - " + index + " type - CP_ENTRY_UTF8, value - " + ((UTF8CPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_INTEGER:
-                    printStream.println("index - " + index + " type - CP_ENTRY_INTEGER, value - " + ((IntegerCPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_FLOAT:
-                    printStream.println("index - " + index + " type - CP_ENTRY_FLOAT, value - " + ((FloatCPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_STRING:
-                    printStream.println("index - " + index + " type - CP_ENTRY_STRING, value - " + ((StringCPEntry) entry).getValue());
-                    break;
-//                case CP_ENTRY_NAME_AND_TYPE:
-//                    printStream.println("type - CP_ENTRY_UTF8, value - " + ((IntegerCPEntry) entry).getValue());
-//                    break;
-                case CP_ENTRY_PACKAGE:
-                    printStream.println("index - " + index + " type - CP_ENTRY_PACKAGE, value - " + ((PackageRefCPEntry) entry).getNameCPIndex());
-                    break;
-                case CP_ENTRY_FUNCTION_REF:
-                    printStream.println("index - " + index + " type - CP_ENTRY_FUNCTION_REF, value - " + ((FunctionRefCPEntry) entry).getNameCPIndex());
-                    break;
-                case CP_ENTRY_ACTION_REF:
-                case CP_ENTRY_FUNCTION_CALL_ARGS:
-                case CP_ENTRY_FUNCTION_RET:
-                case CP_ENTRY_STRUCT:
-                case CP_ENTRY_TYPE:
-                case CP_ENTRY_WORKER_INVOKE:
-                case CP_ENTRY_WORKER_REPLY:
-                case CP_ENTRY_FORK_JOIN:
-            }
-            index++;
-        }
     }
 
     public void run(Context context) {
@@ -223,7 +183,6 @@ public class BLangVM {
         }
 
         try {
-            traceCode(currentFrame.packageInfo);
             exec();
             if (context.isDebugEnabled()) {
                 context.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
@@ -1959,12 +1918,10 @@ public class BLangVM {
                     debugHit(currentExecLine, holder);
                     return;
                 }
+                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OVER);
+                break;
             case STEP_OVER_INTMDT:
-                if (!controlStack.currentFrame.equals(holder.getCurrentFrame())) {
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
-                    return;
-                }
-                debugHit(currentExecLine, holder);
+                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OUT:
                 int offset = 1;
@@ -1974,13 +1931,29 @@ public class BLangVM {
                 }
                 holder.setCurrentFrame(controlStack.peekFrame(offset));
                 holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
+                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OUT);
+                break;
             case STEP_OUT_INTMDT:
-                if (!controlStack.currentFrame.equals(holder.getCurrentFrame())) {
-                    return;
-                }
-                debugHit(currentExecLine, holder);
+                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
                 break;
         }
+    }
+
+    /**
+     * Inter mediate debug check to avoid switch case falling through.
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     * @param command           Debug command.
+     */
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder,
+                                        DebugInfoHolder.DebugCommand command) {
+        if (!controlStack.currentFrame.equals(holder.getCurrentFrame())) {
+            if (command == DebugInfoHolder.DebugCommand.STEP_OVER) {
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+            }
+            return;
+        }
+        debugHit(currentExecLine, holder);
     }
 
     /**
@@ -2014,44 +1987,60 @@ public class BLangVM {
     }
 
     public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-
         NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
                 current.getFileName(), current.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
         breakPointInfo.setThreadId(context.getThreadId());
 
-        String pck = controlStack.currentFrame.packageInfo.getPkgPath();
-        String functionName = controlStack.currentFrame.callableUnitInfo.getName();
-        //todo below line number is a dummy line number - remove later
-        FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
-                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
-        if (localVarAttrInfo != null) {
-            for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
-                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
-                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(controlStack.currentFrame
-                            .longLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(controlStack.currentFrame
-                            .doubleLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(controlStack.currentFrame
-                            .stringLocalVars[localVarInfo.getVariableIndex()]));
-                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(controlStack.currentFrame
-                            .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
-                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(controlStack.currentFrame
-                            .byteLocalVars[localVarInfo.getVariableIndex()]));
-                } else {
-                    variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
-                }
-                frameInfo.addVariableInfo(variableInfo);
+        for (int i = controlStack.fp; i >= 0; i--) {
+            FrameInfo frameInfo = getFrameInfo(controlStack.getStack()[i]);
+            if (frameInfo != null) {
+                breakPointInfo.addFrameInfo(frameInfo);
             }
         }
-        breakPointInfo.addFrameInfo(frameInfo);
         return breakPointInfo;
+    }
+
+    private FrameInfo getFrameInfo(StackFrame frame) {
+        if (frame == null) {
+            return null;
+        }
+
+        //TODO check which line number to return
+        int callingIp = frame.retAddrs - 1;
+        if (callingIp < 0) {
+            callingIp = 0;
+        }
+        LineNumberInfo callingLine = context.getDebugInfoHolder()
+                .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+        String pck = frame.packageInfo.getPkgPath();
+        String functionName = frame.callableUnitInfo.getName();
+        //todo below line number is a dummy line number - remove later
+        FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(), callingLine.getLineNumber());
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
+                .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+        if (localVarAttrInfo == null) {
+            return null;
+        }
+        for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
+            VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
+            if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
+                variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
+            } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
+                variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
+            } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
+                variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
+            } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
+                variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
+                        .getVariableIndex()] == 1 ? true : false));
+            } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
+                variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
+            } else {
+                variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
+            }
+            frameInfo.addVariableInfo(variableInfo);
+        }
+        return frameInfo;
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {

@@ -42,7 +42,6 @@ public class DebugInfoHolder {
     private volatile Semaphore executionSem;
     private DebugSessionObserver debugSessionObserver;
     private DebugCommand currentCommand;
-    private boolean mainProgram = false;
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
     private LineNumberInfo currentLine;
@@ -91,16 +90,16 @@ public class DebugInfoHolder {
 
     private void addDebugPoint(BreakPointDTO breakPointDTO) {
         //TODO remove below line later
-        breakPointDTO.setPackagePath(".");
+//        breakPointDTO.setPackagePath(".");
         if (packageInfoMap.get(breakPointDTO.getPackagePath()) == null) {
             return;
         }
         packageInfoMap.get(breakPointDTO.getPackagePath()).markDebugPoint(breakPointDTO);
     }
 
-    public void addDebugPoints(List<BreakPointDTO> nodeLocations) {
+    public void addDebugPoints(List<BreakPointDTO> breakPointDTOS) {
         packageInfoMap.values().stream().forEach(p -> p.clearDebugPoints());
-        for (BreakPointDTO nodeLocation : nodeLocations) {
+        for (BreakPointDTO nodeLocation : breakPointDTOS) {
             addDebugPoint(nodeLocation);
         }
     }
@@ -143,14 +142,6 @@ public class DebugInfoHolder {
 
     public void setCurrentLine(LineNumberInfo currentLine) {
         this.currentLine = currentLine;
-    }
-
-    public boolean isMainProgram() {
-        return mainProgram;
-    }
-
-    public void setMainProgram(boolean mainProgram) {
-        this.mainProgram = mainProgram;
     }
 
     public void resume() {
