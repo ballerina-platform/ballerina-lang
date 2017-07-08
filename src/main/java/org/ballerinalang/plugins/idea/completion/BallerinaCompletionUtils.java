@@ -578,7 +578,7 @@ public class BallerinaCompletionUtils {
         }
     }
 
-
+    @NotNull
     public static LookupElement createAnnotationLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
@@ -586,6 +586,15 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
     }
 
+    @NotNull
+    public static List<LookupElement> createAnnotationLookupElements(@NotNull List<PsiElement> annotations) {
+        List<LookupElement> results = new LinkedList<>();
+        for (PsiElement annotation : annotations) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
+            results.add(lookupElement);
+        }
+        return results;
+    }
 
     /**
      * Helper method to add packages as lookup elements.

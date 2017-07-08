@@ -151,10 +151,7 @@ public class AnnotationReference extends BallerinaElementReference {
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
         List<PsiElement> annotations = BallerinaPsiImplUtil.getAllAnnotationsInPackage(resolvedPackage);
-        for (PsiElement annotation : annotations) {
-            LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
-            results.add(lookupElement);
-        }
+        results.addAll(BallerinaCompletionUtils.createAnnotationLookupElements(annotations));
         return results;
     }
 }

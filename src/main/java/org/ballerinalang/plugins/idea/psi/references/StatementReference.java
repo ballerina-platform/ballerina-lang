@@ -22,9 +22,15 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -151,7 +157,7 @@ public class StatementReference extends BallerinaElementReference {
 
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
         // Todo - do we need to check the text to be equal to ":" ?
-        if (prevVisibleLeaf != null) {
+        if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
             PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
             if (packageName != null) {
 
@@ -209,6 +215,46 @@ public class StatementReference extends BallerinaElementReference {
                 //                }
 
             }
+        } else {
+
+            // Todo - use util method
+            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                    ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                    ConnectorDefinitionNode.class);
+            if (scope != null) {
+
+                int caretOffset = identifier.getStartOffset();
+
+                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                        caretOffset);
+                for (PsiElement variable : variables) {
+                    if (identifier.getText().equals(variable.getText())) {
+                        return variable;
+                    }
+                }
+
+                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                for (PsiElement parameter : parameters) {
+                    if (identifier.getText().equals(parameter.getText())) {
+                        return parameter;
+                    }
+                }
+
+                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+                for (PsiElement variable : globalVariables) {
+                    if (identifier.getText().equals(variable.getText())) {
+                        return variable;
+                    }
+                }
+
+                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                for (PsiElement constant : constants) {
+                    if (identifier.getText().equals(constant.getText())) {
+                        return constant;
+                    }
+                }
+            }
+
         }
         return null;
     }
