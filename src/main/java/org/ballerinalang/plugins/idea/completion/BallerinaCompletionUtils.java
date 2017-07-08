@@ -724,11 +724,12 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element) {
+    public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element,
+                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
                 .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
                 .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element.getParent()))
-                .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+                .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
@@ -736,7 +737,19 @@ public class BallerinaCompletionUtils {
     public static List<LookupElement> createFunctionsLookupElements(@NotNull List<PsiElement> functions) {
         List<LookupElement> lookupElements = new LinkedList<>();
         for (PsiElement function : functions) {
-            LookupElement lookupElement = createFunctionsLookupElement(function);
+            LookupElement lookupElement = createFunctionsLookupElement(function, ParenthesisInsertHandler.INSTANCE);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
+    public static List<LookupElement> createFunctionsLookupElements(@NotNull List<PsiElement> functions,
+                                                                    @Nullable InsertHandler<LookupElement>
+                                                                            insertHandler) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement function : functions) {
+            LookupElement lookupElement = createFunctionsLookupElement(function, insertHandler);
             lookupElements.add(lookupElement);
         }
         return lookupElements;
@@ -753,7 +766,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
                     .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
                     .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(function.getParent()))
-                    .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
         }
     }
@@ -817,7 +830,7 @@ public class BallerinaCompletionUtils {
             LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
                     .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
                     .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(action.getParent()))
-                    .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
     }

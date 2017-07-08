@@ -57,10 +57,10 @@ public class AnnotationReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
+        List<LookupElement> results = new LinkedList<>();
         IdentifierPSINode identifier = getElement();
         PsiElement parent = identifier.getParent();
 
-        List<LookupElement> results = new LinkedList<>();
         PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
         if (packageNameNode == null) {
             results.addAll(getVariantsFromCurrentPackage());
@@ -94,7 +94,6 @@ public class AnnotationReference extends BallerinaElementReference {
         if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return null;
         }
-
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
         return findMatchingAnnotationDefinition(psiDirectory);
     }
