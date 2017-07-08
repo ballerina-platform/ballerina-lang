@@ -1,0 +1,4 @@
+//A fork statement allows one to replicate a message to any number of parallel workers and have them
+//independently operate on the copies of the message.
+//The join part of the fork statement allows one to define how the caller of fork will wait for the parallel workers to complete.
+
