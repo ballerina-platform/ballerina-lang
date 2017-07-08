@@ -26,12 +26,11 @@ import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 public class AnnotationAttributeReference extends BallerinaElementReference {
@@ -66,19 +65,7 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
         PsiElement annotationDefinition = annotationName.getParent();
         Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
                 FieldDefinitionNode.class);
-
-        // Todo - use an util method?
-        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            if (fieldName == null) {
-                continue;
-            }
-            String text = fieldName.getText();
-            if (text.equals(identifier.getText())) {
-                return fieldName;
-            }
-        }
-        return null;
+        return BallerinaPsiImplUtil.resolveReference(fieldDefinitionNodes, identifier);
     }
 
     @NotNull
@@ -105,21 +92,10 @@ public class AnnotationAttributeReference extends BallerinaElementReference {
             return new Object[0];
         }
         PsiElement annotationDefinition = annotationName.getParent();
-
-        // Todo - use an util method?
         Collection<FieldDefinitionNode> fieldDefinitionNodes = PsiTreeUtil.findChildrenOfType(annotationDefinition,
                 FieldDefinitionNode.class);
-        List<LookupElement> results = new LinkedList<>();
-        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-            if (fieldName == null || fieldType == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                    (IdentifierPSINode) annotationName, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.add(lookupElement);
-        }
+        List<LookupElement> results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                (IdentifierPSINode) annotationName, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         return results.toArray(new LookupElement[results.size()]);
     }
 }

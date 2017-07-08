@@ -43,6 +43,7 @@ import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -1092,10 +1093,29 @@ public class BallerinaCompletionUtils {
     public static LookupElement createFieldLookupElement(@NotNull IdentifierPSINode fieldName,
                                                          @NotNull TypeNameNode fieldType,
                                                          @NotNull IdentifierPSINode ownerName,
-                                                         @NotNull InsertHandler<LookupElement> insertHandler) {
+                                                         @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = createFieldLookupElement(fieldName, fieldType, ownerName)
                 .withInsertHandler(insertHandler);
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createFieldLookupElements(@NotNull Collection<FieldDefinitionNode>
+                                                                        fieldDefinitionNodes,
+                                                                @NotNull IdentifierPSINode definitionName,
+                                                                @Nullable InsertHandler<LookupElement> insertHandler) {
+        List<LookupElement> results = new LinkedList<>();
+        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
+            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
+            if (fieldName == null || fieldType == null) {
+                continue;
+            }
+            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
+                    definitionName, insertHandler);
+            results.add(lookupElement);
+        }
+        return results;
     }
 
     static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {

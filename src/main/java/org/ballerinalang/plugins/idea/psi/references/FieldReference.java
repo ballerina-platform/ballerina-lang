@@ -26,14 +26,12 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 public class FieldReference extends BallerinaElementReference {
@@ -145,7 +143,7 @@ public class FieldReference extends BallerinaElementReference {
             return new LookupElement[0];
         }
         PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null) {
+        if (resolvedElement == null || !(resolvedElement instanceof IdentifierPSINode)) {
             return new LookupElement[0];
         }
         PsiElement resolvedElementParent = resolvedElement.getParent();
@@ -161,23 +159,11 @@ public class FieldReference extends BallerinaElementReference {
         if (structDefinitionNode == null) {
             return new LookupElement[0];
         }
-
-        List<LookupElement> results = new LinkedList<>();
-
-        // Todo - use an util method?
         Collection<FieldDefinitionNode> fieldDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(structDefinitionNode, FieldDefinitionNode.class);
-        for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
-            TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-            if (fieldName == null || fieldType == null) {
-                continue;
-            }
-            LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
-                    (IdentifierPSINode) resolvedElement);
-            results.add(lookupElement);
-        }
 
+        List<LookupElement> results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                (IdentifierPSINode) resolvedElement, null);
         return results.toArray(new LookupElement[results.size()]);
     }
 }

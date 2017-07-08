@@ -32,7 +32,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
     public ActionInvocationReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
-    
+
     @Nullable
     @Override
     public PsiElement resolve() {
@@ -73,6 +73,7 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
+        // Todo - complete
         return new Object[0];
     }
 }

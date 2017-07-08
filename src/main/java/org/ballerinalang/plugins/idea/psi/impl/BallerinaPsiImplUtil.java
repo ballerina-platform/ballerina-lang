@@ -16,6 +16,8 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.codeInsight.completion.InsertHandler;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
@@ -40,12 +42,15 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
@@ -1565,6 +1570,96 @@ public class BallerinaPsiImplUtil {
                 if (identifier != null) {
                     results.add(identifier);
                 }
+            }
+        }
+        return results;
+    }
+
+    // Todo - change the super class type to a new definition type
+    //    @NotNull
+    //    public static <T extends IdentifierDefSubtree> List<PsiElement> getDefinitionsInScope(@NotNull ScopeNode
+    // scope,
+    //                                                                                          @NotNull Class<T>
+    // clazz) {
+    //        List<PsiElement> results = new LinkedList<>();
+    //        Collection<T> definitionNodes = PsiTreeUtil.findChildrenOfType(scope, clazz);
+    //        for (T definitionNode : definitionNodes) {
+    //            PsiElement identifier = definitionNode.getNameIdentifier();
+    //            if (identifier != null) {
+    //                results.add(identifier);
+    //            }
+    //        }
+    //        PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
+    //        PsiDirectory containingPackage = originalFile.getParent();
+    //        if (containingPackage == null) {
+    //            return results;
+    //        }
+    //        PsiFile[] files = containingPackage.getFiles();
+    //        for (PsiFile file : files) {
+    //            // Do't check the current file again.
+    //            if (file.equals(originalFile)) {
+    //                continue;
+    //            }
+    //
+    //            definitionNodes = PsiTreeUtil.findChildrenOfType(file, clazz);
+    //            for (T definitionNode : definitionNodes) {
+    //                PsiElement identifier = definitionNode.getNameIdentifier();
+    //                if (identifier != null) {
+    //                    results.add(identifier);
+    //                }
+    //            }
+    //        }
+    //        return results;
+    //    }
+
+
+    @Nullable
+    public static <T extends PsiElement> PsiElement resolveReference(@NotNull Collection<T> definitionNodes,
+                                                                     @NotNull IdentifierPSINode referenceIdentifier) {
+        for (T definitionNode : definitionNodes) {
+            IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(definitionNode, IdentifierPSINode.class);
+            if (fieldName == null) {
+                continue;
+            }
+            String text = fieldName.getText();
+            if (text.equals(referenceIdentifier.getText())) {
+                return fieldName;
+            }
+        }
+        return null;
+    }
+
+
+    @NotNull
+    public static List<LookupElement> getPackagesAsLookups(@NotNull PsiFile file,
+                                                           boolean withImportedPackages,
+                                                           @Nullable InsertHandler<LookupElement> importedPackageIH,
+                                                           boolean withUnImportedPackages,
+                                                           @Nullable InsertHandler<LookupElement> unimportedPackageIH) {
+        List<LookupElement> results = new LinkedList<>();
+        if (withImportedPackages) {
+            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(file);
+            for (PsiElement importedPackage : importedPackages) {
+                PsiReference reference = importedPackage.findReferenceAt(0);
+                if (reference == null) {
+                    continue;
+                }
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+                        importedPackageIH);
+                results.add(lookupElement);
+            }
+        }
+        if (withUnImportedPackages) {
+            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages(file);
+            for (PsiDirectory unImportedPackage : unImportedPackages) {
+                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                        unimportedPackageIH);
+                results.add(lookupElement);
             }
         }
         return results;
