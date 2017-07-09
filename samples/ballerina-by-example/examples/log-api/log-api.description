@@ -1,0 +1,1 @@
+// From version 0.89, a new log API was introduced to facilitate logging in Ballerina. It is available in the ballerina.utils.logger package.

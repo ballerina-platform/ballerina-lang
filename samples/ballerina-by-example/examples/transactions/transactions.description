@@ -1,0 +1,8 @@
+// Ballerina transaction is a series of data manipulation 
+// statements that must either fully complete or fully fail, 
+// leaving the system in a consistent state.
+// Use the following sql scripts to create tables required
+// to run the sample with a mysql database.
+// create table Customers (id int, name varchar(30));
+// create table Salary (id int, salary float);
+
