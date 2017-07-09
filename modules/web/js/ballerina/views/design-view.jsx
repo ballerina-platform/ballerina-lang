@@ -15,10 +15,13 @@ class DesignView extends React.Component {
         }
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
+        this.toolPaletteContainer = undefined;
         this.setOverlayContainer = this.setOverlayContainer.bind(this);
         this.getOverlayContainer = this.getOverlayContainer.bind(this);
         this.setDiagramContainer = this.setDiagramContainer.bind(this);
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
+        this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
+        this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
     }
 
     setDiagramContainer(ref) {
@@ -41,6 +44,14 @@ class DesignView extends React.Component {
 
     getOverlayContainer() {
         return this.overlayContainer;
+    }
+
+    setToolPaletteContainer(ref) {
+        this.toolPaletteContainer = ref;
+    }
+
+    getToolPaletteContainer() {
+        return this.toolPaletteContainer;
     }
 
     /**
@@ -67,8 +78,9 @@ class DesignView extends React.Component {
                         <BallerinaDiagram model={this.props.model} />
                     </div>
                 </div>
-                <div className="tool-palette-container">
-                    <ToolPaletteView isTransformActive={this.state.isTransformActive} />
+                <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
+                    <ToolPaletteView getContainer={this.getToolPaletteContainer} 
+                        isTransformActive={this.state.isTransformActive} />
                 </div>
                 <div className="top-right-controls-container">
                     <div className={`top-right-controls-container-editor-pane 
