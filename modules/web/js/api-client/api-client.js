@@ -102,6 +102,23 @@ export function getProgramPackages(file) {
 }
 
 /**
+ * Invoke packages service and returns a promise with available packages
+ */
+export function getPackages() {
+    const endpoint = getServiceEndpoint('packages');
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers })
+            .then((response) => {
+                resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+/**
  * Gives the endpoint for a paticular backend service
  * 
  * @param {string} serviceName Name of the service

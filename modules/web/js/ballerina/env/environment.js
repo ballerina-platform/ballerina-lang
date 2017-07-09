@@ -21,6 +21,7 @@ import EventChannel from 'event_channel';
 import BallerinaEnvFactory from './ballerina-env-factory';
 import EnvironmentContent from './environment-content';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
+import { getPackages }  from './../../api-client/api-client';
 
 /**
  * @class BallerinaEnvironment
@@ -37,21 +38,27 @@ class BallerinaEnvironment extends EventChannel {
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }
 
-    initialize(opts) {
-        if (!this.initialized) {
-            getLangServerClientInstance()
-                .then((langServerClient) => {
-                    langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
-                        this.initializeBuiltinTypes(data.result);
-                    });
-                })
-                .catch(error => log.error('Error while connecting to langserver. ' + error));
-
-            this.initializePackages(opts.app);
-            this.initializeAnnotationAttachmentPoints(opts.app);
-            this.initialized = true;
-            this.trigger('initialized');
-        }
+    initialize() {
+        return new Promise((resolve, reject) => {
+            if (!this.initialized) {
+                getLangServerClientInstance()
+                    .then((langServerClient) => {
+                        langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
+                            this.initializeBuiltinTypes(data.result);
+                            this.initializePackages()
+                                .then(() => {
+                                    this.initializeAnnotationAttachmentPoints();
+                                    this.initialized = true;
+                                    resolve();
+                                })
+                                .catch(reject);
+                        });
+                    })
+                    .catch(reject);
+            } else {
+                resolve();
+            }
+        }); 
     }
 
     /**
@@ -107,13 +114,18 @@ class BallerinaEnvironment extends EventChannel {
     /**
      * Initialize packages from BALLERINA_HOME and/or Ballerina Repo
      */
-    initializePackages(app) {
-        const packagesJson = EnvironmentContent.getPackages(app);
-
-        _.each(packagesJson, (packageNode) => {
-            const pckg = BallerinaEnvFactory.createPackage();
-            pckg.initFromJson(packageNode);
-            this._packages.push(pckg);
+    initializePackages() {
+        return new Promise((resolve, reject) => {
+            getPackages()
+                .then((packagesJson) => {
+                    packagesJson.forEach((packageNode) => {
+                        const pckg = BallerinaEnvFactory.createPackage();
+                        pckg.initFromJson(packageNode);
+                        this._packages.push(pckg);
+                     });
+                     resolve();
+                })
+                .catch(reject);
         });
     }
 

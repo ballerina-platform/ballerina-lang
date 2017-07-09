@@ -16,6 +16,7 @@
  * under the License.
  */
 import log from 'log';
+import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
 import DesignView from './design-view.jsx';
@@ -27,6 +28,7 @@ import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
+import BallerinaEnvironment from './../env/environment';
 
 export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
@@ -62,6 +64,18 @@ class BallerinaFileEditor extends React.Component {
     componentDidMount() {
         // parse the file & build the tree
         this.parseFile();
+        this.initEnviornment();
+    }
+
+    initEnviornment() {
+        BallerinaEnvironment.initialize()
+            .then(() => {
+                this.environment.init();
+                this.update();
+            })
+            .catch((error) => {
+                log.error('Error while env init. ' + error);
+            });
     }
 
     /**
@@ -80,6 +94,7 @@ class BallerinaFileEditor extends React.Component {
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
+            commandManager: this.props.commandManager,
         };
     }
 
@@ -111,7 +126,7 @@ class BallerinaFileEditor extends React.Component {
                 });
                 const pkgName = ast.getPackageDefinition().getPackageName();
                 // update package name of the file
-                file.setPackageName(pkgName);
+                file.setPackageName(pkgName || '');
                 // fetch program packages
                 getProgramPackages(file)
                     .then((data) => {
@@ -121,7 +136,7 @@ class BallerinaFileEditor extends React.Component {
                             pkg.initFromJson(pkgNode);
                         });
                         this.environment.addPackages(pkges);
-                        this.forceUpdate();
+                        this.update();
                     })
                     .catch(error => log.error(error))
             })
@@ -150,13 +165,15 @@ class BallerinaFileEditor extends React.Component {
 }
 
 BallerinaFileEditor.propTypes = {
-    file: PropTypes.instanceOf(File).isRequired
+    file: PropTypes.instanceOf(File).isRequired,
+    commandManager: PropTypes.instanceOf(commandManager).isRequired
 };
 
 BallerinaFileEditor.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
+    commandManager: PropTypes.instanceOf(commandManager).isRequired,
 };
 
 export default BallerinaFileEditor;

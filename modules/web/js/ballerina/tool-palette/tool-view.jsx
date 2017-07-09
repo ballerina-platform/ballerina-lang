@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import CommandManager from 'command';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
@@ -156,9 +157,9 @@ class ToolView extends React.Component {
      */
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
-        const { tool, group, application } = this.props;
+        const { tool, group } = this.props;
         const functionName = tool.get('title') + (tool.parent ? tool.parent : '');
-        application.commandManager.dispatch('open-documentation',
+        this.context.commandManager.dispatch('open-documentation',
                             group.get('toolGroupName'), functionName);
     }
 
@@ -259,6 +260,7 @@ ToolView.propTypes = {
 
 ToolView.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    commandManager: PropTypes.instanceOf(CommandManager).isRequired,
 };
 
 export default ToolView;

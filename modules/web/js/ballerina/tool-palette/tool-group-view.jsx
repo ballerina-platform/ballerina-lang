@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import CommandManager from 'command';
 import Collapsible from 'react-collapsible';
 import PropTypes from 'prop-types';
 import ToolView from './tool-view';
@@ -65,7 +66,7 @@ class ToolGroupView extends React.Component {
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
         const toolGroupName = this.getToolGroupName();
-        this.props.application.commandManager.dispatch('open-documentation', toolGroupName, null);
+        this.context.commandManager.dispatch('open-documentation', toolGroupName, null);
     }
 
     /**
@@ -100,7 +101,6 @@ class ToolGroupView extends React.Component {
                         group={group}
                         key={element.get('title')}
                         toolOrder={group.get('toolOrder')}
-                        application={this.props.application}
                     />);
             }
         }, this);
@@ -157,6 +157,10 @@ class ToolGroupView extends React.Component {
 ToolGroupView.propTypes = {
     showGridStyles: PropTypes.bool.isRequired,
     group: PropTypes.instanceOf(ToolGroup).isRequired,
+};
+
+ToolGroupView.contextTypes = {
+    commandManager: PropTypes.instanceOf(CommandManager).isRequired,
 };
 
 export default ToolGroupView;
