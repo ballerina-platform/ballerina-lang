@@ -3,6 +3,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.AnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,8 @@ public class TopLevelResolver extends AbstractItemResolver {
         serviceItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         serviceItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(serviceItem);
+
+        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         return completionItems;
     }
 }

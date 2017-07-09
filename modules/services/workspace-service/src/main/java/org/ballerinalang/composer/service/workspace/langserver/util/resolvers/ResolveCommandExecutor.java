@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.util.parser.BallerinaParser;
 
@@ -45,6 +46,7 @@ public class ResolveCommandExecutor {
         ParameterContextResolver parameterContextResolver = new ParameterContextResolver();
         ServiceContextResolver serviceContextResolver = new ServiceContextResolver();
         AnnotationAttachmentResolver annotationAttachmentResolver = new AnnotationAttachmentResolver();
+        ResourceContextResolver resourceContextResolver = new ResourceContextResolver();
 
         resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
@@ -61,6 +63,7 @@ public class ResolveCommandExecutor {
         resolvers.put(null, topLevelResolver);
         resolvers.put(Service.class, serviceContextResolver);
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
+        resolvers.put(Resource.class, resourceContextResolver);
     }
 
     /**

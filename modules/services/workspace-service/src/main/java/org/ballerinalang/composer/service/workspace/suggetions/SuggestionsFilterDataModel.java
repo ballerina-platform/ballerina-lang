@@ -22,10 +22,13 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.Vocabulary;
+import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.SymbolScope;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the data model, which holds the data items required for filtering the suggestions
@@ -39,6 +42,7 @@ public class SuggestionsFilterDataModel {
     private int tokenIndex;
     private BallerinaFile ballerinaFile;
     private SymbolScope closestScope;
+    private Set<Map.Entry<String, ModelPackage>> packages;
 
     /**
      * Constructor for SuggestionsFilterDataModel
@@ -128,5 +132,13 @@ public class SuggestionsFilterDataModel {
 
     public void setClosestScope(SymbolScope closestScope) {
         this.closestScope = closestScope;
+    }
+
+    public Set<Map.Entry<String, ModelPackage>> getPackages() {
+        return packages;
+    }
+
+    public void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
+        this.packages = packages;
     }
 }

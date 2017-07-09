@@ -118,7 +118,7 @@ class SourceView extends EventChannel {
         this._editor.setBehavioursEnabled(true);
         // bind auto complete to key press
         this._editor.commands.on('afterExec', (e) => {
-            if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
+            if (e.command.name === 'insertstring' && /^[\w.@]$/.test(e.args)) {
                 self._editor.execCommand('startAutocomplete');
             }
         });

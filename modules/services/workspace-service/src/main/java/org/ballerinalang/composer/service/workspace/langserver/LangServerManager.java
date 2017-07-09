@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.consts.LangServerConstants;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.dto.DidSaveTextDocumentParams;
@@ -39,6 +40,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentI
 import org.ballerinalang.composer.service.workspace.langserver.dto.TextDocumentPositionParams;
 import org.ballerinalang.composer.service.workspace.langserver.dto.capabilities.ServerCapabilitiesDTO;
 import org.ballerinalang.composer.service.workspace.langserver.util.WorkspaceSymbolProvider;
+import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
 import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggester;
 import org.ballerinalang.composer.service.workspace.suggetions.AutoCompleteSuggesterImpl;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Language server Manager which manage langServer requests from the clients.
@@ -76,6 +79,8 @@ public class LangServerManager {
     private Gson gson;
 
     private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
+
+    private Set<Map.Entry<String, ModelPackage>> packages;
 
     /**
      * Private constructor
@@ -105,6 +110,7 @@ public class LangServerManager {
             this.langserver = new LangServer(port);
             this.langserver.startServer();
         }
+        initBackgroundJobs();
     }
 
     void addLaunchSession(Channel channel) {
@@ -402,6 +408,9 @@ public class LangServerManager {
                 ballerinaFile.accept(completionItemAccumulator);
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
                 dm.setClosestScope(completionItemAccumulator.getClosestScope());
+                // set all the packages associated with the runtime. "this.getPackages()" might return null as process
+                // of loading packages is running in a separate thread. See initBackgroundJobs() method.
+                dm.setPackages(this.getPackages());
 
                 completionItems = suggestionsFilter.getCompletionItems(dm, symbols);
             } catch (IOException e) {
@@ -416,6 +425,28 @@ public class LangServerManager {
         } else {
             logger.warn("Invalid Message type found");
         }
+    }
+
+    private Set<Map.Entry<String, ModelPackage>> getPackages() {
+        return this.packages;
+    }
+
+    private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
+        this.packages = packages;
+    }
+
+    /**
+     * initialize any background job
+     */
+    private void initBackgroundJobs() {
+        Runnable run = new Runnable() {
+            public void run() {
+                // Load all the packages associated the runtime in the background
+                Set<Map.Entry<String, ModelPackage>> packages = Utils.getAllPackages();
+                LangServerManager.this.setPackages(packages);
+            }
+        };
+        (new Thread(run)).start();
     }
 
     // End Notification Handlers
