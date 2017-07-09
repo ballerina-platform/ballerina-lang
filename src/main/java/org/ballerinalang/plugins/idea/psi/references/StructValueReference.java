@@ -47,6 +47,11 @@ public class StructValueReference extends BallerinaElementReference {
         super(element);
     }
 
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        return super.resolve();
+    }
 
     @NotNull
     @Override
@@ -57,39 +62,40 @@ public class StructValueReference extends BallerinaElementReference {
         PsiElement identifier = getElement();
 
 
-
-
-
         PsiFile containingFile = identifier.getContainingFile();
-
+        PsiFile originalFile = containingFile.getOriginalFile();
         // Todo -  Add functions, global variables, constants in current package from name reference
 
 
-        // Todo - use util?
-        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-        for (PsiElement importedPackage : importedPackages) {
-            PsiReference reference = importedPackage.findReferenceAt(0);
-            if (reference == null) {
-                continue;
-            }
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null) {
-                continue;
-            }
-            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.add(lookupElement);
-        }
-
-        List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-                (containingFile);
-        for (PsiDirectory unImportedPackage : unImportedPackages) {
-            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.add(lookupElement);
-        }
-
+        // Todo - use util
+        //                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+        //        for (PsiElement importedPackage : importedPackages) {
+        //            PsiReference reference = importedPackage.findReferenceAt(0);
+        //            if (reference == null) {
+        //                continue;
+        //            }
+        //            PsiElement resolvedElement = reference.resolve();
+        //            if (resolvedElement == null) {
+        //                continue;
+        //            }
+        //            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
+        //                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        //            results.add(lookupElement);
+        //        }
+        //
+        //        List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
+        //                (containingFile);
+        //        for (PsiDirectory unImportedPackage : unImportedPackages) {
+        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
+        // (unImportedPackage,
+        //                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        //            results.add(lookupElement);
+        //        }
+        List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
+                BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        results.addAll(packages);
 
         MapStructKeyValueNode mapStructKeyValueNode = PsiTreeUtil.getParentOfType(identifier,
                 MapStructKeyValueNode.class);
@@ -105,7 +111,9 @@ public class StructValueReference extends BallerinaElementReference {
                 //                PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
                 //                if (packageName != null) {
 
+
                 // Todo - use util?
+                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
                 for (PsiElement importedPackage : importedPackages) {
                     PsiReference reference = importedPackage.findReferenceAt(0);
                     if (reference == null) {
@@ -118,11 +126,8 @@ public class StructValueReference extends BallerinaElementReference {
                     PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
                     if (mapStructKeyNode.getText().equals(resolvedPackage.getName())) {
 
-                        // Todo - get all functions, global variables, constants
-
                         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(resolvedPackage);
                         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
-
 
                         List<PsiElement> globalVariables =
                                 BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(resolvedPackage);
@@ -130,16 +135,11 @@ public class StructValueReference extends BallerinaElementReference {
 
                         List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage);
                         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(constants));
-
-
                     }
                 }
-                //                }
-                //            }
             }
         }
 
-        PsiFile originalFile = containingFile.getOriginalFile();
         PsiDirectory currentPackage = originalFile.getParent();
 
         if (currentPackage != null) {
@@ -254,11 +254,5 @@ public class StructValueReference extends BallerinaElementReference {
     @NotNull
     private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
         return new LinkedList<>();
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        return super.resolve();
     }
 }

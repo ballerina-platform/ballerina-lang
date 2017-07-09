@@ -227,6 +227,7 @@ public class NameReference extends BallerinaElementReference {
             //                results.add(lookupElement);
             //            }
 
+            // Todo - use a util method
             ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
                     ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
                     ConnectorDefinitionNode.class);
@@ -236,10 +237,7 @@ public class NameReference extends BallerinaElementReference {
 
                 List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
                         caretOffset);
-                for (PsiElement variable : variables) {
-                    LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
-                    results.add(lookupElement);
-                }
+                results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
                 List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
                 results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
@@ -269,6 +267,7 @@ public class NameReference extends BallerinaElementReference {
 
         PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
+        // Todo - use a util method
         List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
         results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
@@ -279,8 +278,13 @@ public class NameReference extends BallerinaElementReference {
         List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
         results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
 
+        List<PsiElement> globalVariables =
+                BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage);
+        results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
+
+        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(containingPackage);
+        results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+
         return results;
     }
-
-
 }

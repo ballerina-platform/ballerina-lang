@@ -903,6 +903,16 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
     }
 
+    @NotNull
+    public static List<LookupElement> createVariableLookupElements(@NotNull List<PsiElement> variables) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement variable : variables) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createVariableLookupElement(variable);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
     /**
      * Adds variables in the resolvable scopes as lookup elements.
      *

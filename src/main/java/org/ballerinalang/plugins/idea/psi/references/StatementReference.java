@@ -42,14 +42,9 @@ public class StatementReference extends BallerinaElementReference {
         super(element);
     }
 
-
     @Nullable
     @Override
     public PsiElement resolve() {
-        // WARNING: If find usage shows an error message, verify that the super.resolve() returns an Identifier node.
-        //        ResolveResult[] resolveResults = multiResolve(false);
-        //        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
-
         IdentifierPSINode identifier = getElement();
 
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
@@ -159,7 +154,6 @@ public class StatementReference extends BallerinaElementReference {
 
                     List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
                     results.addAll(BallerinaCompletionUtils.createStructLookupElements(structs));
-
 
                     List<PsiElement> globalVariables =
                             BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(containingPackage);
