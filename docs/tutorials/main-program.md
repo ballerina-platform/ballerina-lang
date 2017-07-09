@@ -67,3 +67,9 @@ Connectors may need to have usage specific parameters and hence must be instanti
     ![alt text](../images/addConnector.gif)
 1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
     ![alt text](../images/ConnectorEndpoint.gif)
+
+### Add an action
+
+A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
+
+To make use of the connector you have added in this tutorial, you need to call it using an action.
