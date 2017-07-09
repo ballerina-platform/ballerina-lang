@@ -47,6 +47,20 @@ public class NameReference extends BallerinaElementReference {
         super(element);
     }
 
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        IdentifierPSINode identifier = getElement();
+        PsiElement parent = identifier.getParent();
+
+        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
+        if (packageNameNode == null) {
+            return resolveInCurrentPackage();
+        } else {
+            return resolveInPackage(packageNameNode);
+        }
+    }
+
     @NotNull
     @Override
     public Object[] getVariants() {
@@ -62,6 +76,76 @@ public class NameReference extends BallerinaElementReference {
         }
         return results.toArray(new LookupElement[results.size()]);
     }
+
+
+    @Nullable
+    private PsiElement resolveInCurrentPackage() {
+        IdentifierPSINode identifier = getElement();
+
+        // Todo - use util method
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                ConnectorDefinitionNode.class);
+        if (scope != null) {
+
+            int caretOffset = identifier.getStartOffset();
+
+            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
+            for (PsiElement variable : variables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+            for (PsiElement parameter : parameters) {
+                if (identifier.getText().equals(parameter.getText())) {
+                    return parameter;
+                }
+            }
+
+            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+            for (PsiElement variable : globalVariables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+            for (PsiElement constant : constants) {
+                if (identifier.getText().equals(constant.getText())) {
+                    return constant;
+                }
+            }
+        }
+
+        PsiFile containingFile = identifier.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        PsiFile originalFile = containingFile.getOriginalFile();
+        PsiDirectory psiDirectory = originalFile.getParent();
+        if (psiDirectory == null) {
+            return null;
+        }
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true, true);
+    }
+
+    @Nullable
+    private PsiElement resolveInPackage(@NotNull PackageNameNode packageNameNode) {
+        IdentifierPSINode identifier = getElement();
+        PsiReference reference = packageNameNode.findReferenceAt(0);
+        if (reference == null) {
+            return null;
+        }
+        PsiElement resolvedElement = reference.resolve();
+        if (!(resolvedElement instanceof PsiDirectory)) {
+            return null;
+        }
+        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true, true);
+    }
+
 
     @NotNull
     private List<LookupElement> getVariantsFromCurrentPackage() {
@@ -199,128 +283,4 @@ public class NameReference extends BallerinaElementReference {
     }
 
 
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        IdentifierPSINode identifier = getElement();
-        PsiElement parent = identifier.getParent();
-
-        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
-        if (packageNameNode == null) {
-            return resolveLocalElement();
-        } else {
-            return resolveElementInPackage(packageNameNode, identifier);
-        }
-    }
-
-    @Nullable
-    private PsiElement resolveLocalElement() {
-        IdentifierPSINode identifier = getElement();
-
-        // Todo - use util method
-        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                ConnectorDefinitionNode.class);
-        if (scope != null) {
-
-            int caretOffset = identifier.getStartOffset();
-
-            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
-            for (PsiElement variable : variables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
-            for (PsiElement parameter : parameters) {
-                if (identifier.getText().equals(parameter.getText())) {
-                    return parameter;
-                }
-            }
-
-            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-            for (PsiElement variable : globalVariables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-            for (PsiElement constant : constants) {
-                if (identifier.getText().equals(constant.getText())) {
-                    return constant;
-                }
-            }
-        }
-
-        PsiFile containingFile = identifier.getContainingFile();
-        if (containingFile == null) {
-            return null;
-        }
-        PsiFile originalFile = containingFile.getOriginalFile();
-        PsiDirectory psiDirectory = originalFile.getParent();
-        if (psiDirectory == null) {
-            return null;
-        }
-        return findMatchingElement(psiDirectory, identifier);
-    }
-
-    @Nullable
-    private PsiElement resolveElementInPackage(@NotNull PackageNameNode packageNameNode,
-                                               @NotNull IdentifierPSINode identifier) {
-        PsiReference reference = packageNameNode.findReferenceAt(0);
-        if (reference == null) {
-            return null;
-        }
-
-        PsiElement resolvedElement = reference.resolve();
-        if (!(resolvedElement instanceof PsiDirectory)) {
-            return null;
-        }
-
-        PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        return findMatchingElement(psiDirectory, identifier);
-    }
-
-    @Nullable
-    private PsiElement findMatchingElement(@NotNull PsiDirectory directory,
-                                           @NotNull IdentifierPSINode identifier) {
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(directory);
-        for (PsiElement function : functions) {
-            if (identifier.getText().equals(function.getText())) {
-                return function;
-            }
-        }
-
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(directory);
-        for (PsiElement connector : connectors) {
-            if (identifier.getText().equals(connector.getText())) {
-                return connector;
-            }
-        }
-
-        List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(directory);
-        for (PsiElement struct : structs) {
-            if (identifier.getText().equals(struct.getText())) {
-                return struct;
-            }
-        }
-
-        List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(directory);
-        for (PsiElement variable : globalVariables) {
-            if (identifier.getText().equals(variable.getText())) {
-                return variable;
-            }
-        }
-
-        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(directory);
-        for (PsiElement constant : constants) {
-            if (identifier.getText().equals(constant.getText())) {
-                return constant;
-            }
-        }
-
-        return null;
-    }
 }

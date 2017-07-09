@@ -25,7 +25,7 @@ import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -55,36 +55,43 @@ public class PackageNameReference extends BallerinaElementReference implements P
 
         if (fullyQualifiedPackageNameNode == null) {
             PsiFile containingFile = identifier.getContainingFile();
-            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-
-            for (PsiElement importedPackage : importedPackages) {
-                PsiReference reference = importedPackage.findReferenceAt(0);
-                if (reference == null) {
-                    continue;
-                }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
-            }
-
-            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages(containingFile);
-
-            for (PsiDirectory unImportedPackage : unImportedPackages) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
-            }
-
+            PsiFile originalFile = containingFile.getOriginalFile();
+            //            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+            //
+            //            for (PsiElement importedPackage : importedPackages) {
+            //                PsiReference reference = importedPackage.findReferenceAt(0);
+            //                if (reference == null) {
+            //                    continue;
+            //                }
+            //                PsiElement resolvedElement = reference.resolve();
+            //                if (resolvedElement == null) {
+            //                    continue;
+            //                }
+            //                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
+            // (resolvedPackage,
+            //                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            //                results.add(lookupElement);
+            //            }
+            //
+            //            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
+            // (containingFile);
+            //
+            //            for (PsiDirectory unImportedPackage : unImportedPackages) {
+            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
+            // (unImportedPackage,
+            //                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            //                results.add(lookupElement);
+            //            }
+            // Todo - change insert handler for source annotations
+            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
+                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            results.addAll(packages);
 
         } else {
 
         }
-
         return results.toArray(new LookupElement[results.size()]);
     }
 

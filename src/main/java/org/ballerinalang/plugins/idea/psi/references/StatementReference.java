@@ -22,15 +22,9 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
-import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -46,6 +40,85 @@ public class StatementReference extends BallerinaElementReference {
 
     public StatementReference(@NotNull IdentifierPSINode element) {
         super(element);
+    }
+
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        // WARNING: If find usage shows an error message, verify that the super.resolve() returns an Identifier node.
+        //        ResolveResult[] resolveResults = multiResolve(false);
+        //        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+
+        IdentifierPSINode identifier = getElement();
+
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
+        if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
+            PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+            if (packageName != null) {
+                PsiReference reference = packageName.findReferenceAt(0);
+                if (reference == null) {
+                    return null;
+                }
+
+                PsiElement resolvedElement = reference.resolve();
+                if (!(resolvedElement instanceof PsiDirectory)) {
+                    return null;
+                }
+
+                PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
+
+
+                //                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage
+                // (containingPackage);
+                //                for (PsiElement function : functions) {
+                //                    if (identifier.getText().equals(function.getText())) {
+                //                        return function;
+                //                    }
+                //                }
+                //
+                //                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage
+                // (containingPackage);
+                //                for (PsiElement connector : connectors) {
+                //                    if (identifier.getText().equals(connector.getText())) {
+                //                        return connector;
+                //                    }
+                //                }
+                //
+                //                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage
+                // (containingPackage);
+                //                for (PsiElement struct : structs) {
+                //                    if (identifier.getText().equals(struct.getText())) {
+                //                        return struct;
+                //                    }
+                //                }
+
+
+                // Todo - Add global variables and constants
+
+                //                List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
+                //                for (PsiElement variable : globalVariables) {
+                //                    LookupElement lookupElement = BallerinaCompletionUtils
+                // .createGlobalVariableLookupElement
+                //                            (variable);
+                //                    results.add(lookupElement);
+                //                }
+                //
+                //                List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
+                //                for (PsiElement constant : constants) {
+                //                    LookupElement lookupElement = BallerinaCompletionUtils
+                // .createConstantLookupElement(constant);
+                //                    results.add(lookupElement);
+                //                }
+
+
+                return BallerinaPsiImplUtil.resolveElementInPackage(containingPackage, identifier, true, true, true,
+                        true, true);
+            }
+        } else {
+            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        }
+        return null;
     }
 
     @NotNull
@@ -76,6 +149,7 @@ public class StatementReference extends BallerinaElementReference {
 
                     PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
 
+                    // Todo - add util method
                     List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
                     results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
 
@@ -144,118 +218,5 @@ public class StatementReference extends BallerinaElementReference {
         }
 
         return results.toArray(new LookupElement[results.size()]);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        // WARNING: If find usage shows an error message, verify that the super.resolve() returns an Identifier node.
-        //        ResolveResult[] resolveResults = multiResolve(false);
-        //        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
-
-        IdentifierPSINode identifier = getElement();
-
-        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
-        // Todo - do we need to check the text to be equal to ":" ?
-        if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
-            PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-            if (packageName != null) {
-
-
-                PsiReference reference = packageName.findReferenceAt(0);
-                if (reference == null) {
-                    return null;
-                }
-
-                PsiElement resolvedElement = reference.resolve();
-                if (!(resolvedElement instanceof PsiDirectory)) {
-                    return null;
-                }
-
-                PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
-
-
-                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-                for (PsiElement function : functions) {
-                    if (identifier.getText().equals(function.getText())) {
-                        return function;
-                    }
-                }
-
-                List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
-                for (PsiElement connector : connectors) {
-                    if (identifier.getText().equals(connector.getText())) {
-                        return connector;
-                    }
-                }
-
-                List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(containingPackage);
-                for (PsiElement struct : structs) {
-                    if (identifier.getText().equals(struct.getText())) {
-                        return struct;
-                    }
-                }
-
-
-                // Todo - Add global variables and constants
-
-                //                List<PsiElement> globalVariables = getAllGlobalVariablesInResolvableScope(scope);
-                //                for (PsiElement variable : globalVariables) {
-                //                    LookupElement lookupElement = BallerinaCompletionUtils
-                // .createGlobalVariableLookupElement
-                //                            (variable);
-                //                    results.add(lookupElement);
-                //                }
-                //
-                //                List<PsiElement> constants = getAllConstantsInResolvableScope(scope);
-                //                for (PsiElement constant : constants) {
-                //                    LookupElement lookupElement = BallerinaCompletionUtils
-                // .createConstantLookupElement(constant);
-                //                    results.add(lookupElement);
-                //                }
-
-            }
-        } else {
-
-            // Todo - use util method
-            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                    ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                    ConnectorDefinitionNode.class);
-            if (scope != null) {
-
-                int caretOffset = identifier.getStartOffset();
-
-                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
-                        caretOffset);
-                for (PsiElement variable : variables) {
-                    if (identifier.getText().equals(variable.getText())) {
-                        return variable;
-                    }
-                }
-
-                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
-                for (PsiElement parameter : parameters) {
-                    if (identifier.getText().equals(parameter.getText())) {
-                        return parameter;
-                    }
-                }
-
-                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-                for (PsiElement variable : globalVariables) {
-                    if (identifier.getText().equals(variable.getText())) {
-                        return variable;
-                    }
-                }
-
-                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-                for (PsiElement constant : constants) {
-                    if (identifier.getText().equals(constant.getText())) {
-                        return constant;
-                    }
-                }
-            }
-
-        }
-        return null;
     }
 }

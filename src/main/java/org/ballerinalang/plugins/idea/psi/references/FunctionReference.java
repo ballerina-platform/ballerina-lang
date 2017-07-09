@@ -81,13 +81,14 @@ public class FunctionReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
-        for (PsiElement function : functions) {
-            if (function.getText().equals(identifier.getText())) {
-                return function;
-            }
-        }
-        return null;
+        //        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
+        //        for (PsiElement function : functions) {
+        //            if (function.getText().equals(identifier.getText())) {
+        //                return function;
+        //            }
+        //        }
+        //        return null;
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
     }
 
     @Nullable
@@ -98,21 +99,22 @@ public class FunctionReference extends BallerinaElementReference {
             return null;
         }
         PsiElement resolvedElement = reference.resolve();
-        if (!(resolvedElement instanceof PsiDirectory)) {
+        if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
             return null;
         }
         PsiDirectory psiDirectory = (PsiDirectory) resolvedElement;
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
-        for (PsiElement function : functions) {
-            String functionName = function.getText();
-            if (functionName == null || functionName.isEmpty()) {
-                continue;
-            }
-            if (functionName.equals(identifier.getText())) {
-                return function;
-            }
-        }
-        return null;
+        //        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(psiDirectory);
+        //        for (PsiElement function : functions) {
+        //            String functionName = function.getText();
+        //            if (functionName == null || functionName.isEmpty()) {
+        //                continue;
+        //            }
+        //            if (functionName.equals(identifier.getText())) {
+        //                return function;
+        //            }
+        //        }
+        //        return null;
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, false, false, false, false);
     }
 
     @NotNull

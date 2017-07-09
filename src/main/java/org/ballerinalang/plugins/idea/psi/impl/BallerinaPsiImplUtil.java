@@ -42,15 +42,12 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
@@ -1663,5 +1660,100 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    @Nullable
+    public static PsiElement resolveElementInPackage(@NotNull PsiDirectory aPackage,
+                                                     @NotNull IdentifierPSINode identifier, boolean matchFunctions,
+                                                     boolean matchConnectors, boolean matchStructs,
+                                                     boolean matchGlobalVariables, boolean matchConstants) {
+        if (matchFunctions) {
+            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(aPackage);
+            for (PsiElement function : functions) {
+                if (identifier.getText().equals(function.getText())) {
+                    return function;
+                }
+            }
+        }
+        if (matchConnectors) {
+            List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(aPackage);
+            for (PsiElement connector : connectors) {
+                if (identifier.getText().equals(connector.getText())) {
+                    return connector;
+                }
+            }
+        }
+        if (matchStructs) {
+            List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsFromPackage(aPackage);
+            for (PsiElement struct : structs) {
+                if (identifier.getText().equals(struct.getText())) {
+                    return struct;
+                }
+            }
+        }
+        if (matchGlobalVariables) {
+            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(aPackage);
+            for (PsiElement variable : globalVariables) {
+                if (identifier.getText().equals(variable.getText())) {
+                    return variable;
+                }
+            }
+        }
+        if (matchConstants) {
+            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(aPackage);
+            for (PsiElement constant : constants) {
+                if (identifier.getText().equals(constant.getText())) {
+                    return constant;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static PsiElement resolveElementInScope(@NotNull IdentifierPSINode identifier, boolean matchLocalVariables,
+                                                   boolean matchParameters, boolean matchGlobalVariables,
+                                                   boolean matchConstants) {
+        // Todo - add definition interface to definition classes
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                ConnectorDefinitionNode.class);
+        if (scope != null) {
+            int caretOffset = identifier.getStartOffset();
+            if (matchLocalVariables) {
+                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                        caretOffset);
+                for (PsiElement variable : variables) {
+                    if (identifier.getText().equals(variable.getText())) {
+                        return variable;
+                    }
+                }
+            }
+            if (matchParameters) {
+                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                for (PsiElement parameter : parameters) {
+                    if (identifier.getText().equals(parameter.getText())) {
+                        return parameter;
+                    }
+                }
+            }
+            if (matchGlobalVariables) {
+                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+                for (PsiElement variable : globalVariables) {
+                    if (identifier.getText().equals(variable.getText())) {
+                        return variable;
+                    }
+                }
+            }
+            if (matchConstants) {
+                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                for (PsiElement constant : constants) {
+                    if (identifier.getText().equals(constant.getText())) {
+                        return constant;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
