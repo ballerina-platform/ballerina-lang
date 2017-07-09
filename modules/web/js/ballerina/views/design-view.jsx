@@ -25,6 +25,12 @@ class DesignView extends React.Component {
         this.diagramContainer = ref;
     }
 
+    setTransformActive(isTransformActive) {
+        this.setState({
+            isTransformActive,
+        });
+    }
+
     getDiagramContainer() {
         return this.diagramContainer;
     }
@@ -43,6 +49,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
+            designView: this,
             dragDropManager: new DragDropManager(),
             messageManager: new MessageManager(),
             getOverlayContainer: this.getOverlayContainer,
@@ -111,6 +118,7 @@ DesignView.contextTypes = {
 };
 
 DesignView.childContextTypes = {
+    designView: PropTypes.instanceOf(DesignView).isRequired,
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,

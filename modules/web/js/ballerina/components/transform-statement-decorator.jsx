@@ -281,7 +281,7 @@ class TransformStatementDecorator extends React.Component {
         span.onclick =  () => {
             document.getElementById('transformOverlay').style.display = 'none';
             $(transformOverlay).remove();
-            this.context.editor.setTransformState(false);
+            this.context.designView.setTransformActive(false);
         };
 
         let onConnectionCallback = function(connection) {
@@ -426,7 +426,7 @@ class TransformStatementDecorator extends React.Component {
         });
 
         // update the tool palette.
-        this.context.editor.setTransformState(true);
+        this.context.designView.setTransformActive(true);
     }
 
     getStructDefinition(packageIdentifier, structName) {
@@ -1083,6 +1083,7 @@ TransformStatementDecorator.propTypes = {
 };
 
 TransformStatementDecorator.contextTypes = {
+     designView: PropTypes.instanceOf(Object).isRequired,
      editor: PropTypes.instanceOf(Object).isRequired,
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
 	 getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
