@@ -1,13 +1,13 @@
-import ballerina.lang.regex;
+import ballerina.lang.strings;
 
 function findAll(string regex, string inputText) (string[]){
-    return regex:findAll(regex, inputText);
+    return strings:findAll(regex, inputText);
 }
 
 function match(string regex, string inputText) (boolean){
-    return regex:match(regex, inputText);
+    return strings:match(regex, inputText);
 }
 
 function replaceAll(string inputText, string regex, string replacingText) (string){
-    return regex:replaceAll(inputText, regex, replacingText);
+    return strings:replaceAll(inputText, regex, replacingText);
 }

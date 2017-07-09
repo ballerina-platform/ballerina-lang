@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.lang.regex;
+package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -33,12 +33,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Native function ballerina.lang.regex:match(string, string) boolean.
+ * Native function ballerina.lang.strings:match(string, string) boolean.
  *
  * @since 0.90
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.regex",
+        packageName = "ballerina.lang.strings",
         functionName = "match",
         args = {@Argument(name = "regex", type = TypeEnum.STRING),
                 @Argument(name = "inputText", type = TypeEnum.STRING)},
