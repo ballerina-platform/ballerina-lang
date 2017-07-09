@@ -1903,7 +1903,7 @@ public class BLangVM {
     public void debugging(int cp) {
         DebugInfoHolder holder = context.getDebugInfoHolder();
         LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
-        if (currentExecLine.equals(holder.getCurrentLine()) || debugPointCheck(currentExecLine, holder)) {
+        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
             return;
         }
 
@@ -1918,7 +1918,7 @@ public class BLangVM {
                     debugHit(currentExecLine, holder);
                     return;
                 }
-                if (holder.getCurrentLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
                         && controlStack.fp == holder.getFp() - 1) {
                     debugHit(currentExecLine, holder);
                     return;
@@ -1978,7 +1978,7 @@ public class BLangVM {
      * @param holder            Debug info holder.
      */
     private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
-        holder.setCurrentLine(currentExecLine);
+        holder.setLastLine(currentExecLine);
         holder.setFp(controlStack.fp);
         holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
         holder.waitTillDebuggeeResponds();

@@ -40,7 +40,7 @@ public class DebugInfoHolder {
     private DebugCommand currentCommand;
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
-    private LineNumberInfo currentLine;
+    private LineNumberInfo lastLine;
     private int fp;
 
     public DebugInfoHolder() {
@@ -123,8 +123,8 @@ public class DebugInfoHolder {
         this.currentCommand = currentCommand;
     }
 
-    public LineNumberInfo getCurrentLine() {
-        return currentLine;
+    public LineNumberInfo getLastLine() {
+        return lastLine;
     }
 
     public int getFp() {
@@ -135,8 +135,8 @@ public class DebugInfoHolder {
         this.fp = fp;
     }
 
-    public void setCurrentLine(LineNumberInfo currentLine) {
-        this.currentLine = currentLine;
+    public void setLastLine(LineNumberInfo lastLine) {
+        this.lastLine = lastLine;
     }
 
     public void resume() {
