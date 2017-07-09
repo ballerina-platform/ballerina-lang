@@ -1914,27 +1914,30 @@ public class BLangVM {
                 debugHit(currentExecLine, holder);
                 break;
             case STEP_OVER:
-                if (!holder.getCurrentLine().checkIpRangeForInstructionCode(code, InstructionCodes.CALL)) {
+                if (controlStack.fp == holder.getFp()) {
                     debugHit(currentExecLine, holder);
                     return;
                 }
-                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OVER);
+                if (holder.getCurrentLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.fp == holder.getFp() - 1) {
+                    debugHit(currentExecLine, holder);
+                    return;
+                }
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
                 break;
             case STEP_OVER_INTMDT:
-                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                if (controlStack.fp != holder.getFp()) {
+                    return;
+                }
+                debugHit(currentExecLine, holder);
                 break;
             case STEP_OUT:
-                int offset = 1;
-                if (holder.getCurrentLine().checkIpRangeForInstructionCode(code, InstructionCodes.CALL)) {
-                    //this means previous command is also a method call, hence need to get the second frame up
-                    offset = 2;
-                }
-                holder.setCurrentFrame(controlStack.peekFrame(offset));
                 holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
-                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OUT);
+                holder.setFp(holder.getFp() - 1);
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
             case STEP_OUT_INTMDT:
-                interMediateDebugCheck(currentExecLine, holder, DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
         }
     }
@@ -1943,14 +1946,9 @@ public class BLangVM {
      * Inter mediate debug check to avoid switch case falling through.
      * @param currentExecLine   Current execution line.
      * @param holder            Debug info holder.
-     * @param command           Debug command.
      */
-    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder,
-                                        DebugInfoHolder.DebugCommand command) {
-        if (!controlStack.currentFrame.equals(holder.getCurrentFrame())) {
-            if (command == DebugInfoHolder.DebugCommand.STEP_OVER) {
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
-            }
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        if (controlStack.fp != holder.getFp()) {
             return;
         }
         debugHit(currentExecLine, holder);
@@ -1981,7 +1979,7 @@ public class BLangVM {
      */
     private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
         holder.setCurrentLine(currentExecLine);
-        holder.setCurrentFrame(controlStack.currentFrame);
+        holder.setFp(controlStack.fp);
         holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
         holder.waitTillDebuggeeResponds();
     }

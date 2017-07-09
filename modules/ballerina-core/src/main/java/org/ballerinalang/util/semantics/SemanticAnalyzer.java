@@ -3657,6 +3657,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     int lastElseIf = ifElseStmt.getElseIfBlocks().length - 1;
                     location = ifElseStmt.getElseIfBlocks()[lastElseIf].getNodeLocation();
                 }
+            } else if (lastStatement instanceof TryCatchStmt) {
+                TryCatchStmt tryCatchStmt = (TryCatchStmt) lastStatement;
+                if (tryCatchStmt.getFinallyBlock() != null) {
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt());
+                } else if (tryCatchStmt.getCatchBlocks().length > 0) {
+                    int lastCatch = tryCatchStmt.getCatchBlocks().length - 1;
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getCatchBlocks()[lastCatch].getCatchBlockStmt());
+                }
             } else if (!(lastStatement instanceof ReturnStmt)) {
                 location = lastStatement.getNodeLocation();
             }

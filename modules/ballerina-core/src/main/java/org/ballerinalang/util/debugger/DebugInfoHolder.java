@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.debugger;
 
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -25,13 +24,10 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.Semaphore;
-import java.util.stream.Collectors;
 
 /**
  * {@link DebugInfoHolder} holds information relevant to current debugging session.
@@ -45,12 +41,10 @@ public class DebugInfoHolder {
 
     private Map<String, DebuggerPkgInfo> packageInfoMap = new HashMap<>();
     private LineNumberInfo currentLine;
-    private Stack<LineNumberInfo> methodCallLines;
-    private StackFrame currentFrame;
+    private int fp;
 
     public DebugInfoHolder() {
         this.executionSem = new Semaphore(0);
-        this.methodCallLines = new Stack<>();
     }
 
     public void init(ProgramFile programFile) {
@@ -59,9 +53,10 @@ public class DebugInfoHolder {
 
     public void processPkgInfo(PackageInfo packageInfo) {
         DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo();
-        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList().stream().sorted(
-                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
+//        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList().stream().sorted(
+//                Comparator.comparing(LineNumberInfo::getIp)).collect(Collectors.toList());
         //TODO remove above line if already sorted
+        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList();
         LineNumberInfo currentLineNoInfo = null;
         for (LineNumberInfo lineNoInfo : lineNumberInfos) {
             if (currentLineNoInfo == null) {
@@ -132,12 +127,12 @@ public class DebugInfoHolder {
         return currentLine;
     }
 
-    public StackFrame getCurrentFrame() {
-        return currentFrame;
+    public int getFp() {
+        return fp;
     }
 
-    public void setCurrentFrame(StackFrame currentFrame) {
-        this.currentFrame = currentFrame;
+    public void setFp(int fp) {
+        this.fp = fp;
     }
 
     public void setCurrentLine(LineNumberInfo currentLine) {

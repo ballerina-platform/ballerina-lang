@@ -71,7 +71,9 @@ public class VMDebuggerTest {
         for (int i = 0; i <= expectedPoints.length; i++) {
             debugSessionObserver.aquireSem();
             if (i < expectedPoints.length) {
-                Assert.assertEquals(debugSessionObserver.haltPosition, expectedPoints[i],
+                NodeLocation expected = new NodeLocation(expectedPoints[i].getFileName(),
+                        expectedPoints[i].getLineNumber());
+                Assert.assertEquals(debugSessionObserver.haltPosition, expected,
                         "Unexpected halt position for debug step " + (i + 1));
                 executeDebuggerCmd(bContext, debugCommand[i]);
             } else {
@@ -124,8 +126,8 @@ public class VMDebuggerTest {
     @Test(description = "Testing Resume with break points.")
     public void testResume() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
-        String[] debugCommand = {RESUME, RESUME, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
+        String[] debugCommand = {RESUME, RESUME, RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35, 41);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
@@ -140,40 +142,42 @@ public class VMDebuggerTest {
     @Test(description = "Testing Step In.")
     public void testStepIn() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 41);
-        String[] debugCommand = {STEP_IN, RESUME, STEP_IN, RESUME, STEP_IN, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 12, 8, 39, 41, 24);
+        String[] debugCommand = {STEP_IN, RESUME, RESUME, STEP_IN, STEP_IN, RESUME, RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 13, 5, 8, 41, 25, 41, 8);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Out.")
     public void testStepOut() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 24);
+        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 25);
         String[] debugCommand = {STEP_OUT, STEP_OUT, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 24, 42, 9);
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 25, 41, 8);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step Over.")
     public void testStepOver() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9);
+        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9, 10);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in IfCondition.")
     public void testStepOverIfStmt() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 26);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 29, 35, 36, 42);
+        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 28, 29, 35, 36, 41);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
     @Test(description = "Testing Step over in WhileStmt.")
     public void testStepOverWhileStmt() {
         BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 13, 19, 21);
-        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 19, 19, 19, 21);
+        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME,
+                RESUME, RESUME};
+        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 13, 19, 13, 19,
+                13, 19, 13, 21);
         startDebug(breakPoints, expectedBreakPoints, debugCommand);
     }
 
