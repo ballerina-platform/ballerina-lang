@@ -124,7 +124,14 @@ public class HTTPSession implements Session, Serializable {
     @Override
     public Session setAccessed() {
         checkValidity();
-        lastAccessedTime = System.currentTimeMillis();
+        long currentTimeMillis = System.currentTimeMillis();
+        //invalidate manually when inactive time interval exceeds it's max inactive time interval
+        if (this.getMaxInactiveInterval() >= 0 &&
+                (currentTimeMillis - this.getLastAccessedTime()) >= this.getMaxInactiveInterval() * 1000) {
+            this.invalidate();
+            return null;
+        }
+        lastAccessedTime = currentTimeMillis;
         return this;
     }
 
@@ -148,7 +155,7 @@ public class HTTPSession implements Session, Serializable {
 
     private void checkValidity() {
         if (!isValid) {
-            throw new IllegalStateException("Failed to execute action: Session is invalid");
+            throw new IllegalStateException("Failed to execute action: Invalid session");
         }
     }
 
