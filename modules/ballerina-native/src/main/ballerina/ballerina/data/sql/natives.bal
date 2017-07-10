@@ -13,9 +13,9 @@ struct Parameter {
 @doc:Description { value: "DB Connection properties struct "}
 struct ConnectionProperties {
 	string jdbcUrl;
+	string dataSourceClassName;
 	string userName;
 	string password;
-	string dataSourceClassName;
 	string connectionTestQuery;
 	string poolName;
 	string catalog;
@@ -36,7 +36,7 @@ struct ConnectionProperties {
 	map datasourceProperties;
 }
 
-connector ClientConnector (ConnectionProperties options) {
+connector ClientConnector (string dbType, string hostOrPath, int port, string dbName, string username, string password, ConnectionProperties options) {
     map sharedMap = {};
 
 	@doc:Description { value:"The call action implementation for SQL connector."}
@@ -81,3 +81,40 @@ connector ClientConnector (ConnectionProperties options) {
 	native action updateWithGeneratedKeys (ClientConnector c, string query, Parameter[] parameters, string[] keyColumns) (int, string[]);
 
 }
+
+@doc:Description { value:"Construct MYSQL DB jdbc url in the format of  jdbc:mysql://[HOST]:[PORT]/[database]"}
+const string MYSQL = "MYSQL";
+
+@doc:Description { value:"Construct SQLSERVER DB jdbc url in the format of  jdbc:sqlserver://[HOST]:[PORT];databaseName=[database]"}
+const string SQLSERVER = "SQLSERVER";
+
+@doc:Description { value:"Construct ORACLE  DB jdbc url in the format of  jdbc:oracle:thin:[username/password]@[HOST]:[PORT]/[database]"}
+const string ORACLE = "ORACLE";
+
+@doc:Description { value:"Construct SYBASE DB jdbc url in the format of  jdbc:sybase:Tds:[HOST]:[PORT]/[database]"}
+const string SYBASE = "SYBASE";
+
+@doc:Description { value:"Construct MYSQL DB jdbc url in the format of  jdbc:postgresql://[HOST]:[PORT]/[database]"}
+const string POSTGRE = "POSTGRE";
+
+@doc:Description { value:"Construct IBMDB2  DB jdbc url in the format of  jdbc:db2://[HOST]:[PORT]/[database]"}
+const string IBMDB2 = "IBMDB2";
+
+@doc:Description { value:"Construct HSQLDB SERVER dB jdbc url in the format of  jdbc:hsqldb:hsql://[HOST]:[PORT]/[database]"}
+const string HSQLDB_SERVER = "HSQLDB_SERVER";
+
+@doc:Description { value:"Construct HSQLDB FILE DB jdbc url in the format of  jdbc:hsqldb:file:[path]/[database]"}
+const string HSQLDB_FILE = "HSQLDB_FILE";
+
+@doc:Description { value:"Construct H2 SERVER DB jdbc url in the format of  jdbc:h2:tcp://[HOST]:[PORT]/[database]"}
+const string H2_SERVER = "H2_SERVER";
+
+@doc:Description { value:"Construct H2 FILE DB jdbc url in the format of  jdbc:h2:file://[path]/[database]"}
+const string H2_FILE = "H2_FILE";
+
+@doc:Description { value:"Construct DERBY SERVER DB jdbc url in the format of  jdbc:derby://[HOST]:[PORT]/[database]"}
+const string DERBY_SERVER = "DERBY_SERVER";
+
+@doc:Description { value:"Construct DERBY FILE DB jdbc url in the format of  jdbc:derby://[path]/[database]"}
+const string DERBY_FILE = "DERBY_FILE";
+
