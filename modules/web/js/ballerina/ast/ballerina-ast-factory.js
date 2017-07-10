@@ -59,8 +59,6 @@ import argument from './argument';
 import backTickExpression from './expressions/back-tick-expression';
 import basicLiteralExpression from './expressions/basic-literal-expression';
 import nullLiteralExpression from './expressions/null-literal-expression';
-import leftOperandExpression from './statements/left-operand-expression';
-import rightOperandExpression from './statements/right-operand-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
 import indexBasedVarRefExpression from './expressions/index-based-variable-reference-expression';
@@ -78,7 +76,6 @@ import arrayInitExpression from './expressions/array-init-expression';
 import workerReplyStatement from './statements/worker-reply-statement';
 import structType from './struct-type';
 import fieldBasedVarRefExpression from './expressions/field-based-variable-reference-expression';
-import blockStatement from './statements/block-statement';
 import typeCastExpression from './expressions/type-cast-expression';
 import typeConversionExpression from './expressions/type-conversion-expression';
 import variableDefinition from './variable-definition';
@@ -104,6 +101,7 @@ import abortStatement from './statements/abort-statement';
 import committedStatement from './statements/committed-statement';
 import connectorInitExpression from './expressions/connector-init-expression';
 import simpleTypeName from './simple-type-name';
+import VariableReferenceList from './variable-reference-list';
 
 /**
  * @class BallerinaASTFactory
@@ -440,14 +438,6 @@ BallerinaASTFactory.createSimpleVariableReferenceExpression = function (args) {
 };
 
 /**
- * creates BlockStatement
- * @param args
- */
-BallerinaASTFactory.createBlockStatement = function (args) {
-    return new blockStatement(args);
-};
-
-/**
  * creates ReturnStatement
  * @param args
  */
@@ -611,21 +601,12 @@ BallerinaASTFactory.createNullLiteralExpression = function (args) {
 };
 
 /**
- * creates LeftOperandExpression
+ * creates VariableReferenceList
  * @param {Object} args
- * @returns {LeftOperandExpression}
+ * @returns {VariableReferenceList}
  */
-BallerinaASTFactory.createLeftOperandExpression = function (args) {
-    return new leftOperandExpression(args);
-};
-
-/**
- * creates RightOperandExpression
- * @param {Object} args
- * @returns {RightOperandExpression}
- */
-BallerinaASTFactory.createRightOperandExpression = function (args) {
-    return new rightOperandExpression(args);
+BallerinaASTFactory.createVariableReferenceList = function (args) {
+    return new VariableReferenceList(args);
 };
 
 /**
@@ -935,15 +916,6 @@ BallerinaASTFactory.isWhileStatement = function (child) {
 };
 
 /**
- * instanceof check for Block Statement
- * @param child - Object for instanceof check
- * @returns {boolean} - true if same type, else false
- */
-BallerinaASTFactory.isBlockStatement = function (child) {
-    return child instanceof blockStatement;
-};
-
-/**
  * instanceof check for break Statement
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
@@ -1053,12 +1025,12 @@ BallerinaASTFactory.isFieldBasedVarRefExpression = function (child) {
 };
 
 /**
- * instanceof check for LeftOperandExpression
+ * instanceof check for VariableReferenceList
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false
  */
-BallerinaASTFactory.isLeftOperandExpression = function (child) {
-    return child instanceof leftOperandExpression;
+BallerinaASTFactory.isVariableReferenceList = function (child) {
+    return child instanceof VariableReferenceList;
 };
 
 /**
@@ -1321,15 +1293,6 @@ BallerinaASTFactory.isSimpleVariableReferenceExpression = function (node) {
  */
 BallerinaASTFactory.isVariableDefinition = function (child) {
     return child instanceof variableDefinition;
-};
-
-/**
- * instanceof check for RightOperandExpression
- * @param child
- * @returns {boolean}
- */
-BallerinaASTFactory.isRightOperandExpression = function (child) {
-    return child instanceof rightOperandExpression;
 };
 
 /**
@@ -1664,11 +1627,8 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'null_literal_expression' :
         node = BallerinaASTFactory.createNullLiteralExpression();
         break;
-    case 'left_operand_expression':
-        node = BallerinaASTFactory.createLeftOperandExpression();
-        break;
-    case 'right_operand_expression':
-        node = BallerinaASTFactory.createRightOperandExpression();
+    case 'variable_reference_list':
+        node = BallerinaASTFactory.createVariableReferenceList();
         break;
     case 'if_else_statement' :
         node = BallerinaASTFactory.createIfElseStatement();
@@ -1762,9 +1722,6 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'field_based_variable_reference_expression':
         node = BallerinaASTFactory.createFieldBasedVarRefExpression();
-        break;
-    case 'block_statement':
-        node = BallerinaASTFactory.createBlockStatement();
         break;
     case 'reference_type_init_expression':
         node = BallerinaASTFactory.createReferenceTypeInitExpression();
