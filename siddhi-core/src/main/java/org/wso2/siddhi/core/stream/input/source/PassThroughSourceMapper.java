@@ -21,10 +21,9 @@ package org.wso2.siddhi.core.stream.input.source;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -46,12 +45,16 @@ import java.util.List;
         )
 )
 public class PassThroughSourceMapper extends SourceMapper {
-    private static final Logger log = Logger.getLogger(PassThroughSourceMapper.class);
+    private static final Logger LOG = Logger.getLogger(PassThroughSourceMapper.class);
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
-            attributeMappingList, ConfigReader configReader) {
+            attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    }
 
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{Event.class, Event[].class, Object[].class};
     }
 
     @Override
@@ -62,7 +65,8 @@ public class PassThroughSourceMapper extends SourceMapper {
             } else if (eventObject instanceof Event) {
                 inputEventHandler.sendEvent((Event) eventObject);
             } else if (eventObject instanceof Object[]) {
-                inputEventHandler.getInputHandler().send((Object[]) eventObject);
+                Event event = new Event(-1, (Object[]) eventObject);
+                inputEventHandler.sendEvent(event);
             } else {
                 throw new SiddhiAppRuntimeException("Event object must be either Event[], Event or Object[] " +
                         "but found " + eventObject.getClass().getCanonicalName());

@@ -25,26 +25,21 @@ import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.stream.output.sink.InMemorySink;
 
 @Extension(
-        name = "testInMemory",
+        name = "testStringInMemory",
         namespace = "sink",
-        description = "In-memory sink for testing distributed sink in multi client mode. This dummy " +
-                "sink simply overrides getSupportedDynamicOptions return nothing so that when distributed " +
-                "sink will identify it as a multi-client sink as there are no dynamic options",
+        description = "In-memory sink for testing connection unavailable use-case",
         parameters = @Parameter(name = "topic", type = DataType.STRING, description = "Event will be delivered to all" +
                 "the subscribers of the same topic"),
         examples = @Example(
-                syntax = "@sink(type='testInMemory', @map(type='passThrough'),\n" +
-                        "@distribution(strategy='roundRobin',\n" +
-                        "@destination(topic = 'topic1'), \n" +
-                        "@destination(topic = 'topic2')))\n" +
-                        "define stream BarStream (symbol string, price float, volume long);",
-                description = "In the following example BarStream uses testInMemory transport which emit the Siddhi" +
+                syntax = "@sink(type='testStringInMemory', @map(type='passThrough'),\n" +
+                        "define stream BarStream (symbol string, price float, volume long)",
+                description = "In this example BarStream uses inMemory transport which emit the Siddhi " +
                         "events internally without using external transport and transformation."
         )
 )
-public class TestInMemorySink extends InMemorySink {
+public class TestObjectInMemorySink extends InMemorySink {
     @Override
-    public String[] getSupportedDynamicOptions() {
-        return new String[0];
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
     }
 }

@@ -56,8 +56,8 @@ public class OptionHolder {
         Option option = options.get(optionKey);
         if (option == null) {
             throw new SiddhiAppValidationException("Option '" + optionKey + "' does not exist in the " +
-                                                               "configuration of '" + extension.namespace() + ":" +
-                                                               extension.name() + "'.");
+                    "configuration of '" + extension.namespace() + ":" +
+                    extension.name() + "'.");
         }
         return option;
     }
@@ -85,9 +85,9 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new SiddhiAppValidationException("'" + optionKey + "' is not a 'static' " +
-                                                                   "option in the configuration of " +
-                                                                   extension.namespace() + ":" + extension.name() +
-                                                                   ".");
+                        "option in the configuration of " +
+                        extension.namespace() + ":" + extension.name() +
+                        ".");
             }
             return option.getValue();
         } else {
@@ -100,15 +100,15 @@ public class OptionHolder {
         if (option != null) {
             if (!option.isStatic()) {
                 throw new SiddhiAppValidationException("'" + optionKey + "' is defined as a 'dynamic' option " +
-                                                                   "but it has to be a 'static' option for the " +
-                                                                   extension.namespace() + ":" +
-                                                                   extension.name() + " configuration.");
+                        "but it has to be a 'static' option for the " +
+                        extension.namespace() + ":" +
+                        extension.name() + " configuration.");
             }
             return option.getValue();
         } else {
             throw new SiddhiAppValidationException("'" + optionKey + "' 'static' option is not " +
-                                                               "defined in the configuration of " +
-                                                               extension.namespace() + ":" + extension.name() + ".");
+                    "defined in the configuration of " +
+                    extension.namespace() + ":" + extension.name() + ".");
         }
     }
 

@@ -22,13 +22,12 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.output.sink.SinkListener;
 import org.wso2.siddhi.core.stream.output.sink.SinkMapper;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
@@ -55,22 +54,22 @@ import javax.xml.parsers.ParserConfigurationException;
                 + "format or a custom XML message.",
         parameters = {
                 @Parameter(name = "validate.xml",
-                           description = "This property will enable XML validation for generated XML message. By "
-                                   + "default value of the property will be false. When enabled DAS will validate the "
-                                   + "generated XML message and drop the message if it does not adhere to proper XML "
-                                   + "standards. ",
-                           type = {DataType.BOOL}),
+                        description = "This property will enable XML validation for generated XML message. By "
+                                + "default value of the property will be false. When enabled DAS will validate the "
+                                + "generated XML message and drop the message if it does not adhere to proper XML "
+                                + "standards. ",
+                        type = {DataType.BOOL}),
                 @Parameter(name = "enclosing.element",
-                           description =
-                                   "Used to specify the enclosing element in case of sending multiple events in same "
-                                           + "XML message. WSO2 DAS will treat the child element of given enclosing "
-                                           + "element as events"
-                                           + " and execute xpath expressions on child elements. If enclosing.element "
-                                           + "is not provided "
-                                           + "multiple event scenario is disregarded and xpaths will be evaluated "
-                                           + "with respect to "
-                                           + "root element.",
-                           type = {DataType.STRING})
+                        description =
+                                "Used to specify the enclosing element in case of sending multiple events in same "
+                                        + "XML message. WSO2 DAS will treat the child element of given enclosing "
+                                        + "element as events"
+                                        + " and execute xpath expressions on child elements. If enclosing.element "
+                                        + "is not provided "
+                                        + "multiple event scenario is disregarded and xpaths will be evaluated "
+                                        + "with respect to "
+                                        + "root element.",
+                        type = {DataType.STRING})
         },
         examples = {
                 @Example(
@@ -126,14 +125,17 @@ public class XMLSinkMapper extends SinkMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition       The stream definition
+     * * @param streamDefinition       The stream definition
+     *
      * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder Unmapped payload for reference
      * @param mapperConfigReader
+     * @param siddhiAppContext
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
-                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader) {
+                     TemplateBuilder payloadTemplateBuilder, ConfigReader mapperConfigReader, SiddhiAppContext
+                             siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         enclosingElement = optionHolder.getOrCreateOption(OPTION_ENCLOSING_ELEMENT, null).getValue();
         if (enclosingElement != null) {
@@ -157,9 +159,13 @@ public class XMLSinkMapper extends SinkMapper {
     }
 
     @Override
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException {
+                           SinkListener sinkListener) {
         StringBuilder sb = new StringBuilder();
         if (payloadTemplateBuilder != null) {   //custom mapping
             if (enclosingElement != null) {
@@ -172,11 +178,11 @@ public class XMLSinkMapper extends SinkMapper {
                     builder.parse(new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("UTF-8"))));
                 } catch (SAXException e) {
                     log.error("Parse error occurred when validating output XML event. " +
-                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } catch (IOException e) {
                     log.error("IO error occurred when validating output XML event. " +
-                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } finally {
                     builder.reset();
@@ -192,21 +198,20 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publish(sb.toString(), dynamicOptions);
+        sinkListener.publish(sb.toString());
     }
 
     /**
      * Map and publish the given {@link Event} array
      *
-     * @param events                  Event object array
-     * @param optionHolder            option holder containing static and dynamic options
-     * @param payloadTemplateBuilder  Unmapped payload for reference
-     * @param sinkListener output transport callback
+     * @param events                 Event object array
+     * @param optionHolder           option holder containing static and dynamic options
+     * @param payloadTemplateBuilder Unmapped payload for reference
+     * @param sinkListener           output transport callback
      */
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException {
+                           SinkListener sinkListener) {
         if (events.length < 1) {        //todo valid case?
             return;
         }
@@ -224,7 +229,7 @@ public class XMLSinkMapper extends SinkMapper {
                     builder.parse(new ByteArrayInputStream(sb.toString().getBytes(Charset.forName("UTF-8"))));
                 } catch (SAXException | IOException e) {
                     log.error("Error occurred when validating output XML event. " +
-                                      "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
+                            "Reason: " + e.getMessage() + "Dropping event: " + sb.toString());
                     return;
                 } finally {
                     builder.reset();
@@ -242,7 +247,7 @@ public class XMLSinkMapper extends SinkMapper {
                 sb.append(EVENTS_PARENT_CLOSING_TAG);
             }
         }
-        sinkListener.publish(sb.toString(), dynamicOptions);
+        sinkListener.publish(sb.toString());
     }
 
     /**

@@ -64,6 +64,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected StateEventCloner stateEventCloner;
     protected StreamEventPool streamEventPool;
     protected String queryName;
+    private boolean initialized;
 
     public StreamPreStateProcessor(StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
         this.stateType = stateType;
@@ -98,7 +99,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
                 "processAndReturn method is used for handling event chunks.");
     }
 
-    private boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
+    protected boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
         for (Map.Entry<Long, Set<Integer>> withinEntry : withinStates) {
             for (Integer withinStateId : withinEntry.getValue()) {
                 if (withinStateId == SiddhiConstants.ANY) {
@@ -162,9 +163,10 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     }
 
     public void init() {
-        if (isStartState) {
+        if (isStartState && (!initialized || this.thisStatePostProcessor.nextEveryStatePerProcessor != null)) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
             addState(stateEvent);
+            initialized = true;
         }
     }
 
@@ -250,6 +252,11 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
         if (isStartState && newAndEveryStateEventList.isEmpty()) {
             //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList
             // .isEmpty()) {
+            if (stateType == StateInputStream.Type.SEQUENCE && thisStatePostProcessor.nextEveryStatePerProcessor ==
+                    null && !((StreamPreStateProcessor) thisStatePostProcessor.nextStatePerProcessor)
+                    .pendingStateEventList.isEmpty()) {
+                return;
+            }
             init();
         }
     }

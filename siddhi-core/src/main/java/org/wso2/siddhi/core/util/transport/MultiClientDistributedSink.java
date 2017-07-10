@@ -77,6 +77,11 @@ public class MultiClientDistributedSink extends DistributedTransport {
     }
 
 
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return transports.get(0).getSupportedInputEventClasses();
+    }
+
     /**
      * Will be called to connect to the backend before events are published
      *

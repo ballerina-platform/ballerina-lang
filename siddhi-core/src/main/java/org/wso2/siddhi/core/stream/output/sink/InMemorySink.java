@@ -59,6 +59,11 @@ public class InMemorySink extends Sink {
     private Option topicOption;
 
     @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Override
     public String[] getSupportedDynamicOptions() {
         return new String[]{TOPIC_KEY};
     }

@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -740,7 +740,7 @@ public class XmlSourceMapperTestCase {
         siddhiManager.shutdown();
     }
 
-    @Test(expected = SiddhiAppValidationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testXmlInputMappingCustom9() throws InterruptedException {
         log.info("Verify xml message being dropped due to non existence stream attributes");
 

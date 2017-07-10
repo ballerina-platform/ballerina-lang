@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
         description = "TBD",
         examples = @Example(description = "TBD", syntax = "TBD")
 )
-public class KafkaSource extends Source{
+public class KafkaSource extends Source {
 
     final static String SINGLE_THREADED = "single.thread";
     final static String TOPIC_WISE = "topic.wise";
@@ -91,8 +91,8 @@ public class KafkaSource extends Source{
     }
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         this.executorService = siddhiAppContext.getScheduledExecutorService();
@@ -100,7 +100,12 @@ public class KafkaSource extends Source{
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         String zkServerList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS);
         String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID, null);
         String threadingOption = optionHolder.validateAndGetStaticValue(THREADING_OPTION);
@@ -113,9 +118,9 @@ public class KafkaSource extends Source{
         String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
                 null);
         consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions,
-                                                    KafkaSource.createConsumerConfig(zkServerList, groupID,
-                                                                                            optionalConfigs),
-                                                    topicOffsetMap, threadingOption, this.executorService);
+                KafkaSource.createConsumerConfig(zkServerList, groupID,
+                        optionalConfigs),
+                topicOffsetMap, threadingOption, this.executorService);
         consumerKafkaGroup.run(sourceEventListener);
     }
 

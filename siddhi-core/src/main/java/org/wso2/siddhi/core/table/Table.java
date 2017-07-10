@@ -18,48 +18,241 @@
 
 package org.wso2.siddhi.core.table;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.config.ConfigReader;
+import org.wso2.siddhi.core.util.transport.BackoffRetryCounter;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Interface class to represent Tables in Siddhi. There are multiple implementations. Ex: {@link InMemoryTable}. Table
  * will support basic operations of add, delete, update, update or add and contains. *
  */
-public interface Table extends FindableProcessor {
+public abstract class Table implements FindableProcessor {
 
-    void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
-              ConfigReader configReader, SiddhiAppContext siddhiAppContext);
+    private static final Logger LOG = Logger.getLogger(Table.class);
 
-    TableDefinition getTableDefinition();
+    protected TableDefinition tableDefinition;
 
-    void add(ComplexEventChunk<StreamEvent> addingEventChunk);
+    private AtomicBoolean isTryingToConnect = new AtomicBoolean(false);
+    private BackoffRetryCounter backoffRetryCounter = new BackoffRetryCounter();
+    private AtomicBoolean isConnected = new AtomicBoolean(false);
+    private ScheduledExecutorService scheduledExecutorService;
 
-    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition);
+    public void initTable(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+                          StreamEventCloner storeEventCloner,
+                          ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+        this.tableDefinition = tableDefinition;
+        this.scheduledExecutorService = siddhiAppContext.getScheduledExecutorService();
+        init(tableDefinition, storeEventPool, storeEventCloner, configReader, siddhiAppContext);
+    }
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                UpdateAttributeMapper[] updateAttributeMappers);
+    protected abstract void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+                                 StreamEventCloner storeEventCloner,
+                                 ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
-    void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                     CompiledCondition compiledCondition,
-                     UpdateAttributeMapper[] updateAttributeMappers,
-                     AddingStreamEventExtractor addingStreamEventExtractor);
+    public TableDefinition getTableDefinition() {
+        return tableDefinition;
+    }
 
-    boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
+    public void addEvents(ComplexEventChunk<StreamEvent> addingEventChunk) {
+        if (isConnected.get()) {
+            try {
+                add(addingEventChunk);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                addEvents(addingEventChunk);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, events dropped '" + addingEventChunk + "'");
+        } else {
+            connectWithRetry();
+            addEvents(addingEventChunk);
+        }
+    }
 
-    public void connectWithRetry(ExecutorService executorService);
+    protected abstract void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException;
 
-    public void shutdown();
+    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+        if (isConnected.get()) {
+            try {
+                return find(compiledCondition, matchingEvent);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                return find(matchingEvent, compiledCondition);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Find operation failed for event '" + matchingEvent + "', at Table '" + 
+                      tableDefinition.getId() + "' as its still trying to reconnect!");
+            return null;
+        } else {
+            connectWithRetry();
+            return find(matchingEvent, compiledCondition);
+        }
+    }
 
+    protected abstract StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
+            throws ConnectionUnavailableException;
+
+    public void deleteEvents(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+        if (isConnected.get()) {
+            try {
+                delete(deletingEventChunk, compiledCondition);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                deleteEvents(deletingEventChunk, compiledCondition);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, events dropped '" + deletingEventChunk + "'");
+        } else {
+            connectWithRetry();
+            deleteEvents(deletingEventChunk, compiledCondition);
+        }
+    }
+
+    protected abstract void delete(ComplexEventChunk<StateEvent> deletingEventChunk,
+                                   CompiledCondition compiledCondition) throws ConnectionUnavailableException;
+
+
+    public void updateEvents(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
+                             UpdateAttributeMapper[] updateAttributeMappers) {
+        if (isConnected.get()) {
+            try {
+                update(updatingEventChunk, compiledCondition, updateAttributeMappers);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, events dropped '" + updatingEventChunk + "'");
+        } else {
+            connectWithRetry();
+            updateEvents(updatingEventChunk, compiledCondition, updateAttributeMappers);
+        }
+    }
+
+    protected abstract void update(ComplexEventChunk<StateEvent> updatingEventChunk,
+                                   CompiledCondition compiledCondition,
+                                   UpdateAttributeMapper[] updateAttributeMappers)
+            throws ConnectionUnavailableException;
+
+    public void updateOrAddEvents(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                                  CompiledCondition compiledCondition,
+                                  UpdateAttributeMapper[] updateAttributeMappers,
+                                  AddingStreamEventExtractor addingStreamEventExtractor) {
+        if (isConnected.get()) {
+            try {
+                updateOrAdd(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                        addingStreamEventExtractor);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                        addingStreamEventExtractor);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, events dropped '" + updateOrAddingEventChunk + "'");
+        } else {
+            connectWithRetry();
+            updateOrAddEvents(updateOrAddingEventChunk, compiledCondition, updateAttributeMappers,
+                    addingStreamEventExtractor);
+        }
+    }
+
+    protected abstract void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                                        CompiledCondition compiledCondition,
+                                        UpdateAttributeMapper[] updateAttributeMappers,
+                                        AddingStreamEventExtractor addingStreamEventExtractor)
+            throws ConnectionUnavailableException;
+
+    public boolean containsEvent(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+        if (isConnected.get()) {
+            try {
+                return contains(matchingEvent, compiledCondition);
+            } catch (ConnectionUnavailableException e) {
+                isConnected.set(false);
+                LOG.error("Connection unavailable at Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry connection immediately.", e);
+                connectWithRetry();
+                return containsEvent(matchingEvent, compiledCondition);
+            }
+        } else if (isTryingToConnect.get()) {
+            LOG.error("Dropping event at Table '" + tableDefinition.getId() +
+                    "' as its still trying to reconnect!, event matching failed for event '" + matchingEvent + "'");
+            return false;
+        } else {
+            connectWithRetry();
+            return containsEvent(matchingEvent, compiledCondition);
+        }
+    }
+
+    protected abstract boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException;
+
+    public void connectWithRetry() {
+        if (!isConnected.get()) {
+            isTryingToConnect.set(true);
+            try {
+                connect();
+                isConnected.set(true);
+                isTryingToConnect.set(false);
+                backoffRetryCounter.reset();
+            } catch (ConnectionUnavailableException | RuntimeException e) {
+                LOG.error("Error while connecting to Table '" + tableDefinition.getId() +
+                        "', " + e.getMessage() + ", will retry in '" + backoffRetryCounter.getTimeInterval() + "'.", e);
+                scheduledExecutorService.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectWithRetry();
+                    }
+                }, backoffRetryCounter.getTimeIntervalMillis(), TimeUnit.MILLISECONDS);
+                backoffRetryCounter.increment();
+            }
+        }
+    }
+
+    protected abstract void connect() throws ConnectionUnavailableException;
+
+    protected abstract void disconnect();
+
+    protected abstract void destroy();
+
+    public void shutdown() {
+        disconnect();
+        destroy();
+        isConnected.set(false);
+        isTryingToConnect.set(false);
+    }
 }

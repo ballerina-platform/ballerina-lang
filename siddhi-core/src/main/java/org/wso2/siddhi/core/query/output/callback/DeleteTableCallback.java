@@ -60,7 +60,7 @@ public class DeleteTableCallback extends OutputCallback {
                     deletingEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool,
                     streamEventConvertor);
 
-            table.delete(deletingStateEventChunk, compiledCondition);
+            table.deleteEvents(deletingStateEventChunk, compiledCondition);
         }
     }
 

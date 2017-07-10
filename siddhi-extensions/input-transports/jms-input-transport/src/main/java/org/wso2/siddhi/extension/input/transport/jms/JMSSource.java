@@ -55,8 +55,8 @@ public class JMSSource extends Source {
     private int threadPoolSize;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
         // todo: thread pool size should be read from the configuration file, since it's not available at the time of
@@ -65,7 +65,12 @@ public class JMSSource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class, Map.class};
+    }
+
+    @Override
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         Map<String, String> properties = initJMSProperties();
         jmsServerConnector = new JMSServerConnector(properties);
         jmsMessageProcessor = new JMSMessageProcessor(sourceEventListener, threadPoolSize);

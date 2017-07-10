@@ -16,26 +16,26 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.input.source;
+package org.wso2.siddhi.core.transport;
 
-import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.input.source.InMemorySource;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
-import java.util.Map;
-
 /**
- * Implementation of {@link Source} to receive events through in-memory transport.
+ * Implementation of {@link org.wso2.siddhi.core.stream.input.source.Source} to receive events through in-memory
+ * transport.
  */
 @Extension(
-        name = "inMemory",
+        name = "testTrpInMemory",
         namespace = "source",
         description = "In-memory source that can communicate with other in-memory sinks within the same JVM, it " +
                 "is assumed that the publisher and subscriber of a topic uses same event schema (stream definition).",
@@ -48,22 +48,31 @@ import java.util.Map;
                         "internally without using external transport."
         )
 )
-public class InMemorySource extends Source {
-    private static final Logger LOG = Logger.getLogger(InMemorySource.class);
+public class TestTrpInMemorySource extends InMemorySource {
     private static final String TOPIC_KEY = "topic";
-    private SourceEventListener sourceEventListener;
-    private InMemoryBroker.Subscriber subscriber;
+    protected SourceEventListener sourceEventListener;
+    protected InMemoryBroker.Subscriber subscriber;
+    private String prop1;
+    private String prop2;
+    private String fail;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     String[] requestedTransportPropertyNames, ConfigReader configReader,
-                     SiddhiAppContext siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+        super.init(sourceEventListener, optionHolder, requestedTransportPropertyNames, configReader, siddhiAppContext);
+        prop1 = optionHolder.validateAndGetStaticValue("prop1");
+        prop2 = optionHolder.validateAndGetStaticValue("prop2");
+        fail = optionHolder.validateAndGetStaticValue("fail", "false");
         this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory source");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
-                sourceEventListener.onEvent(event, null);
+                if (fail.equals("true")) {
+                    sourceEventListener.onEvent(event, new String[]{prop1});
+                } else {
+                    sourceEventListener.onEvent(event, new String[]{prop1, prop2});
+                }
             }
 
             @Override
@@ -74,42 +83,7 @@ public class InMemorySource extends Source {
     }
 
     @Override
-    public Class[] getOutputEventClasses() {
-        return new Class[]{};
-    }
-
-    @Override
     public void connect(ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         InMemoryBroker.subscribe(subscriber);
-    }
-
-    @Override
-    public void disconnect() {
-        InMemoryBroker.unsubscribe(subscriber);
-    }
-
-    @Override
-    public void destroy() {
-        // do nothing
-    }
-
-    @Override
-    public void pause() {
-        InMemoryBroker.unsubscribe(subscriber);
-    }
-
-    @Override
-    public void resume() {
-        InMemoryBroker.subscribe(subscriber);
-    }
-
-    @Override
-    public Map<String, Object> currentState() {
-        return null;
-    }
-
-    @Override
-    public void restoreState(Map<String, Object> state) {
-        // no state
     }
 }

@@ -54,6 +54,11 @@ public class TCPSink extends Sink {
     private AtomicBoolean connected = new AtomicBoolean(false);
 
     @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{Event.class, Event[].class};
+    }
+
+    @Override
     public String[] getSupportedDynamicOptions() {
         return new String[]{CONTEXT};
     }

@@ -28,5 +28,5 @@ public interface SourceEventListener {
 
     StreamDefinition getStreamDefinition();
 
-    void onEvent(Object eventObject);
+    void onEvent(Object eventObject, String[] transportProperties);
 }

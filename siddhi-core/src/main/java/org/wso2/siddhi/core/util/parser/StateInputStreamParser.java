@@ -244,10 +244,8 @@ public class StateInputStreamParser {
             for (SingleStreamRuntime singleStreamRuntime : innerStateRuntime.getSingleStreamRuntimeList()) {
                 everyInnerStateRuntime.addStreamRuntime(singleStreamRuntime);
             }
-            if (stateType == StateInputStream.Type.PATTERN) {
-                everyInnerStateRuntime.getLastProcessor().setNextEveryStatePerProcessor(everyInnerStateRuntime
+            everyInnerStateRuntime.getLastProcessor().setNextEveryStatePerProcessor(everyInnerStateRuntime
                                                                                                 .getFirstProcessor());
-            }
             return everyInnerStateRuntime;
 
         } else if (stateElement instanceof LogicalStateElement) {
@@ -262,12 +260,12 @@ public class StateInputStreamParser {
             }
 
             LogicalPreStateProcessor logicalPreStateProcessor1 = new LogicalPreStateProcessor(type, stateType,
-                                                                                              withinStates);
+                    clonewithinStates(withinStates));
             logicalPreStateProcessor1.init(siddhiAppContext, queryName);
             LogicalPostStateProcessor logicalPostStateProcessor1 = new LogicalPostStateProcessor(type);
 
             LogicalPreStateProcessor logicalPreStateProcessor2 = new LogicalPreStateProcessor(type, stateType,
-                                                                                              withinStates);
+                    clonewithinStates(withinStates));
             logicalPreStateProcessor2.init(siddhiAppContext, queryName);
             LogicalPostStateProcessor logicalPostStateProcessor2 = new LogicalPostStateProcessor(type);
 

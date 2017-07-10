@@ -46,8 +46,8 @@ public class TCPSource extends Source {
     private StreamDefinition streamDefinition;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, SiddhiAppContext
-            siddhiAppContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
                 siddhiAppContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
@@ -56,7 +56,12 @@ public class TCPSource extends Source {
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{Event[].class, Event.class};
+    }
+
+    @Override
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         TCPServer.getInstance().start();
         TCPServer.getInstance().addStreamListener(new StreamListener() {
             @Override
@@ -66,12 +71,12 @@ public class TCPSource extends Source {
 
             @Override
             public void onEvent(Event event) {
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             }
 
             @Override
             public void onEvents(Event[] events) {
-                sourceEventListener.onEvent(events);
+                sourceEventListener.onEvent(events, null);
             }
         });
     }

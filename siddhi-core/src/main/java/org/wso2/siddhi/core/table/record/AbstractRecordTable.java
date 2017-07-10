@@ -42,20 +42,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An abstract implementation of table. Abstract implementation will handle {@link ComplexEventChunk} so that
  * developer can directly work with event data.
  */
-public abstract class AbstractRecordTable implements Table {
+public abstract class AbstractRecordTable extends Table {
 
     private static final Logger log = Logger.getLogger(AbstractRecordTable.class);
 
     private TableDefinition tableDefinition;
     private StreamEventPool storeEventPool;
-    private AtomicBoolean isConnected = new AtomicBoolean(false);
 
     @Override
     public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
@@ -80,7 +77,7 @@ public abstract class AbstractRecordTable implements Table {
     }
 
     @Override
-    public void add(ComplexEventChunk<StreamEvent> addingEventChunk) {
+    public void add(ComplexEventChunk<StreamEvent> addingEventChunk) throws ConnectionUnavailableException {
         List<Object[]> records = new ArrayList<>();
         addingEventChunk.reset();
         while (addingEventChunk.hasNext()) {
@@ -97,10 +94,11 @@ public abstract class AbstractRecordTable implements Table {
      * @param records records that need to be added to the table, each Object[] represent a record and it will match
      *                the attributes of the Table Definition.
      */
-    protected abstract void add(List<Object[]> records);
+    protected abstract void add(List<Object[]> records) throws ConnectionUnavailableException;
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent)
+            throws ConnectionUnavailableException {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
 
         Map<String, Object> findConditionParameterMap = new HashMap<>();
@@ -109,7 +107,8 @@ public abstract class AbstractRecordTable implements Table {
             findConditionParameterMap.put(entry.getKey(), entry.getValue().execute(matchingEvent));
         }
 
-        Iterator<Object[]> records = find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
+        Iterator<Object[]> records =
+                find(findConditionParameterMap, recordStoreCompiledCondition.compiledCondition);
         ComplexEventChunk<StreamEvent> streamEventComplexEventChunk = new ComplexEventChunk<>(true);
         if (records != null) {
             while (records.hasNext()) {
@@ -132,10 +131,12 @@ public abstract class AbstractRecordTable implements Table {
      * @return RecordIterator of matching records
      */
     protected abstract RecordIterator<Object[]> find(Map<String, Object> findConditionParameterMap,
-                                                     CompiledCondition compiledCondition);
+                                                     CompiledCondition compiledCondition)
+                                                                throws ConnectionUnavailableException;
 
     @Override
-    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
 
         Map<String, Object> containsConditionParameterMap = new HashMap<>();
@@ -155,10 +156,12 @@ public abstract class AbstractRecordTable implements Table {
      * @return if matching record found or not
      */
     protected abstract boolean contains(Map<String, Object> containsConditionParameterMap,
-                                        CompiledCondition compiledCondition);
+                                        CompiledCondition compiledCondition)
+                                        throws ConnectionUnavailableException;
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition)
+            throws ConnectionUnavailableException {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> deleteConditionParameterMaps = new ArrayList<>();
         deletingEventChunk.reset();
@@ -184,11 +187,12 @@ public abstract class AbstractRecordTable implements Table {
      * @param compiledCondition            the compiledCondition against which records should be matched for deletion
      */
     protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps,
-                                   CompiledCondition compiledCondition);
+                                   CompiledCondition compiledCondition)
+    throws ConnectionUnavailableException;
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+                       UpdateAttributeMapper[] updateAttributeMappers) throws ConnectionUnavailableException {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateValues = new ArrayList<>();
@@ -223,12 +227,13 @@ public abstract class AbstractRecordTable implements Table {
      */
     protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
                                    CompiledCondition compiledCondition,
-                                   List<Map<String, Object>> updateValues);
+                                   List<Map<String, Object>> updateValues) throws ConnectionUnavailableException;
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                             CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
-                            AddingStreamEventExtractor addingStreamEventExtractor) {
+                            AddingStreamEventExtractor addingStreamEventExtractor)
+    throws ConnectionUnavailableException {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
         List<Map<String, Object>> updateValues = new ArrayList<>();
@@ -269,7 +274,8 @@ public abstract class AbstractRecordTable implements Table {
     protected abstract void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                         CompiledCondition compiledCondition,
                                         List<Map<String, Object>> updateValues,
-                                        List<Object[]> addingRecords);
+                                        List<Object[]> addingRecords)
+    throws ConnectionUnavailableException;
 
     @Override
     public CompiledCondition compileCondition(Expression expression,
@@ -314,26 +320,4 @@ public abstract class AbstractRecordTable implements Table {
         }
     }
 
-    public abstract void connect() throws ConnectionUnavailableException;
-
-    public void connectWithRetry(ExecutorService executorService) {
-        while (!isConnected.get()) {
-            try {
-                connect();
-                isConnected.set(true);
-            } catch (ConnectionUnavailableException e) {
-                log.error(e.getMessage() + ", Retrying in ", e);
-            }
-        }
-    }
-
-    public abstract void disconnect();
-
-    public abstract void destroy();
-
-    public void shutdown() {
-        isConnected.set(false);
-        disconnect();
-        destroy();
-    }
 }
