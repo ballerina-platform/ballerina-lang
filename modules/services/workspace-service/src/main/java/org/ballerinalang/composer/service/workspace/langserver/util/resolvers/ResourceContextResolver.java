@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
