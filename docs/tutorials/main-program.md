@@ -2,7 +2,7 @@
 
 Now that you have [written your first program](../first-program.md), you can write some more programs to do various integration-related tasks. 
 
-> This tutorial provides instructions on how to write a main program. This involves a simple integration scenario where you can call a public weather forecast API and do some customization to the data obtained. The weather forecast API provides the weather forecast for the next five days and provides new records every three hours. Using this data, you will learn how to use Ballerina to find the average temperature and convert the result from kelvin to celsius.
+> This tutorial provides instructions on how to write a main program. This involves a simple integration scenario where you can call a public weather forecast API and do some customization to the data obtained. The weather forecast API provides the weather forecast for the next five days and provides new records every three hours. Using this data, you will learn how to use Ballerina to find the average temperature and convert the result from Kelvin to Celsius.
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md).
 
@@ -85,6 +85,10 @@ The next step is to obtain the JSON payload content.
     ![alt text](../images/GetJsonPayload.gif)
 1. Modify the name of the JSON function you added to something meaningful.
     ![alt text](../images/GetJsonPayloadMessage.png)
+1. To get the data under list, you need to add a variable from the tool palette to the main function in the canvas.
+    ![alt text](../images/JsonVariable.gif)
+1. Modify the variable so that you can get the data under list.
+    ![alt text](../images/forecastDataList.png)
 
 ## Get information from the weather forecast API
 
