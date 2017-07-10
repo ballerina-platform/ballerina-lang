@@ -48,7 +48,7 @@ public class TypeCastExprTest {
     public void setup() {
         bLangProgram = BTestUtils.getProgramFile("lang/expressions/type/cast/type-casting.bal");
     }
-
+    
 //    @Test
 //    public void testXMLToJSON() {
 //        BValue[] args = {new BXML("<name>chanaka</name>")};
@@ -168,13 +168,21 @@ public class TypeCastExprTest {
 //
     @Test
     public void testJSONToString() {
-        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToString", args);
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToStringCast");
         Assert.assertTrue(returns[0] instanceof BString);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
+    @Test
+    public void testJSONObjectToStringCast() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJSONObjectToStringCast");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "");
+        
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        Assert.assertEquals(((BStruct) returns[1]).getStringField(0), "'json-object' cannot be converted to 'string'");
+    }
+    
     @Test
     public void testJsonToInt() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testJsonToInt");

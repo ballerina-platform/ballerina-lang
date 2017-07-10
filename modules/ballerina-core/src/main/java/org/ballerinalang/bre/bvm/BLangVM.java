@@ -1304,12 +1304,19 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
 
-                    BNewArray array = (BNewArray) sf.refRegs[i];
-                    if (array == null) {
+                    BValue value = sf.refRegs[i];
+                    
+                    if (value == null) {
                         handleNullRefError();
                         break;
                     }
-                    sf.longRegs[j] = array.size();
+                    
+                    if (value.getType().getTag() == TypeTags.JSON_TAG) {
+                        sf.longRegs[j] = ((BJSON) value).value().size();
+                        break;
+                    }
+                    
+                    sf.longRegs[j] = ((BNewArray) value).size();
                     break;
                 case InstructionCodes.FNEWARRAY:
                     i = operands[0];

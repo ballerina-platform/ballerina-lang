@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -93,7 +95,7 @@ public class ArrayTest {
 
     @Test
     public void testXMLArrayLength() {
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeXML);
         arrayValue.add(0, new BXMLItem("<t>a</t>"));
         arrayValue.add(1, new BXMLItem("<t>b</t>"));
         BValue[] args = {arrayValue};
@@ -106,9 +108,8 @@ public class ArrayTest {
 
     @Test
     public void testJSONArrayLength() {
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BJSON("{ \"test\" : \"1\"}"));
-        arrayValue.add(1, new BJSON("{ \"test\" : \"1\"}"));
+        BJSON arrayValue = new BJSON("[{ \"test\" : \"1\"}, { \"test\" : \"1\"}]");
+        
         BValue[] args = {arrayValue};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayLength", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null ||
@@ -119,7 +120,7 @@ public class ArrayTest {
 
     @Test
     public void testMessageArrayLength() {
-        BRefValueArray arrayValue = new BRefValueArray();
+        BRefValueArray arrayValue = new BRefValueArray(BTypes.typeMessage);
         arrayValue.add(0, new BMessage(new DefaultCarbonMessage()));
         arrayValue.add(1, new BMessage(new DefaultCarbonMessage()));
         BValue[] args = {arrayValue};
@@ -200,16 +201,19 @@ public class ArrayTest {
     public void testJSONArrayCopyOf() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0,  new BJSON(v1));
-        arrayValue.add(1,  new BJSON(v2));
+        BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
         BValue[] args = {arrayValue};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayCopy", args);
+        
+        Assert.assertTrue(returnVals[0] instanceof BJSON);
+        BJSON copiedJson = (BJSON) returnVals[0];
+        
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
+        Assert.assertNotEquals(copiedJson.value().size(), arrayValue.value().size(), 
+                "Found Same size arrays.");
+        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 0), v1, "Found same value");
+        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 1), v2, "Found same value");
     }
 
     @Test
@@ -423,19 +427,20 @@ public class ArrayTest {
         final String v2 = "{ \"json\" : \"2\"}";
         final String v3 = "{ \"json\" : \"3\"}";
         final String v4 = "{ \"json\" : \"4\"}";
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BJSON(v1));
-        arrayValue.add(1, new BJSON(v2));
-        arrayValue.add(2, new BJSON(v3));
-        arrayValue.add(3, new BJSON(v4));
+        BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + ", " + v3 + ", " + v4 + "]");
+        
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
         BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
+        
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).size(), arrayValue.size(), "Found Same size arrays.");
-        Assert.assertEquals(((BRefValueArray) returnVals[0]).size(), 2, "Incorrect Array size.");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(0), v1, "Found same value");
-        Assert.assertNotEquals(((BRefValueArray) returnVals[0]).get(1), v2, "Found same value");
+        Assert.assertTrue(returnVals[0] instanceof BJSON);
+        BJSON copiedJson = (BJSON) returnVals[0];
+        
+        Assert.assertNotEquals(copiedJson.value().size(), arrayValue.value().size(), "Found Same size arrays.");
+        Assert.assertEquals(copiedJson.value().size(), 2, "Incorrect Array size.");
+        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 0), v1, "Found same value");
+        Assert.assertNotEquals(JSONUtils.getArrayElement(copiedJson, 1), v2, "Found same value");
     }
 
     @Test(description = "Negative test case for checking arg range.", expectedExceptions = BLangRuntimeException.class,
@@ -443,9 +448,7 @@ public class ArrayTest {
     public void testJSONArrayCopyOfRangeNegative() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BJSON(v1));
-        arrayValue.add(1, new BJSON(v2));
+        BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
         BValue[] args = {arrayValue , new BInteger(1), new BInteger(3)};
         BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
@@ -456,9 +459,7 @@ public class ArrayTest {
     public void testJSONArrayCopyOfRangNegativeMinusArgs() {
         final String v1 = "{ \"json\" : \"1\"}";
         final String v2 = "{ \"json\" : \"2\"}";
-        BRefValueArray arrayValue = new BRefValueArray();
-        arrayValue.add(0, new BJSON(v1));
-        arrayValue.add(1, new BJSON(v2));
+        BJSON arrayValue = new BJSON("[" + v1 + ", " + v2 + "]");
         BValue[] args = {arrayValue , new BInteger(-1), new BInteger(3)};
         BLangFunctions.invokeNew(programFile, "testJSONArrayCopyRange", args);
         Assert.fail("Test should fail at this point.");
