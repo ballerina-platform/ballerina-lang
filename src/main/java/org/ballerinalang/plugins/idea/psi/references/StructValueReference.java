@@ -58,9 +58,7 @@ public class StructValueReference extends BallerinaElementReference {
     public Object[] getVariants() {
         List<LookupElement> results = new LinkedList<>();
 
-
         PsiElement identifier = getElement();
-
 
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
@@ -97,6 +95,7 @@ public class StructValueReference extends BallerinaElementReference {
                 BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         results.addAll(packages);
 
+        // Todo - improve suggesting elements from a package in StructValueNode since it will not be identified properly
         MapStructKeyValueNode mapStructKeyValueNode = PsiTreeUtil.getParentOfType(identifier,
                 MapStructKeyValueNode.class);
 
@@ -134,7 +133,7 @@ public class StructValueReference extends BallerinaElementReference {
                         results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
                         List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(resolvedPackage);
-                        results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(constants));
+                        results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
                     }
                 }
             }
@@ -152,7 +151,7 @@ public class StructValueReference extends BallerinaElementReference {
             results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
 
             List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(currentPackage);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(constants));
+            results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
 
         //        IdentifierPSINode identifier = getElement();

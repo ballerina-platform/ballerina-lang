@@ -82,41 +82,48 @@ public class NameReference extends BallerinaElementReference {
     private PsiElement resolveInCurrentPackage() {
         IdentifierPSINode identifier = getElement();
 
-        // Todo - use util method
-        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                ConnectorDefinitionNode.class);
-        if (scope != null) {
+        //        // Todo - use util method
+        //        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+        //                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+        //                ConnectorDefinitionNode.class);
+        //        if (scope != null) {
+        //
+        //            int caretOffset = identifier.getStartOffset();
+        //
+        //            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+        // caretOffset);
+        //            for (PsiElement variable : variables) {
+        //                if (identifier.getText().equals(variable.getText())) {
+        //                    return variable;
+        //                }
+        //            }
+        //
+        //            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+        //            for (PsiElement parameter : parameters) {
+        //                if (identifier.getText().equals(parameter.getText())) {
+        //                    return parameter;
+        //                }
+        //            }
+        //
+        //            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
+        // (scope);
+        //            for (PsiElement variable : globalVariables) {
+        //                if (identifier.getText().equals(variable.getText())) {
+        //                    return variable;
+        //                }
+        //            }
+        //
+        //            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+        //            for (PsiElement constant : constants) {
+        //                if (identifier.getText().equals(constant.getText())) {
+        //                    return constant;
+        //                }
+        //            }
+        //        }
 
-            int caretOffset = identifier.getStartOffset();
-
-            List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope, caretOffset);
-            for (PsiElement variable : variables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
-            for (PsiElement parameter : parameters) {
-                if (identifier.getText().equals(parameter.getText())) {
-                    return parameter;
-                }
-            }
-
-            List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-            for (PsiElement variable : globalVariables) {
-                if (identifier.getText().equals(variable.getText())) {
-                    return variable;
-                }
-            }
-
-            List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-            for (PsiElement constant : constants) {
-                if (identifier.getText().equals(constant.getText())) {
-                    return constant;
-                }
-            }
+        PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        if (elementInScope != null) {
+            return elementInScope;
         }
 
         PsiFile containingFile = identifier.getContainingFile();
@@ -158,30 +165,38 @@ public class NameReference extends BallerinaElementReference {
 
         if (containingPackage != null) {
 
-            // Todo - use util?
-            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-            for (PsiElement importedPackage : importedPackages) {
-                PsiReference reference = importedPackage.findReferenceAt(0);
-                if (reference == null) {
-                    continue;
-                }
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
-            }
 
-            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-                    (containingFile);
-            for (PsiDirectory unImportedPackage : unImportedPackages) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                        BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                results.add(lookupElement);
-            }
+            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
+                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            results.addAll(packages);
+
+            // Todo - use util?
+            //            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
+            //            for (PsiElement importedPackage : importedPackages) {
+            //                PsiReference reference = importedPackage.findReferenceAt(0);
+            //                if (reference == null) {
+            //                    continue;
+            //                }
+            //                PsiElement resolvedElement = reference.resolve();
+            //                if (resolvedElement == null) {
+            //                    continue;
+            //                }
+            //                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
+            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
+            // (resolvedPackage,
+            //                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            //                results.add(lookupElement);
+            //            }
+            //
+            //            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
+            //                    (containingFile);
+            //            for (PsiDirectory unImportedPackage : unImportedPackages) {
+            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
+            // (unImportedPackage,
+            //                        BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            //                results.add(lookupElement);
+            //            }
 
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));

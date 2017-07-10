@@ -142,6 +142,8 @@ public class FieldReference extends BallerinaElementReference {
         if (reference == null) {
             return new LookupElement[0];
         }
+
+        // Todo - use util method
         PsiElement resolvedElement = reference.resolve();
         if (resolvedElement == null || !(resolvedElement instanceof IdentifierPSINode)) {
             return new LookupElement[0];
