@@ -30,6 +30,7 @@ import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
@@ -198,8 +199,12 @@ public class NameReference extends BallerinaElementReference {
             //                results.add(lookupElement);
             //            }
 
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
+                    GlobalVariableDefinitionNode.class);
+            if (globalVariableDefinitionNode == null) {
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+                results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            }
 
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
             results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,

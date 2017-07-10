@@ -127,7 +127,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' valueTypeName Identifier '=' simpleLiteral ';'
+    :   'const' valueTypeName Identifier '=' expression ';'
     ;
 
 workerDeclaration

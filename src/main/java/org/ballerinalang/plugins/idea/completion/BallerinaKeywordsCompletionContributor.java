@@ -20,7 +20,17 @@ import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
+
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addFileLevelKeywordsAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addTypeNamesAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addValueTypesAsLookups;
 
 public class BallerinaKeywordsCompletionContributor extends CompletionContributor {
 
@@ -29,5 +39,49 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
 
+        if (parent.getPrevSibling() == null) {
+
+            GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    GlobalVariableDefinitionNode.class);
+            if (globalVariableDefinitionNode != null) {
+                PsiElement definitionNode = globalVariableDefinitionNode.getParent();
+
+                PackageDeclarationNode prevPackageDeclarationNode = PsiTreeUtil.getPrevSiblingOfType(definitionNode,
+                        PackageDeclarationNode.class);
+
+                ImportDeclarationNode prevImportDeclarationNode = PsiTreeUtil.getPrevSiblingOfType(definitionNode,
+                        ImportDeclarationNode.class);
+
+                ConstantDefinitionNode prevConstantDefinitionNode = PsiTreeUtil.getPrevSiblingOfType(definitionNode,
+                        ConstantDefinitionNode.class);
+
+                DefinitionNode prevDefinitionNode =
+                        PsiTreeUtil.getPrevSiblingOfType(definitionNode, DefinitionNode.class);
+
+                GlobalVariableDefinitionNode prevGlobalVariableDefinition =
+                        PsiTreeUtil.findChildOfType(prevDefinitionNode, GlobalVariableDefinitionNode.class);
+
+                if (prevPackageDeclarationNode == null && prevImportDeclarationNode == null
+                        && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
+                    addFileLevelKeywordsAsLookups(result, true, true);
+                } else if ((prevPackageDeclarationNode != null || prevImportDeclarationNode != null)
+                        && prevConstantDefinitionNode == null && prevGlobalVariableDefinition == null) {
+                    addFileLevelKeywordsAsLookups(result, false, true);
+                } else {
+                    addFileLevelKeywordsAsLookups(result, false, false);
+                }
+
+
+                addTypeNamesAsLookups(result);
+            }
+        }
+
+        if (parent instanceof ConstantDefinitionNode) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleSibling != null && "const".equals(prevVisibleSibling.getText())) {
+                addValueTypesAsLookups(result);
+            }
+        }
     }
 }
+

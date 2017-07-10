@@ -208,6 +208,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
         expectedLookups.add("test");
+        myFixture.addFileToProject("test/file.bal", "string s = \"\";");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -282,6 +283,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConstantAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
     }
 
@@ -291,7 +293,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach service {}");
         doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
     }
 
