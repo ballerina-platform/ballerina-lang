@@ -1,9 +1,9 @@
 import ballerina.lang.system;
 import ballerina.lang.errors;
-import ballerina.lang.strings;
+import ballerina.lang.jsons;
 
 function main (string[] args) {
-    //JSON Arrays. They are arrays of any JSON value.
+    // JSON Arrays. They are arrays of any JSON value.
     json j1 = [1, false, null, "foo",
                {first:"John", last:"Pala"}];
     system:println(j1);
@@ -28,19 +28,13 @@ function main (string[] args) {
     int i = 0;
     try {
         json family = p.family;
-        while (true) {
+        int length = jsons:getInt(family, "$.length()");
+        while (i < length) {
             json e = family[i];
             system:println(e);
             i = i + 1;
         }
     } catch (errors:Error e) {
-        string msg = e.msg;
-        if (!strings:contains(msg, "array index out of range")) {
-            system:println(msg);
-            throw e;
-        } else {
-            system:println("length of array: " + i);
-            // Ignore the error.
-        }
+        system:println("error: " + e.msg);
     }
 }
