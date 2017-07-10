@@ -21,21 +21,35 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.AnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Item Resolver for the connector action context
+ * Callable Unit Body Context Resolver
  */
-public class ConnectorActionContextResolver extends AbstractItemResolver {
+public class CallableUnitBodyContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                           HashMap<Class, AbstractItemResolver> resolvers) {
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+
+        if (dataModel.getParserRuleContext() != null) {
+            completionItems.addAll(resolvers
+                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
+        } else {
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(workerItem);
+
+            completionItems
+                    .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
+        }
+
         return completionItems;
     }
 }

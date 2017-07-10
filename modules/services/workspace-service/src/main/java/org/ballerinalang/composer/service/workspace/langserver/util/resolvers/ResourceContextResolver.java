@@ -36,15 +36,7 @@ public class ResourceContextResolver extends AbstractItemResolver {
                                            HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        // If the parser rule is not null, incomplete source has been parsed
-        if (dataModel.getParserRuleContext() != null) {
-            completionItems.addAll(resolvers
-                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
-        } else {
-            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
-                    .resolveItems(dataModel, symbols, resolvers));
-        }
+        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         return completionItems;
     }
 }

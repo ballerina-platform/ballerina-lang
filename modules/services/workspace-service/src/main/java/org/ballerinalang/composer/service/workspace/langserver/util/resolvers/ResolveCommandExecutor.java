@@ -55,6 +55,7 @@ public class ResolveCommandExecutor {
         ConnectorActionContextResolver connectorActionContextResolver = new ConnectorActionContextResolver();
         ResourceContextResolver resourceContextResolver = new ResourceContextResolver();
         TopLevelResolver topLevelResolver = new TopLevelResolver();
+        CallableUnitBodyContextResolver callableUnitBodyContextResolver = new CallableUnitBodyContextResolver();
 
         // Parser rule context based resolvers
         ParserRuleStatementContextResolver parserRuleStatementContextResolver =
@@ -75,6 +76,7 @@ public class ResolveCommandExecutor {
         resolvers.put(VariableDefStmt.class, variableDefinitionStatementContextResolver);
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
         resolvers.put(Resource.class, resourceContextResolver);
+        resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
 
         // Parser Rule Context Resolvers
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
