@@ -71,17 +71,17 @@ public class BallerinaCompletionSDKAwareTest extends BallerinaCompletionTestBase
     }
 
     public void testPackageInvocationAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.lang.system; sys<caret>",
-                "import ballerina.lang.system; system:", null);
+        doCheckResult("test.bal", "import ballerina.lang.system; function test() {sys<caret>}",
+                "import ballerina.lang.system; function test() {system:}", null);
     }
 
     public void testFunctionInvocationFromAPackage() {
-        doTest("import ballerina.lang.system; system:<caret>", "currentTimeMillis", "epochTime", "getDateFormat",
-                "getEnv", "log", "nanoTime", "print", "println");
+        doTest("import ballerina.lang.system; function test() {system:<caret>}", "currentTimeMillis", "epochTime",
+                "getDateFormat", "getEnv", "log", "nanoTime", "print", "println");
     }
 
     public void testFunctionInvocationFromAPackageAutoCompletion() {
-        doCheckResult("test.bal", "import ballerina.lang.system; system:nano<caret>",
-                "import ballerina.lang.system; system:nanoTime()", null);
+        doCheckResult("test.bal", "import ballerina.lang.system; function test() {system:nano<caret>}",
+                "import ballerina.lang.system; function test() {system:nanoTime()}", null);
     }
 }
