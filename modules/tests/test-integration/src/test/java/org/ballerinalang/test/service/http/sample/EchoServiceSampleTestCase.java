@@ -55,6 +55,10 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         String serviceUrl = "http://localhost:9094/echo";
         HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
+        if (response == null) {
+            response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
+        }
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
@@ -69,6 +73,10 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         String serviceUrl = "https://localhost:9095/echo";
         String serverHome = getServerInstance().getServerHome();
         HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
+        if (response == null) {
+            response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
+        }
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
