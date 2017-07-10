@@ -22,7 +22,6 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BValue;
@@ -65,7 +64,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaAction initAction;
 
     private BallerinaConnectorDef filterConnector;
-    private ParameterDef connectorType;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -131,14 +129,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public void setFilterConnector(boolean filterConnector) {
         isFilterConnector = filterConnector;
-    }
-
-    public ParameterDef getConnectorType() {
-        return connectorType;
-    }
-
-    public void setConnectorType(ParameterDef connectorType) {
-        this.connectorType = connectorType;
     }
 
     public BallerinaConnectorDef getFilterConnector() {

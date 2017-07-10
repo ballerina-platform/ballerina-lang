@@ -2,7 +2,6 @@ import ballerina.lang.system;
 
 function testArgumentPassing(string var1)(int) {
     TestConnector testConnector = create TestConnector(var1) with FilterConnector(500);
-    //TestConnector testConnector = create TestConnector(var1);
     message request = {};
     int value;
     value = TestConnector.action1(testConnector, request);
@@ -33,6 +32,9 @@ connector FilterConnector<TestConnector t>(int param1) {
           int x;
           x = TestConnector.action1(t, msg);
           system:println(x);
+          string y;
+          y = TestConnector.action2(t, msg);
+          system:println(y);
           return 500;
     }
 

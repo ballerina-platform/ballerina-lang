@@ -86,15 +86,14 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a filter connector definition
-    //public static final int FILTER_CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
-    //public static final int FILTER_CONNECTOR_DEF_IDENTIFIER_TO_LT_SIGN = 1;
-    public static final int FILTER_CONNECTOR_DEF_LT_SIGN_TO_TYPENAME = 0;
-    public static final int FILTER_CONNECTOR_DEF_TYPENAME_TO_IDENTIFIER = 1;
-    public static final int FILTER_CONNECTOR_DEF_IDENTIFIER_TO_GT_SIGN = 2;
-    public static final int FILTER_CONNECTOR_DEF_GT_SIGN_TO_NEXT_TOKEN = 3;
-    //public static final int FILTER_CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START = 6;
-    //public static final int FILTER_CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN = 7;
-    //public static final int FILTER_CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 8;
+    public static final int FILTER_CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER = 0;
+    public static final int FILTER_CONNECTOR_DEF_IDENTIFIER_TO_LT_SIGN = 1;
+    public static final int FILTER_CONNECTOR_DEF_LT_SIGN_TO_PARAMETER = 2;
+    public static final int FILTER_CONNECTOR_DEF_PARAMETER_TO_GT_SIGN = 3;
+    public static final int FILTER_CONNECTOR_DEF_GT_SIGN_TO_PARAM_LIST_START = 4;
+    public static final int FILTER_CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START = 5;
+    public static final int FILTER_CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN = 6;
+    public static final int FILTER_CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN = 7;
 
     // whitespace regions in a action definition
     public static final int ACTION_DEF_NATIVE_KEYWORD_TO_ACTION_KEYWORD = 0;

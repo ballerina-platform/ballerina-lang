@@ -190,8 +190,6 @@ public class BLangModelBuilder {
 
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
-    protected Stack<ParameterDef> filterConnectorBaseTypeStack = new Stack<>();
-
     protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -1086,50 +1084,22 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                                boolean isFilterConnector) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
-
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
-        if (!filterConnectorBaseTypeStack.isEmpty()) {
-            connector.setFilterConnector(true);
-            connector.setConnectorType(filterConnectorBaseTypeStack.pop());
-        }
+        connector.setFilterConnector(isFilterConnector);
+
         bFileBuilder.addConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
-
-    public void createFilterConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                      String baseConnectorName, SimpleTypeName typeName) {
-
-        validateIdentifier(baseConnectorName, location);
-        Identifier identifier = new Identifier(baseConnectorName);
-
-        SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
-        WhiteSpaceDescriptor paramWS = null;
-        if (whiteSpaceDescriptor != null) {
-            paramWS = new WhiteSpaceDescriptor();
-            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_START_TO_LAST_TOKEN,
-                    typeName.getWhiteSpaceDescriptor().getWhiteSpaceRegions()
-                            .get(WhiteSpaceRegions.TYPE_NAME_PRECEDING_WHITESPACE));
-            Map<Integer, String> filterConnectorWSRegions = whiteSpaceDescriptor.getWhiteSpaceRegions();
-            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_TYPENAME_TO_IDENTIFIER,
-                    filterConnectorWSRegions.get(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_TYPENAME_TO_IDENTIFIER));
-            paramWS.addWhitespaceRegion(WhiteSpaceRegions.PARAM_DEF_END_TO_NEXT_TOKEN,
-                    filterConnectorWSRegions.get(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_IDENTIFIER_TO_GT_SIGN));
-        }
-        ParameterDef paramDef = new ParameterDef(location, paramWS, identifier, typeName, symbolName
-                , currentScope);
-
-        filterConnectorBaseTypeStack.push(paramDef);
-    }
-
 
     // Statements
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,

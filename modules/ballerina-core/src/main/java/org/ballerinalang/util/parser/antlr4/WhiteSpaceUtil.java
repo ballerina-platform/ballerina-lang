@@ -257,16 +257,24 @@ public class WhiteSpaceUtil {
     }
 
     public static WhiteSpaceDescriptor getFilterConnectorDefWS(CommonTokenStream tokenStream,
-                                                   BallerinaParser.FilterConnectorBaseTypeVariableDefContext ctx) {
+                                                   BallerinaParser.ConnectorDefinitionContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_LT_SIGN_TO_TYPENAME,
-                getWhitespaceToLeft(tokenStream, ctx.referenceTypeName().start.getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_TYPENAME_TO_IDENTIFIER,
-                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_IDENTIFIER_TO_GT_SIGN,
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_CONNECTOR_KEYWORD_TO_IDENTIFIER,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_IDENTIFIER_TO_LT_SIGN,
                 getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
-        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_GT_SIGN_TO_NEXT_TOKEN,
-                getWhitespaceToLeft(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_LT_SIGN_TO_PARAMETER,
+                getWhitespaceToLeft(tokenStream, ctx.parameter().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_PARAMETER_TO_GT_SIGN,
+                getWhitespaceToRight(tokenStream, ctx.parameter().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_GT_SIGN_TO_PARAM_LIST_START,
+                getWhitespaceToLeft(tokenStream, ctx.parameterList().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_PARAM_LIST_END_TO_BODY_START,
+                getWhitespaceToLeft(tokenStream, ctx.connectorBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_PARAM_BODY_START_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.connectorBody().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.FILTER_CONNECTOR_DEF_BODY_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.connectorBody().stop.getTokenIndex()));
         return ws;
     }
 

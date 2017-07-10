@@ -323,26 +323,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String connectorName = ctx.Identifier().getText();
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
+            if (ctx.parameter() != null) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getFilterConnectorDefWS(tokenStream, ctx);
+            } else {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
+            }
         }
-        modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName);
 
-    }
-
-    @Override
-    public void enterFilterConnectorBaseTypeVariableDef(BallerinaParser.FilterConnectorBaseTypeVariableDefContext ctx) {
-
-    }
-
-    @Override
-    public void exitFilterConnectorBaseTypeVariableDef(BallerinaParser.FilterConnectorBaseTypeVariableDefContext ctx) {
-        String baseConnectorName = ctx.Identifier().getText();
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getFilterConnectorDefWS(tokenStream, ctx);
+        if (ctx.parameter() != null) {
+            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, true);
+        } else {
+            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, false);
         }
-        modelBuilder.createFilterConnector(getCurrentLocation(ctx), whiteSpaceDescriptor,
-                baseConnectorName, typeNameStack.pop());
+
     }
 
     @Override

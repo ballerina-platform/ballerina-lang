@@ -60,12 +60,12 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   'connector' Identifier (filterConnectorBaseTypeVariableDef)? '(' parameterList? ')' connectorBody
+    :   'connector' Identifier ('<' parameter '>')? '(' parameterList? ')' connectorBody
     ;
 
-filterConnectorBaseTypeVariableDef
-    :   '<' referenceTypeName Identifier '>'
-    ;
+//filterConnectorBaseTypeVariableDef
+//    :   '<' referenceTypeName Identifier '>'
+//    ;
 
 connectorBody
     :   '{' variableDefinitionStatement* actionDefinition* '}'

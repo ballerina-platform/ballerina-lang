@@ -469,13 +469,7 @@ public class CodeGenerator implements NodeVisitor {
             LocalVariableAttributeInfo localVarAttribInfo = new LocalVariableAttributeInfo(localVarAttribNameIndex);
             localVarAttribInfo.setLocalVariables(localVarInfo);
             connectorInfo.addAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE, localVarAttribInfo);
-
-            if (connectorDef.getConnectorType() != null) {
-                fieldIndexes[REF_OFFSET] += 1;
-                connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
-            } else {
-                connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
-            }
+            connectorInfo.setFieldCount(Arrays.copyOf(prepareIndexes(fieldIndexes), fieldIndexes.length));
             connectorInfo.setFieldTypes(connectorFieldTypes);
             resetIndexes(fieldIndexes);
 
@@ -1415,47 +1409,6 @@ public class CodeGenerator implements NodeVisitor {
         int pkgCPIndex = addPackageCPEntry(actionIExpr.getPackagePath());
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
 
-        // Generate instructions for filter connectors
-//        BallerinaConnectorDef filterConnectorDef = connectorDef.getFilterConnector();
-//        if (filterConnectorDef != null && actionIExpr.getFilterCallableUnit() != null) {
-//            ActionInvocationExpr filterActionIExpr = actionIExpr.getFilterCallableUnit();
-//            //visit(filterActionIExpr);
-//            int pkgCPIndexFilter = addPackageCPEntry(filterActionIExpr.getPackagePath());
-//
-//            String pkgPathFilter = filterActionIExpr.getPackagePath();
-//            PackageInfo actionPackageInfoFilter = programFile.getPackageInfo(pkgPathFilter);
-//
-//            // Get the connector ref CP index
-//            ConnectorInfo connectorInfoFilter = actionPackageInfoFilter.getConnectorInfo(filterConnectorDef.getName());
-//            int connectorRefCPIndexFilter = getConnectorRefCPIndex(filterConnectorDef);
-//
-//            String actionNameFilter = filterActionIExpr.getName();
-//            UTF8CPEntry actionNameCPEntryFilter = new UTF8CPEntry(actionNameFilter);
-//            int actionNameCPIndexFilter = currentPkgInfo.addCPEntry(actionNameCPEntryFilter);
-//
-//            ActionRefCPEntry actionRefCPEntryFilter = new ActionRefCPEntry(pkgCPIndexFilter,
-//                    connectorRefCPIndexFilter, actionNameCPIndexFilter);
-//
-//            ActionInfo actionInfoFilter = connectorInfoFilter.getActionInfo(actionNameFilter);
-//            actionRefCPEntryFilter.setActionInfo(actionInfoFilter);
-//            actionRefCPEntryFilter.setFilterAction(true);
-//            int actionRefCPIndexFilter = currentPkgInfo.addCPEntry(actionRefCPEntryFilter);
-//            int actionCallIndexFilter = getCallableUnitCallCPIndex(filterActionIExpr);
-//
-//            if (actionInfoFilter.isNative()) {
-//                // TODO Move this to the place where we create action info entry
-//                actionInfoFilter.setNativeAction((AbstractNativeAction) filterActionIExpr.getCallableUnit());
-//                emit(InstructionCodes.NACALL, actionRefCPIndexFilter, actionCallIndexFilter);
-//            } else {
-//                emit(InstructionCodes.ACALL, actionRefCPIndexFilter, actionCallIndexFilter);
-//            }
-//            for (int i = 0; i < maxRegIndexes.length; i++) {
-//                if (maxRegIndexes[i] < regIndexes[i]) {
-//                    maxRegIndexes[i] = regIndexes[i];
-//                }
-//            }
-//            resetIndexes(regIndexes);
-//        } else {
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
@@ -1482,11 +1435,6 @@ public class CodeGenerator implements NodeVisitor {
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
         int actionCallIndex;
         actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
-//        if (isFilterGenerated) {
-//            actionCallIndex = getFilterCallableUnitCallCPIndex(actionIExpr);
-//        } else {
-//            actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
-//        }
 
         if (actionInfo.isNative()) {
             // TODO Move this to the place where we create action info entry
@@ -1495,7 +1443,6 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
-//        }
 
     }
 
@@ -1675,22 +1622,28 @@ public class CodeGenerator implements NodeVisitor {
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             argExpr.accept(this);
+            int j = i;
+            if (connectorDef.isFilterConnector()) {
+                j += 1;
+            }
 
-            ParameterDef paramDef = connectorDef.getParameterDefs()[i];
+            ParameterDef paramDef = connectorDef.getParameterDefs()[j];
             int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
 
             int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
         }
 
-        if (connectorDef.getConnectorType() != null) {
+        if (connectorDef.isFilterConnector()) {
             isFilterGenerated = false;
-            ParameterDef paramDef = connectorDef.getConnectorType();
-            int lvIndex = getNextIndex(paramDef.getType().getTag(), lvIndexes);
-            paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
+            ParameterDef paramDef = connectorDef.getParameterDefs()[0];
+            int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
+
+            //int lvIndex = getNextIndex(paramDef.getType().getTag(), lvIndexes);
+            //paramDef.setMemoryLocation(new StackVarLocation(lvIndex));
 
             //int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.RFIELDSTORE);
-            emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, lvIndex, baseConnectorIndex);
+            emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, fieldIndex, baseConnectorIndex);
             connectorInitExpr.getBaseConnectorInitExpr().setTempOffset(connectorRegIndex);
 //
 //            lvIndex = getNextIndex(TypeTags.CONNECTOR_TAG, lvIndexes);
@@ -2399,39 +2352,8 @@ public class CodeGenerator implements NodeVisitor {
         int[] argRegs = new int[argExprs.length];
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
-            if (!argExpr.hasTemporaryValues()) {
-                argExpr.accept(this);
-            }
+            argExpr.accept(this);
             argRegs[i] = argExpr.getTempOffset();
-        }
-
-        // Calculate registers to store return values
-        BType[] retTypes = invocationExpr.getTypes();
-        int[] retRegs = new int[retTypes.length];
-        for (int i = 0; i < retTypes.length; i++) {
-            BType retType = retTypes[i];
-            retRegs[i] = getNextIndex(retType.getTag(), regIndexes);
-        }
-
-        invocationExpr.setOffsets(retRegs);
-        if (retRegs.length > 0) {
-            ((Expression) invocationExpr).setTempOffset(retRegs[0]);
-        }
-
-        FunctionCallCPEntry funcCallCPEntry = new FunctionCallCPEntry(argRegs, retRegs);
-        return currentPkgInfo.addCPEntry(funcCallCPEntry);
-    }
-
-    private int getFilterCallableUnitCallCPIndex(CallableUnitInvocationExpr invocationExpr) {
-        Expression[] argExprs = invocationExpr.getArgExprs();
-        int[] argRegs = new int[argExprs.length];
-        for (int i = 0; i < argExprs.length; i++) {
-            Expression argExpr = argExprs[i];
-            if (!argExpr.hasTemporaryValues()) {
-                argExpr.accept(this);
-            }
-            argRegs[i] = argExpr.getTempOffset() + 1;
-
         }
 
         // Calculate registers to store return values
