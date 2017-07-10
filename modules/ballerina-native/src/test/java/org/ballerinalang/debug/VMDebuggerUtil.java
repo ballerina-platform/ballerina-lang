@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.core.interpreter;
+package org.ballerinalang.debug;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.Context;
@@ -24,9 +24,9 @@ import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
-import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -35,12 +35,7 @@ import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,22 +44,22 @@ import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
 /**
- * Test Cases for {@link org.ballerinalang.util.debugger.VMDebugManager}.
+ * Test Util class to test debug scenarios.
+ *
+ * @since 0.90
  */
-public class VMDebuggerTest {
+public class VMDebuggerUtil {
 
     private static final String STEP_IN = "1";
     private static final String STEP_OVER = "2";
     private static final String STEP_OUT = "3";
     private static final String RESUME = "5";
-    private static final String EXIT = "0";
-    private static final String FILE = "testDebug.bal";
-    private PrintStream original;
 
-    private static void startDebug(BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints, String[] debugCommand) {
+    public static void startDebug(String sourceFilePath, BreakPointDTO[] breakPoints, BreakPointDTO[] expectedPoints,
+                                  String[] debugCommand) {
         DebugSessionObserverImpl debugSessionObserver = new DebugSessionObserverImpl();
         DebugRunner debugRunner = new DebugRunner();
-        Context bContext = debugRunner.setup(debugSessionObserver, breakPoints);
+        Context bContext = debugRunner.setup(sourceFilePath, debugSessionObserver, breakPoints);
 
         if (!waitTillDebugStarts(1000, bContext)) {
             Assert.fail("VM doesn't start within 1000ms");
@@ -104,17 +99,17 @@ public class VMDebuggerTest {
         }
     }
 
-    private static BreakPointDTO[] createBreakNodeLocations(String fileName, int... lineNos) {
+    public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
         BreakPointDTO[] breakPointDTOS = new BreakPointDTO[lineNos.length];
         int i = 0;
         for (int line : lineNos) {
-            breakPointDTOS[i] = new BreakPointDTO(".", fileName, line);
+            breakPointDTOS[i] = new BreakPointDTO(packagePath, fileName, line);
             i++;
         }
         return breakPointDTOS;
     }
 
-    private static void executeDebuggerCmd(Context bContext, String cmd) {
+    public static void executeDebuggerCmd(Context bContext, String cmd) {
         switch (cmd) {
             case STEP_IN:
                 bContext.getDebugInfoHolder().stepIn();
@@ -133,84 +128,14 @@ public class VMDebuggerTest {
         }
     }
 
-    @BeforeClass
-    public void setup() {
-        original = System.out;
-        // Hiding all test System outs.
-        System.setOut(new PrintStream(new ByteArrayOutputStream()));
-    }
-
-    @AfterClass
-    public void tearDown() {
-        System.setOut(original);
-    }
-
-    @Test(description = "Testing Resume with break points.")
-    public void testResume() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3, 41, 35);
-        String[] debugCommand = {RESUME, RESUME, RESUME, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 41, 35, 41);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Debugger with breakpoint in non executable and not reachable lines.")
-    public void testNegativeBreakPoints() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 4, 7, 51, 37);
-        String[] debugCommand = {};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Step In.")
-    public void testStepIn() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 5, 8, 41);
-        String[] debugCommand = {STEP_IN, RESUME, RESUME, STEP_IN, STEP_IN, RESUME, RESUME, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 5, 13, 5, 8, 41, 25, 41, 8);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Step Out.")
-    public void testStepOut() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 25);
-        String[] debugCommand = {STEP_OUT, STEP_OUT, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 25, 41, 8);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Step Over.")
-    public void testStepOver() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 3);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 3, 5, 6, 8, 9, 10);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Step over in IfCondition.")
-    public void testStepOverIfStmt() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 26);
-        String[] debugCommand = {STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, STEP_OVER, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 26, 28, 29, 35, 36, 41);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
-    @Test(description = "Testing Step over in WhileStmt.")
-    public void testStepOverWhileStmt() {
-        BreakPointDTO[] breakPoints = createBreakNodeLocations(FILE, 13, 19, 21);
-        String[] debugCommand = {STEP_OVER, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME, RESUME,
-                RESUME, RESUME};
-        BreakPointDTO[] expectedBreakPoints = createBreakNodeLocations(FILE, 13, 14, 19, 13, 19, 13, 19,
-                13, 19, 13, 21);
-        startDebug(breakPoints, expectedBreakPoints, debugCommand);
-    }
-
     static class DebugRunner {
 
         ProgramFile programFile;
         Context bContext;
 
-        Context setup(DebugSessionObserverImpl debugSessionObserver, BreakPointDTO[] breakPoints) {
+        Context setup(String sourceFilePath, DebugSessionObserverImpl debugSessionObserver,
+                      BreakPointDTO[] breakPoints) {
             ModeResolver.getInstance().setNonblockingEnabled(true);
-            String sourceFilePath = "samples/debug/testDebug.bal";
             Path path;
 
             try {

@@ -51,6 +51,11 @@ public class DebugInfoHolder {
         Arrays.stream(programFile.getPackageInfoCollection()).forEach(p -> processPkgInfo(p));
     }
 
+    /**
+     * Process and build information required for debugging the package.
+     *
+     * @param packageInfo   To extract relevant information.
+     */
     public void processPkgInfo(PackageInfo packageInfo) {
         DebuggerPkgInfo debuggerPkgInfo = new DebuggerPkgInfo();
 //        List<LineNumberInfo> lineNumberInfos = packageInfo.getLineNumberInfoList().stream().sorted(
@@ -77,6 +82,24 @@ public class DebugInfoHolder {
         } catch (InterruptedException e) {
             //TODO error handle
         }
+    }
+
+    /**
+     * Get semaphore queue length.
+     *
+     * @return  Queue length.
+     */
+    public int getSemaphorQueueLength() {
+        return executionSem.getQueueLength();
+    }
+
+    /**
+     * Return whether there are queued threads or not.
+     *
+     * @return  Queued threads exist or not.
+     */
+    public boolean hasQueuedThreads() {
+        return executionSem.hasQueuedThreads();
     }
 
     public void releaseLock() {
