@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
-    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
         return filterAnnotations(dataModel, symbols);
     }

@@ -23,20 +23,19 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * PackageActionsAndFunctionsResolver
  */
 public class PackageActionsAndFunctionsResolver extends AbstractItemResolver {
     @Override
-    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        List<SymbolInfo> searchList = filterPackageActionsAndFunctions(dataModel, symbols);
+//        List<SymbolInfo> searchList = filterPackageActionsAndFunctions(dataModel, symbols);
 
-        populateCompletionItemList(searchList, completionItems);
+//        populateCompletionItemList(searchList, completionItems);
 
         return completionItems;
     }

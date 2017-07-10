@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class SuggestionsFilterDataModel {
 
-    private ParserRuleContext context;
+    private ParserRuleContext parserRuleContext;
     private List<PossibleToken> possibleTokens;
     private TokenStream tokenStream;
     private Vocabulary vocabulary;
@@ -53,12 +53,13 @@ public class SuggestionsFilterDataModel {
     /**
      * Constructor for SuggestionsFilterDataModel
      * @param parser - parser instance
-     * @param context - Parser rule context
-     * @param posibleTokenList - List of possible tokens
+     * @param parserRuleContext - Parser rule parserRuleContext
+     * @param possibleTokenList - List of possible tokens
      */
-    public SuggestionsFilterDataModel(Parser parser, ParserRuleContext context, List<PossibleToken> posibleTokenList) {
-        this.context = context;
-        this.possibleTokens = posibleTokenList;
+    public SuggestionsFilterDataModel(Parser parser, ParserRuleContext parserRuleContext,
+                                      List<PossibleToken> possibleTokenList) {
+        this.parserRuleContext = parserRuleContext;
+        this.possibleTokens = possibleTokenList;
         this.init(parser);
     }
 
@@ -72,10 +73,10 @@ public class SuggestionsFilterDataModel {
 
     /**
      * Get the Context
-     * @return {@link ParserRuleContext} context instance
+     * @return {@link ParserRuleContext} parserRuleContext instance
      */
-    public ParserRuleContext getContext() {
-        return context;
+    public ParserRuleContext getParserRuleContext() {
+        return parserRuleContext;
     }
 
     /**

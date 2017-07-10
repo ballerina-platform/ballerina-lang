@@ -32,11 +32,19 @@ import java.util.HashMap;
 public class ResourceContextResolver extends AbstractItemResolver {
 
     @Override
-    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+
+        // If the parser rule is not null, incomplete source has been parsed
+        if (dataModel.getParserRuleContext() != null) {
+            completionItems.addAll(resolvers
+                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
+        } else {
+            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
+                    .resolveItems(dataModel, symbols, resolvers));
+        }
         return completionItems;
     }
 }
