@@ -61,12 +61,18 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
     ![alt text](../images/DefineMessage.png)
 1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
     ![alt text](../images/GETRequestMessage.png)
-1. You can now print the message to see the output of what you have set up. To do this, you need to find a print function. You can use the search at the top of the tool palette for this, or you can click **More Libraries** and find it under the **ballerina.lang.system** library.
+
+### Viewing the response
+
+Prior to doing further changes, you can view the output to see if the call to the API works.
+
+1. You can print the message to see the output of what you have set up. To do this, you need to find a print function. You can use the search at the top of the tool palette for this, or you can click **More Libraries** and find it under the **ballerina.lang.system** library.
 
     ![alt text](../images/SystemPrint.png)
 1. Drag and drop the print function onto the main program and print message **m**.
     ![alt text](../images/AddPrint.gif)
-
+1. Save your file by clicking **File** and **Save As**. Provide an appropriate name for you **.bal** file.
+1. Click the **Run** button and click **Application** to run this file. You can see the output in the console of the Ballerina Composer.
 
 ## Get information from the weather forecast API
 
