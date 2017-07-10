@@ -19,35 +19,31 @@
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
-import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
-import org.ballerinalang.composer.service.workspace.langserver.util.completion.PackageItemResolver;
-import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.statements.VariableDefStmt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
- * Resolves the functions in a package
+ * Resolver for Connector definition context
  */
-public class FunctionsResolver extends AbstractItemResolver {
+public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
-        String packageName = dataModel.getContext().getStart().getText();
-        PackageItemResolver packageItemResolver = PackageItemResolver.getInstance();
-        List<Function> functions = packageItemResolver.getFunctionInvocations(packageName);
+    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+                                           HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        functions.forEach(function -> {
-            CompletionItem item = new CompletionItem();
-            item.setLabel(function.getName());
-            item.setDetail(function.getDescription());
-            item.setKind(SymbolKind.FUNCTION_DEF);
-            completionItems.add(item);
-        });
+        CompletionItem connectorActionItem = new CompletionItem();
+        connectorActionItem.setLabel(ItemResolverConstants.ACTION);
+        connectorActionItem.setInsertText(ItemResolverConstants.CONNECTOR_ACTION_TEMPLATE);
+        connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
+        connectorActionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItems.add(connectorActionItem);
+
+        completionItems.addAll(resolvers.get(VariableDefStmt.class).resolveItems(dataModel, symbols , resolvers));
 
         return completionItems;
     }

@@ -16,25 +16,30 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
+package org.ballerinalang.composer.service.workspace.langserver.util.filters;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
-import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Statement context resolver for resolving the items of the statement context
+ * Filter the BTypes
  */
-public class StatementContextResolver extends AbstractItemResolver {
+public class BTypeFilter implements SymbolFilter {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        populateCompletionItemList(symbols, completionItems);
+    public List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel,
+                                        ArrayList<SymbolInfo> symbols, HashMap<String, Object> properties) {
 
-        return completionItems;
+        List<SymbolInfo> filteredList;
+        filteredList = symbols.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
+                .collect(Collectors.toList());
+
+        return filteredList;
     }
 }
