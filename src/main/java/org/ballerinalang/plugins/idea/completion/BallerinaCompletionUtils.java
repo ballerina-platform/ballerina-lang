@@ -1164,36 +1164,6 @@ public class BallerinaCompletionUtils {
     }
 
     /**
-     * Identify the annotation attachment type of the given definition node.
-     *
-     * @param definitionNode a definition node which we want to check
-     * @return annotation attachment type.
-     */
-    static String getAnnotationAttachmentType(PsiElement definitionNode) {
-        String type = null;
-        if (definitionNode instanceof ServiceDefinitionNode) {
-            type = "service";
-        } else if (definitionNode instanceof FunctionDefinitionNode) {
-            type = "function";
-        } else if (definitionNode instanceof ConnectorDefinitionNode) {
-            type = "connector";
-        } else if (definitionNode instanceof StructDefinitionNode) {
-            type = "struct";
-        } else if (definitionNode instanceof TypeMapperNode) {
-            type = "typemapper";
-        } else if (definitionNode instanceof ConstantDefinitionNode) {
-            type = "const";
-        } else if (definitionNode instanceof AnnotationDefinitionNode) {
-            type = "annotation";
-        } else if (definitionNode instanceof ResourceDefinitionNode) {
-            type = "resource";
-        } else if (definitionNode instanceof ActionDefinitionNode) {
-            type = "action";
-        }
-        return type;
-    }
-
-    /**
      * Handles situations where we want to consider previous node content before adding lookup elements to the
      * current node.
      *

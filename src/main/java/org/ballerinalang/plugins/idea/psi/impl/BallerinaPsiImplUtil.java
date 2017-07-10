@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
+import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.module.Module;
@@ -78,6 +79,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
@@ -629,10 +631,9 @@ public class BallerinaPsiImplUtil {
     }
 
     private static List<PsiElement> getAllMatchingElementsFromFile(@NotNull PsiFile file, String xpath) {
-        List<PsiElement> results = new ArrayList<>(
+        return new ArrayList<>(
                 XPath.findAll(BallerinaLanguage.INSTANCE, file, xpath)
         );
-        return results;
     }
 
     /**
@@ -908,38 +909,6 @@ public class BallerinaPsiImplUtil {
         }
         // Return the resolved element.
         return resolved;
-    }
-
-    @NotNull
-    public static List<PsiElement> getAllAnnotationAttachmentsForType(PsiDirectory packageElement,
-                                                                      @NotNull String type) {
-        List<PsiElement> results = new ArrayList<>();
-        List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
-                ANNOTATION_DEFINITION);
-        if (annotationDefinitions.isEmpty()) {
-            return results;
-        }
-        for (PsiElement annotationDefinition : annotationDefinitions) {
-            if (annotationDefinition.getParent() instanceof AnnotationDefinitionNode) {
-                AnnotationDefinitionNode annotationDefinitionNode =
-                        (AnnotationDefinitionNode) annotationDefinition.getParent();
-
-                Collection<AttachmentPointNode> attachmentPointNodes =
-                        PsiTreeUtil.findChildrenOfType(annotationDefinitionNode, AttachmentPointNode.class);
-
-                if (attachmentPointNodes.isEmpty()) {
-                    results.add(annotationDefinition);
-                    continue;
-                }
-                for (AttachmentPointNode attachmentPointNode : attachmentPointNodes) {
-                    if (type.equals(attachmentPointNode.getText())) {
-                        results.add(annotationDefinition);
-                        break;
-                    }
-                }
-            }
-        }
-        return results;
     }
 
     @Nullable
@@ -1755,5 +1724,105 @@ public class BallerinaPsiImplUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the attachment type by checking the nodes.
+     *
+     * @param identifier identifier node of the annotation attachment node
+     * @return attachment type.
+     */
+    @Nullable
+    public static String getAttachmentType(@NotNull IdentifierPSINode identifier) {
+        PsiElement parent = identifier.getParent();
+        PsiElement superParent = parent.getParent();
+        PsiElement nextSibling = PsiTreeUtil.skipSiblingsForward(superParent, PsiWhiteSpace.class, PsiComment.class,
+                AnnotationAttachmentNode.class);
+        String type = null;
+        if (nextSibling == null) {
+            AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(identifier,
+                    AnnotationAttachmentNode.class);
+            if (annotationAttachmentNode != null) {
+                PsiElement definitionNode = annotationAttachmentNode.getParent();
+                type = getAnnotationAttachmentType(definitionNode);
+            }
+        } else if (nextSibling instanceof DefinitionNode) {
+            PsiElement[] children = nextSibling.getChildren();
+            if (children.length != 0) {
+                PsiElement definitionNode = children[0];
+                type = getAnnotationAttachmentType(definitionNode);
+            }
+        } else if (nextSibling.getParent() instanceof ResourceDefinitionNode) {
+            type = "resource";
+        } else if (nextSibling instanceof ActionDefinitionNode
+                || nextSibling.getParent() instanceof ActionDefinitionNode || parent instanceof ActionDefinitionNode) {
+            type = "action";
+        } else if (nextSibling.getParent() instanceof ParameterNode) {
+            type = "parameter";
+        }
+        return type;
+    }
+
+
+    /**
+     * Identify the annotation attachment type of the given definition node.
+     *
+     * @param definitionNode a definition node which we want to check
+     * @return annotation attachment type.
+     */
+    static String getAnnotationAttachmentType(PsiElement definitionNode) {
+        String type = null;
+        if (definitionNode instanceof ServiceDefinitionNode) {
+            type = "service";
+        } else if (definitionNode instanceof FunctionDefinitionNode) {
+            type = "function";
+        } else if (definitionNode instanceof ConnectorDefinitionNode) {
+            type = "connector";
+        } else if (definitionNode instanceof StructDefinitionNode) {
+            type = "struct";
+        } else if (definitionNode instanceof TypeMapperNode) {
+            type = "typemapper";
+        } else if (definitionNode instanceof ConstantDefinitionNode) {
+            type = "const";
+        } else if (definitionNode instanceof AnnotationDefinitionNode) {
+            type = "annotation";
+        } else if (definitionNode instanceof ResourceDefinitionNode) {
+            type = "resource";
+        } else if (definitionNode instanceof ActionDefinitionNode) {
+            type = "action";
+        }
+        return type;
+    }
+
+    @NotNull
+    public static List<PsiElement> getAllAnnotationAttachmentsForType(@NotNull PsiDirectory packageElement,
+                                                                      @NotNull String type) {
+        List<PsiElement> results = new ArrayList<>();
+        List<PsiElement> annotationDefinitions = getAllMatchingElementsFromPackage(packageElement,
+                ANNOTATION_DEFINITION);
+        if (annotationDefinitions.isEmpty()) {
+            return results;
+        }
+        for (PsiElement annotationDefinition : annotationDefinitions) {
+            if (annotationDefinition.getParent() instanceof AnnotationDefinitionNode) {
+                AnnotationDefinitionNode annotationDefinitionNode =
+                        (AnnotationDefinitionNode) annotationDefinition.getParent();
+
+                Collection<AttachmentPointNode> attachmentPointNodes =
+                        PsiTreeUtil.findChildrenOfType(annotationDefinitionNode, AttachmentPointNode.class);
+
+                if (attachmentPointNodes.isEmpty()) {
+                    results.add(annotationDefinition);
+                    continue;
+                }
+                for (AttachmentPointNode attachmentPointNode : attachmentPointNodes) {
+                    if (type.equals(attachmentPointNode.getText())) {
+                        results.add(annotationDefinition);
+                        break;
+                    }
+                }
+            }
+        }
+        return results;
     }
 }
