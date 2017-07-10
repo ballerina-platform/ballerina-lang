@@ -52,8 +52,9 @@ class LangServerClientController extends EventChannel {
                 endpoint: getServiceEndpoint('langserver'), 
                 clientController: this });
             this.langserverChannel.on('connected', () => {
-                this.initializeRequest();
-                resolve();
+                this.initializeRequest()
+                    .then(resolve)
+                    .catch(reject);
             });
             this.langserverChannel.on('error', (error) => {
                 instance = undefined;
@@ -68,18 +69,22 @@ class LangServerClientController extends EventChannel {
      * Send the initialize request to the language server
      */
     initializeRequest() {
-        const session = new RequestSession();
-        const message = {
-            id: session.getId(),
-            jsonrpc: '2.0',
-            method: 'initialize',
-        };
-        session.setMessage(message);
-        session.setCallback(() => {
-            this.initializeResponseHandler(session);
+        return new Promise((resolve, reject) => {
+            const session = new RequestSession();
+            const message = {
+                id: session.getId(),
+                jsonrpc: '2.0',
+                method: 'initialize',
+            };
+            session.setMessage(message);
+            session.setCallback(() => {
+                this.isInitialized = true;
+                resolve();
+            });
+            this.requestSessions.push(session);
+            this.langserverChannel.sendMessage(message);
         });
-        this.requestSessions.push(session);
-        this.langserverChannel.sendMessage(message);
+        
     }
 
     /**
@@ -213,16 +218,6 @@ class LangServerClientController extends EventChannel {
         session.executeCallback(message);
     }
 
-    // Start Language server response handlers
-
-    /**
-     * Initialize the response handler
-     */
-    initializeResponseHandler() {
-        // initialize response message received
-        this.trigger('langserver-initialized');
-        this.isInitialized = true;
-    }
 
     /**
      * Check whether the language server is initialized

@@ -63,19 +63,8 @@ class BallerinaFileEditor extends React.Component {
      */
     componentDidMount() {
         // parse the file & build the tree
+        // then init the env with parsed symbols
         this.parseFile();
-        this.initEnviornment();
-    }
-
-    initEnviornment() {
-        BallerinaEnvironment.initialize()
-            .then(() => {
-                this.environment.init();
-                this.update();
-            })
-            .catch((error) => {
-                log.error('Error while env init. ' + error);
-            });
     }
 
     /**
@@ -109,6 +98,7 @@ class BallerinaFileEditor extends React.Component {
     /**
      * Parse current content of the file
      * and build AST
+     * Then init the env with parsed symbols
      */
     parseFile() {
         const file = this.props.file;
@@ -124,21 +114,30 @@ class BallerinaFileEditor extends React.Component {
                     parseFailed: false,
                     model: ast,
                 });
+                this.update();
                 const pkgName = ast.getPackageDefinition().getPackageName();
                 // update package name of the file
                 file.setPackageName(pkgName || '');
-                // fetch program packages
-                getProgramPackages(file)
-                    .then((data) => {
-                        const pkges = [];
-                        data.packages.forEach((pkgNode) => {
-                            const pkg = BallerinaEnvFactory.createPackage();
-                            pkg.initFromJson(pkgNode);
-                        });
-                        this.environment.addPackages(pkges);
-                        this.update();
+                BallerinaEnvironment.initialize()
+                    .then(() => {
+                        this.environment.init();
+                        // fetch program packages
+                        getProgramPackages(file)
+                            .then((data) => {
+                                const pkges = [];
+                                data.packages.forEach((pkgNode) => {
+                                    const pkg = BallerinaEnvFactory.createPackage();
+                                    pkg.initFromJson(pkgNode);
+                                });
+                                this.environment.addPackages(pkges);
+                                this.update();
+                            })
+                            .catch(error => log.error(error))
                     })
-                    .catch(error => log.error(error))
+                    .catch((error) => {
+                        log.error('Error while env init. ' + error);
+                    });
+                
             })
             .catch(error => log.error(error));
     }
