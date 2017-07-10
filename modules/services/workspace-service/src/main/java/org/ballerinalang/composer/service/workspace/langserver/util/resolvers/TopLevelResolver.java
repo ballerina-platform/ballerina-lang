@@ -39,13 +39,19 @@ public class TopLevelResolver extends AbstractItemResolver {
         functionItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(functionItem);
 
-
         CompletionItem serviceItem = new CompletionItem();
         serviceItem.setLabel(ItemResolverConstants.SERVICE);
         serviceItem.setInsertText(ItemResolverConstants.SERVICE_TEMPLATE);
         serviceItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
         serviceItem.setSortText(ItemResolverConstants.PRIORITY_4);
         completionItems.add(serviceItem);
+
+        CompletionItem connectorDefItem = new CompletionItem();
+        connectorDefItem.setLabel(ItemResolverConstants.CONNECTOR);
+        connectorDefItem.setInsertText(ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
+        connectorDefItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        connectorDefItem.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItems.add(connectorDefItem);
 
         completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         return completionItems;

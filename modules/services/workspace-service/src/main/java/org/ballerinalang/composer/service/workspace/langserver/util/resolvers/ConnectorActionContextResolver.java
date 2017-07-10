@@ -26,14 +26,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Statement context resolver for resolving the items of the statement context
+ * Item Resolver for the connector action context
  */
-public class StatementContextResolver extends AbstractItemResolver {
+public class ConnectorActionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+                                           HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        populateCompletionItemList(symbols, completionItems);
+
+        CompletionItem workerItem = new CompletionItem();
+        workerItem.setLabel(ItemResolverConstants.WORKER);
+        workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+        workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+        workerItem.setSortText(ItemResolverConstants.PRIORITY_7);
+        completionItems.add(workerItem);
+
+        completionItems.addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
 
         return completionItems;
     }

@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ResolveCommandExecutor;
 import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.statements.BlockStmt;
 
 import java.util.ArrayList;
 
@@ -44,7 +45,23 @@ public class SuggestionsFilter {
         if (closestScope == null) {
             return resolveCommandExecutor.resolveCompletionItems(null, dataModel, symbols);
         } else {
-            return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+
+            /**
+             * Following If else ladder is to handle the block statements. As an example connector action, resource,
+             * if-else, while all consist a block statement as the closest scope. DUe to this, following logic is used
+             * (if else ladder) used to differentiate them
+             */
+
+            if (closestScope instanceof BlockStmt && closestScope.getEnclosingScope() instanceof BlockStmt &&
+                    ((BlockStmt) closestScope).getParent() != null) {
+                return resolveCommandExecutor.resolveCompletionItems(((BlockStmt) closestScope).getParent().getClass(),
+                        dataModel, symbols);
+            } else if (closestScope instanceof BlockStmt && closestScope.getEnclosingScope() != null) {
+                return resolveCommandExecutor.resolveCompletionItems(closestScope.getEnclosingScope().getClass(),
+                        dataModel, symbols);
+            } else {
+                return resolveCommandExecutor.resolveCompletionItems(closestScope.getClass(), dataModel, symbols);
+            }
         }
     }
 }
