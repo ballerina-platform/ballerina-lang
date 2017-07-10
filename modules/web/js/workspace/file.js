@@ -25,7 +25,7 @@ let File = Backbone.Model.extend(
             path: 'temp',
             name: 'untitled',
             packageName: '',
-            content: undefined,
+            content: '',
             isPersisted: false,
             lastPersisted: _.now(),
             isDirty: true,

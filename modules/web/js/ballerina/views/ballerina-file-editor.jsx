@@ -16,6 +16,7 @@
  * under the License.
  */
 import log from 'log';
+import _ from 'lodash';
 import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -127,6 +128,7 @@ class BallerinaFileEditor extends React.Component {
                 const pkgName = ast.getPackageDefinition().getPackageName();
                 // update package name of the file
                 file.setPackageName(pkgName || '');
+                // init bal env if not init yet
                 BallerinaEnvironment.initialize()
                     .then(() => {
                         this.environment.init();
@@ -156,16 +158,17 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
-        const showDesignView = !this.state.parseFailed && this.state.activeView === DESIGN_VIEW;
-        const showSourceView = this.state.parseFailed || this.state.activeView === SOURCE_VIEW;
-        const showSwaggerView = !this.state.parseFailed && this.state.activeView === SWAGGER_VIEW;
+        const showDesignView = (!this.state.parseFailed && this.state.activeView === DESIGN_VIEW)
+                || !this.props.file.getContent();
+        const showSourceView = !showDesignView || this.state.activeView === SOURCE_VIEW;
+        const showSwaggerView = !showDesignView && this.state.activeView === SWAGGER_VIEW;
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
                 <div style={ {display: showDesignView ? 'block' : 'none'} }>
                     <DesignView model={this.state.model} />
                 </div>
                 <div style={ {display: showSourceView ? 'block' : 'none'} }>
-                    <SourceView content={this.props.file.getContent()} />
+                    <SourceView content={ this.props.file.getContent() || ''} />
                 </div>
                 <div style={ {display: showSwaggerView ? 'block' : 'none'} }>
                     <SwaggerView />
