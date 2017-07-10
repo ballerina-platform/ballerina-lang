@@ -16,151 +16,153 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-    <!--<Match>-->
-        <!--<Package name="org.ballerinalang.nativeimpl"/>-->
-        <!--<Not>-->
-            <!--<Bug category="SECURITY"/>-->
-        <!--</Not>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.data.sql.client.AbstractSQLAction"/>-->
-        <!--<Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" />-->
-        <!--<Not>-->
-            <!--<Bug category="SECURITY"/>-->
-        <!--</Not>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Delete"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.</Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Execute"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.</Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Get"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Head"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Patch"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Post"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.http.Put"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.jms.client.Send"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.files.Copy"/>-->
-        <!--<Or>-->
-            <!--<Method name="copy"/>-->
-            <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-        <!--</Or>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.files.Delete"/>-->
-        <!--<Or>-->
-            <!--<Method name="delete"/>-->
-            <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-        <!--</Or>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.files.Move"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.files.Open"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.jsons.ToString"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.AddHeader"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.GetStringPayload"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.RemoveHeader"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.SetHeader"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.SetMapPayload"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.messages.SetStringPayload"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.system.LogUtil"/>-->
-        <!--<Or>-->
-            <!--<Method name="logDebug"/>-->
-            <!--<Method name="logError"/>-->
-            <!--<Method name="logInfo"/>-->
-            <!--<Method name="logTrace"/>-->
-            <!--<Method name="logWarn"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-        <!--</Or>-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.lang.xmls.ToString"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.net.file.Acknowledge"/>-->
-        <!--<Method name="execute"/>-->
-        <!--&lt;!&ndash;<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>&ndash;&gt;-->
-    <!--</Match>-->
-    <!--<Match>-->
-        <!--<Class name="org.ballerinalang.nativeimpl.actions.data.sql.client.AbstractSQLAction"/>-->
-        <!--<Or>-->
-            <!--<Method name="executeBatchUpdate"/>-->
-            <!--<Method name="executeUpdateWithKeys"/>-->
-            <!--<Method name="getPreparedCall"/>-->
-            <!--<Method name="getPreparedStatement"/>-->
-            <!--<Method name="executeQuery"/>-->
-            <!--<Method name="executeUpdate"/>-->
-        <!--</Or>-->
-        <!--&lt;!&ndash;<Note>Potential JDBC Injection & A prepared statement is generated from a nonconstant String. This is not vulnerable as it is not used in ballarina. But when the user use this method, he should follow the best practices for secure coding in SQL Injection to avoid the vulnerability.</Note>&ndash;&gt;-->
-    <!--</Match>-->
+    <Match>
+        <Package name="org.ballerinalang.nativeimpl"/>
+        <Not>
+            <Bug category="SECURITY"/>
+        </Not>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.data.sql.client.AbstractSQLAction"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" />
+        <Not>
+            <Bug category="SECURITY"/>
+        </Not>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Delete"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.</Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Execute"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.</Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Get"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Head"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Patch"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Post"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.http.Put"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.jms.client.Send"/>
+        <Method name="execute"/>
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.files.Copy"/>
+        <Or>
+            <Method name="copy"/>
+            <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+        </Or>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.files.Delete"/>
+        <Or>
+            <Method name="delete"/>
+            <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+        </Or>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.files.Move"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.files.Open"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.jsons.ToString"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.AddHeader"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.GetStringPayload"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.RemoveHeader"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.SetHeader"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.SetMapPayload"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.messages.SetStringPayload"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.system.LogUtil"/>
+        <Or>
+            <Method name="logDebug"/>
+            <Method name="logError"/>
+            <Method name="logInfo"/>
+            <Method name="logTrace"/>
+            <Method name="logWarn"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+        </Or>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.lang.xmls.ToString"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.net.file.Acknowledge"/>
+        <Method name="execute"/>
+        <!--<Note>Potential Path Traversal (file read). This method does not use any end user input.  </Note>-->
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.actions.data.sql.client.AbstractSQLAction"/>
+        <Or>
+            <Method name="executeBatchUpdate"/>
+            <Method name="executeUpdateWithKeys"/>
+            <Method name="getPreparedCall"/>
+            <Method name="getPreparedStatement"/>
+            <Method name="executeQuery"/>
+            <Method name="executeUpdate"/>
+        </Or>
+        <!--<Note>Potential JDBC Injection & A prepared statement is generated from a nonconstant String. This is
+         not vulnerable as it is not used in ballarina. But when the user use this method, he should follow the best
+         practices for secure coding in SQL Injection to avoid the vulnerability.</Note>-->
+    </Match>
 </FindBugsFilter>

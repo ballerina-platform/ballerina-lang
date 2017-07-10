@@ -150,7 +150,6 @@
                     </transformationSets>
                 </configuration>
             </plugin>
-
         </plugins>
 
         <pluginManagement>

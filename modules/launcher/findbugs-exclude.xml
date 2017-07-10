@@ -72,6 +72,7 @@
     <Match>
         <Class name="org.ballerinalang.launcher.Main"/>
         <Method name="main"/>
-        <!--<Note>Potential CRLF Injection for logs. This method does not use any user input parameters.</Note>-->
+        <!--<Note>Potential CRLF Injection for logs. This method does not use end user input for logs. If required
+        log4j-2 enc{-} log patterns can be used for additional encoding.</Note>-->
     </Match>
 </FindBugsFilter>
