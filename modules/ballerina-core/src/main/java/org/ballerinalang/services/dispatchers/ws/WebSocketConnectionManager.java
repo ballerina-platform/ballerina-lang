@@ -26,6 +26,7 @@ import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,14 +64,12 @@ public class WebSocketConnectionManager {
 
     public void addConnection(ServiceInfo service, Session session) {
         if (clientConnectors.containsKey(service)) {
-            clientConnectors.get(service).forEach(
-                    bConnector -> {
-                        Session clientSession = initializeClientConnection(bConnector);
-                        String clientServiceName = bConnector.getStringField(1);
-                        addClientSession(clientSession, session, clientServiceName, false);
-                        clientConnectorInfos.get(bConnector).addClientSession(clientSession);
-                    }
-            );
+            for (BConnector bConnector : clientConnectors.get(service)) {
+                Session clientSession = initializeClientConnection(bConnector);
+                String clientServiceName = bConnector.getStringField(1);
+                addClientSession(clientSession, session, clientServiceName, false);
+                clientConnectorInfos.get(bConnector).addClientSession(session, clientSession);
+            }
         }
         addConnectionToBroadcast(service, session);
     }
@@ -237,12 +236,16 @@ public class WebSocketConnectionManager {
             List<BConnector> connectors = new LinkedList<>();
             connectors.add(connector);
             clientConnectors.put(parentService, connectors);
-            clientConnectorInfos.put(connector, new ClientConnectorInfo(connector));
         }
+        clientConnectorInfos.put(connector, new ClientConnectorInfo(connector));
     }
 
     public List<Session> getSessionsOfClientConnector(BConnector bConnector) {
         return clientConnectorInfos.get(bConnector).getClientSessions();
+    }
+
+    public Session getClientSessionOfParentSession(BConnector bConnector, Session parentSession) {
+        return clientConnectorInfos.get(bConnector).getClientSessionOfParentSession(parentSession);
     }
 
     public List<BConnector> getClientConnectors(ServiceInfo parentService) {
@@ -327,7 +330,7 @@ public class WebSocketConnectionManager {
 
     private class ClientConnectorInfo {
         private final BConnector bConnector;
-        private final List<Session> clientSessions = new LinkedList<>();
+        private final Map<Session, Session> clientSessions = new HashMap<>();
 
         public ClientConnectorInfo(BConnector bConnector) {
             this.bConnector = bConnector;
@@ -338,11 +341,17 @@ public class WebSocketConnectionManager {
         }
 
         public List<Session> getClientSessions() {
-            return clientSessions;
+            return clientSessions.entrySet().stream().
+                    map(Map.Entry::getValue).
+                    collect(Collectors.toList());
         }
 
-        public void addClientSession(Session clientSession) {
-            clientSessions.add(clientSession);
+        public Session getClientSessionOfParentSession(Session session) {
+            return clientSessions.get(session);
+        }
+
+        public void addClientSession(Session parentSession, Session clientSession) {
+            clientSessions.put(parentSession, clientSession);
         }
     }
 }

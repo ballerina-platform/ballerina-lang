@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -63,14 +64,16 @@ import javax.websocket.Session;
 public class PushText extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
-        String text = getStringArgument(context, 1);
+        BConnector bconnector = (BConnector) getRefArgument(context, 0);
+        String text = getStringArgument(context, 0);
         Session session = getSession(context);
         if (session == null) {
             throw new BallerinaException("Internal error occurred. Cannot find a connection");
         }
-        Session parentSession = WebSocketConnectionManager.getInstance().getParentSessionOfClientSession(session);
+        Session clientSession = WebSocketConnectionManager.getInstance().
+                getClientSessionOfParentSession(bconnector, session);
         try {
-            parentSession.getBasicRemote().sendText(text);
+            clientSession.getBasicRemote().sendText(text);
         } catch (IOException e) {
             throw new BallerinaException("I/O exception occurred during sending the message");
         }
