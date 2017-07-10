@@ -62,7 +62,7 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
     ![alt text](../images/GETRequestMessage.png)
 
-### Viewing the response
+### View the response
 
 Prior to doing further changes, you can view the output to see if the call to the API works.
 
