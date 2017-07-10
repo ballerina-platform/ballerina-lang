@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -74,5 +75,14 @@ public class MathTest {
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, DELTA);
+    }
+
+    @Test(description = "Test 'randomRange' function in ballerina.lang.math package")
+    public void testRandomRange() {
+        BValue[] args = {new BInteger(5), new BInteger(10)};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "randomRangeTest", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(((BInteger) returns[0]).floatValue() >= 5 && ((BInteger) returns[0]).floatValue() <= 10);
     }
 }

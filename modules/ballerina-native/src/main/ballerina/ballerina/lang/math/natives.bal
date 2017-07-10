@@ -18,6 +18,12 @@ native function pow (float a, float b) (float);
 @doc:Return { value:"float: random value" }
 native function random () (float);
 
+@doc:Description { value:"Returns a random number between given start and end values"}
+@doc:Param { value:"start: range start value" }
+@doc:Param { value:"end: range end value" }
+@doc:Return { value:"float: random value" }
+native function randomRange (int start, int end) (int);
+
 @doc:Description { value:"Returns rounded positive square root of the given value"}
 @doc:Param { value:"val: value to get square root" }
 @doc:Return { value:"float: square root value" }
