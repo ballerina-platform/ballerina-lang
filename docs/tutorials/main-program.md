@@ -74,10 +74,14 @@ Prior to doing further changes, you can view the output to see if the call to th
 1. Save your file by clicking **File** and **Save As**. Provide an appropriate name for you **.bal** file.
 1. Click the **Run** button and click **Application** to run this file. You can see the output in the console of the Ballerina Composer.
 
+The output contains a JSON payload. This tutorial aims to access the JSOn payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days.
+
 ### Work with JSON
 
-1. Use the search, or navigate to a function called **getJsonPayload**, which is in the **ballerina.lang.messages** library.
-1. Drag and drop this onto the main program in the canvas.
+The next step is to obtain the JSON payload content.
+
+1. Use the search, or navigate to a function called **getJsonPayload**, which is in the **ballerina.lang.messages** library. This library contains functions that enable you to modify and use messages in various ways.
+1. Drag and drop this onto the main program in the canvas. This automatically applies this function on message **m** since that is the default message.
     ![alt text](../images/GetJsonPayload.gif)
 1. Modify the name of the JSON function you added to something meaningful.
     ![alt text](../images/GetJsonPayloadMessage.png)
