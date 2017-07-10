@@ -19,7 +19,6 @@ package org.ballerinalang.nativeimpl.lang.math;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -47,7 +46,7 @@ public class RandomInRange extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         long start = getIntArgument(ctx, 0);
         long end = getIntArgument(ctx, 1);
-        long random = ThreadLocalRandom.current().nextLong(start, end + 1);
+        long random = ThreadLocalRandom.current().nextLong(start, end);
         return getBValues(new BInteger(random));
     }
 }

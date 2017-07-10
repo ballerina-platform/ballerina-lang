@@ -18,7 +18,7 @@ native function pow (float a, float b) (float);
 @doc:Return { value:"float: random value" }
 native function random () (float);
 
-@doc:Description { value:"Returns a random number between given start and end values"}
+@doc:Description { value:"Returns a random number between given start(inclusive) and end(exclusive) values"}
 @doc:Param { value:"start: range start value" }
 @doc:Param { value:"end: range end value" }
 @doc:Return { value:"float: random value" }

@@ -83,6 +83,6 @@ public class MathTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "randomRangeTest", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BInteger) returns[0]).floatValue() >= 5 && ((BInteger) returns[0]).floatValue() <= 10);
+        Assert.assertTrue(((BInteger) returns[0]).floatValue() >= 5 && ((BInteger) returns[0]).floatValue() < 10);
     }
 }
