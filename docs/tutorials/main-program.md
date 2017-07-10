@@ -67,6 +67,7 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 1. Drag and drop the print function onto the main program and print message **m**.
     ![alt text](../images/AddPrint.gif)
 
+
 ## Get information from the weather forecast API
 
 In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
