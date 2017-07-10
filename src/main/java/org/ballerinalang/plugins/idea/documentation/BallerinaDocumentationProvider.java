@@ -30,11 +30,11 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -460,18 +460,19 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      */
     private static AnnotationAttributeValueNode getAnnotationAttributeNode(PsiElement annotation,
                                                                            String annotationType) {
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-        if (nameReferenceNode == null) {
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.findChildOfType(annotation,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
             return null;
         }
-        PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
+        PsiElement nameReferenceNodeIdentifier = annotationReferenceNode.getNameIdentifier();
         if (nameReferenceNodeIdentifier == null) {
             return null;
         }
         if (!annotationType.equals(nameReferenceNodeIdentifier.getText())) {
             return null;
         }
-        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
+        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(annotationReferenceNode, PackageNameNode.class);
         if (packageNameNode == null) {
             return null;
         }
