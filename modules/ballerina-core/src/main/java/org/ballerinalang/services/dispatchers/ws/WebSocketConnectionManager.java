@@ -18,6 +18,15 @@
 
 package org.ballerinalang.services.dispatchers.ws;
 
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.ClientConnector;
+import org.wso2.carbon.messaging.ControlCarbonMessage;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,12 +38,19 @@ import javax.websocket.Session;
  */
 public class WebSocketConnectionManager {
 
-    // Map<serviceName, Map<sessionId, session>>
-    private final Map<String, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
+    // Map<serviceInfo, Map<sessionId, session>>
+    private final Map<ServiceInfo, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
     // Map<groupName, Map<sessionId, session>>
     private final Map<String, Map<String, Session>> connectionGroups = new ConcurrentHashMap<>();
     // Map<NameToStoreConnection, Session>
     private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
+    // Map <clientSession, clientSessionInfo>
+    private final Map<Session, ClientSessionInfo> clientSessions = new ConcurrentHashMap<>();
+
+    // Map <parentServiceName, Connector>
+    private final Map<ServiceInfo, List<BConnector>> clientConnectors = new ConcurrentHashMap<>();
+    // Map <connector, connectorInfo>
+    private final Map<BConnector, ClientConnectorInfo> clientConnectorInfos = new ConcurrentHashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
@@ -45,19 +61,33 @@ public class WebSocketConnectionManager {
         return sessionManager;
     }
 
+    public void addConnection(ServiceInfo service, Session session) {
+        if (clientConnectors.containsKey(service)) {
+            clientConnectors.get(service).forEach(
+                    bConnector -> {
+                        Session clientSession = initializeClientConnection(bConnector);
+                        String clientServiceName = bConnector.getStringField(1);
+                        addClientSession(clientSession, session, clientServiceName, false);
+                        clientConnectorInfos.get(bConnector).addClientSession(clientSession);
+                    }
+            );
+        }
+        addConnectionToBroadcast(service, session);
+    }
+
     /**
      * Add {@link Session} to session the broadcast group of a given service.
      *
-     * @param serviceName name of the service.
+     * @param service {@link ServiceInfo} of the service.
      * @param session {@link Session} to add to the broadcast group.
      */
-    public void addConnectionToBroadcast(String serviceName, Session session) {
-        if (broadcastSessions.containsKey(serviceName)) {
-            broadcastSessions.get(serviceName).put(session.getId(), session);
+    public void addConnectionToBroadcast(ServiceInfo service, Session session) {
+        if (broadcastSessions.containsKey(service)) {
+            broadcastSessions.get(service).put(session.getId(), session);
         } else {
             Map<String, Session> sessionMap = new ConcurrentHashMap<>();
             sessionMap.put(session.getId(), session);
-            broadcastSessions.put(serviceName, sessionMap);
+            broadcastSessions.put(service, sessionMap);
         }
     }
 
@@ -65,24 +95,24 @@ public class WebSocketConnectionManager {
      * Remove {@link Session} from a broadcast group. This should be mostly called when a WebSocket connection is
      * Closed.
      *
-     * @param serviceName name of the service.
+     * @param service {@link ServiceInfo} of the service.
      * @param session {@link Session} to remove from the broadcast group.
      */
-    public void removeConnectionFromBroadcast(String serviceName, Session session) {
-        if (broadcastSessions.containsKey(serviceName)) {
-            broadcastSessions.get(serviceName).remove(session.getId());
+    public void removeConnectionFromBroadcast(ServiceInfo service, Session session) {
+        if (broadcastSessions.containsKey(service)) {
+            broadcastSessions.get(service).remove(session.getId());
         }
     }
 
     /**
      * Get a list of Sessions for broadcasting for a given service.
      *
-     * @param serviceName name of the service.
+     * @param service name of the service.
      * @return the list of sessions which are connected to a given service.
      */
-    public List<Session> getBroadcastConnectionList(String serviceName) {
-        if (broadcastSessions.containsKey(serviceName)) {
-            return broadcastSessions.get(serviceName).entrySet().stream()
+    public List<Session> getBroadcastConnectionList(ServiceInfo service) {
+        if (broadcastSessions.containsKey(service)) {
+            return broadcastSessions.get(service).entrySet().stream()
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
         } else {
@@ -186,6 +216,39 @@ public class WebSocketConnectionManager {
         return connectionStore.get(connectionName);
     }
 
+    public void addClientSession(Session clientSession, Session parentSession, String clientServiceName,
+                                 boolean isInitialConnection) {
+        clientSessions.put(clientSession, new ClientSessionInfo(clientSession, parentSession,
+                                                                clientServiceName, isInitialConnection));
+    }
+
+    public Session getParentSessionOfClientSession(Session clientSession) {
+        return clientSessions.get(clientSession).getParentSession();
+    }
+
+    public String getClientServiceNameOfClientSession(Session clientSession) {
+        return clientSessions.get(clientSession).getClientServiceName();
+    }
+
+    public void addClientConnector(ServiceInfo parentService, BConnector connector) {
+        if (clientConnectors.containsKey(parentService)) {
+            clientConnectors.get(parentService).add(connector);
+        } else {
+            List<BConnector> connectors = new LinkedList<>();
+            connectors.add(connector);
+            clientConnectors.put(parentService, connectors);
+            clientConnectorInfos.put(connector, new ClientConnectorInfo(connector));
+        }
+    }
+
+    public List<Session> getSessionsOfClientConnector(BConnector bConnector) {
+        return clientConnectorInfos.get(bConnector).getClientSessions();
+    }
+
+    public List<BConnector> getClientConnectors(ServiceInfo parentService) {
+        return clientConnectors.get(parentService);
+    }
+
     /**
      * Connections can be saved in multiple places according to there need of use.
      * Once the connection is closed or because of the reason if it has to be removed from all the places
@@ -210,5 +273,76 @@ public class WebSocketConnectionManager {
         connectionStore.entrySet().removeIf(
                 entry -> entry.getValue().equals(session)
         );
+    }
+
+    private Session initializeClientConnection(BConnector bConnector) {
+        String remoteUrl = bConnector.getStringField(0);
+
+        // Initializing a client connection.
+        ClientConnector clientConnector =
+                BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
+        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
+                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN, null, true);
+        controlCarbonMessage.setProperty(Constants.TO, remoteUrl);
+        Session clientSession;
+        try {
+            clientSession = (Session) clientConnector.init(controlCarbonMessage, null, null);
+        } catch (ClientConnectorException e) {
+            throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
+        }
+
+        return clientSession;
+    }
+
+    private class ClientSessionInfo {
+        private final Session clientSession;
+        private final Session parentSession;
+        private final String clientServiceName;
+        private final boolean initialConnection;
+
+        public ClientSessionInfo(Session clientSession, Session parentSession,
+                                 String clientServiceName, boolean initialConnection) {
+            this.clientSession = clientSession;
+            this.parentSession = parentSession;
+            this.clientServiceName = clientServiceName;
+            this.initialConnection = initialConnection;
+        }
+
+        public Session getParentSession() {
+            return parentSession;
+        }
+
+        public String getClientServiceName() {
+            return clientServiceName;
+        }
+
+        public boolean isInitialConnection() {
+            return isInitialConnection();
+        }
+
+        public Session getClientSession() {
+            return clientSession;
+        }
+    }
+
+    private class ClientConnectorInfo {
+        private final BConnector bConnector;
+        private final List<Session> clientSessions = new LinkedList<>();
+
+        public ClientConnectorInfo(BConnector bConnector) {
+            this.bConnector = bConnector;
+        }
+
+        public BConnector getbConnector() {
+            return bConnector;
+        }
+
+        public List<Session> getClientSessions() {
+            return clientSessions;
+        }
+
+        public void addClientSession(Session clientSession) {
+            clientSessions.add(clientSession);
+        }
     }
 }

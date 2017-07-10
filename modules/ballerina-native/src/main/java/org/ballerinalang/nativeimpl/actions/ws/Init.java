@@ -27,13 +27,18 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ClientConnector;
+import org.wso2.carbon.messaging.ControlCarbonMessage;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
-import java.util.UUID;
+import javax.websocket.Session;
 
 /**
  * Initialize the WebSocket client connector.
@@ -62,22 +67,36 @@ public class Init extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        ConnectorControllerRegistry controllerRegistry = ConnectorControllerRegistry.getInstance();
-        if (!controllerRegistry.contains(bconnector)) {
-            String remoteUrl = bconnector.getStringField(0);
-            String clientServiceName = bconnector.getStringField(1);
+        String remoteUrl = bconnector.getStringField(0);
+        String clientServiceName = bconnector.getStringField(1);
+        ServiceInfo parentService = context.getServiceInfo();
 
-            ServiceInfo parentService = context.getServiceInfo();
-            String connectorID = UUID.randomUUID().toString();
-            if (parentService != null) {
-                String parentServiceName = parentService.getName();
-                controllerRegistry.addConnectorController(bconnector, connectorID, parentServiceName,
-                                                          clientServiceName, remoteUrl);
-            } else {
-                controllerRegistry.addConnectorController(bconnector, connectorID, null,
-                                                          clientServiceName, remoteUrl);
-            }
+        // Initializing a client connection.
+        ClientConnector clientConnector =
+                BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
+        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
+                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN, null, true);
+        controlCarbonMessage.setProperty(Constants.TO, remoteUrl);
+        Session clientSession;
+        try {
+            clientSession = (Session) clientConnector.init(controlCarbonMessage, null, null);
+        } catch (ClientConnectorException e) {
+            throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }
+
+        // Adding client session to connection manager.
+        WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
+        connectionManager.addClientSession(clientSession, null, clientServiceName, true);
+
+        // Setting parent service to client service if parent service is a WS service.
+        if (parentService != null && parentService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
+            WebSocketServicesRegistry.getInstance().
+                    setParentServiceToClientService(clientServiceName, parentService);
+        }
+
+        // Adding client connector to parent service in connection manager.
+        connectionManager.addClientConnector(parentService, bconnector);
+
         return null;
     }
 }

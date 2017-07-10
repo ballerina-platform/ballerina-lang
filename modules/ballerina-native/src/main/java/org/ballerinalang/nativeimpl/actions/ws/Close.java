@@ -27,9 +27,8 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.services.dispatchers.ws.ConnectorController;
-import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
 import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 
@@ -60,9 +59,7 @@ public class Close extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        ConnectorController controller =
-                ConnectorControllerRegistry.getInstance().removeConnectorController(bconnector);
-        controller.getAllClientIDs().forEach(
+        WebSocketConnectionManager.getInstance().getSessionsOfClientConnector(bconnector).forEach(
                 clientID -> {
                     ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                             org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);

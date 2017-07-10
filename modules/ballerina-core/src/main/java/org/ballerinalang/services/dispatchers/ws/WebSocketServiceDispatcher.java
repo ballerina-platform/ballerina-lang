@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import javax.websocket.Session;
+
 
 /**
  * Service Dispatcher for WebSocket Endpoint.
@@ -47,7 +49,6 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             if (serviceUri == null) {
                 return null;
             }
-
             ServiceInfo service = WebSocketServicesRegistry.getInstance().getServiceEndpoint(interfaceId, serviceUri);
 
             if (service == null) {
@@ -57,12 +58,9 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             }
 
         } else {
-            String clientID = (String) cMsg.getProperty(Constants.WEBSOCKET_CLIENT_ID);
-            if (clientID == null) {
-                return null;
-            }
-            String clientServiceName = ConnectorControllerRegistry.getInstance().
-                    getConnectorController(clientID).getClientServiceName();
+            Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
+            String clientServiceName = WebSocketConnectionManager.getInstance().
+                    getClientServiceNameOfClientSession(session);
             ServiceInfo clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);
             if (clientService == null) {
                 return null;

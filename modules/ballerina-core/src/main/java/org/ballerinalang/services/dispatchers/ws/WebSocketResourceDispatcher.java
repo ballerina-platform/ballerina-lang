@@ -46,37 +46,6 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     @Deprecated
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
-        try {
-            if (cMsg instanceof TextCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
-            } else if (cMsg instanceof BinaryCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
-            } else if (cMsg instanceof ControlCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
-            } else if (cMsg instanceof StatusCarbonMessage) {
-                StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
-                if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
-                    return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
-                } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
-                    String connection = (String) cMsg.getProperty(Constants.CONNECTION);
-                    String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
-                    /* If the connection is WebSocket upgrade, this block will be executed */
-                    if (connection != null && upgrade != null &&
-                            Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
-                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnectionToBroadcast(service.getName(), session);
-                        ConnectorControllerRegistry.getInstance().getConnectorControllersForService(service.getName())
-                                .forEach(connectorController -> connectorController.addConnection(session));
-                        return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage(),
-                                         balContext);
-        }
         return null;
     }
 
@@ -108,8 +77,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     if (connection != null && upgrade != null &&
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
                         Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnectionToBroadcast(service.getName(),
-                                session);
+                        WebSocketConnectionManager.getInstance().addConnection(service, session);
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }

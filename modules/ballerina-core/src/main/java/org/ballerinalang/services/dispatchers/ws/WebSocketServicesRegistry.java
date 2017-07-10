@@ -56,7 +56,7 @@ public class WebSocketServicesRegistry {
         }
         boolean isClientService = isWebSocketClientService(service);
         if (isClientService) {
-            throw new BallerinaException("Cannot register client service as a service endpoint");
+            registerClientService(service);
         } else {
             String upgradePath = findFullWebSocketUpgradePath(service);
             String listenerInterface = getListenerInterface(service);
@@ -72,17 +72,25 @@ public class WebSocketServicesRegistry {
         }
     }
 
-    public void registerClientService(ServiceInfo clientService, ServiceInfo parentService) {
+    public void registerClientService(ServiceInfo clientService) {
         if (!clientService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
             return;
         }
 
         boolean isClientService = isWebSocketClientService(clientService);
         if (isClientService) {
-            ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService, parentService);
+            ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService);
             clientServices.put(clientService.getName(), clientServiceInfo);
         } else {
             throw new BallerinaException("Cannot register as a client service");
+        }
+    }
+
+    public void setParentServiceToClientService(String clientServiceName, ServiceInfo parentService) {
+        if (clientServices.containsKey(clientServiceName)) {
+            clientServices.get(clientServiceName).setParentService(parentService);
+        } else {
+            throw new BallerinaException("Cannot find the client service: " + clientServiceName);
         }
     }
 
@@ -123,17 +131,17 @@ public class WebSocketServicesRegistry {
         return clientServices.get(serviceName).getClientService();
     }
 
-    public ServiceInfo getParentServiceOfClientService(String serviceName) {
-        return clientServices.get(serviceName).getParentService();
+    public ServiceInfo getParentServiceOfClientService(ServiceInfo service) {
+        return clientServices.get(service).getParentService();
     }
     /**
      * Check whether the given service name is a client service or not.
      *
-     * @param serviceName name of the service.
+     * @param service {@link ServiceInfo} of the service.
      * @return true if the service given by service name is a client service. Else return false.
      */
-    public boolean isClientService(String serviceName) {
-        return clientServices.containsKey(serviceName);
+    public boolean isClientService(ServiceInfo service) {
+        return clientServices.containsKey(service.getName());
     }
 
     /**
@@ -226,18 +234,20 @@ public class WebSocketServicesRegistry {
         return listenerInterface;
     }
 
-    private class ClientServiceInfo{
+    private class ClientServiceInfo {
         private final ServiceInfo clientService;
-        private final ServiceInfo parentService;
+        private ServiceInfo parentService;
 
-
-        private ClientServiceInfo(ServiceInfo clientService, ServiceInfo parentServie) {
+        private ClientServiceInfo(ServiceInfo clientService) {
             this.clientService = clientService;
-            this.parentService = parentServie;
         }
 
         public ServiceInfo getClientService() {
             return clientService;
+        }
+
+        public void setParentService(ServiceInfo parentService) {
+            this.parentService = parentService;
         }
 
         public ServiceInfo getParentService() {

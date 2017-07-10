@@ -27,8 +27,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.ws.ConnectorControllerRegistry;
 import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -62,19 +62,16 @@ public class PushText extends AbstractNativeFunction {
         }
 
         try {
-            Session session;
             CarbonMessage carbonMessage = context.getCarbonMessage();
-            if (WebSocketServicesRegistry.getInstance().isClientService(context.getServiceInfo().getName())) {
-                String clientID = (String) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_ID);
-                session = ConnectorControllerRegistry.getInstance().
-                        getConnectorController(clientID).getConnection(clientID);
+            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);;
+            if (WebSocketServicesRegistry.getInstance().isClientService(context.getServiceInfo())) {
+                session = WebSocketConnectionManager.getInstance().getParentSessionOfClientSession(session);
                 if (session == null) {
                     throw new BallerinaException("pushing text from client service is not supported. " +
                                     "This is only supported for WebSocket to WebSocket mediation");
                 }
-            } else {
-                session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
             }
+
             String text = getStringArgument(context, 0);
             session.getBasicRemote().sendText(text);
         } catch (Throwable e) {
