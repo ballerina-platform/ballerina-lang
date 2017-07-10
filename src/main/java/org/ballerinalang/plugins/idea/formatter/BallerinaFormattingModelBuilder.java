@@ -139,7 +139,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(VARIABLE_REFERENCE, INDEX).spaceIf(false)
                 .between(VARIABLE_REFERENCE, FIELD).spaceIf(false)
                 .between(VARIABLE_REFERENCE, XML_ATTRIB).spaceIf(false)
-                .after(ANNOTATION_REFERENCE).spaceIf(false)
+                .after(ANNOTATION_REFERENCE).spaceIf(true)
                 .after(FUNCTION_REFERENCE).spaceIf(false)
                 .after(CONNECTOR_REFERENCE).spaceIf(false)
                 .around(ANNOTATION_ATTRIBUTE_LIST).spaceIf(false)
