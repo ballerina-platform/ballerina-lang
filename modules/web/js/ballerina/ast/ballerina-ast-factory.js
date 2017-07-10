@@ -76,7 +76,6 @@ import arrayInitExpression from './expressions/array-init-expression';
 import workerReplyStatement from './statements/worker-reply-statement';
 import structType from './struct-type';
 import fieldBasedVarRefExpression from './expressions/field-based-variable-reference-expression';
-import blockStatement from './statements/block-statement';
 import typeCastExpression from './expressions/type-cast-expression';
 import typeConversionExpression from './expressions/type-conversion-expression';
 import variableDefinition from './variable-definition';
@@ -436,14 +435,6 @@ BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
  */
 BallerinaASTFactory.createSimpleVariableReferenceExpression = function (args) {
     return new SimpleVariableReferenceExpression(args);
-};
-
-/**
- * creates BlockStatement
- * @param args
- */
-BallerinaASTFactory.createBlockStatement = function (args) {
-    return new blockStatement(args);
 };
 
 /**
@@ -922,15 +913,6 @@ BallerinaASTFactory.isStatement = function (child) {
  */
 BallerinaASTFactory.isWhileStatement = function (child) {
     return child instanceof whileStatement;
-};
-
-/**
- * instanceof check for Block Statement
- * @param child - Object for instanceof check
- * @returns {boolean} - true if same type, else false
- */
-BallerinaASTFactory.isBlockStatement = function (child) {
-    return child instanceof blockStatement;
 };
 
 /**
@@ -1740,9 +1722,6 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'field_based_variable_reference_expression':
         node = BallerinaASTFactory.createFieldBasedVarRefExpression();
-        break;
-    case 'block_statement':
-        node = BallerinaASTFactory.createBlockStatement();
         break;
     case 'reference_type_init_expression':
         node = BallerinaASTFactory.createReferenceTypeInitExpression();

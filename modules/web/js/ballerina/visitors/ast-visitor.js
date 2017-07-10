@@ -69,8 +69,6 @@ class ASTVisitor extends EventChannel {
             return this.canVisitResourceParameter(node);
         } else if (ASTFactory.isReturnType(node)) {
             return this.canVisitReturnType(node);
-        } else if (ASTFactory.isBlockStatement(node)) {
-            return this.canVisitBlockStatement(node);
         } else if (ASTFactory.isVariableDefinition(node)) {
             return this.canVisitVariableDefinition(node);
         } else if (ASTFactory.isAnnotation(node)) {
@@ -128,8 +126,6 @@ class ASTVisitor extends EventChannel {
             return this.beginVisitResourceParameter(node);
         } else if (ASTFactory.isReturnType(node)) {
             return this.beginVisitReturnType(node);
-        } else if (ASTFactory.isBlockStatement(node)) {
-            return this.beginVisitBlockStatement(node);
         } else if (ASTFactory.isVariableDefinition(node)) {
             return this.beginVisitVariableDefinition(node);
         } else if (ASTFactory.isAnnotation(node)) {
@@ -187,8 +183,6 @@ class ASTVisitor extends EventChannel {
             return this.visitResourceParameter(node);
         } else if (ASTFactory.isReturnType(node)) {
             return this.visitReturnType(node);
-        } else if (ASTFactory.isBlockStatement(node)) {
-            return this.visitBlockStatement(node);
         } else if (ASTFactory.isVariableDefinition(node)) {
             return this.visitVariableDefinition(node);
         } else if (ASTFactory.isAnnotation(node)) {
@@ -246,8 +240,6 @@ class ASTVisitor extends EventChannel {
             return this.endVisitResourceParameter(node);
         } else if (ASTFactory.isReturnType(node)) {
             return this.endVisitReturnType(node);
-        } else if (ASTFactory.isBlockStatement(node)) {
-            return this.endVisitBlockStatement(node);
         } else if (ASTFactory.isVariableDefinition(node)) {
             return this.endVisitVariableDefinition(node);
         } else if (ASTFactory.isAnnotation(node)) {
@@ -374,19 +366,6 @@ class ASTVisitor extends EventChannel {
     }
 
     endVisitResourceParameter(resourceParameter) {
-    }
-
-    canVisitBlockStatement(blockStatement) {
-        return false;
-    }
-
-    beginVisitBlockStatement(blockStatement) {
-    }
-
-    visitBlockStatement(blockStatement) {
-    }
-
-    endVisitBlockStatement(blockStatement) {
     }
 
     canVisitReturnType(returnType) {
