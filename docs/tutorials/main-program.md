@@ -74,3 +74,7 @@ When you add a connector, you need to have a way of calling a connector and thos
 
 A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
 
+In the case of the HTTP connector you are using in this tutorial, the actions are listed out under the connector in the tool palette.
+
+![alt text](../images/Actions.png)
+
