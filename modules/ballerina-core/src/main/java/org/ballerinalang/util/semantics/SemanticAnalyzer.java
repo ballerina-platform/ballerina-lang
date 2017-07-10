@@ -285,50 +285,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constDef) {
-        SimpleTypeName typeName = constDef.getTypeName();
-        BType lhsType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
-        constDef.setType(lhsType);
-        if (!BTypes.isValueType(lhsType)) {
-            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
-        }
-
-        // Check whether this constant is already defined.
-        SymbolName symbolName = new SymbolName(constDef.getName(), currentPkg);
-        if (currentScope.resolve(symbolName) != null) {
-            BLangExceptionHelper.throwSemanticError(constDef,
-                    SemanticErrors.REDECLARED_SYMBOL, constDef.getName());
-        }
-
-        // Define the constant in the package scope
-        currentScope.define(symbolName, constDef);
-
-        Expression rExpr = constDef.getRhsExpr();
-        rExpr.accept(this);
-
-        // Check type assignability
-        AssignabilityResult result = performAssignabilityCheck(lhsType, rExpr);
-        if (result.expression != null) {
-            constDef.setRhsExpr(result.expression);
-        } else if (!result.assignable) {
-            BLangExceptionHelper.throwSemanticError(constDef,
-                    SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(), lhsType);
-        }
+        VariableDefStmt variableDefStmt = constDef.getVariableDefStmt();
+        variableDefStmt.accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
             annotationAttachment.accept(this);
         }
 
-        // Set memory location
-        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
-        constDef.setMemoryLocation(memLocation);
-
         // Insert constant initialization stmt to the package init function
         SimpleVarRefExpr varRefExpr = new SimpleVarRefExpr(constDef.getNodeLocation(),
                 constDef.getWhiteSpaceDescriptor(), constDef.getName(), null, null);
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
-                new Expression[]{varRefExpr}, constDef.getRhsExpr());
+                new Expression[]{varRefExpr}, variableDefStmt.getRExpr());
         pkgInitFuncStmtBuilder.addStmt(assignStmt);
     }
 
@@ -2946,7 +2916,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
             variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
-            variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
+            if (variableDef instanceof GlobalVariableDef) {
+                variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
+            } else if (variableDef instanceof ConstDef) {
+                variableDef.setMemoryLocation(new ConstantLocation(++staticMemAddrOffset));
+            }
         }
     }
 

@@ -1729,8 +1729,8 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(ValueTypeNameContext.class,0);
 		}
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public SimpleLiteralContext simpleLiteral() {
-			return getRuleContext(SimpleLiteralContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public ConstantDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1761,7 +1761,7 @@ public class BallerinaParser extends Parser {
 			setState(436);
 			match(T__21);
 			setState(437);
-			simpleLiteral();
+			expression(0);
 			setState(438);
 			match(T__1);
 			}
@@ -7314,7 +7314,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u01ab\u01ad\5L\'\2\u01ac\u01ab\3\2\2\2\u01ad\u01b0\3\2\2\2\u01ae"+
 		"\u01ac\3\2\2\2\u01ae\u01af\3\2\2\2\u01af\u01b1\3\2\2\2\u01b0\u01ae\3\2"+
 		"\2\2\u01b1\u01b2\7\f\2\2\u01b2/\3\2\2\2\u01b3\u01b4\7\32\2\2\u01b4\u01b5"+
-		"\5:\36\2\u01b5\u01b6\7[\2\2\u01b6\u01b7\7\30\2\2\u01b7\u01b8\5\u00bc_"+
+		"\5:\36\2\u01b5\u01b6\7[\2\2\u01b6\u01b7\7\30\2\2\u01b7\u01b8\5\u00aeX"+
 		"\2\u01b8\u01b9\7\4\2\2\u01b9\61\3\2\2\2\u01ba\u01bb\5\64\33\2\u01bb\u01bf"+
 		"\7\13\2\2\u01bc\u01be\5L\'\2\u01bd\u01bc\3\2\2\2\u01be\u01c1\3\2\2\2\u01bf"+
 		"\u01bd\3\2\2\2\u01bf\u01c0\3\2\2\2\u01c0\u01c5\3\2\2\2\u01c1\u01bf\3\2"+

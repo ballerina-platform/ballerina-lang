@@ -277,7 +277,14 @@ public class BLangModelBuilder {
         Identifier identifier = new Identifier(constName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, identifier, typeName, currentPackagePath,
-                symbolName, currentScope, exprStack.pop());
+                symbolName, currentScope);
+
+        SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, identifier.getName());
+        variableRefExpr.setVariableDef(constantDef);
+
+        Expression rhsExpr = exprStack.pop();
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, constantDef, variableRefExpr, rhsExpr);
+        constantDef.setVariableDefStmt(variableDefStmt);
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
 
