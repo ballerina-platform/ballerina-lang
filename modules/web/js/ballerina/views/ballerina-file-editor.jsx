@@ -30,6 +30,7 @@ import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
+import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 
 export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
@@ -53,10 +54,19 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            sourceModified: false,
             parseFailed: true,
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
+        this.props.file.on('content-modified', (newContent, evt) => {
+            // if the change was done from source editor
+            if (evt.type === 'source-modified') {
+                this.setState({
+                    sourceModified: true,
+                })
+            }
+        });
         this.environment = new PackageScopedEnvironment();
     }
 
@@ -104,7 +114,29 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
-        this.setState({ activeView: newView });
+        const newState = { 
+            activeView: newView 
+        }
+        // if modifications were done from source view
+        // reparse the file
+        if (newView === DESIGN_VIEW && this.state.sourceModified) {
+            newState.sourceModified = false;
+            this.setState(newState);
+            this.parseFile();
+        } else {
+            this.setState(newState);
+        }
+    }  
+
+    /**
+     * On ast modifications
+     */
+    onASTModified(evt) {
+        const sourceGenVisitor = new SourceGenVisitor();
+        this.state.model.accept(sourceGenVisitor);
+        const newContent = sourceGenVisitor.getGeneratedSource();
+        this.props.file.setContent(newContent, evt);
+        this.update();
     }
 
     /**
@@ -119,8 +151,8 @@ class BallerinaFileEditor extends React.Component {
                 // get ast from json
                 const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
                 // re-draw upon ast changes
-                ast.on('tree-modified', () => {
-                    this.update();
+                ast.on('tree-modified', (evt) => {
+                    this.onASTModified(evt);
                 });
                 this.setState({
                     parseFailed: false,

@@ -42,13 +42,15 @@ class NotifyingUndoManager extends AceUndoManager {
     }
     execute(args) {
         super.execute(args);
-        if (!this.sourceView.inSilentMode) {
+        if (!this.sourceView.skipFileUpdate) {
             let changeEvent = {
                 type: 'source-modified',
                 title: 'Modify source'
             };
+            this.sourceView.props.file
+                .setContent(this.sourceView.editor.session.getValue(), changeEvent);
         }
-        this.sourceView.inSilentMode = false;
+        this.sourceView.skipFileUpdate = false;
     }
 }
 
@@ -92,10 +94,32 @@ class SourceView extends React.Component {
             this.props.commandManager.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
+            this.props.file.on('content-modified', (newContent, evt) => {
+                if ( evt.type !== 'source-modified') {
+                    this.replaceContent(newContent, true);
+                }
+            });
         }
-    }   
+    }
+
+    /**
+     * Replace content of the editor while maintaining history
+     * 
+     * @param {*} newContent content to insert
+     */
+    replaceContent (newContent, skipFileUpdate) {
+        if (skipFileUpdate) {  
+            this.skipFileUpdate = true;
+        }
+        const session = this.editor.getSession();
+        const contentRange = new Range(0, 0, session.getLength(), 
+                        session.getRowLength(session.getLength()));
+        session.replace(contentRange, newContent);
+    }
 
     shouldComponentUpdate () {
+        // update ace editor - https://github.com/ajaxorg/ace/issues/1245
+        this.editor.resize(true);
         // keep this component unaffected from react re-render
         return false;
     }

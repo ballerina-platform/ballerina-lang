@@ -64,6 +64,11 @@ class FileTab extends Tab {
         }
         this.app = options.application;
         this._undoManager = new UndoManager();
+
+        this.file.on('dirty-state-change', () => {
+            this.app.workspaceManager.updateSaveMenuItem();
+            this.updateHeader();
+        });
     }
 
     /**
@@ -173,11 +178,6 @@ class FileTab extends Tab {
             this._file.save();
             this.app.workspaceManager.updateMenuItems();
             this.trigger('tab-content-modified');
-        }, this);
-
-        this._file.on('dirty-state-change', function () {
-            this.app.workspaceManager.updateSaveMenuItem();
-            this.updateHeader();
         }, this);
     }
 

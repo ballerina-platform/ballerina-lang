@@ -103,8 +103,17 @@ let File = Backbone.Model.extend(
             return this;
         },
 
-        setContent(name){
-            this.set('content', name);
+        setContent(content, changeInfo){
+            const oldContent = this.get('content');
+            this.set('content', content);
+            this.trigger('content-modified', content, changeInfo);
+            // if the new content is not equal to old content
+            // set file dirty
+            if (!_.isEqual(oldContent, content)) {
+                this.setDirty(true);
+            }
+            // save to local storage
+            this.save();
             return this;
         },
 
