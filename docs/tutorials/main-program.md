@@ -85,5 +85,6 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
 
     ![alt text](../images/AddVariable.gif)
-1. Define a message in the variable you just added.
+1. Define a message in the variable you just added. Curly brackets **{}** are used to denote an empty message. The default message is defined as the letter **m**.
     ![alt text](../images/DefineMessage.png)
+
