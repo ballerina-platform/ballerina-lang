@@ -6,35 +6,6 @@ Now that you have [written your first program](../first-program.md), you can wri
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md).
 
-## Get information from the weather forecast API
-
-In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
-
-### Get the API key
-
-You can access the weather forecast API and obtain the API key from it using the following steps. The key is used as part of the URL that is called by Ballerina.
-
-1. Go to https://openweathermap.org/ and click **Sign Up** to register your account.
-1. Once you have signed up for an account, log in using your credentials.
-1. In the home page that appears, click **API keys**. You can copy the **Key** that is already generated for you.
-
-![alt text](../images/OpenWeatherAPI.png)
-
-### Identify the country code
-
-The weather forecast API can be done for any country. Washington (USA) is used in our example. You need to identify the exact code to use to pass this parameter in the URL.
-
-1. Click **API** in the top level menu and click the **API doc** button under **5 day / 3 hour forecast**.
-    ![alt text](../images/WeatherAPIdoc.png)
-1. The page that appears provides details about the API and provides sample calls for different types of requirements. Under the **By city ID** section, you can access a JSON file from http://bulk.openweathermap.org/sample/. This includes all the country codes available.
-    ![alt text](../images/WeatherJSON.png)
-
-### The URL to call
-
-Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
-
-Here the `appid` is the API key and the country code is `Washington,US`.
-
 ## Set up Ballerina for integration
 
 Now it's time to set things up in Ballerina.
@@ -90,3 +61,33 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
     ![alt text](../images/DefineMessage.png)
 1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
     ![alt text](../images/GETRequestMessage.png)
+
+
+## Get information from the weather forecast API
+
+In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
+
+### Get the API key
+
+You can access the weather forecast API and obtain the API key from it using the following steps. The key is used as part of the URL that is called by Ballerina.
+
+1. Go to https://openweathermap.org/ and click **Sign Up** to register your account.
+1. Once you have signed up for an account, log in using your credentials.
+1. In the home page that appears, click **API keys**. You can copy the **Key** that is already generated for you.
+
+![alt text](../images/OpenWeatherAPI.png)
+
+### Identify the country code
+
+The weather forecast API can be done for any country. Washington (USA) is used in our example. You need to identify the exact code to use to pass this parameter in the URL.
+
+1. Click **API** in the top level menu and click the **API doc** button under **5 day / 3 hour forecast**.
+    ![alt text](../images/WeatherAPIdoc.png)
+1. The page that appears provides details about the API and provides sample calls for different types of requirements. Under the **By city ID** section, you can access a JSON file from http://bulk.openweathermap.org/sample/. This includes all the country codes available.
+    ![alt text](../images/WeatherJSON.png)
+
+### The URL to call
+
+Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
+
+Here the `appid` is the API key and the country code is `Washington,US`.
