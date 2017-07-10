@@ -35,6 +35,8 @@ export const DESIGN_VIEW = 'DESIGN_VIEW';
 export const SOURCE_VIEW = 'SOURCE_VIEW';
 export const SWAGGER_VIEW = 'SWAGGER_VIEW';
 
+const sourceViewTabHeaderClass = 'inverse';
+
 /**
  * React component for BallerinaFileEditor.
  *
@@ -99,7 +101,7 @@ class BallerinaFileEditor extends React.Component {
 
     /**
      * set active view
-     * @param {STRING} newView ID of the new View
+     * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
         this.setState({ activeView: newView });
@@ -162,6 +164,11 @@ class BallerinaFileEditor extends React.Component {
                 || !this.props.file.getContent();
         const showSourceView = !showDesignView || this.state.activeView === SOURCE_VIEW;
         const showSwaggerView = !showDesignView && this.state.activeView === SWAGGER_VIEW;
+        if (showDesignView) {
+            this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
+        } else if (showSourceView) {
+            this.props.tabHeader.addClass(sourceViewTabHeaderClass);
+        }
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
                 <div style={ {display: showDesignView ? 'block' : 'none'} }>
@@ -180,6 +187,7 @@ class BallerinaFileEditor extends React.Component {
 
 BallerinaFileEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
+    tabHeader: PropTypes.instanceOf(Object).isRequired,
     commandManager: PropTypes.instanceOf(commandManager).isRequired
 };
 
