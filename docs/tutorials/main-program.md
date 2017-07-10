@@ -86,5 +86,7 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 
     ![alt text](../images/AddVariable.gif)
 1. Define a message in the variable you just added. Curly brackets **{}** are used to denote an empty message. The default message is defined as the letter **m**.
-    ![alt text](../images/DefineMessage.png)
 
+    ![alt text](../images/DefineMessage.png)
+1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
+    ![alt text](../images/GETRequestMessage.png)
