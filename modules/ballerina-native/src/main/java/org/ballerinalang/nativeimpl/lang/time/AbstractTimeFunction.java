@@ -128,6 +128,7 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
     BStruct changeTimezone(Context context, BStruct timeStruct, String zoneId) {
         BStruct timezone = createTimeZone(context, zoneId);
         timeStruct.setRefField(0, timezone);
+        clearStructCache(timeStruct);
         return timeStruct;
     }
 
@@ -198,6 +199,10 @@ public abstract class AbstractTimeFunction extends AbstractNativeFunction {
         dateTime = Instant.ofEpochMilli(timeData).atZone(zoneId);
         timeStruct.addNativeData(KEY_ZONED_DATETIME, dateTime);
         return dateTime;
+    }
+
+    private void clearStructCache(BStruct timeStruct) {
+        timeStruct.addNativeData(KEY_ZONED_DATETIME, null);
     }
 
     private BStruct createCurrentTimeZone(Context context) {
