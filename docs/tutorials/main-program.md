@@ -74,6 +74,14 @@ Prior to doing further changes, you can view the output to see if the call to th
 1. Save your file by clicking **File** and **Save As**. Provide an appropriate name for you **.bal** file.
 1. Click the **Run** button and click **Application** to run this file. You can see the output in the console of the Ballerina Composer.
 
+### Work with JSON
+
+1. Use the search, or navigate to a function called **getJsonPayload**, which is in the **ballerina.lang.messages** library.
+1. Drag and drop this onto the main program in the canvas.
+    ![alt text](../images/GetJsonPayload.gif)
+1. Modify the name of the JSON function you added to something meaningful.
+    ![alt text](../images/GetJsonPayloadMessage.png)
+
 ## Get information from the weather forecast API
 
 In order to get this tutorial to work, you need to obtain some information from the public API for use in Ballerina.
