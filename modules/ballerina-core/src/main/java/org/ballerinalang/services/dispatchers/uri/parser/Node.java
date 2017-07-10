@@ -114,17 +114,22 @@ public abstract class Node {
         if (this.resource == null) {
             return null;
         }
+        ResourceInfo resource = null;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
         for (ResourceInfo resourceInfo : this.resource) {
             if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                return resourceInfo;
+                resource =  resourceInfo;
             }
         }
-        ResourceInfo resource = tryMatchingToDefaultVerb(httpMethod);
+        if (resource == null) {
+            resource = tryMatchingToDefaultVerb(httpMethod);
+        }
         if (resource == null) {
             carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
             throw new BallerinaException();
         }
+        validateConsumes(resource, carbonMessage);
+        validateProduces(resource, carbonMessage);
         return resource;
     }
 
@@ -223,19 +228,15 @@ public abstract class Node {
         return null;
     }
 
-    public ResourceInfo validateProduceConsumeFormat(ResourceInfo resource, CarbonMessage cMsg) {
+    public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
         if (resource == null) {
             return null;
         }
         boolean isConsumeMatched = false;
-        boolean isProduceMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
-        List<String> acceptMediaType = extractAcceptMediaType(cMsg.getHeader(Constants.ACCEPT_HEADER));
-
         AnnotationAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                 Constants.ANNOTATION_NAME_CONSUMES);
-        AnnotationAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_PRODUCES);
+
         if (consumeInfo != null) {
             //when Content-Type header is not set, treat it as "application/octet-stream"
             contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
@@ -251,17 +252,43 @@ public abstract class Node {
                 throw new BallerinaException();
             }
         }
+        return resource;
+    }
+
+    private String extractContentMediaType(String header) {
+        if (header == null) {
+            return null;
+        } else {
+            if (header.contains(";")) {
+                header = header.substring(0, header.indexOf(";")).trim();
+            }
+        }
+        return header;
+    }
+
+    public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
+        if (resource == null) {
+            return null;
+        }
+        boolean isProduceMatched = false;
+        List<String> acceptMediaType = extractAcceptMediaType(cMsg.getHeader(Constants.ACCEPT_HEADER));
+        AnnotationAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_PRODUCES);
+
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
         if (produceInfo != null && acceptMediaType != null) {
             if (acceptMediaType.contains("*/*")) {
                 isProduceMatched = true;
             } else {
-                if (acceptMediaType.stream().anyMatch(s -> s.contains("/*"))) {
-                    List<String> subTypeWildCardMediaTypeList = acceptMediaType.stream().filter(s -> s.contains("/*"))
-                            .map(s -> s.substring(0, s.indexOf("/"))).collect(Collectors.toList());
+                if (acceptMediaType.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
+                    List<String> subTypeWildCardMediaTypeList = acceptMediaType.stream()
+                            .filter(mediaType -> mediaType.contains("/*"))
+                            .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
+                            .collect(Collectors.toList());
                     List<String> subAttributeValueList = Arrays.stream(produceInfo
                             .getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
-                            .map(s -> s.getStringValue().trim().substring(0, s.getStringValue().indexOf("/")))
+                            .map(mediaType -> mediaType.getStringValue().trim()
+                                    .substring(0, mediaType.getStringValue().indexOf("/")))
                             .distinct().collect(Collectors.toList());
                     for (String token : subAttributeValueList) {
                         for (String mediaType : subTypeWildCardMediaTypeList) {
@@ -273,8 +300,8 @@ public abstract class Node {
                     }
                 }
                 if (!isProduceMatched) {
-                    List<String> noWildCardMediaTypeList = acceptMediaType.stream().filter(s -> !s.contains("/*"))
-                            .collect(Collectors.toList());
+                    List<String> noWildCardMediaTypeList = acceptMediaType.stream()
+                            .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
                     for (AnnotationAttributeValue attributeValue : produceInfo.getAnnotationAttributeValue
                             (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
                         for (String mediaType : noWildCardMediaTypeList) {
@@ -302,8 +329,9 @@ public abstract class Node {
             if (header.contains(",")) {
                 //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
                 acceptMediaType = Arrays.stream(header.split(","))
-                        .map(s -> s.contains(";") ? s.substring(0, s.indexOf(";")) : s).map(String::trim)
-                        .distinct().collect(Collectors.toList());
+                        .map(mediaRange -> mediaRange.contains(";") ? mediaRange
+                                .substring(0, mediaRange.indexOf(";")) : mediaRange)
+                        .map(String::trim).distinct().collect(Collectors.toList());
             } else if (header.contains(";")) {
                 //process headers like this: text/*;q=0.3
                 acceptMediaType.add(header.substring(0, header.indexOf(";")).trim());
@@ -312,16 +340,5 @@ public abstract class Node {
             }
         }
         return acceptMediaType;
-    }
-
-    private String extractContentMediaType(String header) {
-        if (header == null) {
-            return null;                    
-        } else {
-            if (header.contains(";")) {
-                header = header.substring(0, header.indexOf(";")).trim();
-            }
-        }
-        return header;
     }
 }

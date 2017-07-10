@@ -43,8 +43,7 @@ public class URITemplate {
     }
 
     public ResourceInfo matches(String uri, Map<String, String> variables, CarbonMessage carbonMessage) {
-        ResourceInfo resource = syntaxTree.matchAll(uri, variables, carbonMessage, 0);
-        return syntaxTree.validateProduceConsumeFormat(resource, carbonMessage);
+        return syntaxTree.matchAll(uri, variables, carbonMessage, 0);
     }
 
     public void parse(String uriTemplate, ResourceInfo resource) throws URITemplateException {
