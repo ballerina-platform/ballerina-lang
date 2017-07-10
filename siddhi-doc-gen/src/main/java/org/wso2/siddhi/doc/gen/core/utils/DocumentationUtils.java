@@ -149,13 +149,10 @@ public class DocumentationUtils {
      * @param namespaceMetaDataList      Metadata in this repository
      * @param documentationBaseDirectory The path of the directory in which the documentation will be generated
      * @param documentationVersion       The version of the documentation being generated
-     * @param mkdocsConfigFile           The name of the mkdocs file
-     * @param logger              The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void generateDocumentation(List<NamespaceMetaData> namespaceMetaDataList,
-                                             String documentationBaseDirectory, String documentationVersion,
-                                             File mkdocsConfigFile, Log logger)
+                                             String documentationBaseDirectory, String documentationVersion)
             throws MojoFailureException {
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
@@ -170,13 +167,6 @@ public class DocumentationUtils {
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory, outputFileRelativePath
         );
-
-        try {
-            addNewPageToMkdocsConfig(mkdocsConfigFile, documentationVersion, outputFileRelativePath);
-        } catch (FileNotFoundException e) {
-            logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
-                    + ". Mkdocs configuration file not updated.");
-        }
     }
 
     /**
@@ -185,10 +175,13 @@ public class DocumentationUtils {
      * @param readMeFile                 The path to the read me file
      * @param documentationBaseDirectory The path of the base directory in which the documentation will be generated
      * @param homePageFileName           The name of the documentation file that will be generated
+     * @param mkdocsConfigFile           The name of the mkdocs file
+     * @param logger                     The maven plugin logger
      * @throws MojoFailureException if the Mojo fails to find template file or create new documentation file
      */
     public static void updateHomePage(File readMeFile, String documentationBaseDirectory,
-                                      String homePageFileName) throws MojoFailureException {
+                                      String homePageFileName, File mkdocsConfigFile, Log logger)
+            throws MojoFailureException {
         // Retrieving the content of the README.md file
         List<String> readMeFileLines = new ArrayList<>();
         try {
@@ -201,16 +194,87 @@ public class DocumentationUtils {
                 + File.separator + Constants.API_SUB_DIRECTORY);
         String[] documentationFiles = documentationDirectory.list();
 
+        // Getting only the markdown files
+        List<String> documentationFilesList = new ArrayList<>();
+        if (documentationFiles != null) {
+            for (String documentationFile : documentationFiles) {
+                if (documentationFile.endsWith(Constants.MARKDOWN_FILE_EXTENSION)) {
+                    documentationFilesList.add(documentationFile);
+                }
+            }
+        }
+
         // Generating data model
         Map<String, Object> rootDataModel = new HashMap<>();
         rootDataModel.put("readMeFileLines", readMeFileLines);
-        rootDataModel.put("documentationFiles", documentationFiles);
+        rootDataModel.put("documentationFiles", documentationFilesList);
 
         generateFileFromTemplate(
                 Constants.MARKDOWN_HOME_PAGE_TEMPLATE + Constants.MARKDOWN_FILE_EXTENSION
                         + Constants.FREEMARKER_TEMPLATE_FILE_EXTENSION,
                 rootDataModel, documentationBaseDirectory,
                 homePageFileName + Constants.MARKDOWN_FILE_EXTENSION
+        );
+
+        // Adding the links in the home page to the mkdocs config
+        try {
+            updateAPIPagesInMkdocsConfig(mkdocsConfigFile, documentationFilesList);
+        } catch (FileNotFoundException e) {
+            logger.warn("Unable to find mkdocs configuration file: " + mkdocsConfigFile.getAbsolutePath()
+                    + ". Mkdocs configuration file not updated.");
+        }
+    }
+
+    /**
+     * This add a new page to the list of pages in the mkdocs configuration
+     *
+     * @param mkdocsConfigFile    The mkdocs configuration file
+     * @param apiDirectoryContent The contents of the api directory
+     */
+    private static void updateAPIPagesInMkdocsConfig(File mkdocsConfigFile, List<String> apiDirectoryContent)
+            throws MojoFailureException, FileNotFoundException {
+        // Creating yaml parser
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(dumperOptions);
+
+        // Reading the mkdocs configuration
+        Map<String, Object> yamlConfig;
+        yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
+                new FileInputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
+        );
+
+        // Getting the pages list
+        List<Map<String, Object>> yamlConfigPagesList =
+                (List<Map<String, Object>>) yamlConfig.get(Constants.MKDOCS_CONFIG_PAGES_KEY);
+
+        // Creating the new api pages list
+        List<Map<String, Object>> apiPagesList = new ArrayList<>();
+        for (String apiFile : apiDirectoryContent) {
+            String pageName = apiFile.substring(0, apiFile.length() - Constants.MARKDOWN_FILE_EXTENSION.length());
+
+            Map<String, Object> newPage = new HashMap<>();
+            newPage.put(pageName, Constants.API_SUB_DIRECTORY + Constants.MKDOCS_FILE_SEPARATOR + apiFile);
+            apiPagesList.add(newPage);
+        }
+
+        // Setting the new api pages
+        Map<String, Object> yamlConfigAPIPage = null;
+        for (Map<String, Object> yamlConfigPage : yamlConfigPagesList) {
+            if (yamlConfigPage.get(Constants.MKDOCS_CONFIG_PAGES_API_KEY) != null) {
+                yamlConfigAPIPage = yamlConfigPage;
+                break;
+            }
+        }
+        if (yamlConfigAPIPage == null) {
+            yamlConfigAPIPage = new HashMap<>();
+            yamlConfigPagesList.add(yamlConfigAPIPage);
+        }
+        yamlConfigAPIPage.put(Constants.MKDOCS_CONFIG_PAGES_API_KEY, apiPagesList);
+
+        // Saving the updated configuration
+        yaml.dump(yamlConfig, new OutputStreamWriter(
+                new FileOutputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
         );
     }
 
@@ -436,74 +500,6 @@ public class DocumentationUtils {
 
             extensionMetaDataList.add(extensionMetaData);
         }
-    }
-
-    /**
-     * This add a new page to the list of pages in the mkdocs configuration
-     *
-     * @param mkdocsConfigFile The mkdocs configuration file
-     * @param newPageName         The name of the page to be added
-     * @param newPagePath         The location of the page to be added
-     */
-    private static void addNewPageToMkdocsConfig(File mkdocsConfigFile, String newPageName, String newPagePath)
-            throws MojoFailureException, FileNotFoundException {
-        // Creating yaml parser
-        DumperOptions dumperOptions = new DumperOptions();
-        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(dumperOptions);
-
-        // Reading the mkdocs configuration
-        Map<String, Object> yamlConfig;
-        yamlConfig = (Map<String, Object>) yaml.load(new InputStreamReader(
-                new FileInputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
-        );
-
-        // Getting the pages list
-        List<Map<String, Object>> yamlConfigPagesList =
-                (List<Map<String, Object>>) yamlConfig.get(Constants.MKDOCS_CONFIG_PAGES_KEY);
-
-        // Getting the api pages
-        List<Map<String, Object>> apiPagesList = null;
-        for (Map<String, Object> yamlConfigPage : yamlConfigPagesList) {
-            Object page = yamlConfigPage.get(Constants.MKDOCS_CONFIG_PAGES_API_KEY);
-            if (page != null) {
-                if (page instanceof List) {
-                    apiPagesList = (List<Map<String, Object>>) page;
-                } else if (page instanceof Map) {
-                    apiPagesList = new ArrayList<>();
-                    apiPagesList.add((Map<String, Object>) page);
-                }
-                break;
-            }
-        }
-        if (apiPagesList == null) {
-            Map<String, Object> pagesConfig = new HashMap<>();
-            yamlConfigPagesList.add(pagesConfig);
-
-            apiPagesList = new ArrayList<>();
-            pagesConfig.put(Constants.MKDOCS_CONFIG_PAGES_API_KEY, apiPagesList);
-        }
-
-        // Checking if the page already exists
-        Map<String, Object> newPage = null;
-        for (Map<String, Object> yamlConfigPage : apiPagesList) {
-            if (yamlConfigPage.get(newPageName) != null) {
-                newPage = yamlConfigPage;
-                break;
-            }
-        }
-
-        // Adding the new page or updating old page
-        if (newPage == null) {
-            newPage = new HashMap<>();
-            apiPagesList.add(newPage);
-        }
-        newPage.put(newPageName, newPagePath);
-
-        // Saving the updated configuration
-        yaml.dump(yamlConfig, new OutputStreamWriter(
-                new FileOutputStream(mkdocsConfigFile), Constants.DEFAULT_CHARSET)
-        );
     }
 
     /**

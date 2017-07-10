@@ -74,8 +74,7 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
                     "generate-extensions-index");
         }
         if (extensionRepositoryOwner == null) {
-            throw new MojoExecutionException("extensionRepositoryOwner configuration is required to use goal " +
-                    "generate-extensions-index");
+            extensionRepositoryOwner = Constants.GITHUB_OWNER_WSO2_EXTENSIONS;
         }
 
         // Setting the documentation output directory if not set by user
@@ -87,16 +86,13 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
         }
 
         // Setting the documentation output file name if not set by user
-        String outputFileName;
-        if (indexGenFileName != null) {
-            outputFileName = indexGenFileName;
-        } else {
-            outputFileName = Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE;
+        if (indexGenFileName == null) {
+            indexGenFileName = Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE;
         }
 
         // Creating a extensions index
         DocumentationUtils.createExtensionsIndex(
-                extensionRepositories, extensionRepositoryOwner, docGenPath, outputFileName
+                extensionRepositories, extensionRepositoryOwner, docGenPath, indexGenFileName
         );
     }
 }

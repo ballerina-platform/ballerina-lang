@@ -80,8 +80,8 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
      * The name of the index file
      * Optional
      */
-    @Parameter(property = "index.file.name")
-    private String indexFileName;
+    @Parameter(property = "home.page.file.name")
+    private String homePageFileName;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -102,7 +102,6 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         }
 
         // Setting the read me file path if not set by user
-        String readMeFilePath;
         if (readMeFile == null) {
             readMeFile = new File(mavenProject.getParent().getBasedir() + File.separator + Constants.README_FILE_NAME
                     + Constants.MARKDOWN_FILE_EXTENSION);
@@ -115,10 +114,7 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
         }
 
         // Setting the index file name if not set by user
-        String homePageFileName;
-        if (indexFileName != null) {
-            homePageFileName = indexFileName;
-        } else {
+        if (homePageFileName == null) {
             homePageFileName = Constants.MARKDOWN_HOME_PAGE_TEMPLATE;
         }
 
@@ -136,13 +132,8 @@ public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
 
         // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.generateDocumentation(
-                    namespaceMetaDataList, docGenPath,
-                    mavenProject.getVersion(),
-                    mkdocsConfigFile,
-                    getLog()
-            );
-            DocumentationUtils.updateHomePage(readMeFile, docGenPath, homePageFileName);
+            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath, mavenProject.getVersion());
+            DocumentationUtils.updateHomePage(readMeFile, docGenPath, homePageFileName, mkdocsConfigFile, getLog());
         }
     }
 }
