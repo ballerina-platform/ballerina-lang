@@ -302,11 +302,12 @@ public class BJSONValueTest {
         Assert.assertEquals(returns[0].stringValue(), "Colombo");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*failed to set element to json: array index out of range: index: 7, " +
-                    "size: 3.*")
+    @Test()
     public void testSetArrayOutofBoundElement() {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetArrayOutofBoundElement");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        BJSON json = ((BJSON) returns[0]);
+        Assert.assertEquals(json.toString(), "[1,2,3,null,null,null,null,8]");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
