@@ -1932,12 +1932,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType inheritedType = jsonArrayInitExpr.getInheritedType();
         jsonArrayInitExpr.setType(inheritedType);
 
+        BType inheritedElementType;
+        if (inheritedType instanceof BArrayType) {
+            inheritedElementType = ((BArrayType) inheritedType).getElementType();
+        } else {
+            inheritedElementType = inheritedType;
+        }
+
         Expression[] argExprs = jsonArrayInitExpr.getArgExprs();
 
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             if (argExpr instanceof RefTypeInitExpr) {
-                argExpr = getNestedInitExpr(argExpr, inheritedType);
+                argExpr = getNestedInitExpr(argExpr, inheritedElementType);
                 argExprs[i] = argExpr;
             }
             visitSingleValueExpr(argExpr);
@@ -1956,14 +1963,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
 
-            if (argExprType != BTypes.typeNull && isAssignableTo(BTypes.typeJSON, argExprType)) {
+            if (argExprType != BTypes.typeNull && isAssignableTo(inheritedElementType, argExprType)) {
                 continue;
             }
 
-            TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, argExpr);
+            TypeCastExpression typeCastExpr = checkWideningPossible(inheritedElementType, argExpr);
             if (typeCastExpr == null) {
                 BLangExceptionHelper.throwSemanticError(jsonArrayInitExpr,
-                        SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), BTypes.typeJSON);
+                        SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, argExpr.getType(), inheritedElementType);
             }
             argExprs[i] = typeCastExpr;
         }
@@ -3284,7 +3291,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (fieldType == BTypes.typeAny || fieldType == BTypes.typeMap) {
                 fieldType = BTypes.resolveType(new SimpleTypeName(BTypes.typeAny.getName(),
                         true, 1), currentScope, expr.getNodeLocation());
-            } else if (fieldType == BTypes.typeJSON) {
+            } else if (getElementType(fieldType) == BTypes.typeJSON) {
                 refTypeInitExpr = new JSONArrayInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             }
@@ -3309,6 +3316,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         return refTypeInitExpr;
     }
 
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+        
+        return getElementType(((BArrayType) type).getElementType());
+    }
+    
     /**
      * Visit and validate map/json initialize expression.
      *
@@ -3434,10 +3449,20 @@ public class SemanticAnalyzer implements NodeVisitor {
             return isUnsafeArrayCastPossible(sourceArrayType.getElementType(), targetArrayType.getElementType());
 
         } else if (targetType.getTag() == TypeTags.ARRAY_TAG) {
+            
+            if (sourceType == BTypes.typeJSON) {
+                return isUnsafeArrayCastPossible(BTypes.typeJSON, ((BArrayType) targetType).getElementType());
+            }
+            
             // If only the target type is an array type, then the source type must be of type 'any'
             return sourceType == BTypes.typeAny;
 
         } else if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            
+            if (targetType == BTypes.typeJSON) {
+                return isUnsafeArrayCastPossible(((BArrayType) sourceType).getElementType(), BTypes.typeJSON);
+            }
+            
             // If only the source type is an array type, then the target type must be of type 'any'
             return targetType == BTypes.typeAny;
         }

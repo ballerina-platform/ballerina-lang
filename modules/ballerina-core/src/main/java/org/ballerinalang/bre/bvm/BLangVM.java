@@ -1569,10 +1569,12 @@ public class BLangVM {
                 typeCPEntry = (TypeCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
+                
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
+                } else if (checkCast(bRefType, typeCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
+                    sf.refRegs[k] = null;
                 } else {
                     sf.refRegs[j] = null;
                     handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
@@ -2542,7 +2544,9 @@ public class BLangVM {
         }
     }
 
-    private boolean checkCast(BType sourceType, BType targetType) {
+    private boolean checkCast(BValue sourceValue, BType targetType) {
+        BType sourceType = sourceValue.getType();
+        
         if (sourceType.equals(targetType)) {
             return true;
         }
@@ -2555,7 +2559,12 @@ public class BLangVM {
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
         }
-
+        
+        // Check JSON casting
+        if (getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
+            return JSONUtils.checkJSONCast(((BJSON) sourceValue).value(), targetType);
+        }
+        
         // Array casting
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return checkArrayCast(sourceType, targetType);
@@ -2563,7 +2572,7 @@ public class BLangVM {
 
         return false;
     }
-
+    
     private boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -2579,7 +2588,15 @@ public class BLangVM {
 
         return sourceType.equals(targetType);
     }
-
+    
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+        
+        return getElementType(((BArrayType) type).getElementType());
+    }
+    
     public static boolean checkStructEquivalency(BStructType sourceType, BStructType targetType) {
         // Struct Type equivalency
         BStructType.StructField[] sFields = sourceType.getStructFields();
@@ -2673,15 +2690,25 @@ public class BLangVM {
             return;
         }
 
+        JsonNode jsonNode;
         try {
-            sf.stringRegs[j] = jsonValue.stringValue();
+            jsonNode = jsonValue.value();
         } catch (BallerinaException e) {
             sf.stringRegs[j] = "";
             String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
                     BTypes.typeJSON, BTypes.typeString, e.getMessage());
             context.setError(BLangVMErrors.createError(context, ip, errorMsg));
             handleError();
+            return;
         }
+        
+        if (jsonNode.isTextual()) {
+            sf.stringRegs[j] = jsonNode.textValue();
+            return;
+        }
+
+        sf.stringRegs[j] = "";
+        handleTypeConversionError(sf, k, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private void convertJSONToBoolean(int[] operands, StackFrame sf) {
@@ -2823,7 +2850,7 @@ public class BLangVM {
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, null);
                 }
 
-                if (mapVal != null && !checkCast(mapVal.getType(), fieldType)) {
+                if (mapVal != null && !checkCast(mapVal, fieldType)) {
                     throw BLangExceptionHelper.getRuntimeException(
                             RuntimeErrors.INCOMPATIBLE_FIELD_TYPE_FOR_CASTING, key, fieldType, mapVal.getType());
                 }

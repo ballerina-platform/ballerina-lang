@@ -408,4 +408,29 @@ public class BJSONValueTest {
         BJSON json = ((BJSON) returns[0]);
         Assert.assertEquals(json.toString(), "{\\\"name\\\", \"supun\"}");
     }
+    
+    @Test
+    public void testJsonArrayToJsonCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonArrayToJsonCasting");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
+    }
+    
+    @Test
+    public void testJsonToJsonArrayCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToJsonArrayCasting");
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        
+        Assert.assertEquals(returns[0].toString(), "[[1,2,3],[3,4,5],[7,8,9]]");
+    }
+    
+    @Test
+    public void testJsonToJsonArrayInvalidCasting() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonToJsonArrayInvalidCasting");
+        Assert.assertEquals(returns[0], null);
+        
+        Assert.assertTrue(returns[1] instanceof BStruct);
+        String errorMsg = ((BStruct) returns[1]).getStringField(0);
+        Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json[][][]'");
+    }
 }
