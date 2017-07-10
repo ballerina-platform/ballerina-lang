@@ -111,7 +111,10 @@ class DesignView extends React.Component {
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
-                        <div className="bottom-view-label">
+                        <div className="bottom-view-label" 
+                                onClick={ () => {
+                                    this.context.editor.setActiveView('SOURCE_VIEW');
+                                } }>
                             Source View
                         </div>
                     </div>

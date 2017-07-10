@@ -54,7 +54,6 @@ class BallerinaFileEditor extends React.Component {
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
-        this.onViewChange = this.onViewChange.bind(this);
         this.environment = new PackageScopedEnvironment();
     }
 
@@ -98,10 +97,10 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
-     * Invoked when view is changed
+     * set active view
      * @param {STRING} newView ID of the new View
      */
-    onViewChange(newView) {
+    setActiveView(newView) {
         this.setState({ activeView: newView });
     }
 
@@ -157,17 +156,20 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
+        const showDesignView = !this.state.parseFailed && this.state.activeView === DESIGN_VIEW;
+        const showSourceView = this.state.parseFailed || this.state.activeView === SOURCE_VIEW;
+        const showSwaggerView = !this.state.parseFailed && this.state.activeView === SWAGGER_VIEW;
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
-                {!this.state.parseFailed && this.state.activeView === DESIGN_VIEW
-                    && <DesignView model={this.state.model} onViewChange={this.onViewChange} />
-                }
-                {(this.state.parseFailed || this.state.activeView === SOURCE_VIEW)
-                    && <SourceView content={this.props.file.getContent()} />
-                }
-                {!this.state.parseFailed && this.state.activeView === SWAGGER_VIEW
-                    && <SwaggerView />
-                }
+                <div style={ {display: showDesignView ? 'block' : 'none'} }>
+                    <DesignView model={this.state.model} />
+                </div>
+                <div style={ {display: showSourceView ? 'block' : 'none'} }>
+                    <SourceView content={this.props.file.getContent()} />
+                </div>
+                <div style={ {display: showSwaggerView ? 'block' : 'none'} }>
+                    <SwaggerView />
+                </div>
             </div>
         );
     }

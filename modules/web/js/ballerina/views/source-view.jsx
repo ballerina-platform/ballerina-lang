@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class SourceView extends React.Component {
 
@@ -19,7 +20,12 @@ class SourceView extends React.Component {
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-design-view fw-inverse" />
                         </div>
-                        <div className="bottom-view-label">
+                        <div className="bottom-view-label" 
+                                onClick={
+                                    () => {
+                                        this.context.editor.setActiveView('DESIGN_VIEW');
+                                    }
+                                }>
                             Design View
                         </div>
                     </div>
@@ -28,5 +34,9 @@ class SourceView extends React.Component {
         );
     }
 }
+
+SourceView.contextTypes = {
+    editor: PropTypes.instanceOf(Object).isRequired,
+};
 
 export default SourceView;
