@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -53,8 +54,9 @@ public class SQLDatasource implements BValue {
 
     public SQLDatasource() {}
 
-    public boolean init(BStruct options) {
-        buildDataSource(options);
+    public boolean init(BStruct options, String dbType, String hostOrPath, int port, String userName, String password,
+            String dbName) {
+        buildDataSource(options, dbType, hostOrPath, dbName, port, userName, password);
         connectorId = UUID.randomUUID().toString();
         xaConn = isXADataSource();
         try (Connection con = getSQLConnection()) {
@@ -97,24 +99,35 @@ public class SQLDatasource implements BValue {
         hikariDataSource.close();
     }
 
-    private void buildDataSource(BStruct options) {
+    private void buildDataSource(BStruct options, String dbType, String hostOrPath, String dbName, int port,
+            String userName, String password) {
         try {
             HikariConfig config = new HikariConfig();
             String jdbcurl = options.getStringField(0);
-            if (!jdbcurl.isEmpty()) {
-                config.setJdbcUrl(jdbcurl);
+            String dataSourceClassName = options.getStringField(1);
+            if (!dataSourceClassName.isEmpty()) {
+                config.setDataSourceClassName(dataSourceClassName); //TODO:Check wheter we need to set jdbdurl
+            } else {
+                if (jdbcurl.isEmpty()) {
+                    jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, userName, password);
+                }
+                if (!jdbcurl.isEmpty()) {
+                    config.setJdbcUrl(jdbcurl);
+                } else {
+                    throw new BallerinaException("invalid db connection properties");
+                }
             }
-            String user = options.getStringField(1);
+            String user = options.getStringField(2);
             if (!user.isEmpty()) {
                 config.setUsername(user);
+            } else if (!userName.isEmpty()) {
+                config.setUsername(userName);
             }
-            String password = options.getStringField(2);
-            if (!password.isEmpty()) {
+            String pass = options.getStringField(3);
+            if (!pass.isEmpty()) {
+                config.setPassword(pass);
+            } else if (!password.isEmpty()) {
                 config.setPassword(password);
-            }
-            String dataSourceClassName = options.getStringField(3);
-            if (!dataSourceClassName.isEmpty()) {
-                config.setDataSourceClassName(dataSourceClassName);
             }
             String connectionTestQuery = options.getStringField(4);
             if (!connectionTestQuery.isEmpty()) {
@@ -189,6 +202,57 @@ public class SQLDatasource implements BValue {
                 throw new BallerinaException(errorMessage);
             }
         }
+    }
+
+    private String constructJDBCURL(String dbType, String hostOrPath, int port, String dbName, String userName,
+            String password) {
+        StringBuilder jdbcUrl = new StringBuilder();
+        dbType = dbType.toUpperCase(Locale.ENGLISH);
+        hostOrPath = hostOrPath.replaceAll("/$", "");  //TODO:Default port
+        switch (dbType) {
+        case Constants.DBTypes.MYSQL:
+            jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SQLSERVER:
+            jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.ORACLE:
+            jdbcUrl.append("jdbc:oracle:thin:").append(userName).append("/").append(password).append("@")
+                    .append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.SYBASE:
+            jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.POSTGRE:
+            jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.IBMDB2:
+            jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_SERVER:
+            jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
+                    .append(dbName);
+            break;
+        case Constants.DBTypes.HSQLDB_FILE:
+            jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.H2_SERVER:
+            jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.H2_FILE:
+            jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_SERVER:
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
+            break;
+        case Constants.DBTypes.DERBY_FILE:
+            jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(File.separator).append(dbName);
+            break;
+        default:
+            jdbcUrl.append("");
+        }
+        return jdbcUrl.toString();
     }
 
     private void setDataSourceProperties(BMap options, HikariConfig config) {

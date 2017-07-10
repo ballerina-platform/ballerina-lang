@@ -63,9 +63,15 @@ public class Init extends AbstractSQLAction {
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         BStruct optionStruct = (BStruct) bConnector.getRefField(0);
         BMap sharedMap = (BMap) bConnector.getRefField(1);
+        String dbType = bConnector.getStringField(0);
+        String hostOrPath = bConnector.getStringField(1);
+        String dbName = bConnector.getStringField(2);
+        String username = bConnector.getStringField(3);
+        String password = bConnector.getStringField(4);
+        int port = (int) bConnector.getIntField(0);
         if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
             SQLDatasource datasource = new SQLDatasource();
-            datasource.init(optionStruct);
+            datasource.init(optionStruct, dbType, hostOrPath, port, username, password, dbName);
             sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
         }
         return null;

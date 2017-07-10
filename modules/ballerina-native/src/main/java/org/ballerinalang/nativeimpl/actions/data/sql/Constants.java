@@ -60,6 +60,24 @@ public final class Constants {
     }
 
     /**
+     * DB Types with first class support.
+     */
+    public static final class DBTypes {
+        public static final String MYSQL = "MYSQL";
+        public static final String SQLSERVER = "SQLSERVER";
+        public static final String ORACLE = "ORACLE";
+        public static final String SYBASE = "SYBASE";
+        public static final String POSTGRE = "POSTGRE";
+        public static final String IBMDB2 = "IBMDB2";
+        public static final String HSQLDB_SERVER = "HSQLDB_SERVER";
+        public static final String HSQLDB_FILE = "HSQLDB_FILE";
+        public static final String H2_SERVER = "H2_SERVER";
+        public static final String H2_FILE = "H2_FILE";
+        public static final String DERBY_SERVER = "DERBY_SERVER";
+        public static final String DERBY_FILE = "DERBY_FILE";
+    }
+
+    /**
      * Constants for SQL Query Parameter direction.
      */
     public static final class QueryParamDirection {
