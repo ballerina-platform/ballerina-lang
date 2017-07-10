@@ -20,14 +20,20 @@ import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addAttachKeyword;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addAttachmentPointsAsLookups;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addFileLevelKeywordsAsLookups;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addTypeNamesAsLookups;
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addValueTypesAsLookups;
@@ -38,6 +44,27 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
+
+
+        if (parent instanceof NameReferenceNode /*|| parent instanceof PsiErrorElement*/) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleSibling instanceof IdentifierPSINode) {
+                addAttachKeyword(result);
+                return;
+            }
+//            if (prevVisibleSibling != null && "attach".equals(prevVisibleSibling.getText())) {
+//                addAttachmentPointsAsLookups(result);
+//                return;
+//            }
+        }
+
+        if (parent instanceof ConstantDefinitionNode || parent instanceof PsiErrorElement) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleSibling != null && "const".equals(prevVisibleSibling.getText())) {
+                addValueTypesAsLookups(result);
+                return;
+            }
+        }
 
         if (parent.getPrevSibling() == null) {
 
@@ -75,13 +102,5 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 addTypeNamesAsLookups(result);
             }
         }
-
-        if (parent instanceof ConstantDefinitionNode) {
-            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
-            if (prevVisibleSibling != null && "const".equals(prevVisibleSibling.getText())) {
-                addValueTypesAsLookups(result);
-            }
-        }
     }
 }
-

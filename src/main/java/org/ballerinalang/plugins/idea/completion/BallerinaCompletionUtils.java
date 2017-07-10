@@ -363,6 +363,21 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, ANNOTATION);
     }
 
+    public static List<LookupElement> createAttachmentPointsAsLookups() {
+        List<LookupElement> results = new LinkedList<>();
+        results.add(createKeywordAsLookup(SERVICE));
+        results.add(createKeywordAsLookup(RESOURCE));
+        results.add(createKeywordAsLookup(CONNECTOR));
+        results.add(createKeywordAsLookup(ACTION));
+        results.add(createKeywordAsLookup(FUNCTION));
+        results.add(createKeywordAsLookup(TYPEMAPPER));
+        results.add(createKeywordAsLookup(STRUCT));
+        results.add(createKeywordAsLookup(CONST));
+        results.add(createKeywordAsLookup(PARAMETER));
+        results.add(createKeywordAsLookup(ANNOTATION));
+        return results;
+    }
+
     /**
      * Adds a keyword as a lookup.
      *
@@ -372,6 +387,10 @@ public class BallerinaCompletionUtils {
     private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement
             lookupElement) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
+    }
+
+    private static LookupElement createKeywordAsLookup(@NotNull LookupElement lookupElement) {
+        return PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY);
     }
 
     /**

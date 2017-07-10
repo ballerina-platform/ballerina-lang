@@ -34,6 +34,7 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
+import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
@@ -176,9 +177,18 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     }
 
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
-
-                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
-                        return new FieldReference(this);
+                    if (prevVisibleLeaf != null) {
+                        if (".".equals(prevVisibleLeaf.getText())) {
+                            return new FieldReference(this);
+                        }
+                        // Todo - remove ","
+                        if ((prevVisibleLeaf instanceof IdentifierPSINode || "attach".equals(prevVisibleLeaf.getText()))
+                                && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
+                            return null;
+                        } else if (",".equals(prevVisibleLeaf.getText())
+                                && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
+                            return new AttachmentPointReference(this);
+                        }
                     }
                     return new NameReference(this);
                 case RULE_field:
@@ -204,6 +214,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 //                    return new VariableReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
+                case RULE_attachmentPoint:
+                    return new AttachmentPointReference(this);
                 case RULE_statement:
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
                     if (prevVisibleLeaf != null)
@@ -216,12 +228,12 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             }
         }
         if (parent instanceof PsiErrorElement) {
-            return suggestReferenceType();
+            return suggestReferenceType(parent);
         }
         return null;
     }
 
-    private PsiReference suggestReferenceType() {
+    private PsiReference suggestReferenceType(@NotNull PsiElement parent) {
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
         if (nextVisibleLeaf != null) {
             if (":".equals(nextVisibleLeaf.getText())) {
@@ -229,6 +241,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             } else if (".".equals(nextVisibleLeaf.getText())) {
                 return new NameReference(this);
             }
+        }
+
+        if (parent.getParent() instanceof AttachmentPointNode) {
+            return new AttachmentPointReference(this);
         }
 
         return new NameReference(this);
