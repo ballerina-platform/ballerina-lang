@@ -84,3 +84,5 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
     ![alt text](../images/ConnectingAction.gif)
 1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
     ![alt text](../images/AddVariable.gif)
+1. Define a message in the variable you just added.
+    ![alt text](../images/DefineMessage.png)
