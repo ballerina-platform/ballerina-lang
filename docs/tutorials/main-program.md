@@ -78,3 +78,7 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 
 ![alt text](../images/Actions.png)
 
+1. Add an action by dragging one of the actions from the tool palette onto the canvas. In this instance, you need to add a GET action as this is a GET request to the weather forecast API. Place the GET action under the main program you added.
+    ![alt text](../images/AddingAction.gif)    
+1. To call the connector from the main program, draw an arrow to the connector from the action.
+    ![alt text](../images/ConnectingAction.gif)
