@@ -66,7 +66,7 @@ class ToolGroupView extends React.Component {
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
         const toolGroupName = this.getToolGroupName();
-        this.context.commandManager.dispatch('open-documentation', toolGroupName, null);
+        this.context.editor.openDocumentation(toolGroupName, null);
     }
 
     /**
@@ -160,7 +160,7 @@ ToolGroupView.propTypes = {
 };
 
 ToolGroupView.contextTypes = {
-    commandManager: PropTypes.instanceOf(CommandManager).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ToolGroupView;

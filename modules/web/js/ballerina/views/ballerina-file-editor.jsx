@@ -75,6 +75,17 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Open documentation for the given symbol
+     * 
+     * @param {string} pkgName 
+     * @param {string} symbolName 
+     */
+    openDocumentation(pkgName, symbolName) {
+        this.props.commandManager
+            .dispatch('open-documentation', pkgName, symbolName);
+    }
+
+    /**
      * @override
      * @memberof Diagram
      */
@@ -83,7 +94,6 @@ class BallerinaFileEditor extends React.Component {
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
-            commandManager: this.props.commandManager,
         };
     }
 
@@ -172,7 +182,6 @@ BallerinaFileEditor.childContextTypes = {
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired,
 };
 
 export default BallerinaFileEditor;
