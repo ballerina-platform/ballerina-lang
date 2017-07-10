@@ -78,6 +78,21 @@ public final class Constants {
     }
 
     /**
+     * Constants default DB ports.
+     */
+    public static final class DefaultPort {
+        public static final int MYSQL = 3306;
+        public static final int SQLSERVER = 1433;
+        public static final int ORACLE = 1521;
+        public static final int SYBASE = 5000;
+        public static final int POSTGRE = 5432;
+        public static final int IBMDB2 =  50000;
+        public static final int HSQLDB_SERVER = 9001;
+        public static final int H2_SERVER = 9092;
+        public static final int DERBY_SERVER = 1527;
+    }
+
+    /**
      * Constants for SQL Query Parameter direction.
      */
     public static final class QueryParamDirection {

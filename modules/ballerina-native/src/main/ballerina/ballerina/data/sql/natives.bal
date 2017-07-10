@@ -10,7 +10,29 @@ struct Parameter {
 	string structuredType;
 }
 
-@doc:Description { value: "DB Connection properties struct "}
+@doc:Description { value: "DB Connection properties struct"}
+@doc:Field {value:"jdbcUrl: Platform independent DB access URL"}
+@doc:Field {value:"dataSourceClassName: Name of the DataSource class provided by the JDBC driver"}
+@doc:Field {value:"userName: Default authentication username used when obtaining Connections from the underlying driver"}
+@doc:Field {value:"password: Default authentication password used when obtaining Connections from the underlying driver"}
+@doc:Field {value:"connectionTestQuery: Query that will be executed to validate that the connection to the database is still alive"}
+@doc:Field {value:"poolName: User-defined name for the connection pool and appears mainly in logging"}
+@doc:Field {value:"catalog: Catalog of connections created by this pool"}
+@doc:Field {value:"connectionInitSql:  SQL statement that will be executed after every new connection creation before adding it to the pool"}
+@doc:Field {value:"driverClassName: Fully qualified Java class name of the JDBC driver to be used"}
+@doc:Field {value:"transactionIsolation:  Transaction isolation level of connections returned from the pool"}
+@doc:Field {value:"autoCommit: Auto-commit behavior of connections returned from the pool"}
+@doc:Field {value:"isolateInternalQueries: Determines whether HikariCP isolates internal pool queries, such as the connection alive test, in their own transaction"}
+@doc:Field {value:"allowPoolSuspension: Whether the pool can be suspended and resumed through JMX"}
+@doc:Field {value:"readOnly:  Whether Connections obtained from the pool are in read-only mode by default"}
+@doc:Field {value:"maximumPoolSize: Maximum size that the pool is allowed to reach, including both idle and in-use connections"}
+@doc:Field {value:"connectionTimeout: Maximum number of milliseconds that a client will wait for a connection from the pool"}
+@doc:Field {value:"idleTimeout: Maximum amount of time that a connection is allowed to sit idle in the pool"}
+@doc:Field {value:"minimumIdle: Minimum number of idle connections that pool tries to maintain in the pool"}
+@doc:Field {value:"maxLifetime: Maximum lifetime of a connection in the pool"}
+@doc:Field {value:"validationTimeout:  Maximum amount of time that a connection will be tested for aliveness"}
+@doc:Field {value:"leakDetectionThreshold: Amount of time that a connection can be out of the pool before a message is logged indicating a possible connection leak"}
+@doc:Field {value:"datasourceProperties: Data source specific properties which are used along with the dataSourceClassName"}
 struct ConnectionProperties {
 	string jdbcUrl;
 	string dataSourceClassName;

@@ -211,26 +211,47 @@ public class SQLDatasource implements BValue {
         hostOrPath = hostOrPath.replaceAll("/$", "");  //TODO:Default port
         switch (dbType) {
         case Constants.DBTypes.MYSQL:
+            if (port <= 0) {
+                port = Constants.DefaultPort.MYSQL;
+            }
             jdbcUrl.append("jdbc:mysql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.SQLSERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SQLSERVER;
+            }
             jdbcUrl.append("jdbc:sqlserver://").append(hostOrPath).append(":").append(port).append(";databaseName=")
                     .append(dbName);
             break;
         case Constants.DBTypes.ORACLE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.ORACLE;
+            }
             jdbcUrl.append("jdbc:oracle:thin:").append(userName).append("/").append(password).append("@")
                     .append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.SYBASE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.SYBASE;
+            }
             jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.POSTGRE:
+            if (port <= 0) {
+                port = Constants.DefaultPort.POSTGRE;
+            }
             jdbcUrl.append("jdbc:postgresql://").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.IBMDB2:
+            if (port <= 0) {
+                port = Constants.DefaultPort.IBMDB2;
+            }
             jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.HSQLDB_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.HSQLDB_SERVER;
+            }
             jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
                     .append(dbName);
             break;
@@ -238,12 +259,18 @@ public class SQLDatasource implements BValue {
             jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         case Constants.DBTypes.H2_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.H2_SERVER;
+            }
             jdbcUrl.append("jdbc:h2:tcp:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.H2_FILE:
             jdbcUrl.append("jdbc:h2:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         case Constants.DBTypes.DERBY_SERVER:
+            if (port <= 0) {
+                port = Constants.DefaultPort.DERBY_SERVER;
+            }
             jdbcUrl.append("jdbc:derby:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
         case Constants.DBTypes.DERBY_FILE:
