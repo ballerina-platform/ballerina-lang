@@ -68,7 +68,7 @@ Connectors may need to have usage specific parameters and hence must be instanti
 1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
     ![alt text](../images/ConnectorEndpoint.gif)
 
-### Add an action
+### Call the connector
 
 When you add a connector, you need to have a way of calling a connector and those are called actions.
 
@@ -82,3 +82,5 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
     ![alt text](../images/AddingAction.gif)    
 1. To call the connector from the main program, draw an arrow to the connector from the action.
     ![alt text](../images/ConnectingAction.gif)
+1. You also need to pass a message to the connector from the main program. To do this, you must first add a variable.
+    ![alt text](../images/AddVariable.gif)
