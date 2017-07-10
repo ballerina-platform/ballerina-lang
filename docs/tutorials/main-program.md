@@ -70,6 +70,7 @@ Connectors may need to have usage specific parameters and hence must be instanti
 
 ### Add an action
 
+When you add a connector, you need to have a way of calling a connector and those are called actions.
+
 A connector comes with a set of actions that represent the interactions that one can have with the remote service. Actions can be one directional or bi-directional and represent blocking from the calling worker's perspective. That is, the calling thread is blocked until the action has completed its remote interaction.
 
-To make use of the connector you have added in this tutorial, you need to call it using an action.
