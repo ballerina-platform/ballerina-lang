@@ -30,8 +30,8 @@ function main (string[] args) {
         json family = p.family;
         int length = jsons:getInt(family, "$.length()");
         while (i < length) {
-            json e = family[i];
-            system:println(e);
+            json f = family[i];
+            system:println(f);
             i = i + 1;
         }
     } catch (errors:Error e) {
