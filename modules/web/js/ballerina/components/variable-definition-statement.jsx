@@ -62,7 +62,7 @@ class VariableDefinitionStatement extends React.Component {
         const messageStartX = bBox.x + bBox.w;
         const messageStartY = this.statementBox.y + statement_h / 2;
         let actionInvocation;
-        actionInvocation = model.getChildren()[1];
+        actionInvocation = model.getRightExpression();
         messageManager.setSource(actionInvocation);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
@@ -71,7 +71,7 @@ class VariableDefinitionStatement extends React.Component {
 
         messageManager.startDrawMessage((source, destination) => {
             source.setConnector(destination);
-            model.generateStatementString();
+            model.getStatementString();
             model.trigger('tree-modified', { type: 'custom', title: 'action set' });
         });
     }
@@ -111,8 +111,8 @@ class VariableDefinitionStatement extends React.Component {
         const arrowStartPointX = bBox.getRight();
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
-        const actionInvocation = (!_.isNil(model.getChildren()[1])
-            && ASTFactory.isActionInvocationExpression(model.getChildren()[1])) ? model.getChildren()[1] : undefined;
+        const actionInvocation = (!_.isNil(model.getRightExpression())
+            && ASTFactory.isActionInvocationExpression(model.getRightExpression())) ? model.getRightExpression() : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
