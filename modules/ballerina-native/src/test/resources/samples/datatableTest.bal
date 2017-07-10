@@ -55,10 +55,9 @@ struct ResultPrimitiveInt {
 
 
 function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, string s) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
-
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
@@ -78,9 +77,9 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
 }
 
 function testToJson () (json) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
@@ -91,9 +90,9 @@ function testToJson () (json) {
 }
 
 function testToXml () (xml) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
@@ -104,9 +103,9 @@ function testToXml () (xml) {
 }
 
 function toXmlComplex () (xml) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
 
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
@@ -119,10 +118,9 @@ function toXmlComplex () (xml) {
 
 function testDateTime (int datein, int timein, int timestampin) (string date, string time, string timestamp,
                                                                  string datetime) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
-
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter para0 = {sqlType:"integer", value:1};
     sql:Parameter para1 = {sqlType:"DATE", value:datein};
     sql:Parameter para2 = {sqlType:"TIME", value:timein};
@@ -150,10 +148,9 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
 }
 
 function testGetComplexTypes () (string blobValue, string clob, string binary) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
-
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type,
                   binary_type from ComplexTypes where row_id = 1", parameters);
@@ -174,10 +171,9 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
 
 
 function testArrayData () (map int_arr, map long_arr, map float_arr, map string_arr, map boolean_arr) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
-
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, float_array, boolean_array,
               string_array from ArrayTypes where row_id = 1", parameters);
@@ -197,9 +193,9 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
 }
 
 function testJsonWithNull () (json) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
@@ -210,9 +206,9 @@ function testJsonWithNull () (json) {
 }
 
 function testXmlWithNull () (xml) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type,
@@ -223,9 +219,9 @@ function testXmlWithNull () (xml) {
 }
 
 function testToXmlWithinTransaction () (string, int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     int returnValue = 0;
     string result;
     try {
@@ -246,9 +242,9 @@ function testToXmlWithinTransaction () (string, int) {
 }
 
 function testToJsonWithinTransaction () (string, int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
     int returnValue = 0;
     string result;
     try {
@@ -269,9 +265,9 @@ function testToJsonWithinTransaction () (string, int) {
 }
 
 function testBlobData () (string blobStringData) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", parameters);
@@ -290,9 +286,9 @@ function testBlobData () (string blobStringData) {
 }
 
 function testDatatableAutoClose () (int i, string test) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
@@ -315,9 +311,9 @@ function testDatatableAutoClose () (int i, string test) {
 }
 
 function testDatatableManualClose () (int data) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable", parameters);
@@ -347,9 +343,9 @@ function testDatatableManualClose () (int data) {
 }
 
 function testColumnAlias () (int i, int l, float f, float d, boolean b, string s, int i2) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT dt1.int_type, dt1.long_type, dt1.float_type,
@@ -374,9 +370,9 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
 }
 
 function testBlobInsert () (int i) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_DATA_TABLE_DB", "SA", "", Properties);
 
     sql:Parameter[] params = [];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", params);

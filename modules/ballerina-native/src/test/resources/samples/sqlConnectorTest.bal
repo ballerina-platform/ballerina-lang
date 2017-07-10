@@ -27,9 +27,8 @@ struct ResultArrayType {
 }
 
 function testInsertTableData () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     int insertCount = sql:ClientConnector.update (testDB, "Insert into Customers
@@ -40,9 +39,8 @@ function testInsertTableData () (int) {
 }
 
 function testCreateTable () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     int returnValue = sql:ClientConnector.update (testDB,
@@ -52,9 +50,8 @@ function testCreateTable () (int) {
 }
 
 function testUpdateTableData () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     int updateCount = sql:ClientConnector.update (testDB,
@@ -64,9 +61,8 @@ function testUpdateTableData () (int) {
 }
 
 function testGeneratedKeyOnInsert () (string) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     int insertCount;
     string[] generatedID;
@@ -80,9 +76,8 @@ function testGeneratedKeyOnInsert () (string) {
 }
 
 function testGeneratedKeyWithColumn () (string) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     int insertCount;
     string[] generatedID;
@@ -97,9 +92,8 @@ function testGeneratedKeyWithColumn () (string) {
 }
 
 function testSelectData () (string firstName) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
@@ -116,9 +110,8 @@ function testSelectData () (string firstName) {
 }
 
 function testSelectIntFloatData () (int int_type, int long_type, float float_type, float double_type) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     errors:TypeCastError err;
@@ -138,9 +131,8 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
 }
 
 function testCallProcedure () (string firstName) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     sql:ClientConnector.call (testDB, "{call InsertPersonData(100,'James')}", parameters);
@@ -158,9 +150,8 @@ function testCallProcedure () (string firstName) {
 }
 
 function testCallProcedureWithResultSet () (string firstName) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0, "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.call (testDB, "{call SelectPersonData()}", parameters);
@@ -180,7 +171,7 @@ function testConnectorWithDataSource () (string firstName) {
                         "url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ConnectionProperties Properties = {dataSourceClassName:"org.hsqldb.jdbc.JDBCDataSource",
                                               datasourceProperties:propertiesMap};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
@@ -205,7 +196,7 @@ function testConnectionPoolProperties () (string firstName) {
                           connectionInitSql:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS",
                           transactionIsolation:"2", catalog:"PUBLIC",
                           connectionTestQuery:"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS"};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "", 0, "", "", "", Properties);
 
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select (testDB, "SELECT  FirstName from Customers where registrationID = 1",
@@ -222,9 +213,9 @@ function testConnectionPoolProperties () (string firstName) {
 }
 
 function testQueryParameters () (string firstName) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
@@ -242,9 +233,10 @@ function testQueryParameters () (string firstName) {
 }
 
 function testInsertTableDataWithParameters () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
+
     sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
     sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
     sql:Parameter para3 = {sqlType:"integer", value:3, direction:0};
@@ -259,9 +251,9 @@ function testInsertTableDataWithParameters () (int) {
 }
 
 function testOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:"1", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:1};
@@ -289,9 +281,9 @@ function testOutParameters () (any, any, any, any, any, any, any, any, any, any,
 }
 
 function testNullOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:"2", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:1};
@@ -319,9 +311,9 @@ function testNullOutParameters () (any, any, any, any, any, any, any, any, any, 
 }
 
 function testINParameters () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:1, direction:0};
@@ -349,9 +341,9 @@ function testINParameters () (int) {
 }
 
 function testNullINParameters () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:0};
@@ -379,9 +371,9 @@ function testNullINParameters () (int) {
 }
 
 function testINOutParameters () (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:10, direction:2};
@@ -410,9 +402,9 @@ function testINOutParameters () (any, any, any, any, any, any, any, any, any, an
 
 function testNullINOutParameters ()
 (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter paraID = {sqlType:"integer", value:"6", direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:2};
@@ -440,9 +432,9 @@ function testNullINOutParameters ()
 }
 
 function testEmptySQLType () (int) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
@@ -452,10 +444,9 @@ function testEmptySQLType () (int) {
 }
 
 function testCloseConnectionPool () (int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
-
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     sql:Parameter[] parameters = [];
     datatable dt = sql:ClientConnector.select (testDB, "SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
                                                parameters);
@@ -472,9 +463,9 @@ function testCloseConnectionPool () (int count) {
 
 function testArrayInParameters () (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
                                    map boolean_arr, map float_arr) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
     sql:Parameter para2 = {sqlType:"array", value:"1", direction:0, structuredType:"integer"};
@@ -507,9 +498,9 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
 }
 
 function testArrayOutParameters () (any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     string firstName;
     sql:Parameter para1 = {sqlType:"array", direction:1};
@@ -525,9 +516,9 @@ function testArrayOutParameters () (any, any, any, any, any, any) {
 }
 
 function testArrayInOutParameters () (any, any, any, any, any, any, any) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
     sql:Parameter para2 = {sqlType:"integer", direction:1};
@@ -545,9 +536,9 @@ function testArrayInOutParameters () (any, any, any, any, any, any, any) {
 }
 
 function testBatchUpdate () (int[]) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     //Batch 1
     sql:Parameter para1 = {sqlType:"varchar", value:"Alex", direction:0};
@@ -574,9 +565,9 @@ function testBatchUpdate () (int[]) {
 }
 
 function testLocalTransacton () (int returnVal, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -604,9 +595,9 @@ function testLocalTransacton () (int returnVal, int count) {
 }
 
 function testTransactonRollback () (int returnVal, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     try {
@@ -636,9 +627,9 @@ function testTransactonRollback () (int returnVal, int count) {
 }
 
 function testTransactonAbort () (int returnVal, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -671,9 +662,9 @@ function testTransactonAbort () (int returnVal, int count) {
 }
 
 function testTransactonErrorThrow () (int returnVal, int catchValue, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -706,9 +697,9 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
 }
 
 function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     catchValue = 0;
     sql:Parameter[] parameters = [];
@@ -742,9 +733,9 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
 }
 
 function testTransactonCommitted () (int returnVal, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal = 0;
     sql:Parameter[] parameters = [];
     transaction {
@@ -770,9 +761,9 @@ function testTransactonCommitted () (int returnVal, int count) {
 }
 
 function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     returnVal1 = 0;
     returnVal2 = 0;
     sql:Parameter[] parameters = [];
@@ -815,9 +806,9 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
 }
 
 function testTransactonWithoutHandlers () (int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     sql:Parameter[] parameters = [];
     transaction {
         sql:ClientConnector.update(testDB, "Insert into Customers
@@ -841,9 +832,9 @@ function testTransactonWithoutHandlers () (int count) {
 }
 
 function testDateTimeInParameters () (int[]) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
     int[] returnValues = [];
     sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter para2 = {sqlType:"date", value:"2017-01-30-08:01", direction:0};
@@ -872,9 +863,9 @@ function testDateTimeInParameters () (int[]) {
 
 
 function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
-    sql:ConnectionProperties Properties = {jdbcUrl:"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-                                              userName:"SA", maximumPoolSize:1};
-    sql:ClientConnector testDB = create sql:ClientConnector(Properties);
+    sql:ConnectionProperties Properties = {maximumPoolSize:1};
+    sql:ClientConnector testDB = create sql:ClientConnector(sql:HSQLDB_FILE, "./target/tempdb/", 0,
+                                                            "TEST_SQL_CONNECTOR", "SA", "", Properties);
 
     sql:Parameter para1 = {sqlType:"integer", value:10, direction:0};
     sql:Parameter para2 = {sqlType:"date", value:date, direction:0};
