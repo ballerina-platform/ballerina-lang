@@ -4,8 +4,10 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
+import org.ballerinalang.composer.service.workspace.utils.BallerinaProgramContentProvider;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
@@ -19,6 +21,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *  Class with common utility functions used by workspace services
@@ -102,5 +106,16 @@ public class Utils {
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
         return bFile;
+    }
+
+
+    /**
+     * Get all the ballerina packages associated with the runtime
+     * @return - packages set
+     */
+    public static Set<Map.Entry<String, ModelPackage>> getAllPackages() {
+        BallerinaProgramContentProvider programContentProvider = BallerinaProgramContentProvider.getInstance();
+        Set<Map.Entry<String, ModelPackage>> packages = programContentProvider.getAllPackages().entrySet();
+        return packages;
     }
 }

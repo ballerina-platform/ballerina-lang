@@ -81,6 +81,7 @@ public class ItemResolverConstants {
     public static final String ACTION_TYPE = "action";
     public static final String RESOURCE_TYPE = "resource";
     public static final String KEYWORD_TYPE = "keyword";
+    public static final String ANNOTATION_TYPE = "annotation";
     public static final String NONE = "none";
     // Symbol Types Constants
 
