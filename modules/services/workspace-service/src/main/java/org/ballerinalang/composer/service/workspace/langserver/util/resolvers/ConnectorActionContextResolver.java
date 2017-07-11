@@ -19,36 +19,23 @@
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
-import org.ballerinalang.composer.service.workspace.langserver.consts.SymbolKind;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
-import org.ballerinalang.composer.service.workspace.langserver.util.completion.PackageItemResolver;
-import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.AnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
- * Resolves the functions in a package
+ * Item Resolver for the connector action context
  */
-public class FunctionsResolver extends AbstractItemResolver {
+public class ConnectorActionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                                  HashMap<Class, AbstractItemResolver> resolvers) {
-        String packageName = dataModel.getContext().getStart().getText();
-        PackageItemResolver packageItemResolver = PackageItemResolver.getInstance();
-        List<Function> functions = packageItemResolver.getFunctionInvocations(packageName);
+                                           HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-
-        functions.forEach(function -> {
-            CompletionItem item = new CompletionItem();
-            item.setLabel(function.getName());
-            item.setDetail(function.getDescription());
-            item.setKind(SymbolKind.FUNCTION_DEF);
-            completionItems.add(item);
-        });
-
+        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         return completionItems;
     }
 }

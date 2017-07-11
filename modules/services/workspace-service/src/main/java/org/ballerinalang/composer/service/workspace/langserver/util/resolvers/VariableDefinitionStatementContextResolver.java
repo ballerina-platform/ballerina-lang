@@ -20,14 +20,14 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.filters.BTypeFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
- * Variable definition Statement context resolver for resolving the items of the statement context
+ * Variable definition Statement context resolver for resolving the items
  */
 class VariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
@@ -37,9 +37,8 @@ class VariableDefinitionStatementContextResolver extends AbstractItemResolver {
         // the number of : and the . from the current token and search is terminated when an endline met
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> searchList = filterPackageActionsAndFunctions(dataModel, symbols);
-
-        populateCompletionItemList(searchList, completionItems);
+        BTypeFilter bTypeFilter = new BTypeFilter();
+        populateCompletionItemList(bTypeFilter.filterItems(dataModel, symbols, null), completionItems);
 
         return completionItems;
     }

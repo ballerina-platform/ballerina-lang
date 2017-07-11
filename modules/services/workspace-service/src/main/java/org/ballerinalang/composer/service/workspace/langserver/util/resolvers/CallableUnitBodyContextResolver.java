@@ -15,36 +15,40 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.AnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * ServiceContextResolver
+ * Callable Unit Body Context Resolver
  */
-public class ServiceContextResolver extends AbstractItemResolver {
-
+public class CallableUnitBodyContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                           HashMap<Class, AbstractItemResolver> resolvers) {
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        // Add resource
-        CompletionItem resource = new CompletionItem();
-        resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-        resource.setInsertText("resource ${1:name} (message ${2:m}){\n    ${3}\n}");
-        resource.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        resource.setSortText(ItemResolverConstants.PRIORITY_7);
-        completionItems.add(resource);
+        if (dataModel.getParserRuleContext() != null) {
+            completionItems.addAll(resolvers
+                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
+        } else {
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(workerItem);
 
-        // Add annotations
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+            completionItems
+                    .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
+        }
 
         return completionItems;
     }

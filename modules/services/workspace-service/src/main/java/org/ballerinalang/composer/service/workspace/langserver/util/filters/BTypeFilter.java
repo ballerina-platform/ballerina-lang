@@ -16,27 +16,30 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
+package org.ballerinalang.composer.service.workspace.langserver.util.filters;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
-import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * ResourceContextResolver
+ * Filter the BTypes
  */
-public class ResourceContextResolver extends AbstractItemResolver {
-
+public class BTypeFilter implements SymbolFilter {
     @Override
-    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                           HashMap<Class, AbstractItemResolver> resolvers) {
+    public List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel,
+                                        ArrayList<SymbolInfo> symbols, HashMap<String, Object> properties) {
 
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
-        return completionItems;
+        List<SymbolInfo> filteredList;
+        filteredList = symbols.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
+                .collect(Collectors.toList());
+
+        return filteredList;
     }
 }

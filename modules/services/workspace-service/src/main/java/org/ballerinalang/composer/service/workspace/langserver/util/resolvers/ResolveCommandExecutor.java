@@ -20,10 +20,14 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleStatementContextResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.BallerinaAction;
+import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
@@ -46,24 +50,36 @@ public class ResolveCommandExecutor {
         ParameterContextResolver parameterContextResolver = new ParameterContextResolver();
         ServiceContextResolver serviceContextResolver = new ServiceContextResolver();
         AnnotationAttachmentResolver annotationAttachmentResolver = new AnnotationAttachmentResolver();
+        ConnectorDefinitionContextResolver connectorDefinitionContextResolver =
+                new ConnectorDefinitionContextResolver();
+        ConnectorActionContextResolver connectorActionContextResolver = new ConnectorActionContextResolver();
         ResourceContextResolver resourceContextResolver = new ResourceContextResolver();
+        TopLevelResolver topLevelResolver = new TopLevelResolver();
+        CallableUnitBodyContextResolver callableUnitBodyContextResolver = new CallableUnitBodyContextResolver();
 
-        resolvers.put(BallerinaParser.StatementContext.class, statementContextResolver);
-        resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
-                variableDefinitionStatementContextResolver);
+        // Parser rule context based resolvers
+        ParserRuleStatementContextResolver parserRuleStatementContextResolver =
+                new ParserRuleStatementContextResolver();
+
+        // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
+        // since there are many statements in Ballerina model which can be handled similarly
+        resolvers.put(StatementContextResolver.class, statementContextResolver);
         resolvers.put(BallerinaParser.PackageNameContext.class, packageNameContextResolver);
-        // TODO
-        // For the moment we are considering both import resolver and the package resolver to be same, this will
-        // Differentiate accordingly in the future
         resolvers.put(BallerinaParser.ImportDeclarationContext.class, packageNameContextResolver);
         resolvers.put(BallerinaParser.AnnotationAttachmentContext.class, annotationAttachmentContextResolver);
-        TopLevelResolver topLevelResolver = new TopLevelResolver();
         resolvers.put(BallerinaParser.GlobalVariableDefinitionContext.class, topLevelResolver);
         resolvers.put(BallerinaParser.ParameterContext.class, parameterContextResolver);
         resolvers.put(null, topLevelResolver);
         resolvers.put(Service.class, serviceContextResolver);
+        resolvers.put(BallerinaConnectorDef.class, connectorDefinitionContextResolver);
+        resolvers.put(BallerinaAction.class, connectorActionContextResolver);
+        resolvers.put(VariableDefStmt.class, variableDefinitionStatementContextResolver);
         resolvers.put(AnnotationAttachment.class, annotationAttachmentResolver);
         resolvers.put(Resource.class, resourceContextResolver);
+        resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
+
+        // Parser Rule Context Resolvers
+        resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
     }
 
     /**

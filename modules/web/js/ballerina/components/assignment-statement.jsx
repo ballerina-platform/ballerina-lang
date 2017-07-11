@@ -83,7 +83,7 @@ class AssignmentStatement extends React.Component {
         const statementH = this.statementBox.h;
         const messageStartX = bBox.x + bBox.w;
         const messageStartY = this.statementBox.y + (statementH / 2);
-        const actionInvocation = model.getChildren()[1].getChildren()[0];
+        const actionInvocation = model.getRightExpression();
         messageManager.setSource(actionInvocation);
         messageManager.setIsOnDrag(true);
         messageManager.setMessageStart(messageStartX, messageStartY);
@@ -145,7 +145,7 @@ class AssignmentStatement extends React.Component {
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
         const actionInvocation = BallerinaASTFactory.isActionInvocationExpression(
-                        model.getChildren()[1].getChildren()[0]) ? model.getChildren()[1].getChildren()[0] : undefined;
+                        model.getRightExpression()) ? model.getRightExpression() : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };

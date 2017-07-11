@@ -16,25 +16,35 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
+package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.filters.PackageActionAndFunctionFilter;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Statement context resolver for resolving the items of the statement context
+ * Parser rule based statement context resolver
  */
-public class StatementContextResolver extends AbstractItemResolver {
+public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        populateCompletionItemList(symbols, completionItems);
 
-        return completionItems;
+        // Here we specifically need to check whether the statement is function invocation,
+        // action invocation or worker invocation
+        if (isActionOrFunctionInvocationStatement(dataModel)) {
+            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
+            return actionAndFunctionFilter
+                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+        } else {
+            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+            populateCompletionItemList(symbols, completionItems);
+            return completionItems;
+        }
     }
 }

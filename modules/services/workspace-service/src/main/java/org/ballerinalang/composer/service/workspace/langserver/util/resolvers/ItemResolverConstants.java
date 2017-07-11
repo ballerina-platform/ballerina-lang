@@ -57,9 +57,14 @@ public class ItemResolverConstants {
 
     public static final String FUNCTION = "function";
     public static final String SERVICE = "service";
+    public static final String CONNECTOR = "connector";
+    public static final String ACTION = "action";
 
     public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
     public static final String SERVICE_TEMPLATE = "service<${1}> ${2:name}{\n    ${3}\n}";
+    public static final String CONNECTOR_DEFFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
+    public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
+    public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
 
     // End of Basic Constructs
 
@@ -80,6 +85,7 @@ public class ItemResolverConstants {
     public static final String STRUCT_TYPE = "struct";
     public static final String ACTION_TYPE = "action";
     public static final String RESOURCE_TYPE = "resource";
+    public static final String WORKER_TYPE = "worker";
     public static final String KEYWORD_TYPE = "keyword";
     public static final String ANNOTATION_TYPE = "annotation";
     public static final String NONE = "none";
