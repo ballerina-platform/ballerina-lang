@@ -360,9 +360,9 @@ public class AggregationParser {
 
             // This is required when processing out of order data in the root incremental executor
             Queue<List<ExpressionExecutorDetails>> poolOfExtraBaseExpressionExecutors = new ArrayDeque<>();
-            List<ExpressionExecutorDetails> extraBaseExpressionExecutors = new ArrayList<>();
             ExpressionExecutor expressionExecutor;
-            for (int i = 0; i < bufferSize - 1; i++) {
+            for (int i = 0; i < bufferSize; i++) {
+                List<ExpressionExecutorDetails> extraBaseExpressionExecutors = new ArrayList<>();
                 for (int j = 0; j < baseIncrementalAggregators.size(); j++) {
                     expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(j), newMeta, 0,
                             tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
