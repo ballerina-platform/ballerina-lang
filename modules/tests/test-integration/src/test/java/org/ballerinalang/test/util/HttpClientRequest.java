@@ -191,28 +191,7 @@ public class HttpClientRequest {
             }
             conn.setRequestMethod("HEAD");
             conn.connect();
-            StringBuilder sb = new StringBuilder();
-            BufferedReader rd = null;
-            try {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-                httpResponse = new HttpResponse(sb.toString(), conn.getResponseCode());
-            } catch (IOException ex) {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()
-                        , Charset.defaultCharset()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-                httpResponse = new HttpResponse(sb.toString(), conn.getResponseCode());
-            } finally {
-                if (rd != null) {
-                    rd.close();
-                }
-            }
+            httpResponse = new HttpResponse(null, conn.getResponseCode());
             httpResponse.setHeaders(readHeaders(conn));
             httpResponse.setResponseMessage(conn.getResponseMessage());
             return httpResponse;
