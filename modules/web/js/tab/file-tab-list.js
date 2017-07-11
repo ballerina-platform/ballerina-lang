@@ -101,6 +101,7 @@ const FileTabList = TabList.extend(
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
             if (tab instanceof FileTab && !_.includes(this._workingFileSet, tab.getFile().id)) {
+                tab.getFile()._saveToLocalStorage();
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
