@@ -272,8 +272,7 @@ const SaveToFileDialog = Backbone.View.extend(
                                             .setName(options.configName)
                                             .setPersisted(true)
                                             .setLastPersisted(_.now())
-                                            .setDirty(false)
-                                            .save();
+                                            .setDirty(false);
                             if (app.workspaceExplorer.isEmpty()) {
                                 app.commandManager.dispatch('open-folder', options.location);
                                 if (!app.workspaceExplorer.isActive()) {

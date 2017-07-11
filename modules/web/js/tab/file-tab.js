@@ -33,8 +33,7 @@ import File from '../workspace/file';
 import DebugManager from '../debugger/debug-manager';
 import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
-import SourceModifyOperation from '../ballerina/undo-manager/source-modify-operation';
-
+import UndoableBalEditorOperation from '../ballerina/undo-manager/undoable-bal-editor-operation';
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -68,6 +67,11 @@ class FileTab extends Tab {
         this.file.on('dirty-state-change', () => {
             this.app.workspaceManager.updateSaveMenuItem();
             this.updateHeader();
+        });
+
+        this.file.on('content-modified', (evt) => {
+            this._handleUndoRedoStackOnUpdate(evt);
+            this.app.workspaceManager.updateMenuItems();
         });
     }
 
@@ -164,21 +168,6 @@ class FileTab extends Tab {
                 fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
             }
         }, this);
-
-        fileEditorEventChannel.on('content-modified', function (event) {
-            const updatedContent = fileEditor.getContent();
-            // if the modification happened from design view
-            // updadte source view content
-            if (!fileEditor.isInSourceView()) {
-                fileEditor.getSourceView().replaceContent(updatedContent, true);
-            }
-            this._handleUndoRedoStackOnUpdate(event);
-            this._file.setContent(updatedContent);
-            this._file.setDirty(true);
-            this._file.save();
-            this.app.workspaceManager.updateMenuItems();
-            this.trigger('tab-content-modified');
-        }, this);
     }
 
     /**
@@ -250,16 +239,10 @@ class FileTab extends Tab {
      * @memberof FileTab
      */
     _handleUndoRedoStackOnUpdate(changeEvent) {
-        let undoableOperationType = DiagramManipulationOperation;
-        // user did the change while in source view
-        if (this._fileEditor.isInSourceView()) {
-            undoableOperationType = SourceModifyOperation;
-        }
-
         // eslint-disable-next-line new-cap
-        const undoableOp = new undoableOperationType({
-            title: changeEvent.title,
-            editor: this._fileEditor,
+        const undoableOp = new UndoableBalEditorOperation({
+            file: this.file,
+            changeEvent,
         });
         this._undoManager.push(undoableOp);
     }

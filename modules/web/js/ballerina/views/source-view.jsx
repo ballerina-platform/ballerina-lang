@@ -97,9 +97,13 @@ class SourceView extends React.Component {
             });
             // register handler for source format command
             this.props.commandManager.registerHandler('format', this.format, this);
-            this.props.file.on('content-modified', (newContent, evt) => {
-                if ( evt.type !== 'source-modified') {
-                    this.replaceContent(newContent, true);
+            // listen to changes done to file content 
+            // by other means and update ace content accordingly
+            this.props.file.on('content-modified', (evt) => {
+                if (evt.originEvt.type !== 'source-modified') {
+                    // no need to update the file again, hence
+                    // the second arg
+                    this.replaceContent(evt.newContent, true);
                 }
             });
         }

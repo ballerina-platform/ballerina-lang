@@ -223,8 +223,7 @@ class ServiceClient extends EventChannel {
                 data = response;
                 file.setDirty(false)
                     .setPersisted(true)
-                    .setLastPersisted(_.now())
-                    .save();
+                    .setLastPersisted(_.now());
                 log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
             },
             error(xhr, textStatus, errorThrown) {

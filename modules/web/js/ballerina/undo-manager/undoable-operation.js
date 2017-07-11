@@ -29,7 +29,9 @@ class UndoableOperation extends EventChannel {
     constructor(args) {
         super();
         this.setTitle(_.get(args, 'title', undefined));
-        this.setEditor(_.get(args, 'editor', undefined));
+        this.setFile(_.get(args, 'file', undefined));
+        this.setOldContent(_.get(args, 'oldContent', undefined));
+        this.setNewContent(_.get(args, 'newContent', undefined));
     }
 
     prepareUndo(next) {
@@ -40,6 +42,22 @@ class UndoableOperation extends EventChannel {
         next(true);
     }
 
+    getOldContent() {
+        return this._oldContent;
+    }
+
+    setOldContent(oldContent) {
+        this._oldContent = oldContent;
+    }
+
+    getNewContent() {
+        return this._newContent;
+    }
+
+    setNewContent(newContent) {
+        this._newContent = newContent;
+    }
+
     getTitle() {
         return this._title;
     }
@@ -48,12 +66,12 @@ class UndoableOperation extends EventChannel {
         this._title = title;
     }
 
-    getEditor() {
-        return this._editor;
+    getFile() {
+        return this._file;
     }
 
-    setEditor(editor) {
-        this._editor = editor;
+    setFile(file) {
+        this._file = file;
     }
 
     undo() {}

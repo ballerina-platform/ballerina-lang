@@ -59,12 +59,21 @@ class BallerinaFileEditor extends React.Component {
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
-        this.props.file.on('content-modified', (newContent, evt) => {
-            // if the change was done from source editor
-            if (evt.type === 'source-modified') {
+        // listen for the changes to file content
+        this.props.file.on('content-modified', (evt) => {
+            // Change was done from source editor.
+            // just keep track of it now and when user tries
+            // to switch back to design view, we will try rebuild
+            // the ast
+            if (evt.originEvt.type === 'source-modified') {
                 this.setState({
                     sourceModified: true,
                 })
+            } else if (evt.originEvt.type === 'tree-modified'){
+                // change was done from design view
+                // AST is directly modified hence no need to parse again
+                // we just need to update the diagram
+                this.update();
             }
         });
         this.environment = new PackageScopedEnvironment();
@@ -121,8 +130,8 @@ class BallerinaFileEditor extends React.Component {
         // reparse the file
         if (newView === DESIGN_VIEW && this.state.sourceModified) {
             newState.sourceModified = false;
-            this.setState(newState);
             this.parseFile();
+            this.setState(newState);
         } else {
             this.setState(newState);
         }
@@ -135,8 +144,8 @@ class BallerinaFileEditor extends React.Component {
         const sourceGenVisitor = new SourceGenVisitor();
         this.state.model.accept(sourceGenVisitor);
         const newContent = sourceGenVisitor.getGeneratedSource();
-        this.props.file.setContent(newContent, evt);
-        this.update();
+        // create a wrapping event object to indicate tree modification
+        this.props.file.setContent(newContent, {type: 'tree-modified', originEvt: evt});
     }
 
     /**
