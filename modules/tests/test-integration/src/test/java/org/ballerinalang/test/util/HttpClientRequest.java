@@ -140,6 +140,9 @@ public class HttpClientRequest {
                     sb.append(line);
                 }
             } catch (IOException e) {
+                if (urlConnection.getErrorStream() == null) {
+                    return null;
+                }
                 rd = new BufferedReader(new InputStreamReader(urlConnection.getErrorStream()
                         , Charset.defaultCharset()));
                 String line;
