@@ -69,6 +69,7 @@ public class IncrementalExecutor implements Executor {
     private long nextEmitTime = -1;
     private boolean isRoot = false;
     private boolean isExternalTimeStampBased = false;
+    private boolean sendTimerFromRoot = false;
     private boolean isGroupBy;
     private Executor next;
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<>();
@@ -109,7 +110,7 @@ public class IncrementalExecutor implements Executor {
 
         this.resetEvent = streamEventPool.borrowEvent();
         resetEvent.setType(ComplexEvent.Type.RESET);
-        setNextExecutor(child); // TODO: 6/13/17 this must be set by entry valve also
+        setNextExecutor(child);
         runningBaseAggregatorCollection = new HashMap<>();
         bufferedBaseAggregatorMap = new TreeMap<>();
         basicExecutorsOfBufferedEvents = new TreeMap<>();
@@ -169,16 +170,29 @@ public class IncrementalExecutor implements Executor {
                 startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timeStamp, this.duration);
                 dispatchEvents(copyOfEmitTime, timeStamp);
                 if (event.getType() == ComplexEvent.Type.TIMER && getNextExecutor() != null) {
-                    // Send TIMER event to next executor.
-                    // TODO: 6/29/17 This must be corrected. Timer events must be sent only after sending atleast 1
-                    // event to next
-                    StreamEvent timerEvent = streamEventPool.borrowEvent();
-                    timerEvent.setType(ComplexEvent.Type.TIMER);
-                    timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timeStamp,
-                            this.duration, this.bufferCount));
-                    timerStreamEventChunk.add(timerEvent);
-                    getNextExecutor().execute(timerStreamEventChunk);
-                    timerStreamEventChunk.clear();
+                    if (isRoot && bufferCount > 0) {
+                        if (sendTimerFromRoot) {
+                            // Send TIMER event to next executor.
+                            // Timer events must be sent from root only after sending atleast 1
+                            // event from buffer, to next executor
+                            StreamEvent timerEvent = streamEventPool.borrowEvent();
+                            timerEvent.setType(ComplexEvent.Type.TIMER);
+                            timerEvent.setTimestamp(IncrementalTimeConverterUtil
+                                    .getEmitTimeOfLastEventToRemove(timeStamp, this.duration, this.bufferCount));
+                            timerStreamEventChunk.add(timerEvent);
+                            getNextExecutor().execute(timerStreamEventChunk);
+                            timerStreamEventChunk.clear();
+                        }
+                    } else {
+                        // Send TIMER event to next executor.
+                        StreamEvent timerEvent = streamEventPool.borrowEvent();
+                        timerEvent.setType(ComplexEvent.Type.TIMER);
+                        timerEvent.setTimestamp(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(timeStamp,
+                                this.duration, this.bufferCount));
+                        timerStreamEventChunk.add(timerEvent);
+                        getNextExecutor().execute(timerStreamEventChunk);
+                        timerStreamEventChunk.clear();
+                    }
                 }
             }
 
@@ -232,7 +246,7 @@ public class IncrementalExecutor implements Executor {
                     keyThreadLocal.set(groupedByKey);
                 }
 
-                if (isRoot) {
+                if (isRoot && bufferCount > 0) {
                     // get time at which the incoming event should have expired
                     // get relevant base map corresponding to that expiry time
                     // update aggregates of that map
@@ -314,7 +328,7 @@ public class IncrementalExecutor implements Executor {
 
     private void dispatchEvents(long copyOfEmitTime, long currentTimeStamp) {
 
-        if (isRoot) {
+        if (isRoot && bufferCount > 0) {
             // Add current basicExecutorDetails to basicExecutorsOfBufferedEvents
             basicExecutorsOfBufferedEvents.put(copyOfEmitTime, basicExecutorDetails);
             // Add current base aggregator collection to buffer
@@ -333,7 +347,6 @@ public class IncrementalExecutor implements Executor {
                 // This would remove all values corresponding to key equal to or less than
                 // "EmitTimeOfLastEventToRemove"
                 // Those executors would be reset to be used later when out of order events arrive.
-                // TODO: 6/30/17 write test case for this
                 NavigableMap<Long, List<AggregationParser.ExpressionExecutorDetails>> removedExecutors = ((TreeMap<Long, List<AggregationParser.ExpressionExecutorDetails>>) basicExecutorsOfBufferedEvents)
                         .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true);
@@ -347,9 +360,8 @@ public class IncrementalExecutor implements Executor {
                     }
                     poolOfExtraBaseExpressionExecutors.add(removedExecutorList.getValue());
                 }
-                removedExecutors.clear(); // TODO: 7/10/17 check 0?
+                removedExecutors.clear();
                 // Remove oldest base aggregator collections from bufferedBaseAggregatorMap
-                // TODO: 6/26/17 verify mapOfBaseAggregatesToDispatch is ascending
                 NavigableMap<Long, Map<String, BaseIncrementalAggregatorStore>> mapOfBaseAggregatesToDispatch = ((TreeMap<Long, Map<String, BaseIncrementalAggregatorStore>>) bufferedBaseAggregatorMap)
                         .headMap(IncrementalTimeConverterUtil.getEmitTimeOfLastEventToRemove(currentTimeStamp,
                                 this.duration, this.bufferCount), true);
@@ -382,6 +394,9 @@ public class IncrementalExecutor implements Executor {
                     // Null check is done, since if the buffer is not filled yet, there's no requirement to send oldest
                     // event
                     sendToNextExecutor(baseAggregatesToDispatch);
+                    // A timer event must be sent from root executor, only after dispatching atleast one event
+                    // from the buffer. Following bool is used to check that.
+                    sendTimerFromRoot = true;
                 }
                 // Clone basicExecutorDetails and set as new basic executors
                 List<AggregationParser.ExpressionExecutorDetails> newBasicExecutorDetails = new ArrayList<>();
@@ -396,7 +411,6 @@ public class IncrementalExecutor implements Executor {
             // Reset running base aggregator collection
             resetAggregatorStore();
             // Send RESET event to groupByExecutor
-            // TODO: 6/2/17 call reset method (can't reset since GroupByAggregationAttributeExecutor is called)
             for (AggregationParser.ExpressionExecutorDetails basicExecutor : this.basicExecutorDetails) {
                 basicExecutor.getExecutor().execute(resetEvent);
             }
