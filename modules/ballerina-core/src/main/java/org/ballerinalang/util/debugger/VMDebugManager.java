@@ -100,7 +100,7 @@ public class VMDebugManager {
         if (this.debugManagerInitialized) {
             throw new BallerinaException("Debugger instance already initialized");
         }
-        mainThreadContext.setDebugInfoHolder(new DebugInfoHolder());
+        mainThreadContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
         mainThreadContext.setDebugEnabled(true);
         DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, mainThreadContext);
         ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();

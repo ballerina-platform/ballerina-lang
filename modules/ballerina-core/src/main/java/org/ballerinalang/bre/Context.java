@@ -76,7 +76,7 @@ public class Context {
         return debugInfoHolder;
     }
 
-    public void setDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
+    public void setAndInitDebugInfoHolder(DebugInfoHolder debugInfoHolder) {
         if (this.debugInfoHolder != null) {
             return;
         }

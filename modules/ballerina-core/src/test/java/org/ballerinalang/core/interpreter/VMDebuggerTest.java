@@ -223,7 +223,7 @@ public class VMDebuggerTest {
 
 
             bContext = new Context(programFile);
-            bContext.setDebugInfoHolder(new DebugInfoHolder());
+            bContext.setAndInitDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
             String mainPkgName = programFile.getMainPackageName();

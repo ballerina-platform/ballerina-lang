@@ -204,7 +204,7 @@ public class BLangVM {
         context.setStartIP(startIP);
         if (VMDebugManager.getInstance().isDebugSessionActive()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setDebugInfoHolder(new DebugInfoHolder());
+            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
             context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             context.setDebugEnabled(true);
             debugManager.setDebuggerContext(context);

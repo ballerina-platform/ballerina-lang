@@ -230,7 +230,7 @@ public class ServerConnectorMessageHandler {
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnabled() && VMDebugManager.getInstance().isDebugSessionActive()) {
             VMDebugManager debugManager = VMDebugManager.getInstance();
-            context.setDebugInfoHolder(new DebugInfoHolder());
+            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
             context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
             context.setDebugEnabled(true);
             debugManager.setDebuggerContext(context);

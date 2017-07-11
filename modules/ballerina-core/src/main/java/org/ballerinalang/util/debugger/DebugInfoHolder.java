@@ -23,6 +23,7 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -209,7 +210,12 @@ public class DebugInfoHolder {
             }
             lineNumberInfo.setEndIp(endIp);
             rangeLineNoMap.put(ipRange, lineNumberInfo);
-            String fileNameAndNo = lineNumberInfo.getFileName() + ":" + lineNumberInfo.getLineNumber();
+            String fileName = lineNumberInfo.getFileName();
+            if (fileName.contains(File.separator)) {
+                String[] pathArray = fileName.split(File.separator);
+                fileName = pathArray[pathArray.length - 1];
+            }
+            String fileNameAndNo = fileName + ":" + lineNumberInfo.getLineNumber();
             lineNumRangeMap.put(fileNameAndNo, ipRange);
         }
 
