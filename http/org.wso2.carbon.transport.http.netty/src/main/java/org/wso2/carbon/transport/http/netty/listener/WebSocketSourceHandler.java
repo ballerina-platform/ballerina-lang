@@ -153,7 +153,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         }
 
         CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                .getMessageProcessor();
+                .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
         if (carbonMessageProcessor != null) {
             try {
                 carbonMessageProcessor.receive(cMsg, null);

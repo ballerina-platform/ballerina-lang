@@ -107,7 +107,7 @@ public class RequestResponseTransformProcessor implements CarbonMessageProcessor
 
     @Override
     public String getId() {
-        return null;
+        return "RequestResponseTransformProcessor";
     }
 
     private class EngineCallBack implements CarbonCallback {

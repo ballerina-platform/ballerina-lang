@@ -228,7 +228,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         if (continueRequest) {
             CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor();
+                        .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
             if (carbonMessageProcessor != null) {
                 try {
                     carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx, cMsg));
@@ -285,6 +285,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
+        cMsg.setProperty(Constants.MESSAGE_PROCESSOR_ID, listenerConfiguration.getMessageProcessorId());
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());

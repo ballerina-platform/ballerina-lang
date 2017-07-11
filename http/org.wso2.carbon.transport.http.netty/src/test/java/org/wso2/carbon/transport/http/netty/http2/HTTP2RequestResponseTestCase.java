@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
@@ -43,7 +44,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test class for http2 transport
+ * A test class for http2 transport.
  */
 public class HTTP2RequestResponseTestCase {
 
@@ -51,12 +52,14 @@ public class HTTP2RequestResponseTestCase {
     private List<HTTPServerConnector> serverConnectors;
     private HTTPServer httpServer;
     HTTP2Client http2Client = null;
+    private CarbonMessageProcessor carbonMessageProcessor;
 
     @BeforeClass
     public void setUp() throws Exception {
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/http2/netty-transports.yml");
-        serverConnectors = TestUtil.startConnectors(configuration, new HTTP2MessageProcessor());
+        carbonMessageProcessor = new HTTP2MessageProcessor();
+        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, HTTP2MessageProcessor.TEST_VALUE, Constants
                 .TEXT_PLAIN);
         http2Client = new HTTP2Client(false, "localhost", 8490);
@@ -100,11 +103,11 @@ public class HTTP2RequestResponseTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-
         TestUtil.cleanUp(serverConnectors, httpServer);
         if (http2Client != null) {
             http2Client.close();
         }
+        TestUtil.removeMessageProcessor(carbonMessageProcessor);
     }
 
 }

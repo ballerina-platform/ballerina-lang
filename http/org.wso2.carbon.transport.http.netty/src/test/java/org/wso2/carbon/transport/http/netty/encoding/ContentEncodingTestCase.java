@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
@@ -38,6 +39,9 @@ import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+/**
+ * Test class for content encoding.
+ */
 public class ContentEncodingTestCase {
 
     private List<HTTPServerConnector> serverConnectors;
@@ -46,6 +50,7 @@ public class ContentEncodingTestCase {
 
     private HTTPServer httpServer;
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", 8490));
+    private CarbonMessageProcessor carbonMessageProcessor;
 
     private static final Logger log = LoggerFactory.getLogger(ContentEncodingTestCase.class);
 
@@ -53,7 +58,8 @@ public class ContentEncodingTestCase {
     public void setup() {
         configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
-        serverConnectors = TestUtil.startConnectors(configuration, new ContentReadingProcessor());
+        carbonMessageProcessor = new ContentReadingProcessor();
+        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
         httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT);
     }
 
@@ -76,5 +82,6 @@ public class ContentEncodingTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(serverConnectors, httpServer);
+        TestUtil.removeMessageProcessor(carbonMessageProcessor);
     }
 }

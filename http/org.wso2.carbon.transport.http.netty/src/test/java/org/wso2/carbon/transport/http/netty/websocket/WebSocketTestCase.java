@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
@@ -52,13 +53,15 @@ public class WebSocketTestCase {
     private final int threadSleepTime = 100;
     private WebSocketClient primaryClient = new WebSocketClient();
     private WebSocketClient secondaryClient = new WebSocketClient();
+    private CarbonMessageProcessor carbonMessageProcessor;
 
     @BeforeClass
     public void setup() {
         logger.info(System.lineSeparator() + "-------WebSocket Test Cases-------");
         TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
                 .build("src/test/resources/simple-test-config/netty-transports.yml");
-        serverConnectors = TestUtil.startConnectors(configuration, new WebSocketMessageProcessor());
+        carbonMessageProcessor = new WebSocketMessageProcessor();
+        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
     }
 
     @Test
@@ -152,5 +155,6 @@ public class WebSocketTestCase {
                     serverConnector.stop();
                 }
         );
+        TestUtil.removeMessageProcessor(carbonMessageProcessor);
     }
 }
