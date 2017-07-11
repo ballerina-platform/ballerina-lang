@@ -56,6 +56,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         String serviceUrl = "http://localhost:9094/echo";
         HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
         if (response == null) {
+            //Retrying to avoid intermittent test failure
             response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
         }
         Assert.assertNotNull(response);
@@ -74,6 +75,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         String serverHome = getServerInstance().getServerHome();
         HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
         if (response == null) {
+            //Retrying to avoid intermittent test failure 
             response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
         }
         Assert.assertNotNull(response);
