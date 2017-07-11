@@ -80,6 +80,7 @@ public final class SiddhiConstants {
     public static final String METRIC_INFIX_STREAMS = "Streams";
     public static final String METRIC_INFIX_SIDDHI = "Siddhi";
     public static final String METRIC_INFIX_QUERIES = "Queries";
+    public static final String METRIC_INFIX_AGGRIGATIONS = "Aggregations";
     public static final String METRIC_INFIX_WINDOWS = "Windows";
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";

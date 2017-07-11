@@ -116,8 +116,6 @@ public class DefinitionParserHelper {
                     "Aggregation Definition with same Aggregation Id '" + definition.getId() + "' already exist : "
                             + existingWindowDefinition + ", hence cannot add " + definition);
         }
-
-        // TODO: 1/29/17 add source / sink both validation here
     }
 
 

@@ -65,23 +65,24 @@ public class SiddhiAppRuntimeBuilder {
             new ConcurrentHashMap<String, AbstractDefinition>(); //contains table definition
     private ConcurrentMap<String, AbstractDefinition> windowDefinitionMap =
             new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
-    private ConcurrentMap<String, AbstractDefinition> aggregationDefinitionConcurrentMap =
-            new ConcurrentHashMap<String, AbstractDefinition>(); //contains window definition
+    private ConcurrentMap<String, AbstractDefinition> aggregationDefinitionMap =
+            new ConcurrentHashMap<String, AbstractDefinition>(); //contains aggregation definition
     private ConcurrentMap<String, TriggerDefinition> triggerDefinitionMap =
             new ConcurrentHashMap<String, TriggerDefinition>(); //contains trigger definition
     private Map<String, QueryRuntime> queryProcessorMap =
-            Collections.synchronizedMap(new LinkedHashMap<String, QueryRuntime>());
+            Collections.synchronizedMap(new LinkedHashMap<String, QueryRuntime>());  //contains query processors
     private ConcurrentMap<String, StreamJunction> streamJunctionMap =
             new ConcurrentHashMap<String, StreamJunction>(); //contains stream junctions
-    private ConcurrentMap<String, List<Source>> eventSourceMap =
-            new ConcurrentHashMap<String, List<Source>>(); //contains event sources
-    private ConcurrentMap<String, List<Sink>> eventSinkMap =
-            new ConcurrentHashMap<String, List<Sink>>(); //contains event sinks
-    private ConcurrentMap<String, Table> tableMap = new ConcurrentHashMap<String, Table>(); //contains event tables
-    private ConcurrentMap<String, Window> eventWindowMap =
-            new ConcurrentHashMap<String, Window>(); //contains event tables
-    private ConcurrentMap<String, EventTrigger> eventTriggerMap =
-            new ConcurrentHashMap<String, EventTrigger>(); //contains event tables
+    private ConcurrentMap<String, List<Source>> sourceMap =
+            new ConcurrentHashMap<String, List<Source>>(); //contains sources
+    private ConcurrentMap<String, List<Sink>> sinkMap =
+            new ConcurrentHashMap<String, List<Sink>>(); //contains sinks
+    private ConcurrentMap<String, Table> tableMap =
+            new ConcurrentHashMap<String, Table>(); //contains tables
+    private ConcurrentMap<String, Window> windowMap =
+            new ConcurrentHashMap<String, Window>(); //contains windows
+    private ConcurrentMap<String, EventTrigger> triggerMap =
+            new ConcurrentHashMap<String, EventTrigger>(); //contains triggers
     private ConcurrentMap<String, PartitionRuntime> partitionMap =
             new ConcurrentHashMap<String, PartitionRuntime>(); //contains partitions
     private ConcurrentMap<String, SiddhiAppRuntime> siddhiAppRuntimeMap = null;
@@ -96,20 +97,20 @@ public class SiddhiAppRuntimeBuilder {
 
     public void defineStream(StreamDefinition streamDefinition) {
         DefinitionParserHelper.validateDefinition(streamDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, aggregationDefinitionConcurrentMap);
+                windowDefinitionMap, aggregationDefinitionMap);
         AbstractDefinition currentDefinition = streamDefinitionMap
                 .putIfAbsent(streamDefinition.getId(), streamDefinition);
         if (currentDefinition != null) {
             streamDefinition = (StreamDefinition) currentDefinition;
         }
         DefinitionParserHelper.addStreamJunction(streamDefinition, streamJunctionMap, siddhiAppContext);
-        DefinitionParserHelper.addEventSource(streamDefinition, eventSourceMap, siddhiAppContext);
-        DefinitionParserHelper.addEventSink(streamDefinition, eventSinkMap, siddhiAppContext);
+        DefinitionParserHelper.addEventSource(streamDefinition, sourceMap, siddhiAppContext);
+        DefinitionParserHelper.addEventSink(streamDefinition, sinkMap, siddhiAppContext);
     }
 
     public void defineTable(TableDefinition tableDefinition) {
         DefinitionParserHelper.validateDefinition(tableDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, aggregationDefinitionConcurrentMap);
+                windowDefinitionMap, aggregationDefinitionMap);
         AbstractDefinition currentDefinition = tableDefinitionMap.putIfAbsent(tableDefinition.getId(), tableDefinition);
         if (currentDefinition != null) {
             tableDefinition = (TableDefinition) currentDefinition;
@@ -119,14 +120,14 @@ public class SiddhiAppRuntimeBuilder {
 
     public void defineWindow(WindowDefinition windowDefinition) {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, aggregationDefinitionConcurrentMap);
+                windowDefinitionMap, aggregationDefinitionMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
         AbstractDefinition currentDefinition = windowDefinitionMap
                 .putIfAbsent(windowDefinition.getId(), windowDefinition);
         if (currentDefinition != null) {
             windowDefinition = (WindowDefinition) currentDefinition;
         }
-        DefinitionParserHelper.addWindow(windowDefinition, eventWindowMap, siddhiAppContext);
+        DefinitionParserHelper.addWindow(windowDefinition, windowMap, siddhiAppContext);
         // defineStream(windowDefinition);
         // DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
     }
@@ -134,30 +135,20 @@ public class SiddhiAppRuntimeBuilder {
     public void defineTrigger(TriggerDefinition triggerDefinition) {
         DefinitionParserHelper.validateDefinition(triggerDefinition);
         TriggerDefinition currentDefinition = triggerDefinitionMap.putIfAbsent(triggerDefinition.getId(),
-                                                                               triggerDefinition);
+                triggerDefinition);
         if (currentDefinition != null) {
             triggerDefinition = currentDefinition;
         }
-        DefinitionParserHelper.addEventTrigger(triggerDefinition, eventTriggerMap, streamJunctionMap,
+        DefinitionParserHelper.addEventTrigger(triggerDefinition, triggerMap, streamJunctionMap,
                 siddhiAppContext);
     }
 
-    public void defineAggregation(AggregationDefinition aggregationDefinition,
-                                  SiddhiAppContext siddhiAppContext) {
+    public void defineAggregation(AggregationDefinition aggregationDefinition) {
         DefinitionParserHelper.validateDefinition(aggregationDefinition, streamDefinitionMap, tableDefinitionMap,
-                windowDefinitionMap, aggregationDefinitionConcurrentMap);
-        aggregationDefinitionConcurrentMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
-        // TODO: 3/21/17 : review this and are we missing something
+                windowDefinitionMap, aggregationDefinitionMap);
+        aggregationDefinitionMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
         AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, siddhiAppContext,
-                getStreamDefinitionMap(),
-                getTableDefinitionMap(),
-                getWindowDefinitionMap(),
-                getTableMap(),
-                getEventWindowMap(),
-                getEventSourceMap(),
-                getEventSinkMap(),
-                getLockSynchronizer());
-
+                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, lockSynchronizer);
         IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver =
                 aggregationRuntime.getIncrementalExecuteStreamReceiver();
         streamJunctionMap.get(incrementalExecuteStreamReceiver.getStreamId()).
@@ -234,8 +225,8 @@ public class SiddhiAppRuntimeBuilder {
         return tableMap;
     }
 
-    public ConcurrentMap<String, Window> getEventWindowMap() {
-        return eventWindowMap;
+    public ConcurrentMap<String, Window> getWindowMap() {
+        return windowMap;
     }
 
     public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {
@@ -246,12 +237,12 @@ public class SiddhiAppRuntimeBuilder {
         return tableDefinitionMap;
     }
 
-    public ConcurrentMap<String, List<Source>> getEventSourceMap() {
-        return eventSourceMap;
+    public ConcurrentMap<String, List<Source>> getSourceMap() {
+        return sourceMap;
     }
 
-    public ConcurrentMap<String, List<Sink>> getEventSinkMap() {
-        return eventSinkMap;
+    public ConcurrentMap<String, List<Sink>> getSinkMap() {
+        return sinkMap;
     }
 
     public ConcurrentMap<String, AbstractDefinition> getWindowDefinitionMap() {
@@ -264,7 +255,7 @@ public class SiddhiAppRuntimeBuilder {
 
     public SiddhiAppRuntime build() {
         return new SiddhiAppRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap,
-                streamJunctionMap, tableMap, eventSourceMap, eventSinkMap, partitionMap, siddhiAppContext,
+                streamJunctionMap, tableMap, sourceMap, sinkMap, partitionMap, siddhiAppContext,
                 siddhiAppRuntimeMap);
     }
 

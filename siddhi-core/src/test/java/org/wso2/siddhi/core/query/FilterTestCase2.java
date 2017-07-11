@@ -1143,7 +1143,7 @@ public class FilterTestCase2 {
     }
 
     //*****************************************************************************************************************
-    //Expression-Subtract
+    //Expression-subtract
     @Test
     public void testFilterQuery110() throws InterruptedException {
         log.info("Filter test110");

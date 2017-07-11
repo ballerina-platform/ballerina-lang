@@ -103,7 +103,7 @@ definition_aggregation_final
     ;
 
 definition_aggregation
-    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input group_by_query_selection AGGREGATE (BY attribute_reference)? EVERY aggregation_time
+    : annotation* DEFINE AGGREGATION aggregation_name FROM standard_stream group_by_query_selection AGGREGATE (BY attribute_reference)? EVERY aggregation_time
     ;
 
 aggregation_name

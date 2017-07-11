@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 /**
- * Executor class for Double Subtract function. Function execution logic is implemented in execute here.
+ * Executor class for Double subtract function. Function execution logic is implemented in execute here.
  */
 public class SubtractExpressionExecutorDouble implements ExpressionExecutor {
     private ExpressionExecutor leftExpressionExecutor;

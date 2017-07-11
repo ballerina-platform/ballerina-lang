@@ -17,6 +17,7 @@
  */
 package org.wso2.siddhi.query.api.aggregation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,38 +26,15 @@ import java.util.List;
  * Time Period API. This defines all the time durations supported in Incremental Aggregation,
  * and the relevant operators
  */
-public class TimePeriod {
+public class TimePeriod implements Serializable {
 
-    /**
-     * Durations supported in Incremental Aggregation
-     */
-    public enum Duration {
-        SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS
-    }
-
-    /**
-     * Operators supported in Incremental Aggregation.
-     * RANGE operator allows a range of time durations to be defined (e.g. sec ... year)
-     * INTERVAL operator allows comma separated time durations to be specified (e.g. sec, month, year)
-     */
-    public enum Operator {
-        RANGE, INTERVAL
-    }
-
+    private static final long serialVersionUID = 1L;
     private Operator operator;
     private List<Duration> durations;
 
     private TimePeriod(Operator operator) {
         this.durations = new ArrayList<>();
         this.operator = operator;
-    }
-
-    public Operator getOperator() {
-        return this.operator;
-    }
-
-    public List<Duration> getDurations() {
-        return this.durations;
     }
 
     public static TimePeriod range(Duration begging, Duration end) { // range sec ... min
@@ -70,6 +48,14 @@ public class TimePeriod {
         TimePeriod timePeriod = new TimePeriod(Operator.INTERVAL);
         Collections.addAll(timePeriod.durations, durations);
         return timePeriod;
+    }
+
+    public Operator getOperator() {
+        return this.operator;
+    }
+
+    public List<Duration> getDurations() {
+        return this.durations;
     }
 
     @Override
@@ -94,5 +80,21 @@ public class TimePeriod {
         int result = operator.hashCode();
         result = 31 * result + (durations != null ? durations.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * Durations supported in Incremental Aggregation
+     */
+    public enum Duration {
+        SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS
+    }
+
+    /**
+     * Operators supported in Incremental Aggregation.
+     * RANGE operator allows a range of time durations to be defined (e.g. sec ... year)
+     * INTERVAL operator allows comma separated time durations to be specified (e.g. sec, month, year)
+     */
+    public enum Operator {
+        RANGE, INTERVAL
     }
 }

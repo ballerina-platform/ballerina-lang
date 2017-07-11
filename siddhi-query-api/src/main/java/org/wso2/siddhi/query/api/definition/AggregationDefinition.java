@@ -19,13 +19,11 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.BasicSelector;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,15 +32,19 @@ import java.util.List;
  */
 public class AggregationDefinition extends AbstractDefinition {
 
-    private static final long serialVersionUID = 6106269076155338045L;
-    private transient InputStream inputStream = null;
-    private transient Selector selector = null;
+    private static final long serialVersionUID = 1L;
+    private BasicSingleInputStream basicSingleInputStream = null;
+    private Selector selector = null;
     private Variable aggregateAttribute = null;
-    private transient TimePeriod timePeriod = null;
-    private transient List<Annotation> annotations = new ArrayList<>();
+    private TimePeriod timePeriod = null;
+    private List<Annotation> annotations = new ArrayList<>();
 
     protected AggregationDefinition(String id) {
         super(id);
+    }
+
+    public static AggregationDefinition id(String aggregationName) {
+        return new AggregationDefinition(aggregationName);
     }
 
     public AggregationDefinition select(BasicSelector selector) {
@@ -52,10 +54,6 @@ public class AggregationDefinition extends AbstractDefinition {
 
     public Selector getSelector() {
         return this.selector;
-    }
-
-    public static AggregationDefinition id(String aggregationName) {
-        return new AggregationDefinition(aggregationName);
     }
 
     public AggregationDefinition aggregateBy(Variable aggregateAttribute) {
@@ -76,13 +74,13 @@ public class AggregationDefinition extends AbstractDefinition {
         return this.timePeriod;
     }
 
-    public AggregationDefinition from(InputStream inputStream) {
-        this.inputStream = inputStream;
+    public AggregationDefinition from(BasicSingleInputStream basicSingleInputStream) {
+        this.basicSingleInputStream = basicSingleInputStream;
         return this;
     }
 
-    public InputStream getInputStream() {
-        return this.inputStream;
+    public BasicSingleInputStream getBasicSingleInputStream() {
+        return this.basicSingleInputStream;
     }
 
     public AggregationDefinition annotation(Annotation annotation) {
@@ -108,7 +106,7 @@ public class AggregationDefinition extends AbstractDefinition {
 
         AggregationDefinition that = (AggregationDefinition) o;
 
-        if (!inputStream.equals(that.inputStream)) {
+        if (!basicSingleInputStream.equals(that.basicSingleInputStream)) {
             return false;
         }
         if (selector != null ? !selector.equals(that.selector) : that.selector != null) {
@@ -126,7 +124,7 @@ public class AggregationDefinition extends AbstractDefinition {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + inputStream.hashCode();
+        result = 31 * result + basicSingleInputStream.hashCode();
         result = 31 * result + (selector != null ? selector.hashCode() : 0);
         result = 31 * result + aggregateAttribute.hashCode();
         result = 31 * result + (timePeriod != null ? timePeriod.hashCode() : 0);

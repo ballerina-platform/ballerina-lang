@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.util.parser.helper;
 
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEventAttribute;
@@ -35,7 +36,9 @@ import org.wso2.siddhi.core.query.input.stream.state.StreamPreStateProcessor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
+import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
@@ -205,6 +208,24 @@ public class QueryParserHelper {
 
             processor = processor.getNextProcessor();
         }
+    }
+
+    public static LatencyTracker getLatencyTracker(SiddhiAppContext siddhiAppContext, String name, String type) {
+        LatencyTracker latencyTracker = null;
+        if (siddhiAppContext.isStatsEnabled() && siddhiAppContext.getStatisticsManager() != null) {
+            String metricName =
+                    siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                            SiddhiConstants.METRIC_DELIMITER + siddhiAppContext.getName() +
+                            SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                            SiddhiConstants.METRIC_DELIMITER + type +
+                            SiddhiConstants.METRIC_DELIMITER + name;
+            latencyTracker = siddhiAppContext.getSiddhiContext()
+                    .getStatisticsConfiguration()
+                    .getFactory()
+                    .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
+        }
+        return latencyTracker;
     }
 
 }

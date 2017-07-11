@@ -57,9 +57,9 @@ public class PartitionParser {
                     siddhiAppRuntimeBuilder.getTableDefinitionMap(),
                     siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
                     siddhiAppRuntimeBuilder.getTableMap(),
-                    siddhiAppRuntimeBuilder.getEventWindowMap(),
-                    siddhiAppRuntimeBuilder.getEventSourceMap(),
-                    siddhiAppRuntimeBuilder.getEventSinkMap(),
+                    siddhiAppRuntimeBuilder.getWindowMap(),
+                    siddhiAppRuntimeBuilder.getSourceMap(),
+                    siddhiAppRuntimeBuilder.getSinkMap(),
                     siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
             queryIndex++;
             MetaStateEvent metaStateEvent = createMetaEventForPartitioner(queryRuntime.getMetaComplexEvent());

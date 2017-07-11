@@ -196,7 +196,7 @@ public class SiddhiAppParser {
         defineTableDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTableDefinitionMap());
         defineWindowDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getWindowDefinitionMap());
         defineFunctionDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getFunctionDefinitionMap());
-        for (Window window : siddhiAppRuntimeBuilder.getEventWindowMap().values()) {
+        for (Window window : siddhiAppRuntimeBuilder.getWindowMap().values()) {
             String metricName =
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
                             SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
@@ -212,7 +212,7 @@ public class SiddhiAppParser {
                         .createLatencyTracker(metricName, siddhiAppContext.getStatisticsManager());
             }
             window.init(siddhiAppRuntimeBuilder.getTableMap(), siddhiAppRuntimeBuilder
-                    .getEventWindowMap(), latencyTracker, window.getWindowDefinition().getId());
+                    .getWindowMap(), latencyTracker, window.getWindowDefinition().getId());
         }
         try {
             int queryIndex = 1;
@@ -223,9 +223,9 @@ public class SiddhiAppParser {
                             siddhiAppRuntimeBuilder.getTableDefinitionMap(),
                             siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
                             siddhiAppRuntimeBuilder.getTableMap(),
-                            siddhiAppRuntimeBuilder.getEventWindowMap(),
-                            siddhiAppRuntimeBuilder.getEventSourceMap(),
-                            siddhiAppRuntimeBuilder.getEventSinkMap(),
+                            siddhiAppRuntimeBuilder.getWindowMap(),
+                            siddhiAppRuntimeBuilder.getSourceMap(),
+                            siddhiAppRuntimeBuilder.getSinkMap(),
                             siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
                     siddhiAppRuntimeBuilder.addQuery(queryRuntime);
                     queryIndex++;
@@ -245,6 +245,7 @@ public class SiddhiAppParser {
             throw new DuplicateDefinitionException(e.getMessage() + " in siddhi app \"" +
                     siddhiAppContext.getName() + "\"", e);
         }
+        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap());
 
         //Done last as they have to be started last
         defineTriggerDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTriggerDefinitionMap());
@@ -287,10 +288,9 @@ public class SiddhiAppParser {
     }
 
     private static void defineAggregationDefinitions(SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
-                                                     Map<String, AggregationDefinition> aggregationDefinitionMap,
-                                                     SiddhiAppContext siddhiAppContext) {
-        for(AggregationDefinition definition : aggregationDefinitionMap.values()){
-            siddhiAppRuntimeBuilder.defineAggregation(definition, siddhiAppContext);
+                                                     Map<String, AggregationDefinition> aggregationDefinitionMap) {
+        for (AggregationDefinition definition : aggregationDefinitionMap.values()) {
+            siddhiAppRuntimeBuilder.defineAggregation(definition);
         }
 
     }

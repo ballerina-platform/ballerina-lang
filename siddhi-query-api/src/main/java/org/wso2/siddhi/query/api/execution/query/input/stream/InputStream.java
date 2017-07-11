@@ -22,12 +22,15 @@ import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.constant.Constant;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Input stream in queries
  */
-public abstract class InputStream {
+public abstract class InputStream implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static InputStream joinStream(SingleInputStream leftStream, JoinInputStream.Type type,
                                          SingleInputStream rightStream,
