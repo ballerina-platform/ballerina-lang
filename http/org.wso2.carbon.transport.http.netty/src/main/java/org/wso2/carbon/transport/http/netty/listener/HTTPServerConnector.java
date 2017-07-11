@@ -29,7 +29,7 @@ import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import java.util.Collections;
 
 /**
- * HTTP ServerConnector implementation
+ * HTTP ServerConnector implementation.
  */
 public class HTTPServerConnector extends ServerConnector {
 

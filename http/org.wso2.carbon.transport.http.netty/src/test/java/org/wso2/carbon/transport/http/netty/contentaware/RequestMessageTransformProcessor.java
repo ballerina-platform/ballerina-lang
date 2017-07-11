@@ -101,6 +101,6 @@ public class RequestMessageTransformProcessor implements CarbonMessageProcessor 
 
     @Override
     public String getId() {
-        return null;
+        return "RequestMessageTransformProcessor";
     }
 }

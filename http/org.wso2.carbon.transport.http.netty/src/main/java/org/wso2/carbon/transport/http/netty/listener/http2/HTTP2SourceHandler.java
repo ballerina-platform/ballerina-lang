@@ -59,7 +59,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
 
     private static final Logger log = LoggerFactory.getLogger(HTTP2SourceHandler.class);
     /**
-     * streamIdRequestMap contains mapping of http carbon messages to streamid to support multiplexing capability of
+     * streamIdRequestMap contains mapping of http carbon messages to streamid to support multiplexing capability of.
      * http2 tcp connections
      */
     private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
@@ -157,7 +157,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
 
 
     /**
-     * Carbon Message is published to registered message processor and Message Processor should return transport
+     * Carbon Message is published to registered message processor and Message Processor should return transport.
      * thread immediately
      *
      * @param streamId Stream id of HTTP2 request received
@@ -184,7 +184,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
         }
         if (continueRequest) {
             CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor();
+                    .getMessageProcessor(listenerConfiguration.getMessageProcessorId());
             if (carbonMessageProcessor != null) {
                 try {
                     carbonMessageProcessor.receive(cMsg, new HTTP2ResponseCallback(ctx, streamId));
@@ -200,7 +200,7 @@ public final class HTTP2SourceHandler extends Http2ConnectionHandler implements 
     }
 
     /**
-     * Setup carbon message for HTTP2 request
+     * Setup carbon message for HTTP2 request.
      *
      * @param streamId Stream id of HTTP2 request received
      * @param headers  HTTP2 Headers

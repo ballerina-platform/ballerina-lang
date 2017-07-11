@@ -81,10 +81,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         executeAtTargetResponseReceiving(cMsg);
             }
             CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor();
+                    .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
             if (carbonMessageProcessor != null) {
                 try {
-                    HTTPTransportContextHolder.getInstance().getMessageProcessor().receive(cMsg, callback);
+                    HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
+                            .getProperty(Constants.MESSAGE_PROCESSOR_ID)).receive(cMsg, callback);
                 } catch (Exception e) {
                     LOG.error("Error while handover response to MessageProcessor ", e);
                 }
@@ -150,11 +151,12 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     getHttpRoute().toString() + "</errorMessage>";
 
             CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
-                    .getMessageProcessor();
+                    .getMessageProcessor((String) incomingMsg.getProperty(Constants.MESSAGE_PROCESSOR_ID));
 
             if (carbonMessageProcessor != null) {
                 try {
-                    HTTPTransportContextHolder.getInstance().getMessageProcessor()
+                    HTTPTransportContextHolder.getInstance().getMessageProcessor((String) incomingMsg
+                            .getProperty(Constants.MESSAGE_PROCESSOR_ID))
                             .receive(createErrorMessage(payload), callback);
                 } catch (Exception e) {
                     LOG.error("Error while handover response to MessageProcessor ", e);
