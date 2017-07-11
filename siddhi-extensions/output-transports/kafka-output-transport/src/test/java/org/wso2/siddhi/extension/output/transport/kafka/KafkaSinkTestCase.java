@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.output.transport.kafka;
 
 import org.I0Itec.zkclient.exception.ZkTimeoutException;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.extension.output.mapper.text.TextSinkMapper;
@@ -34,8 +34,8 @@ public class KafkaSinkTestCase {
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("sinkMapper:text", TextSinkMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream FooStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092', partition" +
@@ -43,13 +43,13 @@ public class KafkaSinkTestCase {
                             "@map(type='text'))" +
                             "Define stream BarStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream;");
-            InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-            executionPlanRuntime.start();
+            InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+            siddhiAppRuntime.start();
             fooStream.send(new Object[]{"WSO2", 55.6f, 100L});
             fooStream.send(new Object[]{"IBM", 75.6f, 100L});
             fooStream.send(new Object[]{"WSO2", 57.6f, 100L});
             Thread.sleep(10000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }
@@ -61,8 +61,8 @@ public class KafkaSinkTestCase {
         try {
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("sinkMapper:text", TextSinkMapper.class);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
-                    "@Plan:name('TestExecutionPlan') " +
+            SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(
+                    "@app:name('TestSiddhiApp') " +
                             "define stream FooStream (symbol string, price float, volume long); " +
                             "@info(name = 'query1') " +
                             "@sink(type='kafka', topic='{{symbol}}', bootstrap.servers='localhost:9092', " +
@@ -70,14 +70,14 @@ public class KafkaSinkTestCase {
                             "Define stream BarStream (symbol string, price float, volume long);" +
                             "from FooStream select symbol, price, volume insert into BarStream; "
             );
-            InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
-            executionPlanRuntime.start();
+            InputHandler fooStream = siddhiAppRuntime.getInputHandler("FooStream");
+            siddhiAppRuntime.start();
             Thread.sleep(2000);
             fooStream.send(new Object[]{"simple_topic", 55.6f, 100L});
             fooStream.send(new Object[]{"simple_topic", 75.6f, 100L});
             fooStream.send(new Object[]{"simple_topic", 57.6f, 100L});
             Thread.sleep(5000);
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
         }

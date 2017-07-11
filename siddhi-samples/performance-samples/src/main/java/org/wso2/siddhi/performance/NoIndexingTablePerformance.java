@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.performance;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
@@ -34,8 +34,8 @@ public class NoIndexingTablePerformance {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-//                "@plan:async" +
+        String siddhiApp = "" +
+//                "@app:async" +
 //                " " +
                 "define stream StockCheckStream (symbol string, company string, price float, volume int, timestamp " +
                 "long);" +
@@ -75,11 +75,11 @@ public class NoIndexingTablePerformance {
 //                "insert into OutputStream; " +
                 "";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         System.out.println("Throughput\tLatency\tAvg Throughput\tAvg Latency");
 
-//        executionPlanRuntime.addCallback("OutputStream", new StreamCallback() {
+//        siddhiAppRuntime.addCallback("OutputStream", new StreamCallback() {
 //            public volatile double eventCount = 0;
 //            public volatile double timeSpent = 0;
 //            public volatile double totalThroughput = 0;
@@ -116,9 +116,9 @@ public class NoIndexingTablePerformance {
 //
 //        });
 
-        InputHandler stockCheckInputHandler = executionPlanRuntime.getInputHandler("StockCheckStream");
-        InputHandler stockInputInputHandler = executionPlanRuntime.getInputHandler("StockInputStream");
-        executionPlanRuntime.start();
+        InputHandler stockCheckInputHandler = siddhiAppRuntime.getInputHandler("StockCheckStream");
+        InputHandler stockInputInputHandler = siddhiAppRuntime.getInputHandler("StockInputStream");
+        siddhiAppRuntime.start();
 
         Random random = new Random();
         for (int i = 0; i < numberOfEventsStored; i++) {
@@ -129,7 +129,7 @@ public class NoIndexingTablePerformance {
             EventPublisher eventPublisher = new EventPublisher(stockCheckInputHandler, random);
             eventPublisher.run();
         }
-        //executionPlanRuntime.shutdown();
+        //siddhiAppRuntime.shutdown();
     }
 
 

@@ -29,13 +29,19 @@ public class AsyncSnapshotPersistor implements Runnable {
     private static final Logger log = Logger.getLogger(AsyncSnapshotPersistor.class);
     private byte[] snapshots;
     private PersistenceStore persistenceStore;
-    private String executionPlanName;
+    private String siddhiAppName;
+    private String revision;
 
     public AsyncSnapshotPersistor(byte[] snapshots, PersistenceStore persistenceStore,
-                                  String executionPlanName) {
+                                  String siddhiAppName) {
         this.snapshots = snapshots;
         this.persistenceStore = persistenceStore;
-        this.executionPlanName = executionPlanName;
+        this.siddhiAppName = siddhiAppName;
+        revision = System.currentTimeMillis() + "_" + siddhiAppName;
+    }
+
+    public String getRevision() {
+        return revision;
     }
 
     @Override
@@ -44,14 +50,13 @@ public class AsyncSnapshotPersistor implements Runnable {
             if (log.isDebugEnabled()) {
                 log.debug("Persisting...");
             }
-            String revision = System.currentTimeMillis() + "_" + executionPlanName;
-            persistenceStore.save(executionPlanName, revision, snapshots);
+            persistenceStore.save(siddhiAppName, revision, snapshots);
             if (log.isDebugEnabled()) {
                 log.debug("Persisted.");
             }
         } else {
-            throw new NoPersistenceStoreException("No persistence store assigned for execution plan " +
-                    executionPlanName);
+            throw new NoPersistenceStoreException("No persistence store assigned for siddhi app " +
+                    siddhiAppName);
         }
 
     }

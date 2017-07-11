@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -54,8 +54,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest1') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest1') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
@@ -66,11 +66,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -87,9 +87,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         eventsSent++;
@@ -98,7 +98,7 @@ public class SnapshotOutputRateLimitTestCase {
         eventsSent++;
 
         SiddhiTestHelper.waitForEvents(100, 1, count, 60000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event value", 1 == count.get());
@@ -110,8 +110,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest2') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest2') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
@@ -122,11 +122,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 for (Event event : events) {
@@ -142,16 +142,16 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         Thread.sleep(500);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
         Thread.sleep(2200);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event value", 2 == count.get());
@@ -164,8 +164,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest3') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest3') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
@@ -176,11 +176,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -197,9 +197,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         Thread.sleep(100);
@@ -210,7 +210,7 @@ public class SnapshotOutputRateLimitTestCase {
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.4"});
         Thread.sleep(1100);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event value", 3 == count.get());
@@ -223,8 +223,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest4') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest4') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string);" +
                 "" +
@@ -236,11 +236,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -258,9 +258,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -273,7 +273,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles ", 3, count.get());
         Assert.assertEquals("Number of output events  ", 7, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -283,8 +283,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest5') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest5') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -296,11 +296,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -322,9 +322,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -336,7 +336,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event bundles", 3, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -346,8 +346,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest6') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest6') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -359,11 +359,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -379,9 +379,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -393,7 +393,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event bundles", 2, count.get());
         Assert.assertTrue("Number of output events", 4 == value);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -403,8 +403,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest7') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest7') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -416,11 +416,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -435,9 +435,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -450,7 +450,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 7, count.get());
         Assert.assertTrue("Number of output event value", 14 == value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -460,8 +460,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest8') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest8') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -472,11 +472,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -490,9 +490,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -506,7 +506,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -516,8 +516,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest9') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest9') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -528,11 +528,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -548,9 +548,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -564,7 +564,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertTrue("Number of output event with value", count.get() == 3);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -574,8 +574,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest10') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest10') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -586,11 +586,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -608,9 +608,9 @@ public class SnapshotOutputRateLimitTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
@@ -619,7 +619,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -629,8 +629,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest11') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest11') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -641,11 +641,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -662,9 +662,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1200);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
@@ -674,7 +674,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -684,8 +684,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest12') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest12') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -696,11 +696,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -709,9 +709,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
@@ -721,7 +721,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 1, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -731,8 +731,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest13') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest13') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -743,11 +743,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -764,9 +764,9 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
@@ -775,7 +775,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event equal to 4 ", true, count.get() == 4);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -785,8 +785,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest14') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest14') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -797,11 +797,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("uniqueIps", new StreamCallback() {
+        siddhiAppRuntime.addCallback("uniqueIps", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -818,16 +818,16 @@ public class SnapshotOutputRateLimitTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.3"});
         SiddhiTestHelper.waitForEvents(1000, 2, count, 60000);
 
         Assert.assertTrue("Event arrived", (eventArrived && count.get() == 2));
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -837,8 +837,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest15') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest15') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -849,11 +849,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -868,9 +868,9 @@ public class SnapshotOutputRateLimitTestCase {
         });
 
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5"});
@@ -882,7 +882,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -892,8 +892,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest16') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest16') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -905,11 +905,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -926,9 +926,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -941,7 +941,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles with inEvents", 2, count.get());
         Assert.assertEquals("Number of output event", 4, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -951,8 +951,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest17') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest17') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -964,11 +964,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -981,9 +981,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -996,7 +996,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles equal to 5 ", 7, count.get());
         Assert.assertEquals("Number of output event value", 20, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1006,8 +1006,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest18') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest18') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1018,11 +1018,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1039,9 +1039,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1053,7 +1053,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 2, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1063,8 +1063,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest19') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest19') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1075,11 +1075,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1103,9 +1103,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1117,7 +1117,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Number of output event value", 7, count.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1127,8 +1127,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest20') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest20') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1140,11 +1140,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1165,9 +1165,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1180,7 +1180,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 7, count.get());
         Assert.assertEquals("Number of output event value", 20, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1190,8 +1190,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest21') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest21') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1203,11 +1203,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1225,9 +1225,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(1100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1240,7 +1240,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 4, count.get());
         Assert.assertEquals("Number of output events", 4, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1250,8 +1250,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest22') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest22') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1262,11 +1262,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1286,9 +1286,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1303,7 +1303,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 3, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1313,8 +1313,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1325,11 +1325,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1349,9 +1349,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1366,7 +1366,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 3, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1376,8 +1376,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1388,11 +1388,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1408,9 +1408,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1425,7 +1425,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 1, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1435,8 +1435,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1448,11 +1448,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1472,9 +1472,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1489,7 +1489,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 3, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1499,8 +1499,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest23') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest23') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1512,11 +1512,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1536,9 +1536,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1553,7 +1553,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 3, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -1562,8 +1562,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest27') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest27') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1575,11 +1575,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1599,9 +1599,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1616,7 +1616,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertEquals("Number of output event bundles", 1, count.get());
         Assert.assertEquals("Number of output events", 3, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -1626,8 +1626,8 @@ public class SnapshotOutputRateLimitTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('SnapshotOutputRateLimitTest28') " +
+        String siddhiApp = "" +
+                "@app:name('SnapshotOutputRateLimitTest28') " +
                 "" +
                 "define stream LoginEvents (timestamp long, ip string, calls int);" +
                 "" +
@@ -1639,11 +1639,11 @@ public class SnapshotOutputRateLimitTestCase {
                 "insert all events into uniqueIps ;";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        log.info("Running : " + executionPlanRuntime.getName());
+        log.info("Running : " + siddhiAppRuntime.getName());
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -1671,9 +1671,9 @@ public class SnapshotOutputRateLimitTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("LoginEvents");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("LoginEvents");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         Thread.sleep(2100);
         inputHandler.send(new Object[]{System.currentTimeMillis(), "192.10.1.5", 3});
@@ -1689,7 +1689,7 @@ public class SnapshotOutputRateLimitTestCase {
         Assert.assertTrue("Number of output event bundles count > 2", count.get() > 2);
         Assert.assertEquals("Number of output events", 6, value);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 }

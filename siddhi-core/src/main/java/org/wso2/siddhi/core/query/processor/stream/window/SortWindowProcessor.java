@@ -22,7 +22,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -70,11 +70,13 @@ import java.util.Map;
                 @Parameter(name = "attribute",
                         description = "The attribute that should be checked for the order.",
                         type = {DataType.STRING},
-                        optional = true),
+                        optional = true,
+                        defaultValue = "The concatenation of all the attributes of the event is considered."),
                 @Parameter(name = "order",
                         description = "The order define as \"asc\" or \"desc\".",
                         type = {DataType.STRING},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "asc")
         },
         examples = @Example(
                 syntax =  "define stream cseEventStream (symbol string, price float, volume long);\n" +
@@ -100,7 +102,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors[0].getReturnType() == Attribute.Type.INT) {
             lengthToKeep = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
                     attributeExpressionExecutors[0]).getValue()));
@@ -144,7 +146,7 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
                            StreamEventCloner streamEventCloner) {
 
         synchronized (this) {
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
 
             StreamEvent streamEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
@@ -202,11 +204,11 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder,
-                executionPlanContext, variableExpressionExecutors, tableMap, this.queryName);
+                siddhiAppContext, variableExpressionExecutors, tableMap, this.queryName);
     }
 
     private class EventComparator implements Comparator<StreamEvent> {

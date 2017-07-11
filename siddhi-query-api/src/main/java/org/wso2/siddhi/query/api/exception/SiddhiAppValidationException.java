@@ -18,19 +18,19 @@
 package org.wso2.siddhi.query.api.exception;
 
 /**
- * Exception thrown when execution plan is not valid
+ * Exception thrown when siddhi app is not valid
  */
-public class ExecutionPlanValidationException extends RuntimeException {
+public class SiddhiAppValidationException extends RuntimeException {
 
-    public ExecutionPlanValidationException(String message) {
+    public SiddhiAppValidationException(String message) {
         super(message);
     }
 
-    public ExecutionPlanValidationException(String message, Throwable throwable) {
+    public SiddhiAppValidationException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public ExecutionPlanValidationException(Throwable throwable) {
+    public SiddhiAppValidationException(Throwable throwable) {
         super(throwable);
     }
 }

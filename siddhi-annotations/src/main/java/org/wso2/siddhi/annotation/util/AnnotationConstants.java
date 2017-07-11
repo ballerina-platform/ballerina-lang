@@ -24,6 +24,8 @@ public class AnnotationConstants {
     public static final String SINK_MAPPER_SUPER_CLASS = "org.wso2.siddhi.core.stream.output.sink.SinkMapper";
     public static final String SINK_SUPER_CLASS =
             "org.wso2.siddhi.core.stream.output.sink.Sink";
+    public static final String SCRIPT_SUPER_CLASS =
+            "org.wso2.siddhi.core.function.Script";
     public static final String FUNCTION_EXECUTOR_SUPER_CLASS =
             "org.wso2.siddhi.core.executor.function.FunctionExecutor";
     public static final String AGGREGATION_ATTRIBUTE_SUPER_CLASS =

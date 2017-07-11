@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -77,9 +77,9 @@ public class JoinRDBMSTableTestCase {
                         ".volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -107,10 +107,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -122,7 +122,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -161,9 +161,9 @@ public class JoinRDBMSTableTestCase {
                         ".volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -188,10 +188,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -203,7 +203,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -241,9 +241,9 @@ public class JoinRDBMSTableTestCase {
                         "select symbol1 as checkSymbol, symbol as symbol, volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -268,10 +268,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -283,7 +283,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -321,9 +321,9 @@ public class JoinRDBMSTableTestCase {
                         "select c.symbol as checkSymbol, s.symbol as symbol, s.volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -348,10 +348,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -363,7 +363,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -400,9 +400,9 @@ public class JoinRDBMSTableTestCase {
                         "select CheckStockStream.symbol as checkSymbol, s.symbol as symbol, s.volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -427,10 +427,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -442,7 +442,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -480,9 +480,9 @@ public class JoinRDBMSTableTestCase {
                         "select CheckStockStream.symbol as checkSymbol, s.symbol as symbol, s.volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -507,10 +507,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -522,7 +522,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -560,9 +560,9 @@ public class JoinRDBMSTableTestCase {
                         ".volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -587,10 +587,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -602,7 +602,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -639,9 +639,9 @@ public class JoinRDBMSTableTestCase {
                         "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -666,10 +666,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f});
                 stockStream.send(new Object[]{"IBM", 75.6f});
@@ -681,7 +681,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");
@@ -724,9 +724,9 @@ public class JoinRDBMSTableTestCase {
                         ".volume as volume  " +
                         "insert into OutputStream ;";
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
 
-                executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                siddhiAppRuntime.addCallback("query2", new QueryCallback() {
                     @Override
                     public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                         EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -754,10 +754,10 @@ public class JoinRDBMSTableTestCase {
 
                 });
 
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
-                InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+                InputHandler stockStream = siddhiAppRuntime.getInputHandler("StockStream");
+                InputHandler checkStockStream = siddhiAppRuntime.getInputHandler("CheckStockStream");
 
-                executionPlanRuntime.start();
+                siddhiAppRuntime.start();
 
                 stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
                 stockStream.send(new Object[]{"IBM", 75.6f, 10l});
@@ -769,7 +769,7 @@ public class JoinRDBMSTableTestCase {
                 Assert.assertEquals("Number of remove events", 0, removeEventCount);
                 Assert.assertEquals("Event arrived", true, eventArrived);
 
-                executionPlanRuntime.shutdown();
+                siddhiAppRuntime.shutdown();
             }
         } catch (SQLException e) {
             log.info("Test case ignored due to DB connection unavailability");

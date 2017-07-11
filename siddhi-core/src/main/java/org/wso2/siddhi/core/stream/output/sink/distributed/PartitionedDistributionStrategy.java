@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,14 +73,14 @@ public class PartitionedDistributionStrategy extends DistributionStrategy {
                 .PARTITION_KEY_FIELD_KEY);
 
         if (partitionKey == null || partitionKey.isEmpty()) {
-            throw new ExecutionPlanValidationException("PartitionKey is required for partitioned distribution " +
+            throw new SiddhiAppValidationException("PartitionKey is required for partitioned distribution " +
                     "strategy.");
         }
         try {
             int partitionKeyFieldPosition = streamDefinition.getAttributePosition(partitionKey);
             partitionOption = new Option(partitionKeyFieldPosition);
         } catch (AttributeNotExistException e) {
-            throw new ExecutionPlanValidationException("Could not find partition key attribute", e);
+            throw new SiddhiAppValidationException("Could not find partition key attribute", e);
         }
 
     }

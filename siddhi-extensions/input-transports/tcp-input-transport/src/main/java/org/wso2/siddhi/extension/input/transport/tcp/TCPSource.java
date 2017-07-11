@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.input.transport.tcp;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -46,17 +46,22 @@ public class TCPSource extends Source {
     private StreamDefinition streamDefinition;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ConfigReader configReader, ExecutionPlanContext
-            executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         context = optionHolder.validateAndGetStaticValue(CONTEXT,
-                executionPlanContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
+                siddhiAppContext.getName() + "/" + sourceEventListener.getStreamDefinition().getId());
         streamDefinition = StreamDefinition.id(context);
         streamDefinition.getAttributeList().addAll(sourceEventListener.getStreamDefinition().getAttributeList());
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{Event[].class, Event.class};
+    }
+
+    @Override
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         TCPServer.getInstance().start();
         TCPServer.getInstance().addStreamListener(new StreamListener() {
             @Override
@@ -66,12 +71,12 @@ public class TCPSource extends Source {
 
             @Override
             public void onEvent(Event event) {
-                sourceEventListener.onEvent(event);
+                sourceEventListener.onEvent(event, null);
             }
 
             @Override
             public void onEvents(Event[] events) {
-                sourceEventListener.onEvent(events);
+                sourceEventListener.onEvent(events, null);
             }
         });
     }

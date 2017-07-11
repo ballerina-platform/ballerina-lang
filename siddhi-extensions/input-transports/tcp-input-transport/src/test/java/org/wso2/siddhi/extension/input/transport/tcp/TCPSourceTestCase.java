@@ -23,10 +23,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
@@ -55,17 +55,17 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo')" +
+                "@app:name('foo')" +
                 "@source(type='tcp', @map(type='passThrough'))" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -89,7 +89,7 @@ public class TCPSourceTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
         TCPNettyClient.connect("localhost", 9892);
@@ -106,7 +106,7 @@ public class TCPSourceTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -117,17 +117,17 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo')" +
+                "@app:name('foo')" +
                 "@source(type='tcp', context='bar', @map(type='passThrough'))" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -151,7 +151,7 @@ public class TCPSourceTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
         TCPNettyClient.connect("localhost", 9892);
@@ -168,7 +168,7 @@ public class TCPSourceTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -178,17 +178,17 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo')" +
+                "@app:name('foo')" +
                 "@source(type='tcp', @map(type='passThrough'))" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -196,7 +196,7 @@ public class TCPSourceTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
         TCPNettyClient.connect("localhost", 9892);
@@ -212,18 +212,18 @@ public class TCPSourceTestCase {
         Thread.sleep(300);
 
         Assert.assertFalse(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
     public void testTcpSource4() throws InterruptedException {
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
             log.info("tcpSource TestCase 4");
             SiddhiManager siddhiManager = new SiddhiManager();
 
             String inStreamDefinition = "" +
-                    "@plan:name('foo')" +
+                    "@app:name('foo')" +
                     "@source(type='tcp', context='bar', @map(type='passThrough')) " +
                     "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
                     "@source(type='tcp', context='bar', @map(type='passThrough')) " +
@@ -232,13 +232,13 @@ public class TCPSourceTestCase {
                     "from inputStream " +
                     "select *  " +
                     "insert into outputStream;");
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-            executionPlanRuntime.start();
-        } catch (ExecutionPlanCreationException e) {
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
+            siddhiAppRuntime.start();
+        } catch (SiddhiAppCreationException e) {
             Assert.assertNotNull(e);
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
         }
     }
@@ -249,17 +249,17 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo')" +
+                "@app:name('foo')" +
                 "@source(type='tcp')" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -283,7 +283,7 @@ public class TCPSourceTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
         TCPNettyClient.connect("localhost", 9892);
@@ -300,31 +300,31 @@ public class TCPSourceTestCase {
 
         Assert.assertEquals(3, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
-    @Test(expected = ExecutionPlanCreationException.class)
+    @Test(expected = SiddhiAppCreationException.class)
     public void testTcpSource6() throws InterruptedException {
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
             log.info("tcpSource TestCase 6");
             SiddhiManager siddhiManager = new SiddhiManager();
 
             String inStreamDefinition = "" +
-                    "@plan:name('foo')" +
+                    "@app:name('foo')" +
                     "@source(type='tcp',  @map(type='text'))" +
                     "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
             String query = ("@info(name = 'query1') " +
                     "from inputStream " +
                     "select *  " +
                     "insert into outputStream;");
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
         }
     }
@@ -335,7 +335,7 @@ public class TCPSourceTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "" +
-                "@plan:name('foo')" +
+                "@app:name('foo')" +
                 "@source(type='tcp', context='bar', @map(type='passThrough'))" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool);" +
                 "@source(type='tcp', context='bar1', @map(type='passThrough'))" +
@@ -350,10 +350,10 @@ public class TCPSourceTestCase {
                 "select *  " +
                 "insert into outputStream;" +
                 "");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -387,7 +387,7 @@ public class TCPSourceTestCase {
 
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient TCPNettyClient = new TCPNettyClient();
         TCPNettyClient.connect("localhost", 9892);
@@ -405,20 +405,20 @@ public class TCPSourceTestCase {
 
         Assert.assertEquals(6, count);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
     @Ignore
-    @Test//(expected = ExecutionPlanCreationException.class)
+    @Test//(expected = SiddhiAppCreationException.class)
     public void testTcpSource8() throws InterruptedException {
-        ExecutionPlanRuntime executionPlanRuntime = null;
+        SiddhiAppRuntime siddhiAppRuntime = null;
         try {
             log.info("tcpSource TestCase 8");
             SiddhiManager siddhiManager = new SiddhiManager();
 
             String inStreamDefinition = "" +
-                    "@plan:name('foo')" +
+                    "@app:name('foo')" +
                     "@source(type='tcp')" +
                     "@source(type='tcp')" +
                     "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
@@ -426,12 +426,12 @@ public class TCPSourceTestCase {
                     "from inputStream " +
                     "select *  " +
                     "insert into outputStream;");
-            executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+            siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition + query);
 
-            executionPlanRuntime.start();
+            siddhiAppRuntime.start();
         } finally {
-            if (executionPlanRuntime != null) {
-                executionPlanRuntime.shutdown();
+            if (siddhiAppRuntime != null) {
+                siddhiAppRuntime.shutdown();
             }
         }
     }
@@ -450,11 +450,11 @@ public class TCPSourceTestCase {
                 "from inputStream " +
                 "select *  " +
                 "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition +
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(inStreamDefinition +
                 query);
-        Collection<List<Source>> sources = executionPlanRuntime.getSources();
+        Collection<List<Source>> sources = siddhiAppRuntime.getSources();
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -477,7 +477,7 @@ public class TCPSourceTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         TCPNettyClient tcpNettyClient = new TCPNettyClient();
         tcpNettyClient.connect("localhost", 9892);
@@ -545,7 +545,7 @@ public class TCPSourceTestCase {
         tcpNettyClient.shutdown();
         tcpNettyClient2.shutdown();
         Thread.sleep(300);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

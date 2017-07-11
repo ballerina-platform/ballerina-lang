@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -50,7 +50,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback " +
+                "@app:playback " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -58,9 +58,9 @@ public class PlaybackTestCase {
                 "select * " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -79,8 +79,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         long timestamp = System.currentTimeMillis();
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 0});
 
@@ -98,7 +98,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -110,7 +110,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback " +
+                "@app:playback " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -118,9 +118,9 @@ public class PlaybackTestCase {
                 "select symbol, sum(price) as sumPrice, volume " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -138,8 +138,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         // Start sending events in the beginning of a cycle
         long timestamp = 0;
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 0});
@@ -158,7 +158,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(0, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -169,7 +169,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '2 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -177,9 +177,9 @@ public class PlaybackTestCase {
                 "select symbol, sum(price) as sumPrice, volume " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -197,8 +197,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         // Start sending events in the beginning of a cycle
         long timestamp = 0;
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 0});
@@ -215,7 +215,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(0, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -225,7 +225,7 @@ public class PlaybackTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         String streams = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int); " +
                 "define stream twitterStream (user string, tweet string, company string); ";
         String query = "" +
@@ -235,9 +235,9 @@ public class PlaybackTestCase {
                 "select cseEventStream.symbol as symbol, twitterStream.tweet, cseEventStream.price " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
         try {
-            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+            siddhiAppRuntime.addCallback("query1", new QueryCallback() {
                 @Override
                 public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                     EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -250,9 +250,9 @@ public class PlaybackTestCase {
                     eventArrived = true;
                 }
             });
-            InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-            InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-            executionPlanRuntime.start();
+            InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+            InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+            siddhiAppRuntime.start();
             long currentTime = System.currentTimeMillis();
             cseEventStreamHandler.send(currentTime, new Object[]{"WSO2", 55.6f, 100});
             twitterStreamHandler.send(currentTime, new Object[]{"User1", "Hello World", "WSO2"});
@@ -266,7 +266,7 @@ public class PlaybackTestCase {
             Assert.assertEquals(0, removeEventCount);
             Assert.assertTrue(eventArrived);
         } finally {
-            executionPlanRuntime.shutdown();
+            siddhiAppRuntime.shutdown();
         }
     }
 
@@ -277,13 +277,13 @@ public class PlaybackTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@Plan:playback define stream cseEventStream (symbol string, price float, volume int);";
+        String cseEventStream = "@app:playback define stream cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeLength(4 sec,10) select symbol,price," +
                 "volume insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -299,8 +299,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         long timestamp = System.currentTimeMillis();
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 1});
         timestamp += 500;
@@ -316,7 +316,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(5, inEventCount);
         Assert.assertEquals(4, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -326,14 +326,14 @@ public class PlaybackTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "@Plan:playback(idle.time = '100 millisecond', increment = '4 sec') define stream " +
+        String cseEventStream = "@app:playback(idle.time = '100 millisecond', increment = '4 sec') define stream " +
                 "cseEventStream (symbol string, price float, volume int);";
         String query = "@info(name = 'query1') from cseEventStream#window.timeLength(4 sec,10) select symbol,price," +
                 "volume insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -349,8 +349,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         long timestamp = System.currentTimeMillis();
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 1});
         timestamp += 500;
@@ -365,7 +365,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(4, inEventCount);
         Assert.assertEquals(4, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -375,7 +375,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback " +
+                "@app:playback " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -383,9 +383,9 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -401,8 +401,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         long timestamp = System.currentTimeMillis();
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 0});
         inputHandler.send(timestamp, new Object[]{"WSO2", 60.5f, 1});
@@ -412,7 +412,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -422,7 +422,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '2 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -430,9 +430,9 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -448,8 +448,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         long timestamp = System.currentTimeMillis();
         inputHandler.send(timestamp, new Object[]{"IBM", 700f, 0});
         inputHandler.send(timestamp, new Object[]{"WSO2", 60.5f, 1});
@@ -459,7 +459,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(2, inEventCount);
         Assert.assertEquals(2, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -469,7 +469,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '2') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '2') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -477,7 +477,7 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test(expected = SiddhiParserException.class)
@@ -487,7 +487,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '', increment = '2 sec') " +
+                "@app:playback(idle.time = '', increment = '2 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -495,7 +495,7 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test
@@ -505,7 +505,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -513,9 +513,9 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -535,8 +535,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(100, new Object[]{"IBM", 700f, 0});
         inputHandler.send(200, new Object[]{"WSO2", 600.5f, 1});
         Thread.sleep(150);
@@ -547,7 +547,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(3, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -557,7 +557,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -565,9 +565,9 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -587,8 +587,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(100, new Object[]{"IBM", 700f, 0});
         inputHandler.send(200, new Object[]{"WSO2", 600.5f, 1});
         Thread.sleep(150);
@@ -599,7 +599,7 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(3, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -610,7 +610,7 @@ public class PlaybackTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
-                "@Plan:playback(idle.time = '100 millisecond', increment = '1 sec') " +
+                "@app:playback(idle.time = '100 millisecond', increment = '1 sec') " +
                 "define stream cseEventStream (symbol string, price float, volume int);";
         String query = "" +
                 "@info(name = 'query1') " +
@@ -618,9 +618,9 @@ public class PlaybackTestCase {
                 "select symbol,price,volume " +
                 "insert all events into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -640,8 +640,8 @@ public class PlaybackTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         inputHandler.send(100, new Object[]{"IBM", 700f, 0});
         inputHandler.send(200, new Object[]{"WSO2", 600.5f, 1});
         Thread.sleep(220);
@@ -651,6 +651,6 @@ public class PlaybackTestCase {
         Assert.assertEquals(3, inEventCount);
         Assert.assertEquals(3, removeEventCount);
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
@@ -91,7 +91,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberWSO2);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='WSO2', @map(type='json')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -102,10 +102,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         Event wso2Event = new Event();
         Event ibmEvent = new Event();
         Object[] wso2Data = {"WSO2", 55.6f, 100L};
@@ -122,7 +122,7 @@ public class JsonSinkMapperTestCase {
 
         //assert event count
         Assert.assertEquals(5, wso2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -163,7 +163,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberWSO2);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='WSO2', @map(type='json')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -174,10 +174,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, null});
         stockStream.send(new Object[]{"WSO2", null, 100L});
@@ -186,7 +186,7 @@ public class JsonSinkMapperTestCase {
 
         //assert event count
         Assert.assertEquals(3, wso2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -230,7 +230,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberWSO2);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='WSO2', @map(type='json', " +
                 "enclosing.element=\"$.portfolio.company\")) " +
@@ -242,10 +242,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 56.6f, 200L});
@@ -254,7 +254,7 @@ public class JsonSinkMapperTestCase {
 
         //assert event count
         Assert.assertEquals(3, wso2Count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -312,7 +312,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan')" +
+                "@app:name('TestSiddhiApp')" +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', validate.json='true')) " +
                 "define stream BarStream (symbol string, price float, volume long); ";
@@ -323,10 +323,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"WSO2", 56.6f, 101L});
@@ -336,7 +336,7 @@ public class JsonSinkMapperTestCase {
         //assert event count
         Assert.assertEquals(2, wso2Count.get());
         Assert.assertEquals(1, ibmCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -384,7 +384,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', validate.json='true', " +
                 "enclosing.element=\"$.portfolio.company\", " +
@@ -402,10 +402,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -434,7 +434,7 @@ public class JsonSinkMapperTestCase {
                 "      \"Price\":57.6\n" +
                 "   }\n" +
                 "}}}", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -477,7 +477,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', " +
                 "validate.json='true', " +
@@ -490,10 +490,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -504,7 +504,7 @@ public class JsonSinkMapperTestCase {
         Assert.assertEquals("Incorrect number of events consumed!", 0, wso2Count.get());
         Assert.assertEquals("Incorrect number of events consumed!", 0, ibmCount.get());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -547,7 +547,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', " +
                 "validate.json='false', " +
@@ -560,10 +560,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L});
@@ -582,7 +582,7 @@ public class JsonSinkMapperTestCase {
         Assert.assertEquals("Mapping incorrect!", "{'StockData:{'Symbol:WSO2},Price:{57.6",
                 onMessageList.get(2).toString());
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -625,7 +625,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', validate.json='true', " +
                 "enclosing.element=\"$.portfolio.company\", " +
@@ -644,7 +644,7 @@ public class JsonSinkMapperTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         try {
-            siddhiManager.createExecutionPlanRuntime(streams + query);
+            siddhiManager.createSiddhiAppRuntime(streams + query);
         } catch (Exception e) {
             Assert.assertEquals(NoSuchAttributeException.class, e.getClass());
         }
@@ -689,7 +689,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long, country string); " +
                 "@sink(type='inMemory', topic='{{symbol}}', @map(type='json', validate.json='true', " +
                 "enclosing.element=\"$.portfolio.company\", " +
@@ -707,10 +707,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, 100L, "SL"});
         stockStream.send(new Object[]{"IBM", 75.6f, 100L, "USA"});
@@ -739,7 +739,7 @@ public class JsonSinkMapperTestCase {
                 "      \"Price\":57.6\n" +
                 "   }\n" +
                 "}}}", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);
@@ -782,7 +782,7 @@ public class JsonSinkMapperTestCase {
         InMemoryBroker.subscribe(subscriberIBM);
 
         String streams = "" +
-                "@Plan:name('TestExecutionPlan') " +
+                "@app:name('TestSiddhiApp') " +
                 "define stream FooStream (symbol string, price float, volume long, company string); " +
                 "@sink(type='inMemory', topic='{{company}}', @map(type='json', validate.json='true', " +
                 "enclosing.element=\"$.portfolio.company\", " +
@@ -801,10 +801,10 @@ public class JsonSinkMapperTestCase {
                 "insert into BarStream; ";
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);
+        InputHandler stockStream = siddhiAppRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         stockStream.send(new Object[]{"WSO2", 55.6f, null, "WSO2"});
         stockStream.send(new Object[]{"IBM", null, 500L, "IBM"});
@@ -836,7 +836,7 @@ public class JsonSinkMapperTestCase {
                 "      \"Volume\":200\n" +
                 "   }\n" +
                 "}}}", onMessageList.get(2).toString());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
         InMemoryBroker.unsubscribe(subscriberWSO2);

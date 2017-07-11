@@ -19,7 +19,7 @@
 package org.wso2.siddhi.extension.table.cache;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -42,9 +42,9 @@ public class CachingTable {
     private String elementId;
     private CacheManager cacheManager;
 
-    public CachingTable(String cachingAlgorithm, String cacheSize, ExecutionPlanContext executionPlanContext,
+    public CachingTable(String cachingAlgorithm, String cacheSize, SiddhiAppContext siddhiAppContext,
                         TableDefinition tableDefinition) {
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        this.elementId = siddhiAppContext.getElementIdGenerator().createNewId();
         this.list = new LinkedList<StreamEvent>();
         long cacheLimit = DEFAULT_CACHE_SIZE;
         if (cacheSize != null) {

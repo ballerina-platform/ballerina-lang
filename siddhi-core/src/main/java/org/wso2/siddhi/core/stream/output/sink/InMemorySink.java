@@ -23,7 +23,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -59,14 +59,19 @@ public class InMemorySink extends Sink {
     private Option topicOption;
 
     @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{Object.class};
+    }
+
+    @Override
     public String[] getSupportedDynamicOptions() {
         return new String[]{TOPIC_KEY};
     }
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
-                        ConfigReader sinkConfigReader, ExecutionPlanContext
-            executionPlanContext) {
+                        ConfigReader sinkConfigReader, SiddhiAppContext
+            siddhiAppContext) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 

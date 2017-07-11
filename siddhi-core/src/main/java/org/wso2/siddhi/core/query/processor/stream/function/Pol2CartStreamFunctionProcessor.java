@@ -22,12 +22,12 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +51,8 @@ import java.util.Map;
                 @Parameter(name = "z",
                         description = "z value of the cartesian coordinates.",
                         type = {DataType.DOUBLE},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "If z value is not given, drop the third parameter of the output.")
         },
         examples = {
                 @Example(
@@ -78,23 +79,23 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters
-     * @param executionPlanContext         execution plan context
+     * @param siddhiAppContext         siddhi app context
      * @return the additional output attributes introduced by the function
      */
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[]
-            attributeExpressionExecutors, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+            attributeExpressionExecutors, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         inputExecutorLength = attributeExpressionExecutors.length;
 
         if (inputExecutorLength < 2 || inputExecutorLength > 3) {
-            throw new ExecutionPlanValidationException("Input parameters for poleCart can either be 'theta,rho' or " +
+            throw new SiddhiAppValidationException("Input parameters for poleCart can either be 'theta,rho' or " +
                     "'theta,rho,z', but " +
                     attributeExpressionExecutors.length + " attributes found");
         }
         for (int i = 0; i < inputExecutorLength; i++) {
             ExpressionExecutor expressionExecutor = attributeExpressionExecutors[i];
             if (expressionExecutor.getReturnType() != Attribute.Type.DOUBLE) {
-                throw new ExecutionPlanValidationException("Input attribute " + i + " is expected to return Double, " +
+                throw new SiddhiAppValidationException("Input attribute " + i + " is expected to return Double, " +
                         "but its returning " + expressionExecutor.getReturnType());
             }
 
@@ -102,7 +103,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
         if (attributeExpressionExecutors.length == 2) {
             for (Attribute attribute : inputDefinition.getAttributeList()) {
                 if (attribute.getName().equals("x") || attribute.getName().equals("y")) {
-                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should " +
+                    throw new SiddhiAppValidationException("Input stream " + inputDefinition.getId() + " should " +
                             "not contain attributes with name 'x' or 'y', but found " + attribute);
                 }
             }
@@ -111,7 +112,7 @@ public class Pol2CartStreamFunctionProcessor extends StreamFunctionProcessor {
             for (Attribute attribute : inputDefinition.getAttributeList()) {
                 if (attribute.getName().equals("x") || attribute.getName().equals("y") || attribute.getName().equals
                         ("z")) {
-                    throw new ExecutionPlanValidationException("Input stream " + inputDefinition.getId() + " should " +
+                    throw new SiddhiAppValidationException("Input stream " + inputDefinition.getId() + " should " +
                             "not contain attributes with name 'x' or 'y' or 'z', but found " + attribute);
                 }
             }

@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.sample;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -32,7 +32,7 @@ public class SimpleFilterSample {
         // Creating Siddhi Manager
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price float, volume long); " +
                 "" +
                 "@info(name = 'query1') " +
@@ -41,10 +41,10 @@ public class SimpleFilterSample {
                 "insert into outputStream ;";
 
         //Generating runtime
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         //Adding callback to retrieve output events from query
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -52,10 +52,10 @@ public class SimpleFilterSample {
         });
 
         //Retrieving InputHandler to push events into Siddhi
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
         //Starting event processing
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         //Sending events to Siddhi
         inputHandler.send(new Object[]{"IBM", 700f, 100L});
@@ -66,7 +66,7 @@ public class SimpleFilterSample {
         Thread.sleep(500);
 
         //Shutting down the runtime
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //Shutting down Siddhi
         siddhiManager.shutdown();

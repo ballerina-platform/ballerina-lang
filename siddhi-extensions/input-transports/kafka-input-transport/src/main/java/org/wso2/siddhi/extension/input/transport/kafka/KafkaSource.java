@@ -21,7 +21,7 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
@@ -39,7 +39,7 @@ import java.util.concurrent.ScheduledExecutorService;
         description = "TBD",
         examples = @Example(description = "TBD", syntax = "TBD")
 )
-public class KafkaSource extends Source{
+public class KafkaSource extends Source {
 
     final static String SINGLE_THREADED = "single.thread";
     final static String TOPIC_WISE = "topic.wise";
@@ -91,16 +91,21 @@ public class KafkaSource extends Source{
     }
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder,
-                     ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, String[]
+            requestedTransportPropertyNames, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
-        this.executorService = executionPlanContext.getScheduledExecutorService();
-        executionPlanContext.getSnapshotService().addSnapshotable("kafka-sink", this);
+        this.executorService = siddhiAppContext.getScheduledExecutorService();
+        siddhiAppContext.getSnapshotService().addSnapshotable("kafka-sink", this);
     }
 
     @Override
-    public void connect() throws ConnectionUnavailableException {
+    public Class[] getOutputEventClasses() {
+        return new Class[]{String.class};
+    }
+
+    @Override
+    public void connect(Source.ConnectionCallback connectionCallback) throws ConnectionUnavailableException {
         String zkServerList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS);
         String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID, null);
         String threadingOption = optionHolder.validateAndGetStaticValue(THREADING_OPTION);
@@ -113,9 +118,9 @@ public class KafkaSource extends Source{
         String optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
                 null);
         consumerKafkaGroup = new ConsumerKafkaGroup(topics, partitions,
-                                                    KafkaSource.createConsumerConfig(zkServerList, groupID,
-                                                                                            optionalConfigs),
-                                                    topicOffsetMap, threadingOption, this.executorService);
+                KafkaSource.createConsumerConfig(zkServerList, groupID,
+                        optionalConfigs),
+                topicOffsetMap, threadingOption, this.executorService);
         consumerKafkaGroup.run(sourceEventListener);
     }
 

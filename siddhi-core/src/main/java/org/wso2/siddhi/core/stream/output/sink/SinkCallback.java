@@ -18,9 +18,8 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
@@ -40,7 +39,7 @@ public class SinkCallback extends StreamCallback {
         this.outputStreamDefinition = outputStreamDefinition;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext) {
+    public void init(SiddhiAppContext siddhiAppContext) {
         // there's nothing to be done, since we moved the
         // type validation mechanism to the transport itself.
     }
@@ -49,12 +48,7 @@ public class SinkCallback extends StreamCallback {
     public void receive(Event event) {
         if (event != null) {
             for (Sink sink : sinks) {
-                try {
-                    sink.getMapper().mapAndSend(event, sink);
-                } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
-                            "' due to unavailability of connection.", e);
-                }
+                sink.getMapper().mapAndSend(event);
             }
         }
     }
@@ -63,12 +57,7 @@ public class SinkCallback extends StreamCallback {
     public void receive(Event[] events) {
         if (events != null) {
             for (Sink sink : sinks) {
-                try {
-                    sink.getMapper().mapAndSend(events, sink);
-                } catch (ConnectionUnavailableException e) {
-                    log.error("Cannot publish to via Output Sink '" + sink.getType() +
-                            "' due to unavailability of connection.", e);
-                }
+                sink.getMapper().mapAndSend(events);
             }
         }
     }

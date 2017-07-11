@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.sample;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -33,7 +33,7 @@ public class PartitionSample {
         SiddhiManager siddhiManager = new SiddhiManager();
 
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "define stream cseEventStream (symbol string, price float,volume int);" +
                 "" +
                 "partition with (symbol of cseEventStream)" +
@@ -45,10 +45,10 @@ public class PartitionSample {
                 "end ";
 
         //Generating runtime
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         //Adding callback to retrieve output events from stream
-        executionPlanRuntime.addCallback("OutStockStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -56,10 +56,10 @@ public class PartitionSample {
         });
 
         //Retrieving InputHandler to push events into Siddhi
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
 
         //Starting event processing
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         //Sending events to Siddhi
         inputHandler.send(new Object[]{"IBM", 75f, 100});
@@ -69,7 +69,7 @@ public class PartitionSample {
         Thread.sleep(1000);
 
         //Shutting down the runtime
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
         //Shutting down Siddhi
         siddhiManager.shutdown();

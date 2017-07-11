@@ -50,7 +50,7 @@ public class CountPreStateProcessor extends StreamPreStateProcessor {
         CountPreStateProcessor countPreStateProcessor = new CountPreStateProcessor(minCount, maxCount, stateType,
                 withinStates);
         cloneProperties(countPreStateProcessor, key);
-        countPreStateProcessor.init(executionPlanContext, queryName);
+        countPreStateProcessor.init(siddhiAppContext, queryName);
         return countPreStateProcessor;
     }
 

@@ -23,12 +23,12 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -70,14 +70,14 @@ public class CastFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
+                        SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length != 2) {
-            throw new ExecutionPlanValidationException("Invalid no of arguments passed to common:cast() function, " +
+            throw new SiddhiAppValidationException("Invalid no of arguments passed to common:cast() function, " +
                                                                "required 2 parameters, but found " +
                                                                attributeExpressionExecutors.length);
         }
         if (!(attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor)) {
-            throw new ExecutionPlanValidationException("The second argument has to be a string constant specifying " +
+            throw new SiddhiAppValidationException("The second argument has to be a string constant specifying " +
                                                                "one of the supported data types "
                                                                + "(int, long, float, double, string, bool)");
         } else {
@@ -95,7 +95,7 @@ public class CastFunctionExecutor extends FunctionExecutor {
             } else if (type.toLowerCase().equals("string")) {
                 returnType = Attribute.Type.STRING;
             } else {
-                throw new ExecutionPlanValidationException("Type must be one of int, long, float, double, bool, " +
+                throw new SiddhiAppValidationException("Type must be one of int, long, float, double, bool, " +
                                                                    "string");
             }
         }

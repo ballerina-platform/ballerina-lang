@@ -17,10 +17,10 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
@@ -34,27 +34,27 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 public abstract class AttributeAggregator implements EternalReferencedHolder, Snapshotable {
 
     protected ExpressionExecutor[] attributeExpressionExecutors;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     protected String elementId;
     private int attributeSize;
     private ConfigReader configReader;
 
-    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext
-            executionPlanContext, ConfigReader configReader) {
+    public void initAggregator(ExpressionExecutor[] attributeExpressionExecutors, SiddhiAppContext
+            siddhiAppContext, ConfigReader configReader) {
         this.configReader = configReader;
         try {
-            this.executionPlanContext = executionPlanContext;
+            this.siddhiAppContext = siddhiAppContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             this.attributeSize = attributeExpressionExecutors.length;
-            executionPlanContext.addEternalReferencedHolder(this);
+            siddhiAppContext.addEternalReferencedHolder(this);
             if (elementId == null) {
-                elementId = "AttributeAggregator-" + executionPlanContext.getElementIdGenerator().createNewId();
+                elementId = "AttributeAggregator-" + siddhiAppContext.getElementIdGenerator().createNewId();
             }
             //Not added to Snapshotable as the AggregationAttributeExecutors are added
-//            executionPlanContext.getSnapshotService().addSnapshotable(this);
-            init(attributeExpressionExecutors, configReader, executionPlanContext);
+//            siddhiAppContext.getSnapshotService().addSnapshotable(this);
+            init(attributeExpressionExecutors, configReader, siddhiAppContext);
         } catch (Throwable t) {
-            throw new ExecutionPlanCreationException(t);
+            throw new SiddhiAppCreationException(t);
         }
     }
 
@@ -66,11 +66,11 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
                 innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
             attributeAggregator.elementId = elementId + "-" + key;
-            attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext, configReader);
+            attributeAggregator.initAggregator(innerExpressionExecutors, siddhiAppContext, configReader);
             attributeAggregator.start();
             return attributeAggregator;
         } catch (Exception e) {
-            throw new ExecutionPlanRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
+            throw new SiddhiAppRuntimeException("Exception in cloning " + this.getClass().getCanonicalName(), e);
         }
     }
 
@@ -115,11 +115,11 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader this hold the {@link AttributeAggregator} extensions configuration reader.
-     * @param executionPlanContext         Execution plan runtime context
+     * @param siddhiAppContext         Siddhi app runtime context
      */
     protected abstract void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                 ExecutionPlanContext
-                                         executionPlanContext);
+                                 SiddhiAppContext
+                                         siddhiAppContext);
 
     public abstract Attribute.Type getReturnType();
 

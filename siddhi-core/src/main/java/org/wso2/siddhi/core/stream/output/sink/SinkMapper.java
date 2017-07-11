@@ -18,71 +18,45 @@
 
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Abstract parent class to represent event mappers. Events mappers will receive {@link Event}s and can convert them
  * to any desired object type (Ex: XML, JSON). Custom mappers can be implemented as extensions extending this
  * abstract implementation.
  */
-public abstract class SinkMapper implements Snapshotable {
+public abstract class SinkMapper {
     private String type;
-    private AtomicLong lastEventId = new AtomicLong(Long.MIN_VALUE);
-    private String elementId;
+    private SinkListener sinkListener;
     private OptionHolder optionHolder;
     private TemplateBuilder payloadTemplateBuilder = null;
     private OutputGroupDeterminer groupDeterminer = null;
+    private ThreadLocal<DynamicOptions> trpDynamicOptions = new ThreadLocal<>();
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
                            OptionHolder mapOptionHolder,
                            String unmappedPayload,
-                           ConfigReader mapperConfigReader, ExecutionPlanContext executionPlanContext) {
+                           Sink sink, ConfigReader mapperConfigReader,
+                           SiddhiAppContext siddhiAppContext) {
+        sink.setTrpDynamicOptions(trpDynamicOptions);
+        this.sinkListener = sink;
         this.optionHolder = mapOptionHolder;
         this.type = type;
         if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
-        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
-        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader);
-        executionPlanContext.getSnapshotService().addSnapshotable(streamDefinition.getId() + ".sink.mapper",
-                                                                  this);
-    }
 
-    /**
-     * Updates the {@link Event#id}
-     *
-     * @param event event to be updated
-     */
-    private void updateEventId(Event event) {
-        // event id -1 is reserved for the events that are arriving for the first Siddhi node
-        event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
-    }
-
-    /**
-     * Update the {@link Event#id}s
-     *
-     * @param events events to be updated
-     */
-    private void updateEventIds(Event[] events) {
-        for (Event event : events) {
-            // event id -1 is reserved for the events that are arriving for the first Siddhi node
-            event.setId(lastEventId.incrementAndGet() == -1 ? lastEventId.incrementAndGet() : lastEventId.get());
-        }
+        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder, mapperConfigReader, siddhiAppContext);
     }
 
     /**
@@ -95,86 +69,93 @@ public abstract class SinkMapper implements Snapshotable {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition       The stream definition
+     *
+     * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder un mapped payload for reference
-     * @param mapperConfigReader this hold the {@link SinkMapper} extensions configuration reader.
+     * @param payloadTemplateBuilder Un mapped payload for reference
+     * @param mapperConfigReader     System configuration reader for Sink-mapper.
+     * @param siddhiAppContext       Siddhi Application Context
      */
     public abstract void init(StreamDefinition streamDefinition,
-                              OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder, ConfigReader
-                                      mapperConfigReader);
+                              OptionHolder optionHolder,
+                              TemplateBuilder payloadTemplateBuilder,
+                              ConfigReader mapperConfigReader,
+                              SiddhiAppContext siddhiAppContext);
 
     /**
-     * Called to map the events and send them to {@link SinkListener}
+     * Get produced event class types
      *
-     * @param events                  {@link Event}s that need to be mapped
-     * @param sinkListener {@link SinkListener} that will be called with the mapped events
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @return Array of classes that will be produced by the sink-mapper,
+     * null or empty array if it can produce any type of class.
      */
-    public void mapAndSend(Event[] events, SinkListener sinkListener)
-            throws ConnectionUnavailableException {
-        updateEventIds(events);
-        if (groupDeterminer != null) {
-            LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
-            for (Event event : events) {
-                String key = groupDeterminer.decideGroup(event);
-                ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
-                eventList.add(event);
-            }
+    public abstract Class[] getOutputEventClasses();
 
-            for (ArrayList<Event> eventList : eventMap.values()) {
-                mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
-                           payloadTemplateBuilder, sinkListener, new DynamicOptions(eventList.get(0)));
-
+    /**
+     * Called to map the events and send them to {@link SinkListener} for publishing
+     *
+     * @param events {@link Event}s that need to be mapped
+     */
+    final void mapAndSend(Event[] events) {
+        try {
+            if (groupDeterminer != null) {
+                LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
+                for (Event event : events) {
+                    String key = groupDeterminer.decideGroup(event);
+                    ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
+                    eventList.add(event);
+                }
+                for (ArrayList<Event> eventList : eventMap.values()) {
+                    trpDynamicOptions.set(new DynamicOptions(eventList.get(0)));
+                    mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder, payloadTemplateBuilder,
+                            sinkListener);
+                    trpDynamicOptions.remove();
+                }
+            } else {
+                trpDynamicOptions.set(new DynamicOptions(events[0]));
+                mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener);
+                trpDynamicOptions.remove();
             }
-        } else {
-            mapAndSend(events, optionHolder, payloadTemplateBuilder, sinkListener,
-                       new DynamicOptions(events[0]));
+        } finally {
+            trpDynamicOptions.remove();
         }
     }
 
     /**
-     * Called to map the event and send it to {@link SinkListener}
+     * Called to map the event and send it to {@link SinkListener} for publishing
      *
-     * @param event                   The {@link Event} that need to be mapped
-     * @param sinkListener {@link SinkListener} that will be called with the mapped event
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @param event The {@link Event} that need to be mapped
      */
-    public void mapAndSend(Event event, SinkListener sinkListener)
-            throws ConnectionUnavailableException {
-        updateEventId(event);
-        mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener, new DynamicOptions(event));
+    final void mapAndSend(Event event) {
+        try {
+            trpDynamicOptions.set(new DynamicOptions(event));
+            mapAndSend(event, optionHolder, payloadTemplateBuilder, sinkListener);
+        } finally {
+            trpDynamicOptions.remove();
+
+        }
     }
 
     /**
-     * Called to map the events and send them to {@link SinkListener}
+     * Called to map the events and send them to {@link SinkListener} for publishing
      *
-     * @param events                  {@link Event}s that need to be mapped
-     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped events
-     * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link SinkListener}
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @param events                 {@link Event}s that need to be mapped
+     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder To build the message payload based on the given template
+     * @param sinkListener           {@link SinkListener} that will be called with the mapped events
      */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener);
 
     /**
-     * Called to map the event and send it to {@link SinkListener}
+     * Called to map the event and send it to {@link SinkListener} for publishing
      *
-     * @param event                   {@link Event} that need to be mapped
-     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
-     * @param payloadTemplateBuilder  To build the message payload based on the given template
-     * @param sinkListener {@link SinkListener} that will be called with the mapped event
-     * @param dynamicOptions          {@link DynamicOptions} containing transport related options which will be passed
-     *                                to the  {@link SinkListener}
-     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     * @param event                  {@link Event} that need to be mapped
+     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder To build the message payload based on the given template
+     * @param sinkListener           {@link SinkListener} that will be called with the mapped event
      */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                                    SinkListener sinkListener, DynamicOptions dynamicOptions)
-            throws ConnectionUnavailableException;
+                                    SinkListener sinkListener);
 
     public final String getType() {
         return this.type;
@@ -182,23 +163,6 @@ public abstract class SinkMapper implements Snapshotable {
 
     public final void setGroupDeterminer(OutputGroupDeterminer groupDeterminer) {
         this.groupDeterminer = groupDeterminer;
-    }
-
-    @Override
-    public Map<String, Object> currentState() {
-        Map<String, Object> state = new HashMap<>();
-        state.put("LastEventId", lastEventId);
-        return state;
-    }
-
-    @Override
-    public void restoreState(Map<String, Object> state) {
-        lastEventId = (AtomicLong) state.get("LastEventId");
-    }
-
-    @Override
-    public String getElementId() {
-        return elementId;
     }
 
 }

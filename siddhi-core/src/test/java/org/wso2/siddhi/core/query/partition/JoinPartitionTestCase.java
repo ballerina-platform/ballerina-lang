@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -48,7 +48,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -58,9 +58,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -69,9 +69,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
 
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
@@ -79,7 +79,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -89,7 +89,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -100,9 +100,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -111,9 +111,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User1", "World", "WSO2"});
@@ -124,7 +124,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(1000, 8, count, 12000);
         Assert.assertEquals(8, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -135,7 +135,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -147,9 +147,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -158,9 +158,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         twitterStreamHandler.send(new Object[]{"User1", "World", "WSO2"});
@@ -173,7 +173,7 @@ public class JoinPartitionTestCase {
         SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
         Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -183,7 +183,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -195,9 +195,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -206,11 +206,11 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        InputHandler outputStreamStreamHandler = executionPlanRuntime.getInputHandler("outputStream");
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        InputHandler outputStreamStreamHandler = siddhiAppRuntime.getInputHandler("outputStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
@@ -225,7 +225,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 10, count, 6000);
         Assert.assertEquals(10, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -235,7 +235,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "" +
                 "define stream cseEventStream (symbol string, user string,volume int); " +
                 "" +
@@ -253,9 +253,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -264,10 +264,10 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 200});
         cseEventStreamHandler.send(new Object[]{"IBM", "User2", 500});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
@@ -277,7 +277,7 @@ public class JoinPartitionTestCase {
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -287,7 +287,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin " +
                 "@info(name = 'query2') from cseEventStream select symbol, user, sum(volume) as volume insert all " +
@@ -301,9 +301,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -312,10 +312,10 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 200});
         cseEventStreamHandler.send(new Object[]{"IBM", "User2", 500});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "IBM"});
@@ -324,7 +324,7 @@ public class JoinPartitionTestCase {
         SiddhiTestHelper.waitForEvents(100, 4, count, 6000);
         Assert.assertEquals(4, count.get());
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -334,7 +334,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string, volume int);"
                 + "partition with (volume>=100 as 'large' or volume<100 as 'small' of cseEventStream, volume>=100 as " +
                 "'large' or volume<100 as 'small' of twitterStream) begin @info(name = 'query1') " +
@@ -346,9 +346,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -357,10 +357,10 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
 
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 200});
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2", 200});
@@ -373,7 +373,7 @@ public class JoinPartitionTestCase {
         SiddhiTestHelper.waitForEvents(100, 8, count, 6000);
         Assert.assertEquals(8, count.get());
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -383,7 +383,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.time(1 sec) join twitterStream#window.time(1 sec) " +
@@ -393,9 +393,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -404,9 +404,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
 
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
@@ -415,7 +415,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 6, count, 6000);
         Assert.assertEquals(6, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -425,7 +425,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
+        String siddhiApp = "define stream cseEventStream (symbol string, user string,volume int);  define stream " +
                 "twitterStream (user string, tweet string, company string);"
                 + "partition with (user of cseEventStream, user of twitterStream) begin @info(name = 'query1') " +
                 "from cseEventStream#window.length(1) unidirectional join twitterStream#window.length(1) " +
@@ -436,9 +436,9 @@ public class JoinPartitionTestCase {
                 "end ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -447,9 +447,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
 
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
@@ -462,7 +462,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 2, count, 60000);
         Assert.assertEquals(2, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
 
     }
@@ -473,7 +473,7 @@ public class JoinPartitionTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
+        String siddhiApp = "" +
                 "" +
                 "define stream cseEventStream (symbol string, user string,volume int);  " +
                 "define stream twitterStream (user string, tweet string, company string); " +
@@ -497,9 +497,9 @@ public class JoinPartitionTestCase {
                 " ";
 
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -508,9 +508,9 @@ public class JoinPartitionTestCase {
             }
         });
 
-        InputHandler cseEventStreamHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        InputHandler twitterStreamHandler = executionPlanRuntime.getInputHandler("twitterStream");
-        executionPlanRuntime.start();
+        InputHandler cseEventStreamHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        InputHandler twitterStreamHandler = siddhiAppRuntime.getInputHandler("twitterStream");
+        siddhiAppRuntime.start();
 
         twitterStreamHandler.send(new Object[]{"User1", "Hello World", "WSO2"});
         cseEventStreamHandler.send(new Object[]{"WSO2", "User1", 100});
@@ -523,7 +523,7 @@ public class JoinPartitionTestCase {
 
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertEquals(3, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
 
     }

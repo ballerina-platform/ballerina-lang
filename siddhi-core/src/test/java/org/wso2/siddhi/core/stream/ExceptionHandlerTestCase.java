@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -50,11 +50,11 @@ public class ExceptionHandlerTestCase {
         failedCaught = false;
     }
 
-    private ExecutionPlanRuntime createTestExecutionRuntime() {
+    private SiddhiAppRuntime createTestExecutionRuntime() {
         siddhiManager = new SiddhiManager();
-        String executionPlan = "" +
-                "@Plan:name('callbackTest1') " +
-                "@Plan:async " +
+        String siddhiApp = "" +
+                "@app:name('callbackTest1') " +
+                "@app:async " +
                 "" +
                 "define stream StockStream (symbol string, price float, volume long);" +
                 "" +
@@ -64,8 +64,8 @@ public class ExceptionHandlerTestCase {
                 "select symbol, price " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -73,7 +73,7 @@ public class ExceptionHandlerTestCase {
                 eventArrived = true;
             }
         });
-        return executionPlanRuntime;
+        return siddhiAppRuntime;
     }
 
     /**
@@ -117,9 +117,9 @@ public class ExceptionHandlerTestCase {
     @Test
     public void callbackTestForValidEvents() throws Exception {
         log.info("callback test without exception handler");
-        ExecutionPlanRuntime executionPlanRuntime = createTestExecutionRuntime();
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = createTestExecutionRuntime();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.start();
 
         sendTestValidEvents(inputHandler);
 
@@ -129,15 +129,15 @@ public class ExceptionHandlerTestCase {
         Assert.assertEquals(6, count.get());
         Assert.assertFalse(failedCaught);
         Assert.assertEquals(0, failedCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
     public void callbackTestForInvalidEventWithExceptionHandler() throws Exception {
         log.info("callback test with exception handler");
-        ExecutionPlanRuntime executionPlanRuntime = createTestExecutionRuntime();
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("StockStream");
-        executionPlanRuntime.handleExceptionWith(new ExceptionHandler<Object>() {
+        SiddhiAppRuntime siddhiAppRuntime = createTestExecutionRuntime();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("StockStream");
+        siddhiAppRuntime.handleExceptionWith(new ExceptionHandler<Object>() {
             @Override
             public void handleEventException(Throwable throwable, long l, Object o) {
                 failedCount.incrementAndGet();
@@ -160,7 +160,7 @@ public class ExceptionHandlerTestCase {
             }
         });
 
-        executionPlanRuntime.start();
+        siddhiAppRuntime.start();
         sendTestInvalidEvents(inputHandler);
         SiddhiTestHelper.waitForEvents(100, 2, failedCount, 60000);
 
@@ -169,6 +169,6 @@ public class ExceptionHandlerTestCase {
         Assert.assertEquals("Should properly process all the 4 valid events", 4, count.get());
         Assert.assertTrue("Exception is properly handled thrown by 2 invalid events", failedCaught);
         Assert.assertEquals("Exception is properly handled thrown by 2 invalid events", 2, failedCount.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

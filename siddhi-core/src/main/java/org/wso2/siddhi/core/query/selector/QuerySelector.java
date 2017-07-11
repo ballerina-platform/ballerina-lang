@@ -18,13 +18,13 @@
 package org.wso2.siddhi.core.query.selector;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulator;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
@@ -45,7 +45,7 @@ public class QuerySelector implements Processor {
     private static final Logger log = Logger.getLogger(QuerySelector.class);
     private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private boolean currentOn = false;
     private boolean expiredOn = false;
     private boolean containsAggregator = false;
@@ -58,13 +58,13 @@ public class QuerySelector implements Processor {
     private StateEventPopulator eventPopulator;
     private boolean batchingEnabled = true;
 
-    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, ExecutionPlanContext
-            executionPlanContext) {
+    public QuerySelector(String id, Selector selector, boolean currentOn, boolean expiredOn, SiddhiAppContext
+            siddhiAppContext) {
         this.id = id;
         this.currentOn = currentOn;
         this.expiredOn = expiredOn;
         this.selector = selector;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     public static String getThreadLocalGroupByKey() {
@@ -278,7 +278,7 @@ public class QuerySelector implements Processor {
         if (this.outputRateLimiter == null) {
             this.outputRateLimiter = outputRateLimiter;
         } else {
-            throw new ExecutionPlanCreationException("outputRateLimiter is already assigned");
+            throw new SiddhiAppCreationException("outputRateLimiter is already assigned");
         }
     }
 
@@ -318,7 +318,7 @@ public class QuerySelector implements Processor {
 
     public QuerySelector clone(String key) {
         QuerySelector clonedQuerySelector = new QuerySelector(id + key, selector, currentOn, expiredOn,
-                                                              executionPlanContext);
+                                                              siddhiAppContext);
         List<AttributeProcessor> clonedAttributeProcessorList = new ArrayList<AttributeProcessor>();
         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
             clonedAttributeProcessorList.add(attributeProcessor.cloneProcessor(key));

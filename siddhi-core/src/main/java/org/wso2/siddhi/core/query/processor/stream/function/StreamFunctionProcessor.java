@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.function;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -91,21 +91,21 @@ public abstract class StreamFunctionProcessor extends AbstractStreamProcessor {
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param configReader this hold the {@link StreamFunctionProcessor} extensions configuration reader.
-     * @param executionPlanContext         the context of the execution plan
+     * @param siddhiAppContext         the context of the siddhi app
      * @param outputExpectsExpiredEvents   is output expects ExpiredEvents
      * @return the additional output attributes introduced by the function
      */
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                                   ExecutionPlanContext
-                                           executionPlanContext, boolean outputExpectsExpiredEvents) {
+                                   SiddhiAppContext
+                                           siddhiAppContext, boolean outputExpectsExpiredEvents) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
-        return init(inputDefinition, attributeExpressionExecutors, configReader, executionPlanContext);
+        return init(inputDefinition, attributeExpressionExecutors, configReader, siddhiAppContext);
     }
 
     protected abstract List<Attribute> init(AbstractDefinition inputDefinition,
                                             ExpressionExecutor[] attributeExpressionExecutors, ConfigReader
-                                                    configReader, ExecutionPlanContext
-                                                    executionPlanContext);
+                                                    configReader, SiddhiAppContext
+                                                    siddhiAppContext);
 
 }

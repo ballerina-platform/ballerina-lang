@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.util;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 
@@ -27,11 +27,11 @@ import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerato
  */
 public class EventTimeBasedScheduler extends Scheduler {
 
-    public EventTimeBasedScheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
-        super(singleThreadEntryValve, executionPlanContext);
+    public EventTimeBasedScheduler(Schedulable singleThreadEntryValve, SiddhiAppContext siddhiAppContext) {
+        super(singleThreadEntryValve, siddhiAppContext);
 
-        if (executionPlanContext.isPlayback()) {
-            ((EventTimeBasedMillisTimestampGenerator) executionPlanContext.getTimestampGenerator())
+        if (siddhiAppContext.isPlayback()) {
+            ((EventTimeBasedMillisTimestampGenerator) siddhiAppContext.getTimestampGenerator())
                     .addTimeChangeListener(new EventTimeBasedMillisTimestampGenerator.TimeChangeListener() {
                         @Override
                         public void onTimeChange(long currentTimestamp) {
@@ -54,7 +54,7 @@ public class EventTimeBasedScheduler extends Scheduler {
 
     @Override
     public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
-        Scheduler scheduler = new EventTimeBasedScheduler(entryValveProcessor, executionPlanContext);
+        Scheduler scheduler = new EventTimeBasedScheduler(entryValveProcessor, siddhiAppContext);
         scheduler.elementId = elementId + "-" + key;
         return scheduler;
     }

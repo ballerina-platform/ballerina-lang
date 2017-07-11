@@ -22,7 +22,7 @@ import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -63,7 +63,8 @@ import java.util.concurrent.ConcurrentHashMap;
                         description = "The attributes to group the events. If no attributes are given, " +
                                 "the concatenation of all the attributes of the event is considered.",
                         type = {DataType.STRING},
-                        optional = true)
+                        optional = true,
+                        defaultValue = "The concatenation of all the attributes of the event is considered.")
         },
         examples = {
                 @Example(
@@ -92,7 +93,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, ExecutionPlanContext executionPlanContext) {
+            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         mostFrequentCount = Integer.parseInt(String.valueOf(((ConstantExpressionExecutor)
                 attributeExpressionExecutors[0]).getValue()));
         variableExpressionExecutors = new VariableExpressionExecutor[attributeExpressionExecutors.length - 1];
@@ -107,7 +108,7 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
         synchronized (this) {
             StreamEvent streamEvent = streamEventChunk.getFirst();
             streamEventChunk.clear();
-            long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+            long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
             while (streamEvent != null) {
                 StreamEvent next = streamEvent.getNext();
                 streamEvent.setNext(null);
@@ -204,10 +205,10 @@ public class FrequentWindowProcessor extends WindowProcessor implements Findable
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                              ExecutionPlanContext executionPlanContext,
+                                              SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, executionPlanContext,
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, siddhiAppContext,
                 variableExpressionExecutors, tableMap, this.queryName);
     }
 }

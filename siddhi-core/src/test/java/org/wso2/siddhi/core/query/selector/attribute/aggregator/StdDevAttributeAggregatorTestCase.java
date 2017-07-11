@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -46,7 +46,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -56,7 +56,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(execPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
 
         log.info("Running: " + execPlanRunTime.getName());
 
@@ -80,7 +80,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -90,7 +90,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(execPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
@@ -114,7 +114,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -124,7 +124,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(execPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
@@ -150,7 +150,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -160,7 +160,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(execPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
@@ -190,7 +190,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String execPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -200,7 +200,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(execPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(execPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
@@ -232,7 +232,7 @@ public class StdDevAttributeAggregatorTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String windowExecPlan = "" +
-                "@Plan:name('stdDevAggregatorTests') " +
+                "@app:name('stdDevAggregatorTests') " +
                 "" +
                 "define stream cseEventStream (symbol string, price double);" +
                 "" +
@@ -242,7 +242,7 @@ public class StdDevAttributeAggregatorTestCase {
                 "group by symbol " +
                 "insert all events into outputStream;";
 
-        ExecutionPlanRuntime execPlanRunTime = siddhiManager.createExecutionPlanRuntime(windowExecPlan);
+        SiddhiAppRuntime execPlanRunTime = siddhiManager.createSiddhiAppRuntime(windowExecPlan);
         execPlanRunTime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {

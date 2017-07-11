@@ -1,4 +1,4 @@
-@Plan:name('TestExecutionPlan')
+@app:name('TestSiddhiApp')
 
 define stream sensorStream (sensorId string, temperature double);
 

@@ -27,16 +27,16 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
-
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
+import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.source.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -89,7 +89,7 @@ import java.util.List;
                 @Example(
                         syntax = "@source(type='inMemory', topic='stock', @map(type='json'))\n"
                                 + "define stream FooStream (symbol string, price float, volume long);\n",
-                        description =  "Above configuration will do a default JSON input mapping. Expected "
+                        description = "Above configuration will do a default JSON input mapping. Expected "
                                 + "input will look like below."
                                 + "{\n"
                                 + "    \"event\":{\n"
@@ -102,7 +102,7 @@ import java.util.List;
                         syntax = "@source(type='inMemory', topic='stock', @map(type='json', "
                                 + "enclosing.element=\"$.portfolio\", "
                                 + "@attributes(symbol = \"company.symbol\", price = \"price\", volume = \"volume\")))",
-                        description =  "Above configuration will perform a custom JSON mapping. Expected input will "
+                        description = "Above configuration will perform a custom JSON mapping. Expected input will "
                                 + "look like below."
                                 + "{"
                                 + " \"portfolio\":{\n"
@@ -138,7 +138,8 @@ public class JsonSourceMapper extends SourceMapper {
 
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder,
-                     List<AttributeMapping> attributeMappingList, ConfigReader configReader) {
+                     List<AttributeMapping> attributeMappingList, ConfigReader configReader, SiddhiAppContext
+                             siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
         attributesSize = this.streamDefinition.getAttributeList().size();
@@ -152,7 +153,7 @@ public class JsonSourceMapper extends SourceMapper {
                     DEFAULT_ENCLOSING_ELEMENT);
             for (int i = 0; i < attributeMappingList.size(); i++) {
                 AttributeMapping attributeMapping = attributeMappingList.get(i);
-                String attributeName = attributeMapping.getRename();
+                String attributeName = attributeMapping.getName();
                 int position;
                 if (attributeName != null) {
                     position = this.streamDefinition.getAttributePosition(attributeName);
@@ -167,6 +168,11 @@ public class JsonSourceMapper extends SourceMapper {
                         .streamDefinition.getAttributeList().get(i).getName());
             }
         }
+    }
+
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override
@@ -225,7 +231,7 @@ public class JsonSourceMapper extends SourceMapper {
                 try {
                     Event event = processCustomEvent(JsonPath.parse(jsonObj));
                     return event;
-                } catch (ExecutionPlanRuntimeException e) {
+                } catch (SiddhiAppRuntimeException e) {
                     log.error(e.getMessage());
                     return null;
                 }
@@ -253,7 +259,7 @@ public class JsonSourceMapper extends SourceMapper {
         try {
             parser = factory.createParser(eventObject.toString());
         } catch (IOException e) {
-            throw new ExecutionPlanRuntimeException("Initializing a parser failed for the event string."
+            throw new SiddhiAppRuntimeException("Initializing a parser failed for the event string."
                     + eventObject.toString());
         }
         int position;

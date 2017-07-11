@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.executor.function;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -35,7 +35,8 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
     static final Logger LOG = Logger.getLogger(ScriptFunctionExecutor.class);
     Attribute.Type returnType;
     Script script;
-    private String functionId;
+
+    public ScriptFunctionExecutor() { }
 
     public ScriptFunctionExecutor(String name) {
         this.functionId = name;
@@ -48,9 +49,9 @@ public class ScriptFunctionExecutor extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
-        returnType = executionPlanContext.getScript(functionId).getReturnType();
-        script = executionPlanContext.getScript(functionId);
+                        SiddhiAppContext siddhiAppContext) {
+        returnType = siddhiAppContext.getScript(functionId).getReturnType();
+        script = siddhiAppContext.getScript(functionId);
     }
 
     @Override

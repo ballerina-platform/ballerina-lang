@@ -18,12 +18,13 @@
 
 package org.wso2.siddhi.core.table;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.table.holder.ListEventHolder;
@@ -48,7 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * In-memory event table implementation of SiddhiQL.
  */
-public class InMemoryTable implements Table, Snapshotable {
+public class InMemoryTable extends Table implements Snapshotable {
 
     private TableDefinition tableDefinition;
     private StreamEventCloner tableStreamEventCloner;
@@ -56,18 +57,20 @@ public class InMemoryTable implements Table, Snapshotable {
     private EventHolder eventHolder;
     private String elementId;
 
+
     @Override
-    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
-            StreamEventCloner storeEventCloner, ConfigReader configReader, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition,
+                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
+                     ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
 
         eventHolder = EventHolderPasser.parse(tableDefinition, storeEventPool);
 
         if (elementId == null) {
-            elementId = "InMemoryTable-" + executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "InMemoryTable-" + siddhiAppContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(tableDefinition.getId(), this);
+        siddhiAppContext.getSnapshotService().addSnapshotable(tableDefinition.getId(), this);
     }
 
     @Override
@@ -109,7 +112,7 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-            UpdateAttributeMapper[] updateAttributeMappers) {
+                       UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
             ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
@@ -121,11 +124,13 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-            UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+                            UpdateAttributeMapper[] updateAttributeMappers,
+                            AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(
-                    updateOrAddingEventChunk, eventHolder, updateAttributeMappers, addingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
+                    (updateOrAddingEventChunk,
+                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -147,7 +152,22 @@ public class InMemoryTable implements Table, Snapshotable {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+    protected void connect() throws ConnectionUnavailableException {
+
+    }
+
+    @Override
+    protected void disconnect() {
+
+    }
+
+    @Override
+    protected void destroy() {
+
+    }
+
+    @Override
+    public StreamEvent find(CompiledCondition compiledCondition, StateEvent matchingEvent) {
         try {
             readWriteLock.readLock().lock();
             return ((Operator) compiledCondition).find(matchingEvent, eventHolder, tableStreamEventCloner);
@@ -159,11 +179,13 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
-            ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors,
-            Map<String, Table> tableMap, String queryName) {
-        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder, executionPlanContext,
-                variableExpressionExecutors, tableMap, tableDefinition.getId());
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
+        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
+                siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
+
 
     @Override
     public Map<String, Object> currentState() {

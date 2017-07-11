@@ -21,14 +21,14 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.core.util.SiddhiTestHelper;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -60,7 +60,7 @@ public class PartitionTestCase {
         log.info("Partition test");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest') " +
+        String siddhiApp = "@app:name('PartitionTest') " +
                 "define stream streamA (symbol string, price int);" +
                 "partition with (symbol of streamA) " +
                 "begin " +
@@ -68,7 +68,7 @@ public class PartitionTestCase {
                 "from streamA select symbol,price insert into StockQuote ;  " +
                 "end ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         StreamCallback streamCallback = new StreamCallback() {
             @Override
@@ -79,17 +79,17 @@ public class PartitionTestCase {
                 eventArrived = true;
             }
         };
-        executionPlanRuntime.addCallback("StockQuote", streamCallback);
+        siddhiAppRuntime.addCallback("StockQuote", streamCallback);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("streamA");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         SiddhiTestHelper.waitForEvents(100, 3, count, 60000);
         Assert.assertTrue(eventArrived);
         Assert.assertEquals(3, count.get());
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -97,7 +97,7 @@ public class PartitionTestCase {
         log.info("Partition test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest1') " +
+        String siddhiApp = "@app:name('PartitionTest1') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
@@ -105,7 +105,7 @@ public class PartitionTestCase {
                 "cseEventStream[700>price] select symbol,sum(price) as price,volume insert into OutStockStream ;  end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -143,7 +143,7 @@ public class PartitionTestCase {
         log.info("Partition test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest2') " +
+        String siddhiApp = "@app:name('PartitionTest2') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream StockStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of StockStream1) begin @info(name = 'query1') " +
@@ -151,7 +151,7 @@ public class PartitionTestCase {
                 "  end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -179,12 +179,12 @@ public class PartitionTestCase {
 
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan3");
+        SiddhiApp siddhiApp = new SiddhiApp("plan3");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        executionPlan.defineStream(streamDefinition);
+        siddhiApp.defineStream(streamDefinition);
 
         Partition partition = Partition.partition().
                 with("cseEventStream", Expression.variable("symbol"));
@@ -215,10 +215,10 @@ public class PartitionTestCase {
         partition.addQuery(query);
         partition.addQuery(query1);
 
-        executionPlan.addPartition(partition);
+        siddhiApp.addPartition(partition);
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -246,15 +246,15 @@ public class PartitionTestCase {
     public void testPartitionQuery4() throws InterruptedException {
         log.info("Partition test4");
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan4");
+        SiddhiApp siddhiApp = new SiddhiApp("plan4");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
         StreamDefinition streamDefinition1 = StreamDefinition.id("cseEventStream1").attribute("symbol", Attribute
                 .Type.STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineStream(streamDefinition1);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineStream(streamDefinition1);
 
 
         Partition partition = Partition.partition().
@@ -320,11 +320,11 @@ public class PartitionTestCase {
         partition1.addQuery(query2);
         partition1.addQuery(query3);
 
-        executionPlan.addPartition(partition);
+        siddhiApp.addPartition(partition);
 
-        executionPlan.addPartition(partition1);
+        siddhiApp.addPartition(partition1);
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -359,7 +359,7 @@ public class PartitionTestCase {
     public void testPartitionQuery5() throws InterruptedException {
         log.info("Partition test5");
         final SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan5");
+        SiddhiApp siddhiApp = new SiddhiApp("plan5");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
@@ -369,9 +369,9 @@ public class PartitionTestCase {
                 .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
 
-        executionPlan.defineStream(streamDefinition);
-        executionPlan.defineStream(streamDefinition1);
-        executionPlan.defineStream(streamDefinition2);
+        siddhiApp.defineStream(streamDefinition);
+        siddhiApp.defineStream(streamDefinition1);
+        siddhiApp.defineStream(streamDefinition2);
 
 
         Partition partition = Partition.partition().
@@ -466,13 +466,13 @@ public class PartitionTestCase {
         partition1.addQuery(query2);
         partition1.addQuery(query3);
 
-        executionPlan.addPartition(partition);
+        siddhiApp.addPartition(partition);
 
-        executionPlan.addPartition(partition1);
+        siddhiApp.addPartition(partition1);
 
-        executionPlan.addQuery(query4);
+        siddhiApp.addQuery(query4);
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("StockStream", new StreamCallback() {
@@ -528,7 +528,7 @@ public class PartitionTestCase {
         log.info("Partition test6");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest6') " +
+        String siddhiApp = "@app:name('PartitionTest6') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream , symbol of cseEventStream1) begin @info(name = 'query') " +
@@ -538,7 +538,7 @@ public class PartitionTestCase {
                 + "@info(name = 'query3') from #StockStream1 select symbol,price,volume insert into OutStockStream ; " +
                 "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -576,7 +576,7 @@ public class PartitionTestCase {
         log.info("Partition test7");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest7') " +
+        String siddhiApp = "@app:name('PartitionTest7') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -586,7 +586,7 @@ public class PartitionTestCase {
                 + "end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -625,7 +625,7 @@ public class PartitionTestCase {
         log.info("Partition test8");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest8') " +
+        String siddhiApp = "@app:name('PartitionTest8') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -634,7 +634,7 @@ public class PartitionTestCase {
                 " OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -672,7 +672,7 @@ public class PartitionTestCase {
         log.info("Partition test9");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest9') " +
+        String siddhiApp = "@app:name('PartitionTest9') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -681,7 +681,7 @@ public class PartitionTestCase {
                 " OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -719,7 +719,7 @@ public class PartitionTestCase {
         log.info("Partition test10");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest10') " +
+        String siddhiApp = "@app:name('PartitionTest10') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -728,7 +728,7 @@ public class PartitionTestCase {
                 "OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -766,7 +766,7 @@ public class PartitionTestCase {
         log.info("Partition test11");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest11') " +
+        String siddhiApp = "@app:name('PartitionTest11') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -775,7 +775,7 @@ public class PartitionTestCase {
                 "OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -814,7 +814,7 @@ public class PartitionTestCase {
         log.info("Partition test15");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest15') " +
+        String siddhiApp = "@app:name('PartitionTest15') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "define stream StockStream (symbol string, price float,volume int);"
@@ -829,7 +829,7 @@ public class PartitionTestCase {
                 + "@info(name = 'query5') from StockStream select symbol,price+15  as price,volume group by symbol " +
                 "insert into OutStockStream ;";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("StockStream", new StreamCallback() {
             @Override
@@ -879,15 +879,15 @@ public class PartitionTestCase {
         log.info("partition test16");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest16') " +
+        String siddhiApp = "@app:name('PartitionTest16') " +
                 "define stream streamA (symbol string, price int);"
                 + "partition with (symbol of streamA) begin @info(name = 'query1') from streamA select symbol,price " +
                 "insert into StockQuote ;"
                 + "@info(name = 'query2') from streamA select symbol,price insert into StockQuote ; end ";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("StockQuote", new StreamCallback() {
+        siddhiAppRuntime.addCallback("StockQuote", new StreamCallback() {
             @Override
             public void receive(Event[] events) {
                 EventPrinter.print(events);
@@ -897,15 +897,15 @@ public class PartitionTestCase {
             }
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("streamA");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("streamA");
+        siddhiAppRuntime.start();
         inputHandler.send(new Object[]{"IBM", 700});
         inputHandler.send(new Object[]{"WSO2", 60});
         inputHandler.send(new Object[]{"WSO2", 60});
         SiddhiTestHelper.waitForEvents(100, 6, count, 60000);
         Assert.assertEquals(6, count.get());
         Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
 
@@ -915,12 +915,12 @@ public class PartitionTestCase {
 
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        ExecutionPlan executionPlan = new ExecutionPlan("plan17");
+        SiddhiApp siddhiApp = new SiddhiApp("plan17");
 
         StreamDefinition streamDefinition = StreamDefinition.id("cseEventStream").attribute("symbol", Attribute.Type
                 .STRING).attribute("price", Attribute.Type.FLOAT).attribute("volume", Attribute.Type.INT);
 
-        executionPlan.defineStream(streamDefinition);
+        siddhiApp.defineStream(streamDefinition);
 
         Partition partition = Partition.partition().
                 with("cseEventStream",
@@ -951,10 +951,10 @@ public class PartitionTestCase {
         partition.addQuery(query);
 
 
-        executionPlan.addPartition(partition);
+        siddhiApp.addPartition(partition);
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("StockStream", new StreamCallback() {
@@ -995,7 +995,7 @@ public class PartitionTestCase {
         log.info("Partition test18");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest18') " +
+        String siddhiApp = "@app:name('PartitionTest18') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
@@ -1004,7 +1004,7 @@ public class PartitionTestCase {
                 "OutStockStream ;  end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -1044,7 +1044,7 @@ public class PartitionTestCase {
         log.info("Partition test19");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest19') " +
+        String siddhiApp = "@app:name('PartitionTest19') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStreamOne (symbol string, price float,volume int);"
                 + "@info(name = 'query')from cseEventStreamOne select symbol,price,volume insert into cseEventStream;"
@@ -1053,7 +1053,7 @@ public class PartitionTestCase {
                 "insert into OutStockStream ;  end ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -1098,8 +1098,8 @@ public class PartitionTestCase {
         log.info("Partition test20");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@plan:name('PartitionTest20') " +
+        String siddhiApp = "" +
+                "@app:name('PartitionTest20') " +
                 "" +
                 "" +
                 "define stream cseEventStream (symbol string, price float,volume int); " +
@@ -1130,7 +1130,7 @@ public class PartitionTestCase {
                 "   end ; ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -1175,8 +1175,8 @@ public class PartitionTestCase {
         log.info("Partition test21");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@plan:name('PartitionTest20') " +
+        String siddhiApp = "" +
+                "@app:name('PartitionTest20') " +
                 "" +
                 "" +
                 "define stream cseEventStream (symbol string, price float,volume int); " +
@@ -1207,7 +1207,7 @@ public class PartitionTestCase {
                 "   end ; ";
 
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
@@ -1251,7 +1251,7 @@ public class PartitionTestCase {
         log.info("Partition test22");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest10') " +
+        String siddhiApp = "@app:name('PartitionTest10') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -1262,7 +1262,7 @@ public class PartitionTestCase {
                 "insert expired events into OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override
@@ -1292,7 +1292,7 @@ public class PartitionTestCase {
         log.info("Partition test23");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "@plan:name('PartitionTest10') " +
+        String siddhiApp = "@app:name('PartitionTest10') " +
                 "define stream cseEventStream (symbol string, price float,volume int);"
                 + "define stream cseEventStream1 (symbol string, price float,volume int);"
                 + "partition with (symbol of cseEventStream)"
@@ -1303,7 +1303,7 @@ public class PartitionTestCase {
                 "insert expired events into OutStockStream ;"
                 + "end ";
 
-        ExecutionPlanRuntime executionRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime executionRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
         executionRuntime.addCallback("OutStockStream", new StreamCallback() {
             @Override

@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.util;
 
 import org.wso2.siddhi.core.exception.CannotLoadClassException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.util.extension.holder.AbstractExtensionHolder;
 import org.wso2.siddhi.query.api.extension.Extension;
 
@@ -41,13 +41,13 @@ public class SiddhiClassLoader {
                                                      AbstractExtensionHolder extensionHolder) {
         Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getName());
         if (clazz == null) {
-            throw new ExecutionPlanCreationException("No extension exist for " + extension.getNamespace() + ":" +
+            throw new SiddhiAppCreationException("No extension exist for " + extension.getNamespace() + ":" +
                                                              extension.getName(), true);
         }
         try {
             return SiddhiClassLoader.loadClass(clazz);
         } catch (CannotLoadClassException e) {
-            throw new ExecutionPlanCreationException("Extension " + clazz.getName() + " cannot be loaded!", true);
+            throw new SiddhiAppCreationException("Extension " + clazz.getName() + " cannot be loaded!", true);
 
         }
     }

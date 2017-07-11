@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class AbstractAnnotationProcessor {
     protected static final Pattern CORE_PACKAGE_PATTERN = Pattern.compile("^org.wso2.siddhi.core.");
-    protected static final Pattern PARAMETER_NAME_PATTERN = Pattern.compile("^[a-z]+(\\.[a-z0-9]+)*$");
+    protected static final Pattern PARAMETER_NAME_PATTERN = Pattern.compile("^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$");
     protected static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("^[a-z]+([A-Z][a-z0-9]+)*$");
     protected String extensionClassFullName;
 
@@ -106,6 +106,13 @@ public class AbstractAnnotationProcessor {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
                                 "name:{0} -> type annotated in class {1} is null or empty.", parameterName,
                         extensionClassFullName));
+            }
+            if (parameter.optional()) {
+                if (parameter.defaultValue().isEmpty()) {
+                    throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
+                                    "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
+                                    "optional parameter.", parameterName, extensionClassFullName));
+                }
             }
         }
     }

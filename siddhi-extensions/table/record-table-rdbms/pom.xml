@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.siddhi</groupId>
         <artifactId>siddhi-record-tables</artifactId>
-        <version>4.0.0-M5-SNAPSHOT</version>
+        <version>4.0.0-M16-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

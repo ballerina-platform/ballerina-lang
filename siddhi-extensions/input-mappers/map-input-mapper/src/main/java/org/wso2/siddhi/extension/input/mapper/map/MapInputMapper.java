@@ -27,7 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.input.source.Sourcemapper;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -154,9 +154,9 @@ public class MapSourcemapper implements Sourcemapper {
 
     private Event convertToEvent(Object eventObject) {
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to MapsourceMapper");
+            throw new SiddhiAppRuntimeException("Null object received from the Source to MapsourceMapper");
         } else if (!(eventObject instanceof HashMap)) {
-            throw new ExecutionPlanRuntimeException("Invalid Map object received. Expected HashMap, but found " +
+            throw new SiddhiAppRuntimeException("Invalid Map object received. Expected HashMap, but found " +
                     eventObject.getClass()
                             .getCanonicalName());
         }

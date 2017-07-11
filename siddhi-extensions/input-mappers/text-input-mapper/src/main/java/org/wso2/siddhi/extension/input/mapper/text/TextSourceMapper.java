@@ -20,12 +20,13 @@ package org.wso2.siddhi.extension.input.mapper.text;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
+import org.wso2.siddhi.core.stream.input.source.AttributeMapping;
+import org.wso2.siddhi.core.stream.input.source.InputEventHandler;
 import org.wso2.siddhi.core.stream.input.source.Source;
 import org.wso2.siddhi.core.stream.input.source.SourceMapper;
 import org.wso2.siddhi.core.util.AttributeConverter;
@@ -51,15 +52,13 @@ import java.util.regex.Pattern;
 public class TextSourceMapper extends SourceMapper {
 
     /**
-     * Logger to log the events.
-     */
-    private static final Logger log = Logger.getLogger(TextSourceMapper.class);
-
-    /**
      * Default regex assumes that the attributes in the text are separated by comma in order.
      */
     public static final String DEFAULT_MAPPING_REGEX = "([^,;]+)";
-
+    /**
+     * Logger to log the events.
+     */
+    private static final Logger log = Logger.getLogger(TextSourceMapper.class);
     /**
      * Output StreamDefinition of the input mapper.
      */
@@ -79,14 +78,16 @@ public class TextSourceMapper extends SourceMapper {
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition     the  StreamDefinition
+     *
+     * @param streamDefinition     the  StreamDefinition
      * @param optionHolder         mapping options
      * @param attributeMappingList list of attributes mapping
      * @param configReader
+     * @param siddhiAppContext
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
-            attributeMappingList, ConfigReader configReader) {
+            attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         attributeConverter = new AttributeConverter();
         this.streamDefinition = streamDefinition;
         this.streamAttributes = this.streamDefinition.getAttributeList();
@@ -103,7 +104,7 @@ public class TextSourceMapper extends SourceMapper {
                 AttributeMapping attributeMapping = attributeMappingList.get(i);
 
                 // The optional name given by the user in attribute mapping
-                String attributeName = attributeMapping.getRename();
+                String attributeName = attributeMapping.getName();
 
                 // The position of the attribute in the output stream definition
                 int position;
@@ -132,12 +133,17 @@ public class TextSourceMapper extends SourceMapper {
         }
     }
 
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
+    }
+
 
     /**
      * Receive TEXT string from {@link Source}, convert to {@link ComplexEventChunk} and send to the
      * {@link OutputCallback}.
      *
-     * @param eventObject  the TEXT string
+     * @param eventObject the TEXT string
      */
     @Override
     protected void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws InterruptedException {
@@ -158,22 +164,18 @@ public class TextSourceMapper extends SourceMapper {
     private Event convertToEvent(Object eventObject) {
         // Validate the event
         if (eventObject == null) {
-            throw new ExecutionPlanRuntimeException("Null object received from the Source to TextsourceMapper");
+            throw new SiddhiAppRuntimeException("Null object received from the Source to TextsourceMapper");
         }
 
         if (!(eventObject instanceof String)) {
-            throw new ExecutionPlanRuntimeException("Invalid TEXT object received. Expected String, but found " +
+            throw new SiddhiAppRuntimeException("Invalid TEXT object received. Expected String, but found " +
                     eventObject.getClass()
                             .getCanonicalName());
         }
 
         Event event = new Event(this.streamDefinition.getAttributeList().size());
+
         String eventObj = (String) eventObject;
-        if (eventObj.contains("siddhiEventId:")) {
-            // siddhiEventId should be the first line of the message
-            event.setId(Long.parseLong(eventObj.split("\n")[0].split("siddhiEventId:")[1]));
-            eventObj = eventObj.replaceFirst(eventObj.split("\n")[0] + "\n", "");
-        }
         Object[] data = event.getData();
 
         for (MappingPositionData mappingPositionData : this.mappingPositions) {

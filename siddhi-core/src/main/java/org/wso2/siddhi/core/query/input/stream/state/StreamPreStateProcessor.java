@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.core.query.input.stream.state;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.state.StateEventCloner;
@@ -47,7 +47,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected volatile boolean stateChanged = false;
     protected StateInputStream.Type stateType;
     protected List<Map.Entry<Long, Set<Integer>>> withinStates;
-    protected ExecutionPlanContext executionPlanContext;
+    protected SiddhiAppContext siddhiAppContext;
     protected String elementId;
     protected StreamPostStateProcessor thisStatePostProcessor;
     protected StreamPostStateProcessor thisLastProcessor;
@@ -64,19 +64,20 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected StateEventCloner stateEventCloner;
     protected StreamEventPool streamEventPool;
     protected String queryName;
+    private boolean initialized;
 
     public StreamPreStateProcessor(StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
         this.stateType = stateType;
         this.withinStates = withinStates;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext, String queryName) {
-        this.executionPlanContext = executionPlanContext;
+    public void init(SiddhiAppContext siddhiAppContext, String queryName) {
+        this.siddhiAppContext = siddhiAppContext;
         this.queryName = queryName;
         if (elementId == null) {
-            this.elementId = "StreamPreStateProcessor-" + executionPlanContext.getElementIdGenerator().createNewId();
+            this.elementId = "StreamPreStateProcessor-" + siddhiAppContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
+        siddhiAppContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     public StreamPostStateProcessor getThisStatePostProcessor() {
@@ -98,7 +99,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
                 "processAndReturn method is used for handling event chunks.");
     }
 
-    private boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
+    protected boolean isExpired(StateEvent pendingStateEvent, StreamEvent incomingStreamEvent) {
         for (Map.Entry<Long, Set<Integer>> withinEntry : withinStates) {
             for (Integer withinStateId : withinEntry.getValue()) {
                 if (withinStateId == SiddhiConstants.ANY) {
@@ -162,9 +163,10 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     }
 
     public void init() {
-        if (isStartState) {
+        if (isStartState && (!initialized || this.thisStatePostProcessor.nextEveryStatePerProcessor != null)) {
             StateEvent stateEvent = stateEventPool.borrowEvent();
             addState(stateEvent);
+            initialized = true;
         }
     }
 
@@ -186,7 +188,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     public PreStateProcessor cloneProcessor(String key) {
         StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType, withinStates);
         cloneProperties(streamPreStateProcessor, key);
-        streamPreStateProcessor.init(executionPlanContext, queryName);
+        streamPreStateProcessor.init(siddhiAppContext, queryName);
         return streamPreStateProcessor;
     }
 
@@ -250,6 +252,11 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
         if (isStartState && newAndEveryStateEventList.isEmpty()) {
             //        if (isStartState && stateType == StateInputStream.Type.SEQUENCE && newAndEveryStateEventList
             // .isEmpty()) {
+            if (stateType == StateInputStream.Type.SEQUENCE && thisStatePostProcessor.nextEveryStatePerProcessor ==
+                    null && !((StreamPreStateProcessor) thisStatePostProcessor.nextStatePerProcessor)
+                    .pendingStateEventList.isEmpty()) {
+                return;
+            }
             init();
         }
     }

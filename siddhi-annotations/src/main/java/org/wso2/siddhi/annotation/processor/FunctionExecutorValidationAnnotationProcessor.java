@@ -64,6 +64,13 @@ public class FunctionExecutorValidationAnnotationProcessor extends AbstractAnnot
                                 "-> name:{0} -> dynamic property cannot be true annotated in class {1}.", parameterName,
                         extensionClassFullName));
             }
+            if (parameter.optional()) {
+                if (parameter.defaultValue().isEmpty()) {
+                    throw new AnnotationValidationException(MessageFormat.format("The @Extension -> @Parameter -> " +
+                                    "name:{0} -> defaultValue annotated in class {1} cannot be null or empty for the " +
+                                    "optional parameter.", parameterName, extensionClassFullName));
+                }
+            }
         }
     }
 
@@ -78,7 +85,8 @@ public class FunctionExecutorValidationAnnotationProcessor extends AbstractAnnot
             //Check if the @ReturnAttributes name is empty.
             if (!returnAttributeName.isEmpty()) {
                 throw new AnnotationValidationException(MessageFormat.format("The @Extension -> " +
-                        "@ReturnAttribute -> name cannot be annotated in class {1}.", extensionClassFullName));
+                        "@ReturnAttribute -> name cannot be annotated in class '{0}' extended by Function Executor " +
+                        "Processor.", extensionClassFullName));
             }
             //Check if the @ReturnAttributes description is empty.
             if (returnAttributes[0].description().isEmpty()) {

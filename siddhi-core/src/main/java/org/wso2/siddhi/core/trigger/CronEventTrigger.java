@@ -31,7 +31,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
@@ -44,18 +44,18 @@ public class CronEventTrigger implements EventTrigger, Job {
     protected static final Logger LOG = Logger.getLogger(CronEventTrigger.class);
 
     private TriggerDefinition triggerDefinition;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private StreamJunction streamJunction;
     private Scheduler scheduler;
     private String jobName;
     private String jobGroup = "TriggerGroup";
 
     @Override
-    public void init(TriggerDefinition triggerDefinition, ExecutionPlanContext executionPlanContext, StreamJunction
+    public void init(TriggerDefinition triggerDefinition, SiddhiAppContext siddhiAppContext, StreamJunction
             streamJunction) {
 
         this.triggerDefinition = triggerDefinition;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.streamJunction = streamJunction;
     }
 
@@ -141,7 +141,7 @@ public class CronEventTrigger implements EventTrigger, Job {
     }
 
     private void sendEvent() {
-        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        long currentTime = siddhiAppContext.getTimestampGenerator().currentTime();
         streamJunction.sendEvent(new Event(currentTime, new Object[]{currentTime}));
     }
 }

@@ -19,16 +19,16 @@ package org.wso2.siddhi.service.impl;
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import org.wso2.siddhi.service.api.ApiResponseMessage;
 import org.wso2.siddhi.service.api.NotFoundException;
 import org.wso2.siddhi.service.api.SiddhiApiService;
-import org.wso2.siddhi.service.util.ExecutionPlanConfiguration;
+import org.wso2.siddhi.service.util.SiddhiAppConfiguration;
 import org.wso2.siddhi.service.util.SiddhiServiceConstants;
 
 import java.util.Map;
@@ -46,47 +46,47 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
 
     private Log log = LogFactory.getLog(SiddhiApiServiceImpl.class);
     private SiddhiManager siddhiManager = new SiddhiManager();
-    private Map<String, Map<String, InputHandler>> executionPlanSpecificInputHandlerMap = new ConcurrentHashMap<>();
-    private Map<String, ExecutionPlanConfiguration> executionPlanConfigurationMap = new ConcurrentHashMap<>();
-    private Map<String, ExecutionPlanRuntime> executionPlanRunTimeMap = new ConcurrentHashMap<>();
+    private Map<String, Map<String, InputHandler>> siddhiAppSpecificInputHandlerMap = new ConcurrentHashMap<>();
+    private Map<String, SiddhiAppConfiguration> siddhiAppConfigurationMap = new ConcurrentHashMap<>();
+    private Map<String, SiddhiAppRuntime> siddhiAppRunTimeMap = new ConcurrentHashMap<>();
 
     @Override
-    public Response siddhiArtifactDeployPost(String executionPlan) throws NotFoundException {
+    public Response siddhiArtifactDeployPost(String siddhiApp) throws NotFoundException {
 
-        log.info("ExecutionPlan = " + executionPlan);
+        log.info("SiddhiApp = " + siddhiApp);
         String jsonString = new Gson().toString();
         try {
-            ExecutionPlan parsedExecutionPlan = SiddhiCompiler.parse(executionPlan);
-            String executionPlanName = AnnotationHelper.getAnnotationElement(
-                    SiddhiServiceConstants.ANNOTATION_NAME_NAME, null, parsedExecutionPlan.
+            SiddhiApp parsedSiddhiApp = SiddhiCompiler.parse(siddhiApp);
+            String siddhiAppName = AnnotationHelper.getAnnotationElement(
+                    SiddhiServiceConstants.ANNOTATION_NAME_NAME, null, parsedSiddhiApp.
                             getAnnotations()).getValue();
-            if (!executionPlanRunTimeMap.containsKey(executionPlan)) {
-                ExecutionPlanConfiguration executionPlanConfiguration = new ExecutionPlanConfiguration();
-                executionPlanConfiguration.setName(executionPlanName);
-                executionPlanConfigurationMap.put(executionPlanName, executionPlanConfiguration);
+            if (!siddhiAppRunTimeMap.containsKey(siddhiApp)) {
+                SiddhiAppConfiguration siddhiAppConfiguration = new SiddhiAppConfiguration();
+                siddhiAppConfiguration.setName(siddhiAppName);
+                siddhiAppConfigurationMap.put(siddhiAppName, siddhiAppConfiguration);
 
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+                SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-                if (executionPlanRuntime != null) {
-                    Set<String> streamNames = executionPlanRuntime.getStreamDefinitionMap().keySet();
+                if (siddhiAppRuntime != null) {
+                    Set<String> streamNames = siddhiAppRuntime.getStreamDefinitionMap().keySet();
                     Map<String, InputHandler> inputHandlerMap = new ConcurrentHashMap<>(streamNames.size());
 
                     for (String streamName : streamNames) {
-                        inputHandlerMap.put(streamName, executionPlanRuntime.getInputHandler(streamName));
+                        inputHandlerMap.put(streamName, siddhiAppRuntime.getInputHandler(streamName));
                     }
 
-                    executionPlanSpecificInputHandlerMap.put(executionPlanName, inputHandlerMap);
+                    siddhiAppSpecificInputHandlerMap.put(siddhiAppName, inputHandlerMap);
 
-                    executionPlanRunTimeMap.put(executionPlan, executionPlanRuntime);
-                    executionPlanRuntime.start();
+                    siddhiAppRunTimeMap.put(siddhiApp, siddhiAppRuntime);
+                    siddhiAppRuntime.start();
 
                     jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
-                            "Execution Plan is deployed " +
+                            "Siddhi app is deployed " +
                                     "and runtime is created"));
                 }
             } else {
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
-                        "There is a Execution plan already " +
+                        "There is a Siddhi app already " +
                                 "exists with same name"));
             }
 
@@ -100,21 +100,21 @@ public class SiddhiApiServiceImpl extends SiddhiApiService {
     }
 
     @Override
-    public Response siddhiArtifactUndeployExecutionPlanGet(String executionPlan) throws NotFoundException {
+    public Response siddhiArtifactUndeploySiddhiAppGet(String siddhiApp) throws NotFoundException {
 
         String jsonString = new Gson().toString();
-        if (executionPlan != null) {
-            if (executionPlanRunTimeMap.containsKey(executionPlan)) {
-                executionPlanRunTimeMap.remove(executionPlan);
-                executionPlanConfigurationMap.remove(executionPlan);
-                executionPlanSpecificInputHandlerMap.remove(executionPlan);
+        if (siddhiApp != null) {
+            if (siddhiAppRunTimeMap.containsKey(siddhiApp)) {
+                siddhiAppRunTimeMap.remove(siddhiApp);
+                siddhiAppConfigurationMap.remove(siddhiApp);
+                siddhiAppSpecificInputHandlerMap.remove(siddhiApp);
 
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
-                        "Execution plan removed successfully"));
+                        "Siddhi app removed successfully"));
             } else {
                 jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
-                        "There is no execution plan exist " +
-                                "with provided name : " + executionPlan));
+                        "There is no siddhi app exist " +
+                                "with provided name : " + siddhiApp));
             }
         } else {
             jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,

@@ -24,7 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.Sink;
 import org.wso2.siddhi.core.util.config.ConfigReader;
@@ -45,30 +45,28 @@ import java.util.concurrent.ScheduledExecutorService;
 )
 public class KafkaSink extends Sink {
 
-    private ScheduledExecutorService executorService;
-    private Producer<String, String>  producer;
-    private Option topicOption = null;
-    private String kafkaConnect;
-    private String optionalConfigs;
-    private Option partitionOption;
-
     private static final String KAFKA_PUBLISH_TOPIC = "topic";
     private static final String KAFKA_BROKER_LIST = "bootstrap.servers";
     private static final String KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     private static final String HEADER_SEPARATOR = ",";
     private static final String ENTRY_SEPARATOR = ":";
     private static final String KAFKA_PARTITION_NO = "partition.no";
-
     private static final Logger log = Logger.getLogger(KafkaSink.class);
+    private ScheduledExecutorService executorService;
+    private Producer<String, String> producer;
+    private Option topicOption = null;
+    private String kafkaConnect;
+    private String optionalConfigs;
+    private Option partitionOption;
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
-                        ConfigReader sinkConfigReader, ExecutionPlanContext executionPlanContext) {
+                        ConfigReader sinkConfigReader, SiddhiAppContext siddhiAppContext) {
         kafkaConnect = optionHolder.validateAndGetStaticValue(KAFKA_BROKER_LIST);
         optionalConfigs = optionHolder.validateAndGetStaticValue(KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES, null);
         topicOption = optionHolder.validateAndGetOption(KAFKA_PUBLISH_TOPIC);
         partitionOption = optionHolder.getOrCreateOption(KAFKA_PARTITION_NO, null);
-        executorService = executionPlanContext.getScheduledExecutorService();
+        executorService = siddhiAppContext.getScheduledExecutorService();
     }
 
     @Override
@@ -127,6 +125,11 @@ public class KafkaSink extends Sink {
     @Override
     public void destroy() {
         //not required
+    }
+
+    @Override
+    public Class[] getSupportedInputEventClasses() {
+        return new Class[]{String.class};
     }
 
     @Override

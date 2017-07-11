@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.input;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.util.ThreadBarrier;
 
@@ -33,8 +33,8 @@ public class InputEntryValve implements InputProcessor {
     private InputProcessor inputProcessor;
 
 
-    public InputEntryValve(ExecutionPlanContext executionPlanContext, InputProcessor inputProcessor) {
-        this.barrier = executionPlanContext.getThreadBarrier();
+    public InputEntryValve(SiddhiAppContext siddhiAppContext, InputProcessor inputProcessor) {
+        this.barrier = siddhiAppContext.getThreadBarrier();
         this.inputProcessor = inputProcessor;
     }
 

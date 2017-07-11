@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -50,9 +50,9 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     public AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
             scheduledExecutorService, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter,
-                                                                     ExecutionPlanContext executionPlanContext,
+                                                                     SiddhiAppContext siddhiAppContext,
                                                                      String queryName) {
-        super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        super(wrappedSnapshotOutputRateLimiter, siddhiAppContext);
         this.queryName = queryName;
         this.id = id;
         this.value = value;
@@ -63,7 +63,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter
             wrappedSnapshotOutputRateLimiter) {
         return new AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value,
-                scheduledExecutorService, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
+                scheduledExecutorService, wrappedSnapshotOutputRateLimiter, siddhiAppContext, queryName);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class AllAggregationGroupByWindowedPerSnapshotOutputRateLimiter extends S
 
     @Override
     public void start() {
-        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, siddhiAppContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();

@@ -20,7 +20,7 @@ package org.wso2.siddhi.query.api.execution.partition;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -74,7 +74,7 @@ public class Partition implements ExecutionElement {
 
     public Partition addQuery(Query query) {
         if (query == null) {
-            throw new ExecutionPlanValidationException("Query should not be null");
+            throw new SiddhiAppValidationException("Query should not be null");
         }
         String name = null;
         Element element = AnnotationHelper.getAnnotationElement(SiddhiConstants.ANNOTATION_INFO, SiddhiConstants
@@ -83,7 +83,7 @@ public class Partition implements ExecutionElement {
             name = element.getValue();
         }
         if (name != null && queryNameList.contains(name)) {
-            throw new ExecutionPlanValidationException("Cannot add Query as another Execution Element already uses " +
+            throw new SiddhiAppValidationException("Cannot add Query as another Execution Element already uses " +
                     "its name=" + name + " within the same Partition");
         }
         queryNameList.add(name);
@@ -94,7 +94,7 @@ public class Partition implements ExecutionElement {
     private void addPartitionType(PartitionType partitionType) {
         String partitionedStream = partitionType.getStreamId();
         if (partitionTypeMap.containsKey(partitionedStream)) {
-            throw new ExecutionPlanValidationException("Duplicate partition for Stream " + partitionedStream + "!, "
+            throw new SiddhiAppValidationException("Duplicate partition for Stream " + partitionedStream + "!, "
                     + partitionType.toString() + " cannot be added as " + partitionTypeMap.get(partitionType
                     .getStreamId()) + " already exist.");
         }

@@ -17,12 +17,12 @@
  */
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -181,6 +181,7 @@ import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareC
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorLongLong;
 import org.wso2.siddhi.core.executor.condition.compare.notequal.NotEqualCompareConditionExpressionExecutorStringString;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.executor.function.ScriptFunctionExecutor;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorDouble;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorFloat;
 import org.wso2.siddhi.core.executor.math.add.AddExpressionExecutorInt;
@@ -216,7 +217,7 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -265,7 +266,7 @@ public class ExpressionParser {
      * @param currentState            Current state number
      * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @param executionPlanContext    ExecutionPlanContext
+     * @param siddhiAppContext        SiddhiAppContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @param queryName               query name of expression belongs to.
@@ -274,63 +275,63 @@ public class ExpressionParser {
     public static ExpressionExecutor parseExpression(Expression expression, MetaComplexEvent metaEvent,
                                                      int currentState, Map<String, Table> tableMap,
                                                      List<VariableExpressionExecutor> executorList,
-                                                     ExecutionPlanContext executionPlanContext,
+                                                     SiddhiAppContext siddhiAppContext,
                                                      boolean groupBy, int defaultStreamEventIndex, String queryName) {
         if (expression instanceof And) {
             return new AndConditionExpressionExecutor(
                     parseExpression(((And) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                            executorList, executionPlanContext,
+                            executorList, siddhiAppContext,
                             groupBy, defaultStreamEventIndex, queryName),
                     parseExpression(((And) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName)
+                            executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName)
             );
         } else if (expression instanceof Or) {
             return new OrConditionExpressionExecutor(
                     parseExpression(((Or) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                            executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                     parseExpression(((Or) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                            executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                            executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
         } else if (expression instanceof Not) {
             return new NotConditionExpressionExecutor(parseExpression(((Not) expression).getExpression(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, siddhiAppContext, groupBy,
                     defaultStreamEventIndex, queryName));
         } else if (expression instanceof Compare) {
             if (((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 return parseEqualCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.NOT_EQUAL) {
                 return parseNotEqualCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN) {
                 return parseGreaterThanCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.GREATER_THAN_EQUAL) {
                 return parseGreaterThanEqualCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN) {
                 return parseLessThanCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             } else if (((Compare) expression).getOperator() == Compare.Operator.LESS_THAN_EQUAL) {
                 return parseLessThanEqualCompare(
                         parseExpression(((Compare) expression).getLeftExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName),
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName),
                         parseExpression(((Compare) expression).getRightExpression(), metaEvent, currentState, tableMap,
-                                executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName));
+                                executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName));
             }
 
         } else if (expression instanceof Constant) {
@@ -353,10 +354,10 @@ public class ExpressionParser {
 
         } else if (expression instanceof Multiply) {
             ExpressionExecutor left = parseExpression(((Multiply) expression).getLeftValue(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, siddhiAppContext, groupBy,
                     defaultStreamEventIndex, queryName);
             ExpressionExecutor right = parseExpression(((Multiply) expression).getRightValue(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, siddhiAppContext, groupBy,
                     defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
@@ -372,9 +373,9 @@ public class ExpressionParser {
             }
         } else if (expression instanceof Add) {
             ExpressionExecutor left = parseExpression(((Add) expression).getLeftValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             ExpressionExecutor right = parseExpression(((Add) expression).getRightValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -389,10 +390,10 @@ public class ExpressionParser {
             }
         } else if (expression instanceof Subtract) {
             ExpressionExecutor left = parseExpression(((Subtract) expression).getLeftValue(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, siddhiAppContext, groupBy,
                     defaultStreamEventIndex, queryName);
             ExpressionExecutor right = parseExpression(((Subtract) expression).getRightValue(), metaEvent,
-                    currentState, tableMap, executorList, executionPlanContext, groupBy,
+                    currentState, tableMap, executorList, siddhiAppContext, groupBy,
                     defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
@@ -408,9 +409,9 @@ public class ExpressionParser {
             }
         } else if (expression instanceof Mod) {
             ExpressionExecutor left = parseExpression(((Mod) expression).getLeftValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             ExpressionExecutor right = parseExpression(((Mod) expression).getRightValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -425,9 +426,9 @@ public class ExpressionParser {
             }
         } else if (expression instanceof Divide) {
             ExpressionExecutor left = parseExpression(((Divide) expression).getLeftValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             ExpressionExecutor right = parseExpression(((Divide) expression).getRightValue(), metaEvent, currentState,
-                    tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                    tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
             Attribute.Type type = parseArithmeticOperationResultType(left, right);
             switch (type) {
                 case INT:
@@ -443,20 +444,25 @@ public class ExpressionParser {
 
         } else if (expression instanceof AttributeFunction) {
             //extensions
+
             Object executor;
+
             try {
-                executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
-                        FunctionExecutorExtensionHolder.getInstance(executionPlanContext));
-            } catch (ExecutionPlanCreationException ex) {
+                if ((siddhiAppContext.isFunctionExist(((AttributeFunction) expression).getName())) && (((AttributeFunction) expression).getNamespace()).isEmpty()) {
+                    executor = new ScriptFunctionExecutor(((AttributeFunction) expression).getName());
+                } else
+                    executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
+                            FunctionExecutorExtensionHolder.getInstance(siddhiAppContext));
+            } catch (SiddhiAppCreationException ex) {
                 try {
                     executor = SiddhiClassLoader.loadExtensionImplementation((AttributeFunction) expression,
-                            AttributeAggregatorExtensionHolder.getInstance(executionPlanContext));
-                } catch (ExecutionPlanCreationException e) {
-                    throw new ExecutionPlanCreationException("'" + ((AttributeFunction) expression).getName() + "' is" +
+                            AttributeAggregatorExtensionHolder.getInstance(siddhiAppContext));
+                } catch (SiddhiAppCreationException e) {
+                    throw new SiddhiAppCreationException("'" + ((AttributeFunction) expression).getName() + "' is" +
                             " neither a function extension nor an aggregated attribute extension");
                 }
             }
-            ConfigReader configReader = executionPlanContext.getSiddhiContext().getConfigManager()
+            ConfigReader configReader = siddhiAppContext.getSiddhiContext().getConfigManager()
                     .generateConfigReader(((AttributeFunction)
                             expression).getNamespace(), ((AttributeFunction) expression).getName());
             if (executor instanceof FunctionExecutor) {
@@ -464,9 +470,9 @@ public class ExpressionParser {
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
                 ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent,
                         currentState, tableMap, executorList,
-                        executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                        siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
 
-                expressionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName,
+                expressionExecutor.initExecutor(innerExpressionExecutors, siddhiAppContext, queryName,
                         configReader);
                 if (expressionExecutor.getReturnType() == Attribute.Type.BOOL) {
                     return new BoolConditionExpressionExecutor(expressionExecutor);
@@ -477,15 +483,15 @@ public class ExpressionParser {
                 Expression[] innerExpressions = ((AttributeFunction) expression).getParameters();
                 ExpressionExecutor[] innerExpressionExecutors = parseInnerExpression(innerExpressions, metaEvent,
                         currentState, tableMap, executorList,
-                        executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
-                attributeAggregator.initAggregator(innerExpressionExecutors, executionPlanContext, configReader);
+                        siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
+                attributeAggregator.initAggregator(innerExpressionExecutors, siddhiAppContext, configReader);
                 AbstractAggregationAttributeExecutor aggregationAttributeProcessor;
                 if (groupBy) {
                     aggregationAttributeProcessor = new GroupByAggregationAttributeExecutor(attributeAggregator,
-                            innerExpressionExecutors, configReader, executionPlanContext, queryName);
+                            innerExpressionExecutors, configReader, siddhiAppContext, queryName);
                 } else {
                     aggregationAttributeProcessor = new AggregationAttributeExecutor(attributeAggregator,
-                            innerExpressionExecutors, executionPlanContext, queryName);
+                            innerExpressionExecutors, siddhiAppContext, queryName);
                 }
                 SelectorParser.getContainsAggregatorThreadLocal().set("true");
                 return aggregationAttributeProcessor;
@@ -496,7 +502,7 @@ public class ExpressionParser {
             MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent,
                     defaultStreamEventIndex, table.getTableDefinition(), defaultStreamEventIndex);
             CompiledCondition compiledCondition = table.compileCondition(((In) expression).getExpression(),
-                    matchingMetaInfoHolder, executionPlanContext, executorList, tableMap, queryName);
+                    matchingMetaInfoHolder, siddhiAppContext, executorList, tableMap, queryName);
             return new InConditionExpressionExecutor(table, compiledCondition, matchingMetaInfoHolder
                     .getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);
 
@@ -506,7 +512,7 @@ public class ExpressionParser {
 
             if (isNull.getExpression() != null) {
                 ExpressionExecutor innerExpressionExecutor = parseExpression(isNull.getExpression(), metaEvent,
-                        currentState, tableMap, executorList, executionPlanContext, groupBy,
+                        currentState, tableMap, executorList, siddhiAppContext, groupBy,
                         defaultStreamEventIndex, queryName);
                 return new IsNullConditionExpressionExecutor(innerExpressionExecutor);
             } else {
@@ -529,7 +535,7 @@ public class ExpressionParser {
 
                     MetaStateEvent metaStateEvent = (MetaStateEvent) metaEvent;
                     if (streamId == null) {
-                        throw new ExecutionPlanCreationException("IsNull does not support streamId being null");
+                        throw new SiddhiAppCreationException("IsNull does not support streamId being null");
                     } else {
                         MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
                         for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength;
@@ -1334,7 +1340,7 @@ public class ExpressionParser {
                         } else {
                             try {
                                 definition.getAttributeType(attributeName);
-                                throw new ExecutionPlanValidationException(firstInput + " and Input Stream: " +
+                                throw new SiddhiAppValidationException(firstInput + " and Input Stream: " +
                                         definition.getId() + " with " +
                                         "reference: " + metaStreamEvent.getInputReferenceId() + " contains attribute " +
                                         "with same" +
@@ -1351,7 +1357,7 @@ public class ExpressionParser {
                         type = definition.getAttributeType(attributeName);
                         eventPosition[STREAM_EVENT_CHAIN_INDEX] = currentState;
                     } catch (AttributeNotExistException e) {
-                        throw new ExecutionPlanValidationException(e.getMessage() + " Input Stream: " +
+                        throw new SiddhiAppValidationException(e.getMessage() + " Input Stream: " +
                                 definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
                     }
                 }
@@ -1383,7 +1389,7 @@ public class ExpressionParser {
                 }
             }
             if (eventPosition[STREAM_EVENT_CHAIN_INDEX] == UNKNOWN_STATE) {
-                throw new ExecutionPlanValidationException("Stream with reference : " +
+                throw new SiddhiAppValidationException("Stream with reference : " +
                         variable.getStreamId() + " not found");
             }
 
@@ -1460,9 +1466,9 @@ public class ExpressionParser {
      * @param innerExpressions        InnerExpressions to be parsed
      * @param metaEvent               Meta Event
      * @param currentState            Current state number
-     * @param tableMap           Event Table Map
+     * @param tableMap                Event Table Map
      * @param executorList            List to hold VariableExpressionExecutors to update after query parsing  @return
-     * @param executionPlanContext    ExecutionPlanContext
+     * @param siddhiAppContext        SiddhiAppContext
      * @param groupBy                 is for groupBy expression
      * @param defaultStreamEventIndex Default StreamEvent Index
      * @return List of expressionExecutors
@@ -1470,7 +1476,7 @@ public class ExpressionParser {
     private static ExpressionExecutor[] parseInnerExpression(Expression[] innerExpressions, MetaComplexEvent metaEvent,
                                                              int currentState, Map<String, Table> tableMap,
                                                              List<VariableExpressionExecutor> executorList,
-                                                             ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                                             SiddhiAppContext siddhiAppContext, boolean groupBy,
                                                              int defaultStreamEventIndex, String queryName) {
         ExpressionExecutor[] innerExpressionExecutors;
         if (innerExpressions != null) {
@@ -1478,7 +1484,7 @@ public class ExpressionParser {
                 innerExpressionExecutors = new ExpressionExecutor[innerExpressions.length];
                 for (int i = 0, innerExpressionsLength = innerExpressions.length; i < innerExpressionsLength; i++) {
                     innerExpressionExecutors[i] = parseExpression(innerExpressions[i], metaEvent, currentState,
-                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                            tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
                 }
             } else {
                 List<Expression> outputAttributes = new ArrayList<Expression>();
@@ -1511,7 +1517,7 @@ public class ExpressionParser {
                 innerExpressionExecutors = new ExpressionExecutor[outputAttributes.size()];
                 for (int i = 0, innerExpressionsLength = outputAttributes.size(); i < innerExpressionsLength; i++) {
                     innerExpressionExecutors[i] = parseExpression(outputAttributes.get(i), metaEvent, currentState,
-                            tableMap, executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
+                            tableMap, executorList, siddhiAppContext, groupBy, defaultStreamEventIndex, queryName);
                 }
             }
         } else {

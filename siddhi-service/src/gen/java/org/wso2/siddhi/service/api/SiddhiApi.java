@@ -40,28 +40,28 @@ public class SiddhiApi {
     @Path("/artifact/deploy")
     @Consumes({"text/plain"})
     @Produces({"application/json"})
-    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the execution plan. Request **executionPlan** " +
+    @io.swagger.annotations.ApiOperation(value = "", notes = "Deploys the siddhi app. Request **siddhiApp** " +
             "explains the Siddhi Query ", response = Success.class, tags = {})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Successful response", response = Success.class),
             @io.swagger.annotations.ApiResponse(code = 200, message = "Unexpected error", response = Success.class)})
-    public Response siddhiArtifactDeployPost(@ApiParam(value = "Siddhi Execution Plan", required = true) String body)
+    public Response siddhiArtifactDeployPost(@ApiParam(value = "Siddhi Siddhi app", required = true) String body)
             throws NotFoundException {
         return delegate.siddhiArtifactDeployPost(body);
     }
 
     @GET
-    @Path("/artifact/undeploy/{executionPlan}")
+    @Path("/artifact/undeploy/{siddhiApp}")
     @Produces({"application/json"})
-    @io.swagger.annotations.ApiOperation(value = "", notes = "Undeploys the execution plan as given by " +
-            "`executionPlanName`. Path param of **executionPlanName** determines name of the execution plan ",
+    @io.swagger.annotations.ApiOperation(value = "", notes = "Undeploys the siddhi app as given by " +
+            "`siddhiAppName`. Path param of **siddhiAppName** determines name of the siddhi app ",
             response = Success.class, tags = {})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Successful response", response = Success.class),
             @io.swagger.annotations.ApiResponse(code = 200, message = "Unexpected error", response = Success.class)})
-    public Response siddhiArtifactUndeployExecutionPlanGet(
-            @ApiParam(value = "Execution Plan Name", required = true) @PathParam("executionPlan") String executionPlan)
+    public Response siddhiArtifactUndeploySiddhiAppGet(
+            @ApiParam(value = "Siddhi app Name", required = true) @PathParam("siddhiApp") String siddhiApp)
             throws NotFoundException {
-        return delegate.siddhiArtifactUndeployExecutionPlanGet(executionPlan);
+        return delegate.siddhiArtifactUndeploySiddhiAppGet(siddhiApp);
     }
 }

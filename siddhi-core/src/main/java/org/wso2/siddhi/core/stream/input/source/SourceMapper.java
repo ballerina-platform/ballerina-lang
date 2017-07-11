@@ -19,8 +19,7 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.AttributeMapping;
-import org.wso2.siddhi.core.stream.input.InputEventHandler;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -33,44 +32,75 @@ import java.util.List;
  */
 public abstract class SourceMapper implements SourceEventListener {
 
+    private static final Logger log = Logger.getLogger(SourceMapper.class);
+    private final ThreadLocal<String[]> trpProperties = new ThreadLocal<>();
     private InputEventHandler inputEventHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
-    private static final Logger log = Logger.getLogger(SourceMapper.class);
+    private String sourceType;
+    private List<AttributeMapping> transportMappings;
 
-    public void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
-                     List<AttributeMapping> attributeMappings, ConfigReader configReader) {
+    public final void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
+                           List<AttributeMapping> attributeMappings, String sourceType,
+                           List<AttributeMapping> transportMappings,
+                           ConfigReader configReader,
+                           SiddhiAppContext siddhiAppContext) {
         this.streamDefinition = streamDefinition;
         this.mapType = mapType;
-        init(streamDefinition, mapOptionHolder, attributeMappings, configReader);
+        this.sourceType = sourceType;
+        this.transportMappings = transportMappings;
+        init(streamDefinition, mapOptionHolder, attributeMappings, configReader, siddhiAppContext);
     }
 
+    /**
+     * Initialize Source-mapper
+     *
+     * @param streamDefinition     Associated output stream definition
+     * @param optionHolder         Mapper option holder
+     * @param attributeMappingList Custom attribute mapping for source-mapping
+     * @param configReader         System configuration reader
+     * @param siddhiAppContext     Siddhi application context
+     */
     public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
-            attributeMappingList, ConfigReader configReader);
+            attributeMappingList, ConfigReader configReader, SiddhiAppContext siddhiAppContext);
 
-    public void setInputEventHandler(InputEventHandler inputEventHandler) {
-        this.inputEventHandler = inputEventHandler;
+    /**
+     * Support classes that the source-mapper can consume for mapping processing (used for validation purposes)
+     *
+     * @return Supported event classes that mapper can process.
+     */
+    public abstract Class[] getSupportedInputEventClasses();
+
+    public final void setInputHandler(InputHandler inputEventHandler) {
+        this.inputEventHandler = new InputEventHandler(inputEventHandler, transportMappings, trpProperties, sourceType);
     }
 
-    public InputHandler getInputHandler() {
-        return inputEventHandler.getInputHandler();
-    }
-
-    public void onEvent(Object eventObject) {
+    public final void onEvent(Object eventObject, String[] transportProperties) {
         try {
             if (eventObject != null) {
+                trpProperties.set(transportProperties);
                 mapAndProcess(eventObject, inputEventHandler);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | RuntimeException e) {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
                     "' for the stream '" + streamDefinition.getId() + "'");
+        } finally {
+            trpProperties.remove();
         }
     }
 
-    public StreamDefinition getStreamDefinition() {
+    public final StreamDefinition getStreamDefinition() {
         return streamDefinition;
     }
 
-    protected abstract void mapAndProcess(Object eventObject, InputEventHandler inputEventHandler) throws
-            InterruptedException;
+    /**
+     * Method to map the incoming event and as pass that via inputEventHandler to process further.
+     *
+     * @param eventObject       Incoming event Object
+     * @param inputEventHandler Handler to pass the converted Siddhi Event for processing
+     * @throws InterruptedException
+     */
+    protected abstract void mapAndProcess(Object eventObject,
+                                          InputEventHandler inputEventHandler)
+            throws InterruptedException;
 }

@@ -20,7 +20,7 @@ package org.wso2.siddhi.query.api.exception;
 /**
  * Exception thrown when duplicate attributes are defined in a definition
  */
-public class DuplicateAnnotationException extends ExecutionPlanValidationException {
+public class DuplicateAnnotationException extends SiddhiAppValidationException {
 
     public DuplicateAnnotationException(String message) {
         super(message);

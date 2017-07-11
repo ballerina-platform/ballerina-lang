@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -62,9 +62,9 @@ public class LossyFrequentWindowTestCase {
                 "select cardNo, price " +
                 "insert all events into PotentialFraud ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -79,8 +79,8 @@ public class LossyFrequentWindowTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("purchase");
+        siddhiAppRuntime.start();
 
         for (int i = 0; i < 25; i++) {
             inputHandler.send(new Object[]{"3234-3244-2432-4124", 73.36f});
@@ -96,7 +96,7 @@ public class LossyFrequentWindowTestCase {
         Assert.assertEquals("In Event count", 100, inEventCount);
         Assert.assertEquals("Out Event count", 0, removeEventCount);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -120,9 +120,9 @@ public class LossyFrequentWindowTestCase {
                 "select cardNo, price " +
                 "insert all events into PotentialFraud ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -137,8 +137,8 @@ public class LossyFrequentWindowTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("purchase");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"3224-3244-2432-4124", 73.36f});
         for (int i = 0; i < 25; i++) {
@@ -152,7 +152,7 @@ public class LossyFrequentWindowTestCase {
         Assert.assertEquals("Event arrived", true, eventArrived);
         Assert.assertEquals("Out Event count", 1, removeEventCount);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 
@@ -175,9 +175,9 @@ public class LossyFrequentWindowTestCase {
                 "select cardNo, price " +
                 "insert all events into PotentialFraud ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+        siddhiAppRuntime.addCallback("query1", new QueryCallback() {
             @Override
             public void receive(long timestamp, Event[] inEvents, Event[] removeEvents) {
                 EventPrinter.print(timestamp, inEvents, removeEvents);
@@ -192,8 +192,8 @@ public class LossyFrequentWindowTestCase {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("purchase");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("purchase");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[]{"3224-3244-2432-4124", 73.36f});
         for (int i = 0; i < 25; i++) {
@@ -208,7 +208,7 @@ public class LossyFrequentWindowTestCase {
         Assert.assertEquals("In Event count", 101, inEventCount);
         Assert.assertEquals("Out Event count", 1, removeEventCount);
 
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
 
     }
 

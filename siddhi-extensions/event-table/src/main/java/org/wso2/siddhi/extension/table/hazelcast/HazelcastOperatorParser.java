@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.extension.table.hazelcast;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -48,7 +48,7 @@ public class HazelcastOperatorParser {
 
     public static Operator constructOperator(Object storeEvents, Expression expression,
                                              MatchingMetaInfoHolder matchingMetaInfoHolder,
-                                             ExecutionPlanContext executionPlanContext,
+                                             SiddhiAppContext siddhiAppContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
                                              Map<String, Table> tableMap, String queryName) {
         if (storeEvents instanceof HazelcastPrimaryKeyEventHolder) {
@@ -73,12 +73,12 @@ public class HazelcastOperatorParser {
 
                     if (leftSideIndexed && !rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
                         return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexPosition());
 
                     } else if (!leftSideIndexed && rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
                         return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexPosition());
 
                     }
@@ -86,11 +86,11 @@ public class HazelcastOperatorParser {
             }
             //fallback to not using primary key
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
             return new HazelcastMapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), tableMap, variableExpressionExecutors, siddhiAppContext, false, 0, queryName);
             return new HazelcastCollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
             throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");

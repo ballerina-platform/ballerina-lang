@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.performance;
 
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
@@ -28,8 +28,8 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
     public static void main(String[] args) throws InterruptedException {
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@plan:async " +
+        String siddhiApp = "" +
+                "@app:async " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long, timestamp long);" +
                 "" +
@@ -38,9 +38,9 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
                 "select * " +
                 "insert into outputStream ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(siddhiApp);
 
-        executionPlanRuntime.addCallback("outputStream", new StreamCallback() {
+        siddhiAppRuntime.addCallback("outputStream", new StreamCallback() {
             public int eventCount = 0;
             public int timeSpent = 0;
             long startTime = System.currentTimeMillis();
@@ -63,8 +63,8 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
 
         });
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         while (true) {
             inputHandler.send(new Object[]{"WSO2", 55.6f, 100, System.currentTimeMillis()});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
@@ -75,6 +75,6 @@ public class SimpleFilterSingleQueryWithDisruptorPerformance {
             inputHandler.send(new Object[]{"WSO2", 100f, 80, System.currentTimeMillis()});
             inputHandler.send(new Object[]{"IBM", 75.6f, 100, System.currentTimeMillis()});
         }
-//        executionPlanRuntime.shutdown();
+//        siddhiAppRuntime.shutdown();
     }
 }

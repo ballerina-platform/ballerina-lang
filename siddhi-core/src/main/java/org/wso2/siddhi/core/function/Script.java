@@ -24,12 +24,12 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 /**
  * Parent interface for Script Function.
  */
-public interface Script {
-    void init(String name, String body, ConfigReader configReader);
+public abstract class Script {
+    public abstract void init(String name, String body, ConfigReader configReader);
 
-    Object eval(String name, Object[] arg);
+    public abstract Object eval(String name, Object[] arg);
 
-    Attribute.Type getReturnType();
+    public abstract Attribute.Type getReturnType();
 
-    void setReturnType(Attribute.Type returnType);
+    public abstract void setReturnType(Attribute.Type returnType);
 }

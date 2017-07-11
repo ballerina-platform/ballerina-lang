@@ -18,12 +18,12 @@
 
 package org.wso2.siddhi.core;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.Map;
 
@@ -39,9 +39,9 @@ public class ConcatFunctionExtension extends FunctionExecutor {
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
-                        ExecutionPlanContext executionPlanContext) {
+                        SiddhiAppContext siddhiAppContext) {
         if (attributeExpressionExecutors.length < 2) {
-            throw new ExecutionPlanValidationException("str:concat() function requires at least two arguments, " +
+            throw new SiddhiAppValidationException("str:concat() function requires at least two arguments, " +
                     "but found only " + attributeExpressionExecutors.length);
         }
     }

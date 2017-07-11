@@ -20,7 +20,7 @@ package org.wso2.siddhi.extension.output.transport.jms;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.extension.output.transport.jms.util.JMSClient;
@@ -40,7 +40,7 @@ public class JMSSinkTestCase {
 
     @Test
     public void jmsTopicPublishTest() throws InterruptedException {
-        // deploying the execution plan
+        // deploying the siddhi app
         SiddhiManager siddhiManager = new SiddhiManager();
         String inStreamDefinition = "" +
                 "@sink(type='jms', @map(type='text'), "
@@ -51,14 +51,14 @@ public class JMSSinkTestCase {
                 + "connection.factory.jndi.name='QueueConnectionFactory'"
                 +")" +
                 "define stream inputStream (name string, age int, country string);";
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.
-                createExecutionPlanRuntime(inStreamDefinition);
-        InputHandler inputStream = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.
+                createSiddhiAppRuntime(inStreamDefinition);
+        InputHandler inputStream = siddhiAppRuntime.getInputHandler("inputStream");
+        siddhiAppRuntime.start();
         inputStream.send(new Object[]{"JAMES", 23, "USA"});
         inputStream.send(new Object[]{"MIKE", 23, "Germany"});
         Thread.sleep(10000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
         //todo: add a log assertion here
     }
 }

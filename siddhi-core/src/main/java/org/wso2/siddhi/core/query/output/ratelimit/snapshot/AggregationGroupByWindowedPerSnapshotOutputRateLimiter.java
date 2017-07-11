@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.output.ratelimit.snapshot;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
@@ -42,10 +42,10 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
     protected AggregationGroupByWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService
             scheduledExecutorService, List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter
                                                                              wrappedSnapshotOutputRateLimiter,
-                                                                     ExecutionPlanContext executionPlanContext,
+                                                                     SiddhiAppContext siddhiAppContext,
                                                                      String queryName) {
         super(id, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter,
-              executionPlanContext, queryName);
+              siddhiAppContext, queryName);
         this.queryName = queryName;
         groupByAggregateAttributeValueMap = new HashMap<String, Map<Integer, Object>>();
         eventList = new LinkedList<GroupedComplexEvent>();
@@ -152,6 +152,6 @@ public class AggregationGroupByWindowedPerSnapshotOutputRateLimiter extends
         return new AggregationGroupByWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService,
                                                                           aggregateAttributePositionList,
                                                                           wrappedSnapshotOutputRateLimiter,
-                                                                          executionPlanContext, queryName);
+                                                                          siddhiAppContext, queryName);
     }
 }

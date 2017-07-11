@@ -25,12 +25,12 @@ import java.util.Map;
  */
 public interface PersistenceStore {
 
-    void save(String executionPlanId, String revision, byte[] snapshot);
+    void save(String siddhiAppId, String revision, byte[] snapshot);
 
     void setProperties(Map properties);
 
-    byte[] load(String executionPlanId, String revision);
+    byte[] load(String siddhiAppId, String revision);
 
-    String getLastRevision(String executionPlanId);
+    String getLastRevision(String siddhiAppId);
 
 }

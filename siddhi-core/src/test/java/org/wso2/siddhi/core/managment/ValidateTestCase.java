@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 public class ValidateTestCase {
     private static final Logger log = Logger.getLogger(ValidateTestCase.class);
@@ -45,8 +45,8 @@ public class ValidateTestCase {
         log.info("validate test1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('validateTest') " +
+        String siddhiApp = "" +
+                "@app:name('validateTest') " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
@@ -55,18 +55,18 @@ public class ValidateTestCase {
                 "select symbol, price " +
                 "insert into outputStream;";
 
-        siddhiManager.validateExecutionPlan(executionPlan);
+        siddhiManager.validateSiddhiApp(siddhiApp);
 
     }
 
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expected = SiddhiAppValidationException.class)
     public void validateTest2() throws InterruptedException {
         log.info("validate test2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String executionPlan = "" +
-                "@Plan:name('validateTest') " +
+        String siddhiApp = "" +
+                "@app:name('validateTest') " +
                 "" +
                 "define stream cseEventStream (symbol string, price float, volume long);" +
                 "" +
@@ -76,7 +76,7 @@ public class ValidateTestCase {
                 "insert into outputStream;";
 
 
-        siddhiManager.validateExecutionPlan(executionPlan);
+        siddhiManager.validateSiddhiApp(siddhiApp);
 
     }
 }

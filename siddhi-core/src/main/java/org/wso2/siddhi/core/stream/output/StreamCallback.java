@@ -18,7 +18,7 @@
 package org.wso2.siddhi.core.stream.output;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.StreamJunction;
@@ -38,7 +38,7 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
 
     private String streamId;
     private AbstractDefinition streamDefinition;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
 
     private List<Event> batchingEventBuffer = new ArrayList<Event>();
 
@@ -59,8 +59,8 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
         this.streamDefinition = streamDefinition;
     }
 
-    public void setContext(ExecutionPlanContext executionPlanContext) {
-        this.executionPlanContext = executionPlanContext;
+    public void setContext(SiddhiAppContext siddhiAppContext) {
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     @Override
