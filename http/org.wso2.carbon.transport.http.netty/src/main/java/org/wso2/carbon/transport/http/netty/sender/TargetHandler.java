@@ -225,11 +225,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            IdleStateEvent e = (IdleStateEvent) evt;
-            if (e.state() == IdleState.READER_IDLE) {
+            IdleStateEvent event = (IdleStateEvent) evt;
+            if (event.state() == IdleState.READER_IDLE) {
                 ctx.close();
             }
-            else if (e.state() == IdleState.WRITER_IDLE) {
+            else if (event.state() == IdleState.WRITER_IDLE) {
                 ctx.close();
             }
         }
