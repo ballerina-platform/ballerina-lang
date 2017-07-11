@@ -3,52 +3,44 @@ import ballerina.lang.blobs;
 import ballerina.lang.system;
 import ballerina.lang.strings;
 
-function main(string[] args) {
-
-    blob content;
-    //Create file struct
-    files:File target = {path : "/tmp/result.txt"};
-    //Open file in write mode
+function main (string[] args) {
+    //Create 'File' struct and open for writing.
+    files:File target = {path:"/tmp/result.txt"};
     files:open(target, "w");
-    //Prepare blob content to write
-    content = strings:toBlob("Sample Content", "utf-8");
-    //Write file
+
+    //Here's how you can write a string into a file.
+    blob content = strings:toBlob("Sample Content", "utf-8");
     files:write(content, target);
     system:println("file written: /tmp/result.txt");
+
     //Close the file once done
     files:close(target);
 
-    //Get a boolean value whether the file exists.
+    //Check whether the file exists.
     boolean b = files:exists(target);
     system:println("file existence: " + b);
 
-    int n;
-    //Open file in read mode
+    //Open file in read mode. Returns the content as blob and the number of bytes read
     files:open(target, "r");
-    //Reads file and returns blob value and number of bytes read
-    content,n = files:read(target, 100000);
-    //Convert returned blob value to a string
+    var content, n = files:read(target, 100000);
     string s = blobs:toString(content, "utf-8");
-    //Print read content
     system:println("file content: " + s);
     files:close(target);
 
-    files:File source = {path : "/tmp/result.txt"};
-    files:File destination = {path : "/tmp/copy.txt"};
-    //Copy source file to destination
+    //Here's how you can copy a file.
+    files:File source = {path:"/tmp/result.txt"};
+    files:File destination = {path:"/tmp/copy.txt"};
     files:copy(source, destination);
-    system:println("file copied: /tmp/result.txt to" +
-                   " /tmp/copy.txt");
+    system:println("file copied: /tmp/result.txt to /tmp/copy.txt");
 
-    //Delete a file by giving the file struct.
+    //How to delete a file.
     files:delete(destination);
     system:println("file deleted: /tmp/copy.txt");
 
-    destination = {path : "/tmp/move.txt"};
     //Move source file to destination
+    destination = {path:"/tmp/move.txt"};
     files:move(source, destination);
-    system:println("file moved: /tmp/result.txt to" +
-                   " /tmp/move.txt");
+    system:println("file moved: /tmp/result.txt to /tmp/move.txt");
 
     files:delete(destination);
     system:println("file deleted: /tmp/move.txt");

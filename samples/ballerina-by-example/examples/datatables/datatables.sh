@@ -1,7 +1,4 @@
-# To run the program, put the code in `datatables.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main datatables.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run main datatables.bal
+$ ballerina run main datatables.bal
 Employee:1|John|1050.5|false|1990-12-31+05:30|
 11:30:45.000+05:30|2007-05-23T09:15:28.000+05:30
 Employee:2|Anne|4060.5|true|1999-12-31+06:00|

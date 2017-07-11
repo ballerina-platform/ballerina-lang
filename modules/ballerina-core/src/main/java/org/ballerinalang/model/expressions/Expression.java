@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BType;
  * {@code Expression} represents a generic expression node in Ballerina.
  *
  * @see AddExpression
- * @see VariableRefExpr
  * @see FunctionInvocationExpr
  * @since 0.8.0
  */

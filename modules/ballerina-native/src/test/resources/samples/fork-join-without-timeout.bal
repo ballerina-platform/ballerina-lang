@@ -15,8 +15,8 @@ function testForkJoinWithoutTimeoutExpression()(int, float) {
     any[] w2;
     w1,_ = (any[]) results["W1"];
     w2,_ = (any[]) results["W2"];
-    x = (int) w1[0];
-    y = (float) w2[0];
+    x, _ = (int) w1[0];
+    y, _ = (float) w2[0];
     system:println(x);
     system:println(y);
     }

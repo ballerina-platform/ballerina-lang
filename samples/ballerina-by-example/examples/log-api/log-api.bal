@@ -1,7 +1,6 @@
 import ballerina.utils.logger;
 
 @doc:Description {value: "The new Ballerina log API provides functions to log at 5 levels: Debug, Error, Info, Trace and Warn."}
-@doc:Description {value: "Logging can be configured through the configuration file provided at: '${BALLERINA_HOME}/bre/conf/logging.properties'."}
 @doc:Description {value: "By default, all log messages are logged to the console at the Info level."}
 function main(string[] args) {
     logger:debug("debug log");

@@ -8,7 +8,7 @@ Hello, World!
 # one or more packages to be included into the archive.
 $ ballerina build main hello-world.bal
 $ ls
-hello-world.bmz	hello-world.go
+hello-world.bmz	hello-world.bal
 
 # Here is how we can specify a name of the archive file
 $ ballerina build main hello-world.bal -o hello.bmz

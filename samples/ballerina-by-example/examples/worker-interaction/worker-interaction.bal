@@ -1,49 +1,29 @@
 import ballerina.lang.system;
 import ballerina.doc;
+import ballerina.lang.jsons;
 
-@doc:Description { value:"Worker interactions in ballerina allows users to share data across multiple workers."}
+@doc:Description {value:"Workers interact with each other by sending and receiving messages. Ballerina checks the send/receive signatures of every pair of workers and validate in order to avoid deadlocks."}
 function main (string[] args) {
-  // Some code within the default (main) worker
-  int i = 100;
-  float k = 2.34;
-  // Print within the default (main) worker before sending data to worker W1
-  system:println("[default worker] 
-    Sending data to W1:
-    Value of integer variable is [" + i + "]
-    Value of float variable is [" + k + "]");
-  // Send data to worker W1
-  i, k -> W1;
-  // Define variable to receive data from worker W1
-  json j = {};
-  // Receive data from worker W1
-  j <- W1;
-  // Print data received from worker W1
-  system:print("[default worker]
-    Data received from W1 worker:
-    Value of json variable is ");
-  system:println(j);
+    int i = 100;
+    float k = 2.34;
+    system:println("[default -> w1] i: " + i + " k: " + k);
+    // Send a messages to worker 'w1'. This message contains two values of type int and float.
+    i, k -> w1;
+    // Receive a message from worker w1. This message contains a json typed value.
+    json j = {};
+    j <- w1;
+    system:println("[default <- w1] j: " + jsons:toString(j));
 
-
-  // Define the worker and it's execution logic.
-  worker W1 {
-    // Define variables to receive data from default worker
-    int iw;
-    float kw;
-    // Receive data from default worker
-    iw, kw <- default;
-    // Print values received from default worker
-    system:println("[W1 worker]
-    Data received from default worker:
-    Value of integer variable is [" + iw + "]
-    Value of float variable is [" + kw + "]");
-    // Prepare data to send back to default worker
-    json jw = {"name":"WSO2"};
-    // Print before sending data to default worker
-    system:print("[W1 worker]
-    Sending data to default worker:
-    Value of json variable is ");
-    system:println(jw);
-    // Send data to default worker
-    jw -> default;
-  }
+    // Define the worker and it's execution logic.
+    worker w1 {
+        // Receive a message from default worker.
+        int iw;
+        float kw;
+        iw, kw <- default;
+        system:println("[w1 <- default] iw: " + iw + " kw: " + kw);
+        // Send a message to default worker.
+        json jw = {"name":"Ballerina"};
+        system:println("[w1 -> default] jw: " + jsons:toString(jw));
+        jw -> default;
+    }
 }

@@ -1,2 +1,1 @@
-// Lets see about the blob type in ballerina which is
-// used to store byte data. Here's an example.
+//'blob' represents a sequence of bytes. It is a value type in Ballerina.

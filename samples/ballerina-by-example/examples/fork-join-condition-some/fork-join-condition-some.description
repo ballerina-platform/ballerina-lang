@@ -1,4 +1,1 @@
-//Fork-Join statement allows users to spawn new workers and wait until all or
-//some of the workers completed their execution.
-//This example demonstrates the "some 1" join condition where only one
-//worker returns to join block. 
+//This example demonstrates the "some k" join condition where it waits for any k of the given workers.

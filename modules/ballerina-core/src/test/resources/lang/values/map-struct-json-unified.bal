@@ -27,7 +27,13 @@ function testAccessJsonInStruct() (string, string, string) {
                   info:{status:"single"}
                  };
     string statusKey = "status";
-    return (string)p1.parent.info.status, (string)p1["parent"]["info"]["status"], (string)p1["parent"].info["status"];
+    string status1;
+    string status2;
+    string status3;
+    status1, _ = (string)p1.parent.info.status;
+    status2, _ = (string)p1["parent"]["info"]["status"];
+    status3, _ = (string)p1["parent"].info["status"];
+    return status1, status2, status3;
 }
 
 function testAccessMapInStruct() (any, any, any, string) {
@@ -41,7 +47,9 @@ function testAccessMapInStruct() (any, any, any, string) {
                   info:{status:"single"}
                  };
     string cityKey = "city";
-    return p1.parent.address.city, p1["parent"]["address"]["city"], p1["parent"].address["city"], (string) p1["parent"].address[cityKey];
+    string city;
+    city, _ = (string) p1["parent"].address[cityKey];
+    return p1.parent.address.city, p1["parent"]["address"]["city"], p1["parent"].address["city"], city;
 }
 
 function testSetValueToJsonInStruct() (json) {
@@ -68,5 +76,7 @@ function testAccessArrayInStruct() (int, int) {
 
 function testMapInitWithAnyType() (any, map) {
     any a = {name:"Supun"};
-    return a, (map)a;
+    map mapCast;
+    mapCast, _ = (map)a;
+    return a, mapCast;
 }

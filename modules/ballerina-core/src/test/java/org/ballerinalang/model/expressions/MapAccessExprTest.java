@@ -81,8 +81,8 @@ public class MapAccessExprTest {
     
     @Test(description = "Test nested map access",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "nested-map-access.bal:3: invalid operation: indexing is not " +
-            "supported for map elements of type 'any'. cast the value before access with index")
+            expectedExceptionsMessageRegExp = "nested-map-access.bal:3: invalid operation: " +
+                    "type 'any' does not support indexing")
     public void testNestedMapAccess() {
         BTestUtils.getProgramFile("lang/expressions/nested-map-access.bal");
     }

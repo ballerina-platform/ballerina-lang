@@ -4,8 +4,8 @@ import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
 
-@http:BasePath{value:"/customerservice"}
-service CustomerMgtService {
+@http:config{basePath:"/customerservice"}
+service<http> CustomerMgtService {
 
     @http:GET{}
     @http:POST{}

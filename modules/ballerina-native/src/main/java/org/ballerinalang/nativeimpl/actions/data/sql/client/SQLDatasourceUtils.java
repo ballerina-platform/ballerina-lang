@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.actions.data.sql.client;
 
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -104,6 +105,31 @@ public class SQLDatasourceUtils {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setString(index + 1, value.stringValue());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setString(index + 1, value.stringValue());
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setNStringValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNString(index + 1, value.stringValue());
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (value == null) {
@@ -403,7 +429,8 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setTimeStampValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+    public static void setTimeStampValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType,
+            Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
             if (value instanceof BInteger) {
@@ -417,13 +444,13 @@ public class SQLDatasourceUtils {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTimestamp(index + 1, val);
+                    stmt.setTimestamp(index + 1, val, utcCalendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTimestamp(index + 1, val);
+                    stmt.setTimestamp(index + 1, val, utcCalendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -436,7 +463,8 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+    public static void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType,
+            Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
             if (value instanceof BInteger) {
@@ -450,13 +478,13 @@ public class SQLDatasourceUtils {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTime(index + 1, val);
+                    stmt.setTime(index + 1, val, utcCalendar);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
-                    stmt.setTime(index + 1, val);
+                    stmt.setTime(index + 1, val, utcCalendar);
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -472,7 +500,11 @@ public class SQLDatasourceUtils {
     public static void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         byte[] val = null;
         if (value != null) {
-            val = getBytesFromBase64String(value.stringValue());
+            if (value instanceof BBlob) {
+                val = ((BBlob) value).blobValue();
+            } else if (value instanceof BString) {
+                val = getBytesFromBase64String(value.stringValue());
+            }
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -501,7 +533,11 @@ public class SQLDatasourceUtils {
     public static void setBlobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         byte[] val = null;
         if (value != null) {
-            val = getBytesFromBase64String(value.stringValue());
+            if (value instanceof BBlob) {
+                val = ((BBlob) value).blobValue();
+            } else if (value instanceof BString) {
+                val = getBytesFromBase64String(value.stringValue());
+            }
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
@@ -544,6 +580,35 @@ public class SQLDatasourceUtils {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setClob(index + 1, val, value.stringValue().length());
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setNClobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        BufferedReader val = null;
+        if (value != null) {
+            val = new BufferedReader(new StringReader(value.stringValue()));
+        }
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNClob(index + 1, val, value.stringValue().length());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setNClob(index + 1, val, value.stringValue().length());
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -632,20 +697,18 @@ public class SQLDatasourceUtils {
      * @param conn SQL connection
      */
     public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
-        if (rs != null) {
-            try {
+        try {
+            if (rs != null && !rs.isClosed()) {
                 rs.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (stmt != null) {
-            try {
+            }
+            if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (conn != null && !isInTransaction) {
-            try {
+            }
+            if (conn != null && !conn.isClosed() && !isInTransaction) {
                 conn.close();
-            } catch (SQLException ignore) { /* ignore */ }
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
@@ -1060,7 +1123,10 @@ public class SQLDatasourceUtils {
                 String rest = source.substring(19);
                 int[] offsetData = getTimeZoneWithMilliSeconds(rest);
                 miliSecond = offsetData[0];
-                timeZoneOffSet = offsetData[1];
+                int calculatedtimeZoneOffSet = offsetData[1];
+                if (calculatedtimeZoneOffSet != -1) {
+                    timeZoneOffSet = calculatedtimeZoneOffSet;
+                }
                 calendar.set(Calendar.DST_OFFSET, 0); //set the day light offset only if the time zone is present
             }
             calendar.set(Calendar.YEAR, year);
@@ -1079,7 +1145,7 @@ public class SQLDatasourceUtils {
 
     private static int[] getTimeZoneWithMilliSeconds(String fractionStr) {
         int miliSecond = 0;
-        int timeZoneOffSet = 0;
+        int timeZoneOffSet = -1;
         if (fractionStr.startsWith(".")) {
             int milliSecondPartLength = 0;
             if (fractionStr.endsWith("Z")) { //timezone is given as Z

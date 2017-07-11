@@ -18,6 +18,9 @@
 package org.ballerinalang.statements;
 
 import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.testutils.TestHTTPServiceDispatcher;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.Test;
 
@@ -28,9 +31,11 @@ public class ReturnStmtNegativeTest {
 
     @Test(description = "Test return statement in resource",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "return-in-resource.bal:5: return statement " +
+            expectedExceptionsMessageRegExp = "return-in-resource.bal:7: return statement " +
                     "cannot be used in a resource definition")
     public void testReturnInResource() {
+        ServiceDispatcher dispatcher = new TestHTTPServiceDispatcher();
+        DispatcherRegistry.getInstance().registerServiceDispatcher(dispatcher);
         BTestUtils.getProgramFile("lang/statements/returnstmt/return-in-resource.bal");
     }
 

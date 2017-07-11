@@ -29,6 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Node represents different types of path segments in the uri-template.
+ */
 public abstract class Node {
 
     protected String token;
@@ -96,8 +99,7 @@ public abstract class Node {
             }
 
             return null;
-        }
-        else if (matchLength == uriFragment.length()) {
+        } else if (matchLength == uriFragment.length()) {
             return getResource(carbonMessage);
         } else {
             return null;
@@ -105,7 +107,7 @@ public abstract class Node {
     }
 
     public ResourceInfo getResource(CarbonMessage carbonMessage) {
-        if ("/".equalsIgnoreCase(token) && this.resource == null) {
+        if (this.resource == null) {
             return null;
         }
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
@@ -141,8 +143,8 @@ public abstract class Node {
         }
     }
 
-    abstract String expand(Map<String,String> variables);
-    abstract int match(String uriFragment, Map<String,String> variables);
+    abstract String expand(Map<String, String> variables);
+    abstract int match(String uriFragment, Map<String, String> variables);
     abstract String getToken();
     abstract char getFirstCharacter();
 

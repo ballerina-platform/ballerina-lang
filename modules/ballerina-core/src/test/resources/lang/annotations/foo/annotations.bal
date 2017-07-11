@@ -1,6 +1,7 @@
 package lang.annotations.foo;
 
 import lang.annotations.doc;
+import ballerina.net.http;
 
 @doc:Description{value:"Constant holding the name of the current ballerina program"}
 const string programName = "TestAnnotations";
@@ -26,7 +27,7 @@ annotation Args {
 
 
 @doc:Description{value:"Pizza service"}
-service PizzaService {
+service<http> PizzaService {
     
     @doc:Description{value:"Order pizza"}
     resource orderPizza(@Args{value:"input parameter for oderPizza resource"} message m) {

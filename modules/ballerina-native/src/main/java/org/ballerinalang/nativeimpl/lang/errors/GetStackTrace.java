@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         value = "Gets the exception stack trace.")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "err",
         value = "The error struct")})
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct) ",
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
         value = "The stackTrace struct")})
 public class GetStackTrace extends AbstractNativeFunction {
 

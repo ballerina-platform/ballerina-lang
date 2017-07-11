@@ -53,7 +53,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
         xmlStreamWriter.writeStartElement(this.rootWrapper);
-        while (dataTable.next()) {
+        while (dataTable.hasNext()) {
             xmlStreamWriter.writeStartElement(this.rowWrapper);
             for (BDataTable.ColumnDefinition col : dataTable.getColumnDefs()) {
                 boolean isArray = false;

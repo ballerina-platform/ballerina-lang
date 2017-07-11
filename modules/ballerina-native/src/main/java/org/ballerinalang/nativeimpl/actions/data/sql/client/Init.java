@@ -33,8 +33,6 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.osgi.service.component.annotations.Component;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * {@code Init} is the Init action implementation of the SQL Connector.
  *
@@ -59,23 +57,17 @@ import java.util.concurrent.locks.ReentrantLock;
         service = AbstractNativeAction.class)
 public class Init extends AbstractSQLAction {
 
-    private final ReentrantLock lock = new ReentrantLock();
-
     @Override
     public BValue execute(Context context) {
-        try {
-            lock.lock();
-            BConnector bConnector = (BConnector) getRefArgument(context, 0);
-            BMap optionMap = (BMap) bConnector.getRefField(0);
-            BMap sharedMap = (BMap) bConnector.getRefField(1);
-            if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
-                SQLDatasource datasource = new SQLDatasource();
-                datasource.init(optionMap);
-                sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
-            }
-            return null;
-        } finally {
-            lock.unlock();
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
+        BMap optionMap = (BMap) bConnector.getRefField(0);
+        BMap sharedMap = (BMap) bConnector.getRefField(1);
+        if (sharedMap.get(new BString(Constants.DATASOURCE_KEY)) == null) {
+            SQLDatasource datasource = new SQLDatasource();
+            datasource.init(optionMap);
+            sharedMap.put(new BString(Constants.DATASOURCE_KEY), datasource);
         }
+        return null;
     }
+
 }

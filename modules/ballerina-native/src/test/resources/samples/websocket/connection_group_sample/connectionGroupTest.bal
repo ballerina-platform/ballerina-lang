@@ -3,9 +3,9 @@ import ballerina.lang.messages;
 import ballerina.net.ws;
 import ballerina.net.http;
 
-@http:BasePath {value:"/chat-group"}
+@http:config {basePath:"/chat-group"}
 @ws:WebSocketUpgradePath {value:"/ws"}
-service oddEvenWebSocketConnector {
+service<ws> oddEvenWebSocketConnector {
 
     @ws:OnOpen {}
     resource onOpen(message m) {
@@ -29,6 +29,10 @@ service oddEvenWebSocketConnector {
             ws:removeConnectionFromGroup("oddGroup");
         } else if ("removeEvenConnection" == text) {
             ws:removeConnectionFromGroup("evenGroup");
+        } else if ("closeEvenGroup" == text) {
+            ws:closeConnectionGroup("evenGroup");
+        } else if ("closeOddGroup" == text) {
+            ws:closeConnectionGroup("oddGroup");
         } else {
             ws:pushTextToGroup("oddGroup", "oddGroup: " + messages:getStringPayload(m));
             ws:pushTextToGroup("evenGroup", "evenGroup: " + messages:getStringPayload(m));

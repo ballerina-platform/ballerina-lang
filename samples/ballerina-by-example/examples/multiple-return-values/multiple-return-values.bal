@@ -12,6 +12,6 @@ function main (string[] args) {
     //Multiple variable assignment
     q, r = divideBy10(24);
     system:println("24/10: " + "quotient=" + q + " " +
-                   "reminder=" + r);
+                   "remainder=" + r);
 }
 

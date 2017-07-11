@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.actions.jms.utils.JMSConstants;
+import org.ballerinalang.nativeimpl.actions.jms.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -52,20 +52,20 @@ public class Rollback extends AbstractNativeFunction {
         BMessage msg = (BMessage) getRefArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
         Object jmsSessionAcknowledgementMode = carbonMessage
-                .getProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
+                .getProperty(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
 
         if (null == jmsSessionAcknowledgementMode) {
             log.warn("JMS Rollback function can only be used with JMS Messages. "
-                    + JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
+                    + Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
         }
         if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
-            throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
+            throw new BallerinaException(Constants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
                     + "integer value. ");
         }
         if (Session.SESSION_TRANSACTED == (Integer) jmsSessionAcknowledgementMode) {
             carbonMessage
-                    .setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
+                    .setProperty(Constants.JMS_MESSAGE_DELIVERY_STATUS, Constants.JMS_MESSAGE_DELIVERY_ERROR);
             ctx.getBalCallback().done(carbonMessage);
 
         } else {
