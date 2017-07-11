@@ -178,12 +178,15 @@ class BallerinaFileEditor extends React.Component {
                         // fetch program packages
                         getProgramPackages(file)
                             .then((data) => {
-                                const pkges = [];
-                                data.packages.forEach((pkgNode) => {
-                                    const pkg = BallerinaEnvFactory.createPackage();
-                                    pkg.initFromJson(pkgNode);
-                                });
-                                this.environment.addPackages(pkges);
+                                // if any packages were found
+                                if (!_.isNil(data.packages)) {
+                                    const pkges = [];
+                                    data.packages.forEach((pkgNode) => {
+                                        const pkg = BallerinaEnvFactory.createPackage();
+                                        pkg.initFromJson(pkgNode);
+                                    });
+                                    this.environment.addPackages(pkges);
+                                }
                                 this.update();
                             })
                             .catch(error => log.error(error))
