@@ -92,6 +92,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder ANNOTATION;
     private static final LookupElementBuilder ATTACH;
     private static final LookupElementBuilder PARAMETER;
+    private static final LookupElementBuilder XMLNS;
 
     // Any type
     private static final LookupElementBuilder ANY;
@@ -156,6 +157,7 @@ public class BallerinaCompletionUtils {
         ANNOTATION = createKeywordLookupElement("annotation");
         ATTACH = createKeywordLookupElement("attach");
         PARAMETER = createKeywordLookupElement("parameter");
+        XMLNS = createKeywordLookupElement("xmlns");
 
         ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
 
@@ -271,6 +273,7 @@ public class BallerinaCompletionUtils {
      */
     static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
         addAnyTypeAsLookup(resultSet);
+        addXmlnsAsLookup(resultSet);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
     }
@@ -282,6 +285,10 @@ public class BallerinaCompletionUtils {
      */
     private static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+    }
+
+    private static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
     }
 
     /**
@@ -333,6 +340,7 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, KEYWORDS_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, KEYWORDS_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, KEYWORDS_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
     }
 
     /**
@@ -359,7 +367,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet     result list which is used to add lookups
      * @param lookupElement lookup element which needs to be added to the result list
      */
-    static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
+    private static void addKeywordAsLookup(@NotNull CompletionResultSet resultSet, @NotNull LookupElement lookupElement) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY));
     }
 
@@ -552,7 +560,8 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      * @param file      file which will be used to get imported packages
      */
-    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
+    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file,
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         String typeText = "package";
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
@@ -575,32 +584,34 @@ public class BallerinaCompletionUtils {
             packageNameNode = packageNameNodes.get(packageNameNodes.size() - 1);
 
             AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
+            LookupElementBuilder builder;
             if (aliasNode != null) {
-                LookupElementBuilder builder = LookupElementBuilder.create(aliasNode.getText())
-                        .withTailText("(" + packagePath + ")", true)
-                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
-                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                builder = LookupElementBuilder.create(aliasNode.getText());
                 resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
             } else {
-                LookupElementBuilder builder = LookupElementBuilder.create(packageNameNode.getText())
-                        .withTailText("(" + packagePath + ")", true)
-                        .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
-                        .withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+                builder = LookupElementBuilder.create(packageNameNode.getText());
             }
+            builder = builder.withTailText("(" + packagePath + ")", true)
+                    .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
+                    .withInsertHandler(insertHandler);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
+
         }
     }
 
     private static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet,
-                                                          @NotNull PsiFile file) {
+                                                          @NotNull PsiFile file,
+                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
         // Get all imported packages in the current file.
         Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
         // Get all packages in the resolvable scopes (project and libraries).
         List<PsiDirectory> directories = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
         // Iterate through all available  packages.
         for (PsiDirectory directory : directories) {
-            // Set the default insert handler to auto popup insert handler.
-            InsertHandler<LookupElement> insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandler == null) {
+                // Set the default insert handler to auto popup insert handler.
+                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            }
             // Suggest a package name for the directory.
             // Eg: ballerina/lang/system -> ballerina.lang.system
             String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
@@ -642,7 +653,7 @@ public class BallerinaCompletionUtils {
                 //
                 // Eg: import org.tools as system;
                 //     import ballerina.lang.system as builtin;
-                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP;
+                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS;
             } else if (importsMap.containsValue(suggestedImportPath)) {
                 // This means we have already imported this package. This will be suggested by {@code
                 // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
@@ -856,10 +867,21 @@ public class BallerinaCompletionUtils {
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
-                           boolean withFunctions, boolean withConnectors, boolean withStructs) {
+                           boolean withFunctions, boolean withConnectors, boolean withStructs,
+                           InsertHandler... insertHandlers) {
         if (withPackages) {
-            addAllImportedPackagesAsLookups(resultSet, file);
-            addAllUnImportedPackagesAsLookups(resultSet, file);
+            InsertHandler insertHandler = PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandlers.length >= 1) {
+                insertHandler = insertHandlers[0];
+            }
+            addAllImportedPackagesAsLookups(resultSet, file, insertHandler);
+
+            // We provide a way to change the default insert handler for auto insert as well.
+            insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            if (insertHandlers.length >= 2) {
+                insertHandler = insertHandlers[1];
+            }
+            addAllUnImportedPackagesAsLookups(resultSet, file, insertHandler);
         }
         if (withFunctions) {
             addFunctionsAsLookups(resultSet, file);

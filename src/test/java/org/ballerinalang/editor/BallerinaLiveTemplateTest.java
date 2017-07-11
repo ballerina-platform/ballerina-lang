@@ -29,58 +29,58 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     public void testFunctionInEmptyFile() {
         myFixture.configureByText("test.bal", "<caret>");
         myFixture.type("fun\t");
-        myFixture.checkResult("function  () {\n    \n}");
+        myFixture.checkResult("function  () () {\n    \n}");
     }
 
     public void testFunctionAfterFunction() {
         myFixture.configureByText("test.bal", "function test(){\n\n}\n<caret>");
         myFixture.type("fun\t");
-        myFixture.checkResult("function test(){\n\n}\nfunction  () {\n    \n}");
+        myFixture.checkResult("function test(){\n\n}\nfunction  () () {\n    \n}");
     }
 
     public void testFunctionBeforeFunction() {
         myFixture.configureByText("test.bal", "<caret>\nfunction test(){\n\n}\n");
         myFixture.type("fun\t");
-        myFixture.checkResult("function  () {\n    \n}\nfunction test(){\n\n}\n");
+        myFixture.checkResult("function  () () {\n    \n}\nfunction test(){\n\n}\n");
     }
 
     public void testServiceInEmptyFile() {
         myFixture.configureByText("test.bal", "<caret>");
         myFixture.type("ser\t");
-        myFixture.checkResult("\nservice  {\n    \n}");
+        myFixture.checkResult("\nservice<>  {\n    \n}");
     }
 
     public void testServiceAfterService() {
-        myFixture.configureByText("test.bal", "service test {\n    \n}\n<caret>");
+        myFixture.configureByText("test.bal", "service<http> test {\n    \n}\n<caret>");
         myFixture.type("ser\t");
-        myFixture.checkResult("service test {\n    \n}\n\nservice  {\n    \n}");
+        myFixture.checkResult("service<http> test {\n    \n}\n\nservice<>  {\n    \n}");
     }
 
     public void testServiceBeforeService() {
-        myFixture.configureByText("test.bal", "<caret>\nservice test {\n    \n}\n");
+        myFixture.configureByText("test.bal", "<caret>\nservice<http> test {\n    \n}\n");
         myFixture.type("ser\t");
-        myFixture.checkResult("\nservice  {\n    \n}\nservice test {\n    \n}\n");
+        myFixture.checkResult("\nservice<>  {\n    \n}\nservice<http> test {\n    \n}\n");
     }
 
     public void testResource() {
-        myFixture.configureByText("test.bal", "service test {\n    <caret>\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n    <caret>\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service test {\n    \n    resource  (message m) {\n        \n    }\n}");
+        myFixture.checkResult("service<http> test {\n    \n    resource  (message m) {\n        \n    }\n}");
     }
 
     public void testResourceAfterResource() {
-        myFixture.configureByText("test.bal", "service test {\n    resource test (message m) {\n        \n    }\n  " +
-                "  <caret>\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        \n    " +
+                "}\n    <caret>\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service test {\n    resource test (message m) {\n        \n    }\n    \n    resource " +
-                " (message m) {\n        \n    }\n}");
+        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        \n    }\n    \n    " +
+                "resource  (message m) {\n        \n    }\n}");
     }
 
     public void testResourceBeforeResource() {
-        myFixture.configureByText("test.bal", "service test {\n\n    <caret>\n    \n    resource test (message m) " +
-                "{\n\n    }\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n\n    <caret>\n    \n    resource test (message " +
+                "m) {\n\n    }\n}");
         myFixture.type("res\t");
-        myFixture.checkResult("service test {\n\n    \n    resource  (message m) {\n        \n    }\n    \n" +
+        myFixture.checkResult("service<http> test {\n\n    \n    resource  (message m) {\n        \n    }\n    \n" +
                 "    resource test (message m) {\n\n    }\n}");
     }
 
@@ -145,11 +145,11 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     }
 
     public void testWorkerInResource() {
-        myFixture.configureByText("test.bal", "service test {\n    resource test (message m) {\n        <caret>\n" +
-                "    }\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
+                "<caret>\n    }\n}");
         myFixture.type("wor\t");
-        myFixture.checkResult("service test {\n    resource test (message m) {\n        worker  {\n            \n    " +
-                "    }\n    }\n}");
+        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        worker  {\n            " +
+                "\n        }\n    }\n}");
     }
 
     public void testWorkerInAction() {
@@ -179,10 +179,10 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     }
 
     public void testForkJoinInResource() {
-        myFixture.configureByText("test.bal", "service test {\n    resource test (message m) {\n        <caret>\n" +
-                "    }\n}");
+        myFixture.configureByText("test.bal", "service<http> test {\n    resource test (message m) {\n        " +
+                "<caret>\n    }\n}");
         myFixture.type("fojo\t");
-        myFixture.checkResult("service test {\n    resource test (message m) {\n        " +
+        myFixture.checkResult("service<http> test {\n    resource test (message m) {\n        " +
                 "fork {\n            \n        } join () () {\n            \n        }\n    }\n}");
     }
 

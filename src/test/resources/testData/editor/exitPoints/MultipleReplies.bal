@@ -2,7 +2,7 @@ import ballerina.net.http;
 import ballerina.lang.messages;
 
 @http:BasePath {value:"/hello"}
-service HelloService {
+service<http> HelloService {
 
     @http:GET {}
     resource sayHello (message m) {

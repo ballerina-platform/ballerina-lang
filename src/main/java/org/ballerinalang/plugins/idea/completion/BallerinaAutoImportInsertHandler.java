@@ -21,6 +21,7 @@ import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
@@ -31,7 +32,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaElementFactory;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
@@ -50,6 +50,7 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
 
     private final boolean suggestAlias;
     private final boolean myTriggerAutoPopup;
+    private String alias = null;
 
     private BallerinaAutoImportInsertHandler(boolean triggerAutoPopup) {
         this(triggerAutoPopup, false);
@@ -62,68 +63,82 @@ public class BallerinaAutoImportInsertHandler implements InsertHandler<LookupEle
 
     @Override
     public void handleInsert(@NotNull InsertionContext context, @NotNull LookupElement item) {
-        PsiElement element = item.getPsiElement();
-        if (element != null && element instanceof PsiDirectory) {
-            Editor editor = context.getEditor();
-            Project project = editor.getProject();
-            String alias = null;
-            if (suggestAlias) {
-                alias = Messages.showInputDialog(project, "Package '" + ((PsiDirectory) element).getName() +
-                        "'already imported. Please enter an alias:", "Enter Alias", Messages.getInformationIcon());
-                if (alias == null || alias.isEmpty()) {
-                    Messages.showErrorDialog("Alias cannot be null or empty.", "Error");
-                    return;
-                }
-            }
-            // Import the package.
-            autoImport(context, element, alias);
-            if (project != null) {
-                if (!isCompletionCharAtSpace(editor)) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            CommandProcessor.getInstance().runUndoTransparentAction(() -> {
+                PsiElement element = item.getPsiElement();
+                if (element != null && element instanceof PsiDirectory) {
+                    Editor editor = context.getEditor();
+                    Project project = editor.getProject();
+
                     if (suggestAlias) {
-                        // InsertHandler inserts the old package name. So we need to change it to the new alias.
-                        PsiFile file = context.getFile();
-                        PsiElement currentPackageName = file.findElementAt(context.getStartOffset());
-                        if (currentPackageName != null) {
-                            if (alias == null || alias.isEmpty()) {
-                                return;
-                            }
-                            // Add a new identifier node.
-                            currentPackageName.getParent().addBefore(BallerinaElementFactory.createIdentifier(project,
-                                    alias), currentPackageName);
-                            // Delete the current identifier node.
-                            currentPackageName.delete();
+                        alias = Messages.showInputDialog(project, "Package '" + ((PsiDirectory) element).getName() +
+                                "'already imported. Please enter an alias:", "Enter Alias", Messages
+                                .getInformationIcon());
+                        if (alias == null || alias.isEmpty()) {
+                            Messages.showErrorDialog("Alias cannot be null or empty.", "Error");
+                            return;
                         }
                     }
-                    PsiDocumentManager.getInstance(project)
-                            .doPostponedOperationsAndUnblockDocument(editor.getDocument());
-                    EditorModificationUtil.insertStringAtCaret(editor, ":");
-                    PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
-                } else {
-                    editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+                    // Import the package.
+                    autoImport(context, element, alias);
+                    if (project == null) {
+                        return;
+                    }
+                    if (!isCompletionCharAtSpace(editor)) {
+                        if (suggestAlias) {
+                            // InsertHandler inserts the old package name. So we need to change it to the new alias.
+                            PsiFile file = context.getFile();
+                            PsiElement currentPackageName = file.findElementAt(context.getStartOffset());
+                            if (currentPackageName != null) {
+                                if (alias == null || alias.isEmpty()) {
+                                    return;
+                                }
+                                ApplicationManager.getApplication().runWriteAction(() -> {
+                                    // Add a new identifier node.
+                                    PsiElement identifier = BallerinaElementFactory.createIdentifier(project, alias);
+                                    currentPackageName.getParent().addBefore(identifier, currentPackageName);
+                                    // Delete the current identifier node.
+                                    currentPackageName.delete();
+                                });
+                            }
+                        }
+                        if (myTriggerAutoPopup) {
+                            PsiDocumentManager.getInstance(project)
+                                    .doPostponedOperationsAndUnblockDocument(editor.getDocument());
+                            ApplicationManager.getApplication().runWriteAction(() -> {
+                                EditorModificationUtil.insertStringAtCaret(editor, ":");
+                                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
+                            });
+                        }
+                    } else {
+                        editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + 1);
+                    }
+                    // Invoke the popup.
+                    if (myTriggerAutoPopup) {
+                        // We need to invoke the popup with a delay. Otherwise it might not show.
+                        ApplicationManager.getApplication().invokeLater(
+                                () -> AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null)
+                        );
+                    }
                 }
-                // Invoke the popup.
-                if (myTriggerAutoPopup) {
-                    // We need to invoke the popup with a delay. Otherwise it might not show.
-                    ApplicationManager.getApplication().invokeLater(
-                            () -> AutoPopupController.getInstance(project).autoPopupMemberLookup(editor, null)
-                    );
-                }
-            }
-        }
+            });
+        });
     }
 
     @Nullable
-    private ImportDeclarationNode autoImport(@NotNull InsertionContext context, @NotNull PsiElement element,
-                                             @Nullable String alias) {
+    private void autoImport(@NotNull InsertionContext context, @NotNull PsiElement element,
+                            @Nullable String alias) {
         PsiFile file = context.getFile();
         if (!(element instanceof PsiDirectory)) {
-            return null;
+            return;
         }
         String importPath = BallerinaUtil.suggestPackageNameForDirectory(((PsiDirectory) element));
         if (StringUtil.isEmpty(importPath)) {
-            return null;
+            return;
         }
-        return BallerinaPsiImplUtil.addImport(file, importPath, alias);
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            BallerinaPsiImplUtil.addImport(file, importPath, alias);
+        });
     }
 
     private static boolean isCompletionCharAtSpace(Editor editor) {

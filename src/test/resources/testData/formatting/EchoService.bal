@@ -1,7 +1,7 @@
     import  ballerina   .   net .   http    ;
 
     @   http    :   BasePath    {   value   :   "/echo" }
-    service     echo     {
+    service   <   http   >    echo     {
 
      @   http   :   POST     {  }
         resource    echo    (   message     m   )        {

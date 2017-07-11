@@ -25,6 +25,7 @@ import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoCon
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
 import org.ballerinalang.BallerinaSDKAware;
 import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 import org.jetbrains.annotations.NotNull;
 
 @BallerinaSDKAware
@@ -41,7 +42,21 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls("temp:///");
+        if (isSdkAware()) {
+            setUpProjectSdk();
+        }
         myParameterInfoHandler = new BallerinaParameterInfoHandler();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        try {
+            BallerinaApplicationLibrariesService.getInstance().setLibraryRootUrls();
+        } finally {
+            //noinspection ThrowFromFinallyBlock
+            super.tearDown();
+        }
     }
 
     public void testLocalActionWithNoParam() {
@@ -105,7 +120,7 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
     }
 
     public void testSDKActionWithMultipleParamSecondElement() {
-        doTest(1,"<html>ClientConnector c, <b>string path</b>, message m</html>");
+        doTest(1, "<html>ClientConnector c, <b>string path</b>, message m</html>");
     }
 
     public void testSDKFunctionWithSingleParam() {
@@ -117,7 +132,7 @@ public class BallerinaParameterInfoHandlerTest extends BallerinaCodeInsightFixtu
     }
 
     public void testSDKFunctionWithMultipleParamSecondElement() {
-        doTest(1,"<html>int logLevel, <b>any value</b></html>");
+        doTest(1, "<html>int logLevel, <b>any value</b></html>");
     }
 
     private void doTest(@NotNull String expectedPresentation) {
