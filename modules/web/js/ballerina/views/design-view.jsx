@@ -22,6 +22,8 @@ class DesignView extends React.Component {
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
+        this.dragDropManager = new DragDropManager();
+        this.messageManager = new MessageManager();
     }
 
     setDiagramContainer(ref) {
@@ -61,8 +63,8 @@ class DesignView extends React.Component {
     getChildContext() {
         return {
             designView: this,
-            dragDropManager: new DragDropManager(),
-            messageManager: new MessageManager(),
+            dragDropManager: this.dragDropManager,
+            messageManager: this.messageManager,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
         };
