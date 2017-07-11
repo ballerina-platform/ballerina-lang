@@ -18,6 +18,7 @@
 import _ from 'lodash';
 import Backbone from 'backbone';
 import log from 'log';
+import { CONTENT_MODIFIED } from './../constants/events';
 
 let File = Backbone.Model.extend(
     {
@@ -105,7 +106,7 @@ let File = Backbone.Model.extend(
                 newContent,
                 originEvt
             }
-            this.trigger('content-modified', evt);
+            this.trigger(CONTENT_MODIFIED, evt);
             // if the new content is not equal to old content
             // set file dirty
             if (!_.isEqual(oldContent, newContent)) {

@@ -31,10 +31,9 @@ import PackageScopedEnvironment from './../env/package-scoped-environment';
 import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
-
-export const DESIGN_VIEW = 'DESIGN_VIEW';
-export const SOURCE_VIEW = 'SOURCE_VIEW';
-export const SWAGGER_VIEW = 'SWAGGER_VIEW';
+import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
+import { CONTENT_MODIFIED } from './../../constants/events';
+import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -54,22 +53,23 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            swaggerViewTargetService: undefined,
             sourceModified: false,
             parseFailed: true,
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
         // listen for the changes to file content
-        this.props.file.on('content-modified', (evt) => {
+        this.props.file.on(CONTENT_MODIFIED, (evt) => {
             // Change was done from source editor.
             // just keep track of it now and when user tries
             // to switch back to design view, we will try rebuild
             // the ast
-            if (evt.originEvt.type === 'source-modified') {
+            if (evt.originEvt.type === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                 this.setState({
                     sourceModified: true,
                 })
-            } else if (evt.originEvt.type === 'tree-modified'){
+            } else if (evt.originEvt.type === CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // change was done from design view
                 // AST is directly modified hence no need to parse again
                 // we just need to update the diagram
@@ -103,7 +103,7 @@ class BallerinaFileEditor extends React.Component {
      */
     openDocumentation(pkgName, symbolName) {
         this.props.commandManager
-            .dispatch('open-documentation', pkgName, symbolName);
+            .dispatch(OPEN_SYMBOL_DOCS, pkgName, symbolName);
     }
 
     /**
@@ -119,12 +119,24 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
+     * Display the swagger view for given service def node
+     * 
+     * @param {ServiceDefinition} serviceDef Service def node to display
+     */
+    showSwaggerViewForService(serviceDef) {
+        this.setState({
+            swaggerViewTargetService: serviceDef,
+            activeView: SWAGGER_VIEW
+        });
+    }
+
+    /**
      * set active view
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
-        const newState = { 
-            activeView: newView 
+        const newState = {
+            activeView: newView
         }
         // if modifications were done from source view
         // reparse the file
@@ -135,7 +147,7 @@ class BallerinaFileEditor extends React.Component {
         } else {
             this.setState(newState);
         }
-    }  
+    }
 
     /**
      * On ast modifications
@@ -145,7 +157,8 @@ class BallerinaFileEditor extends React.Component {
         this.state.model.accept(sourceGenVisitor);
         const newContent = sourceGenVisitor.getGeneratedSource();
         // create a wrapping event object to indicate tree modification
-        this.props.file.setContent(newContent, {type: 'tree-modified', originEvt: evt});
+        this.props.file.setContent(newContent, { 
+            type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt });
     }
 
     /**
@@ -160,7 +173,7 @@ class BallerinaFileEditor extends React.Component {
                 // get ast from json
                 const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
                 // re-draw upon ast changes
-                ast.on('tree-modified', (evt) => {
+                ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
                     this.onASTModified(evt);
                 });
                 this.setState({
@@ -175,6 +188,7 @@ class BallerinaFileEditor extends React.Component {
                 BallerinaEnvironment.initialize()
                     .then(() => {
                         this.environment.init();
+                        this.update();
                         // fetch program packages
                         getProgramPackages(file)
                             .then((data) => {
@@ -194,7 +208,7 @@ class BallerinaFileEditor extends React.Component {
                     .catch((error) => {
                         log.error('Error while env init. ' + error);
                     });
-                
+
             })
             .catch(error => log.error(error));
     }
@@ -205,25 +219,27 @@ class BallerinaFileEditor extends React.Component {
      */
     render() {
         const showDesignView = (!this.state.parseFailed && this.state.activeView === DESIGN_VIEW)
-                || !this.props.file.getContent();
-        const showSourceView = !showDesignView || this.state.activeView === SOURCE_VIEW;
-        const showSwaggerView = !showDesignView && this.state.activeView === SWAGGER_VIEW;
+            || !this.props.file.getContent();
+        const showSourceView = this.state.parseFailed || this.state.activeView === SOURCE_VIEW;
+        const showSwaggerView = !this.state.parseFailed && 
+                                    !_.isNil(this.state.swaggerViewTargetService)
+                                    && this.state.activeView === SWAGGER_VIEW;
         if (showDesignView) {
             this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
-        } else if (showSourceView) {
+        } else {
             this.props.tabHeader.addClass(sourceViewTabHeaderClass);
         }
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
-                <div style={ {display: showDesignView ? 'block' : 'none'} }>
+                <div style={{ display: showDesignView ? 'block' : 'none' }}>
                     <DesignView model={this.state.model} />
                 </div>
-                <div style={ {display: showSourceView ? 'block' : 'none'} }>
-                    <SourceView file={ this.props.file} commandManager={this.props.commandManager} />
+                <div style={{ display: showSourceView ? 'block' : 'none' }}>
+                    <SourceView file={this.props.file} commandManager={this.props.commandManager} />
                 </div>
-                <div style={ {display: showSwaggerView ? 'block' : 'none'} }>
-                    <SwaggerView />
-                </div>
+                {showSwaggerView
+                    && <SwaggerView targetService={this.state.swaggerViewTargetService} />
+                }
             </div>
         );
     }

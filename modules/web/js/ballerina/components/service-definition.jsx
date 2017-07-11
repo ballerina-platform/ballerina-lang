@@ -56,7 +56,7 @@ class ServiceDefinition extends React.Component {
      * @memberof ServiceDefinition
      */
     onSwaggerButtonClicked() {
-        this.context.editor.setActiveView('SWAGGER_VIEW');
+        this.context.editor.showSwaggerViewForService(this.props.model);
     }
 
     /**

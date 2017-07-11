@@ -8,6 +8,9 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
+import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
+import { CONTENT_MODIFIED } from './../../constants/events';
+import { FORMAT } from './../../constants/commands';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -29,7 +32,7 @@ function requireAll(requireContext) {
 }
 requireAll(require.context('ace', false, /theme-/));
 
-// ace look & feel configurations
+// ace look & feel configurations FIXME: Make this overridable from settings
 let aceTheme = 'ace/theme/twilight';
 let fontSize = '14px';
 let scrollMargin = 20;
@@ -44,7 +47,7 @@ class NotifyingUndoManager extends AceUndoManager {
         super.execute(args);
         if (!this.sourceView.skipFileUpdate) {
             let changeEvent = {
-                type: 'source-modified',
+                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
                 title: 'Modify source'
             };
             this.sourceView.props.file
@@ -96,11 +99,11 @@ class SourceView extends React.Component {
                 this.bindCommand(command);
             });
             // register handler for source format command
-            this.props.commandManager.registerHandler('format', this.format, this);
+            this.props.commandManager.registerHandler(FORMAT, this.format, this);
             // listen to changes done to file content 
             // by other means and update ace content accordingly
-            this.props.file.on('content-modified', (evt) => {
-                if (evt.originEvt.type !== 'source-modified') {
+            this.props.file.on(CONTENT_MODIFIED, (evt) => {
+                if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                     // no need to update the file again, hence
                     // the second arg
                     this.replaceContent(evt.newContent, true);
@@ -179,7 +182,7 @@ class SourceView extends React.Component {
                         <div className="bottom-view-label" 
                                 onClick={
                                     () => {
-                                        this.context.editor.setActiveView('DESIGN_VIEW');
+                                        this.context.editor.setActiveView(DESIGN_VIEW);
                                     }
                                 }
                         >

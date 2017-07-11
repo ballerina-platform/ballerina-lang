@@ -62,7 +62,7 @@ class SwaggerView extends EventChannel {
 
     /**
      * Set the content of swagger editor.
-     * @param {Object[]} swaggerInfos - An object array which contains service definition ASTs and their swagger
+     * @param {Object} swaggerInfos - An object array which contains service definition ASTs and their swagger
      * definitions.
      * @param {ServiceDefinition} swaggerInfos.serviceDefinitionAST The Service definition.
      * @param {Object} swaggerInfos.swagger The JSON swagger definition.

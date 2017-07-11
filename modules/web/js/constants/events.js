@@ -1,0 +1,1 @@
+export const CONTENT_MODIFIED = 'content-modified';
