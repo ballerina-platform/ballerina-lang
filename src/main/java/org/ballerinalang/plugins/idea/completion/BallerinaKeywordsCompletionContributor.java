@@ -22,9 +22,9 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -32,11 +32,7 @@ import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.jetbrains.annotations.NotNull;
 
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addAttachKeyword;
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addAttachmentPointsAsLookups;
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addFileLevelKeywordsAsLookups;
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addTypeNamesAsLookups;
-import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.addValueTypesAsLookups;
+import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
 
 public class BallerinaKeywordsCompletionContributor extends CompletionContributor {
 
@@ -45,17 +41,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
 
-
         if (parent instanceof NameReferenceNode /*|| parent instanceof PsiErrorElement*/) {
             PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
             if (prevVisibleSibling instanceof IdentifierPSINode) {
                 addAttachKeyword(result);
                 return;
             }
-//            if (prevVisibleSibling != null && "attach".equals(prevVisibleSibling.getText())) {
-//                addAttachmentPointsAsLookups(result);
-//                return;
-//            }
         }
 
         if (parent instanceof ConstantDefinitionNode || parent instanceof PsiErrorElement) {
@@ -66,11 +57,70 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             }
         }
 
+        if (parent instanceof PsiErrorElement) {
+
+            FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    FunctionDefinitionNode.class);
+            if (functionDefinitionNode != null) {
+
+                PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+
+                if (prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
+                    addCreateKeyword(result);
+                }
+
+                if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{]")) {
+                    // Todo - change method
+                    addAnyTypeAsLookup(result);
+                    addXmlnsAsLookup(result);
+                    addValueTypesAsLookups(result);
+                    addReferenceTypesAsLookups(result);
+
+                    addFunctionSpecificKeywords(parameters, result);
+
+                    result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
+
+                }
+                addValueKeywords(result);
+            }
+            return;
+        }
+
+        if (parent instanceof NameReferenceNode) {
+            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+            if (prevVisibleSibling != null && "{".equals(prevVisibleSibling.getText())) {
+                FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                        FunctionDefinitionNode.class);
+
+                if (functionDefinitionNode != null) {
+
+                    // Todo - change method
+                    addAnyTypeAsLookup(result);
+                    addXmlnsAsLookup(result);
+                    addValueTypesAsLookups(result);
+                    addReferenceTypesAsLookups(result);
+
+                    addFunctionSpecificKeywords(parameters, result);
+
+                    result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
+
+                }
+                addValueKeywords(result);
+            }
+
+
+        }
+
         if (parent.getPrevSibling() == null) {
 
             GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType(element,
                     GlobalVariableDefinitionNode.class);
             if (globalVariableDefinitionNode != null) {
+                PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+                if (prevVisibleSibling != null && !(";".equals(prevVisibleSibling.getText()))) {
+                    return;
+                }
+
                 PsiElement definitionNode = globalVariableDefinitionNode.getParent();
 
                 PackageDeclarationNode prevPackageDeclarationNode = PsiTreeUtil.getPrevSiblingOfType(definitionNode,
@@ -98,9 +148,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     addFileLevelKeywordsAsLookups(result, false, false);
                 }
 
-
                 addTypeNamesAsLookups(result);
             }
         }
+    }
+
+    private void addCommonKeywords() {
+
     }
 }

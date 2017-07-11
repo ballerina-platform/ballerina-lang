@@ -199,12 +199,18 @@ public class NameReference extends BallerinaElementReference {
             //                results.add(lookupElement);
             //            }
 
-            GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
-                    GlobalVariableDefinitionNode.class);
-            if (globalVariableDefinitionNode == null) {
+            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
+
+            //            GlobalVariableDefinitionNode globalVariableDefinitionNode = PsiTreeUtil.getParentOfType
+            // (identifier,
+            //                    GlobalVariableDefinitionNode.class);
+            //            if (globalVariableDefinitionNode == null) {
+
+            if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
                 List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
                 results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
             }
+            //            }
 
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);
             results.addAll(BallerinaCompletionUtils.createConnectorLookupElements(connectors,

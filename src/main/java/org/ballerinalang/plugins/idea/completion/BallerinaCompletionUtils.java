@@ -40,9 +40,6 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
-import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -50,9 +47,6 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -285,11 +279,11 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    private static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
+     static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
     }
 
-    private static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
+     static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
     }
 
@@ -311,7 +305,7 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    private static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
+    static void addReferenceTypesAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
@@ -364,18 +358,18 @@ public class BallerinaCompletionUtils {
     }
 
     public static List<LookupElement> createAttachmentPointsAsLookups() {
-        List<LookupElement> results = new LinkedList<>();
-        results.add(createKeywordAsLookup(SERVICE));
-        results.add(createKeywordAsLookup(RESOURCE));
-        results.add(createKeywordAsLookup(CONNECTOR));
-        results.add(createKeywordAsLookup(ACTION));
-        results.add(createKeywordAsLookup(FUNCTION));
-        results.add(createKeywordAsLookup(TYPEMAPPER));
-        results.add(createKeywordAsLookup(STRUCT));
-        results.add(createKeywordAsLookup(CONST));
-        results.add(createKeywordAsLookup(PARAMETER));
-        results.add(createKeywordAsLookup(ANNOTATION));
-        return results;
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(SERVICE));
+        lookupElements.add(createKeywordAsLookup(RESOURCE));
+        lookupElements.add(createKeywordAsLookup(CONNECTOR));
+        lookupElements.add(createKeywordAsLookup(ACTION));
+        lookupElements.add(createKeywordAsLookup(FUNCTION));
+        lookupElements.add(createKeywordAsLookup(TYPEMAPPER));
+        lookupElements.add(createKeywordAsLookup(STRUCT));
+        lookupElements.add(createKeywordAsLookup(CONST));
+        lookupElements.add(createKeywordAsLookup(PARAMETER));
+        lookupElements.add(createKeywordAsLookup(ANNOTATION));
+        return lookupElements;
     }
 
     /**
@@ -420,10 +414,44 @@ public class BallerinaCompletionUtils {
         addKeywordAsLookup(resultSet, THROW);
     }
 
+    @NotNull
+    public static List<LookupElement> createCommonKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(IF));
+        lookupElements.add(createKeywordAsLookup(ELSE));
+        lookupElements.add(createKeywordAsLookup(FORK));
+        lookupElements.add(createKeywordAsLookup(JOIN));
+        lookupElements.add(createKeywordAsLookup(TIMEOUT));
+        lookupElements.add(createKeywordAsLookup(WORKER));
+        lookupElements.add(createKeywordAsLookup(TRANSFORM));
+        lookupElements.add(createKeywordAsLookup(TRANSACTION));
+        lookupElements.add(createKeywordAsLookup(ABORT));
+        lookupElements.add(createKeywordAsLookup(ABORTED));
+        lookupElements.add(createKeywordAsLookup(COMMITTED));
+        lookupElements.add(createKeywordAsLookup(TRY));
+        lookupElements.add(createKeywordAsLookup(CATCH));
+        lookupElements.add(createKeywordAsLookup(FINALLY));
+        lookupElements.add(createKeywordAsLookup(ITERATE));
+        lookupElements.add(createKeywordAsLookup(WHILE));
+        lookupElements.add(createKeywordAsLookup(CONTINUE));
+        lookupElements.add(createKeywordAsLookup(BREAK));
+        lookupElements.add(createKeywordAsLookup(THROW));
+        return lookupElements;
+    }
+
     static void addValueKeywords(@NotNull CompletionResultSet resultSet) {
         addKeywordAsLookup(resultSet, TRUE);
         addKeywordAsLookup(resultSet, FALSE);
         addKeywordAsLookup(resultSet, NULL);
+    }
+
+    @NotNull
+    public static List<LookupElement> createValueKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(TRUE));
+        lookupElements.add(createKeywordAsLookup(FALSE));
+        lookupElements.add(createKeywordAsLookup(NULL));
+        return lookupElements;
     }
 
     /**
@@ -608,12 +636,12 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static List<LookupElement> createAnnotationLookupElements(@NotNull List<PsiElement> annotations) {
-        List<LookupElement> results = new LinkedList<>();
+        List<LookupElement> lookupElements = new LinkedList<>();
         for (PsiElement annotation : annotations) {
             LookupElement lookupElement = BallerinaCompletionUtils.createAnnotationLookupElement(annotation);
-            results.add(lookupElement);
+            lookupElements.add(lookupElement);
         }
-        return results;
+        return lookupElements;
     }
 
     /**
@@ -1146,7 +1174,7 @@ public class BallerinaCompletionUtils {
                                                                         fieldDefinitionNodes,
                                                                 @NotNull IdentifierPSINode definitionName,
                                                                 @Nullable InsertHandler<LookupElement> insertHandler) {
-        List<LookupElement> results = new LinkedList<>();
+        List<LookupElement> lookupElements = new LinkedList<>();
         for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
             IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode, IdentifierPSINode.class);
             TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
@@ -1155,9 +1183,9 @@ public class BallerinaCompletionUtils {
             }
             LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName, fieldType,
                     definitionName, insertHandler);
-            results.add(lookupElement);
+            lookupElements.add(lookupElement);
         }
-        return results;
+        return lookupElements;
     }
 
     static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {

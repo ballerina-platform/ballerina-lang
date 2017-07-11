@@ -33,6 +33,7 @@ import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
+import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
 import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
@@ -108,66 +109,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
                 case RULE_nameReference:
-
-
-                    //                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
-                    //                    if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
-                    //                        PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-                    //                        if (packageName != null) {
-                    //                            PsiFile containingFile = parent.getContainingFile();
-                    //                            // Todo - use util?
-                    //                            List<PsiElement> importedPackages = BallerinaPsiImplUtil
-                    // .getImportedPackages
-                    //                                    (containingFile);
-                    //                            for (PsiElement importedPackage : importedPackages) {
-                    //                                PsiReference reference = importedPackage.findReferenceAt(0);
-                    //                                if (reference == null) {
-                    //                                    continue;
-                    //                                }
-                    //                                PsiElement resolvedElement = reference.resolve();
-                    //                                if (resolvedElement == null) {
-                    //                                    continue;
-                    //                                }
-                    //                                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                    //                                if (packageName.getText().equals(resolvedPackage.getName())) {
-                    //                                    return new NameReference(this);
-                    //                                }
-                    //                            }
-                    //                        }
-                    //                    }
-
                     MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getParentOfType(parent, MapStructKeyNode.class);
                     if (mapStructKeyNode != null) {
-
-                        //                        // Eg: {test:'firstName':firstName}
-                        //                        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType
-                        // (mapStructKeyNode,
-                        //                                PackageNameNode.class);
-                        //                        if (packageNameNode != null) {
-                        //                            return new NameReference(this);
-                        //                        }
-                        //
-                        //                        PsiFile containingFile = parent.getContainingFile();
-                        //                        // Todo - use util?
-                        //                        List<PsiElement> importedPackages = BallerinaPsiImplUtil
-                        // .getImportedPackages
-                        //                                (containingFile);
-                        //                        for (PsiElement importedPackage : importedPackages) {
-                        //                            PsiReference reference = importedPackage.findReferenceAt(0);
-                        //                            if (reference == null) {
-                        //                                continue;
-                        //                            }
-                        //                            PsiElement resolvedElement = reference.resolve();
-                        //                            if (resolvedElement == null) {
-                        //                                continue;
-                        //                            }
-                        //                            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-                        //                            if (parent.getText().equals(resolvedPackage.getName())) {
-                        //                                return new PackageNameReference(this);
-                        //                            }
-                        //
-                        //                        }
-
                         return new StructKeyReference(this);
                     }
                     MapStructValueNode mapStructValueNode = PsiTreeUtil.getParentOfType(parent,
@@ -182,10 +125,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             return new FieldReference(this);
                         }
                         // Todo - remove ","
-                        if ((prevVisibleLeaf instanceof IdentifierPSINode || "attach".equals(prevVisibleLeaf.getText()))
+                        if ((prevVisibleLeaf instanceof IdentifierPSINode)
                                 && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
                             return null;
-                        } else if (",".equals(prevVisibleLeaf.getText())
+                        } else if (("attach".equals(prevVisibleLeaf.getText()) || ",".equals(prevVisibleLeaf.getText()))
                                 && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
                             return new AttachmentPointReference(this);
                         }
@@ -199,19 +142,6 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new AnnotationReference(this);
                 case RULE_connectorReference:
                     return new ConnectorReference(this);
-                //                case RULE_variableReference:
-                //                case RULE_parameter:
-                //                    // If "package:" is typed as an argument, it will be identified as a
-                // variableReference. So we
-                //                    // need to match it with a regex and return a PackageNameReference.
-                //                    if (parent.getText().matches(".+:")) {
-                //                        return new PackageNameReference(this);
-                //                    }
-                //                    PsiElement prevSibling = getPrevSibling();
-                //                    if (prevSibling != null && prevSibling.getText().matches(".+:")) {
-                //                        return new PackageNameReference(this);
-                //                    }
-                //                    return new VariableReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
                 case RULE_attachmentPoint:
@@ -245,6 +175,10 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
         if (parent.getParent() instanceof AttachmentPointNode) {
             return new AttachmentPointReference(this);
+        }
+
+        if (parent.getParent() instanceof AnnotationAttachmentNode) {
+            return new AnnotationAttributeValueReference(this);
         }
 
         return new NameReference(this);

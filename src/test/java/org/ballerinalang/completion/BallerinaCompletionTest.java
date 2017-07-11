@@ -489,6 +489,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>function A(){}", null, '@', "test");
     }
 
@@ -595,9 +596,10 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("pack");
         expectedLookups.add("test");
-        doTest("import org.pack; function test () { <caret> }",
+        expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+        doTest("import org.test; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
