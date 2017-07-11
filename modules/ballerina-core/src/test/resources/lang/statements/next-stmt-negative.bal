@@ -4,14 +4,14 @@ function calculateExp1(int x, int y) (int) {
         y = y + 1;
         if(y == 10){
             z = 100;
-            continue;
+            next;
         } else if( y > 20){
             z = 1000;
-            continue;
+            next;
         }
         z = z + 10;
     }
-    continue;
+    next;
     int a =10;
     return z;
 }

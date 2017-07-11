@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "next",
+        functionName = "getNext",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
         returnType = {@ReturnType(type = TypeEnum.ANY)},
         isPublic = true
@@ -47,7 +47,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                value = "The datatable object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "struct",
                value = "The struct created with the data of the current row") })
-public class Next extends AbstractNativeFunction {
+public class GetNext extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getRefArgument(ctx, 0);

@@ -79,10 +79,10 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
-import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NextStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -1187,9 +1187,9 @@ public class BLangModelBuilder {
         addToBlockStmt(breakStmt);
     }
 
-    public void createContinueStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
-        ContinueStmt continueStmt = new ContinueStmt(location, whiteSpaceDescriptor);
-        addToBlockStmt(continueStmt);
+    public void createNextStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+        NextStmt nextStmt = new NextStmt(location, whiteSpaceDescriptor);
+        addToBlockStmt(nextStmt);
     }
 
     public void startTransformStmt() {

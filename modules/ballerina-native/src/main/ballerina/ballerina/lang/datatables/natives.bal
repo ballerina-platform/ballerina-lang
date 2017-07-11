@@ -14,6 +14,6 @@ native function hasNext (datatable dt) (boolean);
 @doc:Description { value:"Retrives the current row and return a struct with the data in the columns"}
 @doc:Param { value:"dt: The datatable object" }
 @doc:Return { value:"any: The resulting row as a struct" }
-native function next (datatable dt) (any);
+native function getNext (datatable dt) (any);
 
 

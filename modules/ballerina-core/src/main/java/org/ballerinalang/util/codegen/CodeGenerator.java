@@ -94,10 +94,10 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
-import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NextStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -194,7 +194,7 @@ public class CodeGenerator implements NodeVisitor {
     private boolean structAssignment;
 
     private Stack<Instruction> breakInstructions = new Stack<>();
-    private Stack<Instruction> continueInstructions = new Stack<>();
+    private Stack<Instruction> nextInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
 
     public ProgramFile getProgramFile() {
@@ -888,7 +888,7 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         Expression conditionExpr = whileStmt.getCondition();
         Instruction gotoInstruction = InstructionFactory.get(InstructionCodes.GOTO, nextIP());
-        continueInstructions.push(gotoInstruction);
+        nextInstructions.push(gotoInstruction);
         conditionExpr.accept(this);
         Instruction ifInstruction = new Instruction(InstructionCodes.BR_FALSE,
                 conditionExpr.getTempOffset(), -1);
@@ -903,7 +903,7 @@ public class CodeGenerator implements NodeVisitor {
         ifInstruction.setOperand(1, nextIP);
         breakGotoInstruction.setOperand(0, nextIP);
         breakInstructions.pop();
-        continueInstructions.pop();
+        nextInstructions.pop();
     }
 
     @Override
@@ -913,9 +913,9 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(ContinueStmt continueStmt) {
-        generateFinallyInstructions(continueStmt, StatementKind.WHILE_BLOCK);
-        emit(continueInstructions.peek());
+    public void visit(NextStmt nextStmt) {
+        generateFinallyInstructions(nextStmt, StatementKind.WHILE_BLOCK);
+        emit(nextInstructions.peek());
     }
 
     @Override

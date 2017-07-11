@@ -4,7 +4,7 @@ function test () (string) {
         i = i + 1;
         transaction {
             if (i == 2) {
-                continue;
+                next;
             }
         }
     }

@@ -45,7 +45,6 @@ import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeNameCon
 import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeTypeExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.CallableUnitBodyContext;
 import org.ballerinalang.util.parser.BallerinaParser.CallableUnitSignatureContext;
-import org.ballerinalang.util.parser.BallerinaParser.ContinueStatementContext;
 import org.ballerinalang.util.parser.BallerinaParser.DefinitionContext;
 import org.ballerinalang.util.parser.BallerinaParser.FieldDefinitionContext;
 import org.ballerinalang.util.parser.BallerinaParser.MapStructKeyValueContext;
@@ -1138,18 +1137,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterContinueStatement(ContinueStatementContext ctx) {
+    public void enterNextStatement(BallerinaParser.NextStatementContext ctx) {
 
     }
 
     @Override
-    public void exitContinueStatement(ContinueStatementContext ctx) {
+    public void exitNextStatement(BallerinaParser.NextStatementContext ctx) {
         if (ctx.exception == null) {
             WhiteSpaceDescriptor whiteSpaceDescriptor = null;
             if (isVerboseMode) {
-                whiteSpaceDescriptor = WhiteSpaceUtil.getContinueStatementWS(tokenStream, ctx);
+                whiteSpaceDescriptor = WhiteSpaceUtil.getNextStatementWS(tokenStream, ctx);
             }
-            modelBuilder.createContinueStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
+            modelBuilder.createNextStmt(getCurrentLocation(ctx), whiteSpaceDescriptor);
         }
     }
 

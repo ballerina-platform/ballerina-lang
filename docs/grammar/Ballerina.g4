@@ -198,7 +198,7 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
-    |   continueStatement
+    |   nextStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -286,8 +286,8 @@ whileStatement
     :   'while' '(' expression ')' '{' statement* '}'
     ;
 
-continueStatement
-    :   'continue' ';'
+nextStatement
+    :   'next' ';'
     ;
 
 breakStatement

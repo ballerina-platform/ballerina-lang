@@ -105,10 +105,10 @@ import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
-import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NextStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -1225,9 +1225,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BLangExceptionHelper.throwSemanticError(stmt,
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
-            if (stmt instanceof ContinueStmt && whileStmtCount < 1) {
+            if (stmt instanceof NextStmt && whileStmtCount < 1) {
                 BLangExceptionHelper.throwSemanticError(stmt,
-                        SemanticErrors.CONTINUE_STMT_NOT_ALLOWED_HERE);
+                        SemanticErrors.NEXT_STMT_NOT_ALLOWED_HERE);
             }
 
             if (stmt instanceof AbortStmt && transactionStmtCount < 1) {
@@ -1246,7 +1246,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //                }
             }
 
-            if (stmt instanceof BreakStmt || stmt instanceof ContinueStmt || stmt instanceof ReplyStmt
+            if (stmt instanceof BreakStmt || stmt instanceof NextStmt || stmt instanceof ReplyStmt
                     || stmt instanceof AbortStmt) {
                 checkUnreachableStmt(blockStmt.getStatements(), stmtIndex + 1);
             }
@@ -1336,8 +1336,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(ContinueStmt continueStmt) {
-        checkParent(continueStmt);
+    public void visit(NextStmt nextStmt) {
+        checkParent(nextStmt);
     }
 
     @Override
@@ -3597,13 +3597,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         StatementKind childStmtType = stmt.getKind();
         while (StatementKind.CALLABLE_UNIT_BLOCK != parent.getKind()) {
             if (StatementKind.WHILE_BLOCK == parent.getKind() &&
-                    (StatementKind.BREAK == childStmtType || StatementKind.CONTINUE == childStmtType)) {
+                    (StatementKind.BREAK == childStmtType || StatementKind.NEXT == childStmtType)) {
                 return;
             } else if (StatementKind.TRANSACTION_BLOCK == parent.getKind()) {
                 if (StatementKind.BREAK == childStmtType) {
                     BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.BREAK_USED_IN_TRANSACTION);
-                } else if (StatementKind.CONTINUE == childStmtType) {
-                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.CONTINUE_USED_IN_TRANSACTION);
+                } else if (StatementKind.NEXT == childStmtType) {
+                    BLangExceptionHelper.throwSemanticError(stmt, SemanticErrors.NEXT_USED_IN_TRANSACTION);
                 }
             }
             parent = parent.getParent();

@@ -22,12 +22,12 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 
 /**
- * An {@code ContinueStmt} represents a continue statement.
+ * An {@code NextStmt} represents a next statement.
  */
-public class ContinueStmt extends AbstractStatement {
+public class NextStmt extends AbstractStatement {
 
 
-    public ContinueStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
+    public NextStmt(NodeLocation nodeLocations, WhiteSpaceDescriptor whiteSpaceDescriptor) {
         super(nodeLocations);
         this.whiteSpaceDescriptor = whiteSpaceDescriptor;
     }
@@ -39,6 +39,6 @@ public class ContinueStmt extends AbstractStatement {
 
     @Override
     public StatementKind getKind() {
-        return StatementKind.CONTINUE;
+        return StatementKind.NEXT;
     }
 }

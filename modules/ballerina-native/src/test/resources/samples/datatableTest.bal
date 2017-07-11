@@ -64,7 +64,7 @@ function testGetPrimitiveTypes () (int i, int l, float f, float d, boolean b, st
               boolean_type, string_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitive rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultPrimitive)dataStruct;
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
@@ -138,7 +138,7 @@ function testDateTime (int datein, int timein, int timestampin) (string date, st
                 from DateTimeTypes where row_id = 1", emptyParam);
     ResultDates rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultDates)dataStruct;
         time = rs.TIME_TYPE;
         date = rs.DATE_TYPE;
@@ -159,7 +159,7 @@ function testGetComplexTypes () (string blobValue, string clob, string binary) {
                   binary_type from ComplexTypes where row_id = 1", parameters);
     ResultObject rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultObject)dataStruct;
 
         blob blobData = rs.BLOB_TYPE;
@@ -183,7 +183,7 @@ function testArrayData () (map int_arr, map long_arr, map float_arr, map string_
               string_array from ArrayTypes where row_id = 1", parameters);
     ResultMap rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultMap)dataStruct;
 
         int_arr = rs.INT_ARRAY;
@@ -277,7 +277,7 @@ function testBlobData () (string blobStringData) {
     datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", parameters);
     blob blobData;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         ResultBlob rs;
         errors:TypeCastError err;
         rs, err = (ResultBlob)dataStruct;
@@ -298,7 +298,7 @@ function testDatatableAutoClose () (int i, string test) {
     datatable dt = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitiveInt rs;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultPrimitiveInt)dataStruct;
         i = rs.INT_TYPE;
     }
@@ -324,7 +324,7 @@ function testDatatableManualClose () (int data) {
     ResultPrimitiveInt rs;
     int i = 0;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         rs, _ = (ResultPrimitiveInt)dataStruct;
         int ret = rs.INT_TYPE;
         i = i + 1;
@@ -337,7 +337,7 @@ function testDatatableManualClose () (int data) {
     datatable dt2 = sql:ClientConnector.select(testDB, "SELECT int_type from DataTable WHERE row_id = 1", parameters);
     ResultPrimitiveInt rs2;
     while (datatables:hasNext(dt2)) {
-        any dataStruct = datatables:next(dt2);
+        any dataStruct = datatables:getNext(dt2);
         rs2, _ = (ResultPrimitiveInt)dataStruct;
         data = rs2.INT_TYPE;
     }
@@ -356,7 +356,7 @@ function testColumnAlias () (int i, int l, float f, float d, boolean b, string s
            dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1
            left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", parameters);
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         ResultSetTestAlias rs;
         errors:TypeCastError err;
         rs, err = (ResultSetTestAlias)dataStruct;
@@ -382,7 +382,7 @@ function testBlobInsert () (int i) {
     datatable dt = sql:ClientConnector.select(testDB, "SELECT blob_type from ComplexTypes where row_id = 1", params);
     blob blobData;
     while (datatables:hasNext(dt)) {
-        any dataStruct = datatables:next(dt);
+        any dataStruct = datatables:getNext(dt);
         var rs, err = (ResultBlob)dataStruct;
         blobData = rs.BLOB_TYPE;
     }
