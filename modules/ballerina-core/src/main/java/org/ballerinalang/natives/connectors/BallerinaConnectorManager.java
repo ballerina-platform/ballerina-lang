@@ -46,6 +46,8 @@ public class BallerinaConnectorManager {
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
 
     private boolean connectorsInitialized = false;
+
+    private MessageProcessor messageProcessor;
     
     /* ServerConnectors which startup is delayed at the service deployment time */
     private List<ServerConnector> startupDelayedServerConnectors = new ArrayList<>();
@@ -144,7 +146,19 @@ public class BallerinaConnectorManager {
         //3. Initialize client connectors
         connectorManager.initializeClientConnectors(messageProcessor);
 
+        //4. Store message processor in connector manager
+        this.messageProcessor = messageProcessor;
+
         connectorsInitialized = true;
+    }
+
+    /**
+     * Retrieve message processor bound to ballerina connector manager.
+     *
+     * @return MessageProcessor bound to ballerina connector manager.
+     */
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 
     /**
