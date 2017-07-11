@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.filters.PackageActionAndFunctionFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
@@ -42,8 +43,16 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
             return actionAndFunctionFilter
                     .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
         } else {
+            // Add the create keyword
+            CompletionItem createKeyword = new CompletionItem();
+            createKeyword.setInsertText("create ");
+            createKeyword.setLabel("create");
+            createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            createKeyword.setSortText(ItemResolverConstants.PRIORITY_7);
+
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
             populateCompletionItemList(symbols, completionItems);
+            completionItems.add(createKeyword);
             return completionItems;
         }
     }

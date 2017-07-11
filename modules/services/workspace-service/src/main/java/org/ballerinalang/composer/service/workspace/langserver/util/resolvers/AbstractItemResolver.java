@@ -247,4 +247,39 @@ public abstract class AbstractItemResolver {
 
         return isAnnotation;
     }
+
+    /**
+     * Get the index of the equal sign
+     * @param dataModel - suggestions filter data model
+     * @return {@link Integer}
+     */
+    public int isPreviousTokenEqualSign(SuggestionsFilterDataModel dataModel) {
+        int equalSignIndex;
+        int searchTokenIndex = dataModel.getTokenIndex() - 1;
+        TokenStream tokenStream = dataModel.getTokenStream();
+
+        while (true) {
+            if (searchTokenIndex > -1) {
+                Token token = tokenStream.get(searchTokenIndex);
+                String tokenStr = token.getText();
+
+                // If the token's channel is verbose channel we skip to the next token
+                if (token.getChannel() != 0) {
+                    searchTokenIndex--;
+                } else if (tokenStr.equals("=")) {
+                    equalSignIndex = searchTokenIndex;
+                    break;
+                } else {
+                    // In this case the token channel is the default channel and also not the equal sign token.
+                    equalSignIndex = -1;
+                    break;
+                }
+            } else {
+                equalSignIndex = -1;
+                break;
+            }
+        }
+
+        return equalSignIndex;
+    }
 }
