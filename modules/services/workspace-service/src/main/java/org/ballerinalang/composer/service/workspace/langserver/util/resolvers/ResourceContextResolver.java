@@ -22,6 +22,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,15 @@ public class ResourceContextResolver extends AbstractItemResolver {
                                            HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+
+        if (this.isAnnotationContext(dataModel)) {
+            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
+                    .resolveItems(dataModel, symbols, resolvers));
+        } else if (dataModel.getParserRuleContext() instanceof BallerinaParser.ParameterContext) {
+            completionItems.addAll(resolvers.get(BallerinaParser.ParameterContext.class)
+                    .resolveItems(dataModel, symbols, null));
+        }
+
         return completionItems;
     }
 }

@@ -141,9 +141,6 @@ class ToolGroupView extends React.Component {
                             <a className="collapse-icon" onClick={this.changeGridStyle} data-style="tiles" >
                                 <i className="fw fw-tiles" />
                             </a>
-                            <a className="collapse-icon" onClick={this.changeGridStyle} data-style="grid">
-                                <i className="fw fw-grid" />
-                            </a>
                             <a className="collapse-icon" onClick={this.changeGridStyle} data-style="list" >
                                 <i className="fw fw-list" />
                             </a>

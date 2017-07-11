@@ -33,8 +33,6 @@ class VariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
-        // We need to Calculate from which level of the symbol table. Decide the level by considering
-        // the number of : and the . from the current token and search is terminated when an endline met
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BTypeFilter bTypeFilter = new BTypeFilter();

@@ -73,34 +73,6 @@
     text-align: center;
 }
 
-.tool-group-body-grid .tool-container {
-    width: 69px !important;
-    height: 69px !important; 
-}
-
-.tool-group-body-grid .tool-container > .tool-image{
-    max-width: 23px;
-    max-height: 24px;
-    display: block;
-    margin: 5px auto 3px auto;    
-}
-
-.tool-group-body-grid .tool-container .tool-title-wrap{
-    display: table-cell;
-    height: 30px;
-    vertical-align: middle;
-    width: 61px;
-}
-
-.tool-group-body-grid .tool-container .tool-title-wrap > .tool-title{
-    display: inline-block;
-    color:black;
-    overflow: hidden;
-    font-size: 0.84em;
-    white-space: pre-wrap;
-    text-align: center;
-}
-
 .tool-group-body-list .tool-container {
     width: 106px !important;
     border: none;
