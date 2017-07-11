@@ -15,6 +15,8 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+# API Docs
+
 <#list metaData as namespace>
 ## ${namespace.name?capitalize}
 
