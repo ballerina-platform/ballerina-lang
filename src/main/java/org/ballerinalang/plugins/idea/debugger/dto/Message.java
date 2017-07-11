@@ -23,6 +23,7 @@ public class Message {
 
     private String code;
     private String message;
+    private String threadId;
     private BreakPoint location;
     private List<Frame> frames = new ArrayList<>();
 
@@ -40,6 +41,14 @@ public class Message {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 
     public BreakPoint getLocation() {

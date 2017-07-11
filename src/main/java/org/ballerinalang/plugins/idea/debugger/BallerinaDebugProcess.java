@@ -41,6 +41,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
+import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
@@ -53,6 +54,7 @@ import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.ballerinalang.plugins.idea.debugger.protocol.Response;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -166,17 +168,50 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_OVER);
+        if (context != null) {
+            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId =
+                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                myConnector.sendCommand(Command.STEP_OVER, threadId);
+                return;
+            }
+        }
+        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
+                ConsoleViewContentType.ERROR_OUTPUT);
+        getSession().stop();
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_IN);
+        if (context != null) {
+            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId =
+                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                myConnector.sendCommand(Command.STEP_IN, threadId);
+                return;
+            }
+        }
+        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
+                ConsoleViewContentType.ERROR_OUTPUT);
+        getSession().stop();
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_OUT);
+        if (context != null) {
+            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId =
+                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                myConnector.sendCommand(Command.STEP_OUT, threadId);
+                return;
+            }
+        }
+        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
+                ConsoleViewContentType.ERROR_OUTPUT);
+        getSession().stop();
     }
 
     @Override
@@ -188,7 +223,18 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.RESUME);
+        if (context != null) {
+            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId =
+                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                myConnector.sendCommand(Command.RESUME, threadId);
+                return;
+            }
+        }
+        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
+                ConsoleViewContentType.ERROR_OUTPUT);
+        getSession().stop();
     }
 
     @Nullable
@@ -353,21 +399,32 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         int line = breakpointPosition.getLine();
                         Project project = getSession().getProject();
 
-                        String name = "";
+                        String name = file.getName();
+                        String packagePath = ".";
                         // Only get relative path if a package declaration is present in the file.
                         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
                         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
                                 PackageDeclarationNode.class);
                         if (packageDeclarationNode != null) {
-                            name = BallerinaUtil.suggestPackageNameForFile(project, file);
-                            // We don't need to use '\' instead of '/' here since the debug server will convert it to
-                            // proper separator character.
-                            name = name.replaceAll("\\.", "/") + "/";
-                        }
-                        name += file.getName();
 
-                        stringBuilder.append("{\"fileName\":\"").append(name).append("\"");
-                        stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
+
+                            PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
+                                    PackagePathNode.class);
+                            if (packagePathNode != null && !packagePathNode.getText().isEmpty()) {
+                                packagePath = packagePathNode.getText();
+                            }
+                            //                            name = BallerinaUtil.suggestPackageNameForFile(project, file);
+                            //                            // We don't need to use '\' instead of '/' here since the
+                            // debug server will convert it to
+                            //                            // proper separator character.
+                            //                            name = name.replaceAll("\\.", "/") + "/";
+
+
+                        }
+
+                        stringBuilder.append("{\"packagePath\":\"").append(packagePath).append("\", ");
+                        stringBuilder.append("\"fileName\":\"").append(name).append("\", ");
+                        stringBuilder.append("\"lineNumber\":").append(line + 1).append("}");
                         if (i < size - 1) {
                             stringBuilder.append(",");
                         }

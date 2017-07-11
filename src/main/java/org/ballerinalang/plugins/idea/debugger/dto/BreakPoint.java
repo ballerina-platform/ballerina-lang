@@ -18,8 +18,17 @@ package org.ballerinalang.plugins.idea.debugger.dto;
 
 public class BreakPoint {
 
+    private String packagePath;
     private String fileName;
     private int lineNumber = -1;
+
+    public String getPackagePath() {
+        return packagePath;
+    }
+
+    public void setPackagePath(String packagePath) {
+        this.packagePath = packagePath;
+    }
 
     public String getFileName() {
         return fileName;
