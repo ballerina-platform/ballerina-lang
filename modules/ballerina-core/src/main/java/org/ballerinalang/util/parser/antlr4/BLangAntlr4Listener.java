@@ -23,7 +23,6 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
@@ -1842,6 +1841,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTemplateLiteralExpression(BallerinaParser.TemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitTemplateLiteralExpression(BallerinaParser.TemplateLiteralExpressionContext ctx) {
+
+    }
+
+    @Override
     public void enterArrayLiteralExpression(ArrayLiteralExpressionContext ctx) {
 
     }
@@ -2086,6 +2095,21 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTemplateLiteral(BallerinaParser.TemplateLiteralContext ctx) {
+
+    }
+
+    @Override
+    public void exitTemplateLiteral(BallerinaParser.TemplateLiteralContext ctx) {
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getTemplateLiteralWS(tokenStream, ctx);
+        }
+
+        modelBuilder.createStringExpr(getCurrentLocation(ctx), ctx, whiteSpaceDescriptor);
+    }
+
+    @Override
     public void enterSimpleLiteral(SimpleLiteralContext ctx) {
 
     }
@@ -2161,7 +2185,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (terminalNode != null) {
             String stringLiteral = terminalNode.getText();
             stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
-            stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            stringLiteral = StringUtils.removeEscapeChars(stringLiteral);
             modelBuilder.createStringLiteral(getCurrentLocation(ctx), whiteSpaceDescriptor, stringLiteral);
             return;
         }

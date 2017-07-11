@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.builder;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
@@ -107,12 +108,15 @@ import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.antlr4.StringUtils;
 import org.ballerinalang.util.parser.antlr4.WhiteSpaceRegions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.Supplier;
@@ -710,6 +714,64 @@ public class BLangModelBuilder {
         }
 
         exprStack.push(expr);
+    }
+
+    public void createStringExpr(NodeLocation location, BallerinaParser.TemplateLiteralContext ctx,
+                                 WhiteSpaceDescriptor whiteSpaceDescriptor) {
+
+        TerminalNode terminalNode;
+
+        // End
+        terminalNode = ctx.StringInterpolationTemplateEnd();
+        if (terminalNode != null) {
+            String stringLiteral = terminalNode.getText();
+            stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
+            stringLiteral = StringUtils.removeEscapeChars(stringLiteral);
+            createStringLiteral(location, whiteSpaceDescriptor, stringLiteral);
+        }
+        Expression endStr = exprStack.pop();
+        checkArgExprValidity(location, endStr);
+
+        Expression finalExpr = exprStack.pop();
+        checkArgExprValidity(location, finalExpr);
+
+        BinaryExpression addExpression = new AddExpression(location, whiteSpaceDescriptor, finalExpr, endStr);
+
+        // Middle List
+        List<TerminalNode> middleTerminalNodes = ctx.StringInterpolationTemplateMiddle();
+        ListIterator<TerminalNode> terminalNodeIterator = middleTerminalNodes.listIterator(middleTerminalNodes.size());
+        while (terminalNodeIterator.hasPrevious()) {
+            TerminalNode middleTerminalNode = terminalNodeIterator.previous();
+            if (middleTerminalNode != null) {
+                String stringLiteral = middleTerminalNode.getText();
+                stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 2);
+                stringLiteral = StringUtils.removeEscapeChars(stringLiteral);
+                createStringLiteral(location, whiteSpaceDescriptor, stringLiteral);
+            }
+
+            Expression middleExprStr = exprStack.pop();
+            checkArgExprValidity(location, middleExprStr);
+            addExpression = new AddExpression(location, whiteSpaceDescriptor, middleExprStr, addExpression);
+
+            Expression middleExpr = exprStack.pop();
+            checkArgExprValidity(location, middleExpr);
+            addExpression = new AddExpression(location, whiteSpaceDescriptor, middleExpr, addExpression);
+        }
+
+        // Start
+        terminalNode = ctx.StringInterpolationTemplateStart();
+        if (terminalNode != null) {
+            String stringLiteral = terminalNode.getText();
+            stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 2);
+            stringLiteral = StringUtils.removeEscapeChars(stringLiteral);
+            createStringLiteral(location, whiteSpaceDescriptor, stringLiteral);
+        }
+
+        Expression startStr = exprStack.pop();
+        checkArgExprValidity(location, startStr);
+        addExpression = new AddExpression(location, whiteSpaceDescriptor, startStr, addExpression);
+
+        exprStack.push(addExpression);
     }
 
     public void createUnaryExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String op) {

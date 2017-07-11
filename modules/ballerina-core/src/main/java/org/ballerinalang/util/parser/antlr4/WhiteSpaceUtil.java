@@ -880,6 +880,18 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getTemplateLiteralWS(CommonTokenStream tokenStream,
+                                                          BallerinaParser.TemplateLiteralContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SIMPLE_LITERAL_PRECEDING_WHITESPACE,
+                               getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.SIMPLE_LITERAL_FOLLOWING_WHITESPACE,
+                               getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+
+
     public static WhiteSpaceDescriptor getArrayLiteralExpWS(CommonTokenStream tokenStream,
                                                             BallerinaParser.ArrayLiteralContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
