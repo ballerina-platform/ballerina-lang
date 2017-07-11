@@ -119,6 +119,14 @@ const ExportDiagramDialog = Backbone.View.extend({
             '</div>' +
             '</div>' +
             '</div>' +
+            '<div class="form-group">' +
+            '<div class="file-type-selector">' +
+            '<select id="fileType" class="file-type-list btn btn-default">' +
+            '<option class="file-type-item">SVG</option>' +
+            '<option class="file-type-item">PNG</option>' +
+            '</select>' +
+            '</div>' +
+            '</div>' +
             "<div class='form-group'>" +
             "<div class='file-dialog-form-btn'>" +
             "<button id='saveButton' type='button' class='btn btn-primary'>Export" +
@@ -163,6 +171,7 @@ const ExportDiagramDialog = Backbone.View.extend({
         const newWizardError = fileSave.find('#newWizardError');
         const location = fileSave.find('input').filter('#location');
         const configName = fileSave.find('input').filter('#configName');
+        const fileType = fileSave.find('select').filter('#fileType');
 
         const treeContainer = fileSave.find('div').filter('#fileTree');
         fileBrowser = new FileBrowser({
@@ -184,11 +193,14 @@ const ExportDiagramDialog = Backbone.View.extend({
         function handleExport() {
             const _location = location.val();
             let _configName = configName.val();
+            let _fileType = fileType.val();
+
             if (_.isEmpty(_location)) {
                 newWizardError.text('Please enter a valid file export location');
                 newWizardError.show();
                 return;
             }
+
             if (_.isEmpty(_configName)) {
                 newWizardError.text('Please enter a valid file name');
                 newWizardError.show();
@@ -199,8 +211,20 @@ const ExportDiagramDialog = Backbone.View.extend({
                 _configName = _configName.replace('.bal', '');
             }
 
-            if (!_configName.endsWith('.svg')) {
-                _configName += '.svg';
+            if (!_configName.endsWith('.svg') && !_configName.endsWith('.png')) {
+                if (_fileType === 'SVG') {
+                    _configName += '.svg';
+                    fileType.val('SVG');
+                } else if (_fileType === 'PNG') {
+                    _configName += '.png';
+                    fileType.val('PNG');
+                }
+            } else {
+                if (_configName.endsWith('.svg')) {
+                    fileType.val('SVG');
+                } else if (_configName.endsWith('.png')) {
+                    fileType.val('PNG');
+                }
             }
 
             const callback = function (isSaved) {
@@ -219,7 +243,8 @@ const ExportDiagramDialog = Backbone.View.extend({
                     if (confirmed) {
                         exportDiagram({
                             location: _location,
-                            configName: -_configName
+                            configName: _configName,
+                            fileType: _fileType,
                         }, callback);
                     } else {
                         callback(false);
@@ -235,7 +260,8 @@ const ExportDiagramDialog = Backbone.View.extend({
             } else {
                 exportDiagram({
                     location: _location,
-                    configName: _configName
+                    configName: _configName,
+                    fileType: _fileType,
                 }, callback);
             }
         }
@@ -431,7 +457,7 @@ const ExportDiagramDialog = Backbone.View.extend({
                         } else if (property === "height") {
                             to.style[property] = from.height ? ("" + from.height.baseVal.value) : "auto";
                         } else if (property === "visibility") {
-                            if(computed_style_object[property] === "hidden"){
+                            if (computed_style_object[property] === "hidden") {
                                 to.style[property] = computed_style_object[property];
                             }
                         } else {
@@ -475,48 +501,84 @@ const ExportDiagramDialog = Backbone.View.extend({
         }
 
         /**
+         * send the payload to the backend.
+         *
+         * @param {string} location - location to save the file.
+         * @param {string} configName - file name.
+         * @param {string} fileType - file type.
+         * @param {function} callServer - call back to server.
+         * */
+        function sendPayload(location, configName, fileType, callServer) {
+            let payload = '';
+            const config = getSVG();
+            if (fileType === "SVG") {
+                payload = `location=${  btoa(location)  }&configName=${  btoa(configName)
+                    }&config=${  encodeURIComponent(config)}`;
+                callServer(payload);
+            } else if (fileType === "PNG") {
+                let canvas = $("<canvas width='1541' height='1005'/>")[0];
+                let ctx = canvas.getContext("2d");
+                let image = new Image();
+                image.onload = function load() {
+                    ctx.drawImage(image, 0, 0);
+                    let png = canvas.toDataURL("image/png");
+                    let img = png.replace('data:image/png;base64,', '');
+                    img = img.replace(' ', '+');
+                    payload = `location=${  btoa(location)  }&configName=${  btoa(configName)
+                        }&imageFile=true&config=${encodeURIComponent(img)}`;
+                    callServer(payload);
+                    $(".diagram").append(`<img src="${png}"/>`);
+                };
+                image.src = 'data:image/svg+xml;charset-utf-8,' + encodeURIComponent(config);
+            }
+        }
+
+        /**
          * export the diagram.
          *
          * @param {object} options - options to be passed to backend service.
-         * @param {func} callback - call back to be called on success or failure.
+         * @param {function} callback - call back to be called on success or failure.
          * */
         function exportDiagram(options, callback) {
             const workspaceServiceURL = app.config.services.workspace.endpoint;
             const saveServiceURL = `${workspaceServiceURL}/write`;
-            const config = getSVG();
-            const payload = `location=${  btoa(options.location)  }&configName=${  btoa(options.configName)
-                }&config=${  encodeURIComponent(config)}`;
 
-            $.ajax({
-                url: saveServiceURL,
-                type: 'POST',
-                data: payload,
-                contentType: 'text/plain; charset=utf-8',
-                async: false,
-                success(data, textStatus, xhr) {
-                    if (xhr.status === 200) {
-                        exportDiagramModal.modal('hide');
-                        log.debug('Diagram successfully exported');
-                        callback(true);
-                    } else {
-                        newWizardError.text(data.Error);
+            // Ajax call to send the payload to the server.
+            let callServer = function (payload) {
+                $.ajax({
+                    url: saveServiceURL,
+                    type: 'POST',
+                    data: payload,
+                    contentType: 'text/plain; charset=utf-8',
+                    async: false,
+                    success(data, textStatus, xhr) {
+                        if (xhr.status === 200) {
+                            exportDiagramModal.modal('hide');
+                            log.debug('Diagram successfully exported');
+                            callback(true);
+                        } else {
+                            newWizardError.text(data.Error);
+                            newWizardError.show();
+                            callback(false);
+                        }
+                    },
+                    error(res, errorCode, error) {
+                        let msg = _.isString(error) ? error : res.statusText;
+                        if (isJsonString(res.responseText)) {
+                            let resObj = JSON.parse(res.responseText);
+                            if (_.has(resObj, 'Error')) {
+                                msg = _.get(resObj, 'Error');
+                            }
+                        }
+                        newWizardError.text(msg);
                         newWizardError.show();
                         callback(false);
-                    }
-                },
-                error(res, errorCode, error) {
-                    let msg = _.isString(error) ? error : res.statusText;
-                    if (isJsonString(res.responseText)) {
-                        let resObj = JSON.parse(res.responseText);
-                        if (_.has(resObj, 'Error')) {
-                            msg = _.get(resObj, 'Error');
-                        }
-                    }
-                    newWizardError.text(msg);
-                    newWizardError.show();
-                    callback(false);
-                },
-            });
+                    },
+                });
+            };
+
+            // Send the payload as to the file type.
+            sendPayload(options.location, options.configName, options.fileType, callServer);
         }
     },
 });

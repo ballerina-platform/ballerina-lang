@@ -38,6 +38,12 @@ class MenuItem extends EventChannel {
         item.append(link);
         link.append(title);
 
+        // If separator is enabled.
+        if(_.get(this,'definition.separator')){
+            // Add separator class.
+            item.addClass('menu-item-separator');
+        }
+
         title.text(_.get(this, 'definition.label'));
         this._linkElement = link;
         this._title = title;

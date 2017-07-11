@@ -99,7 +99,7 @@ public class WorkspaceService {
                     .build();
         } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage());
-            return  getErrorResponse(throwable);
+            return getErrorResponse(throwable);
         }
     }
 
@@ -125,7 +125,7 @@ public class WorkspaceService {
     public Response create(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
         try {
             String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                   type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
+                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
             workspace.create(path, type);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
@@ -143,7 +143,7 @@ public class WorkspaceService {
     public Response delete(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
         try {
             String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
-                   type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
+                    type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
             workspace.delete(path, type);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
@@ -162,7 +162,7 @@ public class WorkspaceService {
                                 @DefaultValue(".bal") @QueryParam("extensions") String extensions) {
         try {
             List<String> extensionList = Arrays.asList(extensions.split(","));
-    
+
             return Response.status(Response.Status.OK)
                     .entity(workspace.listFilesInPath(new String(Base64.getDecoder().decode(path),
                             Charset.defaultCharset()), extensionList))
@@ -181,6 +181,7 @@ public class WorkspaceService {
             String location = "";
             String configName = "";
             String config = "";
+            String isImageFile = "";
             Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
             while (locationMatcher.find()) {
                 location = locationMatcher.group(1);
@@ -188,6 +189,10 @@ public class WorkspaceService {
             Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
             while (configNameMatcher.find()) {
                 configName = configNameMatcher.group(1);
+            }
+            Matcher isImageFileMatcher = Pattern.compile("imageFile=(.*?)&config").matcher(payload);
+            while (isImageFileMatcher.find()) {
+                isImageFile = isImageFileMatcher.group(1);
             }
             String[] splitConfigContent = payload.split("config=");
             if (splitConfigContent.length > 1) {
@@ -197,10 +202,18 @@ public class WorkspaceService {
             byte[] base64ConfigName = Base64.getDecoder().decode(configName);
             byte[] base64Location = Base64.getDecoder().decode(location);
             byte[] configDecoded = URLDecoder.decode(config, "UTF-8").getBytes("UTF-8");
-            Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
-                                  System.getProperty(FILE_SEPARATOR) +
-                                  new String(base64ConfigName, Charset.defaultCharset())),
-                    configDecoded);
+            if (isImageFile.equals("true")) {
+                byte[] base64Decoded = Base64.getDecoder().decode(configDecoded);
+                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
+                                System.getProperty(FILE_SEPARATOR) +
+                                new String(base64ConfigName, Charset.defaultCharset())),
+                        base64Decoded);
+            } else {
+                Files.write(Paths.get(new String(base64Location, Charset.defaultCharset()) +
+                                System.getProperty(FILE_SEPARATOR) +
+                                new String(base64ConfigName, Charset.defaultCharset())),
+                        configDecoded);
+            }
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
             return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
