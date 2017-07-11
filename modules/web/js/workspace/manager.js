@@ -276,7 +276,7 @@ class WorkspaceManager {
                 const activeFile = activeTab.getFile();
                 const folderPath = path.substring(0, path.lastIndexOf(this.app.getPathSeperator()));
                 const fileName = path.substring(path.lastIndexOf(this.app.getPathSeperator()) + 1);
-                const config = activeTab.getBallerinaFileEditor().getContent();
+                const config = activeTab.getFile().getContent();
 
                 activeFile.setPath(folderPath)
                     .setName(fileName)
@@ -434,12 +434,7 @@ class WorkspaceManager {
         const activeTab = this.app.tabController.getActiveTab();
         const codeFormatMenuItem = this.app.menuBar.getMenuItemByID('code.format');
         if (activeTab instanceof FileTab) {
-            const fileEditor = activeTab.getBallerinaFileEditor();
-            if (!_.isNil(fileEditor) && fileEditor.isInSourceView()) {
-                codeFormatMenuItem.enable();
-            } else {
-                codeFormatMenuItem.disable();
-            }
+            codeFormatMenuItem.enable();
         } else {
             codeFormatMenuItem.disable();
         }

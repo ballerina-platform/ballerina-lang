@@ -20,18 +20,9 @@ import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import EventChannel from 'event_channel';
-// FIXME: importing ast visitor here as it magically resolve subsequent module loading issue
-// should be due to an unresolved cyclic dependency
-import ASTVisitor from 'ballerina/visitors/ast-visitor';
-import BallerinaFileEditor from 'ballerina/views/ballerina-file-editor.jsx';
-import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
-import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
-import Backend from 'ballerina/views/backend';
 import Tab from './tab';
 import File from '../workspace/file';
-import DebugManager from '../debugger/debug-manager';
-import BallerinaEnvFactory from '../ballerina/env/ballerina-env-factory';
+import BallerinaFileEditor from '../ballerina/views/ballerina-file-editor.jsx';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
 import UndoableBalEditorOperation from '../ballerina/undo-manager/undoable-bal-editor-operation';
 
@@ -114,61 +105,6 @@ class FileTab extends Tab {
         const editorReactRoot = React.createElement(BallerinaFileEditor, editorProps, null);
         ReactDOM.render(editorReactRoot, this.getContentContainer());
     }
-   
-    initHandlers() {
-
-        const fileEditorEventChannel = new EventChannel();
-
-        // change tab header class to match look and feel of source view
-        fileEditorEventChannel.on('source-view-activated swagger-view-activated', function () {
-            this.getHeader().addClass('inverse');
-            this.app.workspaceManager.updateMenuItems();
-        }, this);
-        fileEditorEventChannel.on('design-view-activated', function () {
-            this.getHeader().removeClass('inverse');
-            this.app.workspaceManager.updateMenuItems();
-        }, this);
-
-        fileEditorEventChannel.on('design-view-activated', () => {
-            const breakpoints = fileEditor.getSourceView().getBreakpoints() || [];
-            fileEditor.showDesignViewBreakpoints(breakpoints);
-        }, this);
-
-        fileEditorEventChannel.on('source-view-activated', () => {
-            fileEditor.showSourceViewBreakPoints();
-        });
-
-        fileEditorEventChannel.on('add-breakpoint', function (row) {
-            DebugManager.addBreakPoint(row, this._file.getName());
-        }, this);
-
-        fileEditorEventChannel.on('remove-breakpoint', function (row) {
-            DebugManager.removeBreakPoint(row, this._file.getName());
-        }, this);
-
-        this.on('tab-removed', function () {
-            const docUri = this._file.isPersisted() ? this._file.getPath() : (`/temp/${this._file.id}`);
-            // Send document closed notification to the language server
-            const documentOptions = {
-                textDocument: {
-                    documentUri: docUri,
-                    documentId: this._file.id,
-                },
-            };
-            //this.app.langseverClientController.documentDidCloseNotification(documentOptions);
-            this.removeAllBreakpoints();
-        });
-
-        DebugManager.on('debug-hit', (message) => {
-            const position = message.location;
-            // Normalize file separator to /, ballerina debugger core can use file seperator \ or / depending on the OS
-            // TODO: refactor this after API changes of BreakpointDTO  in core
-            const fileName = position.fileName.replace(/\\/g, '/');
-            if (fileName === fileEditor.getFileNameWithPackage()) {
-                fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
-            }
-        }, this);
-    }
 
     /**
      * Updates the header/title of the file-tab
@@ -181,44 +117,6 @@ class FileTab extends Tab {
         } else {
             this.getHeader().setText(this.getTitle());
         }
-    }
-
-    /**
-     * Re-render current ballerina file.
-     */
-    reRender() {
-        if (this._fileEditor) {
-            this._fileEditor.reRender();
-        }
-    }
-
-    /**
-     * Gets the ballerina file editor
-     *
-     * @returns {BallerinaFileEditor} The file editor.
-     * @memberof FileTab
-     */
-    getBallerinaFileEditor() {
-        return this._fileEditor;
-    }
-
-    /**
-     * Removes all breakpoints using {@link DebugManager}.
-     *
-     * @memberof FileTab
-     */
-    removeAllBreakpoints() {
-        DebugManager.removeAllBreakpoints(this.file.getName());
-    }
-
-    /**
-     * Gets all debug points using {@link DebugManager}.
-     *
-     * @returns {DebugPoint[]} Debug points.
-     * @memberof FileTab
-     */
-    getBreakPoints() {
-        return DebugManager.getDebugPoints(this.file.getName());
     }
 
     /**

@@ -20,6 +20,7 @@ import _ from 'lodash';
 import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
+import ASTVisitor from 'ballerina/visitors/ast-visitor';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
