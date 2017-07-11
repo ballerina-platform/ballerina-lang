@@ -62,7 +62,7 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
         <th>Name</th>
         <th>Description</th>
         <th>Default Value</th>
-        <th>Possible Types</th>
+        <th>Possible Data Types</th>
         <th>Optional</th>
         <th>Dynamic</th>
     </tr>
