@@ -20,14 +20,21 @@ import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
+import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -196,11 +203,47 @@ public class StatementReference extends BallerinaElementReference {
             //                            results.add(lookupElement);
             //                        }
 
-            List<LookupElement> fields =
-                    BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
-                            (IdentifierPSINode) resolvedElement,
-                            PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            List<LookupElement> fields = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
+                    (IdentifierPSINode) resolvedElement, PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             results.addAll(fields);
+        } else {
+            // Todo - add packages, variables, packages, constants
+
+            PsiFile containingFile = identifier.getContainingFile();
+            PsiFile originalFile = containingFile.getOriginalFile();
+
+            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
+                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+            results.addAll(packages);
+
+            // Todo - use a util method
+            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                    ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
+                    ConnectorDefinitionNode.class);
+            if (scope != null) {
+
+                int caretOffset = identifier.getStartOffset();
+
+                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                        caretOffset);
+                results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
+
+                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
+
+                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
+                results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
+
+                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+            }
+
+            PsiDirectory containingPackage = originalFile.getParent();
+            if (containingPackage != null) {
+                List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
+                results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+            }
         }
         return results.toArray(new LookupElement[results.size()]);
     }

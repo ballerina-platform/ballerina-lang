@@ -22,6 +22,9 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -30,6 +33,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils.*;
@@ -46,6 +50,12 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             if (prevVisibleSibling instanceof IdentifierPSINode) {
                 addAttachKeyword(result);
                 return;
+            }
+
+            ANTLRPsiNode definitionParent = PsiTreeUtil.getParentOfType(parent, CallableUnitBodyNode.class,
+                    ServiceBodyNode.class, ConnectorBodyNode.class);
+            if (definitionParent != null & prevVisibleSibling != null && "=".equals(prevVisibleSibling.getText())) {
+                addCreateKeyword(result);
             }
         }
 

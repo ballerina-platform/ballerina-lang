@@ -844,7 +844,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionFromPackageInvocation23() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test", "false", "null", "true");
+                "args", "main", "test", "s");
     }
 
     public void testFunctionFromPackageInvocation24() {
@@ -872,13 +872,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinitionWithTraileringCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = \"TEST\" + <caret> }",
-                "args", "main", "test", "false", "null", "true");
+                "args", "main", "test");
     }
 
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test", "create", "false", "null", "true");
+                "args", "main", "test", "create");
     }
 
     public void testConnectorInit() {
@@ -906,8 +906,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreation() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "A", "test", "false",
-                "null", "true");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test");
     }
 
     public void testConnectorCreationPackageAutoCompletion() {
@@ -918,9 +917,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        // todo - remove c
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "c", "test", "false", "null", "true");
+                "create", "A", "test");
     }
 
     public void testVariablesInitializationAfterDeclaration() {
@@ -974,12 +972,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = s1 + <caret> }",
-                "s1", "s2", "A", "false", "null", "true");
+                "s1", "s2", "A");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A", "create", "false", "null", "true");
+                "s1", "s2", "A", "create");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {

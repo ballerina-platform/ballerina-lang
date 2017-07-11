@@ -23,6 +23,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
@@ -30,7 +31,6 @@ import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
@@ -206,10 +206,17 @@ public class NameReference extends BallerinaElementReference {
             //                    GlobalVariableDefinitionNode.class);
             //            if (globalVariableDefinitionNode == null) {
 
-            if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
+
+            ANTLRPsiNode definitionParent = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
+                    ServiceBodyNode.class, ConnectorBodyNode.class);
+            if (definitionParent != null || prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
+                //            if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
                 List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
                 results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
+                //            }
             }
+
+
             //            }
 
             List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsFromPackage(containingPackage);

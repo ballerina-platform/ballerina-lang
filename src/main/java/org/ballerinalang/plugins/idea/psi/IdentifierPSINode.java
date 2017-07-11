@@ -148,10 +148,14 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new AttachmentPointReference(this);
                 case RULE_statement:
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-                    if (prevVisibleLeaf != null)
-                        if (".".equals(prevVisibleLeaf.getText())) {
-                            return new FieldReference(this);
-                        }
+                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+                        return new FieldReference(this);
+                    }
+
+                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getPsi());
+                    if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
+                        return new PackageNameReference(this);
+                    }
                     return new StatementReference(this);
                 default:
                     return null;
