@@ -279,11 +279,11 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-     static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
+    static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
     }
 
-     static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
+    static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, VALUE_TYPES_PRIORITY));
     }
 
@@ -880,6 +880,19 @@ public class BallerinaCompletionUtils {
                     .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
+    }
+
+    @NotNull
+    public static List<LookupElement> createActionLookupElements(@NotNull List<PsiElement> actions) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement action : actions) {
+            LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
+                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
+                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(action.getParent()))
+                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
+            lookupElements.add(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
+        }
+        return lookupElements;
     }
 
     /**

@@ -643,9 +643,9 @@ public class BallerinaPsiImplUtil {
      * @return List of all actions/native actions defined in the given ConnectorDefinitionNode.
      */
     @NotNull
-    public static List<PsiElement> getAllActionsFromAConnector(PsiElement connectorDefinitionNode) {
+    public static List<PsiElement> getAllActionsFromAConnector(@NotNull PsiElement connectorDefinitionNode) {
         List<PsiElement> results = new ArrayList<>();
-        // Get all actions
+        // Todo - use PsiTreeUtil
         Collection<? extends PsiElement> allActions = XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode,
                 ACTION_DEFINITION);
         results.addAll(allActions);
