@@ -16,15 +16,15 @@
   ~ under the License.
   -->
 <#list metaData as namespace>
-# ${namespace.name?capitalize}
+## ${namespace.name?capitalize}
 
 <#list namespace.extensionMap as extensionType, extensionsList>
 <#list extensionsList as extension>
-## ${extension.name} _(${extensionType})_
+### ${extension.name} _(${extensionType})_
 
 <p style="word-wrap: break-word">${formatDescription(extension.description)}</p>
 
-### Syntax
+#### Syntax
 
 <#if ["Function", "Attribute Aggregator"]?seq_index_of(extensionType) != -1>
 ```
@@ -55,7 +55,7 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 </#if>
 
 <#list extension.parameters>
-#### Query Parameters
+##### Query Parameters
 
 <table>
     <tr>
@@ -80,7 +80,7 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 </#list>
 
 <#list extension.systemParameters>
-### System Parameters
+#### System Parameters
 
 <table>
     <tr>
@@ -102,7 +102,7 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 
 <#if ["Stream Processor", "Stream Function"]?seq_index_of(extensionType) != -1>
 <#list extension.returnAttributes>
-### Extra Return Attributes
+#### Extra Return Attributes
 
 <table>
     <tr>
@@ -122,10 +122,10 @@ ${extension.name}(<#list extension.parameters><#items as parameter><${parameter.
 </#if>
 
 <#list extension.examples>
-### Examples
+#### Examples
 
 <#items as example>
-#### Example ${example?index + 1}
+##### Example ${example?index + 1}
 
 ```
 ${example.syntax}
