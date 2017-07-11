@@ -18,7 +18,6 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -40,36 +39,16 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
-        return filterAnnotations(dataModel, symbols);
+        return filterAnnotations(dataModel);
     }
 
-    ArrayList<CompletionItem> filterAnnotations(SuggestionsFilterDataModel dataModel,
-                                                ArrayList<SymbolInfo> symbols) {
+    /**
+     * Filter the annotations from the data model
+     * @param dataModel - Suggestions filter Data model
+     * @return {@link List}
+     */
+    ArrayList<CompletionItem> filterAnnotations(SuggestionsFilterDataModel dataModel) {
 
-        Token previousToken = null;
-        int tokenIndex = dataModel.getTokenIndex();
-        boolean foundChannel0 = false;
-        for (int i = (tokenIndex - 1); i > 0; i--) {
-            Token token = dataModel.getTokenStream().get(i);
-            if (token.getChannel() == 0) {
-                foundChannel0 = true;
-                if ("@".equals(token.getText())) {
-                    previousToken = token;
-                    break;
-                } else {
-                    continue;
-                }
-
-            } else {
-                if (foundChannel0) {
-                    break;
-                } else {
-                    continue;
-                }
-            }
-        }
-
-        if (previousToken != null && "@".equals(previousToken.getText())) {
             Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
             if (packages == null) {
                 packages = Utils.getAllPackages();
@@ -90,11 +69,13 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             ArrayList<CompletionItem> list = new ArrayList<>();
             list.addAll(collect);
             return list;
-
-        }
-        return null;
     }
 
+    /**
+     * Get the last string part to append
+     * @param packagePath - package path
+     * @return {@link String}
+     */
     private String lastPart(String packagePath) {
         int i = packagePath.lastIndexOf('.');
         if (i >= 0) {
