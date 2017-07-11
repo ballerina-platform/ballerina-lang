@@ -33,9 +33,8 @@ class DefaultResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> searchList = symbols;
 
-        populateCompletionItemList(searchList, completionItems);
+        populateCompletionItemList(symbols, completionItems);
 
         // Add the basic constructs
         ItemResolverConstants.getBasicConstructs().forEach((bConstruct) -> {

@@ -56,8 +56,6 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
                 if (tokenStr.equals(":") || tokenStr.equals(".")) {
                     searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
                     searchLevel++;
-                } else if (tokenStr.equals("\n")) {
-                    continueSearch = false;
                 }
                 searchTokenIndex++;
             } else {
@@ -104,22 +102,34 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
      */
     public ArrayList<CompletionItem> getCompletionItems(List<SymbolInfo> symbolInfoList) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        symbolInfoList.forEach(symbolInfo -> {
+        boolean canSuggestClientConnector = false;
+
+        for (SymbolInfo symbolInfo : symbolInfoList) {
             CompletionItem completionItem = new CompletionItem();
             if (symbolInfo.getSymbolName().contains(".ClientConnector.")) {
+                canSuggestClientConnector = true;
                 String[] tokens = symbolInfo.getSymbolName().split("\\.");
                 completionItem.setInsertText("ClientConnector." + tokens[tokens.length - 1] + "(${1})");
                 completionItem.setLabel("ClientConnector." + tokens[tokens.length - 1]);
                 completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
             } else {
                 completionItem.setInsertText(symbolInfo.getSymbolName() + "(${1})");
                 completionItem.setLabel(symbolInfo.getSymbolName());
                 completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-                completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
             }
             completionItems.add(completionItem);
-        });
+        }
+
+        if (canSuggestClientConnector) {
+            CompletionItem clientConnectorType = new CompletionItem();
+            clientConnectorType.setInsertText("ClientConnector");
+            clientConnectorType.setLabel("ClientConnector");
+            clientConnectorType.setDetail(ItemResolverConstants.CLIENT_CONNECTOR_TYPE);
+            clientConnectorType.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(clientConnectorType);
+        }
         return completionItems;
     }
 }

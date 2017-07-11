@@ -18,6 +18,7 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -43,6 +44,11 @@ public abstract class AbstractItemResolver {
                                                            ArrayList<SymbolInfo> symbols, HashMap<Class,
             AbstractItemResolver> resolvers);
 
+    /**
+     * Populate the completion item list by considering the
+     * @param symbolInfoList - list of symbol information
+     * @param completionItems - completion item list to populate
+     */
     public void populateCompletionItemList(List<SymbolInfo> symbolInfoList, List<CompletionItem> completionItems) {
 
         symbolInfoList.forEach(symbolInfo -> {
@@ -68,11 +74,21 @@ public abstract class AbstractItemResolver {
         });
     }
 
+    /**
+     * Populate the Client Connector Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateClientConnectorCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_2);
     }
 
+    /**
+     * Populate the Native Proxy Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateNativeUnitProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         NativeUnit nativeUnit = ((NativeUnitProxy) symbolInfo.getSymbol()).load();
         completionItem.setLabel(getSignature(symbolInfo, nativeUnit));
@@ -80,23 +96,43 @@ public abstract class AbstractItemResolver {
         completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
     }
 
+    /**
+     * Populate the Ballerina Function Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
     }
 
+    /**
+     * Populate the Native Package Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateNativePackageProxyCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setDetail(ItemResolverConstants.PACKAGE_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_4);
     }
 
+    /**
+     * Populate the Variable Definition Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateVariableDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         String typeName = ((VariableDef) symbolInfo.getSymbol()).getTypeName().getName();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
     }
 
+    /**
+     * Populate the Struct Definition Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
     void populateStructDefCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
@@ -104,6 +140,12 @@ public abstract class AbstractItemResolver {
     }
 
 
+    /**
+     * Get the function signature for the native unit
+     * @param symbolInfo - symbol info instance
+     * @param nativeUnit - native unit instance
+     * @return {@link String}
+     */
     private String getSignature(SymbolInfo symbolInfo, NativeUnit nativeUnit) {
         StringBuffer signature = new StringBuffer(symbolInfo.getSymbolName());
         int i = 0;
@@ -126,6 +168,11 @@ public abstract class AbstractItemResolver {
         return signature.toString();
     }
 
+    /**
+     * Get the function signature
+     * @param ballerinaFunction - ballerina function instance
+     * @return {@link String}
+     */
     private String getFunctionSignature(BallerinaFunction ballerinaFunction) {
         StringBuffer signature = new StringBuffer(ballerinaFunction.getName());
         String initString = "(";
@@ -146,6 +193,11 @@ public abstract class AbstractItemResolver {
         return signature.toString();
     }
 
+    /**
+     * Check whether the token stream corresponds to a action invocation or a function invocation
+     * @param dataModel - Suggestions filter data model
+     * @return {@link Boolean}
+     */
     public boolean isActionOrFunctionInvocationStatement(SuggestionsFilterDataModel dataModel) {
         TokenStream tokenStream = dataModel.getTokenStream();
         int currentTokenIndex = dataModel.getTokenIndex();
@@ -165,5 +217,69 @@ public abstract class AbstractItemResolver {
         }
 
         return false;
+    }
+
+    /**
+     * Check whether the token stream contains an annotation start (@)
+     * @param dataModel - Suggestions filter data model
+     * @return {@link Boolean}
+     */
+    public boolean isAnnotationContext(SuggestionsFilterDataModel dataModel) {
+        TokenStream tokenStream = dataModel.getTokenStream();
+        int tokenIndex = dataModel.getTokenIndex();
+        int searchIndex = tokenIndex - 1;
+        boolean continueSearch = true;
+        boolean isAnnotation = false;
+
+        while (continueSearch) {
+            if (searchIndex < 0) {
+                continueSearch = false;
+            } else {
+                Token token = tokenStream.get(searchIndex);
+                if (token.getChannel() == 0 && token.getText().equals("@")) {
+                    continueSearch = false;
+                    isAnnotation = true;
+                } else {
+                    searchIndex--;
+                }
+            }
+        }
+
+        return isAnnotation;
+    }
+
+    /**
+     * Get the index of the equal sign
+     * @param dataModel - suggestions filter data model
+     * @return {@link Integer}
+     */
+    public int isPreviousTokenEqualSign(SuggestionsFilterDataModel dataModel) {
+        int equalSignIndex;
+        int searchTokenIndex = dataModel.getTokenIndex() - 1;
+        TokenStream tokenStream = dataModel.getTokenStream();
+
+        while (true) {
+            if (searchTokenIndex > -1) {
+                Token token = tokenStream.get(searchTokenIndex);
+                String tokenStr = token.getText();
+
+                // If the token's channel is verbose channel we skip to the next token
+                if (token.getChannel() != 0) {
+                    searchTokenIndex--;
+                } else if (tokenStr.equals("=")) {
+                    equalSignIndex = searchTokenIndex;
+                    break;
+                } else {
+                    // In this case the token channel is the default channel and also not the equal sign token.
+                    equalSignIndex = -1;
+                    break;
+                }
+            } else {
+                equalSignIndex = -1;
+                break;
+            }
+        }
+
+        return equalSignIndex;
     }
 }

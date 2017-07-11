@@ -21,6 +21,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleStatementContextResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BallerinaAction;
@@ -40,6 +41,9 @@ public class ResolveCommandExecutor {
     private static final HashMap<Class, AbstractItemResolver> resolvers = new HashMap<>();
     private static final DefaultResolver DEFAULT_RESOLVER = new DefaultResolver();
 
+    /**
+     * Constructor for the Resolve command executor
+     */
     public ResolveCommandExecutor() {
         StatementContextResolver statementContextResolver = new StatementContextResolver();
         VariableDefinitionStatementContextResolver variableDefinitionStatementContextResolver =
@@ -60,6 +64,8 @@ public class ResolveCommandExecutor {
         // Parser rule context based resolvers
         ParserRuleStatementContextResolver parserRuleStatementContextResolver =
                 new ParserRuleStatementContextResolver();
+        ParserRuleVariableDefinitionStatementContextResolver parserRuleVariableDefStatementContextResolver
+                = new ParserRuleVariableDefinitionStatementContextResolver();
 
         // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
         // since there are many statements in Ballerina model which can be handled similarly
@@ -80,6 +86,8 @@ public class ResolveCommandExecutor {
 
         // Parser Rule Context Resolvers
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
+        resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
+                parserRuleVariableDefStatementContextResolver);
     }
 
     /**
