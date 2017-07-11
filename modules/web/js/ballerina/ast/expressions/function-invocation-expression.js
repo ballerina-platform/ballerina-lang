@@ -142,7 +142,7 @@ class FunctionInvocationExpression extends Expression {
         this.setFunctionName(jsonNode.function_name, { doSilently: true });
         _.each(jsonNode.children, (childNode) => {
             const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
+            self.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }

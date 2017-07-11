@@ -21,8 +21,6 @@ import FunctionInvocationVisitor from './function-invocation-visitor';
 import SimpleVariableReferenceExpressionVisitor from './simple-variable-reference-expression-visitor';
 import ReferenceTypeInitExpressionVisitor from './reference-type-init-expression-visitor';
 import TypeCastExpressionVisitor from './type-cast-expression-visitor';
-import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
-import RightOperandExpressionVisitor from './right-operand-expression-visitor';
 
 class ExpressionViewFactory {
     getExpressionView(args) {
@@ -35,10 +33,6 @@ class ExpressionViewFactory {
             return new ReferenceTypeInitExpressionVisitor(_.get(args, 'parent'));
         } else if (ASTFactory.isTypeCastExpression(expression)) {
             return new TypeCastExpressionVisitor(_.get(args, 'parent'));
-        } else if (ASTFactory.isLeftOperandExpression(expression)) {
-            return new LeftOperandExpressionVisitor(expression);
-        } else if (ASTFactory.isRightOperandExpression(expression)) {
-            return new RightOperandExpressionVisitor(expression);
         }
         return undefined;
     }

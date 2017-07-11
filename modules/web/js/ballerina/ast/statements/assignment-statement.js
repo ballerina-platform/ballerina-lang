@@ -50,11 +50,10 @@ class AssignmentStatement extends Statement {
      */
     initFromJson(jsonNode) {
         this.children = [];
-        const self = this;
         this.setIsDeclaredWithVar(jsonNode.is_declared_with_var);
         _.each(jsonNode.children, (childNode) => {
-            const child = self.getFactory().createFromJson(childNode);
-            self.addChild(child, undefined, true, true);
+            const child = this.getFactory().createFromJson(childNode);
+            this.addChild(child, undefined, true, true);
             child.initFromJson(childNode);
         });
     }
@@ -66,14 +65,14 @@ class AssignmentStatement extends Statement {
     getStatementString() {
         return ((this.getIsDeclaredWithVar() ? 'var' + this.getWSRegion(1) : '')
                 + (!_.isNil(this.getChildren()[0])
-                ? this.getChildren()[0].getExpressionString() : '')
+                ? this.getLeftExpression().getExpressionString() : '')
                 // default tailing whitespace of expressions is empty - hence we need to
                 // append a space here
-                + ((!_.isNil(this.getChildren()[0]) && !_.isEmpty(this.getChildren()[0].children)
-                      && _.last(this.getChildren()[0].children).whiteSpace.useDefault) ? ' ' : '')) + '=' +
-            (!_.isNil(this.getChildren()[1])
+                + ((!_.isNil(this.getLeftExpression()) && !_.isEmpty(this.getLeftExpression().getChildren())
+                      && _.last(this.getLeftExpression().getChildren()).whiteSpace.useDefault) ? ' ' : '')) + '=' +
+            (!_.isNil(this.getRightExpression())
                 // we are getting following whitespace of = from assignment statement
-                ? this.getWSRegion(3) + this.getChildren()[1].getExpressionString() : '');
+                ? this.getWSRegion(3) + this.getRightExpression().getExpressionString() : '');
     }
 
     /**

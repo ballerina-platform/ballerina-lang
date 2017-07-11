@@ -31,17 +31,19 @@ import java.util.HashMap;
  */
 public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
+    public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                            HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        CompletionItem connectorActionItem = new CompletionItem();
-        connectorActionItem.setLabel(ItemResolverConstants.ACTION);
-        connectorActionItem.setInsertText(ItemResolverConstants.CONNECTOR_ACTION_TEMPLATE);
-        connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
-        connectorActionItem.setSortText(ItemResolverConstants.PRIORITY_4);
-        completionItems.add(connectorActionItem);
+        if (!this.isAnnotationContext(dataModel)) {
+            CompletionItem connectorActionItem = new CompletionItem();
+            connectorActionItem.setLabel(ItemResolverConstants.ACTION);
+            connectorActionItem.setInsertText(ItemResolverConstants.CONNECTOR_ACTION_TEMPLATE);
+            connectorActionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
+            connectorActionItem.setSortText(ItemResolverConstants.PRIORITY_4);
+            completionItems.add(connectorActionItem);
+        }
 
         completionItems.addAll(resolvers.get(VariableDefStmt.class).resolveItems(dataModel, symbols , resolvers));
 

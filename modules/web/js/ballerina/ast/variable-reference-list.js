@@ -16,25 +16,37 @@
  * under the License.
  */
 import _ from 'lodash';
-import Expression from './../expressions/expression';
-import FragmentUtils from '../../utils/fragment-utils';
+import ASTNode from './node';
+import FragmentUtils from '../utils/fragment-utils';
 
 /**
- * Constructor for RightOperandExpression
+ * Constructor for VariableReferenceList
  */
-class RightOperandExpression extends Expression {
+class VariableReferenceList extends ASTNode {
     /**
-     * Constructor for right operand expression
+     *constructor for Variable reference list
      * @constructor
      */
     constructor() {
-        super('RightOperandExpression');
+        super('VariableReferenceList');
+    }
+
+    /**
+     * Get the expression string
+     * @return {string} expression string
+     */
+    getExpressionString() {
+        const exps = [];
+        _.forEach(this.getChildren(), (child) => {
+            exps.push(child.getExpressionString());
+        });
+        return _.join(exps, ',');
     }
 
     /**
      * Set the expression from the expression string
      * @param {string} expression expression string
-     * @param {function} callback callback function
+     * @param {function} callback function
      * @override
      */
     setExpressionFromString(expression, callback) {
@@ -43,7 +55,7 @@ class RightOperandExpression extends Expression {
             const parsedJson = FragmentUtils.parseFragment(fragment);
             if ((!_.has(parsedJson, 'error')
                    || !_.has(parsedJson, 'syntax_errors'))
-                   && _.isEqual(parsedJson.type, 'right_operand_expression')) {
+                   && _.isEqual(parsedJson.type, 'variable_reference_list')) {
                 this.initFromJson(parsedJson);
                 if (_.isFunction(callback)) {
                     callback({ isValid: true });
@@ -55,31 +67,19 @@ class RightOperandExpression extends Expression {
     }
 
     /**
-     * Get the expression as a string
-     * @return {string} expression string
-     */
-    getExpressionString() {
-        let expression = '';
-        _.forEach(this.getChildren(), (child) => {
-            expression += child.getExpressionString();
-        });
-        return expression;
-    }
-
-    /**
      * setting parameters from json
-     * @param {object} jsonNode json node from which the expression initialized
+     * @param {object} jsonNode json node
      * @returns {void}
      */
     initFromJson(jsonNode) {
         if (!_.isEmpty(jsonNode.children)) {
             jsonNode.children.forEach((childJsonNode) => {
                 const child = this.getFactory().createFromJson(childJsonNode);
-                this.addChild(child, undefined, true, true);
                 child.initFromJson(childJsonNode);
+                this.addChild(child, undefined, true, true);
             });
         }
     }
 }
 
-export default RightOperandExpression;
+export default VariableReferenceList;

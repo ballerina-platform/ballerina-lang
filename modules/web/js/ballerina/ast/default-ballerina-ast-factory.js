@@ -285,11 +285,9 @@ DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement = functio
 
         // fragment parser does not have access to full package name. Hence, setting it here.
         funcInvocationExpression.setFullPackageName(_.get(args, 'fullPackageName'));
-        const leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-        const rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-        rightOp.addChild(funcInvocationExpression);
-        assignmentStmt.addChild(leftOp);
-        assignmentStmt.addChild(rightOp);
+        const variableRefList = BallerinaASTFactory.createVariableReferenceList(args);
+        assignmentStmt.addChild(variableRefList, 0);
+        assignmentStmt.addChild(funcInvocationExpression, 1);
     }
     return assignmentStmt;
 };

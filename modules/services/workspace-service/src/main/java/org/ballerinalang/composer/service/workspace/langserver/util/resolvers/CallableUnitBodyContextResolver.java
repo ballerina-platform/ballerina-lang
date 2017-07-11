@@ -26,25 +26,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Default resolver for the completion items
+ * Callable Unit Body Context Resolver
  */
-class DefaultResolver extends AbstractItemResolver {
+public class CallableUnitBodyContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        populateCompletionItemList(symbols, completionItems);
+        if (dataModel.getParserRuleContext() != null) {
+            completionItems.addAll(resolvers
+                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
+        } else {
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(workerItem);
 
-        // Add the basic constructs
-        ItemResolverConstants.getBasicConstructs().forEach((bConstruct) -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(bConstruct);
-            completionItem.setInsertText(bConstruct);
-            completionItem.setDetail("");
-            completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
-            completionItems.add(completionItem);
-        });
+            completionItems
+                    .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
+        }
 
         return completionItems;
     }

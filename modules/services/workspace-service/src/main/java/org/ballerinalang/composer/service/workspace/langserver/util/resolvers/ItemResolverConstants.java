@@ -88,6 +88,7 @@ public class ItemResolverConstants {
     public static final String WORKER_TYPE = "worker";
     public static final String KEYWORD_TYPE = "keyword";
     public static final String ANNOTATION_TYPE = "annotation";
+    public static final String CLIENT_CONNECTOR_TYPE = "connector";
     public static final String NONE = "none";
     // Symbol Types Constants
 

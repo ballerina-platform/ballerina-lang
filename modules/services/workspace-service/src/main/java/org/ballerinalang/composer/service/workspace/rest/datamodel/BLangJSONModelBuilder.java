@@ -683,7 +683,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
 
         JsonObject lExprObj = new JsonObject();
-        lExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
+        lExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.VARIABLE_REFERENCE_LIST);
         tempJsonArrayRef.push(new JsonArray());
         for (Expression expression : assignStmt.getLExprs()) {
             expression.accept(this);
@@ -692,14 +692,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(lExprObj);
 
-        JsonObject rExprObj = new JsonObject();
-        rExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
-        tempJsonArrayRef.push(new JsonArray());
-        assignStmt.getRExpr().accept(this);
-        rExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(rExprObj);
-
+        // Visit the right expression
+        if (assignStmt.getRExpr() != null) {
+            assignStmt.getRExpr().accept(this);
+        }
         assignmentStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(assignmentStmtObj);
