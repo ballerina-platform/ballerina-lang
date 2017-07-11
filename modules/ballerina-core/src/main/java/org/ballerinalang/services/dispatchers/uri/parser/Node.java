@@ -229,9 +229,6 @@ public abstract class Node {
     }
 
     public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
-        if (resource == null) {
-            return null;
-        }
         boolean isConsumeMatched = false;
         String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
         AnnotationAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
@@ -267,31 +264,28 @@ public abstract class Node {
     }
 
     public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
-        if (resource == null) {
-            return null;
-        }
         boolean isProduceMatched = false;
-        List<String> acceptMediaType = extractAcceptMediaType(cMsg.getHeader(Constants.ACCEPT_HEADER));
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
         AnnotationAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                 Constants.ANNOTATION_NAME_PRODUCES);
 
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
-        if (produceInfo != null && acceptMediaType != null) {
-            if (acceptMediaType.contains("*/*")) {
+        if (produceInfo != null && acceptMediaTypes != null) {
+            if (acceptMediaTypes.contains("*/*")) {
                 isProduceMatched = true;
             } else {
-                if (acceptMediaType.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
-                    List<String> subTypeWildCardMediaTypeList = acceptMediaType.stream()
+                if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
+                    List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
                             .filter(mediaType -> mediaType.contains("/*"))
                             .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
                             .collect(Collectors.toList());
-                    List<String> subAttributeValueList = Arrays.stream(produceInfo
+                    List<String> subAttributeValues = Arrays.stream(produceInfo
                             .getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
                             .map(mediaType -> mediaType.getStringValue().trim()
                                     .substring(0, mediaType.getStringValue().indexOf("/")))
                             .distinct().collect(Collectors.toList());
-                    for (String token : subAttributeValueList) {
-                        for (String mediaType : subTypeWildCardMediaTypeList) {
+                    for (String token : subAttributeValues) {
+                        for (String mediaType : subTypeWildCardMediaTypes) {
                             if (mediaType.equals(token)) {
                                 isProduceMatched = true;
                                 break;
@@ -300,11 +294,11 @@ public abstract class Node {
                     }
                 }
                 if (!isProduceMatched) {
-                    List<String> noWildCardMediaTypeList = acceptMediaType.stream()
+                    List<String> noWildCardMediaTypes = acceptMediaTypes.stream()
                             .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
                     for (AnnotationAttributeValue attributeValue : produceInfo.getAnnotationAttributeValue
                             (Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
-                        for (String mediaType : noWildCardMediaTypeList) {
+                        for (String mediaType : noWildCardMediaTypes) {
                             if (mediaType.equals(attributeValue.getStringValue())) {
                                 isProduceMatched = true;
                                 break;
@@ -321,24 +315,24 @@ public abstract class Node {
         return resource;
     }
 
-    private List<String> extractAcceptMediaType(String header) {
-        List<String> acceptMediaType = new ArrayList();
+    private List<String> extractAcceptMediaTypes(String header) {
+        List<String> acceptMediaTypes = new ArrayList();
         if (header == null) {
             return null;
         } else {
             if (header.contains(",")) {
                 //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
-                acceptMediaType = Arrays.stream(header.split(","))
+                acceptMediaTypes = Arrays.stream(header.split(","))
                         .map(mediaRange -> mediaRange.contains(";") ? mediaRange
                                 .substring(0, mediaRange.indexOf(";")) : mediaRange)
                         .map(String::trim).distinct().collect(Collectors.toList());
             } else if (header.contains(";")) {
                 //process headers like this: text/*;q=0.3
-                acceptMediaType.add(header.substring(0, header.indexOf(";")).trim());
+                acceptMediaTypes.add(header.substring(0, header.indexOf(";")).trim());
             } else {
-                acceptMediaType.add(header.trim());
+                acceptMediaTypes.add(header.trim());
             }
         }
-        return acceptMediaType;
+        return acceptMediaTypes;
     }
 }
