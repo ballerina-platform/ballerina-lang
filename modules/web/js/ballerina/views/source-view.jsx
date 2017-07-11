@@ -61,6 +61,7 @@ class SourceView extends React.Component {
         this.container = undefined;
         this.editor = undefined;
         this.inSilentMode = false;
+        this.format = this.format.bind(this);
     }
 
     /**
@@ -94,12 +95,21 @@ class SourceView extends React.Component {
             this.props.commandManager.getCommands().forEach((command) => {
                 this.bindCommand(command);
             });
+            // register handler for source format command
+            this.props.commandManager.registerHandler('format', this.format, this);
             this.props.file.on('content-modified', (newContent, evt) => {
                 if ( evt.type !== 'source-modified') {
                     this.replaceContent(newContent, true);
                 }
             });
         }
+    }
+
+    /**
+     * format handler
+     */
+    format() {
+        //TODO
     }
 
     /**

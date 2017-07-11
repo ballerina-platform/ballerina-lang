@@ -65,8 +65,6 @@ class WorkspaceManager {
 
         this.app.commandManager.registerHandler('save', this.handleSave, this);
 
-        this.app.commandManager.registerHandler('format', this.handleFormat, this);
-
         // Open file save dialog
         this.app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog, this);
 
@@ -476,9 +474,6 @@ class WorkspaceManager {
                         alerts.error(response.message);
                         return;
                     }
-                    if (activeTab.getBallerinaFileEditor().isInSourceView()) {
-                        activeTab.getBallerinaFileEditor().getSourceView().markClean();
-                    }
                 }
                 if (!_.isNil(options) && _.isFunction(options.callback)) {
                     options.callback(true);
@@ -486,12 +481,6 @@ class WorkspaceManager {
             } else {
                 this.app.commandManager.dispatch('open-file-save-dialog', options);
             }
-        }
-    }
-
-    handleFormat() {
-        if (this.app.tabController.getActiveTab() instanceof FileTab) {
-            this.app.tabController.getActiveTab().getBallerinaFileEditor().getSourceView().format();
         }
     }
 

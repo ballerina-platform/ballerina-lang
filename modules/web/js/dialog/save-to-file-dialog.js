@@ -254,8 +254,7 @@ const SaveToFileDialog = Backbone.View.extend(
                 const workspaceServiceURL = app.config.services.workspace.endpoint;
                 const saveServiceURL = `${workspaceServiceURL }/write`;
                 const activeTab = app.tabController.activeTab;
-                const ballerinaFileEditor = activeTab.getBallerinaFileEditor();
-                const config = ballerinaFileEditor.getContent();
+                const config = activeTab.getFile().getContent();
                 const payload = `location=${  btoa(options.location)  }&configName=${  btoa(options.configName)
                          }&config=${  encodeURIComponent(config)}`;
 
@@ -271,7 +270,6 @@ const SaveToFileDialog = Backbone.View.extend(
                             activeTab.getFile()
                                             .setPath(options.location)
                                             .setName(options.configName)
-                                            .setContent(config)
                                             .setPersisted(true)
                                             .setLastPersisted(_.now())
                                             .setDirty(false)
