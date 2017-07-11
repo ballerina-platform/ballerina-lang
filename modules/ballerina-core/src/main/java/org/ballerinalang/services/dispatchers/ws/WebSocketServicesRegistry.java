@@ -105,6 +105,7 @@ public class WebSocketServicesRegistry {
         }
     }
 
+
     public void setParentServiceToClientService(String clientServiceName, ServiceInfo parentService) {
         if (clientServices.containsKey(clientServiceName)) {
             clientServices.get(clientServiceName).setParentService(parentService);
@@ -147,11 +148,20 @@ public class WebSocketServicesRegistry {
      * @return the service by service name if exists. Else return null.
      */
     public ServiceInfo getClientService(String serviceName) {
-        return clientServices.get(serviceName).getClientService();
+        if (clientServices.containsKey(serviceName)) {
+            return clientServices.get(serviceName).getClientService();
+        }
+
+        return null;
     }
 
     public ServiceInfo getParentServiceOfClientService(ServiceInfo service) {
-        return clientServices.get(service).getParentService();
+        String clientServiceName = service.getName();
+        if (clientServices.containsKey(clientServiceName)) {
+            return clientServices.get(clientServiceName).getParentService();
+        }
+
+        return null;
     }
     /**
      * Check whether the given service name is a client service or not.

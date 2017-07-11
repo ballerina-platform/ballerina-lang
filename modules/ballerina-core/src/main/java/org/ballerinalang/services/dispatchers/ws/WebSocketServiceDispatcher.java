@@ -58,7 +58,7 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             }
 
         } else {
-            Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
+            Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_CLIENT_SESSION);
             String clientServiceName = WebSocketConnectionManager.getInstance().
                     getClientServiceNameOfClientSession(session);
             ServiceInfo clientService = WebSocketServicesRegistry.getInstance().getClientService(clientServiceName);

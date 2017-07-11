@@ -57,7 +57,7 @@ public class BroadcastText extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
 
         if (context.getServiceInfo() == null) {
-            throw new BallerinaException("This function is only working with services");
+            throw new BallerinaException("This function is only working with WebSocket services");
         }
 
         String text = getStringArgument(context, 0);

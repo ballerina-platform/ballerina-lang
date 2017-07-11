@@ -45,6 +45,6 @@ public abstract class AbstractWebSocketAction extends AbstractNativeAction {
 
     protected Session getSession(Context context) {
         CarbonMessage carbonMessage = context.getCarbonMessage();
-        return (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        return (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
     }
 }

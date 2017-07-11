@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import java.io.IOException;
 import javax.websocket.CloseReason;
@@ -48,7 +47,7 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
         if (e.getMessage().startsWith("no Service found to handle the service request")) {
             ErrorHandlerUtils.printError(e);
-            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+            Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
             String uri = (String) carbonMessage.getProperty(Constants.TO);
             try {
                 session.close(new CloseReason(
@@ -61,6 +60,6 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
 
     @Override
     public String getProtocol() {
-        return Constants.WEBSOCKET_PROTOCOL;
+        return Constants.PROTOCOL_WEBSOCKET;
     }
 }

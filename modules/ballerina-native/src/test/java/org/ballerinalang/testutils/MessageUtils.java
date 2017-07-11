@@ -129,7 +129,8 @@ public class MessageUtils {
                                   org.ballerinalang.services.dispatchers.ws.Constants.PROTOCOL_WEBSOCKET);
         carbonMessage.setProperty(Constants.TO, path);
         carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.IS_WEBSOCKET_SERVER, true);
-        carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SESSION, session);
+        carbonMessage.setProperty(
+                org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SERVER_SESSION, session);
         return carbonMessage;
     }
 

@@ -59,7 +59,7 @@ public class Close extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
-        WebSocketConnectionManager.getInstance().getSessionsOfClientConnector(bconnector).forEach(
+        WebSocketConnectionManager.getInstance().getSessionsForConnector(bconnector).forEach(
                 clientID -> {
                     ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                             org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);

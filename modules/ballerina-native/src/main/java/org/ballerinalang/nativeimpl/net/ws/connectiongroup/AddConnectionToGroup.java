@@ -59,7 +59,7 @@ public class AddConnectionToGroup extends AbstractNativeFunction {
         }
 
         CarbonMessage carbonMessage = context.getCarbonMessage();
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
         String connectionGroupName = getStringArgument(context, 0);
         WebSocketConnectionManager.getInstance().addConnectionToGroup(connectionGroupName, session);
         return VOID_RETURN;

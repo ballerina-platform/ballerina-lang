@@ -34,6 +34,7 @@ import org.ballerinalang.services.dispatchers.ws.WebSocketServicesRegistry;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
@@ -74,28 +75,29 @@ public class Init extends AbstractWebSocketAction {
         // Initializing a client connection.
         ClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
-        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN, null, true);
-        controlCarbonMessage.setProperty(Constants.TO, remoteUrl);
+        CarbonMessage carbonMessage = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
+        carbonMessage.setProperty(Constants.TO, remoteUrl);
         Session clientSession;
         try {
-            clientSession = (Session) clientConnector.init(controlCarbonMessage, null, null);
+            clientSession = (Session) clientConnector.init(carbonMessage, null, null);
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }
 
         // Adding client session to connection manager.
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
-        connectionManager.addClientSession(clientSession, null, clientServiceName, true);
+        connectionManager.addClientSession(clientSession, clientServiceName);
 
         // Setting parent service to client service if parent service is a WS service.
         if (parentService != null && parentService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
             WebSocketServicesRegistry.getInstance().
                     setParentServiceToClientService(clientServiceName, parentService);
-        }
 
-        // Adding client connector to parent service in connection manager.
-        connectionManager.addClientConnector(parentService, bconnector);
+            // Adding client connector to parent service in connection manager.
+            connectionManager.addClientConnector(parentService, bconnector);
+        } else {
+            connectionManager.addClientConnectorWithoutParentService(bconnector, clientSession);
+        }
 
         return null;
     }

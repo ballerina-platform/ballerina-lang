@@ -58,7 +58,7 @@ public class RemoveConnectionFromGroup extends AbstractNativeFunction {
 
         CarbonMessage carbonMessage = context.getCarbonMessage();
         String connectionGroupName = getStringArgument(context, 0);
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
         boolean connectionRemoved = WebSocketConnectionManager.getInstance().
                 removeConnectionFromGroup(connectionGroupName, session);
         if (!connectionRemoved) {

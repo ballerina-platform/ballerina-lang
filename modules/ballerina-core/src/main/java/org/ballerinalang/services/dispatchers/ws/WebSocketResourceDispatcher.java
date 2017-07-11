@@ -67,7 +67,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SESSION);
+                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
                     WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
@@ -76,8 +76,8 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     /* If the connection is WebSocket upgrade, this block will be executed */
                     if (connection != null && upgrade != null &&
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
-                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnection(service, session);
+                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                        WebSocketConnectionManager.getInstance().addConnection(service, session, cMsg);
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }

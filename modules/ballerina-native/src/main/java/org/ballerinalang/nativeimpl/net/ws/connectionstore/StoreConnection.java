@@ -60,7 +60,7 @@ public class StoreConnection extends AbstractNativeFunction {
 
         CarbonMessage carbonMessage = context.getCarbonMessage();
         String connectionName = getStringArgument(context, 0);
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
         WebSocketConnectionManager.getInstance().storeConnection(connectionName, session);
         return VOID_RETURN;
     }

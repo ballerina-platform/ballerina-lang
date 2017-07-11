@@ -22,11 +22,10 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +44,12 @@ public class WebSocketConnectionManager {
     private final Map<String, Map<String, Session>> connectionGroups = new ConcurrentHashMap<>();
     // Map<NameToStoreConnection, Session>
     private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
-    // Map <clientSession, clientSessionInfo>
-    private final Map<Session, ClientSessionInfo> clientSessions = new ConcurrentHashMap<>();
-
+    // Map <clientSessionID, associatedClientServiceName>
+    private final Map<String, String> clientSessionToClientServiceMap = new ConcurrentHashMap<>();
     // Map <parentServiceName, Connector>
-    private final Map<ServiceInfo, List<BConnector>> clientConnectors = new ConcurrentHashMap<>();
-    // Map <connector, connectorInfo>
-    private final Map<BConnector, ClientConnectorInfo> clientConnectorInfos = new ConcurrentHashMap<>();
+    private final Map<ServiceInfo, List<BConnector>> parentServiceToclientConnectorsMap = new ConcurrentHashMap<>();
+    // Map<Connector, List<ClientSessions>>
+    private final Map<BConnector, List<Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
@@ -60,18 +58,6 @@ public class WebSocketConnectionManager {
 
     public static WebSocketConnectionManager getInstance() {
         return sessionManager;
-    }
-
-    public void addConnection(ServiceInfo service, Session session) {
-        if (clientConnectors.containsKey(service)) {
-            for (BConnector bConnector : clientConnectors.get(service)) {
-                Session clientSession = initializeClientConnection(bConnector);
-                String clientServiceName = bConnector.getStringField(1);
-                addClientSession(clientSession, session, clientServiceName, false);
-                clientConnectorInfos.get(bConnector).addClientSession(session, clientSession);
-            }
-        }
-        addConnectionToBroadcast(service, session);
     }
 
     /**
@@ -215,41 +201,53 @@ public class WebSocketConnectionManager {
         return connectionStore.get(connectionName);
     }
 
-    public void addClientSession(Session clientSession, Session parentSession, String clientServiceName,
-                                 boolean isInitialConnection) {
-        clientSessions.put(clientSession, new ClientSessionInfo(clientSession, parentSession,
-                                                                clientServiceName, isInitialConnection));
+    public void addConnection(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
+        if (parentServiceToclientConnectorsMap.containsKey(service)) {
+            for (BConnector bConnector : parentServiceToclientConnectorsMap.get(service)) {
+                Session clientSession = initializeClientConnection(bConnector, carbonMessage);
+                String clientServiceName = bConnector.getStringField(1);
+                addClientSession(clientSession, clientServiceName);
+                clientConnectorSessionsMap.get(bConnector).add(clientSession);
+            }
+        }
+        addConnectionToBroadcast(service, session);
     }
 
-    public Session getParentSessionOfClientSession(Session clientSession) {
-        return clientSessions.get(clientSession).getParentSession();
+    public void addClientSession(Session clientSession, String clientServiceName) {
+        clientSessionToClientServiceMap.put(clientSession.getId(), clientServiceName);
     }
 
     public String getClientServiceNameOfClientSession(Session clientSession) {
-        return clientSessions.get(clientSession).getClientServiceName();
+        if (clientSessionToClientServiceMap.containsKey(clientSession.getId())) {
+            return clientSessionToClientServiceMap.get(clientSession.getId());
+        }
+        throw new BallerinaException("Cannot find the client service to dispatch the message");
     }
+
 
     public void addClientConnector(ServiceInfo parentService, BConnector connector) {
-        if (clientConnectors.containsKey(parentService)) {
-            clientConnectors.get(parentService).add(connector);
+        if (parentServiceToclientConnectorsMap.containsKey(parentService)) {
+            parentServiceToclientConnectorsMap.get(parentService).add(connector);
         } else {
+            // Adding connector against parent service.
             List<BConnector> connectors = new LinkedList<>();
             connectors.add(connector);
-            clientConnectors.put(parentService, connectors);
+            parentServiceToclientConnectorsMap.put(parentService, connectors);
         }
-        clientConnectorInfos.put(connector, new ClientConnectorInfo(connector));
+
+        // Initiating clientConnectorSessionsMap list for the given connector.
+        List<Session> sessions = new LinkedList<>();
+        clientConnectorSessionsMap.put(connector, sessions);
     }
 
-    public List<Session> getSessionsOfClientConnector(BConnector bConnector) {
-        return clientConnectorInfos.get(bConnector).getClientSessions();
+    public List<Session> getSessionsForConnector(BConnector bConnector) {
+        return clientConnectorSessionsMap.get(bConnector);
     }
 
-    public Session getClientSessionOfParentSession(BConnector bConnector, Session parentSession) {
-        return clientConnectorInfos.get(bConnector).getClientSessionOfParentSession(parentSession);
-    }
-
-    public List<BConnector> getClientConnectors(ServiceInfo parentService) {
-        return clientConnectors.get(parentService);
+    public void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
+        List<Session> sessions = new LinkedList<>();
+        sessions.add(session);
+        clientConnectorSessionsMap.put(bConnector, sessions);
     }
 
     /**
@@ -278,80 +276,20 @@ public class WebSocketConnectionManager {
         );
     }
 
-    private Session initializeClientConnection(BConnector bConnector) {
+    private Session initializeClientConnection(BConnector bConnector, CarbonMessage carbonMessage) {
         String remoteUrl = bConnector.getStringField(0);
 
         // Initializing a client connection.
         ClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
-        ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN, null, true);
-        controlCarbonMessage.setProperty(Constants.TO, remoteUrl);
+        carbonMessage.setProperty(Constants.TO, remoteUrl);
         Session clientSession;
         try {
-            clientSession = (Session) clientConnector.init(controlCarbonMessage, null, null);
+            clientSession = (Session) clientConnector.init(carbonMessage, null, null);
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }
 
         return clientSession;
-    }
-
-    private class ClientSessionInfo {
-        private final Session clientSession;
-        private final Session parentSession;
-        private final String clientServiceName;
-        private final boolean initialConnection;
-
-        public ClientSessionInfo(Session clientSession, Session parentSession,
-                                 String clientServiceName, boolean initialConnection) {
-            this.clientSession = clientSession;
-            this.parentSession = parentSession;
-            this.clientServiceName = clientServiceName;
-            this.initialConnection = initialConnection;
-        }
-
-        public Session getParentSession() {
-            return parentSession;
-        }
-
-        public String getClientServiceName() {
-            return clientServiceName;
-        }
-
-        public boolean isInitialConnection() {
-            return isInitialConnection();
-        }
-
-        public Session getClientSession() {
-            return clientSession;
-        }
-    }
-
-    private class ClientConnectorInfo {
-        private final BConnector bConnector;
-        private final Map<Session, Session> clientSessions = new HashMap<>();
-
-        public ClientConnectorInfo(BConnector bConnector) {
-            this.bConnector = bConnector;
-        }
-
-        public BConnector getbConnector() {
-            return bConnector;
-        }
-
-        public List<Session> getClientSessions() {
-            return clientSessions.entrySet().stream().
-                    map(Map.Entry::getValue).
-                    collect(Collectors.toList());
-        }
-
-        public Session getClientSessionOfParentSession(Session session) {
-            return clientSessions.get(session);
-        }
-
-        public void addClientSession(Session parentSession, Session clientSession) {
-            clientSessions.put(parentSession, clientSession);
-        }
     }
 }
