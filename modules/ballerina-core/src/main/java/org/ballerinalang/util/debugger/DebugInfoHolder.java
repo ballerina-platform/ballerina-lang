@@ -220,7 +220,15 @@ public class DebugInfoHolder {
         }
 
         public void markDebugPoint(BreakPointDTO breakPointDTO) {
-            String fileNameAndNo = breakPointDTO.getFileName() + ":" + breakPointDTO.getLineNumber();
+            String fileName = breakPointDTO.getFileName();
+            if (fileName.contains("/")) {
+                String[] pathArray = fileName.split("/");
+                fileName = pathArray[pathArray.length - 1];
+            } else if (fileName.contains("\\")) {
+                String[] pathArray = fileName.split("\\\\");
+                fileName = pathArray[pathArray.length - 1];
+            }
+            String fileNameAndNo = fileName + ":" + breakPointDTO.getLineNumber();
             IpRange range = lineNumRangeMap.get(fileNameAndNo);
             if (range == null) {
                 return;
