@@ -193,7 +193,7 @@ class StructDefinition extends React.Component {
             throw errorString;
         }
 
-        if (!ASTNode.isValidIdentifier(structType)) {
+        if (!ASTNode.isValidType(structType)) {
             const errorString = `Invalid Struct Type : ${structType}`;
             Alerts.error(errorString);
             throw errorString;
@@ -321,7 +321,11 @@ class StructDefinition extends React.Component {
                     {
                         children.map((child, i) => {
                             if (ASTFactory.isVariableDefinitionStatement(child)) {
-                                const type = child.getBType();
+                                const typePkgName = child.getBTypePkgName();
+                                let type = child.getBType();
+                                if( typePkgName != undefined){
+                                   type = typePkgName + ":" + type;
+                                }
                                 const identifier = child.getIdentifier();
                                 const value = child.getValue();
                                 const y = coDimensions.y + DesignerDefaults.contentOperations.height +
