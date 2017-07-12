@@ -63,10 +63,6 @@ connectorDefinition
     :   'connector' Identifier ('<' parameter '>')? '(' parameterList? ')' connectorBody
     ;
 
-//filterConnectorBaseTypeVariableDef
-//    :   '<' referenceTypeName Identifier '>'
-//    ;
-
 connectorBody
     :   '{' variableDefinitionStatement* actionDefinition* '}'
     ;

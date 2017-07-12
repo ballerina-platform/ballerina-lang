@@ -195,9 +195,6 @@ public class CodeGenerator implements NodeVisitor {
     private boolean arrayMapAssignment;
     private boolean structAssignment;
 
-    // Variable required to keep filter connector execution
-    private boolean isFilterGenerated = false;
-
     private Stack<Instruction> breakInstructions = new Stack<>();
     private Stack<Instruction> continueInstructions = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
@@ -1450,8 +1447,7 @@ public class CodeGenerator implements NodeVisitor {
         ActionInfo actionInfo = connectorInfo.getActionInfo(actionName);
         actionRefCPEntry.setActionInfo(actionInfo);
         int actionRefCPIndex = currentPkgInfo.addCPEntry(actionRefCPEntry);
-        int actionCallIndex;
-        actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+        int actionCallIndex = getCallableUnitCallCPIndex(actionIExpr);
 
         if (actionInfo.isNative()) {
             // TODO Move this to the place where we create action info entry
@@ -1652,7 +1648,6 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         if (connectorDef.isFilterConnector()) {
-            isFilterGenerated = false;
             ParameterDef paramDef = connectorDef.getParameterDefs()[0];
             int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
             emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, fieldIndex, baseConnectorIndex);

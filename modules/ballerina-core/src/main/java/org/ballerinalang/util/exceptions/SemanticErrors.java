@@ -108,8 +108,6 @@ public enum SemanticErrors {
     IGNORED_ASSIGNMENT("ignored.assignment", "SEMANTIC_0082"),
     REPLY_STMT_NOT_ALLOWED_HERE("reply.stmt.not.allowed.here", "SEMANTIC_0083"),
     RETURN_STMT_NOT_ALLOWED_HERE("return.stmt.not.allowed.here", "SEMANTIC_0084"),
-    RETURN_TYPES_NOT_ALLOWED_INSIDE_FILTER_CONNECTOR_ACTIONS
-            ("return.types.not.allowed.inside.filter.connector.actions", "SEMANTIC_0085"),
     BREAK_USED_IN_TRANSACTION("break.used.in.transaction", "SEMANTIC_0085"),
     CONTINUE_USED_IN_TRANSACTION("continue.used.in.transaction", "SEMANTIC_0085"),
     REPLY_CANNOT_USED_IN_TRANSACTION("reply.cannot.used.in.transaction",  "SEMANTIC_0086"),

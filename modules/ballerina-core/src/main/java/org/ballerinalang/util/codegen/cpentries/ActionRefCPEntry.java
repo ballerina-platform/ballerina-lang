@@ -39,8 +39,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
 
     private ActionInfo actionInfo;
 
-    private boolean filterAction = false;
-
     public ActionRefCPEntry(int packageCPIndex, int connectorRefCPIndex, int nameCPIndex) {
         this.packageCPIndex = packageCPIndex;
         this.connectorRefCPIndex = connectorRefCPIndex;
@@ -69,14 +67,6 @@ public class ActionRefCPEntry implements ConstantPoolEntry {
 
     public EntryType getEntryType() {
         return EntryType.CP_ENTRY_FUNCTION_REF;
-    }
-
-    public boolean isFilterAction() {
-        return filterAction;
-    }
-
-    public void setFilterAction(boolean filterAction) {
-        this.filterAction = filterAction;
     }
 
     @Override
