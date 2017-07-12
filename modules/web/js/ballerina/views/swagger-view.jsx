@@ -19,7 +19,6 @@ class SwaggerView extends React.Component {
         this.swagger = undefined;
         this.swaggerEditorID = undefined;
         this.swaggerEditor = undefined;
-        this.genSwaggerAndID();
     }
 
     /**
@@ -30,7 +29,7 @@ class SwaggerView extends React.Component {
             const swaggerJsonVisitor = new SwaggerJsonVisitor();
             this.props.targetService.accept(swaggerJsonVisitor);
             this.swagger = swaggerJsonVisitor.getSwaggerJson();
-            this.swaggerEditorID = `${this.props.targetService.id}-swagger-editor`;
+            this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
         } else {
             this.swagger = undefined;
             this.swaggerEditorID = undefined;
@@ -43,23 +42,31 @@ class SwaggerView extends React.Component {
      * This is invoked prior to shouldComponentUpdate
      */
     componentWillReceiveProps(newProps) {
-        this.genSwaggerAndID();
+        if (!_.isNil(newProps.targetService)) {
+            this.props = newProps;
+            this.genSwaggerAndID();
+            this.renderSwaggerEditor();
+        }
     }
 
-    componentDidMount() {
+    renderSwaggerEditor() {
         if (!_.isNil(this.props.targetService)) {
             $(this.container).empty();
+            $(this.container).attr('id', this.swaggerEditorID);
             this.swaggerEditor = SwaggerEditorBundle({
                 dom_id: `#${this.swaggerEditorID}`,
             });       
         }
     }
 
+    shouldComponentUpdate() {
+        return false;
+    }
+
     render() {
         return (
             <div className="swagger-view-container">
                 <div className="swaggerEditor"
-                    id={this.swaggerEditorID}
                     ref={(ref) => { this.container = ref }}
                     data-editor-url="lib/swagger-editor/#/" 
                 >

@@ -129,6 +129,7 @@ class BallerinaFileEditor extends React.Component {
             swaggerViewTargetService: serviceDef,
             activeView: SWAGGER_VIEW
         });
+        this.update();
     }
 
     /**
@@ -238,9 +239,9 @@ class BallerinaFileEditor extends React.Component {
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
                     <SourceView file={this.props.file} commandManager={this.props.commandManager} />
                 </div>
-                {showSwaggerView
-                    && <SwaggerView targetService={this.state.swaggerViewTargetService} />
-                }
+                <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
+                   <SwaggerView targetService={this.state.swaggerViewTargetService} />
+                </div>
             </div>
         );
     }
