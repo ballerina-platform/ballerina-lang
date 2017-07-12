@@ -435,6 +435,20 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Checks if a string is valid as a type.
+     * @param {string} type - The string value.
+     * @return {boolean} - True if valid, else false.
+     */
+    static isValidType(type) {
+        if (_.isUndefined(type)) {
+            return false;
+        } else if (/^[a-zA-Z0-9_:]*$/.test(type)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Removes node from the tree.
      * @param [options] {object}
      * @param [options.ignoreTreeModifiedEvent=false] {boolean} a flag to prevent tree-modified event being fired
