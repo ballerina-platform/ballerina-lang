@@ -4,7 +4,7 @@ Now that you have [written your first program](../first-program.md), you can wri
 
 > This tutorial provides instructions on how to write a main program. This involves a simple integration scenario where you can call a public weather forecast API and do some customization to the data obtained. The weather forecast API provides the weather forecast for the next five days and provides new records every three hours. Using this data, you will learn how to use Ballerina to find the average temperature and convert the result from Kelvin to Celsius.
 
-> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md).
+> **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). For more information on the API, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
 
 ## Set up Ballerina for integration
 
