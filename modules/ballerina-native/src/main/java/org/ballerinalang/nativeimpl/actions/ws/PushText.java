@@ -71,7 +71,7 @@ public class PushText extends AbstractWebSocketAction {
             throw new BallerinaException("Internal error occurred. Cannot find a connection");
         }
         Session clientSession = WebSocketConnectionManager.getInstance().
-                getClientSesisonForConnector(bConnector, serverSession);
+                getClientSessionForConnector(bConnector, serverSession);
         try {
             clientSession.getBasicRemote().sendText(text);
         } catch (IOException e) {

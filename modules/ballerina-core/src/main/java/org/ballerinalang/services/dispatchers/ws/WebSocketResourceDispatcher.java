@@ -69,9 +69,6 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
-
                     // Closing related client connections.
                     List<Session> clientSessions =
                             (List<Session>) statusMessage.getProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST);
@@ -84,7 +81,9 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                                 }
                             }
                     );
-
+                    // Removing server session
+                    Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
                     String connection = (String) cMsg.getProperty(Constants.CONNECTION);
@@ -93,7 +92,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     if (connection != null && upgrade != null &&
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
                         Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                        WebSocketConnectionManager.getInstance().addConnection(service, session, cMsg);
+                        WebSocketConnectionManager.getInstance().addServerSession(service, session, cMsg);
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }

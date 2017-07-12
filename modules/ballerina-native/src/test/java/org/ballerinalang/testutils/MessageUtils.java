@@ -27,6 +27,7 @@ import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -131,6 +132,8 @@ public class MessageUtils {
         carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.IS_WEBSOCKET_SERVER, true);
         carbonMessage.setProperty(
                 org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_SERVER_SESSION, session);
+        carbonMessage.setProperty(org.ballerinalang.services.dispatchers.ws.Constants.WEBSOCKET_CLIENT_SESSIONS_LIST,
+                                  new LinkedList<>());
         return carbonMessage;
     }
 

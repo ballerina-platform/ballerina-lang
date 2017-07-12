@@ -205,23 +205,50 @@ public class WebSocketConnectionManager {
         return connectionStore.get(connectionName);
     }
 
-    public void addConnection(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
+    /**
+     * Adding new connection to the connection manager.
+     * This adds the server session to the related maps and create necessary client connections to the client
+     * connectors.
+     *
+     * @param service {@link ServiceInfo} of the service which session is related.
+     * @param session Session of the connection.
+     * @param carbonMessage carbon message received.
+     */
+    public void addServerSession(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
+        /*
+            If service is in the parentServiceToClientConnectorsMap means it might have client connectors relates to
+            the service. So for each client connector new connections should be created for remote server.
+         */
         if (parentServiceToClientConnectorsMap.containsKey(service)) {
             for (BConnector bConnector : parentServiceToClientConnectorsMap.get(service)) {
                 Session clientSession = initializeClientConnection(bConnector, carbonMessage);
                 Session serverSession = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
                 String clientServiceName = bConnector.getStringField(1);
-                addClientSession(clientSession, clientServiceName);
+                addClientServiceNameToClientSession(clientSession, clientServiceName);
                 clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
             }
         }
+
+        // Adding connection to broadcast group.
         addConnectionToBroadcast(service, session);
     }
 
-    public void addClientSession(Session clientSession, String clientServiceName) {
+    /**
+     * Map session against the related service name.
+     *
+     * @param clientSession Session of the client.
+     * @param clientServiceName Name of the client service.
+     */
+    public void addClientServiceNameToClientSession(Session clientSession, String clientServiceName) {
         clientSessionToClientServiceMap.put(clientSession.getId(), clientServiceName);
     }
 
+    /**
+     * Retrieve the related client service name for a given client session.
+     *
+     * @param clientSession Session of the client.
+     * @return the name of the client service related to the given client session.
+     */
     public String getClientServiceNameOfClientSession(Session clientSession) {
         if (clientSessionToClientServiceMap.containsKey(clientSession.getId())) {
             return clientSessionToClientServiceMap.get(clientSession.getId());
@@ -229,8 +256,15 @@ public class WebSocketConnectionManager {
         throw new BallerinaException("Cannot find the client service to dispatch the message");
     }
 
-
-    public void addClientConnector(ServiceInfo parentService, BConnector connector) {
+    /**
+     * Add ballerina level client connector to the connection manager and initialize related maps.
+     * <b>This method should be only used if the WebSocket parent service exists.</b>
+     *
+     * @param parentService {@link ServiceInfo} where the connector is created.
+     * @param connector {@link BConnector} which should be added to the connection manager.
+     * @Param clientSession newly created client session for the client connector.
+     */
+    public void addClientConnector(ServiceInfo parentService, BConnector connector, Session clientSession) {
         if (parentServiceToClientConnectorsMap.containsKey(parentService)) {
             parentServiceToClientConnectorsMap.get(parentService).add(connector);
         } else {
@@ -242,21 +276,48 @@ public class WebSocketConnectionManager {
 
         // Initiating clientConnectorSessionsMap list for the given connector.
         Map<String, Session> sessions = new HashMap<>();
+        sessions.put(Constants.DEFAULT, clientSession);
         clientConnectorSessionsMap.put(connector, sessions);
     }
 
-    public List<Session> getSessionsForConnector(BConnector bConnector) {
-        return clientConnectorSessionsMap.get(bConnector).entrySet().stream().
-                map(Map.Entry::getValue).collect(Collectors.toList());
-    }
-
+    /**
+     * <p>This method should be carefully used. This is only used when creating the initial connection to the
+     * remote server by the client connector which is created by the the services other than WebSocket.</p>
+     * This also add the initial connection to the the same mapping but using "Default" keyword as the
+     * parent service name.
+     *
+     * @param bConnector
+     * @param session
+     */
     public void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
         Map<String, Session> sessions = new HashMap<>();
         sessions.put(Constants.DEFAULT, session);
         clientConnectorSessionsMap.put(bConnector, sessions);
     }
 
-    public Session getClientSesisonForConnector(BConnector bConnector, Session serverSession) {
+    /**
+     * Get all the client sessions created against the given connector.
+     *
+     * @param bConnector {@link BConnector} to retrieve the client sessions.
+     * @return a list of client sessions related to given client connector.
+     */
+    public List<Session> getSessionsForConnector(BConnector bConnector) {
+        if (clientConnectorSessionsMap.containsKey(bConnector)) {
+            return clientConnectorSessionsMap.get(bConnector).entrySet().stream().
+                    map(Map.Entry::getValue).collect(Collectors.toList());
+        }
+
+        return new LinkedList<>();
+    }
+
+    /**
+     * Retrieve the client session related to the connector and the server session.
+     *
+     * @param bConnector {@link BConnector} related to the session.
+     * @param serverSession server session of the {@link BConnector} related to the client session.
+     * @return the client session of relate to the {@link BConnector} and the relevant server session.
+     */
+    public Session getClientSessionForConnector(BConnector bConnector, Session serverSession) {
         return clientConnectorSessionsMap.get(bConnector).get(serverSession.getId());
     }
 

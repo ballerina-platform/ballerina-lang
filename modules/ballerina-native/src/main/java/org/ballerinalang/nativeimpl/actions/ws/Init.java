@@ -86,7 +86,7 @@ public class Init extends AbstractWebSocketAction {
 
         // Adding client session to connection manager.
         WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
-        connectionManager.addClientSession(clientSession, clientServiceName);
+        connectionManager.addClientServiceNameToClientSession(clientSession, clientServiceName);
 
         // Setting parent service to client service if parent service is a WS service.
         if (parentService != null && parentService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
@@ -94,7 +94,7 @@ public class Init extends AbstractWebSocketAction {
                     setParentServiceToClientService(clientServiceName, parentService);
 
             // Adding client connector to parent service in connection manager.
-            connectionManager.addClientConnector(parentService, bconnector);
+            connectionManager.addClientConnector(parentService, bconnector, clientSession);
         } else {
             connectionManager.addClientConnectorWithoutParentService(bconnector, clientSession);
         }
