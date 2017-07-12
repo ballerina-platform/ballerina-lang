@@ -15,14 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.actions.vfs.util;
+package org.ballerinalang.nativeimpl.actions.ftp.util;
 
 /**
- * Constants for vfs client connector.
+ * Constants for ftp client connector.
  */
 public class FileConstants {
-    //TODO: Rethink VFS_CONNECTOR_NAME
-    public static final String VFS_CONNECTOR_NAME = "file";
+    public static final String FTP_CONNECTOR_NAME = "file";
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String PROPERTY_URI = "uri";
     public static final String PROPERTY_SOURCE = "source";

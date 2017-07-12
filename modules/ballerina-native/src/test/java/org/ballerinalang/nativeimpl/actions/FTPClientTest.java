@@ -36,12 +36,12 @@ import java.io.File;
 /**
  * Test cases for jms client.
  */
-public class VFSClientTest {
+public class FTPClientTest {
     private ProgramFile programFile;
 
     @BeforeClass
     public void setup() {
-        programFile = BTestUtils.getProgramFile("samples/vfsClientConnectorTest.bal");
+        programFile = BTestUtils.getProgramFile("samples/ftpClientConnectorTest.bal");
         BuiltInNativeConstructLoader.loadConstructs();
     }
 
