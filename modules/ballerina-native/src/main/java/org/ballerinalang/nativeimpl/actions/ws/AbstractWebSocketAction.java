@@ -34,16 +34,6 @@ import javax.websocket.Session;
  */
 public abstract class AbstractWebSocketAction extends AbstractNativeAction {
 
-    protected void pushMessage(CarbonMessage carbonMessage) {
-        org.wso2.carbon.messaging.ClientConnector clientConnector =
-                BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
-        try {
-            clientConnector.send(carbonMessage, null);
-        } catch (ClientConnectorException e) {
-            throw new BallerinaException("Error occurred when pushing the message");
-        }
-    }
-
     protected Session getServerSession(Context context) {
         CarbonMessage carbonMessage = context.getCarbonMessage();
         return (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);

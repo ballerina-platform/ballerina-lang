@@ -29,8 +29,12 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ControlCarbonMessage;
+
+import java.io.IOException;
+import javax.websocket.CloseReason;
 
 /**
  * Close the connection of WebSocket Client connector.
@@ -60,13 +64,12 @@ public class Close extends AbstractWebSocketAction {
     public BValue execute(Context context) {
         BConnector bconnector = (BConnector) getRefArgument(context, 0);
         WebSocketConnectionManager.getInstance().getSessionsForConnector(bconnector).forEach(
-                clientID -> {
-                    ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
-                            org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_CLOSE);
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_CODE, 1000);
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLOSE_REASON, "Normal closure");
-                    controlCarbonMessage.setProperty(Constants.WEBSOCKET_CLIENT_ID, clientID);
-                    pushMessage(controlCarbonMessage);
+                session -> {
+                    try {
+                        session.close(new CloseReason(() -> 1000, "Normal closure"));
+                    } catch (IOException e) {
+                        throw new BallerinaException("Error occurred during closing the connections.");
+                    }
                 }
         );
         return null;
