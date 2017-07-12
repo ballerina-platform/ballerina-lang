@@ -331,6 +331,14 @@ public class WhiteSpaceRegions {
     public static final int CONNECTOR_INIT_EXP_NAME_REF_TO_EXP_LIST_WRAPPER = 2;
     public static final int CONNECTOR_INIT_EXP_FOLLOWING_WHITESPACE = 3;
 
+    public static final int CONNECTOR_INIT_EXP_FILTER_PRECEDING_WHITESPACE = 0;
+    public static final int CONNECTOR_INIT_EXP_FILTER_CREATE_KEYWORD_TO_NAME_REF = 1;
+    public static final int CONNECTOR_INIT_EXP_FILTER_NAME_REF_TO_EXP_LIST_WRAPPER = 2;
+    public static final int CONNECTOR_INIT_EXP_FILTER_EXP_LIST_WRAPPER_TO_WITH_KEYWORD = 3;
+    public static final int CONNECTOR_INIT_EXP_FILTER_WITH_KEYWORD_TO_FILTER_EXPRESSION_LIST_START = 4;
+    public static final int CONNECTOR_INIT_EXP_FILTER_FILTER_EXPRESSION_LIST_START_TO_FILTER_EXPRESSION_LIST_END = 5;
+    public static final int CONNECTOR_INIT_EXP_FILTER_FOLLOWING_WHITESPACE = 6;
+
     // whitespace regions in a struct field identifier
     public static final int STRUCT_FIELD_IDENTIFIER_PRECEDING_WHITESPACE = 0;
     public static final int STRUCT_FIELD_IDENTIFIER_FOLLOWING_WHITESPACE = 1;

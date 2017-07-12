@@ -1020,7 +1020,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         } else {
                 WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
                 if (isVerboseMode) {
-                    filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
+                    filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
                 }
                 List<Boolean> argExistenceList = new ArrayList<>();
                 for (BallerinaParser.ExpressionListContext expressionListContext : filterConnectorInitStack) {

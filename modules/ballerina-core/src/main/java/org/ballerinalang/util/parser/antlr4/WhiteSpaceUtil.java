@@ -956,6 +956,27 @@ public class WhiteSpaceUtil {
         return ws;
     }
 
+    public static WhiteSpaceDescriptor getConnectorInitWithFilterExpWS(CommonTokenStream tokenStream,
+                                                             BallerinaParser.ConnectorInitExpressionContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_PRECEDING_WHITESPACE,
+                getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_CREATE_KEYWORD_TO_NAME_REF,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_NAME_REF_TO_EXP_LIST_WRAPPER,
+                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_EXP_LIST_WRAPPER_TO_WITH_KEYWORD,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_WITH_KEYWORD_TO_FILTER_EXPRESSION_LIST_START,
+                getWhitespaceToLeft(tokenStream, ctx.filterInitExpressionList().start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.
+                        CONNECTOR_INIT_EXP_FILTER_FILTER_EXPRESSION_LIST_START_TO_FILTER_EXPRESSION_LIST_END,
+                getWhitespaceToLeft(tokenStream, ctx.filterInitExpressionList().stop.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.CONNECTOR_INIT_EXP_FILTER_FOLLOWING_WHITESPACE,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
 //    public static WhiteSpaceDescriptor getStructFieldIdentifierWS(CommonTokenStream tokenStream,
 //                                                                  BallerinaParser.StructFieldIdentifierContext ctx) {
 //        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
