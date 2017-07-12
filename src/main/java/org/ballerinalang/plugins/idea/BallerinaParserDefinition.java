@@ -63,6 +63,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
+import org.ballerinalang.plugins.idea.psi.IterateStatementNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -356,6 +357,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TryCatchStatementNode(node);
             case BallerinaParser.RULE_codeBlockParameter:
                 return new CodeBlockParameterNode(node);
+            case BallerinaParser.RULE_iterateStatement:
+                return new IterateStatementNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

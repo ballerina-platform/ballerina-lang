@@ -292,7 +292,7 @@ codeBlockParameter
 
 //todo replace with 'foreach'
 iterateStatement
-    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
+    :   'iterate' '(' codeBlockParameter ':' expression ')' '{' codeBlockBody '}'
     ;
 
 whileStatement
