@@ -1,6 +1,6 @@
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
@@ -13,7 +13,7 @@ public class AggregationRuntime {
 
     private Executor entryValveExecutor;
 
-    public AggregationRuntime(AggregationDefinition aggregationDefinition, ExecutionPlanContext executionPlanContext,
+    public AggregationRuntime(AggregationDefinition aggregationDefinition, SiddhiAppContext siddhiAppContext,
                               StreamRuntime streamRuntime, MetaComplexEvent metaComplexEvent, IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver) {
         this.streamRuntime = streamRuntime;
         this.incrementalExecuteStreamReceiver = incrementalExecuteStreamReceiver;

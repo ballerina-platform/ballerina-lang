@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
 import java.time.Instant;
@@ -43,7 +43,7 @@ public class IncrementalTimeConverterUtil {
         case YEARS:
             return getNextEmitTimeForYear(currentTime);
         default:
-            throw new ExecutionPlanRuntimeException("Undefined duration " + duration.toString());
+            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
@@ -62,7 +62,7 @@ public class IncrementalTimeConverterUtil {
         case YEARS:
             return getStartTimeOfAggregatesForYear(currentTime);
         default:
-            throw new ExecutionPlanRuntimeException("Undefined duration " + duration.toString());
+            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 
@@ -82,7 +82,7 @@ public class IncrementalTimeConverterUtil {
         case YEARS:
             return getEmitTimeOfLastEventToRemoveForYear(currentEmitTime, bufferCount);
         default:
-            throw new ExecutionPlanRuntimeException("Undefined duration " + duration.toString());
+            throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }
     }
 

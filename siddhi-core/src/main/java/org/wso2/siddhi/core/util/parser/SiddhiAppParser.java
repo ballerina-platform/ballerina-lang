@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.definition.FunctionDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -195,6 +196,7 @@ public class SiddhiAppParser {
         defineTableDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTableDefinitionMap());
         defineWindowDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getWindowDefinitionMap());
         defineFunctionDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getFunctionDefinitionMap());
+        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap(), siddhiAppContext);
         for (Window window : siddhiAppRuntimeBuilder.getEventWindowMap().values()) {
             String metricName =
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
@@ -283,5 +285,14 @@ public class SiddhiAppParser {
         for (WindowDefinition definition : windowDefinitionMap.values()) {
             siddhiAppRuntimeBuilder.defineWindow(definition);
         }
+    }
+
+    private static void defineAggregationDefinitions(SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
+                                                     Map<String, AggregationDefinition> aggregationDefinitionMap,
+                                                     SiddhiAppContext siddhiAppContext) {
+        for(AggregationDefinition definition : aggregationDefinitionMap.values()){
+            siddhiAppRuntimeBuilder.defineAggregation(definition, siddhiAppContext);
+        }
+
     }
 }

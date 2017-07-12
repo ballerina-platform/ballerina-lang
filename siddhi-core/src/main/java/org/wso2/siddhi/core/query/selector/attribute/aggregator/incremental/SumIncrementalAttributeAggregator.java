@@ -20,7 +20,7 @@ package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -57,7 +57,7 @@ public class SumIncrementalAttributeAggregator extends CompositeAggregator {
                     Expression.value("long"));
 
         } else {
-            throw new ExecutionPlanRuntimeException(
+            throw new SiddhiAppRuntimeException(
                     "Sum aggregation cannot be executed on " + "attribute type " + attributeType.toString());
         }
         this.incrementalAttributes = new Attribute[] { sum };

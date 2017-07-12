@@ -103,7 +103,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitParse(@NotNull SiddhiQLParser.ParseContext ctx) {
-        return visit(ctx.execution_plan());
+        return visit(ctx.siddhi_app());
     }
 
     /**

@@ -19,7 +19,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -54,7 +54,7 @@ public class IncrementalExecutor implements Executor {
     private IncrementalExecutor child;
     private MetaStreamEvent metaEvent;
     private Map<String, Table> tableMap;
-    private ExecutionPlanContext executionPlanContext;
+    private SiddhiAppContext siddhiAppContext;
     private String aggregatorName;
     private List<CompositeAggregator> compositeAggregators;
     private List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails;
@@ -82,7 +82,7 @@ public class IncrementalExecutor implements Executor {
     private Queue<List<AggregationParser.ExpressionExecutorDetails>> poolOfExtraBaseExpressionExecutors;
 
     public IncrementalExecutor(TimePeriod.Duration duration, IncrementalExecutor child, MetaStreamEvent metaEvent,
-            Map<String, Table> tableMap, ExecutionPlanContext executionPlanContext, String aggregatorName,
+            Map<String, Table> tableMap, SiddhiAppContext siddhiAppContext, String aggregatorName,
             List<CompositeAggregator> compositeAggregators,
             List<AggregationParser.ExpressionExecutorDetails> basicExecutorDetails, List<Variable> groupByVariables,
             VariableExpressionExecutor timeStampExecutor, GroupByKeyGenerator groupByKeyGenerator,
@@ -91,7 +91,7 @@ public class IncrementalExecutor implements Executor {
         this.child = child;
         this.metaEvent = metaEvent;
         this.tableMap = tableMap;
-        this.executionPlanContext = executionPlanContext;
+        this.siddhiAppContext = siddhiAppContext;
         this.aggregatorName = aggregatorName;
         this.compositeAggregators = compositeAggregators;
         this.basicExecutorDetails = basicExecutorDetails;

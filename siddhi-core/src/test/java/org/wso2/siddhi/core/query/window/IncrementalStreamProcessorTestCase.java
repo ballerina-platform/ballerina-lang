@@ -2,7 +2,7 @@ package org.wso2.siddhi.core.query.window;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 
 public class IncrementalStreamProcessorTestCase {
@@ -22,7 +22,7 @@ public class IncrementalStreamProcessorTestCase {
                 " select sum(price) as sumPrice " +
                 " aggregate by arrival every sec ... min";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class IncrementalStreamProcessorTestCase {
                 " select sum(price) as sumPrice " +
                 " aggregate every sec ... min";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 
     @Test
@@ -57,6 +57,6 @@ public class IncrementalStreamProcessorTestCase {
                 " group by price " +
                 " aggregate every sec, min, hour, day";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
     }
 }

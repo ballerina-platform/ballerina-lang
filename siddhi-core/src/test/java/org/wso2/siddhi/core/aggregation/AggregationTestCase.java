@@ -21,7 +21,7 @@ package org.wso2.siddhi.core.aggregation;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
@@ -48,10 +48,10 @@ public class AggregationTestCase {
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate by timestamp every sec...year ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
         // TODO: 6/29/17 Check with null later
 
         // Thursday, June 1, 2017 4:05:50 AM
@@ -104,7 +104,7 @@ public class AggregationTestCase {
         inputHandler.send(new Object[] { "CISCO", 260f, 44f, 200L, 16, 1596434876000L });
 
         Thread.sleep(2000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -118,10 +118,10 @@ public class AggregationTestCase {
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate every sec...hour ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         inputHandler.send(new Object[] { "WSO2", 50f, 60f, 90L, 6, 1496289950000L });
         inputHandler.send(new Object[] { "WSO2", 70f, null, 40L, 10, 1496289950000L });
@@ -141,7 +141,7 @@ public class AggregationTestCase {
 
         inputHandler.send(new Object[] { "IBM", 400f, null, 200L, 9, 1496290016000L });
         Thread.sleep(60000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -155,10 +155,10 @@ public class AggregationTestCase {
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate by timestamp every sec...year ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         // Thursday, June 1, 2017 4:05:50 AM
         inputHandler.send(new Object[] { "WSO2", 50f, 60f, 90L, 6, 1496289950000L });
@@ -193,7 +193,7 @@ public class AggregationTestCase {
         inputHandler.send(new Object[] { "CISCO", 700f, null, 200L, 20, 1496293676000L });
 
         Thread.sleep(2000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 
     @Test
@@ -207,10 +207,10 @@ public class AggregationTestCase {
                 + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
                 + "group by symbol " + "aggregate by timestamp every sec...year ;";
 
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("cseEventStream");
-        executionPlanRuntime.start();
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
 
         // Thursday, June 1, 2017 4:05:50 AM
         inputHandler.send(new Object[] { "WSO2", 50f, 60f, 90L, 6, 1496289950000L });
@@ -238,6 +238,6 @@ public class AggregationTestCase {
         inputHandler.send(new Object[] { "IBM", 1000f, null, 200L, 9, 1496290016000L });
 
         Thread.sleep(2000);
-        executionPlanRuntime.shutdown();
+        siddhiAppRuntime.shutdown();
     }
 }

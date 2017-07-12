@@ -18,12 +18,12 @@
 
 package org.wso2.siddhi.core.util.parser;
 
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
-import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppRuntimeException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
@@ -61,29 +61,28 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /*
  * This is the parer class of incremental aggregation definition.
  */
 public class AggregationParser {
 
-    public static AggregationRuntime parse(AggregationDefinition definition, ExecutionPlanContext executionPlanContext,
+    public static AggregationRuntime parse(AggregationDefinition definition, SiddhiAppContext siddhiAppContext,
             Map<String, AbstractDefinition> streamDefinitionMap, Map<String, AbstractDefinition> tableDefinitionMap,
             Map<String, AbstractDefinition> windowDefinitionMap, Map<String, Table> tableMap,
             Map<String, Window> windowMap, Map<String, List<Source>> eventSourceMap,
             Map<String, List<Sink>> eventSinkMap, LockSynchronizer lockSynchronizer) {
 
         if (definition == null) {
-            throw new ExecutionPlanCreationException(
+            throw new SiddhiAppCreationException(
                     "AggregationDefinition instance is null. " + "Hence, can't create the execution plan");
         }
         if (definition.getTimePeriod() == null) {
-            throw new ExecutionPlanCreationException(
+            throw new SiddhiAppCreationException(
                     "AggregationDefinition's timePeriod is null. " + "Hence, can't create the execution plan");
         }
         if (definition.getSelector() == null) {
-            throw new ExecutionPlanCreationException(
+            throw new SiddhiAppCreationException(
                     "AggregationDefinition's selection is not defined. " + "Hence, can't create the execution plan");
         }
 
@@ -97,7 +96,7 @@ public class AggregationParser {
             String aggregatorName = definition.getId();
 
             InputStream inputStream = definition.getInputStream();
-            StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, executionPlanContext,
+            StreamRuntime streamRuntime = InputStreamParser.parse(inputStream, siddhiAppContext,
                     streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap,
                     executorsOfIncomingStreamMeta, latencyTracker, false, aggregatorName);
             List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(definition.getTimePeriod());
@@ -139,7 +138,7 @@ public class AggregationParser {
 
             if (timeStampVariable != null) {
                 metaValueRetrievers.add(ExpressionParser.parseExpression(timeStampVariable, incomingStreamMeta, 0,
-                        tableMap, executorsOfIncomingStreamMeta, executionPlanContext, groupBy, 0, aggregatorName));
+                        tableMap, executorsOfIncomingStreamMeta, siddhiAppContext, groupBy, 0, aggregatorName));
             }
             if (groupBy) {
                 for (Variable groupByVariable : groupByVariables) {
@@ -148,7 +147,7 @@ public class AggregationParser {
                     newStreamDefinition.attribute(groupByVariable.getAttributeName(),
                             incomingStreamDefinition.getAttributeType(groupByVariable.getAttributeName()));
                     metaValueRetrievers.add(ExpressionParser.parseExpression(groupByVariable, incomingStreamMeta, 0,
-                            tableMap, executorsOfIncomingStreamMeta, executionPlanContext, true, 0, aggregatorName));
+                            tableMap, executorsOfIncomingStreamMeta, siddhiAppContext, true, 0, aggregatorName));
                 }
             }
 
@@ -167,15 +166,15 @@ public class AggregationParser {
                 if (expression instanceof AttributeFunction) {
                     attributeFunction = (AttributeFunction) expression;
                     if (attributeFunction.getParameters() == null || attributeFunction.getParameters()[0] == null) {
-                        throw new ExecutionPlanRuntimeException("Attribute function " + attributeFunction.getName()
+                        throw new SiddhiAppRuntimeException("Attribute function " + attributeFunction.getName()
                                 + " cannot be executed when no parameters are given");
                     }
                     if (attributeFunction.getParameters().length != 1) {
-                        throw new ExecutionPlanRuntimeException("Aggregation requires only on one parameter. "
+                        throw new SiddhiAppRuntimeException("Aggregation requires only on one parameter. "
                                 + "Found " + attributeFunction.getParameters().length);
                     }
                     if (!(attributeFunction.getParameters()[0] instanceof Variable)) {
-                        throw new ExecutionPlanRuntimeException("Expected a variable. However a parameter of type "
+                        throw new SiddhiAppRuntimeException("Expected a variable. However a parameter of type "
                                 + attributeFunction.getParameters()[0].getClass().getTypeName() + " was found");
                     }
                     attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
@@ -185,7 +184,7 @@ public class AggregationParser {
                                     new AttributeFunction("incrementalAggregator", attributeFunction.getName(),
                                             attributeFunction.getParameters()),
                                     // TODO: 6/20/17 is it ok to create new AttributeFunction?
-                                    CompositeAggregatorExtensionHolder.getInstance(executionPlanContext));
+                                    CompositeAggregatorExtensionHolder.getInstance(siddhiAppContext));
                     compositeAggregator.init(attributeName, incomingStreamDefinition.getAttributeType(attributeName));
                     compositeAggregators.add(compositeAggregator);
                 } else {
@@ -197,13 +196,13 @@ public class AggregationParser {
                                     incomingStreamDefinition
                                             .getAttributeType(((Variable) expression).getAttributeName()));
                             metaValueRetrievers.add(ExpressionParser.parseExpression(expression, incomingStreamMeta, 0,
-                                    tableMap, executorsOfIncomingStreamMeta, executionPlanContext, true, 0,
+                                    tableMap, executorsOfIncomingStreamMeta, siddhiAppContext, true, 0,
                                     aggregatorName));
                             genericExpressions.add(expression);
                         }
                     } else {
                         ExpressionExecutor genericExpressionExecutor = ExpressionParser.parseExpression(expression,
-                                incomingStreamMeta, 0, tableMap, executorsOfIncomingStreamMeta, executionPlanContext,
+                                incomingStreamMeta, 0, tableMap, executorsOfIncomingStreamMeta, siddhiAppContext,
                                 true, 0, aggregatorName);
                         // For generic expression executors, the rename value is used (since if
                         // the expression is constant expression, etc. it would not have a corresponding
@@ -238,14 +237,14 @@ public class AggregationParser {
                             && baseIncrementalAggregatorsCheckerMap.containsKey(incrementalAttributes[i].getName())) {
                         if (!attributeInitialValueCheckerMap.get(incrementalAttributes[i]).equals(initialValues[i])) {
                             // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
-                            throw new ExecutionPlanRuntimeException("For a given incrementalAttribute, "
+                            throw new SiddhiAppRuntimeException("For a given incrementalAttribute, "
                                     + "same initial value should have been defined across all "
                                     + "composite aggregators.");
                         }
                         if (!baseIncrementalAggregatorsCheckerMap.get(incrementalAttributes[i].getName())
                                 .equals(baseAggregators[i])) {
                             // TODO: 6/10/17 This is an error in implementation logic. What needs to be done?
-                            throw new ExecutionPlanRuntimeException("For a given incrementalAttribute, "
+                            throw new SiddhiAppRuntimeException("For a given incrementalAttribute, "
                                     + "same base incremental aggregator should have been"
                                     + " defined across all composite aggregators.");
                         }
@@ -267,7 +266,7 @@ public class AggregationParser {
             }
             for (Expression initialValueExpression : attributeInitialValues) {
                 metaValueRetrievers.add(ExpressionParser.parseExpression(initialValueExpression, incomingStreamMeta, 0,
-                        tableMap, executorsOfIncomingStreamMeta, executionPlanContext, groupBy, 0, aggregatorName));
+                        tableMap, executorsOfIncomingStreamMeta, siddhiAppContext, groupBy, 0, aggregatorName));
             }
 
             newMeta.addInputDefinition(newStreamDefinition);
@@ -279,13 +278,13 @@ public class AggregationParser {
             // executor in runtime.
             VariableExpressionExecutor timeStampExecutor = (VariableExpressionExecutor) ExpressionParser
                     .parseExpression(new Variable("_TIMESTAMP"), newMeta, 0, tableMap, executorsOfNewMeta,
-                            executionPlanContext, groupBy, 0, aggregatorName);
+                            siddhiAppContext, groupBy, 0, aggregatorName);
 
             // Create group by key generator
             GroupByKeyGenerator groupByKeyGenerator = null;
             if (groupBy) {
                 groupByKeyGenerator = new GroupByKeyGenerator(groupByVariables, newMeta, tableMap, executorsOfNewMeta,
-                        executionPlanContext, aggregatorName);
+                        siddhiAppContext, aggregatorName);
             }
 
             // Create expression executors for generic expressions, which are not group by, timeStamp or
@@ -293,7 +292,7 @@ public class AggregationParser {
             List<ExpressionExecutor> genericExpressionExecutors = new ArrayList<>();
             for (Expression genericExpression : genericExpressions) {
                 genericExpressionExecutors.add(ExpressionParser.parseExpression(genericExpression, newMeta, 0, tableMap,
-                        executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName));
+                        executorsOfNewMeta, siddhiAppContext, groupBy, 0, aggregatorName));
             }
 
             // Create stream event pool
@@ -304,7 +303,7 @@ public class AggregationParser {
 
             // Create in-memory default table definitions and add to tableMap // TODO: 6/11/17 must later be taken from
             // @store. Optional?
-            initDefaultTables(tableMap, aggregatorName, incrementalDurations, newMeta, executionPlanContext);
+            initDefaultTables(tableMap, aggregatorName, incrementalDurations, newMeta, siddhiAppContext);
 
             // Minimum scheduling time needs to be identified (duration of root incremental executor)
             TimePeriod.Duration minSchedulingTime = null;
@@ -318,12 +317,12 @@ public class AggregationParser {
                 ExpressionExecutor expressionExecutor;
                 for (int j = 0; j < baseIncrementalAggregators.size(); j++) {
                     expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(j), newMeta, 0,
-                            tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
+                            tableMap, executorsOfNewMeta, siddhiAppContext, groupBy, 0, aggregatorName);
                     baseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
                             finalListOfIncrementalAttributes.get(j).getName()));
                 }
                 root = new IncrementalExecutor(incrementalDurations.get(i), child, newMeta, tableMap,
-                        executionPlanContext, aggregatorName, compositeAggregators, baseExpressionExecutors,
+                        siddhiAppContext, aggregatorName, compositeAggregators, baseExpressionExecutors,
                         groupByVariables, timeStampExecutor, groupByKeyGenerator, genericExpressionExecutors,
                         bufferSize, streamEventPool);
                 child = root;
@@ -332,9 +331,9 @@ public class AggregationParser {
             }
 
             // Create new scheduler
-            EntryValveExecutor entryValveExecutor = new EntryValveExecutor(executionPlanContext);
-            Scheduler scheduler = SchedulerParser.parse(executionPlanContext.getScheduledExecutorService(),
-                    entryValveExecutor, executionPlanContext);
+            EntryValveExecutor entryValveExecutor = new EntryValveExecutor(siddhiAppContext);
+            Scheduler scheduler = SchedulerParser.parse(siddhiAppContext.getScheduledExecutorService(),
+                    entryValveExecutor, siddhiAppContext);
             lockWrapper = new LockWrapper(aggregatorName);
             lockWrapper.setLock(new ReentrantLock());
             scheduler.init(lockWrapper, aggregatorName);
@@ -348,7 +347,7 @@ public class AggregationParser {
             IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver = new IncrementalExecuteStreamReceiver(
                     singleInputStream.getStreamId(), latencyTracker, aggregatorName);
 
-            aggregationRuntime = new AggregationRuntime(definition, executionPlanContext, streamRuntime, newMeta,
+            aggregationRuntime = new AggregationRuntime(definition, siddhiAppContext, streamRuntime, newMeta,
                     incrementalExecuteStreamReceiver);
             assert child != null; // Child won't be null if incremental durations are given
             child.setRoot(); // Set root incremental executor
@@ -365,7 +364,7 @@ public class AggregationParser {
                 List<ExpressionExecutorDetails> extraBaseExpressionExecutors = new ArrayList<>();
                 for (int j = 0; j < baseIncrementalAggregators.size(); j++) {
                     expressionExecutor = ExpressionParser.parseExpression(baseIncrementalAggregators.get(j), newMeta, 0,
-                            tableMap, executorsOfNewMeta, executionPlanContext, groupBy, 0, aggregatorName);
+                            tableMap, executorsOfNewMeta, siddhiAppContext, groupBy, 0, aggregatorName);
                     extraBaseExpressionExecutors.add(new ExpressionExecutorDetails(expressionExecutor,
                             finalListOfIncrementalAttributes.get(j).getName()));
                 }
@@ -440,7 +439,7 @@ public class AggregationParser {
         int endIndex = end.ordinal();
 
         if (startIndex > endIndex) {
-            throw new ExecutionPlanRuntimeException(
+            throw new SiddhiAppRuntimeException(
                     "Start time period must be less than end time period for range aggregation calculation");
         }
 
@@ -479,7 +478,7 @@ public class AggregationParser {
     }
 
     private static void initDefaultTables(Map<String, Table> tableMap, String aggregatorName,
-            List<TimePeriod.Duration> durations, MetaStreamEvent newMeta, ExecutionPlanContext executionPlanContext) {
+            List<TimePeriod.Duration> durations, MetaStreamEvent newMeta, SiddhiAppContext siddhiAppContext) {
         for (TimePeriod.Duration duration : durations) {
             TableDefinition tableDefinition = TableDefinition.id(aggregatorName + "_" + duration.toString());
             MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
@@ -497,7 +496,7 @@ public class AggregationParser {
             ConfigReader configReader = null;
             InMemoryTable inMemoryTable = new InMemoryTable();
             inMemoryTable.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
-                    executionPlanContext);
+                    siddhiAppContext);
             tableMap.putIfAbsent(tableDefinition.getId(), inMemoryTable);
         }
     }

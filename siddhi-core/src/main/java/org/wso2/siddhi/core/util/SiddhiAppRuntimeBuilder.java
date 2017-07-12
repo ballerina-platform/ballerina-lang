@@ -121,7 +121,6 @@ public class SiddhiAppRuntimeBuilder {
         DefinitionParserHelper.validateDefinition(windowDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap, aggregationDefinitionConcurrentMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
-                windowDefinitionMap, aggregationDefinitionConcurrentMap);
         DefinitionParserHelper.addStreamJunction(windowDefinition, streamJunctionMap, siddhiAppContext);
         AbstractDefinition currentDefinition = windowDefinitionMap
                 .putIfAbsent(windowDefinition.getId(), windowDefinition);
