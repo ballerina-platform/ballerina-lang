@@ -87,8 +87,9 @@ The next step is to obtain the JSON payload content.
     ![alt text](../images/GetJsonPayloadMessage.png)
 1. To get the data under list, you need to add a variable from the tool palette to the main function in the canvas.
     ![alt text](../images/JsonVariable.gif)
-1. Modify the variable so that you can get the data under list.
+1. Modify the variable so that you can get the data under list. In this example, **.list** is a JSON path.
     ![alt text](../images/forecastDataList.png)
+    > JSON paths can be used to access the contents of an attribute. For example, if `json j = {a:"hello"}` you can access `hello` using `j.a`. When considering the example used in this tutorial, if `json j = {list:[1,2,3]}` you can access the list using `j.list`.
 
 ## Get information from the weather forecast API
 
