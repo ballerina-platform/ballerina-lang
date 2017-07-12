@@ -36,6 +36,10 @@ import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -261,9 +265,8 @@ public class NameReference extends BallerinaElementReference {
             //            }
 
             // Todo - use a util method
-            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                    ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                    ConnectorDefinitionNode.class);
+            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                    TopLevelDefinition.class, LowerLevelDefinition.class);
             if (scope != null) {
 
                 int caretOffset = identifier.getStartOffset();

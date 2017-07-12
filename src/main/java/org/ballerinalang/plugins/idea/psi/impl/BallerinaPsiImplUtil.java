@@ -85,6 +85,11 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceListNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
+import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1330,14 +1335,13 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllLocalVariablesInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
         List<PsiElement> results = new LinkedList<>();
-        if (scope instanceof CallableUnitBodyNode || scope instanceof ServiceBodyNode
-                || scope instanceof ConnectorBodyNode) {
+        if (scope instanceof VariableContainer || scope instanceof CodeBlockScope) {
             results.addAll(getAllLocalVariablesInScope(scope, caretOffset));
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
             }
-        } else if (scope instanceof ResourceDefinitionNode || scope instanceof ActionDefinitionNode) {
+        } else if (scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
@@ -1378,13 +1382,20 @@ public class BallerinaPsiImplUtil {
 
     private static boolean isValidVariable(@NotNull VariableDefinitionNode variableDefinitionNode,
                                            @NotNull ScopeNode scope, int caretOffset) {
-
         PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);
         if (elementAtCaret == null) {
             return false;
         }
-        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
 
+        ScopeNode closestScope = PsiTreeUtil.getParentOfType(variableDefinitionNode, ScopeNode.class);
+        if (closestScope == null) {
+            return false;
+        }
+        if (!closestScope.equals(scope)) {
+            return false;
+        }
+
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
         // Todo - temp fix. Might need to add {, }, etc.
         // If previous leaf is ';', that means we are in a new statement. Otherwise we are not in a new
         // statement, so there might be other elements before as well.
@@ -1417,30 +1428,21 @@ public class BallerinaPsiImplUtil {
 
     private static boolean isValidVarAssignment(@NotNull AssignmentStatementNode assignmentStatementNode,
                                                 @NotNull ScopeNode scope, int caretOffset) {
-
         PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);
         if (elementAtCaret == null) {
             return false;
         }
-
         // Todo - temp fix. Might need to add {, }, etc.
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
-        if (prevVisibleLeaf == null || ";".equals(prevVisibleLeaf.getText())) {
-            if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
-                return true;
-            }
-        }
-
-        AssignmentStatementNode parent = PsiTreeUtil.getParentOfType(prevVisibleLeaf, AssignmentStatementNode.class);
-        if (parent == null) {
-            if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
-                return true;
-            }
-        }
-        if (assignmentStatementNode.equals(parent)) {
+        if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
             return false;
         }
-
+        AssignmentStatementNode parent = PsiTreeUtil.getParentOfType(prevVisibleLeaf, AssignmentStatementNode.class);
+        if (parent != null) {
+            if (assignmentStatementNode.equals(parent)) {
+                return false;
+            }
+        }
         PsiElement firstChild = assignmentStatementNode.getFirstChild();
         if (firstChild instanceof LeafPsiElement) {
             IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
@@ -1453,6 +1455,7 @@ public class BallerinaPsiImplUtil {
         return false;
     }
 
+    @NotNull
     private static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
                                                                                  assignmentStatementNode) {
         List<IdentifierPSINode> results = new LinkedList<>();
@@ -1479,14 +1482,12 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllParametersInResolvableScope(@NotNull ScopeNode scope) {
         List<PsiElement> results = new LinkedList<>();
-        if (scope instanceof CallableUnitBodyNode || scope instanceof ServiceBodyNode
-                || scope instanceof ConnectorBodyNode) {
+        if (scope instanceof VariableContainer) {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllParametersInResolvableScope(context));
             }
-        } else if (scope instanceof FunctionDefinitionNode || scope instanceof ResourceDefinitionNode
-                || scope instanceof ActionDefinitionNode || scope instanceof ConnectorDefinitionNode) {
+        } else if (scope instanceof ParameterContainer) {
             results.addAll(getAllParametersInScope(scope));
             ScopeNode context = scope.getContext();
             if (context != null) {
@@ -1513,10 +1514,8 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllGlobalVariablesInResolvableScope(@NotNull ScopeNode scope) {
         List<PsiElement> results = new LinkedList<>();
-        if (scope instanceof CallableUnitBodyNode || scope instanceof ServiceBodyNode
-                || scope instanceof ConnectorBodyNode || scope instanceof FunctionDefinitionNode
-                || scope instanceof ResourceDefinitionNode || scope instanceof ActionDefinitionNode
-                || scope instanceof ServiceDefinitionNode || scope instanceof ConnectorDefinitionNode) {
+        if (scope instanceof VariableContainer || scope instanceof ParameterContainer
+                || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllGlobalVariablesInResolvableScope(context));

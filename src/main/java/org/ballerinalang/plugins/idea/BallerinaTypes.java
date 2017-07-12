@@ -67,6 +67,7 @@ public class BallerinaTypes {
             ruleIElementTypes.get(RULE_typeMapperDefinition);
 
     public static final RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(RULE_ifElseStatement);
+    public static final RuleIElementType CODE_BLOCK_BODY = ruleIElementTypes.get(RULE_codeBlockBody);
     public static final RuleIElementType ITERATE_STATEMENT = ruleIElementTypes.get(RULE_iterateStatement);
     public static final RuleIElementType WHILE_STATEMENT = ruleIElementTypes.get(RULE_whileStatement);
     public static final RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(RULE_tryCatchStatement);

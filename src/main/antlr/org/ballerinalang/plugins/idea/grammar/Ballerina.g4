@@ -279,7 +279,11 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement* '}')?
+    :   'if' '(' expression ')' '{' codeBlockBody '}' ('else' 'if' '(' expression ')' '{' codeBlockBody '}')* ('else' '{' codeBlockBody '}')?
+    ;
+
+codeBlockBody
+    :   statement*
     ;
 
 //todo replace with 'foreach'

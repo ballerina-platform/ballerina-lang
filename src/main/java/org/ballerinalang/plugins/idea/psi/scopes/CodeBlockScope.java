@@ -14,25 +14,10 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.scopes;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 
-public class CallableUnitBodyNode extends ANTLRPsiNode implements VariableContainer {
+public interface CodeBlockScope extends ScopeNode {
 
-    public CallableUnitBodyNode(@NotNull ASTNode node) {
-        super(node);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
-    }
 }

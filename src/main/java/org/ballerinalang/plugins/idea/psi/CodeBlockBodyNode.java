@@ -17,36 +17,17 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
-import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
+public class CodeBlockBodyNode extends ANTLRPsiNode implements CodeBlockScope {
 
-public class ServiceDefinitionNode extends IdentifierDefSubtree implements TopLevelDefinition {
-
-    public ServiceDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaTypes.IDENTIFIER);
-    }
-
-    @Override
-    public ItemPresentation getPresentation() {
-        return new BallerinaItemPresentation(getNameIdentifier()) {
-
-            @Nullable
-            @Override
-            public Icon getIcon(boolean unused) {
-                return BallerinaIcons.SERVICE;
-            }
-        };
+    public CodeBlockBodyNode(@NotNull ASTNode node) {
+        super(node);
     }
 
     @Nullable

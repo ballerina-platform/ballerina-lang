@@ -25,12 +25,14 @@ import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public class ResourceDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class ResourceDefinitionNode extends IdentifierDefSubtree implements LowerLevelDefinition, ParameterContainer {
 
     public ResourceDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaTypes.IDENTIFIER);
