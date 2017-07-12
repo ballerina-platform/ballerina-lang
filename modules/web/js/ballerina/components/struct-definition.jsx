@@ -323,8 +323,8 @@ class StructDefinition extends React.Component {
                             if (ASTFactory.isVariableDefinitionStatement(child)) {
                                 const typePkgName = child.getBTypePkgName();
                                 let type = child.getBType();
-                                if( typePkgName != undefined){
-                                   type = typePkgName + ":" + type;
+                                if (typePkgName !== undefined) {
+                                   type = typePkgName + ':' + type;
                                 }
                                 const identifier = child.getIdentifier();
                                 const value = child.getValue();
