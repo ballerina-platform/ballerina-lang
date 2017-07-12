@@ -63,7 +63,7 @@ class StructDefinition extends React.Component {
     }
     /**
      * Add new struct variable definition
-     * @param {string} bType - Data type of the new struc
+     * @param {string} bType - Data type of the new struct
      * @param {string} identifier - Name of the identifier
      * @param {any} defaultValue - Default value of the new identifier
      */
@@ -76,8 +76,16 @@ class StructDefinition extends React.Component {
         this.validateIdentifierName(identifier);
         this.props.model.addVariableDefinitionStatement(bType, identifier, defaultValue);
     }
+    /**
+     * Handle the default value if the data type is a string
+     * @param {string} dataType - Data type of the new struct
+     * @param {string} value - Value of the new identifier
+     */
     addQuotesToString(dataType, value) {
         if (dataType === 'string' && !/".*?"$/.test(value)) {
+            if (value === '') {
+                return value;
+            }
             return `"${value}"`;
         }
         return value;
@@ -135,10 +143,11 @@ class StructDefinition extends React.Component {
      * @param {Object} elementBBox - Bounding box to render textbox
      * @param {Object} model - AST node
      */
-    handleValueClick(textValue, elementBBox, model) {
+    handleValueClick(type, textValue, elementBBox, model) {
         const bBox = { x: elementBBox.x, y: elementBBox.y, h: elementBBox.height, w: elementBBox.width };
         const self = this;
         this.renderTextBox(textValue, bBox, (value) => {
+            value = this.addQuotesToString(type, value);
             if (model) {
                 model.setValue(value);
             } else {
@@ -234,10 +243,11 @@ class StructDefinition extends React.Component {
         return (
             <g>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
-                <g onClick={(e) => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
+                <g onClick={e => this.handleAddTypeClick(this.state.newType, typeCellbox)} >
                     <rect {...typeCellbox} className="struct-type-dropdown-wrapper" />
                     <text
-                        x={typeCellbox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        x={typeCellbox.x + placeHolderPadding}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
                         className="struct-input-text"
                     > {this.state.newType || 'Select Type'}
                     </text>
@@ -247,36 +257,44 @@ class StructDefinition extends React.Component {
                         show={this.state.canShowAddType}
                         onBlur={() => this.hideAddSuggestions()}
                         onEnter={() => this.hideAddSuggestions()}
-                        onChange={(value) => this.onAddStructTypeChange(value)}
+                        onChange={value => this.onAddStructTypeChange(value)}
                         value={this.state.newType}
                     />
                 </g>
                 <g onClick={e => this.handleIdentifierClick(this.state.newIdentifier, identifierCellBox)} >
                     <rect {...identifierCellBox} className="struct-input-value-wrapper" />
                     <text
-                        x={identifierCellBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        x={identifierCellBox.x + placeHolderPadding}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
                         className="struct-input-text"
                     > {this.state.newIdentifier || ' + Add Identifier'}
                     </text>
                 </g>
-                <g onClick={e => this.handleValueClick(this.state.newValue, defaultValueBox)} >
+                <g onClick={e => this.handleValueClick(this.state.newType, this.state.newValue, defaultValueBox)} >
                     <rect {...defaultValueBox} className="struct-input-value-wrapper" />
                     <text
-                        x={defaultValueBox.x + placeHolderPadding} y={y + DesignerDefaults.contentOperations.height / 2 + 2}
+                        x={defaultValueBox.x + placeHolderPadding}
+                        y={y + DesignerDefaults.contentOperations.height / 2 + 2}
                         className="struct-input-text"
                     > {this.state.newValue || '+ Add Default Value'} </text>
                 </g>
                 <rect
-                    x={x + DesignerDefaults.structDefinitionStatement.width - 30} y={y + 10} width={25} height={25}
+                    x={x + DesignerDefaults.structDefinitionStatement.width - 30}
+                    y={y + 10}
+                    width={25}
+                    height={25}
                     className="struct-added-value-wrapper"
                 />
                 <image
                     x={x + DesignerDefaults.structDefinitionStatement.width - 30 + submitButtonPadding}
-                    style={{ cursor: 'pointer' }} y={y + 10 + submitButtonPadding} width={20 - submitButtonPadding}
-                    height={20 - submitButtonPadding} onClick={() => this.createNew()} className="struct-add-icon-wrapper"
+                    style={{ cursor: 'pointer' }}
+                    y={y + 10 + submitButtonPadding}
+                    width={20 - submitButtonPadding}
+                    height={20 - submitButtonPadding}
+                    onClick={() => this.createNew()}
+                    className="struct-add-icon-wrapper"
                     xlinkHref={ImageUtil.getSVGIconString('check')}
-                >
-                </image>
+                />
             </g>
         );
     }
@@ -324,7 +342,7 @@ class StructDefinition extends React.Component {
                                 const typePkgName = child.getBTypePkgName();
                                 let type = child.getBType();
                                 if (typePkgName !== undefined) {
-                                   type = typePkgName + ':' + type;
+                                    type = typePkgName + ':' + type;
                                 }
                                 const identifier = child.getIdentifier();
                                 const value = child.getValue();
@@ -363,7 +381,8 @@ class StructDefinition extends React.Component {
                                         > {type} </text>
                                     </g>
                                     <g
-                                        className="struct-variable-definition-identifier" onClick={e =>
+                                        className="struct-variable-definition-identifier"
+                                        onClick={e =>
                                             this.handleIdentifierClick(identifier, identifierCellBox, child)}
                                     >
                                         <rect {...identifierCellBox} className="struct-added-value-wrapper" />
@@ -374,8 +393,9 @@ class StructDefinition extends React.Component {
                                         > {identifier} </text>
                                     </g>
                                     <g
-                                        className="struct-variable-definition-value" onClick={e =>
-                                            this.handleValueClick(value, defaultValueBox, child)}
+                                        className="struct-variable-definition-value"
+                                        onClick={e =>
+                                            this.handleValueClick(type, value, defaultValueBox, child)}
                                     >
                                         <rect {...defaultValueBox} className="struct-added-value-wrapper" />
                                         <text
@@ -386,14 +406,21 @@ class StructDefinition extends React.Component {
                                     </g>
                                     <rect
                                         x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset}
-                                        y={y} onClick={() => this.deleteStatement(child)}
-                                        width="30" height="30" className="struct-delete-icon-wrapper" />
+                                        y={y}
+                                        onClick={() => this.deleteStatement(child)}
+                                        width="30"
+                                        height="30"
+                                        className="struct-delete-icon-wrapper"
+                                    />
                                     <image
                                         x={coDimensions.x + DesignerDefaults.structDefinitionStatement.width - DesignerDefaults.structDefinitionStatement.deleteButtonOffset + 9}
-                                        y={y + 9} onClick={() => this.deleteStatement(child)}
-                                        width="12" height="12" className="parameter-delete-icon" xlinkHref={ImageUtil.getSVGIconString('cancel')}
-                                    >
-                                    </image>
+                                        y={y + 9}
+                                        onClick={() => this.deleteStatement(child)}
+                                        width="12"
+                                        height="12"
+                                        className="parameter-delete-icon"
+                                        xlinkHref={ImageUtil.getSVGIconString('cancel')}
+                                    />
                                 </g>
                                 );
                             }

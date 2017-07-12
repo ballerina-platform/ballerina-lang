@@ -36,6 +36,6 @@ public interface SymbolFilter {
      * @param properties - Additional Parameters Map
      * @return {@link ArrayList}
      */
-    List<SymbolInfo> filterItems(SuggestionsFilterDataModel dataModel,
+    List filterItems(SuggestionsFilterDataModel dataModel,
                                         ArrayList<SymbolInfo> symbols, HashMap<String, Object> properties);
 }

@@ -20,35 +20,38 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.p
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
-import org.ballerinalang.composer.service.workspace.langserver.util.filters.PackageActionAndFunctionFilter;
-import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.Worker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Parser rule based statement context resolver
+ * Parser rule based Item resolver for the Worker invoke statement
  */
-public class ParserRuleStatementContextResolver extends AbstractItemResolver {
+public class ParserRuleTriggerWorkerContext extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
 
-        // Here we specifically need to check whether the statement is function invocation,
-        // action invocation or worker invocation
-        if (isActionOrFunctionInvocationStatement(dataModel)) {
-            PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
-            return actionAndFunctionFilter
-                    .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
-        } else {
-            ArrayList<CompletionItem> completionItems = new ArrayList<>();
-            populateCompletionItemList(symbols, completionItems);
-            StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
-            // Add the statement templates
-            completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
-            return completionItems;
-        }
+        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<SymbolInfo> workers = symbols.stream()
+                .filter(symbolInfo -> symbolInfo.getSymbol() instanceof Worker)
+                .collect(Collectors.toList());
+
+        workers.forEach(symbolInfo -> {
+            CompletionItem workerCompletionItem = new CompletionItem();
+            workerCompletionItem.setInsertText(symbolInfo.getSymbolName());
+            workerCompletionItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerCompletionItem.setLabel(symbolInfo.getSymbolName());
+            workerCompletionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+            completionItems.add(workerCompletionItem);
+        });
+
+        return completionItems;
     }
 }

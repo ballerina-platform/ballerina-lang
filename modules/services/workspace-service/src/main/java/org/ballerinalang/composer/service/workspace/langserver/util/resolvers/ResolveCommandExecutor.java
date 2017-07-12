@@ -21,7 +21,9 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleStatementContextResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BallerinaAction;
@@ -66,6 +68,8 @@ public class ResolveCommandExecutor {
                 new ParserRuleStatementContextResolver();
         ParserRuleVariableDefinitionStatementContextResolver parserRuleVariableDefStatementContextResolver
                 = new ParserRuleVariableDefinitionStatementContextResolver();
+        ParserRuleTriggerWorkerContext parserRuleTriggerWorkerContext = new ParserRuleTriggerWorkerContext();
+        ParserRuleWorkerReplyContext parserRuleWorkerReplyContext = new ParserRuleWorkerReplyContext();
 
         // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
         // since there are many statements in Ballerina model which can be handled similarly
@@ -88,6 +92,8 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
         resolvers.put(BallerinaParser.VariableDefinitionStatementContext.class,
                 parserRuleVariableDefStatementContextResolver);
+        resolvers.put(BallerinaParser.TriggerWorkerContext.class, parserRuleTriggerWorkerContext);
+        resolvers.put(BallerinaParser.WorkerReplyContext.class, parserRuleWorkerReplyContext);
     }
 
     /**
