@@ -11,6 +11,9 @@ import { getLangServerClientInstance } from './../../langserver/lang-server-clie
 import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { FORMAT } from './../../constants/commands';
+import { parseFile } from './../../api-client/api-client';
+import BallerinaASTDeserializer  from './../ast/ballerina-ast-deserializer';
+
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -116,7 +119,17 @@ class SourceView extends React.Component {
      * format handler
      */
     format() {
-        //TODO
+        parseFile(this.props.file)
+            .then((parserRes) => {
+                const ast = BallerinaASTDeserializer.getASTModel(parserRes);
+                const enableDefaultWSVisitor = new EnableDefaultWSVisitor();
+                ast.accept(enableDefaultWSVisitor);
+                const sourceGenVisitor = new SourceGenVisitor();
+                ast.accept(sourceGenVisitor);
+                const formattedContent = sourceGenVisitor.getGeneratedSource();
+                this.replaceContent(formattedContent, false);
+            })
+            .catch(log.error);
     }
 
     /**
