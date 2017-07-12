@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.StructureType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,5 +62,11 @@ public class AnnotationAttachmentInfo {
 
     public Map<String, AnnotationAttributeValue> getAttributeValueMap() {
         return attributeValueMap;
+    }
+
+    public void loadDynamicAttributes(StructureType globalMemoryBlock) {
+        attributeValueMap.forEach((k, v) -> {
+            v.loadDynamicAttributeValues(globalMemoryBlock);
+        });
     }
 }

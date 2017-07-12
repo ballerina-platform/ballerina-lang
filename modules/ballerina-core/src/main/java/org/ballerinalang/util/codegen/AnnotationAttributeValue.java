@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.StructureType;
+
 /**
  * {@code AnnotationAttributeValue} contains the value of a Ballerina annotation attribute.
  *
@@ -107,5 +109,24 @@ public class AnnotationAttributeValue {
 
     public void setAttributeValueArray(AnnotationAttributeValue[] valueArray) {
         this.attributeValueArray = valueArray;
+    }
+
+    public void loadDynamicAttributeValues(StructureType globalMemoryBlock) {
+        if (runTimeValue) {
+            switch (typeTag) {
+                case 1: //INT_TAG
+                    intValue = globalMemoryBlock.getIntField(memoryOffset);
+                    break;
+                case 2: //FLOAT_TAG
+                    floatValue = globalMemoryBlock.getFloatField(memoryOffset);
+                    break;
+                case 3: //STRING_TAG
+                    stringValue = globalMemoryBlock.getStringField(memoryOffset);
+                    break;
+                case 4: //BOOLEAN_TAG
+                    booleanValue = globalMemoryBlock.getBooleanField(memoryOffset) == 1 ? true : false;
+                    break;
+            }
+        }
     }
 }

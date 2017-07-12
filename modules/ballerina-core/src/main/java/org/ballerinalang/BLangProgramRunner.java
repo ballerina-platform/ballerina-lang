@@ -86,8 +86,8 @@ public class BLangProgramRunner {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
                             serviceInfo.getProtocolPkgPath());
                 }
+                serviceInfo.loadDynamicAnnotations(programFile.getGlobalMemoryBlock());
                 // Deploy service
-                loadServiceRuntimeAnnotations(serviceInfo, programFile.getGlobalMemoryBlock());
                 DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
                         .serviceRegistered(serviceInfo);
                 serviceCount++;
@@ -104,32 +104,6 @@ public class BLangProgramRunner {
             debugManager.serviceInit();
             debugManager.setDebugEnagled(true);
         }
-    }
-
-    private void loadServiceRuntimeAnnotations(ServiceInfo serviceInfo, StructureType globalMemoryBlock) {
-        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
-                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
-        attributeInfo.getAnnotationAttachmentInfo().forEach(a -> {
-            a.getAttributeValueMap().forEach((k, v) -> {
-                if (v.isRunTimeValue()) {
-                    int memAddress = v.getMemoryOffset();
-                    switch (v.getTypeTag()) {
-                        case 1: //INT_TAG
-                            v.setIntValue(globalMemoryBlock.getIntField(memAddress));
-                            break;
-                        case 2: //FLOAT_TAG
-                            v.setFloatValue(globalMemoryBlock.getFloatField(memAddress));
-                            break;
-                        case 3: //STRING_TAG
-                            v.setStringValue(globalMemoryBlock.getStringField(memAddress));
-                            break;
-                        case 4: //BOOLEAN_TAG
-                            v.setBooleanValue(globalMemoryBlock.getBooleanField(memAddress) == 1 ? true : false);
-                            break;
-                    }
-                }
-            });
-        });
     }
 
     public void runMain(ProgramFile programFile, String[] args) {

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.services.dispatchers.uri.parser.Literal;
@@ -110,6 +111,16 @@ public class ServiceInfo extends StructureTypeInfo {
             }
         }
         return null;
+    }
+
+    public void loadDynamicAnnotations(StructureType globalMemoryBlock) {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+        if (attributeInfo == null) {
+            return;
+        }
+        attributeInfo.loadDynamicAttributes(globalMemoryBlock);
+
     }
 
     public URITemplate getUriTemplate() throws URITemplateException {

@@ -2464,7 +2464,8 @@ public class CodeGenerator implements NodeVisitor {
             }
             annotationAttribValue.setRunTimeValue(true);
             annotationAttribValue.setTypeTag(attributeValue.getType().getTag());
-            annotationAttribValue.setMemoryOffset(attributeValue.getMemoryLocation().getStaticMemAddrOffset());
+            annotationAttribValue.setMemoryOffset(((GlobalVarLocation)attributeValue.getVarRefExpr()
+                    .getMemoryLocation()).getStaticMemAddrOffset());
         } else {
             annotationAttribValue.setTypeTag(TypeTags.ARRAY_TAG);
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();
