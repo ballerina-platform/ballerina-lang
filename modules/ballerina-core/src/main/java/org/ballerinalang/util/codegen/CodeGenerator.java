@@ -2458,13 +2458,14 @@ public class CodeGenerator implements NodeVisitor {
             AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
             annotationAttribValue.setAnnotationAttachmentValue(attachmentInfo);
 
-        } else if(attributeValue.getVarRefExpr() != null) {
+        } else if (attributeValue.getVarRefExpr() != null) {
             if (!(attributeValue.getVarRefExpr().getMemoryLocation() instanceof GlobalVarLocation)) {
-                throw new SemanticException("Attribute value invalid, should be a constant value");
+                throw new SemanticException("Invalid annotation attribute value, should be a constant or " +
+                        "a basic literal");
             }
             annotationAttribValue.setRunTimeValue(true);
             annotationAttribValue.setTypeTag(attributeValue.getType().getTag());
-            annotationAttribValue.setMemoryOffset(((GlobalVarLocation)attributeValue.getVarRefExpr()
+            annotationAttribValue.setMemoryOffset(((GlobalVarLocation) attributeValue.getVarRefExpr()
                     .getMemoryLocation()).getStaticMemAddrOffset());
         } else {
             annotationAttribValue.setTypeTag(TypeTags.ARRAY_TAG);

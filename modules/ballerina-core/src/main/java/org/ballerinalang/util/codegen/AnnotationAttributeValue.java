@@ -127,6 +127,14 @@ public class AnnotationAttributeValue {
                     booleanValue = globalMemoryBlock.getBooleanField(memoryOffset) == 1 ? true : false;
                     break;
             }
+            runTimeValue = false;
+        } else if (annotationAttachmentValue != null) {
+            annotationAttachmentValue.loadDynamicAttributes(globalMemoryBlock);
+        } else if (attributeValueArray != null) {
+            for (AnnotationAttributeValue attributeValue : attributeValueArray) {
+                attributeValue.loadDynamicAttributeValues(globalMemoryBlock);
+            }
         }
+
     }
 }
