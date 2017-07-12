@@ -83,11 +83,10 @@ class StructDefinition extends React.Component {
      */
     addQuotesToString(dataType, value) {
         if (dataType === 'string' && !/".*?"$/.test(value)) {
-            if (value !== '') {
-                return `"${value}"`;
-            } else if (value === '') {
+            if (value === '') {
                 return value;
             }
+            return `"${value}"`;
         }
         return value;
     }
