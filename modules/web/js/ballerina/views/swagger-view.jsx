@@ -19,10 +19,11 @@ class SwaggerView extends React.Component {
         this.swagger = undefined;
         this.swaggerEditorID = undefined;
         this.swaggerEditor = undefined;
+        this.swaggerAce = undefined;
     }
 
     /**
-     * Generate the swagger for current service & the unique ID for the editor
+     * Generate the swagger spec for current service & the unique ID for the editor
      */
     genSwaggerAndID() {
         if (!_.isNil(this.props.targetService)) {
@@ -37,9 +38,16 @@ class SwaggerView extends React.Component {
     }
 
     /**
-     * This lifecycle hook will be triggerred
-     * when ever the props object is changed
-     * This is invoked prior to shouldComponentUpdate
+     * When this component is initially rendered, it won't have
+     * a targetService. However, when a user clicks swagger-view 
+     * icon of a service, we update the state of parent component 
+     * and it will eventually provide a new set of props to this.
+     * 
+     * Since we have disabled react rerender for this component
+     * {@see SwaggerView#shouldComponentUpdate},
+     * we have to grab those new props and update the component
+     * manually.
+     * 
      */
     componentWillReceiveProps(newProps) {
         if (!_.isNil(newProps.targetService)) {
@@ -51,22 +59,45 @@ class SwaggerView extends React.Component {
 
     renderSwaggerEditor() {
         if (!_.isNil(this.props.targetService)) {
-            $(this.container).empty();
-            $(this.container).attr('id', this.swaggerEditorID);
+            const $container = $(this.container);
+            $container.empty();
+            $container.attr('id', this.swaggerEditorID);
             this.swaggerEditor = SwaggerEditorBundle({
                 dom_id: `#${this.swaggerEditorID}`,
-            });       
+            });
+            const $swaggerAceContainer = $container.find('#ace-editor');
+            const swaggerAceContainerID = `z-ace-editor-${this.swaggerEditorID}`;
+            $swaggerAceContainer.attr('id', swaggerAceContainerID);
+            const swaggerAce = ace.edit(swaggerAceContainerID);
+
+            swaggerAce.$blockScrolling = Infinity;
+            swaggerAce.setTheme(ace.acequire(theme));
+            swaggerAce.setFontSize(fontSize);
+            this.swaggerAce = swaggerAce;
+            this.updateSwaggerEditorWithCurrentSwaggerSpec();
         }
     }
 
+    updateSwaggerEditorWithCurrentSwaggerSpec() {
+        this.swaggerEditor.specActions.updateUrl('');
+        this.swaggerEditor.specActions.updateLoadingStatus('success');
+        this.swaggerEditor.specActions.updateSpec(JSON.stringify(this.swagger));
+        this.swaggerEditor.specActions.formatIntoYaml();
+    }
+
     shouldComponentUpdate() {
+        // prevent this component being re-rendered by react
         return false;
     }
 
+    /**
+     * Put the required foundation to render swagger editor
+     */
     render() {
         return (
             <div className="swagger-view-container">
                 <div className="swaggerEditor"
+                    // keep the ref to this element as the container ref
                     ref={(ref) => { this.container = ref }}
                     data-editor-url="lib/swagger-editor/#/" 
                 >
@@ -78,7 +109,7 @@ class SwaggerView extends React.Component {
                         </div>
                         <div className="bottom-view-label"
                                 onClick={
-                                    () => {
+                                    () => {    
                                         this.context.editor.setActiveView(DESIGN_VIEW);
                                     }
                                 }
