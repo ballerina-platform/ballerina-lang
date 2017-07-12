@@ -2449,8 +2449,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
 
         // Attach the input stream
-        InputStream inputStream = (InputStream) visit(ctx.query_input());
-        aggregationDefinition.from(inputStream);
+        BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx.group_by_query_selection());
+        aggregationDefinition.from(basicSingleInputStream);
 
         // Extract the selector and attach it to the new aggregation
         BasicSelector selector = (BasicSelector) visit(ctx.group_by_query_selection());
