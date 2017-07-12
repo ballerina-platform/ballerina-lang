@@ -29,6 +29,9 @@ public class Constants {
     public static final String TEMPLATES_DIRECTORY = "templates";
     public static final String API_SUB_DIRECTORY = "api";
 
+    public static final String README_FILE_NAME = "README";
+    public static final String MKDOCS_CONFIG_FILE_NAME = "mkdocs";
+
     public static final String FREEMARKER_TEMPLATE_FILE_EXTENSION = ".ftl";
     public static final String CLASS_FILE_EXTENSION = ".class";
     public static final String MARKDOWN_FILE_EXTENSION = ".md";
@@ -46,8 +49,18 @@ public class Constants {
     public static final String MKDOCS_CONFIG_PAGES_API_KEY = "API Docs";
     public static final String MKDOCS_FILE_SEPARATOR = "/";
 
-    public static final String README_FILE_NAME = "README";
-    public static final String MKDOCS_CONFIG_FILE_NAME = "mkdocs";
+    public static final String MKDOCS_COMMAND = "mkdocs";
+    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND = "gh-deploy";
+    public static final String MKDOCS_GITHUB_DEPLOY_COMMAND_CONFIG_FILE_ARGUMENT = "--config-file";
+
+    public static final String GIT_COMMAND = "git";
+    public static final String GIT_ADD_COMMAND = "add";
+    public static final String GIT_COMMIT_COMMAND = "commit";
+    public static final String GIT_COMMIT_COMMAND_FILES_ARGUMENT = "--";
+    public static final String GIT_COMMIT_COMMAND_MESSAGE_ARGUMENT = "-m";
+    public static final String GIT_COMMIT_COMMAND_MESSAGE_FORMAT = "[WSO2-Release] [Release %s] " +
+            "update documentation for release %s";
+    public static final String GIT_PUSH_COMMAND = "git push origin master";
 
     public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     public static final String CORE_NAMESPACE = "core";

@@ -28,17 +28,16 @@ import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
 import java.io.File;
-import java.util.List;
 
 /**
- * Mojo for creating an index Siddhi documentation
+ * Mojo for deploying mkdocs website on GitHub pages
  */
 @Mojo(
-        name = "generate-extensions-index",
+        name = "deploy-mkdocs-github-pages",
         aggregator = true,
         defaultPhase = LifecyclePhase.INSTALL
 )
-public class ExtensionsIndexGenerationMojo extends AbstractMojo {
+public class MkdocsGitHubPagesDeployMojo extends AbstractMojo {
     /**
      * The directory in which the documentation will be generated
      */
@@ -46,16 +45,11 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
     private MavenProject mavenProject;
 
     /**
-     * The extension repository owner
+     * The path of the mkdocs.yml file in the base directory
+     * Optional
      */
-    @Parameter(property = "extension.repository.owner")
-    private String extensionRepositoryOwner;
-
-    /**
-     * The extension repository names
-     */
-    @Parameter(property = "extension.repositories", required = true)
-    private List<String> extensionRepositories;
+    @Parameter(property = "mkdocs.config.file")
+    private File mkdocsConfigFile;
 
     /**
      * The directory in which the index will be generated
@@ -63,12 +57,6 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
      */
     @Parameter(property = "doc.gen.base.directory")
     private File docGenBaseDirectory;
-
-    /**
-     * The final output file name of the index
-     */
-    @Parameter(property = "index.gen.file.name")
-    private String indexGenFileName;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -78,15 +66,10 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
             rootMavenProject = rootMavenProject.getParent();
         }
 
-        // Checking if extension repositories and repository owner had been added in the configuration
-        if (extensionRepositories == null || extensionRepositories.size() == 0) {
-            throw new MojoExecutionException("extensionRepositories configuration is required to use goal " +
-                    "generate-extensions-index");
-        }
-
-        // Setting the extension repository owner if not set by the user
-        if (extensionRepositoryOwner == null) {
-            extensionRepositoryOwner = Constants.GITHUB_OWNER_WSO2_EXTENSIONS;
+        // Setting the mkdocs config file path if not set by user
+        if (mkdocsConfigFile == null) {
+            mkdocsConfigFile = new File(rootMavenProject.getBasedir() + File.separator
+                    + Constants.MKDOCS_CONFIG_FILE_NAME + Constants.YAML_FILE_EXTENSION);
         }
 
         // Setting the documentation output directory if not set by user
@@ -97,14 +80,8 @@ public class ExtensionsIndexGenerationMojo extends AbstractMojo {
             docGenPath = rootMavenProject.getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
-        // Setting the documentation output file name if not set by user
-        if (indexGenFileName == null) {
-            indexGenFileName = Constants.MARKDOWN_EXTENSIONS_INDEX_TEMPLATE;
-        }
-
-        // Creating a extensions index
-        DocumentationUtils.createExtensionsIndex(
-                extensionRepositories, extensionRepositoryOwner, docGenPath, indexGenFileName, getLog()
-        );
+        DocumentationUtils.deployMkdocsOnGitHubPages(mkdocsConfigFile, getLog());
+        DocumentationUtils.updateDocumentationOnGitHub(docGenPath, mkdocsConfigFile,
+                mavenProject.getVersion(), getLog());
     }
 }
