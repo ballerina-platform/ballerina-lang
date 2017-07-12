@@ -397,8 +397,20 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' (('aborted' '{' statement* '}')? ('committed' '{' statement* '}')?
-                                          | ('committed' '{' statement* '}')? ('aborted' '{' statement* '}')?)
+    :   'transaction' '{' codeBlockBody transactionHandlers? '}'
+    ;
+
+transactionHandlers
+    : abortedClause committedClause
+    | committedClause abortedClause
+    ;
+
+abortedClause
+    :   '}' 'aborted' '{' codeBlockBody
+    ;
+
+committedClause
+    :   '}' 'committed' '{' codeBlockBody
     ;
 
 abortStatement

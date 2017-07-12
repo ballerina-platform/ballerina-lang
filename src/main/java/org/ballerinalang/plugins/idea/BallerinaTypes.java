@@ -79,6 +79,8 @@ public class BallerinaTypes {
     public static final RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(RULE_timeoutClause);
     public static final RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(RULE_joinConditions);
     public static final RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(RULE_transactionStatement);
+    public static final RuleIElementType ABORTED_CLAUSE = ruleIElementTypes.get(RULE_abortedClause);
+    public static final RuleIElementType COMMITTED_CLAUSE = ruleIElementTypes.get(RULE_committedClause);
     public static final RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(RULE_transformStatement);
     public static final RuleIElementType TRANSFORM_STATEMENT_BODY =
             ruleIElementTypes.get(RULE_transformStatementBody);
