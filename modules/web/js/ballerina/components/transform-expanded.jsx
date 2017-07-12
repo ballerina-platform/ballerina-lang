@@ -1,5 +1,6 @@
 import React from 'react';
 import TransformRender from '../../ballerina/components/transform-render';
+import SuggestionsDropdown from './transform-endpoints-dropdown';
 
 class TransformExpanded extends React.Component {
     constructor() {
@@ -63,20 +64,10 @@ class TransformExpanded extends React.Component {
                     </div>
                     <div id ="transformHeaderPadding" className="transform-header-padding"></div>
                     <div className="source-view">
-                        <p className="type-select-header"></p>
-                        <select
-                            id={sourceId}
-                            className="type-mapper-combo"
-                            onChange={this.onSourceSelect}
-                            value={this.state.selectedSource}
-                        >
-                            <option value="-1">-- Select Source --</option>
-                            {
-                                this.props.sourcesAndTargets.map(({name, type}) => (
-                                    <option key={name} value={name}>{`${name} : ${type}`}</option>
-                                ))
-                            }
-                        </select>
+                        <SuggestionsDropdown
+                            suggestionsPool={this.props.sourcesAndTargets}
+                            placeholder='Select Source'
+                        />
                         <span
                             id="btn-add-source"
                             className="btn-add-type fw-stack fw-lg btn btn-add"
@@ -88,20 +79,10 @@ class TransformExpanded extends React.Component {
                     <div className="leftType"></div>
                     <div className="middle-content"></div>
                     <div className="target-view">
-                        <p className="type-select-header"></p>
-                        <select
-                            id={targetId}
-                            className="type-mapper-combo"
-                            onChange={this.onTargetSelect}
-                            value={this.state.selectedTarget}
-                        >
-                            <option value="-1">-- Select Target --</option>
-                            {
-                                this.props.sourcesAndTargets.map(({name, type}) => (
-                                    <option key={name} value={name}>{`${name} : ${type}`}</option>
-                                ))
-                            }
-                        </select>
+                        <SuggestionsDropdown
+                            suggestionsPool={this.props.sourcesAndTargets}
+                            placeholder='Select Target'
+                        />
                         <span
                             id="btn-add-target"
                             className="btn-add-type fw-stack fw-lg btn btn-add"
