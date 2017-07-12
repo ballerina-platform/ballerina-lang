@@ -79,6 +79,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
@@ -1369,6 +1370,15 @@ public class BallerinaPsiImplUtil {
             }
         }
 
+        if (scope instanceof TransformStatementNode) {
+            Collection<ExpressionVariableDefinitionStatementNode> nodes = PsiTreeUtil.findChildrenOfType(scope,
+                    ExpressionVariableDefinitionStatementNode.class);
+            for (ExpressionVariableDefinitionStatementNode node : nodes) {
+                PsiElement identifier = node.getNameIdentifier();
+                results.add(identifier);
+            }
+        }
+
         Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(scope,
                 AssignmentStatementNode.class);
         for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
@@ -1511,7 +1521,7 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllGlobalVariablesInResolvableScope(@NotNull ScopeNode scope) {
         List<PsiElement> results = new LinkedList<>();
-        if (scope instanceof VariableContainer || scope instanceof ParameterContainer
+        if (scope instanceof VariableContainer || scope instanceof ParameterContainer || scope instanceof CodeBlockScope
                 || scope instanceof TopLevelDefinition || scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
             if (context != null) {

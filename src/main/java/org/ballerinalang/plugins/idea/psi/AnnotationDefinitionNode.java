@@ -28,7 +28,7 @@ import org.ballerinalang.plugins.idea.psi.impl.BallerinaItemPresentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class AnnotationDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 

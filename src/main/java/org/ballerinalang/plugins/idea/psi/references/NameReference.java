@@ -33,8 +33,10 @@ import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
@@ -212,12 +214,37 @@ public class NameReference extends BallerinaElementReference {
 
 
             ANTLRPsiNode definitionParent = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                    ServiceBodyNode.class, ConnectorBodyNode.class);
-            if (definitionParent != null || prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
+                    ServiceBodyNode.class, ResourceDefinitionNode.class, ConnectorBodyNode.class);
+            TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(identifier, TypeNameNode.class);
+            if ((definitionParent != null && !(definitionParent instanceof ResourceDefinitionNode)) ||
+                    (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) && typeNameNode == null) {
+
                 //            if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
                 List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
                 results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
                 //            }
+
+                // Todo - use a util method
+                ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                        TopLevelDefinition.class, LowerLevelDefinition.class);
+                if (scope != null) {
+
+                    int caretOffset = identifier.getStartOffset();
+
+                    List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
+                            caretOffset);
+                    results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
+
+                    List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                    results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
+
+                    List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope
+                            (scope);
+                    results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
+
+                    List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
+                    results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
+                }
             }
 
 
@@ -264,26 +291,7 @@ public class NameReference extends BallerinaElementReference {
             //                results.add(lookupElement);
             //            }
 
-            // Todo - use a util method
-            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
-                    TopLevelDefinition.class, LowerLevelDefinition.class);
-            if (scope != null) {
 
-                int caretOffset = identifier.getStartOffset();
-
-                List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
-                        caretOffset);
-                results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
-
-                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
-                results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
-
-                List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope(scope);
-                results.addAll(BallerinaCompletionUtils.createGlobalVariableLookupElements(globalVariables));
-
-                List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
-                results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
-            }
         }
         return results;
     }
