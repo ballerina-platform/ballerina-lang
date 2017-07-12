@@ -1435,24 +1435,21 @@ public class BallerinaPsiImplUtil {
         // Todo - temp fix. Might need to add {, }, etc.
         PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
         if (prevVisibleLeaf != null && !";".equals(prevVisibleLeaf.getText())) {
-            return false;
-        }
-        AssignmentStatementNode parent = PsiTreeUtil.getParentOfType(prevVisibleLeaf, AssignmentStatementNode.class);
-        if (parent != null) {
-            if (assignmentStatementNode.equals(parent)) {
+            AssignmentStatementNode parent = PsiTreeUtil.getParentOfType(prevVisibleLeaf,
+                    AssignmentStatementNode.class);
+            if (parent != null && assignmentStatementNode.equals(parent)) {
                 return false;
             }
         }
         PsiElement firstChild = assignmentStatementNode.getFirstChild();
-        if (firstChild instanceof LeafPsiElement) {
-            IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
-            if (elementType == BallerinaTypes.VAR) {
-                if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
-                    return true;
-                }
-            }
+        if (!(firstChild instanceof LeafPsiElement)) {
+            return false;
         }
-        return false;
+        IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+        if (elementType != BallerinaTypes.VAR) {
+            return false;
+        }
+        return assignmentStatementNode.getTextRange().getEndOffset() < caretOffset;
     }
 
     @NotNull
