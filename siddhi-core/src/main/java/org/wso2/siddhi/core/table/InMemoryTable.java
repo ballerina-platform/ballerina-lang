@@ -57,8 +57,9 @@ public class InMemoryTable extends Table implements Snapshotable {
     private EventHolder eventHolder;
     private String elementId;
 
+
     @Override
-    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
+public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool,
             StreamEventCloner storeEventCloner, ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         this.tableDefinition = tableDefinition;
         this.tableStreamEventCloner = storeEventCloner;
@@ -110,7 +111,7 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-            UpdateAttributeMapper[] updateAttributeMappers) {
+                       UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
             ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
@@ -122,11 +123,13 @@ public class InMemoryTable extends Table implements Snapshotable {
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-            UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+                            UpdateAttributeMapper[] updateAttributeMappers,
+                            AddingStreamEventExtractor addingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(
-                    updateOrAddingEventChunk, eventHolder, updateAttributeMappers, addingStreamEventExtractor);
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
+                    (updateOrAddingEventChunk,
+                    eventHolder, updateAttributeMappers, addingStreamEventExtractor);
             if (failedEvents != null) {
                 eventHolder.add(failedEvents);
             }
@@ -181,6 +184,7 @@ public class InMemoryTable extends Table implements Snapshotable {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
     }
+
 
     @Override
     public Map<String, Object> currentState() {

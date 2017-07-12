@@ -20,7 +20,7 @@
     <parent>
         <artifactId>siddhi</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>4.0.0-M14-SNAPSHOT</version>
+        <version>4.0.0-M16-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -36,13 +36,13 @@
                     <execution>
                         <phase>compile</phase>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>generate-md-docs</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <moduleTargetDirectory>../target/</moduleTargetDirectory>
-                    <docGenDirectory>../../../docs/</docGenDirectory>
+                    <docGenBaseDirectory>../../../docs/</docGenBaseDirectory>
                 </configuration>
             </plugin>
         </plugins>

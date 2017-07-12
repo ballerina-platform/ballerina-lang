@@ -96,10 +96,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -110,10 +108,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -158,10 +154,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -172,10 +166,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -191,8 +183,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         for (int i = 0; i < attribute_names.size(); i++) {
             SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
             SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
-            streamDefinition.attribute((String) visit(attributeNameContext),
-                    (Attribute.Type) visit(attributeTypeContext));
+            streamDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit
+                    (attributeTypeContext));
 
         }
         for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
@@ -214,16 +206,15 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         String functionBody = (String) visitFunction_body(ctx.function_body());
 
         FunctionDefinition functionDefinition = new FunctionDefinition();
-        functionDefinition.id(functionName).language(languageName).type(attributeType).body(functionBody);
+        functionDefinition.id(functionName).language(languageName).
+                type(attributeType).body(functionBody);
         return functionDefinition;
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -234,10 +225,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -249,10 +238,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -263,10 +250,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -277,10 +262,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -297,10 +280,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -311,10 +292,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -325,25 +304,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public TableDefinition visitDefinition_table(@NotNull SiddhiQLParser.Definition_tableContext ctx) {
 
-        // definition_table
-        // : annotation* DEFINE TABLE source '(' attribute_name attribute_type (',' attribute_name attribute_type )*
-        // ')' definition_store?
-        // ;
+//        definition_table
+//        : annotation* DEFINE TABLE source '(' attribute_name attribute_type (',' attribute_name attribute_type )*
+// ')' definition_store?
+//        ;
 
         Source source = (Source) visit(ctx.source());
         if (source.isInnerStream) {
-            throw newSiddhiParserException(ctx,
-                    "'#' cannot be used, because Tables can't be defined as " + "InnerStream!");
+            throw newSiddhiParserException(ctx, "'#' cannot be used, because Tables can't be defined as " +
+                    "InnerStream!");
         }
         TableDefinition tableDefinition = TableDefinition.id(source.streamId);
         List<SiddhiQLParser.Attribute_nameContext> attribute_names = ctx.attribute_name();
@@ -351,8 +328,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         for (int i = 0; i < attribute_names.size(); i++) {
             SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
             SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
-            tableDefinition.attribute((String) visit(attributeNameContext),
-                    (Attribute.Type) visit(attributeTypeContext));
+            tableDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit
+                    (attributeTypeContext));
 
         }
         for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
@@ -379,16 +356,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         for (int i = 0; i < attribute_names.size(); i++) {
             SiddhiQLParser.Attribute_nameContext attributeNameContext = attribute_names.get(i);
             SiddhiQLParser.Attribute_typeContext attributeTypeContext = attribute_types.get(i);
-            windowDefinition.attribute((String) visit(attributeNameContext),
-                    (Attribute.Type) visit(attributeTypeContext));
+            windowDefinition.attribute((String) visit(attributeNameContext), (Attribute.Type) visit
+                    (attributeTypeContext));
 
         }
         for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
             windowDefinition.annotation((Annotation) visit(annotationContext));
         }
         AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
-        Window window = new Window(attributeFunction.getNamespace(), attributeFunction.getName(),
-                attributeFunction.getParameters());
+        Window window = new Window(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction
+                .getParameters());
         windowDefinition.window(window);
 
         // Optional output event type
@@ -401,10 +378,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -415,10 +390,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -439,10 +412,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -454,8 +425,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         activeStreams.add(streamId);
         try {
             if (ctx.condition_ranges() != null) {
-                return new RangePartitionType(streamId,
-                        (RangePartitionType.RangePartitionProperty[]) visit(ctx.condition_ranges()));
+                return new RangePartitionType(streamId, (RangePartitionType.RangePartitionProperty[]) visit(ctx
+                        .condition_ranges()));
             } else if (ctx.attribute() != null) {
                 return new ValuePartitionType(streamId, (Expression) visit(ctx.attribute()));
             } else {
@@ -468,18 +439,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public RangePartitionType.RangePartitionProperty[] visitCondition_ranges(
             @NotNull SiddhiQLParser.Condition_rangesContext ctx) {
-        RangePartitionType.RangePartitionProperty[] rangePartitionProperties =
-                new RangePartitionType.RangePartitionProperty[ctx.condition_range().size()];
+        RangePartitionType.RangePartitionProperty[] rangePartitionProperties = new RangePartitionType
+                .RangePartitionProperty[ctx.condition_range().size()];
         List<SiddhiQLParser.Condition_rangeContext> condition_range = ctx.condition_range();
         for (int i = 0; i < condition_range.size(); i++) {
             SiddhiQLParser.Condition_rangeContext rangeContext = condition_range.get(i);
@@ -490,25 +459,21 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitCondition_range(@NotNull SiddhiQLParser.Condition_rangeContext ctx) {
-        return new RangePartitionType.RangePartitionProperty(
-                (String) ((StringConstant) visit(ctx.string_value())).getValue(), (Expression) visit(ctx.expression()));
+        return new RangePartitionType.RangePartitionProperty((String) ((StringConstant) visit(ctx.string_value()))
+                .getValue(), (Expression) visit(ctx.expression()));
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -519,19 +484,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Query visitQuery(@NotNull SiddhiQLParser.QueryContext ctx) {
 
-        // query
-        // : annotation* query_input query_section? output_rate? (query_output | query_publish)
-        // ;
+//        query
+//        : annotation* query_input query_section? output_rate? (query_output | query_publish)
+//        ;
 
         try {
             Query query = Query.query().from((InputStream) visit(ctx.query_input()));
@@ -557,10 +520,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -577,10 +538,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -601,18 +560,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Element visitAnnotation_element(@NotNull SiddhiQLParser.Annotation_elementContext ctx) {
         if (ctx.property_name() != null) {
-            return new Element((String) visit(ctx.property_name()),
-                    ((StringConstant) visit(ctx.property_value())).getValue());
+            return new Element((String) visit(ctx.property_name()), ((StringConstant) visit(ctx.property_value()))
+                    .getValue());
         } else {
             return new Element(null, ((StringConstant) visit(ctx.property_value())).getValue());
         }
@@ -620,19 +577,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public SingleInputStream visitStandard_stream(@NotNull SiddhiQLParser.Standard_streamContext ctx) {
 
-        // standard_stream
-        // : io (basic_source_stream_handler)* window? (basic_source_stream_handler)*
-        // ;
+//        standard_stream
+//        : io (basic_source_stream_handler)* window? (basic_source_stream_handler)*
+//        ;
 
         Source source = (Source) visit(ctx.source());
 
@@ -646,8 +601,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (ctx.window() == null && ctx.post_window_handlers == null) {
             return basicSingleInputStream;
         } else if (ctx.window() != null) {
-            SingleInputStream singleInputStream = new SingleInputStream(basicSingleInputStream,
-                    (Window) visit(ctx.window()));
+            SingleInputStream singleInputStream = new SingleInputStream(basicSingleInputStream, (Window) visit(ctx
+                    .window()));
             if (ctx.post_window_handlers != null) {
                 singleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.post_window_handlers));
             }
@@ -660,23 +615,21 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitJoin_stream(@NotNull SiddhiQLParser.Join_streamContext ctx) {
 
-        // join_stream
-        // :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)?
-        // within_time?
-        // |left_source=join_source join right_source=join_source (ON expression)? within_time?
-        // |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)?
-        // within_time?
-        // ;
+//        join_stream
+//        :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)?
+// within_time?
+//        |left_source=join_source join right_source=join_source (ON expression)? within_time?
+//        |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)?
+// within_time?
+//        ;
 
         SingleInputStream leftStream = (SingleInputStream) visit(ctx.left_source);
         SingleInputStream rightStream = (SingleInputStream) visit(ctx.right_source);
@@ -707,19 +660,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitJoin_source(@NotNull SiddhiQLParser.Join_sourceContext ctx) {
 
-        // join_source
-        // :io (basic_source_stream_handler)* window? (AS stream_alias)?
-        // ;
+//        join_source
+//        :io (basic_source_stream_handler)* window? (AS stream_alias)?
+//        ;
 
         Source source = (Source) visit(ctx.source());
 
@@ -745,18 +696,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitPattern_stream(@NotNull SiddhiQLParser.Pattern_streamContext ctx) {
-        // pattern_stream
-        // :every_pattern_source_chain
-        // ;
+//        pattern_stream
+//        :every_pattern_source_chain
+//        ;
         StateElement stateElement = ((StateElement) visit(ctx.every_pattern_source_chain()));
         return new StateInputStream(StateInputStream.Type.PATTERN, stateElement);
 
@@ -764,22 +713,20 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitEvery_pattern_source_chain(@NotNull SiddhiQLParser.Every_pattern_source_chainContext ctx) {
-        // every_pattern_source_chain
-        // : '('every_pattern_source_chain')' within_time?
-        // | EVERY '('pattern_source_chain ')' within_time?
-        // | every_pattern_source_chain '->' every_pattern_source_chain
-        // | pattern_source_chain
-        // | EVERY pattern_source within_time?
-        // ;
+//        every_pattern_source_chain
+//        : '('every_pattern_source_chain')' within_time?
+//        | EVERY '('pattern_source_chain ')' within_time?
+//        | every_pattern_source_chain  '->' every_pattern_source_chain
+//        | pattern_source_chain
+//        | EVERY pattern_source within_time?
+//        ;
 
         if (ctx.every_pattern_source_chain().size() == 1) { // '('every_pattern_source_chain')' within_time?
             StateElement stateElement = ((StateElement) visit(ctx.every_pattern_source_chain(0)));
@@ -787,14 +734,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 stateElement.setWithin((TimeConstant) visit(ctx.within_time()));
             }
             return stateElement;
-        } else if (ctx.every_pattern_source_chain().size() == 2) { // every_pattern_source_chain '->'
+        } else if (ctx.every_pattern_source_chain().size() == 2) { // every_pattern_source_chain  '->'
             // every_pattern_source_chain
             return new NextStateElement(((StateElement) visit(ctx.every_pattern_source_chain(0))),
                     ((StateElement) visit(ctx.every_pattern_source_chain(1))));
         } else if (ctx.EVERY() != null) {
             if (ctx.pattern_source_chain() != null) { // EVERY '('pattern_source_chain ')' within_time?
-                EveryStateElement everyStateElement = new EveryStateElement(
-                        (StateElement) visit(ctx.pattern_source_chain()));
+                EveryStateElement everyStateElement = new EveryStateElement((StateElement) visit(ctx
+                        .pattern_source_chain()));
                 if (ctx.within_time() != null) {
                     everyStateElement.setWithin((TimeConstant) visit(ctx.within_time()));
                 }
@@ -808,7 +755,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else {
                 throw newSiddhiParserException(ctx);
             }
-        } else if (ctx.pattern_source_chain() != null) { // pattern_source_chain
+        } else if (ctx.pattern_source_chain() != null) {  // pattern_source_chain
             StateElement stateElement = ((StateElement) visit(ctx.pattern_source_chain()));
             if (ctx.within_time() != null) {
                 stateElement.setWithin((TimeConstant) visit(ctx.within_time()));
@@ -821,20 +768,18 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitPattern_source_chain(@NotNull SiddhiQLParser.Pattern_source_chainContext ctx) {
-        // pattern_source_chain
-        // : '('pattern_source_chain')' within_time?
-        // | pattern_source_chain '->' pattern_source_chain
-        // | pattern_source within_time?
-        // ;
+//        pattern_source_chain
+//        : '('pattern_source_chain')' within_time?
+//        | pattern_source_chain  '->' pattern_source_chain
+//        | pattern_source within_time?
+//        ;
 
         if (ctx.pattern_source_chain().size() == 1) {
             StateElement stateElement = ((StateElement) visit(ctx.pattern_source_chain(0)));
@@ -858,21 +803,19 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitLogical_stateful_source(@NotNull SiddhiQLParser.Logical_stateful_sourceContext ctx) {
 
-        // logical_stateful_source
-        // :NOT standard_stateful_source (AND standard_stateful_source) ?
-        // |standard_stateful_source AND standard_stateful_source
-        // |standard_stateful_source OR standard_stateful_source
-        // ;
+//        logical_stateful_source
+//        :NOT standard_stateful_source (AND standard_stateful_source) ?
+//        |standard_stateful_source AND standard_stateful_source
+//        |standard_stateful_source OR standard_stateful_source
+//        ;
 
         if (ctx.NOT() != null) {
             if (ctx.AND() != null) {
@@ -880,8 +823,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 StreamStateElement streamStateElement2 = (StreamStateElement) visit(ctx.standard_stateful_source(1));
                 return State.logicalNotAnd(streamStateElement1, streamStateElement2);
             } else {
-                BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(
-                        ctx.standard_stateful_source(0));
+                BasicSingleInputStream basicSingleInputStream = (BasicSingleInputStream) visit(ctx
+                        .standard_stateful_source(0));
                 return State.logicalNot(new StreamStateElement(basicSingleInputStream), null);
             }
         } else if (ctx.AND() != null) {
@@ -900,10 +843,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -931,18 +872,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public StateInputStream visitSequence_stream(@NotNull SiddhiQLParser.Sequence_streamContext ctx) {
-        // sequence_stream
-        // :EVERY? sequence_source_chain ',' sequence_source_chain
-        // ;
+//        sequence_stream
+//        :EVERY? sequence_source_chain ',' sequence_source_chain
+//        ;
 
         StateElement stateElement1;
         if (ctx.EVERY() != null) {
@@ -953,27 +892,26 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (ctx.within_time() != null) {
             stateElement1.setWithin((TimeConstant) visit(ctx.within_time()));
         }
-        return new StateInputStream(StateInputStream.Type.SEQUENCE,
+        return new StateInputStream(
+                StateInputStream.Type.SEQUENCE,
                 new NextStateElement(stateElement1, ((StateElement) visit(ctx.sequence_source_chain()))));
 
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public StateElement visitSequence_source_chain(@NotNull SiddhiQLParser.Sequence_source_chainContext ctx) {
-        // sequence_source_chain
-        // :'('sequence_source_chain ')' within_time?
-        // | sequence_source_chain ',' sequence_source_chain
-        // | sequence_source within_time?
-        // ;
+//        sequence_source_chain
+//        :'('sequence_source_chain ')' within_time?
+//        | sequence_source_chain ',' sequence_source_chain
+//        | sequence_source  within_time?
+//        ;
 
         if (ctx.sequence_source_chain().size() == 1) {
             StateElement stateElement = ((StateElement) visit(ctx.sequence_source_chain(0)));
@@ -982,8 +920,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             }
             return stateElement;
         } else if (ctx.sequence_source_chain().size() == 2) {
-            return new NextStateElement(((StateElement) visit(ctx.sequence_source_chain(0))),
-                    ((StateElement) visit(ctx.sequence_source_chain(1))));
+            return new NextStateElement(((StateElement) visit(ctx.sequence_source_chain(0))), ((StateElement) visit
+                    (ctx.sequence_source_chain(1))));
         } else if (ctx.sequence_source() != null) {
             StateElement stateElement = ((StateElement) visit(ctx.sequence_source()));
             if (ctx.within_time() != null) {
@@ -997,24 +935,22 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public BasicSingleInputStream visitBasic_source(@NotNull SiddhiQLParser.Basic_sourceContext ctx) {
 
-        // basic_source
-        // : io (basic_source_stream_handler)*
-        // ;
+//        basic_source
+//        : io (basic_source_stream_handler)*
+//        ;
 
         Source source = (Source) visit(ctx.source());
 
-        BasicSingleInputStream basicSingleInputStream = new BasicSingleInputStream(null, source.streamId,
-                source.isInnerStream);
+        BasicSingleInputStream basicSingleInputStream =
+                new BasicSingleInputStream(null, source.streamId, source.isInnerStream);
 
         if (ctx.basic_source_stream_handlers() != null) {
             basicSingleInputStream.addStreamHandlers((List<StreamHandler>) visit(ctx.basic_source_stream_handlers()));
@@ -1025,10 +961,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1045,22 +979,19 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     /**
      * {@inheritDoc}
      * <p>
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
     public String visitEvent(@NotNull SiddhiQLParser.EventContext ctx) {
         return ctx.getText();
     }
 
+
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1068,9 +999,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public StreamStateElement visitStandard_stateful_source(
             @NotNull SiddhiQLParser.Standard_stateful_sourceContext ctx) {
 
-        // standard_stateful_source
-        // : (event '=')? basic_source
-        // ;
+//        standard_stateful_source
+//        : (event '=')? basic_source
+//        ;
 
         if (ctx.event() != null) {
             activeStreams.add(visitEvent(ctx.event()));
@@ -1090,10 +1021,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1101,9 +1030,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public CountStateElement visitSequence_collection_stateful_source(
             @NotNull SiddhiQLParser.Sequence_collection_stateful_sourceContext ctx) {
 
-        // sequence_collection_stateful_source
-        // :standard_stateful_source ('<' collect '>'|zero_or_more='*'|zero_or_one='?'|one_or_more='+')
-        // ;
+//        sequence_collection_stateful_source
+//        :standard_stateful_source ('<' collect '>'|zero_or_more='*'|zero_or_one='?'|one_or_more='+')
+//        ;
 
         StreamStateElement streamStateElement = (StreamStateElement) visit(ctx.standard_stateful_source());
 
@@ -1131,10 +1060,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1175,10 +1102,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1189,26 +1114,22 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public StreamFunction visitStream_function(@NotNull SiddhiQLParser.Stream_functionContext ctx) {
         AttributeFunction attributeFunction = (AttributeFunction) visit(ctx.function_operation());
-        return new StreamFunction(attributeFunction.getNamespace(), attributeFunction.getName(),
-                attributeFunction.getParameters());
+        return new StreamFunction(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction
+                .getParameters());
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1239,19 +1160,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Selector visitQuery_section(@NotNull SiddhiQLParser.Query_sectionContext ctx) {
 
-        // query_section
-        // :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
-        // ;
+//        query_section
+//        :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
+//        ;
 
         Selector selector = new Selector();
 
@@ -1275,10 +1194,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1293,10 +1210,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1307,22 +1222,20 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public OutputStream visitQuery_output(@NotNull SiddhiQLParser.Query_outputContext ctx) {
-        // query_output
-        // :INSERT output_event_type? INTO target
-        // |UPDATE OR INTO INSERT INTO output_event_type? INTO target
-        // |DELETE target (FOR output_event_type)? (ON expression)?
-        // |UPDATE target (FOR output_event_type)? (ON expression)?
-        // |RETURN output_event_type?
-        // ;
+//        query_output
+//        :INSERT output_event_type? INTO target
+//        |UPDATE OR INTO INSERT INTO output_event_type? INTO target
+//        |DELETE target (FOR output_event_type)? (ON expression)?
+//        |UPDATE target (FOR output_event_type)? (ON expression)?
+//        |RETURN output_event_type?
+//        ;
 
         if (ctx.INSERT() != null) {
             Source source = (Source) visit(ctx.target());
@@ -1351,7 +1264,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
-                return new DeleteStream(source.streamId, (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                return new DeleteStream(source.streamId,
+                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
                         (Expression) visit(ctx.expression()));
             } else {
                 return new DeleteStream(source.streamId, (Expression) visit(ctx.expression()));
@@ -1362,7 +1276,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 throw newSiddhiParserException(ctx, "DELETE can be only used with Tables!");
             }
             if (ctx.output_event_type() != null) {
-                return new UpdateStream(source.streamId, (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                return new UpdateStream(source.streamId,
+                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
                         (Expression) visit(ctx.expression()));
             } else {
                 return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
@@ -1380,18 +1295,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public OutputStream.OutputEventType visitOutput_event_type(@NotNull SiddhiQLParser.Output_event_typeContext ctx) {
-        // output_event_type
-        // : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS
-        // ;
+//        output_event_type
+//        : ALL EVENTS | ALL RAW EVENTS | EXPIRED EVENTS | EXPIRED RAW EVENTS | CURRENT? EVENTS
+//        ;
 
         if (ctx.ALL() != null) {
             if (ctx.RAW() != null) {
@@ -1412,19 +1325,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public OutputRate visitOutput_rate(@NotNull SiddhiQLParser.Output_rateContext ctx) {
-        // output_rate
-        // : OUTPUT output_rate_type? EVERY ( time_value | INT_LITERAL EVENTS )
-        // | OUTPUT SNAPSHOT EVERY time_value
-        // ;
+//        output_rate
+//                : OUTPUT output_rate_type? EVERY ( time_value | INT_LITERAL EVENTS )
+//                | OUTPUT SNAPSHOT EVERY time_value
+//        ;
 
         if (ctx.SNAPSHOT() != null) {
             return new SnapshotOutputRate(((TimeConstant) visit(ctx.time_value())).value());
@@ -1447,21 +1358,19 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitOutput_rate_type(@NotNull SiddhiQLParser.Output_rate_typeContext ctx) {
 
-        // output_rate_type
-        // : ALL
-        // | LAST
-        // | FIRST
-        // ;
+//        output_rate_type
+//                : ALL
+//                | LAST
+//                | FIRST
+//        ;
         if (ctx.ALL() != null) {
             return OutputRate.Type.ALL;
         } else if (ctx.LAST() != null) {
@@ -1475,20 +1384,18 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitOutput_attribute(@NotNull SiddhiQLParser.Output_attributeContext ctx) {
 
-        // output_attribute
-        // :attribute AS attribute_name
-        // |attribute_reference
-        // ;
+//        output_attribute
+//                :attribute AS attribute_name
+//                |attribute_reference
+//        ;
         if (ctx.AS() != null) {
             return new OutputAttribute((String) visit(ctx.attribute_name()), (Expression) visit(ctx.attribute()));
         } else {
@@ -1498,10 +1405,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1516,10 +1421,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1534,18 +1437,16 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Expression visitEquality_math_operation(@NotNull SiddhiQLParser.Equality_math_operationContext ctx) {
         if (ctx.eq != null) {
-            return Expression.compare((Expression) visit(ctx.math_operation(0)), Compare.Operator.EQUAL,
-                    (Expression) visit(ctx.math_operation(1)));
+            return Expression.compare((Expression) visit(ctx.math_operation(0)), Compare.Operator.EQUAL, (Expression)
+                    visit(ctx.math_operation(1)));
         } else if (ctx.not_eq != null) {
             return Expression.compare((Expression) visit(ctx.math_operation(0)), Compare.Operator.NOT_EQUAL,
                     (Expression) visit(ctx.math_operation(1)));
@@ -1556,10 +1457,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1585,10 +1484,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1597,8 +1494,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         if (ctx.add != null) {
             return Expression.add((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx.math_operation(1)));
         } else if (ctx.substract != null) {
-            return Expression.subtract((Expression) visit(ctx.math_operation(0)),
-                    (Expression) visit(ctx.math_operation(1)));
+            return Expression.subtract((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx
+                    .math_operation(1)));
         } else {
             throw newSiddhiParserException(ctx);
         }
@@ -1606,10 +1503,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1617,11 +1512,11 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Expression visitMultiplication_math_operation(
             @NotNull SiddhiQLParser.Multiplication_math_operationContext ctx) {
         if (ctx.multiply != null) {
-            return Expression.multiply((Expression) visit(ctx.math_operation(0)),
-                    (Expression) visit(ctx.math_operation(1)));
+            return Expression.multiply((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx
+                    .math_operation(1)));
         } else if (ctx.devide != null) {
-            return Expression.divide((Expression) visit(ctx.math_operation(0)),
-                    (Expression) visit(ctx.math_operation(1)));
+            return Expression.divide((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx.math_operation
+                    (1)));
         } else if (ctx.mod != null) {
             return Expression.mod((Expression) visit(ctx.math_operation(0)), (Expression) visit(ctx.math_operation(1)));
         } else {
@@ -1631,10 +1526,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1645,10 +1538,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1659,10 +1550,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1685,10 +1574,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1696,17 +1583,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Object visitFunction_operation(@NotNull SiddhiQLParser.Function_operationContext ctx) {
         if (ctx.function_namespace() != null) {
             if (ctx.attribute_list() != null) {
-                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()),
-                        (Expression[]) visit(ctx.attribute_list()));
+                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()
+                ), (Expression[]) visit(ctx.attribute_list()));
             } else {
-                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()),
-                        null);
+                return Expression.function((String) visit(ctx.function_namespace()), (String) visit(ctx.function_id()
+                ), null);
             }
 
         } else {
             if (ctx.attribute_list() != null) {
-                return Expression.function((String) visit(ctx.function_id()),
-                        (Expression[]) visit(ctx.attribute_list()));
+                return Expression.function((String) visit(ctx.function_id()), (Expression[]) visit(ctx.attribute_list
+                        ()));
             } else {
                 return Expression.function((String) visit(ctx.function_id()), null);
             }
@@ -1715,10 +1602,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1735,10 +1620,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1746,36 +1629,34 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Object visitNull_check(@NotNull SiddhiQLParser.Null_checkContext ctx) {
         if (ctx.stream_reference() != null) {
             StreamReference streamReference = (StreamReference) visit(ctx.stream_reference());
-            if (streamReference.isInnerStream) { // InnerStream
+            if (streamReference.isInnerStream) {   //InnerStream
                 if (streamReference.streamIndex != null) {
                     return Expression.isNullInnerStream(streamReference.streamId, streamReference.streamIndex);
                 } else {
                     return Expression.isNullInnerStream(streamReference.streamId);
                 }
             } else {
-                if (activeStreams.contains(streamReference.streamId)) { // Stream
+                if (activeStreams.contains(streamReference.streamId)) { //Stream
                     if (streamReference.streamIndex != null) {
                         return Expression.isNullStream(streamReference.streamId, streamReference.streamIndex);
                     } else {
                         return Expression.isNullStream(streamReference.streamId);
                     }
-                } else { // Attribute
+                } else { //Attribute
                     return Expression.isNull(Expression.variable(streamReference.streamId));
                 }
             }
         } else if (ctx.function_operation() != null) {
             return Expression.isNull((Expression) visit(ctx.function_operation()));
-        } else { // attribute_reference
+        } else { //attribute_reference
             return Expression.isNull((Expression) visit(ctx.attribute_reference()));
         }
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1794,25 +1675,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Variable visitAttribute_reference(@NotNull SiddhiQLParser.Attribute_referenceContext ctx) {
 
-        // attribute_reference
-        // : hash1='#'? name1=name ('['attribute_index1=attribute_index']')? (hash2='#' name2=name
-        // ('['attribute_index2=attribute_index']')?)? '.' attribute_name
-        // | attribute_name
-        // ;
+//        attribute_reference
+//        : hash1='#'? name1=name ('['attribute_index1=attribute_index']')? (hash2='#' name2=name
+// ('['attribute_index2=attribute_index']')?)? '.'  attribute_name
+//        | attribute_name
+//        ;
 
         Variable variable = Expression.variable((String) visit(ctx.attribute_name()));
 
-        if (ctx.name1 != null && ctx.name2 != null) { // Stream and Function
+        if (ctx.name1 != null && ctx.name2 != null) { //Stream and Function
             variable.setStreamId(ctx.hash1 != null, (String) visit(ctx.name1));
             if (ctx.attribute_index1 != null) {
                 variable.setStreamIndex((Integer) visit(ctx.attribute_index1));
@@ -1822,22 +1701,22 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             if (ctx.attribute_index2 != null) {
                 variable.setFunctionIndex((Integer) visit(ctx.attribute_index2));
             }
-        } else if (ctx.name1 != null) { // name2 == null
-            if (ctx.hash1 == null) { // Stream
+        } else if (ctx.name1 != null) {   //name2 == null
+            if (ctx.hash1 == null) {   //Stream
                 variable.setStreamId((String) visit(ctx.name1));
                 if (ctx.attribute_index1 != null) {
                     variable.setStreamIndex((Integer) visit(ctx.attribute_index1));
                 }
-            } else { // InnerStream or Function
+            } else {  //InnerStream or Function
                 String name = (String) visit(ctx.name1);
 
-                if (activeStreams.contains("#" + name)) { // InnerStream
+                if (activeStreams.contains("#" + name)) { //InnerStream
                     variable.setStreamId(true, name);
                     if (ctx.attribute_index1 != null) {
                         variable.setStreamIndex((Integer) visit(ctx.attribute_index1));
                     }
 
-                } else { // Function
+                } else { //Function
                     variable.setFunctionId(name);
                     if (ctx.attribute_index1 != null) {
                         variable.setFunctionIndex((Integer) visit(ctx.attribute_index1));
@@ -1850,10 +1729,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1873,10 +1750,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1897,10 +1772,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1917,10 +1790,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1937,10 +1808,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -1965,25 +1834,23 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Object visitAttribute_type(@NotNull SiddhiQLParser.Attribute_typeContext ctx) {
 
-        // attribute_type
-        // :STRING
-        // |INT
-        // |LONG
-        // |FLOAT
-        // |DOUBLE
-        // |BOOL
-        // |OBJECT
-        // ;
+//        attribute_type
+//                :STRING
+//                |INT
+//                |LONG
+//                |FLOAT
+//                |DOUBLE
+//                |BOOL
+//                |OBJECT
+//        ;
 
         if (ctx.STRING() != null) {
             return Attribute.Type.STRING;
@@ -2006,10 +1873,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2023,8 +1888,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else if (ctx.LEFT() != null) {
                 return JoinInputStream.Type.LEFT_OUTER_JOIN;
             } else {
-                throw newSiddhiParserException(ctx, "Found " + ctx.getText() + " but only FULL OUTER JOIN, RIGHT "
-                        + "OUTER JOIN, LEFT OUTER JOIN are supported!");
+                throw newSiddhiParserException(ctx, "Found " + ctx.getText() + " but only FULL OUTER JOIN, RIGHT " +
+                        "OUTER JOIN, LEFT OUTER JOIN are supported!");
             }
         }
         return JoinInputStream.Type.JOIN;
@@ -2032,25 +1897,24 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
     @Override
     public Constant visitConstant_value(@NotNull SiddhiQLParser.Constant_valueContext ctx) {
 
-        // constant_value
-        // :bool_value
-        // |signed_double_value
-        // |signed_float_value
-        // |signed_long_value
-        // |signed_int_value
-        // |time_value
-        // |string_value
-        // ;
+//        constant_value
+//                :bool_value
+//                |signed_double_value
+//                |signed_float_value
+//                |signed_long_value
+//                |signed_int_value
+//                |time_value
+//                |string_value
+//        ;
+
 
         if (ctx.bool_value() != null) {
             return Expression.value(((BoolConstant) visit(ctx.bool_value())).getValue());
@@ -2073,10 +1937,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2087,10 +1949,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2101,10 +1961,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2140,10 +1998,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2154,10 +2010,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2168,10 +2022,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2182,10 +2034,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2196,10 +2046,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2210,10 +2058,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2224,10 +2070,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2238,10 +2082,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2252,10 +2094,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2266,10 +2106,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2280,10 +2118,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2294,10 +2130,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2309,10 +2143,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */
@@ -2323,10 +2155,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.
-     * </p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
      *
      * @param ctx
      */

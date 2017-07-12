@@ -197,8 +197,8 @@ public class AggregationTestCase {
     }
 
     @Test
-    public void externalTimeOutOfOrderTest() throws InterruptedException {
-        LOG.info("Incremental Processing: externalTimeOutOfOrderTest");
+    public void externalTimeOutOfOrderTest1() throws InterruptedException {
+        LOG.info("Incremental Processing: externalTimeOutOfOrderTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
@@ -243,6 +243,51 @@ public class AggregationTestCase {
 
         // Thursday, June 1, 2017 5:07:56 AM
         inputHandler.send(new Object[]{"CISCO", 700f, null, 200L, 20, 1496293676000L});
+
+        Thread.sleep(2000);
+        siddhiAppRuntime.shutdown();
+    }
+
+    @Test
+    public void externalTimeOutOfOrderTest2() throws InterruptedException {
+        LOG.info("Incremental Processing: externalTimeOutOfOrderTest2");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
+                "price2 float, volume long , quantity int, timestamp long);";
+        String query = " define aggregation test " + "from cseEventStream "
+                + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
+                + "group by symbol " + "aggregate by timestamp every sec...year ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
+
+        // Thursday, June 1, 2017 4:05:50 AM
+        inputHandler.send(new Object[] { "WSO2", 50f, 60f, 90L, 6, 1496289950000L });
+        inputHandler.send(new Object[] { "WSO2", 70f, null, 40L, 10, 1496289950000L });
+
+        // Thursday, June 1, 2017 4:05:53 AM
+        inputHandler.send(new Object[] { "WSO2", 60f, 44f, 200L, 56, 1496289953000L });
+        inputHandler.send(new Object[] { "WSO2", 100f, null, 200L, 16, 1496289953000L });
+
+        // Thursday, June 1, 2017 4:05:52 AM
+        inputHandler.send(new Object[] { "IBM", 900f, null, 200L, 60, 1496289952000L });
+        inputHandler.send(new Object[] { "IBM", 500f, null, 200L, 7, 1496289952000L });
+
+        // Thursday, June 1, 2017 4:05:51 AM
+        inputHandler.send(new Object[] { "IBM", 100f, null, 200L, 26, 1496289951000L });
+        inputHandler.send(new Object[] { "IBM", 100f, null, 200L, 96, 1496289951000L });
+
+        // Thursday, June 1, 2017 4:05:53 AM
+        inputHandler.send(new Object[] { "IBM", 400f, null, 200L, 9, 1496289953000L });
+
+        // Thursday, June 1, 2017 4:05:54 AM
+        inputHandler.send(new Object[] { "IBM", 600f, null, 200L, 6, 1496289954000L });
+
+        // Thursday, June 1, 2017 4:06:56 AM
+        inputHandler.send(new Object[] { "IBM", 1000f, null, 200L, 9, 1496290016000L });
 
         Thread.sleep(2000);
         siddhiAppRuntime.shutdown();

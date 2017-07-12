@@ -70,7 +70,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
 
     public ExpressionExecutor cloneExecutor(String key) {
         return new GroupByAggregationAttributeExecutor(attributeAggregator.cloneAggregator(key),
-                attributeExpressionExecutors, configReader, siddhiAppContext, queryName);
+
+                                                       attributeExpressionExecutors, configReader, siddhiAppContext,
+                                                       queryName);
     }
 
     @Override

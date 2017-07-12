@@ -15,16 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.doc.gen.commons;
+package org.wso2.siddhi.doc.gen.commons.metadata;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * POJO for holding extension system parameters meta data
+ * POJO for holding extension meta data
  */
-public class SystemParameterMetaData {
+public class NamespaceMetaData {
     private String name;
-    private String description;
-    private String defaultValue;
-    private String[] possibleParameters;
+    private Map<String, List<ExtensionMetaData>> extensionMap;
 
     public String getName() {
         return name;
@@ -34,27 +35,11 @@ public class SystemParameterMetaData {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Map<String, List<ExtensionMetaData>> getExtensionMap() {
+        return extensionMap;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public String[] getPossibleParameters() {
-        return possibleParameters;
-    }
-
-    public void setPossibleParameters(String[] possibleParameters) {
-        this.possibleParameters = possibleParameters;
+    public void setExtensionMap(Map<String, List<ExtensionMetaData>> extensionMap) {
+        this.extensionMap = extensionMap;
     }
 }

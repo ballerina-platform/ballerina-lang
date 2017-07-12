@@ -26,7 +26,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.wso2.siddhi.doc.gen.commons.NamespaceMetaData;
+import org.wso2.siddhi.doc.gen.commons.metadata.NamespaceMetaData;
 import org.wso2.siddhi.doc.gen.core.utils.Constants;
 import org.wso2.siddhi.doc.gen.core.utils.DocumentationUtils;
 
@@ -37,11 +37,11 @@ import java.util.List;
  * Mojo for generating Siddhi Documentation
  */
 @Mojo(
-        name = "generate",
+        name = "generate-md-docs",
         defaultPhase = LifecyclePhase.INSTALL,
         requiresDependencyResolution = ResolutionScope.TEST
 )
-public class DocumentationGenerationMojo extends AbstractMojo {
+public class MarkdownDocumentationGenerationMojo extends AbstractMojo {
     /**
      * The maven project object for the current module
      */
@@ -56,14 +56,36 @@ public class DocumentationGenerationMojo extends AbstractMojo {
     private File moduleTargetDirectory;
 
     /**
+     * The path of the readme file in the base directory
+     * Optional
+     */
+    @Parameter(property = "read.me.file")
+    private File readMeFile;
+
+    /**
+     * The path of the mkdocs.yml file in the base directory
+     * Optional
+     */
+    @Parameter(property = "mkdocs.config.file")
+    private File mkdocsConfigFile;
+
+    /**
      * The directory in which the docs will be generated
      * Optional
      */
-    @Parameter(property = "doc.gen.directory")
-    private File docGenDirectory;
+    @Parameter(property = "doc.gen.base.directory")
+    private File docGenBaseDirectory;
+
+    /**
+     * The name of the index file
+     * Optional
+     */
+    @Parameter(property = "home.page.file.name")
+    private String homePageFileName;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Setting the relevant modules target directory if not set by user
         String moduleTargetPath;
         if (moduleTargetDirectory != null) {
             moduleTargetPath = moduleTargetDirectory.getAbsolutePath();
@@ -71,13 +93,32 @@ public class DocumentationGenerationMojo extends AbstractMojo {
             moduleTargetPath = mavenProject.getBuild().getDirectory();
         }
 
+        // Setting the documentation output directory if not set by user
         String docGenPath;
-        if (docGenDirectory != null) {
-            docGenPath = docGenDirectory.getAbsolutePath();
+        if (docGenBaseDirectory != null) {
+            docGenPath = docGenBaseDirectory.getAbsolutePath();
         } else {
             docGenPath = mavenProject.getParent().getBasedir() + File.separator + Constants.DOCS_DIRECTORY;
         }
 
+        // Setting the read me file path if not set by user
+        if (readMeFile == null) {
+            readMeFile = new File(mavenProject.getParent().getBasedir() + File.separator + Constants.README_FILE_NAME
+                    + Constants.MARKDOWN_FILE_EXTENSION);
+        }
+
+        // Setting the mkdocs config file path if not set by user
+        if (mkdocsConfigFile == null) {
+            mkdocsConfigFile = new File(mavenProject.getParent().getBasedir() + File.separator
+                    + Constants.MKDOCS_CONFIG_FILE_NAME + Constants.YAML_FILE_EXTENSION);
+        }
+
+        // Setting the index file name if not set by user
+        if (homePageFileName == null) {
+            homePageFileName = Constants.MARKDOWN_HOME_PAGE_TEMPLATE;
+        }
+
+        // Retrieving metadata
         List<NamespaceMetaData> namespaceMetaDataList;
         try {
             namespaceMetaDataList = DocumentationUtils.getExtensionMetaData(
@@ -89,8 +130,10 @@ public class DocumentationGenerationMojo extends AbstractMojo {
             throw new MojoFailureException("Unable to resolve dependencies of the project", e);
         }
 
+        // Generating the documentation
         if (namespaceMetaDataList.size() > 0) {
-            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath);
+            DocumentationUtils.generateDocumentation(namespaceMetaDataList, docGenPath, mavenProject.getVersion());
+            DocumentationUtils.updateHomePage(readMeFile, docGenPath, homePageFileName, mkdocsConfigFile, getLog());
         }
     }
 }
