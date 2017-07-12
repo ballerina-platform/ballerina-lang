@@ -75,6 +75,8 @@ public class BallerinaTypes {
     public static final RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(RULE_workerDeclaration);
     public static final RuleIElementType WORKER_BODY = ruleIElementTypes.get(RULE_workerBody);
     public static final RuleIElementType FORK_JOIN_STATEMENT = ruleIElementTypes.get(RULE_forkJoinStatement);
+    public static final RuleIElementType JOIN_CLAUSE = ruleIElementTypes.get(RULE_joinClause);
+    public static final RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(RULE_timeoutClause);
     public static final RuleIElementType JOIN_CONDITIONS = ruleIElementTypes.get(RULE_joinConditions);
     public static final RuleIElementType TRANSACTION_STATEMENT = ruleIElementTypes.get(RULE_transactionStatement);
     public static final RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(RULE_transformStatement);

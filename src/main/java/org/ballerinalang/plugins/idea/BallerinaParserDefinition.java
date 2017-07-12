@@ -64,6 +64,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IfElseStatementNode;
 import org.ballerinalang.plugins.idea.psi.IterateStatementNode;
+import org.ballerinalang.plugins.idea.psi.JoinClauseNode;
 import org.ballerinalang.plugins.idea.psi.JoinConditionNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
@@ -92,6 +93,7 @@ import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
+import org.ballerinalang.plugins.idea.psi.TimeoutClauseNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
@@ -359,6 +361,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new CodeBlockParameterNode(node);
             case BallerinaParser.RULE_iterateStatement:
                 return new IterateStatementNode(node);
+            case BallerinaParser.RULE_joinClause:
+                return new JoinClauseNode(node);
+            case BallerinaParser.RULE_timeoutClause:
+                return new TimeoutClauseNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

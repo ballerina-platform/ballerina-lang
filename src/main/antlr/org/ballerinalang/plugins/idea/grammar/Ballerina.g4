@@ -309,9 +309,17 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '{' workerDeclaration* '}'
-        ('join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}')?
-        ('timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}')?
+    : 'fork' '{' workerDeclaration* joinClause? timeoutClause? '}'
+    ;
+
+// below typeName is only 'message[]'
+joinClause
+    :   '}' 'join' ('(' joinConditions ')')? '(' codeBlockParameter ')' '{' codeBlockBody
+    ;
+
+// below typeName is only 'message[]'
+timeoutClause
+    :   '}' 'timeout' '(' expression ')' '(' codeBlockParameter ')'  '{' codeBlockBody
     ;
 
 joinConditions
