@@ -57,7 +57,7 @@ import javax.websocket.Session;
  * <b>{@link Constants}.IS_WEBSOCKET_SERVER</b> property to identify whether the message is coming from the client
  * or the server in the application level.</i>
  */
-public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
+public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
@@ -65,17 +65,18 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private final boolean isSecure;
     private final String requestedUri;
     private final WebSocketSourceHandler sourceHandler;
+    private final CarbonMessageProcessor carbonMessageProcessor;
     private WebSocketSessionImpl clientSession;
-    private Session serverSession;
     private ChannelPromise handshakeFuture;
     private CarbonMessage cMsg;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  boolean isSecure, String requestedUri) {
+    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
+                                  boolean isSecure, String requestedUri, CarbonMessageProcessor messageProcessor) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
+        this.carbonMessageProcessor = messageProcessor;
         cMsg = null;
         handshakeFuture = null;
     }
@@ -98,8 +99,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         handshaker.handshake(ctx.channel());
         clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
         if (sourceHandler != null) {
-            sourceHandler.setClientSession(clientSession);
-            serverSession = sourceHandler.getServerSession();
+            sourceHandler.addClientSession(clientSession);
         }
     }
 
@@ -122,8 +122,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             handshakeFuture.setSuccess();
             clientSession = new WebSocketSessionImpl(ctx, isSecure, requestedUri, Utils.getClientID(ctx));
             if (sourceHandler != null) {
-                sourceHandler.setClientSession(clientSession);
-                serverSession = sourceHandler.getServerSession();
+                sourceHandler.addClientSession(clientSession);
             }
             return;
         }
@@ -166,7 +165,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
 
-        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance().getMessageProcessor();
         if (carbonMessageProcessor != null) {
             try {
                 carbonMessageProcessor.receive(cMsg, null);
@@ -196,7 +194,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
         cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, false);
         if (sourceHandler != null) {
-            cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, serverSession);
+            cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, sourceHandler.getServerSession());
         }
         cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, clientSession);
     }

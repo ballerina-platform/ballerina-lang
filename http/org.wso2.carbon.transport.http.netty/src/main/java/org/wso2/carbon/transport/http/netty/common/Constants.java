@@ -214,6 +214,7 @@ public final class Constants {
 
     public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
+    public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_PROTOCOL = "ws";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";

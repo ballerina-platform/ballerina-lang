@@ -40,6 +40,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.Headers;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 
@@ -56,7 +57,7 @@ public class WebSocketClient {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
     private Channel channel;
-    private WebSocketClientHandler handler;
+    private WebSocketTargetHandler handler;
     private EventLoopGroup group;
     private boolean handshakeDone = false;
 
@@ -65,6 +66,7 @@ public class WebSocketClient {
     private final boolean allowExtensions;
     private final Headers headers;
     private final WebSocketSourceHandler sourceHandler;
+    private final CarbonMessageProcessor messageProcessor;
 
     /**
      * @param url url of the remote endpoint.
@@ -73,12 +75,14 @@ public class WebSocketClient {
      * @param headers any specific headers which need to send to the server.
      */
     public WebSocketClient(String url, String subprotocol, boolean allowExtensions,
-                           Headers headers, WebSocketSourceHandler sourceHandler) {
+                           Headers headers, WebSocketSourceHandler sourceHandler,
+                           CarbonMessageProcessor messageProcessor) {
         this.url = url;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
         this.sourceHandler = sourceHandler;
+        this.messageProcessor = messageProcessor;
     }
 
     /**
@@ -129,7 +133,7 @@ public class WebSocketClient {
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketClientHandler(websocketHandshaker, sourceHandler, ssl, url);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, messageProcessor);
 
         Bootstrap b = new Bootstrap();
         b.group(group)

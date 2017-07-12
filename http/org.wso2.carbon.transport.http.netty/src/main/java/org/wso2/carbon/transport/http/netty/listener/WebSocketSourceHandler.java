@@ -46,6 +46,8 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
 import javax.websocket.Session;
 
 /**
@@ -61,7 +63,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private final WebSocketSessionImpl serverSession;
 
     private CarbonMessage cMsg;
-    private Session clientSession;
+    private List<Session> clientSessions = new LinkedList<>();
 
     /**
      * @param channelId This works as the serverSession id of the WebSocket connection.
@@ -92,8 +94,8 @@ public class WebSocketSourceHandler extends SourceHandler {
      *
      * @param clientSession {@link Session} of the client associated with this Server session.
      */
-    public void setClientSession(Session clientSession) {
-        this.clientSession = clientSession;
+    public void addClientSession(Session clientSession) {
+        clientSessions.add(clientSession);
     }
 
     /**
@@ -101,8 +103,8 @@ public class WebSocketSourceHandler extends SourceHandler {
      *
      * @return the client session of the source handler.
      */
-    public Session getClientSession() {
-        return clientSession;
+    public List<Session> getClientSessions() {
+        return clientSessions;
     }
 
     /**
@@ -233,6 +235,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
         cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
         cMsg.setProperty(Constants.WEBSOCKET_SERVER_SESSION, serverSession);
-        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSION, clientSession);
+        cMsg.setProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST, clientSessions);
     }
 }

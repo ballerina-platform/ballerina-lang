@@ -41,6 +41,8 @@ import javax.websocket.Session;
  */
 public class WebSocketClientConnector implements ClientConnector {
 
+    private CarbonMessageProcessor messageProcessor;
+
     @Override
     public Object init(CarbonMessage carbonMessage, CarbonCallback carbonCallback, Map<String, Object> map)
             throws ClientConnectorException {
@@ -68,6 +70,7 @@ public class WebSocketClientConnector implements ClientConnector {
 
     @Override
     public void setMessageProcessor(CarbonMessageProcessor messageProcessor) {
+        this.messageProcessor = messageProcessor;
         HTTPTransportContextHolder.getInstance().setMessageProcessor(messageProcessor);
     }
 
@@ -82,7 +85,7 @@ public class WebSocketClientConnector implements ClientConnector {
         }
         Headers headers = carbonMessage.getHeaders();
         WebSocketClient webSocketClient = new WebSocketClient(url, subprotocols, allowExtensions,
-                                                              headers, sourceHandler);
+                                                              headers, sourceHandler, messageProcessor);
         try {
             webSocketClient.handshake();
             return webSocketClient.getSession();
