@@ -1364,6 +1364,15 @@ public class BallerinaPsiImplUtil {
                 results.add(identifier);
             }
         }
+
+        Collection<AssignmentStatementNode> assignmentStatementNodes = PsiTreeUtil.findChildrenOfType(scope,
+                AssignmentStatementNode.class);
+        for (AssignmentStatementNode assignmentStatementNode : assignmentStatementNodes) {
+            if (isValidVarAssignment(assignmentStatementNode, scope, caretOffset)) {
+                results.addAll(getVariablesFromVarAssignment(assignmentStatementNode));
+            }
+        }
+
         return results;
     }
 
@@ -1404,6 +1413,67 @@ public class BallerinaPsiImplUtil {
             }
         }
         return false;
+    }
+
+    private static boolean isValidVarAssignment(@NotNull AssignmentStatementNode assignmentStatementNode,
+                                                @NotNull ScopeNode scope, int caretOffset) {
+
+        PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);
+        if (elementAtCaret == null) {
+            return false;
+        }
+
+        // Todo - temp fix. Might need to add {, }, etc.
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtCaret);
+        if (prevVisibleLeaf == null || ";".equals(prevVisibleLeaf.getText())) {
+            if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
+                return true;
+            }
+        }
+
+        AssignmentStatementNode parent = PsiTreeUtil.getParentOfType(prevVisibleLeaf, AssignmentStatementNode.class);
+        if (parent == null) {
+            if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
+                return true;
+            }
+        }
+        if (assignmentStatementNode.equals(parent)) {
+            return false;
+        }
+
+        PsiElement firstChild = assignmentStatementNode.getFirstChild();
+        if (firstChild instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) firstChild).getElementType();
+            if (elementType == BallerinaTypes.VAR) {
+                if (assignmentStatementNode.getTextRange().getEndOffset() < caretOffset) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static List<IdentifierPSINode> getVariablesFromVarAssignment(@NotNull AssignmentStatementNode
+                                                                                 assignmentStatementNode) {
+        List<IdentifierPSINode> results = new LinkedList<>();
+        VariableReferenceListNode variableReferenceListNode = PsiTreeUtil.getChildOfType(assignmentStatementNode,
+                VariableReferenceListNode.class);
+        if (variableReferenceListNode == null) {
+            return results;
+        }
+        VariableReferenceNode[] variableReferenceNodes = PsiTreeUtil.getChildrenOfType(variableReferenceListNode,
+                VariableReferenceNode.class);
+        if (variableReferenceNodes == null) {
+            return results;
+        }
+        for (VariableReferenceNode variableReferenceNode : variableReferenceNodes) {
+
+            IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(variableReferenceNode, IdentifierPSINode.class);
+            if (identifier != null) {
+                results.add(identifier);
+            }
+        }
+        return results;
     }
 
     @NotNull
