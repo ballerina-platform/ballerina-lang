@@ -9,7 +9,7 @@ const extractCSSBundle = new ExtractTextPlugin('./bundle.css');
 let exportConfig = {};
 const config = [{
     entry: {
-        bundle: './index.js',
+        bundle: './src/index.js',
         'worker-ballerina': './js/ballerina/utils/ace-worker.js',
     },
     output: {
@@ -99,7 +99,7 @@ const config = [{
     devtool: 'source-map',
     resolve: {
         extensions: ['.js', '.json', '.jsx'],
-        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
+        modules: [path.resolve('./src'), path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules'), path.resolve(__dirname)],
         alias: {
             // ///////////////////////
             // third party modules //
