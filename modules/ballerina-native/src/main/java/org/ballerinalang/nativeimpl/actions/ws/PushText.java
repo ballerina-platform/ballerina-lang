@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -27,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.services.dispatchers.ws.Constants;
+import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 
@@ -62,12 +64,14 @@ import javax.websocket.Session;
 public class PushText extends AbstractWebSocketAction {
     @Override
     public BValue execute(Context context) {
+        BConnector bConnector = (BConnector) getRefArgument(context, 0);
         String text = getStringArgument(context, 0);
-        Session session = getSession(context);
-        if (session == null) {
+        Session serverSession = getServerSession(context);
+        if (serverSession == null) {
             throw new BallerinaException("Internal error occurred. Cannot find a connection");
         }
-        Session clientSession = (Session) context.getCarbonMessage().getProperty(Constants.WEBSOCKET_CLIENT_SESSION);
+        Session clientSession = WebSocketConnectionManager.getInstance().
+                getClientSesisonForConnector(bConnector, serverSession);
         try {
             clientSession.getBasicRemote().sendText(text);
         } catch (IOException e) {

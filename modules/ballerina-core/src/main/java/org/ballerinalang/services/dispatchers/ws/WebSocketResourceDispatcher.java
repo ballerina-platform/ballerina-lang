@@ -33,7 +33,9 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;
 
@@ -67,8 +69,22 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    Session session = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(session);
+                    Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                    WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
+
+                    // Closing related client connections.
+                    List<Session> clientSessions =
+                            (List<Session>) statusMessage.getProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST);
+                    clientSessions.stream().forEach(
+                            session -> {
+                                try {
+                                    session.close();
+                                } catch (IOException e) {
+                                    throw new BallerinaException("Error occurred during closing client connections");
+                                }
+                            }
+                    );
+
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
                     String connection = (String) cMsg.getProperty(Constants.CONNECTION);
@@ -91,16 +107,6 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     @Override
     public String getProtocol() {
         return Constants.PROTOCOL_WEBSOCKET;
-    }
-
-    @Deprecated
-    private Resource getResource(Service service, String annotationName) {
-        for (Resource resource: service.getResources()) {
-            if (resource.getAnnotation(Constants.PROTOCOL_WEBSOCKET, annotationName) != null) {
-                return resource;
-            }
-        }
-        return null;
     }
 
     private ResourceInfo getResource(ServiceInfo service, String annotationName) {

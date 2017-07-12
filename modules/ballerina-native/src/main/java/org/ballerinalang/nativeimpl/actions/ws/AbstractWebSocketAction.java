@@ -26,6 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.util.List;
 import javax.websocket.Session;
 
 /**
@@ -43,8 +44,13 @@ public abstract class AbstractWebSocketAction extends AbstractNativeAction {
         }
     }
 
-    protected Session getSession(Context context) {
+    protected Session getServerSession(Context context) {
         CarbonMessage carbonMessage = context.getCarbonMessage();
         return (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+    }
+
+    protected List<Session> getClientSessions(Context context) {
+        CarbonMessage carbonMessage = context.getCarbonMessage();
+        return (List<Session>) carbonMessage.getProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST);
     }
 }

@@ -24,6 +24,7 @@ package org.ballerinalang.services.dispatchers.ws;
 public class Constants extends org.ballerinalang.services.dispatchers.http.Constants {
 
     // Common constants
+    public static final String DEFAULT = "DEFAULT";
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String TO = "TO";
 
@@ -51,4 +52,5 @@ public class Constants extends org.ballerinalang.services.dispatchers.http.Const
     public static final String CHANNEL_ID = "CHANNEL_ID";
     public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
     public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
+    public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
 }

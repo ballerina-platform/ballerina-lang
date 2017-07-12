@@ -26,6 +26,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,18 +39,21 @@ import javax.websocket.Session;
  */
 public class WebSocketConnectionManager {
 
+    /* Server Related Maps */
     // Map<serviceInfo, Map<sessionId, session>>
     private final Map<ServiceInfo, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
     // Map<groupName, Map<sessionId, session>>
     private final Map<String, Map<String, Session>> connectionGroups = new ConcurrentHashMap<>();
     // Map<NameToStoreConnection, Session>
     private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
+
+    /* Mediation related maps */
     // Map <clientSessionID, associatedClientServiceName>
     private final Map<String, String> clientSessionToClientServiceMap = new ConcurrentHashMap<>();
     // Map <parentServiceName, Connector>
-    private final Map<ServiceInfo, List<BConnector>> parentServiceToclientConnectorsMap = new ConcurrentHashMap<>();
-    // Map<Connector, List<ClientSessions>>
-    private final Map<BConnector, List<Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
+    private final Map<ServiceInfo, List<BConnector>> parentServiceToClientConnectorsMap = new ConcurrentHashMap<>();
+    // Map<Connector, Map<serverSessionID, ClientSession>>
+    private final Map<BConnector, Map<String, Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
@@ -202,12 +206,13 @@ public class WebSocketConnectionManager {
     }
 
     public void addConnection(ServiceInfo service, Session session, CarbonMessage carbonMessage) {
-        if (parentServiceToclientConnectorsMap.containsKey(service)) {
-            for (BConnector bConnector : parentServiceToclientConnectorsMap.get(service)) {
+        if (parentServiceToClientConnectorsMap.containsKey(service)) {
+            for (BConnector bConnector : parentServiceToClientConnectorsMap.get(service)) {
                 Session clientSession = initializeClientConnection(bConnector, carbonMessage);
+                Session serverSession = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
                 String clientServiceName = bConnector.getStringField(1);
                 addClientSession(clientSession, clientServiceName);
-                clientConnectorSessionsMap.get(bConnector).add(clientSession);
+                clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
             }
         }
         addConnectionToBroadcast(service, session);
@@ -226,28 +231,33 @@ public class WebSocketConnectionManager {
 
 
     public void addClientConnector(ServiceInfo parentService, BConnector connector) {
-        if (parentServiceToclientConnectorsMap.containsKey(parentService)) {
-            parentServiceToclientConnectorsMap.get(parentService).add(connector);
+        if (parentServiceToClientConnectorsMap.containsKey(parentService)) {
+            parentServiceToClientConnectorsMap.get(parentService).add(connector);
         } else {
             // Adding connector against parent service.
             List<BConnector> connectors = new LinkedList<>();
             connectors.add(connector);
-            parentServiceToclientConnectorsMap.put(parentService, connectors);
+            parentServiceToClientConnectorsMap.put(parentService, connectors);
         }
 
         // Initiating clientConnectorSessionsMap list for the given connector.
-        List<Session> sessions = new LinkedList<>();
+        Map<String, Session> sessions = new HashMap<>();
         clientConnectorSessionsMap.put(connector, sessions);
     }
 
     public List<Session> getSessionsForConnector(BConnector bConnector) {
-        return clientConnectorSessionsMap.get(bConnector);
+        return clientConnectorSessionsMap.get(bConnector).entrySet().stream().
+                map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     public void addClientConnectorWithoutParentService(BConnector bConnector, Session session) {
-        List<Session> sessions = new LinkedList<>();
-        sessions.add(session);
+        Map<String, Session> sessions = new HashMap<>();
+        sessions.put(Constants.DEFAULT, session);
         clientConnectorSessionsMap.put(bConnector, sessions);
+    }
+
+    public Session getClientSesisonForConnector(BConnector bConnector, Session serverSession) {
+        return clientConnectorSessionsMap.get(bConnector).get(serverSession.getId());
     }
 
     /**
