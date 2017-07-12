@@ -63,7 +63,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
 
-    private BallerinaConnectorDef filterConnector;
+    private BallerinaConnectorDef parentFilterConnector;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -131,12 +131,12 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         isFilterConnector = filterConnector;
     }
 
-    public BallerinaConnectorDef getFilterConnector() {
-        return filterConnector;
+    public BallerinaConnectorDef getParentFilterConnector() {
+        return parentFilterConnector;
     }
 
-    public void setFilterConnector(BallerinaConnectorDef filterConnector) {
-        this.filterConnector = filterConnector;
+    public void setParentFilterConnector(BallerinaConnectorDef parentFilterConnector) {
+        this.parentFilterConnector = parentFilterConnector;
     }
 
 
@@ -246,6 +246,23 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaConnectorDef) {
+            BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
+            if (this.actions.length == other.actions.length) {
+                for (int i = 0; i < this.actions.length; i++) {
+                    if (!this.actions[i].equals(other.actions[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            //return this.typeName.equals(other.typeName);
+        }
+
+        return false;
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

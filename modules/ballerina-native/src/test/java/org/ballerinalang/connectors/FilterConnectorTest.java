@@ -36,12 +36,12 @@ public class FilterConnectorTest {
 
     @BeforeClass()
     public void setup() {
-        //programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-test.bal");
+        //programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-test-workers.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-test.bal");
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-test-workers.bal");
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testAction1");
         Assert.assertEquals(returns.length, 1);
         BMessage actionReturned = (BMessage) returns[0];
@@ -59,4 +59,16 @@ public class FilterConnectorTest {
         int expected = 500;
         Assert.assertEquals(actionReturned.intValue(), expected);
     }
+
+    @Test(description = "Test multiple filters")
+    public void testMultipleFilterConnector() {
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-multiple-test.bal");
+        BValue[] args = {new BString("WSO2")};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArgumentPassing", args);
+        Assert.assertEquals(returns.length, 1);
+        BInteger actionReturned = (BInteger) returns[0];
+        int expected = 500;
+        Assert.assertEquals(actionReturned.intValue(), expected);
+    }
+
 }

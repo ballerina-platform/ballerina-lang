@@ -2,21 +2,20 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 
 function testAction1() (message) {
-    TestConnector2 testConnector = create TestConnector2("MyParam1", "MyParam2", 5)
-    with TestConnector("MyTest1", "MyTest2", 15);
+    TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5) with FilterConnector("MyTest1", "MyTest2", 15);
     message request;
     message value;
 
     request = {};
-    value = TestConnector2.action1(testConnector, request);
+    value = TestConnector.action1(testConnector, request);
     return value;
 }
 
-connector TestConnector2(string param1, string param2, int param3) {
+connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
 
-    action action1(TestConnector2 testConnector, message msg) (message){
+    action action1(TestConnector testConnector, message msg) (message){
           float aa;
           message result;
           aa = 13;
@@ -46,7 +45,7 @@ connector TestConnector2(string param1, string param2, int param3) {
     }
     }
 
-    action action2(TestConnector2 testConnector, message msg) (message){
+    action action2(TestConnector testConnector, message msg) (message){
     message result;
     system:println("Starting action 2");
     result <- sampleWorker;
@@ -64,11 +63,11 @@ connector TestConnector2(string param1, string param2, int param3) {
 }
 
 
-connector TestConnector<TestConnector2>(string param1, string param2, int param3) {
+connector FilterConnector<TestConnector t> (string param1, string param2, int param3) {
 
     boolean action2Invoked;
 
-    action action1(TestConnector testConnector, message msg) {
+    action action1(FilterConnector testConnector, message msg) (message) {
           float aa;
           message result;
           aa = 133;
@@ -76,6 +75,9 @@ connector TestConnector<TestConnector2>(string param1, string param2, int param3
           msg -> sampleWorker;
           system:println("Worker in filter connector test started - XXXXXXXXXXXXXXXXXXXXXXXX " + param1);
           result <- sampleWorker;
+          message x;
+          x = TestConnector.action1(t, msg);
+          return x;
 
           worker sampleWorker {
           float amount;
@@ -97,10 +99,11 @@ connector TestConnector<TestConnector2>(string param1, string param2, int param3
     }
     }
 
-    action action2(TestConnector testConnector, message msg) {
+    action action2(FilterConnector testConnector, message msg) (message) {
     message result;
     system:println("Starting action 2");
     result <- sampleWorker;
+    return result;
 
     worker sampleWorker {
         json j;

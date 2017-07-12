@@ -254,7 +254,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   'create' nameReference '(' expressionList? ')' ('with' nameReference '(' expressionList? ')')?
+    :   'create' nameReference '(' expressionList? ')' ('with' filterInitExpressionList)?
+    ;
+
+filterInitExpression
+    : nameReference '(' expressionList? ')'
+    ;
+
+filterInitExpressionList
+    : filterInitExpression (',' filterInitExpression)*
     ;
 
 compositeConnectorInitExpression

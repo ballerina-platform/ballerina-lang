@@ -1814,21 +1814,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.INCORRECT_ACTION_INVOCATION);
             }
 
-            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) (((VariableDef) bLangSymbol).
-                    getType())).getFilterConnector();
+            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) ((VariableDef) bLangSymbol).getType()).
+                    getParentFilterConnector();
             if (filterConnectorDef != null) {
-//                Expression[] argExprsFilter = new Expression[actionIExpr.getArgExprs().length];
-//                int i = 0;
-//                for (Expression expression : actionIExpr.getArgExprs()) {
-//                    argExprsFilter[i++] = expression;
-//                }
-//                ActionInvocationExpr filterActionInvocation = new ActionInvocationExpr(actionIExpr.getNodeLocation(),
-//                        actionIExpr.getWhiteSpaceDescriptor(), actionIExpr.getName(), actionIExpr.getPackageName(),
-//                        actionIExpr.getPackagePath(), filterConnectorDef.getName(), argExprsFilter);
-//                visit(filterActionInvocation);
-//                actionIExpr.setFilterCallableUnit(filterActionInvocation);
                 actionIExpr.setConnectorName(filterConnectorDef.getName());
-                //return;
             }
 
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
@@ -1847,20 +1836,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                     SemanticErrors.INVALID_ACTION_INVOCATION);
         } else {
-            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) bLangSymbol).getFilterConnector();
+            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) bLangSymbol).
+                    getParentFilterConnector();
             if (filterConnectorDef != null) {
-//                Expression[] argExprsFilter = new Expression[actionIExpr.getArgExprs().length];
-//                int i = 0;
-//                for (Expression expression : actionIExpr.getArgExprs()) {
-//                    argExprsFilter[i++] = expression;
-//                }
-//                ActionInvocationExpr filterActionInvocation = new ActionInvocationExpr(actionIExpr.getNodeLocation(),
-//                        actionIExpr.getWhiteSpaceDescriptor(), actionIExpr.getName(), actionIExpr.getPackageName(),
-//                        actionIExpr.getPackagePath(), filterConnectorDef.getName(), argExprsFilter);
-//                visit(filterActionInvocation);
-//                actionIExpr.setFilterCallableUnit(filterActionInvocation);
                 actionIExpr.setConnectorName(filterConnectorDef.getName());
-                //return;
             }
         }
 
@@ -2069,7 +2048,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
 
-        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getReferenceConnectorInitExpr();
+        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
             visit(filterConnectorInitExpr);
             BType filterConnectorType = filterConnectorInitExpr.getFilterSupportedType();
@@ -2081,7 +2060,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
             ((BallerinaConnectorDef) inheritedType).
-                    setFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
+                    setParentFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
         }
     }
 
@@ -3371,8 +3350,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (refTypeInitExpr instanceof ConnectorInitExpr) {
                 ConnectorInitExpr filterConnectorInitExpr = ((ConnectorInitExpr) refTypeInitExpr).
-                        getReferenceConnectorInitExpr();
-                if (filterConnectorInitExpr != null) {
+                        getParentConnectorInitExpr();
+                while (filterConnectorInitExpr != null) {
                     BLangSymbol symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
                             getTypeName().getName(), currentPkg));
                     if (symbol instanceof BType) {
@@ -3380,6 +3359,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         filterConnectorInitExpr.setInheritedType(type);
                     }
                     filterConnectorInitExpr.setFilterSupportedType(fieldType);
+                    filterConnectorInitExpr = (filterConnectorInitExpr).
+                            getParentConnectorInitExpr();
                 }
             }
         }
@@ -3544,11 +3525,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Check for filter connector assignment
         if (rhsType instanceof BallerinaConnectorDef &&
-                ((BallerinaConnectorDef) rhsType).getFilterConnector() != null) {
-            if (lhsType == ((BallerinaConnectorDef) rhsType).getFilterConnector()) {
-                assignabilityResult.assignable = true;
-                return assignabilityResult;
-            }
+                ((BallerinaConnectorDef) rhsType).getParentFilterConnector() != null) {
+                if (lhsType == ((BallerinaConnectorDef) rhsType).getParentFilterConnector()) {
+                    assignabilityResult.assignable = true;
+                }
+            return assignabilityResult;
         }
 
         if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {

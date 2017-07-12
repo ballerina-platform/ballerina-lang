@@ -30,8 +30,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  */
 public class ConnectorInitExpr extends RefTypeInitExpr {
     private SimpleTypeName typeName;
-    private ConnectorInitExpr referenceConnectorInitExpr;
-    private ConnectorInitExpr baseConnectorInitExpr;
+    private ConnectorInitExpr parentConnectorInitExpr;
     // This variable has been introduced to support the filter connector framework
     private BType filterSupportedType;
 
@@ -41,12 +40,12 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
         this.typeName = typeName;
     }
 
-    public ConnectorInitExpr getReferenceConnectorInitExpr() {
-        return referenceConnectorInitExpr;
+    public ConnectorInitExpr getParentConnectorInitExpr() {
+        return parentConnectorInitExpr;
     }
 
-    public void setReferenceConnectorInitExpr(ConnectorInitExpr referenceConnectorInitExpr) {
-        this.referenceConnectorInitExpr = referenceConnectorInitExpr;
+    public void setParentConnectorInitExpr(ConnectorInitExpr parentConnectorInitExpr) {
+        this.parentConnectorInitExpr = parentConnectorInitExpr;
     }
 
     public SimpleTypeName getTypeName() {
@@ -60,15 +59,6 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
     public void setFilterSupportedType(BType filterSupportedType) {
         this.filterSupportedType = filterSupportedType;
     }
-
-    public ConnectorInitExpr getBaseConnectorInitExpr() {
-        return baseConnectorInitExpr;
-    }
-
-    public void setBaseConnectorInitExpr(ConnectorInitExpr baseConnectorInitExpr) {
-        this.baseConnectorInitExpr = baseConnectorInitExpr;
-    }
-
 
     @Override
     public void accept(NodeVisitor visitor) {
