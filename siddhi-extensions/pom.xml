@@ -53,36 +53,36 @@
         <!--<module>eval-script</module>-->
         <!--todo : enable event-table after fix the annotation issues-->
         <!--<module>event-table</module>-->
-        <module>table</module>
+        <!--<module>table</module>-->
         <!--<module>output-transports/test-output-transport</module>-->
         <!--<module>output-transports/http-output-transport</module>-->
         <!--todo : enable output-transports/kafka-output-transport after fix the annotation issues-->
-        <module>output-transports/kafka-output-transport</module>
+        <!--<module>output-transports/kafka-output-transport</module>-->
         <!--todo : enable output-transports/tcp-output-transport after fix the annotation issues-->
-        <module>output-transports/tcp-output-transport</module>
+        <!--<module>output-transports/tcp-output-transport</module>-->
         <!--todo : enable output-transports/jms-output-transport after fix the annotation issues-->
-        <module>output-transports/jms-output-transport</module>
+        <!--<module>output-transports/jms-output-transport</module>-->
         <!--todo : enable output-mappers/text-output-mapper after fix the annotation issues-->
-        <module>output-mappers/text-output-mapper</module>
-        <module>output-mappers/json-output-mapper</module>
+        <!--<module>output-mappers/text-output-mapper</module>-->
+        <!--<module>output-mappers/json-output-mapper</module>-->
         <!--<module>output-mappers/keyvalue-output-mapper</module>-->
         <!--todo : enable output-mappers/xml-output-mapper after fix the annotation issues-->
-        <module>output-mappers/xml-output-mapper</module>
+        <!--<module>output-mappers/xml-output-mapper</module>-->
         <!--<module>output-mappers/wso2event-output-mapper</module>-->
         <!--todo : enable input-mappers/text-input-mapper after fix the annotation issues-->
-        <module>input-mappers/text-input-mapper</module>
-        <module>input-mappers/json-input-mapper</module>
+        <!--<module>input-mappers/text-input-mapper</module>-->
+        <!--<module>input-mappers/json-input-mapper</module>-->
         <!--<module>input-mappers/map-input-mapper</module>-->
         <!--todo : enable input-mappers/xml-input-mapper after fix the annotation issues-->
-        <module>input-mappers/xml-input-mapper</module>
+        <!--<module>input-mappers/xml-input-mapper</module>-->
         <!--todo : enable input-transports/kafka-input-transport after fix the annotation issues-->
-        <module>input-transports/kafka-input-transport</module>
+        <!--<module>input-transports/kafka-input-transport</module>-->
         <!--todo : enable input-transports/tcp-input-transport after fix the annotation issues-->
-        <module>input-transports/tcp-input-transport</module>
+        <!--<module>input-transports/tcp-input-transport</module>-->
         <!--todo : enable input-transports/jms-input-transport after fix the annotation issues-->
-        <module>input-transports/jms-input-transport</module>
+        <!--<module>input-transports/jms-input-transport</module>-->
         <!--todo : enable transport/tcp-transport after fix the annotation issues-->
-        <module>transport/tcp-transport</module>
+        <!--<module>transport/tcp-transport</module>-->
     </modules>
 
 </project>
