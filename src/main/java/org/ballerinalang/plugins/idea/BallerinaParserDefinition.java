@@ -49,6 +49,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
@@ -93,6 +94,7 @@ import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TriggerWorkerNode;
+import org.ballerinalang.plugins.idea.psi.TryCatchStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -310,8 +312,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ForkJoinStatementNode(node);
             case BallerinaParser.RULE_workerInteractionStatement:
                 return new WorkerInterationStatementNode(node);
-            //            case BallerinaParser.RULE_functionInvocation:
-            //                return new FunctionInvocationNode(node);
             case BallerinaParser.RULE_returnStatement:
                 return new ReturnStatementNode(node);
             case BallerinaParser.RULE_throwStatement:
@@ -352,6 +352,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionReferenceNode(node);
             case BallerinaParser.RULE_codeBlockBody:
                 return new CodeBlockBodyNode(node);
+            case BallerinaParser.RULE_tryCatchStatement:
+                return new TryCatchStatementNode(node);
+            case BallerinaParser.RULE_codeBlockParameter:
+                return new CodeBlockParameterNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.psi.impl;
 
-import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.module.Module;
@@ -56,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
@@ -1487,25 +1487,25 @@ public class BallerinaPsiImplUtil {
     }
 
     @NotNull
-    public static List<PsiElement> getAllParametersInResolvableScope(@NotNull ScopeNode scope) {
+    public static List<PsiElement> getAllParametersInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
         List<PsiElement> results = new LinkedList<>();
         if (scope instanceof VariableContainer) {
             ScopeNode context = scope.getContext();
             if (context != null) {
-                results.addAll(getAllParametersInResolvableScope(context));
+                results.addAll(getAllParametersInResolvableScope(context, caretOffset));
             }
         } else if (scope instanceof ParameterContainer) {
-            results.addAll(getAllParametersInScope(scope));
+            results.addAll(getAllParametersInScope(scope, caretOffset));
             ScopeNode context = scope.getContext();
             if (context != null) {
-                results.addAll(getAllParametersInResolvableScope(context));
+                results.addAll(getAllParametersInResolvableScope(context, caretOffset));
             }
         }
         return results;
     }
 
     @NotNull
-    public static List<PsiElement> getAllParametersInScope(@NotNull ScopeNode scope) {
+    public static List<PsiElement> getAllParametersInScope(@NotNull ScopeNode scope, int caretOffset) {
         List<PsiElement> results = new LinkedList<>();
         Collection<ParameterNode> parameterNodes = PsiTreeUtil.findChildrenOfType(scope,
                 ParameterNode.class);
@@ -1515,6 +1515,30 @@ public class BallerinaPsiImplUtil {
                 results.add(identifier);
             }
         }
+
+        Collection<CodeBlockParameterNode> codeBlockParameterNodes = PsiTreeUtil.findChildrenOfType(scope,
+                CodeBlockParameterNode.class);
+        for (CodeBlockParameterNode parameter : codeBlockParameterNodes) {
+
+            PsiElement elementAtCaret = scope.getContainingFile().findElementAt(caretOffset);
+            if (elementAtCaret == null) {
+                return results;
+            }
+
+            if (parameter.getTextRange().getEndOffset() >= caretOffset) {
+                return results;
+            }
+
+            ScopeNode closestScope = PsiTreeUtil.getParentOfType(parameter, ScopeNode.class);
+            if (closestScope == null || !closestScope.equals(scope)) {
+                continue;
+            }
+            PsiElement identifier = parameter.getNameIdentifier();
+            if (identifier != null) {
+                results.add(identifier);
+            }
+        }
+
         return results;
     }
 
@@ -1773,7 +1797,8 @@ public class BallerinaPsiImplUtil {
                 }
             }
             if (matchParameters) {
-                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                        caretOffset);
                 for (PsiElement parameter : parameters) {
                     if (identifier.getText().equals(parameter.getText())) {
                         return parameter;

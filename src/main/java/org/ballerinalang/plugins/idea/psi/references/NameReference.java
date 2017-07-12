@@ -235,7 +235,8 @@ public class NameReference extends BallerinaElementReference {
                             caretOffset);
                     results.addAll(BallerinaCompletionUtils.createVariableLookupElements(variables));
 
-                    List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope);
+                    List<PsiElement> parameters = BallerinaPsiImplUtil.getAllParametersInResolvableScope(scope,
+                            caretOffset);
                     results.addAll(BallerinaCompletionUtils.createParameterLookupElements(parameters));
 
                     List<PsiElement> globalVariables = BallerinaPsiImplUtil.getAllGlobalVariablesInResolvableScope

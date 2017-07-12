@@ -286,6 +286,10 @@ codeBlockBody
     :   statement*
     ;
 
+codeBlockParameter
+    :   typeName Identifier
+    ;
+
 //todo replace with 'foreach'
 iterateStatement
     :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
@@ -316,7 +320,7 @@ joinConditions
     ;
 
 tryCatchStatement
-    :   'try' '{' statement* '}' (( 'catch' '(' typeName Identifier ')' '{' statement* '}' )+ ( 'finally' '{' statement* '}' )?) | ( 'finally' '{' statement* '}' )
+    :   'try' '{' codeBlockBody '}' (( 'catch' '(' codeBlockParameter ')' '{' codeBlockBody '}' )+ ( 'finally' '{' codeBlockBody '}' )?) | ( 'finally' '{' codeBlockBody '}' )
     ;
 
 throwStatement
