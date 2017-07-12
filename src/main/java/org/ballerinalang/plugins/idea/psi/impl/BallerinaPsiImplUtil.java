@@ -1752,10 +1752,8 @@ public class BallerinaPsiImplUtil {
     public static PsiElement resolveElementInScope(@NotNull IdentifierPSINode identifier, boolean matchLocalVariables,
                                                    boolean matchParameters, boolean matchGlobalVariables,
                                                    boolean matchConstants) {
-        // Todo - add definition interface to definition classes
-        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CallableUnitBodyNode.class,
-                ServiceBodyNode.class, ConnectorBodyNode.class, ServiceDefinitionNode.class,
-                ConnectorDefinitionNode.class);
+        ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                TopLevelDefinition.class, LowerLevelDefinition.class);
         if (scope != null) {
             int caretOffset = identifier.getStartOffset();
             if (matchLocalVariables) {
