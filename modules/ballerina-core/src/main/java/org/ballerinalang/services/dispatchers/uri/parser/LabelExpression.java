@@ -18,11 +18,13 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 
+/**
+ * LabelExpression represents path segments that start with ..
+ */
 public class LabelExpression extends SimpleStringExpression {
 
     public LabelExpression(String token) throws URITemplateException {

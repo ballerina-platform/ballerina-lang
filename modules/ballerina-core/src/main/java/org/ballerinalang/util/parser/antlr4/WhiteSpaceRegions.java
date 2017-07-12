@@ -175,9 +175,10 @@ public class WhiteSpaceRegions {
 
     // whitespace regions in assign statement
     public static final int ASSIGN_STMT_PRECEDING_WHITESPACE = 0;
-    public static final int ASSIGN_STMT_VAR_REF_LIST_TO_EQUAL_OPERATOR = 1;
-    public static final int ASSIGN_STMT_EQUAL_OPERATOR_TO_EXPRESSION_START = 2;
-    public static final int ASSIGN_STMT_END_TO_NEXT_TOKEN = 3;
+    public static final int ASSIGN_STMT_VAR_KEYWORD_TO_VAR_REF_LIST = 1;
+    public static final int ASSIGN_STMT_VAR_REF_LIST_TO_EQUAL_OPERATOR = 2;
+    public static final int ASSIGN_STMT_EQUAL_OPERATOR_TO_EXPRESSION_START = 3;
+    public static final int ASSIGN_STMT_END_TO_NEXT_TOKEN = 4;
 
     // whitespace regions in a if clause
     public static final int IF_CLAUSE_PRECEDING_WHITESPACE = 0;
