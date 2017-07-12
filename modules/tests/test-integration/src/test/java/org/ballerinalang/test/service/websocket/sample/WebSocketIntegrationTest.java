@@ -1,7 +1,7 @@
 package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.util.websocket.WebSocketClient;
+import org.ballerinalang.test.util.websocket.client.WebSocketClient;
 
 import java.net.URISyntaxException;
 import javax.net.ssl.SSLException;

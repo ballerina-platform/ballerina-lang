@@ -3,7 +3,7 @@ package org.ballerinalang.test.service.websocket.sample;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.websocket.WebSocketClient;
+import org.ballerinalang.test.util.websocket.client.WebSocketClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

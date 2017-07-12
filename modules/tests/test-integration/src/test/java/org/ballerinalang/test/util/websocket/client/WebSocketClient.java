@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.test.util.websocket;
+package org.ballerinalang.test.util.websocket.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
