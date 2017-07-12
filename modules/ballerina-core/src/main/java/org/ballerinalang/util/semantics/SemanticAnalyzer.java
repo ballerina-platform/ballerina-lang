@@ -913,7 +913,18 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check types
             AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
             SimpleTypeName attributeType = attributeDef.getTypeName();
-            SimpleTypeName valueType = attributeValue.getType();
+            if (attributeValue.getVarRefExpr() != null) {
+                SimpleVarRefExpr varRefExpr = attributeValue.getVarRefExpr();
+                visitSingleValueExpr(varRefExpr);
+                attributeValue.setType(varRefExpr.getType());
+                BType lhsType = BTypes.resolveType(attributeType, currentScope, annotation.getNodeLocation());
+                if (lhsType != varRefExpr.getType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES,
+                            lhsType, varRefExpr.getType());
+                }
+                return;
+            }
+            SimpleTypeName valueType = attributeValue.getTypeName();
             BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
             BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(),
                     attributeType.getPackagePath()));
@@ -927,7 +938,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
                 for (AnnotationAttributeValue value : valuesArray) {
-                    valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
+                    valueTypeSymbol = currentScope.resolve(value.getTypeName().getSymbolName());
                     if (attributeTypeSymbol != valueTypeSymbol) {
                         BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES,
                                 attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
@@ -986,7 +997,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             // If the annotation attachment contains the current attribute, and if the value is another 
             // annotationAttachment, then recursively populate its default values
             AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
-            SimpleTypeName valueType = attributeValue.getType();
+            if (attributeValue.getVarRefExpr() != null) {
+                continue;
+            }
+            SimpleTypeName valueType = attributeValue.getTypeName();
             if (valueType.isArrayType()) {
                 AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
                 for (AnnotationAttributeValue value : valuesArray) {
@@ -1444,7 +1458,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 //            ParameterDef[] returnParams = workerInvocationStmt.getCallableUnit().getReturnParameters();
 //            BType[] returnTypes = new BType[returnParams.length];
 //            for (int i = 0; i < returnParams.length; i++) {
-//                returnTypes[i] = returnParams[i].getType();
+//                returnTypes[i] = returnParams[i].getTypeName();
 //            }
 //            workerInvocationStmt.setTypes(returnTypes);
         }

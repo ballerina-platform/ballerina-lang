@@ -57,4 +57,8 @@ public class AnnotationAttachmentInfo {
     public String getName() {
         return name;
     }
+
+    public Map<String, AnnotationAttributeValue> getAttributeValueMap() {
+        return attributeValueMap;
+    }
 }

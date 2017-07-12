@@ -30,6 +30,8 @@ public class AnnotationAttributeValue {
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
+    private boolean runTimeValue = false;
+    private int memoryOffset = -1;
 
     private AnnotationAttachmentInfo annotationAttachmentValue;
 
@@ -73,6 +75,22 @@ public class AnnotationAttributeValue {
 
     public void setBooleanValue(boolean booleanValue) {
         this.booleanValue = booleanValue;
+    }
+
+    public boolean isRunTimeValue() {
+        return runTimeValue;
+    }
+
+    public void setRunTimeValue(boolean runTimeValue) {
+        this.runTimeValue = runTimeValue;
+    }
+
+    public int getMemoryOffset() {
+        return memoryOffset;
+    }
+
+    public void setMemoryOffset(int memoryOffset) {
+        this.memoryOffset = memoryOffset;
     }
 
     public AnnotationAttachmentInfo getAnnotationAttachmentValue() {

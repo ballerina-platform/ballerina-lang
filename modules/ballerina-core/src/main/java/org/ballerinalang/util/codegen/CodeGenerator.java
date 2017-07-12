@@ -140,6 +140,7 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2457,6 +2458,13 @@ public class CodeGenerator implements NodeVisitor {
             AnnotationAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(attachment);
             annotationAttribValue.setAnnotationAttachmentValue(attachmentInfo);
 
+        } else if(attributeValue.getVarRefExpr() != null) {
+            if (!(attributeValue.getVarRefExpr().getMemoryLocation() instanceof GlobalVarLocation)) {
+                throw new SemanticException("Attribute value invalid, should be a constant value");
+            }
+            annotationAttribValue.setRunTimeValue(true);
+            annotationAttribValue.setTypeTag(attributeValue.getType().getTag());
+            annotationAttribValue.setMemoryOffset(attributeValue.getMemoryLocation().getStaticMemAddrOffset());
         } else {
             annotationAttribValue.setTypeTag(TypeTags.ARRAY_TAG);
             org.ballerinalang.model.AnnotationAttributeValue[] attributeValues = attributeValue.getValueArray();

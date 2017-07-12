@@ -28,7 +28,10 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.codegen.AnnotationAttributeInfo;
+import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -84,6 +87,7 @@ public class BLangProgramRunner {
                             serviceInfo.getProtocolPkgPath());
                 }
                 // Deploy service
+                loadServiceRuntimeAnnotations(serviceInfo, programFile.getGlobalMemoryBlock());
                 DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
                         .serviceRegistered(serviceInfo);
                 serviceCount++;
@@ -100,6 +104,32 @@ public class BLangProgramRunner {
             debugManager.serviceInit();
             debugManager.setDebugEnagled(true);
         }
+    }
+
+    private void loadServiceRuntimeAnnotations(ServiceInfo serviceInfo, StructureType globalMemoryBlock) {
+        AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) serviceInfo.getAttributeInfo(
+                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+        attributeInfo.getAnnotationAttachmentInfo().forEach(a -> {
+            a.getAttributeValueMap().forEach((k, v) -> {
+                if (v.isRunTimeValue()) {
+                    int memAddress = v.getMemoryOffset();
+                    switch (v.getTypeTag()) {
+                        case 1: //INT_TAG
+                            v.setIntValue(globalMemoryBlock.getIntField(memAddress));
+                            break;
+                        case 2: //FLOAT_TAG
+                            v.setFloatValue(globalMemoryBlock.getFloatField(memAddress));
+                            break;
+                        case 3: //STRING_TAG
+                            v.setStringValue(globalMemoryBlock.getStringField(memAddress));
+                            break;
+                        case 4: //BOOLEAN_TAG
+                            v.setBooleanValue(globalMemoryBlock.getBooleanField(memAddress) == 1 ? true : false);
+                            break;
+                    }
+                }
+            });
+        });
     }
 
     public void runMain(ProgramFile programFile, String[] args) {
