@@ -51,6 +51,8 @@ public class ItemResolverConstants {
     public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String THROW = "throw";
+    public static final String TRIGGER_WORKER = "->";
+    public static final String WORKER_REPLY = "<-";
     private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
             WORKER, TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
             BREAK, THROW};
@@ -65,6 +67,20 @@ public class ItemResolverConstants {
     public static final String CONNECTOR_DEFFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
     public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
     public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
+    public static final String IF_TEMPLATE = "if (${1:true}) {\n\t${2}\n}";
+    public static final String ITERATE_TEMPLATE = "iterate (${1}) {\n\t${2}\n}";
+    public static final String WHILE_TEMPLATE = "while (${1:true}) {\n\t${2}\n}";
+    public static final String CONTINUE_TEMPLATE = "continue;";
+    public static final String BREAK_TEMPLATE = "break;";
+    public static final String FORK_TEMPLATE = "fork {\n\t${1}\n}";
+    public static final String TRY_CATCH_TEMPLATE = "try {\n\t${1}\n} catch (${2}) {\n\t${3}\n}";
+    public static final String RETURN_TEMPLATE = "return;";
+    public static final String REPLY_TEMPLATE = "reply ${1};";
+    public static final String ABORT_TEMPLATE = "abort;";
+    public static final String TRIGGER_WORKER_TEMPLATE = "${1} -> ${2};";
+    public static final String WORKER_REPLY_TEMPLATE = "${1} <- ${2};";
+    public static final String TRANSFORM_TEMPLATE = "transform {\n\t${1}\n}";
+
 
     // End of Basic Constructs
 
@@ -89,6 +105,7 @@ public class ItemResolverConstants {
     public static final String KEYWORD_TYPE = "keyword";
     public static final String ANNOTATION_TYPE = "annotation";
     public static final String CLIENT_CONNECTOR_TYPE = "connector";
+    public static final String STATEMENT_TYPE = "statement";
     public static final String NONE = "none";
     // Symbol Types Constants
 

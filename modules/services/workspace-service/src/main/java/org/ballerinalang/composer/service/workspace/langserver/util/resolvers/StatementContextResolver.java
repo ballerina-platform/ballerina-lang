@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
@@ -33,6 +34,10 @@ public class StatementContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+
+        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
+        // Add the statement templates
+        completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
         populateCompletionItemList(symbols, completionItems);
 
         return completionItems;

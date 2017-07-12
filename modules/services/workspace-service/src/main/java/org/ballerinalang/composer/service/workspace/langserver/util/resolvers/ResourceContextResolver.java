@@ -38,12 +38,12 @@ public class ResourceContextResolver extends AbstractItemResolver {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (this.isAnnotationContext(dataModel)) {
-            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
-                    .resolveItems(dataModel, symbols, resolvers));
-        } else if (dataModel.getParserRuleContext() instanceof BallerinaParser.ParameterContext) {
+        if (dataModel.getParserRuleContext() instanceof BallerinaParser.ParameterContext) {
             completionItems.addAll(resolvers.get(BallerinaParser.ParameterContext.class)
                     .resolveItems(dataModel, symbols, null));
+        } else if (this.isAnnotationContext(dataModel)) {
+            completionItems.addAll(resolvers.get(AnnotationAttachment.class)
+                    .resolveItems(dataModel, symbols, resolvers));
         }
 
         return completionItems;
