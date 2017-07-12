@@ -1,5 +1,7 @@
 package ballerina.net.fs;
 
+import ballerina.doc;
+
 annotation config attach service {
     string dirURI;
     string fileNamePattern;
@@ -14,6 +16,12 @@ annotation Sort attach service {
     string fileSortAscending;
 }
 
+@doc:Description {value: "actionAfterProcess: [MOVE | DELETE | NONE]"}
+@doc:Description {value: "actionAfterFailure: [MOVE | DELETE | NONE]"}
+@doc:Description {value: "moveAfterProcess: A valid VFS URL"}
+@doc:Description {value: "moveAfterFailure: A valid VFS URL"}
+@doc:Description {value: "moveTimestampFormat: A date-time expression"}
+@doc:Description {value: "createMoveDir: [true | false]"}
 annotation PostProcess attach service {
     string actionAfterProcess;
     string actionAfterFailure;
