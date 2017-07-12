@@ -22,7 +22,7 @@ import ServiceDefinitionAST from './../../../ast/service-definition';
 import ResourceDefinitionAST from './../../../ast/resource-definition';
 import SwaggerParser from '../../../../swagger-parser/swagger-parser';
 import SwaggerJsonVisitor from './../../../visitors/swagger-json-gen/service-definition-visitor';
-import SwaggerView from './../swagger-view';
+import SwaggerView from './../../swagger-view';
 
 /**
  * Modal for resolving merge conflicts.
@@ -78,8 +78,8 @@ class ConflictMergeModal extends React.Component {
 
         const swaggerJsonVisitor = new SwaggerJsonVisitor();
         this.props.originalServiceDef.accept(swaggerJsonVisitor);
-        this.props.swaggerView.getSwaggerData().swagger = swaggerJsonVisitor.getSwaggerJson();
-        this.props.swaggerView.updateSpecView(this.props.swaggerView.getSwaggerData().swagger);
+        this.props.swaggerView.swagger = swaggerJsonVisitor.getSwaggerJson();
+        this.props.swaggerView.syncSpec();
 
         this.hideModal();
     }

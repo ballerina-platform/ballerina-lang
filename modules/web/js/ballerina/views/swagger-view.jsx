@@ -95,11 +95,11 @@ class SwaggerView extends React.Component {
             swaggerAce.setTheme(ace.acequire(theme));
             swaggerAce.setFontSize(fontSize);
             this.swaggerAce = swaggerAce;
-            this.updateSwaggerEditorWithCurrentSwaggerSpec();
+            this.syncSpec();
         }
     }
-
-    updateSwaggerEditorWithCurrentSwaggerSpec() {
+    
+    syncSpec() {
         this.swaggerEditor.specActions.updateUrl('');
         this.swaggerEditor.specActions.updateLoadingStatus('success');
         this.swaggerEditor.specActions.updateSpec(JSON.stringify(this.swagger));
@@ -111,7 +111,7 @@ class SwaggerView extends React.Component {
      */
     updateService() {
         // we do not update the dom if swagger is not edited.
-        if (!this.swaggerAce.getUndoManager().isClean()) {
+        if (!this.swaggerAce.getSession().getUndoManager().isClean()) {
             const swaggerParser = new SwaggerParser(this.swagger, false);
             swaggerParser.mergeToService(this.props.targetService);
         }
