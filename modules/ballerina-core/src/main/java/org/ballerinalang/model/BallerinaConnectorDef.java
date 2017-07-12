@@ -58,9 +58,12 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
+    private boolean isFilterConnector;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
+
+    private BallerinaConnectorDef parentFilterConnector;
 
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -118,6 +121,22 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public int getSizeOfConnectorMem() {
         return sizeOfConnectorMem;
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
+    }
+
+    public BallerinaConnectorDef getParentFilterConnector() {
+        return parentFilterConnector;
+    }
+
+    public void setParentFilterConnector(BallerinaConnectorDef parentFilterConnector) {
+        this.parentFilterConnector = parentFilterConnector;
     }
 
 
@@ -227,6 +246,23 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public Map<SymbolName, BLangSymbol> getSymbolMap() {
         return Collections.unmodifiableMap(this.symbolMap);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaConnectorDef) {
+            BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
+            if (this.actions.length == other.actions.length) {
+                for (int i = 0; i < this.actions.length; i++) {
+                    if (!this.actions[i].equals(other.actions[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            //return this.typeName.equals(other.typeName);
+        }
+
+        return false;
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

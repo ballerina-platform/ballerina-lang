@@ -478,6 +478,46 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#filterInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#filterInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#filterInitExpressionList}.
+	 * @param ctx the parse tree
+	 */
+	void enterFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#filterInitExpressionList}.
+	 * @param ctx the parse tree
+	 */
+	void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compositeConnectorInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compositeConnectorInitExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compositeConnectorInitBody}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compositeConnectorInitBody}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#assignmentStatement}.
 	 * @param ctx the parse tree
 	 */

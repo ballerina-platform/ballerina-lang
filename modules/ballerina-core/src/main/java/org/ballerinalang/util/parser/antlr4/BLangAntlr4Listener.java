@@ -94,6 +94,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected boolean processingReturnParams = false;
     protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
     protected Stack<BLangModelBuilder.NameReference> nameReferenceStack = new Stack<>();
+    protected Stack<BallerinaParser.ExpressionListContext> filterConnectorInitStack = new Stack<>();
 
     // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
     // to create parameter when there is a named parameter
@@ -319,12 +320,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        String connectorName = ctx.Identifier().getText();
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+
+        String connectorName = ctx.Identifier().getText();
         if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
+            if (ctx.parameter() != null) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getFilterConnectorDefWS(tokenStream, ctx);
+            } else {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorDefWS(tokenStream, ctx);
+            }
         }
-        modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName);
+
+        if (ctx.parameter() != null) {
+            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, true);
+        } else {
+            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, false);
+        }
+
     }
 
     @Override
@@ -981,9 +993,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
         NodeLocation currentLocation = getCurrentLocation(ctx);
         boolean argsAvailable = ctx.expressionList() != null;
+        List<BLangModelBuilder.NameReference> filterNameReferenceList = new ArrayList<>();
+
+        if (nameReferenceStack.size() > 1) {
+            while (nameReferenceStack.size() > 1) {
+                filterNameReferenceList.add(nameReferenceStack.pop());
+            }
+        }
+
         BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
         modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
         SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
@@ -995,8 +1014,70 @@ public class BLangAntlr4Listener implements BallerinaListener {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
         }
 
-        modelBuilder.createConnectorInitExpr(currentLocation, whiteSpaceDescriptor,
-                connectorTypeName, argsAvailable);
+        if (filterNameReferenceList.size() == 0) {
+            modelBuilder.createConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    connectorTypeName, argsAvailable);
+        } else {
+                WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
+                if (isVerboseMode) {
+                    filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
+                }
+                List<Boolean> argExistenceList = new ArrayList<>();
+                for (BallerinaParser.ExpressionListContext expressionListContext : filterConnectorInitStack) {
+                    if (expressionListContext != null) {
+                        argExistenceList.add(true);
+                    } else {
+                        argExistenceList.add(false);
+                    }
+                }
+                modelBuilder.createConnectorWithFilterInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                        connectorTypeName, argsAvailable, filterWhiteSpaceDescriptor, filterNameReferenceList,
+                        argExistenceList);
+        }
+
+    }
+
+    @Override
+    public void enterFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        filterConnectorInitStack.push(ctx.expressionList());
+    }
+
+    @Override
+    public void enterFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) {
+
+    }
+
+    @Override
+    public void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) {
+
+    }
+
+    @Override
+    public void enterCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void enterCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
+
+    }
+
+    @Override
+    public void exitCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
+
     }
 
     @Override

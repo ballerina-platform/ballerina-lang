@@ -255,6 +255,35 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BallerinaAction) {
+            BallerinaAction other = (BallerinaAction) obj;
+
+            if (!this.getName().equals(other.getName())) {
+                return false;
+            }
+
+            if (this.parameterTypes.length == other.parameterTypes.length) {
+                for (int i = 1; i < this.parameterTypes.length; i++) {
+                    if (!this.parameterTypes[i].equals(other.parameterTypes[i])) {
+                        return false;
+                    }
+                }
+            }
+            if (this.returnParamTypes.length == other.returnParamTypes.length) {
+                for (int i = 0; i < this.returnParamTypes.length; i++) {
+                    if (!this.returnParamTypes[i].equals(other.returnParamTypes[i])) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void define(SymbolName name, BLangSymbol symbol) {
         symbolMap.put(name, symbol);
     }
