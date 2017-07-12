@@ -26,12 +26,14 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.DefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -118,50 +120,60 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 addConnectorSpecificKeywords(result);
             }
 
+            ConnectorDefinitionNode connectorDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                    ConnectorDefinitionNode.class);
+            if (connectorDefinitionNode != null) {
+                addConnectorSpecificKeywords(result);
+            }
 
             return;
         }
 
         if (parent instanceof NameReferenceNode) {
-            PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
-            if (prevVisibleSibling != null && "{".equals(prevVisibleSibling.getText())) {
-                FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                        FunctionDefinitionNode.class);
 
-                if (functionDefinitionNode != null) {
+            MapStructKeyValueNode mapStructKeyValueNode = PsiTreeUtil.getParentOfType(parent,
+                    MapStructKeyValueNode.class);
 
-                    // Todo - change method
-                    addAnyTypeAsLookup(result);
-                    addXmlnsAsLookup(result);
-                    addValueTypesAsLookups(result);
-                    addReferenceTypesAsLookups(result);
+            if (mapStructKeyValueNode == null) {
+                PsiElement prevVisibleSibling = PsiTreeUtil.prevVisibleLeaf(element);
+                if (prevVisibleSibling != null && "{".equals(prevVisibleSibling.getText())) {
+                    FunctionDefinitionNode functionDefinitionNode = PsiTreeUtil.getParentOfType(element,
+                            FunctionDefinitionNode.class);
 
-                    addFunctionSpecificKeywords(parameters, result);
+                    if (functionDefinitionNode != null) {
 
-                    result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
+                        // Todo - change method
+                        addAnyTypeAsLookup(result);
+                        addXmlnsAsLookup(result);
+                        addValueTypesAsLookups(result);
+                        addReferenceTypesAsLookups(result);
 
-                    addValueKeywords(result);
-                }
+                        addFunctionSpecificKeywords(parameters, result);
+
+                        result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
+
+                        addValueKeywords(result);
+                    }
 
 
-                ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
-                if (serviceBodyNode != null) {
-                    addServiceSpecificKeywords(result);
-                }
+                    ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
+                    if (serviceBodyNode != null) {
+                        addServiceSpecificKeywords(result);
+                    }
 
 
-                ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
-                if (connectorBodyNode != null) {
-                    addConnectorSpecificKeywords(result);
+                    ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
+                    if (connectorBodyNode != null) {
+                        addConnectorSpecificKeywords(result);
+                    }
+
                 }
 
             }
-
-
         }
 
 
-        if(parent instanceof ResourceDefinitionNode){
+        if (parent instanceof ResourceDefinitionNode) {
             addServiceSpecificKeywords(result);
         }
 

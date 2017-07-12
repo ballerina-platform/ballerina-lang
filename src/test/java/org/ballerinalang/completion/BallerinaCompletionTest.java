@@ -1263,16 +1263,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         doCheckResult("test.bal", "import org.test; service<http> S{<caret>}", null, '@', "test");
     }
 
-    public void testResourceAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; service S{@test<caret>}", null, ':');
-    }
-
-    public void testResourceAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null);
-    }
-
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; annotation TEST attach resource {} " +
                 "annotation TEST2 attach service {}");
@@ -1476,7 +1466,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorBodyAfterAnnotation() {
-        doTest("connector C(){ @test:test{} <caret> }", "action");
+        doTest("connector C(){ @test:test{} <caret> }", "action", "C");
     }
 
     public void testConnectorBodyVariableDeclarationPackage() {
@@ -1525,7 +1515,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
-                "import org.test; connector C(){ test:TEST t = create test:TEST }", null);
+                "import org.test; connector C(){ test:TEST t = create test:TEST() }", null);
     }
 
     /**
@@ -1675,8 +1665,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testSingleLevelStructInSameFileValue() {
-        doTest("struct Name { string firstName; } function test(){ string name=\"\"; Name name = { " +
-                "firstName:<caret> }; }", "name", "test", "false", "null", "true");
+        doTest("struct Name { string firstName; } function test(){ string firstName=\"\"; Name name = { " +
+                "firstName:<caret> }; }", "firstName", "test");
     }
 
     public void testMultiLevelStructInSameFile() {
