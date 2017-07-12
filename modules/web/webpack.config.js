@@ -87,6 +87,7 @@ const config = [{
     ],
     devServer: {
         publicPath: '/dist/',
+        contentBase: './public',
     },
     externals: {
         'jsdom': 'window',
