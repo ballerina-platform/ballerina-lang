@@ -262,11 +262,11 @@ filterInitExpressionList
     ;
 
 compositeConnectorInitExpression
-    :   'create' nameReference ('<' nameReference '>')? '(' expressionList? ')' compositeConnectorInitBody ('with' nameReference '(' expressionList? ')')?
+    :   'create' nameReference '(' compositeConnectorInitSection? (',' expressionList)? ')' ('with' filterInitExpressionList)?
     ;
 
-compositeConnectorInitBody
-    : '{' (connectorInitExpression ';')* '}'
+compositeConnectorInitSection
+    : '[' connectorInitExpression (',' connectorInitExpression)* ']'
     ;
 
 assignmentStatement

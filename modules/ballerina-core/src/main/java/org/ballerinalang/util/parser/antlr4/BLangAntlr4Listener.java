@@ -95,6 +95,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
     protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
     protected Stack<BLangModelBuilder.NameReference> nameReferenceStack = new Stack<>();
     protected Stack<BallerinaParser.ExpressionListContext> filterConnectorInitStack = new Stack<>();
+    protected SimpleTypeName compositeConnectorTypeName = null;
+    protected boolean isCompositeConnector = false;
 
     // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
     // to create parameter when there is a named parameter
@@ -915,6 +917,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String varName = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null ||
                 ctx.connectorInitExpression() != null ||
+                ctx.compositeConnectorInitExpression() != null ||
                 ctx.actionInvocation() != null;
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
@@ -997,18 +1000,25 @@ public class BLangAntlr4Listener implements BallerinaListener {
         boolean argsAvailable = ctx.expressionList() != null;
         List<BLangModelBuilder.NameReference> filterNameReferenceList = new ArrayList<>();
 
-        if (nameReferenceStack.size() > 1) {
+        if (nameReferenceStack.size() > 1 && !isCompositeConnector) {
             while (nameReferenceStack.size() > 1) {
                 filterNameReferenceList.add(nameReferenceStack.pop());
             }
         }
 
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-        SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
-                nameReference.getPackageName(), null);
+        BLangModelBuilder.NameReference nameReference;
+        SimpleTypeName connectorTypeName;
+        if (!nameReferenceStack.isEmpty()) {
+            nameReference = nameReferenceStack.pop();
+            modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+            connectorTypeName = new SimpleTypeName(nameReference.getName(),
+                    nameReference.getPackageName(), null);
+            connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
+            compositeConnectorTypeName = connectorTypeName;
+        } else {
+            connectorTypeName = compositeConnectorTypeName;
+        }
 
-        connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitExpWS(tokenStream, ctx);
@@ -1062,21 +1072,69 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
-
+        modelBuilder.startCompositeConnectorInit();
+        compositeConnectorTypeName = null;
+        isCompositeConnector = true;
     }
 
     @Override
     public void exitCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        boolean argsAvailable = ctx.expressionList() != null;
+        List<BLangModelBuilder.NameReference> filterNameReferenceList = new ArrayList<>();
+
+        if (nameReferenceStack.size() > 1) {
+            while (nameReferenceStack.size() > 1) {
+                filterNameReferenceList.add(nameReferenceStack.pop());
+            }
+        }
+
+        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
+        SimpleTypeName connectorTypeName = new SimpleTypeName(nameReference.getName(),
+                nameReference.getPackageName(), null);
+
+        connectorTypeName.setWhiteSpaceDescriptor(nameReference.getWhiteSpaceDescriptor());
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getCompositeConnectorInitExpWS(tokenStream, ctx);
+        }
+
+        if (filterNameReferenceList.size() == 0) {
+            modelBuilder.createCompositeConnectorInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    connectorTypeName, argsAvailable);
+        } else {
+            WhiteSpaceDescriptor filterWhiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                filterWhiteSpaceDescriptor = WhiteSpaceUtil.getCompositeConnectorInitWithFilterExpWS(tokenStream, ctx);
+            }
+            List<Boolean> argExistenceList = new ArrayList<>();
+            for (BallerinaParser.ExpressionListContext expressionListContext : filterConnectorInitStack) {
+                if (expressionListContext != null) {
+                    argExistenceList.add(true);
+                } else {
+                    argExistenceList.add(false);
+                }
+            }
+            modelBuilder.createCompositeConnectorWithFilterInitExpr(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                    connectorTypeName, argsAvailable, filterWhiteSpaceDescriptor, filterNameReferenceList,
+                    argExistenceList);
+        }
+        isCompositeConnector = false;
+    }
+
+    @Override
+    public void enterCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx) {
 
     }
 
     @Override
-    public void enterCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
-
-    }
-
-    @Override
-    public void exitCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) {
+    public void exitCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx) {
 
     }
 

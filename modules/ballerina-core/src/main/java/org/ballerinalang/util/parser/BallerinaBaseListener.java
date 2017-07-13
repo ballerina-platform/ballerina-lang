@@ -616,13 +616,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) { }
+	@Override public void enterCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCompositeConnectorInitBody(BallerinaParser.CompositeConnectorInitBodyContext ctx) { }
+	@Override public void exitCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

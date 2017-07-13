@@ -1997,6 +1997,27 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         connectorInitExpr.setType(inheritedType);
 
+        // Check for the composite connector init expression
+        if (connectorInitExpr.getArgExprs().length > 0 && connectorInitExpr.getArgExprs()[0] instanceof ArrayInitExpr) {
+            ParameterDef parameterDef = ((BallerinaConnectorDef) inheritedType).getParameterDefs()[0];
+            SimpleTypeName simpleTypeName = parameterDef.getTypeName();
+            BType paramType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
+
+            ArrayInitExpr arrayInitExpr = (ArrayInitExpr) connectorInitExpr.getArgExprs()[0];
+            for (Expression expression : arrayInitExpr.getArgExprs()) {
+                ConnectorInitExpr compositeInnerConnectorInit = (ConnectorInitExpr) expression;
+                SimpleTypeName compositeTypeName = compositeInnerConnectorInit.getTypeName();
+                if (paramType instanceof BArrayType) {
+                    if (((BArrayType) paramType).getElementType().getName().equals(compositeTypeName.getName())) {
+                        arrayInitExpr.setInheritedType(paramType);
+                    } else {
+                        BLangExceptionHelper.throwSemanticError
+                                (connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED);
+                    }
+                }
+            }
+        }
+
         for (Expression argExpr : connectorInitExpr.getArgExprs()) {
             visitSingleValueExpr(argExpr);
         }
@@ -2013,7 +2034,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDefs[j].setType(paramType);
 
             Expression argExpr = argExprs[i];
-            if (parameterDefs[j].getType() != argExpr.getType()) {
+            if (!(parameterDefs[j].getType().equals(argExpr.getType()))) {
                 BLangExceptionHelper.throwSemanticError(connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         parameterDefs[j].getType(), argExpr.getType());
             }
