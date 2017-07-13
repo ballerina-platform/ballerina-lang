@@ -23,20 +23,24 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple WebSocket frame handler for testing
  */
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
+    private static final Logger log = LoggerFactory.getLogger(WebSocketFrameHandler.class);
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel is active");
+        log.debug("channel is active");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel is inactive");
+        log.debug("channel is inactive");
     }
 
     @Override
@@ -44,12 +48,10 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         if (frame instanceof TextWebSocketFrame) {
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
-            System.out.println("received " + ctx.channel() + ": " + text);
             ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
         } else if (frame instanceof CloseWebSocketFrame) {
-            System.out.println("Connection is closed.");
             ctx.close();
-        }else {
+        } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);
         }

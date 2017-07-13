@@ -19,7 +19,6 @@
 package org.ballerinalang.test.util.websocket.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -54,7 +53,7 @@ public final class WebSocketServer {
         b.bind(port).sync().channel();
     }
 
-    public void close() {
+    public void stop() {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
     }
