@@ -59,7 +59,7 @@ class BallerinaASTRoot extends ASTNode {
                 // TODO : use the same check for variable def stmt when right expression
                 // is refactored to directly contain the expression.
                 if (child.getRightExpression() !== undefined) {
-                    const expression = child.getRightExpression().getChildren()[0];
+                    const expression = child.getRightExpression();
                     if (expression
                          && (factory.isFunctionInvocationExpression(expression)
                               || factory.isActionInvocationExpression(expression))
