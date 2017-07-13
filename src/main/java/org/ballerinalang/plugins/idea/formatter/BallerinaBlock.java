@@ -127,6 +127,7 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 } else if (childElementType == CODE_BLOCK_BODY) {
                     if (parentElementType == IF_ELSE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
+                            || parentElementType == CATCH_CLAUSE || parentElementType == FINALLY_CLAUSE
                             || parentElementType == JOIN_CLAUSE || parentElementType == TIMEOUT_CLAUSE
                             || parentElementType == TRANSACTION_STATEMENT || parentElementType == ABORTED_CLAUSE
                             || parentElementType == COMMITTED_CLAUSE) {

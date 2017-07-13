@@ -21,11 +21,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
-import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TryCatchStatementNode extends ANTLRPsiNode implements CodeBlockScope, ParameterContainer {
+public class TryCatchStatementNode extends ANTLRPsiNode implements CodeBlockScope {
 
     public TryCatchStatementNode(@NotNull ASTNode node) {
         super(node);

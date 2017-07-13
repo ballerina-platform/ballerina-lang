@@ -20,13 +20,13 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
+import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformStatementBodyNode extends ANTLRPsiNode implements VariableContainer {
+public class CatchClauseNode extends ANTLRPsiNode implements ParameterContainer {
 
-    public TransformStatementBodyNode(@NotNull ASTNode node) {
+    public CatchClauseNode(@NotNull ASTNode node) {
         super(node);
     }
 

@@ -16,9 +16,11 @@
 
 package org.ballerinalang.plugins.idea.psi.scopes;
 
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+
 /**
  * Indicates that the scope can contain parameters.
  */
-public interface ParameterContainer {
+public interface ParameterContainer extends ScopeNode {
 
 }

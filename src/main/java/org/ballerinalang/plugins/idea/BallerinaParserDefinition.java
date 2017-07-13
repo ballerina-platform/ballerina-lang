@@ -49,6 +49,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.AssignmentStatementNode;
 import org.ballerinalang.plugins.idea.psi.AttachmentPointNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.CatchClauseNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.CodeBlockBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
@@ -353,6 +354,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new CodeBlockBodyNode(node);
             case BallerinaParser.RULE_tryCatchStatement:
                 return new TryCatchStatementNode(node);
+            case BallerinaParser.RULE_catchClause:
+                return new CatchClauseNode(node);
             case BallerinaParser.RULE_codeBlockParameter:
                 return new CodeBlockParameterNode(node);
             case BallerinaParser.RULE_iterateStatement:

@@ -328,7 +328,20 @@ joinConditions
     ;
 
 tryCatchStatement
-    :   'try' '{' codeBlockBody '}' (( 'catch' '(' codeBlockParameter ')' '{' codeBlockBody '}' )+ ( 'finally' '{' codeBlockBody '}' )?) | ( 'finally' '{' codeBlockBody '}' )
+    :   'try' '{' codeBlockBody catchClauses '}'
+    ;
+
+catchClauses
+    : catchClause+ finallyClause?
+    | finallyClause
+    ;
+
+catchClause
+    :  '}' 'catch' '(' codeBlockParameter ')' '{' codeBlockBody
+    ;
+
+finallyClause
+    : '}' 'finally' '{' codeBlockBody
     ;
 
 throwStatement

@@ -70,6 +70,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -832,7 +833,7 @@ public class BallerinaPsiImplUtil {
             if (context != null) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
             }
-        } else if (scope instanceof LowerLevelDefinition) {
+        } else if (scope instanceof ParameterContainer || scope instanceof LowerLevelDefinition) {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllLocalVariablesInResolvableScope(context, caretOffset));
@@ -864,6 +865,11 @@ public class BallerinaPsiImplUtil {
             Collection<ExpressionVariableDefinitionStatementNode> nodes = PsiTreeUtil.findChildrenOfType(scope,
                     ExpressionVariableDefinitionStatementNode.class);
             for (ExpressionVariableDefinitionStatementNode node : nodes) {
+                ScopeNode closestScope = PsiTreeUtil.getParentOfType(node, TransformStatementNode.class);
+                if (closestScope == null || !closestScope.equals(scope)) {
+                    continue;
+                }
+
                 PsiElement identifier = node.getNameIdentifier();
                 results.add(identifier);
             }
@@ -979,7 +985,7 @@ public class BallerinaPsiImplUtil {
     @NotNull
     public static List<PsiElement> getAllParametersInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
         List<PsiElement> results = new LinkedList<>();
-        if (scope instanceof VariableContainer) {
+        if (scope instanceof VariableContainer || scope instanceof CodeBlockScope) {
             ScopeNode context = scope.getContext();
             if (context != null) {
                 results.addAll(getAllParametersInResolvableScope(context, caretOffset));
