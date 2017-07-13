@@ -7,11 +7,11 @@ import ballerina.lang.system;
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> serverConnector {
 
-    ws:ClientConnector c = create ws:ClientConnector("ws://localhost:8080/websocket", "clientService");
+    ws:ClientConnector c = create ws:ClientConnector("ws://localhost:15500/websocket", "clientService");
 
     @ws:OnTextMessage {}
-    resource ontext(message m) {
-        system:println("Clinet connector sending message: " + messages:getStringPayload(m));
+    resource onText(message m) {
+        system:println("Client connector sending message: " + messages:getStringPayload(m));
         ws:ClientConnector.pushText(c, messages:getStringPayload(m));
     }
 

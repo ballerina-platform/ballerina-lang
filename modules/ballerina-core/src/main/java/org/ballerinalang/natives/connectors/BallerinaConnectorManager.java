@@ -49,8 +49,6 @@ public class BallerinaConnectorManager {
 
     private boolean connectorsInitialized = false;
     
-    /* ServerConnectors which startup is delayed at the service deployment time */
-    // Map <ConnectorID, ServerConnector>
     private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
 
     CarbonMessageProcessor messageProcessor;
