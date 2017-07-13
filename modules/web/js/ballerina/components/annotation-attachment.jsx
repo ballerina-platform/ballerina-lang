@@ -162,15 +162,16 @@ class AnnotationAttachment extends React.Component {
     renderAttributes() {
         const model = this.props.model;
         const componentsOfAttributes = [];
-        const annotationDefModel = AnnotationHelper.getAnnotationDefinition(model.getFullPackageName(),
-                                                                                                model.getName());
+        const annotationDefModel = AnnotationHelper.getAnnotationDefinition(
+                                                this.context.environment, model.getFullPackageName(), model.getName());
         if (annotationDefModel) {
             model.getChildren().forEach((attribute) => {
                 componentsOfAttributes.push(<AnnotationAttribute
                     key={attribute.getID()}
                     model={attribute}
                     annotationDefinitionModel={
-                        AnnotationHelper.getAnnotationDefinition(model.getFullPackageName(), model.getName())}
+                        AnnotationHelper.getAnnotationDefinition(
+                                                this.context.environment, model.getFullPackageName(), model.getName())}
                 />);
             });
         } else {
@@ -187,7 +188,8 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderName() {
-        const supportedNames = AnnotationHelper.getNames(this.props.model.getParent(), this.props.model.getFullPackageName());
+        const supportedNames = AnnotationHelper.getNames(
+                        this.context.environment, this.props.model.getParent(), this.props.model.getFullPackageName());
         if (this.state.isNameInEdit && !this.props.model.getViewState().disableEdit) {
             const model = this.props.model;
             return (<AutoSuggestHtml
@@ -213,8 +215,9 @@ class AnnotationAttachment extends React.Component {
      */
     renderOperationsButton() {
         const buttons = [];
-        if (AnnotationHelper.getAnnotationDefinition(this.props.model.getFullPackageName(),
-                                        this.props.model.getName()).getAnnotationAttributeDefinitions().length > 0) {
+        const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
+                        this.context.environment, this.props.model.getFullPackageName(), this.props.model.getName());
+        if (annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
             // Add attribute button
             const addAttributeButton = {
                 icon: 'fw-add',
@@ -246,7 +249,8 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderPackageName() {
-        const supportedPackageNames = AnnotationHelper.getPackageNames(this.props.model.getParent());
+        const supportedPackageNames = AnnotationHelper.getPackageNames(
+                                                                this.context.environment, this.props.model.getParent());
         if (this.state.isPackageNameInEdit && !this.props.model.getViewState().disableEdit) {
             const model = this.props.model;
             return (<span>@
@@ -322,16 +326,12 @@ class AnnotationAttachment extends React.Component {
 
 AnnotationAttachment.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttachmentAST).isRequired,
-    parentASTNodeType: PropTypes.string,
-};
-
-AnnotationAttachment.defaultProps = {
-    parentASTNodeType: '',
 };
 
 AnnotationAttachment.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttachment;

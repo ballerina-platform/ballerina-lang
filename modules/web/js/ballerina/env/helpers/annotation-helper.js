@@ -16,8 +16,6 @@
  * under the License.
  */
 
-import BallerinaEnvironment from '../environment';
-
 /**
  * A helper class relations ballerina environment annotations.
  *
@@ -29,14 +27,15 @@ class AnnotationHelper {
      * Gets the attributes of a given package name and annotation definition name.
      *
      * @static
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
      * @param {string} fullPackageName The full package name.
      * @param {string} annotationDefinitionName The annotation definition name.
      * @returns {AnnotationAttributeDefinition[]} List of annotation attribute definitions.
      * @memberof AnnotationHelper
      */
-    static getAttributes(fullPackageName, annotationDefinitionName) {
+    static getAttributes(environment, fullPackageName, annotationDefinitionName) {
         const annotationAttributes = [];
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+        for (const packageDefintion of environment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                     if (annotationDefinition.getName() === annotationDefinitionName) {
@@ -55,13 +54,14 @@ class AnnotationHelper {
      * Gets the annotation definition of a given package name and definition name.
      *
      * @static
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
      * @param {string} fullPackageName The full package name.
      * @param {string} annotationDefinitionName The annotation definition name.
      * @returns {AnnotationDefinition|undefined} The annotation definition.
      * @memberof AnnotationHelper
      */
-    static getAnnotationDefinition(fullPackageName, annotationDefinitionName) {
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+    static getAnnotationDefinition(environment, fullPackageName, annotationDefinitionName) {
+        for (const packageDefintion of environment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                     if (annotationDefinition.getName() === annotationDefinitionName) {
@@ -76,11 +76,14 @@ class AnnotationHelper {
     /**
      * Gets the annotation names as suggestions.
      *
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
+     * @param {ASTNode} astNode The parent AST node of the annotation-attachment.
      * @param {string} fullPackageName The full package name
+     * @param {boolean} allowAnnotationWithNoAttachmentType Include package names with no attachments.
      * @returns {string[]} An array of identifiers
      * @memberof AnnotationHelper
      */
-    static getNames(astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
+    static getNames(environment, astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
         const annotationIdentifiers = [];
         const factory = astNode.getFactory();
         let attachmentType = '';
@@ -99,14 +102,15 @@ class AnnotationHelper {
         } else if (factory.isStructDefinition(astNode)) {
             attachmentType = 'struct';
         }
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+        for (const packageDefintion of environment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                     if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
                         annotationIdentifiers.push(annotationDefinition.getName());
                     }
 
-                    if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
+                    if (allowAnnotationWithNoAttachmentType &&
+                                                            annotationDefinition.getAttachmentPoints().length === 0) {
                         annotationIdentifiers.push(annotationDefinition.getName());
                     }
                 }
@@ -119,12 +123,13 @@ class AnnotationHelper {
     /**
      * Get the supported package names as suggestions
      *
-     * @param {string} attachmentType The type of attachment. Example: 'service', 'resource'.
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
+     * @param {ASTNode} astNode The parent AST node of the annotation-attachment.
      * @param {boolean} allowAnnotationWithNoAttachmentType Include package names with no attachments.
      * @returns {string[]} An array of package names.
      * @memberof AnnotationHelper
      */
-    static getPackageNames(astNode, allowAnnotationWithNoAttachmentType = true) {
+    static getPackageNames(environment, astNode, allowAnnotationWithNoAttachmentType = true) {
         const factory = astNode.getFactory();
         const packageNames = new Set();
         let attachmentType = '';
@@ -144,7 +149,7 @@ class AnnotationHelper {
             attachmentType = 'struct';
         }
 
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
+        for (const packageDefintion of environment.getPackages()) {
             for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                 if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
                     packageNames.add(packageDefintion.getName());
@@ -167,12 +172,13 @@ class AnnotationHelper {
      * @param {string} annotationDefinitionFullPackageName The full package name of the annotation definition which the
      * attribute resides.
      * @param {string} annotationDefinitionName The name of the annotation definition which the attribute resides.
-     * @returns {AnnotationAttributeDefinition}
+     * @returns {AnnotationAttributeDefinition} The matching attribute definition.
      * @memberof AnnotationHelper
      */
-    static getAttributeDefinition(attributeName, annotationDefinitionFullPackageName, annotationDefinitionName) {
+    static getAttributeDefinition(environment, attributeName, annotationDefinitionFullPackageName,
+                                                                                            annotationDefinitionName) {
         const attributesDefinitions = AnnotationHelper.getAttributes(
-                                                    annotationDefinitionFullPackageName, annotationDefinitionName);
+                                            environment, annotationDefinitionFullPackageName, annotationDefinitionName);
         return attributesDefinitions.filter((attributeDefinition) => {
             return attributeDefinition.getIdentifier() === attributeName;
         })[0];

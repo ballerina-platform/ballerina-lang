@@ -90,7 +90,8 @@ class AnnotationAttributeKey extends React.Component {
             this.props.attributeModel.setKey(suggestionValue, { doSilently: true });
 
             const attributeDefinition = this.props.annotationDefinitionModel;
-            const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(suggestionValue,
+            const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(
+                                                this.context.environment, suggestionValue,
                                                 attributeDefinition.getPackagePath(), attributeDefinition.getName());
             const annotationAttributeValue = ASTFactory.createAnnotationAttributeValue();
             if (annotationAttributeDef.isArrayType()) {
@@ -135,8 +136,8 @@ class AnnotationAttributeKey extends React.Component {
         const annotationDefinition = this.props.annotationDefinitionModel;
 
         if (annotationDefinition) {
-            this.supportedAttributes = AnnotationHelper.getAttributes(annotationDefinition.getPackagePath(),
-                                                                                        annotationDefinition.getName());
+            this.supportedAttributes = AnnotationHelper.getAttributes(
+                    this.context.environment, annotationDefinition.getPackagePath(), annotationDefinition.getName());
             return this.supportedAttributes.map((attributeDefinition) => {
                 return attributeDefinition.getIdentifier();
             });
@@ -185,6 +186,10 @@ AnnotationAttributeKey.propTypes = {
 
 AnnotationAttributeKey.defaultProps = {
     attributeModel: undefined,
+};
+
+AnnotationAttributeKey.contextTypes = {
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttributeKey;
