@@ -23,17 +23,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
+import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
-import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyNode;
 import org.ballerinalang.plugins.idea.psi.MapStructKeyValueNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TypeNameNode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
@@ -42,7 +37,6 @@ import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,7 +62,7 @@ public class StructValueReference extends BallerinaElementReference {
 
         List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                 PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
-                BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         results.addAll(packages);
 
         // Todo - improve suggesting elements from a package in StructValueNode since it will not be identified properly

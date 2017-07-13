@@ -24,11 +24,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
+import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -63,6 +64,14 @@ public class StatementReference extends BallerinaElementReference {
                     return null;
                 }
                 PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement instanceof PackageNameNode) {
+                    reference = resolvedElement.findReferenceAt(0);
+                    if (reference == null) {
+                        return null;
+                    }
+                    resolvedElement = reference.resolve();
+                }
+
                 if (!(resolvedElement instanceof PsiDirectory)) {
                     return null;
                 }
@@ -95,8 +104,15 @@ public class StatementReference extends BallerinaElementReference {
                 return new Object[0];
             }
             PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement instanceof PackageNameNode) {
+                reference = resolvedElement.findReferenceAt(0);
+                if (reference == null) {
+                    return new LookupElement[0];
+                }
+                resolvedElement = reference.resolve();
+            }
             if (!(resolvedElement instanceof PsiDirectory)) {
-                return new Object[0];
+                return new LookupElement[0];
             }
             PsiDirectory containingPackage = (PsiDirectory) resolvedElement;
             results.addAll(getVariantsInPackage(containingPackage));
@@ -141,7 +157,7 @@ public class StatementReference extends BallerinaElementReference {
 
             List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                     PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
-                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                    AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             results.addAll(packages);
 
             // Todo - use a util method

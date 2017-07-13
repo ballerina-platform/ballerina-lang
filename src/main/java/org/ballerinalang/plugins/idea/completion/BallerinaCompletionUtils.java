@@ -32,7 +32,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
@@ -499,9 +498,10 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory) {
+    public static LookupElementBuilder createPackageLookupElement(@NotNull PsiDirectory directory,
+                                                                  @NotNull String name) {
         String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
-        return LookupElementBuilder.createWithSmartPointer(directory.getName(), directory)
+        return LookupElementBuilder.createWithSmartPointer(name, directory)
                 .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
                 .withTailText("(" + suggestedImportPath + ")", true)
                 .withInsertHandler(directory.getFiles().length == 0 ?
@@ -509,9 +509,9 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
-    public static LookupElement createPackageLookupElement(@NotNull PsiDirectory directory,
+    public static LookupElement createPackageLookupElement(@NotNull PsiDirectory directory, @NotNull String name,
                                                            @Nullable InsertHandler<LookupElement> handler) {
-        return createPackageLookupElement(directory).withInsertHandler(handler);
+        return createPackageLookupElement(directory, name).withInsertHandler(handler);
     }
 
     @NotNull
@@ -589,7 +589,7 @@ public class BallerinaCompletionUtils {
         for (PsiDirectory directory : directories) {
             if (insertHandler == null) {
                 // Set the default insert handler to auto popup insert handler.
-                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+                insertHandler = AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
             }
             // Suggest a package name for the directory.
             // Eg: ballerina/lang/system -> ballerina.lang.system
@@ -632,7 +632,7 @@ public class BallerinaCompletionUtils {
                 //
                 // Eg: import org.tools as system;
                 //     import ballerina.lang.system as builtin;
-                insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_ALIAS;
+                insertHandler = AutoImportInsertHandler.INSTANCE_WITH_ALIAS;
             } else if (importsMap.containsValue(suggestedImportPath)) {
                 // This means we have already imported this package. This will be suggested by {@code
                 // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
@@ -888,7 +888,7 @@ public class BallerinaCompletionUtils {
             addAllImportedPackagesAsLookups(resultSet, file, insertHandler);
 
             // We provide a way to change the default insert handler for auto insert as well.
-            insertHandler = BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            insertHandler = AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
             if (insertHandlers.length >= 2) {
                 insertHandler = insertHandlers[1];
             }

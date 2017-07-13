@@ -44,6 +44,7 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
@@ -70,7 +71,6 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.TransformStatementBodyNode;
 import org.ballerinalang.plugins.idea.psi.TransformStatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -1157,8 +1157,9 @@ public class BallerinaPsiImplUtil {
                                                            boolean withImportedPackages,
                                                            @Nullable InsertHandler<LookupElement> importedPackageIH,
                                                            boolean withUnImportedPackages,
-                                                           @Nullable InsertHandler<LookupElement> unimportedPackageIH) {
+                                                           @Nullable InsertHandler<LookupElement> unImportedPackageIH) {
         List<LookupElement> results = new LinkedList<>();
+        List<String> importedPackageNames = new LinkedList<>();
         if (withImportedPackages) {
             List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(file);
             for (PsiElement importedPackage : importedPackages) {
@@ -1172,15 +1173,22 @@ public class BallerinaPsiImplUtil {
                 }
                 PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
                 LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                        importedPackageIH);
+                        importedPackage.getText(), importedPackageIH);
                 results.add(lookupElement);
+                importedPackageNames.add(importedPackage.getText());
             }
         }
         if (withUnImportedPackages) {
             List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages(file);
             for (PsiDirectory unImportedPackage : unImportedPackages) {
-                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                        unimportedPackageIH);
+                LookupElement lookupElement;
+                if (importedPackageNames.contains(unImportedPackage.getName())) {
+                    lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                            unImportedPackage.getName(), AutoImportInsertHandler.INSTANCE_WITH_ALIAS_WITH_POPUP);
+                } else {
+                    lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
+                            unImportedPackage.getName(), unImportedPackageIH);
+                }
                 results.add(lookupElement);
             }
         }

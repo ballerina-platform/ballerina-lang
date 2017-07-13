@@ -93,7 +93,7 @@ public class BallerinaCompletionContributor extends CompletionContributor {
         } else {
             BasicInsertHandler basicInsertHandler = new BasicInsertHandler();
             InsertHandler[] insertHandlers = new InsertHandler[]{basicInsertHandler,
-                    BallerinaAutoImportInsertHandler.INSTANCE};
+                    AutoImportInsertHandler.INSTANCE};
             addLookups(resultSet, originalFile, true, false, false, false, insertHandlers);
         }
     }

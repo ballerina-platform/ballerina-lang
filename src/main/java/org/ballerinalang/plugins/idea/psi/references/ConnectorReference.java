@@ -22,7 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.completion.BallerinaAutoImportInsertHandler;
+import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.completion.ParenthesisInsertHandler;
@@ -115,7 +115,7 @@ public class ConnectorReference extends BallerinaElementReference {
         }
         List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                 PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
-                BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+                AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         results.addAll(packages);
         return results;
     }
@@ -128,6 +128,13 @@ public class ConnectorReference extends BallerinaElementReference {
             return results;
         }
         PsiElement resolvedElement = reference.resolve();
+        if (resolvedElement instanceof PackageNameNode) {
+            reference = resolvedElement.findReferenceAt(0);
+            if (reference == null) {
+                return null;
+            }
+            resolvedElement = reference.resolve();
+        }
         if (resolvedElement == null) {
             return results;
         }
