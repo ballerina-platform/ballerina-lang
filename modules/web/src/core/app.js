@@ -18,7 +18,10 @@
 import $ from 'jquery';
 import log from 'log';
 import _ from 'lodash';
+import 'css/preloader.css';
 import CommandManager from 'command/command';
+import LayoutManager from './layout-manager';
+
 
 class Application {
 
@@ -28,7 +31,14 @@ class Application {
      * @param {Object} config configuration options for the application
      */
     constructor(config) {
-    
+        // layout manager will be a special plugin.
+        this.layoutManager = new LayoutManager(config);
+        this.plugins = [
+            this.layoutManager,
+        ];
+        // initialise the plugins
+
+        // activate plugins
     }
 
     /**
@@ -38,6 +48,7 @@ class Application {
      */
     render() {
         alert('App Rendered');
+        this.layoutManager.render();
         this.hidePreLoader();
     }
 
