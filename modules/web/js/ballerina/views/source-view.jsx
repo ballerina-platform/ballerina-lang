@@ -95,7 +95,7 @@ class SourceView extends React.Component {
                     const completer = SourceViewCompleterFactory.getSourceViewCompleter(langserverClient);
                     langTools.setCompleters(completer);
                 })
-                .catch(log.error);
+                .catch(error => log.error(error));
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
             this.props.commandManager.getCommands().forEach((command) => {
@@ -129,7 +129,7 @@ class SourceView extends React.Component {
                 const formattedContent = sourceGenVisitor.getGeneratedSource();
                 this.replaceContent(formattedContent, false);
             })
-            .catch(log.error);
+            .catch(error => log.error(error));
     }
 
     /**

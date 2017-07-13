@@ -54,6 +54,7 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            parsePending: false,
             swaggerViewTargetService: undefined,
             parseFailed: true,
             syntaxErrors: [],
@@ -88,7 +89,9 @@ class BallerinaFileEditor extends React.Component {
         // parse the file & build the tree
         // then init the env with parsed symbols
         this.validateAndParseFile()
-            .then(state => this.setState(state))
+            .then(state => {
+                this.setState(state)
+            })
             .catch(error => log.error(error));
     }
 
@@ -140,20 +143,19 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
-        const newState = {
+        this.setState({
             activeView: newView
-        }
+        });
+        this.update();
         // if modifications were done from source view
         // reparse the file
         if (this.sourceModified) {
             this.validateAndParseFile()
                 .then((state) => {
                     this.sourceModified = false;
-                    this.setState(_.merge(state, newState));
+                    this.setState(state);
                 })
                 .catch(error => log.error(error));
-        } else {
-            this.setState(newState);
         }
     }
 
@@ -179,10 +181,15 @@ class BallerinaFileEditor extends React.Component {
      * 
      */
     validateAndParseFile() {
+        this.setState({
+            parsePending: true,
+        })
         const file = this.props.file;
         return new Promise((resolve, reject) => {
             // final state to be passed into resolve
-            let newState = {};
+            let newState = {
+                parsePending: false,
+            };
             // first validate the file for syntax errors
             validateFile(file)
                 .then((errors) => {
@@ -248,11 +255,11 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
-        // Desiding which view to show depends on several factors.
-        // Eventhough we have a state called activeView, we cannot simply decide from that.
+        // Decision on which view to show, depends on several factors.
+        // Even-though we have a state called activeView, we cannot simply decide on that value.
         // For example, for the design-view or the swagger-view to be active, we need to make sure
-        // that the file is parsed properly and an AST is available. For these reasons, we 
-        // use several other states such as parseFailed, syntaxErrors, etc. to decide
+        // that the file is parsed properly and an AST is available. For this reason and more, we 
+        // use several other states called parseFailed, syntaxErrors, etc. to decide
         // which view to show.
         // ----------------------------
         // syntaxErrors  - An array of errors received from validator service.
@@ -266,16 +273,22 @@ class BallerinaFileEditor extends React.Component {
         const showSwaggerView = !this.state.parseFailed 
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW;
+        const showLoadingOverlay = this.state.parsePending;
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
-        if (showDesignView) {
-            this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
-        } else {
+        if (showSourceView || showLoadingOverlay) {
             this.props.tabHeader.addClass(sourceViewTabHeaderClass);
+        } else {
+            this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
         }
 
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
+                <div className='bal-file-editor-loading-container' style={{ display: showLoadingOverlay ? 'block' : 'none' }}>
+                    <div id="parse-pending-loader">
+                        loading                      
+                    </div>
+                </div>
                 <div style={{ display: showDesignView ? 'block' : 'none' }}>
                     <DesignView model={this.state.model} />
                 </div>

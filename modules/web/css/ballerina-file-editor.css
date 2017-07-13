@@ -1012,3 +1012,47 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 .annotation-attribute-value-wrapper, .annotation-attachment-name {
     padding-left: 5px;
 }
+
+.bal-file-editor-loading-container {
+    z-index: 1000;
+    text-align: center;
+    vertical-align: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(60, 60, 60);
+    color: white;
+    opacity: 1;
+}
+
+#parse-pending-loader{
+    left: calc(50% - 132px);
+    top: 50%;
+    position:absolute;
+	width:234px;
+    height:28px;
+    font-size: 16px;
+    margin:auto;
+}
+
+#parse-pending-loader:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026";
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 20px;    
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 20px;    
+  }
+}
