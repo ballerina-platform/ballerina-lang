@@ -97,7 +97,7 @@ class FileTab extends Tab {
         const fileEditorEventChannel = new EventChannel();
         const editorProps = {
             file: this.file,
-            tabHeader: this.getHeader(),
+            tab: this,
             commandManager: this.app.commandManager,
         };
 

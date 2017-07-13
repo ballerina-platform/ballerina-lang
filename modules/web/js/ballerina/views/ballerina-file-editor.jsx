@@ -33,7 +33,7 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
+import { CONTENT_MODIFIED, TAB_ACTIVATE } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 
 const sourceViewTabHeaderClass = 'inverse';
@@ -80,6 +80,10 @@ class BallerinaFileEditor extends React.Component {
             }
         });
         this.environment = new PackageScopedEnvironment();
+        // FIXME: ToolPalette doesn't consume full height if tab was
+        // not active while initial loading
+        // listening to 'tab-activate' and calling re-render to avoid that
+        this.props.tab.on(TAB_ACTIVATE, () => this.update());
     }
 
     /**
@@ -277,9 +281,9 @@ class BallerinaFileEditor extends React.Component {
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
         if (showSourceView || showLoadingOverlay) {
-            this.props.tabHeader.addClass(sourceViewTabHeaderClass);
+            this.props.tab.getHeader().addClass(sourceViewTabHeaderClass);
         } else {
-            this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
+            this.props.tab.getHeader().removeClass(sourceViewTabHeaderClass);
         }
 
         return (
@@ -305,7 +309,7 @@ class BallerinaFileEditor extends React.Component {
 
 BallerinaFileEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    tabHeader: PropTypes.instanceOf(Object).isRequired,
+    tab: PropTypes.instanceOf(Object).isRequired,
     commandManager: PropTypes.instanceOf(commandManager).isRequired
 };
 
