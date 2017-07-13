@@ -20,24 +20,27 @@ import UndoableOperation from './undoable-operation';
 import SwitchToSourceViewConfirmDialog from './../../dialog/switch-to-source-confirm-dialog';
 
 /**
- * Class to represent an undoable source modify operation
- * @class SourceModifyOperation
+ * Class to represent an undoable operation in ballerina file editor
+ * 
+ * @class UndoableBalEditorOperation
  * @augments UndoableOperation
- * @param args
- * @constructor
  */
-class SourceModifyOperation extends UndoableOperation {
+class UndoableBalEditorOperation extends UndoableOperation {
     constructor(args) {
-        super(args);
+        super({
+            oldContent: args.changeEvent.oldContent,
+            newContent: args.changeEvent.newContent,
+            file: args.file,
+        });
+        if (args.changeEvent.originEvt.type === 'tree-modified') {
+            this.setTitle(args.changeEvent.originEvt.originEvt.title);
+        } else if (args.changeEvent.originEvt.type === 'source-modified') {
+            this.setTitle('Modify Source');
+        }
     }
 
     undo() {
-        let file = this.getEditor().getFile(),
-            sourceView = this.getEditor().getSourceView();
-        sourceView.undo();
-        file.setContent(sourceView.getContent())
-            .setDirty(true)
-            .save();
+        
     }
 
     prepareUndo(next) {
@@ -56,12 +59,6 @@ class SourceModifyOperation extends UndoableOperation {
     }
 
     redo() {
-        let file = this.getEditor().getFile(),
-            sourceView = this.getEditor().getSourceView();
-        sourceView.redo();
-        file.setContent(sourceView.getContent())
-            .setDirty(true)
-            .save();
     }
 
     prepareRedo(next) {
@@ -80,4 +77,4 @@ class SourceModifyOperation extends UndoableOperation {
     }
 }
 
-export default SourceModifyOperation;
+export default UndoableBalEditorOperation;

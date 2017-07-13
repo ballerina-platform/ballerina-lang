@@ -1,4 +1,4 @@
-let config = {
+const config = {
     container: '#page-content',
     welcome: {
         container: '#welcome-container',
@@ -436,26 +436,5 @@ let config = {
         },
     },
 };
-
-
-// PRODUCTION is a global variable set by webpack DefinePlugin
-// it will be set to "true" in the production build.
-let configUrl = '';
-if (PRODUCTION != undefined && PRODUCTION) {
-    configUrl = '/config';
-} else {
-    // following is to support development mode where we will have static config for services.
-    configUrl = 'http://localhost:9091/config';
-}
-
-// lets overide configs sent from the server
-$.ajax({
-    url: configUrl,
-    dataType: 'json',
-    success: (data) => {
-        config = _.merge(data, config);
-    },
-    async: false,
-});
 
 export default config;

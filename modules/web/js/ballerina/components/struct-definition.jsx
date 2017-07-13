@@ -22,7 +22,6 @@ import Alerts from 'alerts';
 import PanelDecorator from './panel-decorator';
 import './struct-definition.css';
 import PropTypes from 'prop-types';
-import StructOperationsRenderer from './struct-operations-renderer';
 import Renderer from './renderer';
 import ASTNode from './../ast/node';
 import * as DesignerDefaults from './../configs/designer-defaults';
@@ -148,7 +147,10 @@ class StructDefinition extends React.Component {
         const self = this;
         this.renderTextBox(textValue, bBox, (value) => {
             value = this.addQuotesToString(type, value);
-            if (model) {
+            if (!value || !value.length) {
+                const valueArrayId = model.getChildren()[1].id;
+                model.removeChildById(valueArrayId);
+            } else if (model) {
                 model.setValue(value);
             } else {
                 self.setState({
@@ -238,8 +240,8 @@ class StructDefinition extends React.Component {
             width: columnSize - columnPadding / 2,
             height: h - panelPadding * 2,
         };
-        const { renderingContext } = this.context;
-        const structSuggestions = renderingContext.environment.getTypes().map(name => ({ name }));
+        const { environment } = this.context;
+        const structSuggestions = environment.getTypes().map(name => ({ name }));
         return (
             <g>
                 <rect x={x} y={y} width={w} height={h} className="struct-content-operations-wrapper" fill="#3d3d3d" />
@@ -306,14 +308,14 @@ class StructDefinition extends React.Component {
      * @param {function} callback - Callback function
      */
     renderTextBox(textValue, bBox, callback) {
-        this.context.renderer.renderTextBox({
+        Renderer.renderTextBox({
             bBox,
             display: true,
             initialValue: textValue || '',
             onChange(value) {
                 callback(value);
             },
-        });
+        }, this.context.getOverlayContainer());
     }
     /**
      * @inheritdoc
@@ -433,9 +435,8 @@ class StructDefinition extends React.Component {
 }
 
 StructDefinition.contextTypes = {
-    structOperationsRenderer: PropTypes.instanceOf(StructOperationsRenderer).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default StructDefinition;

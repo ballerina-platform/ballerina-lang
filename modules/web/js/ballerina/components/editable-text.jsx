@@ -50,7 +50,7 @@ class EditableText extends React.Component {
     }
 
     componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.overlay);
+        ReactDOM.render(<noscript />, this.context.getOverlayContainer());
     }
 
     renderTextBox() {
@@ -90,7 +90,7 @@ class EditableText extends React.Component {
 
         const inputElement = (<input {...inputProps} className={inputClass} />);
 
-        ReactDOM.render(inputElement, this.context.overlay);
+        ReactDOM.render(inputElement, this.context.getOverlayContainer());
     }
 
     render() {
@@ -114,7 +114,7 @@ class EditableText extends React.Component {
 }
 
 EditableText.contextTypes = {
-    overlay: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default EditableText;

@@ -82,11 +82,10 @@ class TransformStatementDecorator extends React.Component {
      */
     onJumptoCodeLine() {
         const { viewState: { fullExpression } } = this.props;
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
+        const { editor } = this.context;
 
-        const container = ballerinaFileEditor._container;
-        $(container).find('.view-source-btn').trigger('click');
-        ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
+        editor.setActiveView('SOURCE_VIEW');
+        editor.jumpToLine({ expression: fullExpression });
     }
     /**
      * Renders breakpoint indicator
@@ -282,7 +281,7 @@ class TransformStatementDecorator extends React.Component {
         span.onclick =  () => {
             document.getElementById('transformOverlay').style.display = 'none';
             $(transformOverlay).remove();
-            this.context.editor.setTransformState(false);
+            this.context.designView.setTransformActive(false);
         };
 
         let onConnectionCallback = function(connection) {
@@ -427,15 +426,15 @@ class TransformStatementDecorator extends React.Component {
         });
 
         // update the tool palette.
-        this.context.editor.setTransformState(true);
+        this.context.designView.setTransformActive(true);
     }
 
     getStructDefinition(packageIdentifier, structName) {
         let _package;
         if (packageIdentifier !== undefined) {
-            _package = this.context.renderingContext.getPackagedScopedEnvironment().getPackageByIdentifier(packageIdentifier);
+            _package = this.context.environment.getPackageByIdentifier(packageIdentifier);
         } else {
-            _package = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+            _package = this.context.environment.getCurrentPackage();
         }
 
         if (_package === undefined) {
@@ -449,7 +448,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     getFunctionDefinition(functionInvocationExpression) {
-        const funPackage = this.context.renderingContext.packagedScopedEnvironemnt.getPackageByName(
+        const funPackage = this.context.environment.getPackageByName(
 						functionInvocationExpression.getFullPackageName());
         return funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
     }
@@ -965,10 +964,11 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
 
     openExpressionEditor(e) {
         const options = this.props.editorOptions;
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.environment;
         if (options) {
             new ExpressionEditor(this.statementBox,
-                text => this.onUpdate(text), options, packageScope).render(this.context.container);
+                text => this.onUpdate(text), options, packageScope)
+                    .render(this.context.getOverlayContainer());
         }
     }
 
@@ -1083,10 +1083,11 @@ TransformStatementDecorator.propTypes = {
 };
 
 TransformStatementDecorator.contextTypes = {
+     designView: PropTypes.instanceOf(Object).isRequired,
      editor: PropTypes.instanceOf(Object).isRequired,
 	 dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-	 container: PropTypes.instanceOf(Object).isRequired,
-	 renderingContext: PropTypes.instanceOf(Object).isRequired,
+	 getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+	 environment: PropTypes.instanceOf(Object).isRequired,
 	 activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 

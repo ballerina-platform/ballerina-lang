@@ -167,10 +167,10 @@ class StatementDecorator extends React.PureComponent {
      */
     onJumpToCodeLine() {
         const { viewState: { fullExpression } } = this.props;
-        const { renderingContext: { ballerinaFileEditor } } = this.context;
+        const { editor } = this.context;
 
-        document.getElementsByClassName('view-source-btn')[0].click();
-        ballerinaFileEditor.getSourceView().jumpToLine({ expression: fullExpression });
+        editor.setActiveView('SOURCE_VIEW');
+        editor.jumpToLine({ expression: fullExpression });
     }
 
     /**
@@ -199,10 +199,10 @@ class StatementDecorator extends React.PureComponent {
      */
     openEditor() {
         const options = this.props.editorOptions;
-        const packageScope = this.context.renderingContext.packagedScopedEnvironemnt;
+        const packageScope = this.context.environment;
         if (options) {
             new ExpressionEditor(this.state.statementBox,
-                text => this.onUpdate(text), options, packageScope).render(this.context.container);
+                text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
         }
     }
 
@@ -351,8 +351,9 @@ StatementDecorator.propTypes = {
 StatementDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
