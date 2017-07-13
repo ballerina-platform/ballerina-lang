@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import $ from 'jquery';
 import log from 'log';
 import _ from 'lodash';
 import CommandManager from 'command/command';
@@ -31,8 +31,26 @@ class Application {
     
     }
 
+    /**
+     * Render Composer.
+     *
+     * @memberof Application
+     */
     render() {
         alert('App Rendered');
+        this.hidePreLoader();
+    }
+
+    /**
+     * Hide the preloader. This will be called once the application rendering is completed.
+     *
+     * @memberof Application
+     */
+    hidePreLoader() {
+        $('body')
+            .loading('hide')
+            .removeAttr('data-toggle')
+            .removeAttr('data-loading-style');
     }
 }
 
