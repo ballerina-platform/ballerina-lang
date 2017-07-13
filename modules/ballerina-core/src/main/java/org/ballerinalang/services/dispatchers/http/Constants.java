@@ -42,6 +42,9 @@ public class Constants {
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String HTTP_CONTENT_LENGTH = "Content-Length";
     public static final String USER_AGENT_HEADER = "User-Agent";
+    public static final String CONTENT_TYPE_HEADER = "Content-Type";
+    public static final String ACCEPT_HEADER = "Accept";
+    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String PROTOCOL = "PROTOCOL";
     public static final String HOST = "HOST";
     public static final String PORT = "PORT";
@@ -61,6 +64,8 @@ public class Constants {
     /* Annotations */
     public static final String ANNOTATION_NAME_PATH = "Path";
     public static final String ANNOTATION_NAME_CONFIG = "config";
+    public static final String ANNOTATION_NAME_CONSUMES = "Consumes";
+    public static final String ANNOTATION_NAME_PRODUCES = "Produces";
     public static final String ANNOTATION_ATTRIBUTE_HOST = "host";
     public static final String ANNOTATION_ATTRIBUTE_PORT = "port";
     public static final String ANNOTATION_ATTRIBUTE_BASE_PATH = "basePath";
