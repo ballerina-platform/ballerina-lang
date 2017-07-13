@@ -608,6 +608,21 @@ class ASTNode extends EventChannel {
     getNodeIndex() {
         return !_.isNil(this.getParent()) ? this.getParent().getIndexOfChild(this) : -1;
     }
+
+    /**
+     * Gets the next ast node of the current node.
+     *
+     * @returns {ASTNode|undefined} The next node.
+     * @memberof ASTNode
+     */
+    getNextChild() {
+        const currentNodeIndex = this.getParent().getIndexOfChild(this);
+        const childrenLength = this.getParent().getChildren().length;
+        if (currentNodeIndex + 1 > childrenLength + 1) {
+            return undefined;
+        }
+        return this.getParent().getChildren()[currentNodeIndex + 1];
+    }
 }
 
 // Auto generated Id for service definitions (for accordion views)

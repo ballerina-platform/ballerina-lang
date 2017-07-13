@@ -18,12 +18,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import _ from 'lodash';
-import BallerinaEnvironment from '../env/environment';
 import ASTFactory from './../ast/ballerina-ast-factory';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import { getComponentForNodeArray } from './utils';
 import AnnotationContainerUtil from '../components/utils/annotation-container';
+import AnnotationHelper from './../env/helpers/annotation-helper';
 
 /**
  * React component for the annotation container.
@@ -142,13 +141,13 @@ class AnnotationContainer extends React.Component {
         this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
 
 
-        const newAnnotation = ASTFactory.createAnnotation({
+        const newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
             fullPackageName: this.state.selectedPackageNameValue,
             packageName: packagePrefix,
-            identifier: suggestionValue,
+            name: suggestionValue,
         });
 
-        this.props.model.parentNode.addChild(newAnnotation);
+        this.props.model.parentNode.addChild(newAnnotationAttachment);
 
         // Resetting the state of the component.
         this.setState({
@@ -269,16 +268,16 @@ class AnnotationContainer extends React.Component {
 
         // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already
         // filtered by attatchment points.
-        const selectedAnnotations = this.getSupportedAnnotation().filter(
-                                    annotationObj => annotationObj.packageName === this.state.selectedPackageNameValue);
-
-        // Get an object array of the supported annotations with the name/identifier of an annotation.
-        const annotationNames = selectedAnnotations.map(supportedAnnotation => ({
-            name: supportedAnnotation.annotationDefinition.getName(),
-        }));
+        let names = AnnotationHelper.getNames(
+                    this.context.environment, this.props.model.parentNode, this.state.selectedPackageNameValue);
+        names = names.map((name) => {
+            return {
+                name,
+            };
+        });
 
         // Filtering the annotations with the typed in value.
-        return annotationNames.filter(annotationName => regex.test(annotationName.name));
+        return names.filter(nameObject => regex.test(nameObject.name));
     }
 
     /**
@@ -305,10 +304,17 @@ class AnnotationContainer extends React.Component {
         const escapedValue = this.escapeRegexCharacters(value.trim());
 
         const regex = new RegExp(`^${escapedValue}`, 'i');
-        const supportedAnnotations = this.getSupportedAnnotation();
-        const packageNameSuggestions = this.getPackageNameSuggestions(supportedAnnotations);
 
-        return packageNameSuggestions.filter(packageName => regex.test(packageName.name));
+        let packageNameSuggestions = AnnotationHelper.getPackageNames(
+                                                                this.context.environment, this.props.model.parentNode);
+
+        packageNameSuggestions = packageNameSuggestions.map((name) => {
+            return {
+                name,
+            };
+        });
+
+        return packageNameSuggestions.filter(packageNameObject => regex.test(packageNameObject.name));
     }
 
     /**
@@ -326,44 +332,6 @@ class AnnotationContainer extends React.Component {
 
         return tempPackageNameSuggestions.filter(
                                         (obj, pos, arr) => arr.map(mapObj => mapObj.name).indexOf(obj.name) === pos);
-    }
-
-    /**
-     * Gets the supported annotation depending on the type of node
-     *
-     * @returns {AnnotationDefinition[]} Supported annotations.
-     *
-     * @memberof AnnotationContainer
-     */
-    getSupportedAnnotation() {
-        const supportedAnnotations = [];
-        let attachmentType = '';
-        if (ASTFactory.isServiceDefinition(this.props.model.parentNode)) {
-            attachmentType = 'service';
-        } else if (ASTFactory.isResourceDefinition(this.props.model.parentNode)) {
-            attachmentType = 'resource';
-        } else if (ASTFactory.isFunctionDefinition(this.props.model.parentNode)) {
-            attachmentType = 'function';
-        } else if (ASTFactory.isConnectorDefinition(this.props.model.parentNode)) {
-            attachmentType = 'connector';
-        } else if (ASTFactory.isConnectorAction(this.props.model.parentNode)) {
-            attachmentType = 'action';
-        } else if (ASTFactory.isAnnotationDefinition(this.props.model.parentNode)) {
-            attachmentType = 'annotation';
-        } else if (ASTFactory.isStructDefinition(this.props.model.parentNode)) {
-            attachmentType = 'struct';
-        }
-        // TODO : Add the rest of the attatchment points.
-
-        for (const packageDefintion of BallerinaEnvironment.getPackages()) {
-            for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                if (_.includes(annotationDefinition.getAttachmentPoints(), attachmentType)) {
-                    supportedAnnotations.push({ packageName: packageDefintion.getName(), annotationDefinition });
-                }
-            }
-        }
-
-        return supportedAnnotations;
     }
 
     /**
@@ -423,7 +391,7 @@ class AnnotationContainer extends React.Component {
         };
 
         // Getting the components for the annotation of the current model.
-        const annotations = getComponentForNodeArray(this.props.model.annotations);
+        const annotations = getComponentForNodeArray(this.props.model.getAnnotations());
 
         if (this.state.hasPackageNameSelected) {
             // Input properties for the package name
@@ -488,6 +456,7 @@ AnnotationContainer.propTypes = {
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationContainer;

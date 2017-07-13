@@ -516,7 +516,9 @@ const ExportDiagramDialog = Backbone.View.extend({
                     }&config=${  encodeURIComponent(config)}`;
                 callServer(payload);
             } else if (fileType === "PNG") {
-                let canvas = $("<canvas width='1541' height='1005'/>")[0];
+                const tab = $("#" + app.tabController.activeTab.id);
+                const svgElement = tab.find('.svg-container');
+                const canvas = $(`<canvas width='${svgElement.width()}' height='${svgElement.height()}'/>`)[0];
                 let ctx = canvas.getContext("2d");
                 let image = new Image();
                 image.onload = function load() {
@@ -524,10 +526,9 @@ const ExportDiagramDialog = Backbone.View.extend({
                     let png = canvas.toDataURL("image/png");
                     let img = png.replace('data:image/png;base64,', '');
                     img = img.replace(' ', '+');
-                    payload = `location=${  btoa(location)  }&configName=${  btoa(configName)
-                        }&imageFile=true&config=${encodeURIComponent(img)}`;
+                    payload = `location=${btoa(location)}&configName=${btoa(configName)}&
+                    imageFile=true&config=${encodeURIComponent(img)}`;
                     callServer(payload);
-                    $(".diagram").append(`<img src="${png}"/>`);
                 };
                 image.src = 'data:image/svg+xml;charset-utf-8,' + encodeURIComponent(config);
             }

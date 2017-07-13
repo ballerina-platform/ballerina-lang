@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import VariableDefinitionStatementVisitor from './variable-definition-statement-visitor';
 
 /**
@@ -46,12 +47,11 @@ class StructDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        _.forEach(structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotation), (annotationNode) => {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        });
+        structDefinition.getChildrenOfType(structDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
+            });
 
         const lineNumber = this.getTotalNumberOfLinesInSource()
             + this.getEndLinesInSegment(constructedSourceSegment) + 1;

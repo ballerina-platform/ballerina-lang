@@ -17,7 +17,6 @@
  */
 import ASTFactory from './../ast/ballerina-ast-factory';
 import AnnotationContainer from '../components/utils/annotation-container';
-import SimpleBBox from './../ast/simple-bounding-box';
 
 class AnnotationRenderingVisitor {
 
@@ -26,36 +25,41 @@ class AnnotationRenderingVisitor {
         this.hiddenService = false;
     }
 
-    canVisit(node) {
+    canVisit() {
         return true;
     }
 
-    visit(node) {
+    visit() {
         // do nothing
         return undefined;
     }
 
     beginVisit(node) {
+        const annotations = node.getChildrenOfType(ASTFactory.isAnnotationAttachment);
+
         if (ASTFactory.isServiceDefinition(node) || ASTFactory.isResourceDefinition(node) ||
             ASTFactory.isFunctionDefinition(node) || ASTFactory.isConnectorDefinition(node) ||
             ASTFactory.isConnectorAction(node) || ASTFactory.isAnnotationDefinition(node) ||
                 ASTFactory.isStructDefinition(node)) {
-            const annotations = node.filterChildren((child) => {
-                return ASTFactory.isAnnotation(child);
-            });
-
             if (node.viewState.showAnnotationContainer && !node.getParent().getViewState().collapsed) {
                 const bBox = Object.assign({}, node.viewState.bBox);
                 bBox.h = node.viewState.components.annotation.h;
-                this.annotations.push(
-                    new AnnotationContainer(bBox, annotations, node),
-                );
+                this.annotations.push(new AnnotationContainer(bBox, annotations, node));
             }
+            annotations.forEach((annotation) => {
+                annotation.getViewState().disableEdit = false;
+            });
+        } else {
+            annotations.forEach((annotation) => {
+                annotation.getViewState().disableEdit = true;
+            });
         }
+
         // hide annotations of resources if service is hidded
         if (ASTFactory.isServiceDefinition(node) || ASTFactory.isConnectorDefinition(node)) {
             this.hiddenService = node.viewState.collapsed;
         }
+
         return undefined;
     }
 

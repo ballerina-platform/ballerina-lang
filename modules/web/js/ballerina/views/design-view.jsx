@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BallerinaDiagram from './../components/diagram';
+import TransformExpanded from '../components/transform-expanded';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import MessageManager from './../visitors/message-manager';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
@@ -30,9 +31,10 @@ class DesignView extends React.Component {
         this.diagramContainer = ref;
     }
 
-    setTransformActive(isTransformActive) {
+    setTransformActive(isTransformActive, activeTransformModel) {
         this.setState({
             isTransformActive,
+            activeTransformModel,
         });
     }
 
@@ -71,21 +73,32 @@ class DesignView extends React.Component {
     }
 
     render() {
+        const { isTransformActive, activeTransformModel } = this.state
+
         return (
             <div className="design-view-container">
                 <div className="canvas-container">
                     <div className="canvas-top-controls-container"></div>
                     <div className="html-overlay" ref={this.setOverlayContainer} />
                     <div className="diagram root" ref={this.setDiagramContainer} >
-                        <BallerinaDiagram model={this.props.model} />
+                        <BallerinaDiagram
+                            style={{ display: isTransformActive ? 'none' : 'block' }}
+                            model={this.props.model}
+                        />
+                        {isTransformActive &&
+                            <TransformExpanded
+                                style={{ display: isTransformActive ? 'block' : 'none' }}
+                                model={activeTransformModel}
+                            />
+                        }
                     </div>
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
-                    <ToolPaletteView getContainer={this.getToolPaletteContainer} 
-                        isTransformActive={this.state.isTransformActive} />
+                    <ToolPaletteView getContainer={this.getToolPaletteContainer}
+                        isTransformActive={isTransformActive} />
                 </div>
                 <div className="top-right-controls-container">
-                    <div className={`top-right-controls-container-editor-pane 
+                    <div className={`top-right-controls-container-editor-pane
                             main-action-wrapper import-packages-pane`}
                     >
                         <div className="action-content-wrapper">
@@ -113,7 +126,7 @@ class DesignView extends React.Component {
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
-                        <div className="bottom-view-label" 
+                        <div className="bottom-view-label"
                                 onClick={ () => {
                                     this.context.editor.setActiveView('SOURCE_VIEW');
                                 } }>
