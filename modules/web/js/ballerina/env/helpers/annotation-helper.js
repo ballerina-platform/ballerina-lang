@@ -80,12 +80,35 @@ class AnnotationHelper {
      * @returns {string[]} An array of identifiers
      * @memberof AnnotationHelper
      */
-    static getNames(fullPackageName) {
+    static getNames(astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
         const annotationIdentifiers = [];
+        const factory = astNode.getFactory();
+        let attachmentType = '';
+        if (factory.isServiceDefinition(astNode)) {
+            attachmentType = 'service';
+        } else if (factory.isResourceDefinition(astNode)) {
+            attachmentType = 'resource';
+        } else if (factory.isFunctionDefinition(astNode)) {
+            attachmentType = 'function';
+        } else if (factory.isConnectorDefinition(astNode)) {
+            attachmentType = 'connector';
+        } else if (factory.isConnectorAction(astNode)) {
+            attachmentType = 'action';
+        } else if (factory.isAnnotationDefinition(astNode)) {
+            attachmentType = 'annotation';
+        } else if (factory.isStructDefinition(astNode)) {
+            attachmentType = 'struct';
+        }
         for (const packageDefintion of BallerinaEnvironment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    annotationIdentifiers.push(annotationDefinition.getName());
+                    if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                        annotationIdentifiers.push(annotationDefinition.getName());
+                    }
+
+                    if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
+                        annotationIdentifiers.push(annotationDefinition.getName());
+                    }
                 }
             }
         }
@@ -101,15 +124,33 @@ class AnnotationHelper {
      * @returns {string[]} An array of package names.
      * @memberof AnnotationHelper
      */
-    static getPackageNames(attachmentType, allowAnnotationWithNoAttachmentType = true) {
+    static getPackageNames(astNode, allowAnnotationWithNoAttachmentType = true) {
+        const factory = astNode.getFactory();
         const packageNames = new Set();
+        let attachmentType = '';
+        if (factory.isServiceDefinition(astNode)) {
+            attachmentType = 'service';
+        } else if (factory.isResourceDefinition(astNode)) {
+            attachmentType = 'resource';
+        } else if (factory.isFunctionDefinition(astNode)) {
+            attachmentType = 'function';
+        } else if (factory.isConnectorDefinition(astNode)) {
+            attachmentType = 'connector';
+        } else if (factory.isConnectorAction(astNode)) {
+            attachmentType = 'action';
+        } else if (factory.isAnnotationDefinition(astNode)) {
+            attachmentType = 'annotation';
+        } else if (factory.isStructDefinition(astNode)) {
+            attachmentType = 'struct';
+        }
+
         for (const packageDefintion of BallerinaEnvironment.getPackages()) {
             for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                 if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
                     packageNames.add(packageDefintion.getName());
                 }
 
-                if (allowAnnotationWithNoAttachmentType) {
+                if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
                     packageNames.add(packageDefintion.getName());
                 }
             }

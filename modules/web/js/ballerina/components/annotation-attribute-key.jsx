@@ -168,6 +168,7 @@ class AnnotationAttributeKey extends React.Component {
                 onBlur={() => this.onKeyBlur()}
                 minWidth={130}
                 maxWidth={1000}
+                showAllAtStart
             />);
         }
 

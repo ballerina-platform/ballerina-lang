@@ -187,7 +187,7 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderName() {
-        const supportedNames = AnnotationHelper.getNames(this.props.model.getFullPackageName());
+        const supportedNames = AnnotationHelper.getNames(this.props.model.getParent(), this.props.model.getFullPackageName());
         if (this.state.isNameInEdit && !this.props.model.getViewState().disableEdit) {
             const model = this.props.model;
             return (<AutoSuggestHtml
@@ -198,6 +198,7 @@ class AnnotationAttachment extends React.Component {
                 minWidth={130}
                 maxWidth={1000}
                 onBlur={this.onNameEditFinished}
+                showAllAtStart
             />);
         }
 
@@ -245,7 +246,7 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderPackageName() {
-        const supportedPackageNames = AnnotationHelper.getPackageNames(this.props.parentASTNodeType);
+        const supportedPackageNames = AnnotationHelper.getPackageNames(this.props.model.getParent());
         if (this.state.isPackageNameInEdit && !this.props.model.getViewState().disableEdit) {
             const model = this.props.model;
             return (<span>@
@@ -257,6 +258,7 @@ class AnnotationAttachment extends React.Component {
                     minWidth={130}
                     maxWidth={1000}
                     onBlur={this.onPackageNameEditFinished}
+                    showAllAtStart
                 />:
             </span>);
         }

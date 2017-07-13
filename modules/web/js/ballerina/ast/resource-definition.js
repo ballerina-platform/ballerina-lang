@@ -342,14 +342,21 @@ class ResourceDefinition extends ASTNode {
         // if path annotation is not define we will create one with default behaviour.
         if (_.isUndefined(pathAnnotation) && ifNotExist) {
             // Creating path annotation.
-            pathAnnotation = BallerinaASTFactory.createAnnotation({
+            pathAnnotation = BallerinaASTFactory.createAnnotationAttachment({
                 fullPackageName: 'ballerina.net.http',
                 packageName: 'http',
-                identifier: 'Path',
+                name: 'Path',
             });
-            const annotationEntryForPathValue = BallerinaASTFactory.createAnnotationEntry({
+
+            const annotationAttributeValue = BallerinaASTFactory.createAnnotationAttributeValue();
+            annotationAttributeValue.addChild(BallerinaASTFactory.createBValue({
+                type: 'string',
+                stringValue: '"' + this.getResourceName() + '"',
+            }));
+
+            const annotationEntryForPathValue = BallerinaASTFactory.createAnnotationAttribute({
                 leftValue: 'value',
-                rightValue: '\"/' + this.getResourceName() + '\"',
+                rightValue: annotationAttributeValue,
             });
             pathAnnotation.addChild(annotationEntryForPathValue);
             this.addChild(pathAnnotation, 1);
@@ -372,11 +379,10 @@ class ResourceDefinition extends ASTNode {
 
         // Creating GET http method annotation.
         if (_.isUndefined(httpMethodAnnotation)) {
-            httpMethodAnnotation = BallerinaASTFactory.createAnnotation({
+            httpMethodAnnotation = BallerinaASTFactory.createAnnotationAttachment({
                 fullPackageName: 'ballerina.net.http',
                 packageName: 'http',
-                identifier: 'GET',
-                uniqueIdentifier: 'httpMethod',
+                name: 'GET',
             });
             this.addChild(httpMethodAnnotation, 0);
         }

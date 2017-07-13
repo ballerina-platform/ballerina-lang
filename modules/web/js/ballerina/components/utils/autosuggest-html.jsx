@@ -214,7 +214,7 @@ class AutoSuggestHtml extends React.Component {
                     showAllAtStart: false,
                 });
             },
-            onClick: (e) => { console.log('CLICKED'); e.stopPropagation(); },
+            onClick: (e) => { e.stopPropagation(); },
             onBlur: this.props.onBlur,
             // style: { width: util.getTextWidth(this.state.inputValue, this.props.minWidth, this.props.maxWidth).w + 5 },
         };
