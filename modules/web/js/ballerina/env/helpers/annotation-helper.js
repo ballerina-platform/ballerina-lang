@@ -168,6 +168,7 @@ class AnnotationHelper {
      * Gets attribute definition.
      *
      * @static
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
      * @param {string} attributeName The name of the attribute.
      * @param {string} annotationDefinitionFullPackageName The full package name of the annotation definition which the
      * attribute resides.

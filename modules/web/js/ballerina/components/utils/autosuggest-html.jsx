@@ -150,11 +150,10 @@ class AutoSuggestHtml extends React.Component {
         }
 
         const escapedValue = this.escapeRegexCharacters(searchKeyword.trim());
-        const regex = new RegExp(`^${escapedValue}`, 'i');
         const itemsMap = this.props.items.map(item => ({
             name: item,
         }));
-        return itemsMap.filter(item => regex.test(item.name));
+        return itemsMap.filter(item => item.name.includes(escapedValue));
     }
 
     /**

@@ -113,7 +113,10 @@ class AnnotationAttachment extends ASTNode {
      */
     initFromJson(jsonNode) {
         this.setFullPackageName(jsonNode.annotation_attachment_full_package_name, { doSilently: true });
-        this.setPackageName(jsonNode.annotation_attachment_package_name, { doSilently: true });
+        if (jsonNode.annotation_attachment_package_name !== undefined &&
+                                                                jsonNode.annotation_attachment_package_name !== null) {
+            this.setPackageName(jsonNode.annotation_attachment_package_name, { doSilently: true });
+        }
         if (jsonNode.annotation_attachment_name === 'undefined') {
             this.setName(undefined, { doSilently: true });
         } else {
