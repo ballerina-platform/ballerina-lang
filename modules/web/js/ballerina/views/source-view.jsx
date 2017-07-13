@@ -9,7 +9,7 @@ import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-v
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
+import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
 import { FORMAT } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer  from './../ast/ballerina-ast-deserializer';

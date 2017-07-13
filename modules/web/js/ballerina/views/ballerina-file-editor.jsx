@@ -33,7 +33,7 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED, TAB_ACTIVATE } from './../../constants/events';
+import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 
 const sourceViewTabHeaderClass = 'inverse';
@@ -61,7 +61,7 @@ class BallerinaFileEditor extends React.Component {
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
-        this.sourceModified = false;
+        this.isASTInvalid = false;
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             // Change was done from the source view.
@@ -70,12 +70,17 @@ class BallerinaFileEditor extends React.Component {
             // the ast. See BallerinaFileEditor#setActiveView.
             // NOTE: This is to avoid unnecessary parser invocations for each change
             // event in source view
-            if (evt.originEvt.type === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                this.sourceModified = true;
-            } else if (evt.originEvt.type === CHANGE_EVT_TYPES.TREE_MODIFIED) {
+            const originEvtType = evt.originEvt.type;
+            if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+                this.isASTInvalid = true;
+            } else if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // change was done from design view
                 // AST is directly modified hence no need to parse again
                 // we just need to update the diagram
+                this.update();
+            } else if (originEvtType === UNDO_EVENT
+                        || originEvtType === REDO_EVENT) {
+                this.isASTInvalid = true;
                 this.update();
             }
         });
@@ -103,7 +108,17 @@ class BallerinaFileEditor extends React.Component {
      * Update the diagram
      */
     update() {
-        this.forceUpdate();
+        if (this.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
+            this.validateAndParseFile()
+                .then((state) => {
+                    this.isASTInvalid = false;
+                    this.setState(state);
+                    this.forceUpdate();
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.forceUpdate();
+        }
     }
 
     /**
@@ -147,20 +162,8 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
-        this.setState({
-            activeView: newView
-        });
+        this.state.activeView = newView;
         this.update();
-        // if modifications were done from source view
-        // reparse the file
-        if (this.sourceModified) {
-            this.validateAndParseFile()
-                .then((state) => {
-                    this.sourceModified = false;
-                    this.setState(state);
-                })
-                .catch(error => log.error(error));
-        }
     }
 
     /**

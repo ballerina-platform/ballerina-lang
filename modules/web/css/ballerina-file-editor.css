@@ -1022,7 +1022,7 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     width: 100%;
     background-color: rgb(60, 60, 60);
     color: white;
-    opacity: 1;
+    opacity: 0.6;
 }
 
 #parse-pending-loader{
