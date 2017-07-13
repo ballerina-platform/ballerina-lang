@@ -74,7 +74,7 @@ Prior to doing further changes, you can view the output to see if the call to th
 1. Save your file by clicking **File** and **Save As**. Provide an appropriate name for you **.bal** file.
 1. Click the **Run** button and click **Application** to run this file. You can see the output in the console of the Ballerina Composer.
 
-The output contains a JSON payload. This tutorial aims to access the JSOn payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days.
+The output contains a JSON payload. This tutorial aims to access the JSON payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days. For more information, see [Call the API](#call-the-api)
 
 ### Work with JSON
 
@@ -120,6 +120,6 @@ Now that you have got the API key and the country code, you can identify the URL
 
 > Here the `appid` is the API key and the country code is `Washington,US`.
 
-Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**).
+Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**) in Kelvin.
 
 ![alt text](../images/PostmanWeather.png)
