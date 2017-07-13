@@ -19,7 +19,6 @@ package org.ballerinalang.composer.service.workspace.suggetions;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.langserver.dto.Position;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BFile;
@@ -64,12 +63,7 @@ public class AutoCompleteSuggesterImpl implements AutoCompleteSuggester {
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(true, ballerinaToken, bLangModelBuilder,
                 new File(bFile.getFileName()).toPath());
         ballerinaParser.addParseListener(ballerinaBaseListener);
-        try {
-            ballerinaParser.compilationUnit();
-        } catch (RecognitionException e) {
-            e.printStackTrace();
-        }
-
+        ballerinaParser.compilationUnit();
         BallerinaFile ballerinaFile = bLangModelBuilder.build();
         return ballerinaFile;
     }
