@@ -168,7 +168,6 @@ CompoundStatementDecorator.propTypes = {
 
 CompoundStatementDecorator.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default CompoundStatementDecorator;

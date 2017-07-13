@@ -36,9 +36,9 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { renderingContext } = this.context;
+        const { environment } = this.context;
         const dropdownData = [];
-        const bTypes = renderingContext.environment.getTypes();
+        const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
             dropdownData.push({ id: bType, text: bType });
         });
@@ -113,7 +113,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
         let isValid = false;
         const typeList = this.getTypeDropdownValues();
         let type;
-        const structs = this.context.renderingContext.getPackagedScopedEnvironment()._currentPackage._structDefinitions;
+        const structs = this.context.environment._currentPackage._structDefinitions;
         const types = _.map(typeList, 'id');
 
         if (typeString.substring(typeString.length - 2) === '[]') {
@@ -158,7 +158,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
 }
 
 ReturnParameterDefinitionHolder.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ReturnParameterDefinitionHolder;

@@ -47,9 +47,9 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @returns {Object[]} Dropdown values.
      * */
     getTypeDropdownValues() {
-        const { renderingContext } = this.context;
+        const { environment } = this.context;
         const dropdownData = [];
-        const bTypes = renderingContext.environment.getTypes();
+        const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
             dropdownData.push({ id: bType, text: bType });
         });
@@ -184,7 +184,7 @@ ArgumentParameterDefinitionHolder.propTypes = {
 };
 
 ArgumentParameterDefinitionHolder.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ArgumentParameterDefinitionHolder;

@@ -70,7 +70,7 @@ class PanelDecorator extends React.Component {
 
     onCollapseClick() {
         this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
     onDelete() {
@@ -373,7 +373,7 @@ class PanelDecorator extends React.Component {
 
     onAnnotationEditButtonClick() {
         this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 }
 

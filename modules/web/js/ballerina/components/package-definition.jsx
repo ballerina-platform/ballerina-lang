@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import log from 'log';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { packageDefinition } from '../configs/designer-defaults';
@@ -28,6 +28,7 @@ import BallerinaASTFactory from '../ast/ballerina-ast-factory';
 import ImageUtil from './image-util';
 import EditableText from './editable-text';
 import PackageDefinitionModel from '../ast/package-definition';
+import { parseContent } from './../../api-client/api-client';
 
 class PackageDefinition extends React.Component {
 
@@ -70,12 +71,12 @@ class PackageDefinition extends React.Component {
 
     handleImportsBadgeClick() {
         this.props.model.viewState.importsExpanded = !this.props.model.viewState.importsExpanded;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
     handleGlobalsBadgeClick() {
         this.props.model.viewState.globalsExpanded = !this.props.model.viewState.globalsExpanded;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
 
@@ -89,14 +90,17 @@ class PackageDefinition extends React.Component {
         }
 
         value += ';\n';
-        const parsedJSON = this.context.editor.parserBackend.parse({content: value});
-        // 0 th object of parsedJSON.root is a packageDeclaration. Next should be global var or const.
+        parseContent(value)
+            .then((jsonTree) => {
+                // 0 th object of jsonTree is a packageDeclaration. Next should be global var or const.
+                if(!jsonTree.root[1]){
+                    return;
+                }
 
-        if(!parsedJSON.root[1]){
-            return;
-        }
+                this.props.model.parent.addGlobal(jsonTree.root[1]);
 
-        this.props.model.parent.addGlobal(parsedJSON.root[1]);
+            })
+            .catch(log.error);
     }
 
     handleAddImport(value) {
@@ -175,7 +179,7 @@ class PackageDefinition extends React.Component {
         const globals = astRoot.children.filter(
             c => c.constructor.name === 'ConstantDefinition' || c.constructor.name === 'GlobalVariableDefinition');
 
-        const packageSuggestions = this.context.renderingContext.packagedScopedEnvironemnt.getPackages()
+        const packageSuggestions = this.context.environment.getPackages()
             .filter(p => !imports.map(i => (i.getPackageName())).includes(p.getName()))
             .map(p => ({ name: p.getName() })).sort();
 
@@ -304,7 +308,7 @@ PackageDefinition.propTypes = {
 
 PackageDefinition.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired
+    environment: PropTypes.instanceOf(Object).isRequired
 };
 
 export default PackageDefinition;

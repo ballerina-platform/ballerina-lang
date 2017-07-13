@@ -21,6 +21,7 @@ import Autosuggest from 'react-autosuggest';
 import _ from 'lodash';
 import BallerinaEnvironment from '../env/environment';
 import ASTFactory from './../ast/ballerina-ast-factory';
+import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import { getComponentForNodeArray } from './utils';
 import AnnotationContainerUtil from '../components/utils/annotation-container';
 
@@ -136,10 +137,9 @@ class AnnotationContainer extends React.Component {
             packageName: this.state.selectedPackageNameValue,
         });
 
-        importToBeAdded.setParent(this.context.renderingContext.ballerinaFileEditor.getModel());
+        importToBeAdded.setParent(this.context.astRoot);
 
-        this.context.renderingContext.ballerinaFileEditor
-            .getModel().addImport(importToBeAdded, { doSilently: true });
+        this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
 
 
         const newAnnotation = ASTFactory.createAnnotation({
@@ -487,7 +487,7 @@ AnnotationContainer.propTypes = {
 
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
 };
 
 export default AnnotationContainer;

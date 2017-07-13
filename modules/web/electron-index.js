@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 // provide global jquery object because wso2 theme expects it
 window.$ = window.jQuery = require('jquery');
 
-const Application = require('./js/main').default;
+const Application = require('./js/app').default;
 const config = require('./config').default;
 
 const app = new Application(config);

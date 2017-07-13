@@ -56,7 +56,7 @@ class ServiceDefinition extends React.Component {
      * @memberof ServiceDefinition
      */
     onSwaggerButtonClicked() {
-        this.context.renderingContext.ballerinaFileEditor.showSwaggerView();
+        this.context.editor.showSwaggerViewForService(this.props.model);
     }
 
     /**
@@ -91,7 +91,7 @@ class ServiceDefinition extends React.Component {
      */
     handleVarialblesBadgeClick() {
         this.props.model.viewState.variablesExpanded = !this.props.model.viewState.variablesExpanded;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
     /**
@@ -192,7 +192,6 @@ ServiceDefinition.propTypes = {
 };
 
 ServiceDefinition.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 

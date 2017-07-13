@@ -16,6 +16,7 @@
  * under the License.
  */
 import log from 'log';
+import $ from 'jquery';
 import * as d3 from 'd3';
 import EventChannel from 'event_channel';
 
@@ -29,10 +30,9 @@ class MessageManager extends EventChannel {
      * @param {args} args for constructor
      * @constructor
      */
-    constructor(args) {
+    constructor() {
         super();
         log.debug('Initialising Message Manager');
-        this._fileEditor = args.fileEditor;
         this._typeBeingDragged = undefined;
         this._isOnDrag = false;
         this._source = undefined;
@@ -151,7 +151,7 @@ class MessageManager extends EventChannel {
 
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
         const self = this;
-        const container = d3.select(self._fileEditor._$canvasContainer.find('.svg-container').get(0));
+        const container = d3.select($(document).find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             self.trigger('message-draw-start');
