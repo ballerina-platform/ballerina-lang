@@ -241,9 +241,6 @@ const TabList = Backbone.View.extend(
                 }
                 this.activeTab.getHeader().addClass(activeTabHeaderClass);
                 this.activeTab.setActive(true);
-                if (typeof this.activeTab.reRender === 'function') {
-                    tab.reRender();
-                }
 
                 const storage = this.getBrowserStorage();
                 storage.put('activeTab', tab.cid);

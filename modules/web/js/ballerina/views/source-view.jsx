@@ -9,7 +9,7 @@ import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-v
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
+import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
 import { FORMAT } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer  from './../ast/ballerina-ast-deserializer';
@@ -95,7 +95,7 @@ class SourceView extends React.Component {
                     const completer = SourceViewCompleterFactory.getSourceViewCompleter(langserverClient);
                     langTools.setCompleters(completer);
                 })
-                .catch(log.error);
+                .catch(error => log.error(error));
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
             this.props.commandManager.getCommands().forEach((command) => {
@@ -129,7 +129,7 @@ class SourceView extends React.Component {
                 const formattedContent = sourceGenVisitor.getGeneratedSource();
                 this.replaceContent(formattedContent, false);
             })
-            .catch(log.error);
+            .catch(error => log.error(error));
     }
 
     /**

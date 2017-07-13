@@ -18,6 +18,8 @@
 
 import UndoableOperation from './undoable-operation';
 import SwitchToSourceViewConfirmDialog from './../../dialog/switch-to-source-confirm-dialog';
+import { UNDO_EVENT, REDO_EVENT } from './../../constants/events';
+import { CHANGE_EVT_TYPES } from './../views/constants';
 
 /**
  * Class to represent an undoable operation in ballerina file editor
@@ -32,48 +34,35 @@ class UndoableBalEditorOperation extends UndoableOperation {
             newContent: args.changeEvent.newContent,
             file: args.file,
         });
-        if (args.changeEvent.originEvt.type === 'tree-modified') {
-            this.setTitle(args.changeEvent.originEvt.originEvt.title);
-        } else if (args.changeEvent.originEvt.type === 'source-modified') {
+        this.originEvt = args.changeEvent.originEvt;
+        if (this.originEvt.type === CHANGE_EVT_TYPES.TREE_MODIFIED) {
+            this.setTitle(this.originEvt.originEvt.title);
+        } else if (this.originEvt.type === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+            this.doneFromSourceView = true;
             this.setTitle('Modify Source');
         }
     }
 
     undo() {
-        
+        this.getFile().setContent(this.getOldContent(), {
+            type: UNDO_EVENT, 
+            originEvt: this.originEvt,
+        });
     }
 
     prepareUndo(next) {
-        if (!this.getEditor().isInSourceView()) {
-            SwitchToSourceViewConfirmDialog.askConfirmation('undo', (continueUndo) => {
-                if (continueUndo) {
-                    this.getEditor().activateSourceView();
-                    next(true);
-                } else {
-                    next(false);
-                }
-            });
-        } else {
-            next(true);
-        }
+        next(true);
     }
 
     redo() {
+        this.getFile().setContent(this.getNewContent(), {
+            type: REDO_EVENT, 
+            originEvt: this.originEvt,
+        });
     }
 
     prepareRedo(next) {
-        if (!this.getEditor().isInSourceView()) {
-            SwitchToSourceViewConfirmDialog.askConfirmation('redo', (continueRedo) => {
-                if (continueRedo) {
-                    this.getEditor().activateSourceView();
-                    next(true);
-                } else {
-                    next(false);
-                }
-            });
-        } else {
-            next(true);
-        }
+        next(true);
     }
 }
 
