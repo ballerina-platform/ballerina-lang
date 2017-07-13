@@ -87,7 +87,9 @@ class BallerinaFileEditor extends React.Component {
     componentDidMount() {
         // parse the file & build the tree
         // then init the env with parsed symbols
-        this.validateAndParseFile();
+        this.validateAndParseFile()
+            .then(state => this.setState(state))
+            .catch(error => log.error(error));
     }
 
     /**
@@ -144,9 +146,12 @@ class BallerinaFileEditor extends React.Component {
         // if modifications were done from source view
         // reparse the file
         if (this.sourceModified) {
-            this.validateAndParseFile();
-            this.sourceModified = false;
-            this.setState(newState);
+            this.validateAndParseFile()
+                .then((state) => {
+                    this.sourceModified = false;
+                    this.setState(_.merge(state, newState));
+                })
+                .catch(error => log.error(error));
         } else {
             this.setState(newState);
         }
@@ -167,70 +172,75 @@ class BallerinaFileEditor extends React.Component {
 
     /**
      * Validate & parse current content of the file
-     * and build AST
-     * Then init the env with parsed symbols
+     * and build AST.
+     * Then init the env with parsed symbols.
+     * Finally return a promise which resolve the new state
+     * of the component.
+     * 
      */
     validateAndParseFile() {
         const file = this.props.file;
-        // first validate the file for syntax errors
-        validateFile(file)
-            .then((errors) => {
-                // if syntax errors are found
-                if (!_.isEmpty(errors)) {
-                    this.setState({
-                        parseFailed: true,
-                        syntaxErrors: errors,
-                        model: new BallerinaASTRoot(),
-                    });
-                    return;
-                } else {
-                    this.setState({
-                        syntaxErrors: []
-                    });
-                }
-                // if not, continue parsing the file & building AST
-                parseFile(file)
-                    .then((jsonTree) => {
-                        // get ast from json
-                        const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
-                        // re-draw upon ast changes
-                        ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
-                            this.onASTModified(evt);
-                        });
-                        this.setState({
-                            parseFailed: false,
-                            model: ast,
-                        });
-                        this.update();
-                        const pkgName = ast.getPackageDefinition().getPackageName();
-                        // update package name of the file
-                        file.setPackageName(pkgName || '');
-                        // init bal env if not init yet
-                        BallerinaEnvironment.initialize()
-                            .then(() => {
-                                this.environment.init();
-                                this.update();
-                                // fetch program packages
-                                getProgramPackages(file)
-                                    .then((data) => {
-                                        // if any packages were found
-                                        if (!_.isNil(data.packages)) {
-                                            const pkges = [];
-                                            data.packages.forEach((pkgNode) => {
-                                                const pkg = BallerinaEnvFactory.createPackage();
-                                                pkg.initFromJson(pkgNode);
-                                            });
-                                            this.environment.addPackages(pkges);
-                                        }
-                                        this.update();
-                                    })
-                                    .catch(log.error)
-                            })
-                            .catch(log.error);
-                    })
-                    .catch(log.errror);
-            })
-            .catch(log.error);
+        return new Promise((resolve, reject) => {
+            // final state to be passed into resolve
+            let newState = {};
+            // first validate the file for syntax errors
+            validateFile(file)
+                .then((errors) => {
+                    // if syntax errors are found
+                    if (!_.isEmpty(errors)) {
+                        newState.parseFailed = true;
+                        newState.syntaxErrors = errors;
+                        newState.model = new BallerinaASTRoot();
+                        // Cannot proceed due to syntax errors.
+                        // Hence resolve now.
+                        resolve(newState);
+                    } else {
+                        newState.syntaxErrors = [];
+                    }
+                    // if not, continue parsing the file & building AST
+                    parseFile(file)
+                        .then((jsonTree) => {
+                            // get ast from json
+                            const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
+                            // register the listener for ast modifications
+                            ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
+                                this.onASTModified(evt);
+                            });
+
+                            newState.parseFailed = false;
+                            newState.model = ast;
+
+                            const pkgName = ast.getPackageDefinition().getPackageName();
+                            // update package name of the file
+                            file.setPackageName(pkgName || '');
+                            // init bal env in background
+                            BallerinaEnvironment.initialize()
+                                .then(() => {
+                                    this.environment.init();
+                                    // fetch program packages
+                                    getProgramPackages(file)
+                                        .then((data) => {
+                                            // if any packages were found
+                                            if (!_.isNil(data.packages)) {
+                                                const pkges = [];
+                                                data.packages.forEach((pkgNode) => {
+                                                    const pkg = BallerinaEnvFactory.createPackage();
+                                                    pkg.initFromJson(pkgNode);
+                                                });
+                                                this.environment.addPackages(pkges);
+                                            }
+                                            // All the things are successfull.
+                                            // resolve now.
+                                            resolve(newState);
+                                        })
+                                        .catch(reject)
+                                })
+                                .catch(reject);          
+                        })
+                        .catch(reject);
+                })
+                .catch(reject);
+        });
     }
 
     /**

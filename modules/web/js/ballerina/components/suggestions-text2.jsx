@@ -64,7 +64,7 @@ class SuggestionsText extends React.Component {
     }
 
     componentWillUnmount() {
-        ReactDOM.render(<noscript />, this.context.overlay);
+        ReactDOM.render(<noscript />, this.context.getOverlayContainer());
     }
 
     onChange(event, { newValue, method }) {
@@ -138,7 +138,7 @@ class SuggestionsText extends React.Component {
 
     renderSuggestionsText() {
         if (!this.props.show) {
-            ReactDOM.render(<noscript />, this.context.overlay);
+            ReactDOM.render(<noscript />, this.context.getOverlayContainer());
             return;
         }
 
@@ -172,7 +172,7 @@ class SuggestionsText extends React.Component {
               inputProps={inputProps}
               ref={this.storeInputReference}
               shouldRenderSuggestions={() => true}
-            />, this.context.overlay,
+            />, this.context.getOverlayContainer(),
         );
     }
 
@@ -197,7 +197,7 @@ SuggestionsText.defaultProps = {
 };
 
 SuggestionsText.contextTypes = {
-    overlay: PropTypes.instanceOf(Object).isRequired,
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default SuggestionsText;

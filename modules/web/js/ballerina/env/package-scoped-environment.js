@@ -110,7 +110,7 @@ class PackageScopedEnvironment {
      * @returns {String[]}
      */
     getTypes() {
-        const structs = this.getCurrentPackage().getStructDefinitions().map(struct => struct.getStructName());
+        const structs = this.getCurrentPackage().getStructDefinitions().map(struct => struct.getName());
         return _.union(this._types, structs);
     }
 

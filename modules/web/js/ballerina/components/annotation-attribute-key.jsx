@@ -187,8 +187,4 @@ AnnotationAttributeKey.defaultProps = {
     attributeModel: undefined,
 };
 
-AnnotationAttributeKey.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
-};
-
 export default AnnotationAttributeKey;
