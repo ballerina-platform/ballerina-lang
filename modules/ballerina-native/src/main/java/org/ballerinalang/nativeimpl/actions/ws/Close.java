@@ -31,7 +31,6 @@ import org.ballerinalang.services.dispatchers.ws.Constants;
 import org.ballerinalang.services.dispatchers.ws.WebSocketConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.messaging.ControlCarbonMessage;
 
 import java.io.IOException;
 import javax.websocket.CloseReason;

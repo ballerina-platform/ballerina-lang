@@ -20,11 +20,8 @@ package org.ballerinalang.nativeimpl.actions.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ws.Constants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.util.List;
 import javax.websocket.Session;
