@@ -1,11 +1,32 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import $ from 'jquery';
+import alerts from 'alerts';
+import log from 'log';
 import TransformRender from '../../ballerina/components/transform-render';
 import SuggestionsDropdown from './transform-endpoints-dropdown';
 import BallerinaASTFactory from '../ast/ballerina-ast-factory';
+import ASTNode from '../ast/node';
 import DragDropManager from '../tool-palette/drag-drop-manager';
-import alerts from 'alerts';
 
 class TransformExpanded extends React.Component {
     constructor(props, context){
@@ -29,89 +50,8 @@ class TransformExpanded extends React.Component {
         this.onTransformDropZoneDeactivate = this.onTransformDropZoneDeactivate.bind(this);
     }
 
-    onTransformDropZoneActivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model,
-            model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-				(nodeBeingDragged) => {
-					// This drop zone is for assignment statements only.
-                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
-                    // is an Assignment Statement, that implies there is a return parameter . If there is no
-                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
-    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
-},
-				() => {
-    return dropTarget.getChildren().length;
-},
-            );
-        }
-        e.stopPropagation();
-    }
-
-    onTransformDropZoneDeactivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneActivate(e) {
-        debugger;
-        const dragDropManager = this.context.dragDropManager,
-            dropTarget = this.props.model.getParent(),
-            model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-				(nodeBeingDragged) => {
-                    // IMPORTANT: override node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-    return model.getFactory().isStatement(nodeBeingDragged);
-},
-				() => {
-    return dropTarget.getIndexOfChild(model);
-},
-			);
-            this.setState({ innerDropZoneActivated: true,
-                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', function () {
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }, this);
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneDeactivate(e) {
-        const dragDropManager = this.context.dragDropManager,
-			  dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
-
     getFunctionDefinition(functionInvocationExpression) {
-        const funPackage = this.context.environment.getPackageByName(
-						functionInvocationExpression.getFullPackageName());
+        const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
         return funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
     }
 
@@ -128,7 +68,7 @@ class TransformExpanded extends React.Component {
         }
         if (targetStruct !== undefined) {
             targetExpression = self.getStructAccessNode(
-                connection.targetStruct, connection.targetProperty, (targetStruct.type == 'struct'));
+                connection.targetStruct, connection.targetProperty, (targetStruct.type === 'struct'));
         }
 
         if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
@@ -183,7 +123,8 @@ class TransformExpanded extends React.Component {
         const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
         const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
 
-        let sourceExpression, targetExpression;
+        let sourceExpression;
+        let targetExpression;
 
         if (targetStruct !== undefined){
             sourceExpression = self.getStructAccessNode(
@@ -210,7 +151,8 @@ class TransformExpanded extends React.Component {
             const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
 
             // get the function invocation expression for nested and single cases.
-            const funcInvocationExpression = self.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+            const funcInvocationExpression = self.findFunctionInvocationById(
+                assignmentStmtSource.getRightExpression(), connection.targetReference.id);
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === targetExpression.getExpressionString().trim());
             });
@@ -278,7 +220,8 @@ class TransformExpanded extends React.Component {
     drawFunctionDefinitionNodes(functionInvocationExpression, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
-            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            alerts.error(
+                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
 
@@ -293,15 +236,18 @@ class TransformExpanded extends React.Component {
             });
         }
 
-        //Removing this node means removing the assignment statement from the transform statement, since this is the top most invocation.
-        //Hence passing the assignment statement as remove reference.
-        this.mapper.addFunction(func, functionInvocationExpression, statement.getParent().removeChild.bind(statement.getParent()), statement);
+        // Removing this node means removing the assignment statement from the transform statement,
+        // since this is the top most invocation.
+        // Hence passing the assignment statement as remove reference.
+        this.mapper.addFunction(func, functionInvocationExpression,
+            statement.getParent().removeChild.bind(statement.getParent()), statement);
     }
 
     drawInnerFunctionDefinitionNodes(parentFunctionInvocationExpression, functionInvocationExpression, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
             if (_.isUndefined(func)) {
-                alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+                alerts.error(
+                    'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
                 return;
         }
 
@@ -318,14 +264,18 @@ class TransformExpanded extends React.Component {
 
         //Removing this node means removing the function invocation from the parent function invocation.
         //Hence passing the current function invocation as remove reference.
-        this.mapper.addFunction(func, functionInvocationExpression, parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression), functionInvocationExpression);
+        this.mapper.addFunction(
+            func, functionInvocationExpression,
+            parentFunctionInvocationExpression.removeChild.bind(parentFunctionInvocationExpression),
+            functionInvocationExpression);
     }
 
     drawInnerFunctionInvocationExpression(parentFunctionInvocationExpression, functionInvocationExpression,
                                                       parentFunctionDefinition, parentParameterIndex, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
-            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            alerts.error(
+                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
 
@@ -335,7 +285,8 @@ class TransformExpanded extends React.Component {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, func, i, statement);
+                    this.drawInnerFunctionInvocationExpression(
+                        functionInvocationExpression, expression, func, i, statement);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
@@ -351,7 +302,8 @@ class TransformExpanded extends React.Component {
             _.merge(funcSource, funcSourceParam); // merge parameter props with function props
 
             const funcTarget = this.getConnectionProperties('target', parentFunctionInvocationExpression);
-            const funcTargetParam = this.getConnectionProperties('target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
+            const funcTargetParam = this.getConnectionProperties(
+                'target', parentFunctionDefinition.getParameters()[parentParameterIndex]);
             _.merge(funcTarget, funcTargetParam); // merge parameter props with function props
 
             this.drawConnection(statement.getID() + functionInvocationExpression.getID(), funcSource, funcTarget);
@@ -363,7 +315,8 @@ class TransformExpanded extends React.Component {
     drawFunctionInvocationExpression(argumentExpressions, functionInvocationExpression, statement) {
         const func = this.getFunctionDefinition(functionInvocationExpression);
         if (_.isUndefined(func)) {
-            alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+            alerts.error(
+                'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
 
@@ -373,7 +326,8 @@ class TransformExpanded extends React.Component {
             const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
             _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
                 if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(functionInvocationExpression, expression, func, i, statement);
+                    this.drawInnerFunctionInvocationExpression(
+                        functionInvocationExpression, expression, func, i, statement);
                 } else {
                     const target = this.getConnectionProperties('target', func.getParameters()[i]);
                     _.merge(target, funcTarget); // merge parameter props with function props
@@ -559,8 +513,6 @@ class TransformExpanded extends React.Component {
         return struct;
     }
 
-
-
     componentDidMount() {
         this.mapper = new TransformRender(
             this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
@@ -603,6 +555,85 @@ class TransformExpanded extends React.Component {
             }
         });
     }
+
+    onTransformDropZoneActivate(e) {
+        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model;
+        const model = this.props.model;
+
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+                (nodeBeingDragged) => {
+                    // This drop zone is for assignment statements only.
+                    // Functions with atleast one return parameter is allowed to be dropped. If the dropped node
+                    // is an Assignment Statement, that implies there is a return parameter . If there is no
+                    // return parameter, then it is a Function Invocation Statement, which is validated with below check.
+                    return model.getFactory().isAssignmentStatement(nodeBeingDragged);
+                },
+                () => {
+                    return dropTarget.getChildren().length;
+                });
+        }
+        e.stopPropagation();
+    }
+
+    onTransformDropZoneDeactivate(e) {
+        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneActivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        const model = this.props.model;
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                return;
+            }
+            dragDropManager.setActivatedDropTarget(dropTarget,
+                (nodeBeingDragged) => {
+                    // IMPORTANT: override node's default validation logic
+                    // This drop zone is for statements only.
+                    // Statements should only be allowed here.
+                    return model.getFactory().isStatement(nodeBeingDragged);
+                },
+                () => {
+                    return dropTarget.getIndexOfChild(model);
+                });
+            this.setState({ innerDropZoneActivated: true,
+                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
+            });
+            dragDropManager.once('drop-target-changed', function () {
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }, this);
+        }
+        e.stopPropagation();
+    }
+
+    onDropZoneDeactivate(e) {
+        const dragDropManager = this.context.dragDropManager;
+        const dropTarget = this.props.model.getParent();
+        if (dragDropManager.isOnDrag()) {
+            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
+                dragDropManager.clearActivatedDropTarget();
+                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
+            }
+        }
+        e.stopPropagation();
+    }
+
 
     onSourceSelect(e, {suggestionValue}) {
         this.setState({
@@ -688,7 +719,7 @@ class TransformExpanded extends React.Component {
         _.forEach(transformVars,(arg) => {
             let isStruct = false;
             _.forEach(packageObj.getStructDefinitions(), (predefinedStruct) => {
-                if (arg.type == predefinedStruct.getName()) {
+                if (arg.type === predefinedStruct.getName()) {
                     let struct = this.createType(arg.name, arg.type, predefinedStruct);
                     items.push({name: struct.name, type: struct.typeName});
                     isStruct = true;
@@ -726,7 +757,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (!sourceSelection.added) {
-            if (sourceSelection.type == 'struct') {
+            if (sourceSelection.type === 'struct') {
                 this.mapper.addSourceType(sourceSelection, removeFunc);
             } else {
                 this.mapper.addVariable(sourceSelection, 'source', removeFunc);
@@ -757,7 +788,7 @@ class TransformExpanded extends React.Component {
         }
 
         if (!targetSelection.added) {
-            if (targetSelection.type == 'struct') {
+            if (targetSelection.type === 'struct') {
                 this.mapper.addTargetType(targetSelection, removeFunc);
             } else {
                 this.mapper.addVariable(targetSelection, 'target', removeFunc);
@@ -771,7 +802,7 @@ class TransformExpanded extends React.Component {
 
     removeAssignmentStatements(id, type) {
         var index = 0;
-        if(type == "source") {
+        if(type === "source") {
             index = 1;
         }
         _.remove(this.props.model.getChildren(),(currentObject) => {
@@ -844,10 +875,14 @@ class TransformExpanded extends React.Component {
     }
 }
 
+TransformExpanded.propTypes = {
+    model: PropTypes.instanceOf(ASTNode).isRequired,
+};
+
 TransformExpanded.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     designView: PropTypes.instanceOf(Object).isRequired,
-	environment: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default TransformExpanded;
