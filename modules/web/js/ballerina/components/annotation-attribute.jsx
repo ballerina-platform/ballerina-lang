@@ -140,7 +140,8 @@ class AnnotationAttribute extends React.Component {
                 model={attribute}
                 annotationDefinitionModel={
                     AnnotationHelper.getAnnotationDefinition(
-                                            annotationAttachment.getFullPackageName(), annotationAttachment.getName())}
+                                                this.context.environment, annotationAttachment.getFullPackageName(),
+                                                annotationAttachment.getName())}
             />);
         });
     }
@@ -276,7 +277,8 @@ class AnnotationAttribute extends React.Component {
             const packageName = (<span>{annotationAttachment.getPackageName()}</span>);
             const name = (<span>{annotationAttachment.getName()}</span>);
             const buttons = [];
-            if (AnnotationHelper.getAnnotationDefinition(annotationAttachment.getFullPackageName(),
+            if (AnnotationHelper.getAnnotationDefinition(
+                                    this.context.environment, annotationAttachment.getFullPackageName(),
                                     annotationAttachment.getName()).getAnnotationAttributeDefinitions().length > 0) {
                 // Add attribute button
                 const addAttributeButton = {
@@ -350,8 +352,8 @@ class AnnotationAttribute extends React.Component {
                 icon: 'fw-add',
                 text: 'Add Value',
                 onClick: () => {
-                    attributeValue.addChild(
-                                        getArrayValue(this.props.model.getKey(), this.props.annotationDefinitionModel));
+                    attributeValue.addChild(getArrayValue(
+                        this.context.environment, this.props.model.getKey(), this.props.annotationDefinitionModel));
                 },
             };
             buttons.push(addNewToArray);
@@ -407,6 +409,10 @@ class AnnotationAttribute extends React.Component {
 AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttributeAST).isRequired,
     annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition).isRequired,
+};
+
+AnnotationAttribute.contextTypes = {
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttribute;

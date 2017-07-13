@@ -149,8 +149,8 @@ function addAttribute(annotationAttachment) {
  * @param {AnnotationDefintion} annotationDefinitionModel The annotation definition model of which the key belongs to.
  * @returns {AnnotationAttributeValue} The generated node.
  */
-function getArrayValue(annotationAttributeKey, annotationDefinitionModel) {
-    const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(annotationAttributeKey,
+function getArrayValue(environment, annotationAttributeKey, annotationDefinitionModel) {
+    const annotationAttributeDef = AnnotationHelper.getAttributeDefinition(environment, annotationAttributeKey,
         annotationDefinitionModel.getPackagePath(), annotationDefinitionModel.getName());
     const arrayAnnotationAttributeValue = ASTFactory.createAnnotationAttributeValue();
     if (BallerinaEnvironment.getTypes().includes(annotationAttributeDef.getBType())) {

@@ -268,7 +268,8 @@ class AnnotationContainer extends React.Component {
 
         // Get the list of annotations that belongs to the selected package. this.supportedAnnotations is already
         // filtered by attatchment points.
-        let names = AnnotationHelper.getNames(this.props.model.parentNode, this.state.selectedPackageNameValue);
+        let names = AnnotationHelper.getNames(
+                    this.context.environment, this.props.model.parentNode, this.state.selectedPackageNameValue);
         names = names.map((name) => {
             return {
                 name,
@@ -304,7 +305,8 @@ class AnnotationContainer extends React.Component {
 
         const regex = new RegExp(`^${escapedValue}`, 'i');
 
-        let packageNameSuggestions = AnnotationHelper.getPackageNames(this.props.model.parentNode);
+        let packageNameSuggestions = AnnotationHelper.getPackageNames(
+                                                                this.context.environment, this.props.model.parentNode);
 
         packageNameSuggestions = packageNameSuggestions.map((name) => {
             return {
@@ -454,6 +456,7 @@ AnnotationContainer.propTypes = {
 AnnotationContainer.contextTypes = {
     // Used for accessing ast-root to add imports
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationContainer;
