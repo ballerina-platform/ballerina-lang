@@ -3,12 +3,12 @@ import ballerina.lang.system;
 import ballerina.lang.messages;
 
 @ws:ClientService {}
-service<ws> clientService2 {
+service<ws> clientService1 {
 
     @ws:OnTextMessage {}
     resource ontext(message m) {
-        system:println("client service 2: " + messages:getStringPayload(m));
-        ws:pushText("client service 2: " + messages:getStringPayload(m));
+        system:println("client service : " + messages:getStringPayload(m));
+        ws:pushText("client service : " + messages:getStringPayload(m));
     }
 
     @ws:OnClose {}
