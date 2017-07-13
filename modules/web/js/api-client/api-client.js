@@ -23,6 +23,31 @@ export function fetchConfigs() {
                 resolve(response.data);
             }).catch(error => reject(error));
     });
+}   
+
+/**
+ * Invoke validate service for the given file
+ * and returns a promise with found errors
+ * @param {File} file
+ */
+export function validateFile(file) {
+    const payload = {
+        fileName: file.getName(),
+        filePath: file.getPath(),
+        packageName: file.getPackageName(),
+        content: file.getContent(),
+    };
+    const endpoint = getServiceEndpoint('validator');
+    const headers = {
+        'content-type': 'application/json; charset=utf-8',
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, payload, { headers })
+            .then((response) => {
+                resolve(response.data.errors);
+            }).catch(error => reject(error));
+    });
 }
 
 /**
