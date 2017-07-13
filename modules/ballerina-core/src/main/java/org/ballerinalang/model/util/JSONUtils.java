@@ -25,6 +25,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMNode;
+import org.apache.axiom.om.OMText;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
@@ -54,10 +61,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -70,6 +81,11 @@ import java.util.Set;
 public class JSONUtils {
 
     private static final String NULL = "null";
+
+    private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
+    private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
+    private static final String XSI_PREFIX = "xsi";
+    private static final String NIL = "nil";
     
     /**
      * Convert {@link BJSON} to {@link BInteger}.
@@ -603,7 +619,108 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
-    
+
+    /**
+     * Converts given json object to the corresponding xml.
+     *
+     * @param json JSON object to get the corresponding xml
+     * @return BXML XML representation of the given json object
+     */
+    public static BXML convertToXML(BJSON json, String attributePrefix, String arrayEntryTag) {
+        try {
+            BXML xml;
+            JsonNode jsonNode = json.value();
+            ArrayList<OMNode> omElementArrayList = new ArrayList<>();
+            iterateJSONTree(jsonNode, null, null, omElementArrayList, attributePrefix, arrayEntryTag);
+            if (omElementArrayList.size() == 1) {
+                xml = new BXMLItem(omElementArrayList.get(0));
+            } else {
+                BRefValueArray elementsSeq = new BRefValueArray();
+                int count = omElementArrayList.size();
+                for (int i = 0; i < count; i++) {
+                    elementsSeq.add(i, new BXMLItem(omElementArrayList.get(i)));
+                }
+                xml = new BXMLSequence(elementsSeq);
+            }
+            return xml;
+        } catch (Throwable t) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+        }
+    }
+
+    private static OMElement iterateJSONTree(JsonNode node, String nodeName, OMElement rootElement,
+            ArrayList<OMNode> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
+        OMElement root = null;
+        OMElement tempOmElement;
+        boolean processNode = true;
+        if (nodeName != null) {
+            root = OM_FACTORY.createOMElement(nodeName, null);
+            if (nodeName.startsWith(attributePrefix)) {
+                if (!node.isValueNode()) {
+                    throw new BallerinaException("testttt");
+                }
+                if (rootElement != null) {
+                    String attributeKey = nodeName.substring(1);
+                    rootElement.addAttribute(attributeKey, node.asText(), null);
+                    processNode = false;
+                }
+            }
+        }
+        if (node.isObject()) {
+            Iterator<Entry<String, JsonNode>> nodeIterator = node.fields();
+            while (nodeIterator.hasNext()) {
+                Entry<String, JsonNode> nodeEntry = nodeIterator.next();
+                JsonNode objectNode = nodeEntry.getValue();
+                tempOmElement = iterateJSONTree(objectNode, nodeEntry.getKey(), root, omElementArrayList,
+                        attributePrefix, arrayEntryTag);
+                if (nodeName == null) {
+                    omElementArrayList.add(tempOmElement);
+                } else {
+                    root = tempOmElement;
+                }
+            }
+        } else if (node.isArray()) {
+            Iterator<JsonNode> arrayItemsIterator = node.elements();
+            while (arrayItemsIterator.hasNext()) {
+                JsonNode arrayNode = arrayItemsIterator.next();
+                tempOmElement = iterateJSONTree(arrayNode, arrayEntryTag, root, omElementArrayList, attributePrefix,
+                        arrayEntryTag);
+                if (nodeName == null) {
+                    omElementArrayList.add(tempOmElement);
+                } else {
+                    root = tempOmElement;
+                }
+            }
+        } else if (node.isValueNode()) {
+            if (nodeName != null) {
+                if (node.isNull()) {
+                    OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
+                    root.addAttribute(NIL, "true", xsiNameSpace);
+                } else {
+                    OMText txt1 = OM_FACTORY.createOMText(root, node.asText());
+                    root.addChild(txt1);
+                }
+            } else {
+                OMElement omElement = AXIOMUtil.stringToOM("<root>" + node.asText() + "</root>");
+                Iterator<OMNode> children = omElement.getChildren();
+                if (children.hasNext()) {
+                    OMNode omNode = children.next();
+                    omNode = omNode.detach();
+                    omElementArrayList.add(omNode);
+                }
+            }
+        } else {
+            throw new BallerinaException("test");
+        }
+        if (rootElement != null) {
+            if (processNode) {
+                rootElement.addChild(root);
+            }
+            root = rootElement;
+        }
+        return root;
+    }
+
     /**
      * Convert {@link JsonNode} to {@link BInteger}.
      * 
