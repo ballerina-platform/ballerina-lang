@@ -66,8 +66,8 @@ class AnnotationAttachmentPackageName extends React.Component {
             const importToBeAdded = ASTFactory.createImportDeclaration({
                 packageName: suggestionValue,
             });
-            importToBeAdded.setParent(this.context.renderingContext.ballerinaFileEditor.getModel());
-            this.context.renderingContext.ballerinaFileEditor.getModel().addImport(importToBeAdded);
+            importToBeAdded.setParent(this.context.astRoot);
+            this.context.astRoot.addImport(importToBeAdded);
 
             // Removing the children of the annotation.
             this.props.model.getChildren().forEach((attribute) => {
@@ -127,7 +127,7 @@ AnnotationAttachmentPackageName.defaultProps = {
 
 AnnotationAttachmentPackageName.contextTypes = {
     // Used for accessing ast-root to add imports
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationAttachmentPackageName;
