@@ -282,7 +282,7 @@ class ResourceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
                     if (!paramAlreadyExists) {
                         // Setting values by the type of the parameter.
                         const annotation = param.getChildren()[0];
-                        if (resourceDefinition.getFactory().isAnnotation(annotation)) {
+                        if (resourceDefinition.getFactory().isAnnotationAttachment(annotation)) {
                             const tempParameterObj = {};
                             const annotationValue = annotation.getChildren()[0].getRightValue();
 

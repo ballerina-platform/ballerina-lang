@@ -188,7 +188,8 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         const titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        const annotations = this.props.model.getChildren().filter(child => BallerinaASTFactory.isAnnotation(child));
+        const annotations = this.props.model.getChildren().filter(
+                                                        child => BallerinaASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
         const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 

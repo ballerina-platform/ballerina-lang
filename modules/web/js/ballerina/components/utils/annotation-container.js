@@ -46,6 +46,16 @@ class AnnotationContainer {
         keyIndex += 1;
         return `annotation-container-${keyIndex}`;
     }
+
+    /**
+     * Gets the annotations of the container.
+     *
+     * @returns {AnnotationAttachment[]} Annotation attachments.
+     * @memberof AnnotationContainer
+     */
+    getAnnotations() {
+        return this.annotations;
+    }
 }
 
 export default AnnotationContainer;

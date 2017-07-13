@@ -30,7 +30,8 @@ class ServiceDefinitionVisitor extends AbstractSwaggerJsonGenVisitor {
     }
 
     beginVisitServiceDefinition(serviceDefinition) {
-        const existingAnnotations = serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotation);
+        const existingAnnotations =
+                            serviceDefinition.getChildrenOfType(serviceDefinition.getFactory().isAnnotationAttachment);
 
         _.forEach(existingAnnotations, (existingAnnotation) => {
             if (_.isEqual(existingAnnotation.getPackageName(), 'swagger')

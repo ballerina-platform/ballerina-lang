@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import log from 'log';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import ConnectorActionVisitor from './connector-action-visitor';
 import VariableDeclarationVisitor from './variable-declaration-visitor';
 import ConnectorDeclarationVisitor from './connector-declaration-visitor';
@@ -54,12 +55,10 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        _.forEach(connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotation),
-            (annotationNode) => {
-                if (annotationNode.isSupported()) {
-                    constructedSourceSegment += annotationNode.toString()
-                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-                }
+        connectorDefinition.getChildrenOfType(connectorDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
             });
 
         const lineNumber = this.getTotalNumberOfLinesInSource()

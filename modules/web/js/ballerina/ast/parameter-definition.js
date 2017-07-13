@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import VariableDefinition from './variable-definition';
 
 class ParameterDefinition extends VariableDefinition {
@@ -55,11 +54,28 @@ class ParameterDefinition extends VariableDefinition {
     getParameterDefinitionAsString() {
         let argAsString = '';
         // add annotations
-        this.getChildrenOfType(this.getFactory().isAnnotation).forEach((annotationNode, index) => {
-            if (annotationNode.isSupported()) {
-                argAsString += annotationNode.toString();
-            }
-        });
+        this.getChildrenOfType(this.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                // TODO: This func should move into the source-gen visitor. Unable to use annotation source gen visitor
+                // due to cyclic imports.
+                argAsString += '@';
+                if (annotationAttachment.getPackageName() !== undefined) {
+                    argAsString += annotationAttachment.getPackageName() + ':';
+                }
+                argAsString += annotationAttachment.getName() + '{';
+
+                if (annotationAttachment.getChildren().length === 1) {
+                    const annotationAttribute = annotationAttachment.getChildren()[0];
+                    argAsString += annotationAttribute.getKey() + ':';
+
+                    if (annotationAttribute.getValue().isBValue()) {
+                        const bValue = annotationAttribute.getValue().getChildren()[0];
+                        argAsString += `"${bValue.getStringValue()}"`;
+                    }
+                }
+
+                argAsString += '} ';
+            });
         argAsString += this.getTypeName();
         argAsString += !_.isNil(this.getName()) ? this.getWSRegion(1) + this.getName() : '';
         argAsString += this.getWSRegion(2);
@@ -75,7 +91,7 @@ class ParameterDefinition extends VariableDefinition {
         this.setName(jsonNode.parameter_name, { doSilently: true });
 
         // As of now we only support one annotation.
-        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation')) {
+        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
             const annotationJson = jsonNode.children[0];
             const child = this.getFactory().createFromJson(annotationJson);
             this.addChild(child);
