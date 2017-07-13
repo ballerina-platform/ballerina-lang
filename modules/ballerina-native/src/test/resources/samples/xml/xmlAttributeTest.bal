@@ -201,3 +201,9 @@ function testSetAttributes() (xml) {
     
     return x;
 }
+
+function testGetAttributeFromSingletonSeq() (string) {
+    xml x1 = xmls:parse("<root><child xmlns:p1=\"http://wso2.com/\" xmlns:p2=\"http://sample.com/wso2/a1/\" p1:foo=\"bar\"/></root>");
+    xml x2 = xmls:children(x1);
+    return x2@["{http://wso2.com/}foo"];
+}

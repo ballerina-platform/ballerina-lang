@@ -115,9 +115,9 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String namespace, String localName) {
+    public String getAttribute(String localName, String namespace) {
         if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).getAttribute(namespace, localName);
+            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
         }
         
         return ZERO_STRING_VALUE;
@@ -129,7 +129,7 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
     @Override
     public String getAttribute(String localName, String namespace, String prefix) {
         if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).getAttribute(namespace, prefix, localName);
+            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
         }
         
         return ZERO_STRING_VALUE;

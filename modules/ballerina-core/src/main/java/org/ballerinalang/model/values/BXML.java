@@ -102,11 +102,11 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     /**
      * Get the value of a single attribute as a string.
      * 
-     * @param namespace Namespace of the attribute
      * @param localName Local name of the attribute
+     * @param namespace Namespace of the attribute
      * @return Value of the attribute
      */
-    public abstract String getAttribute(String namespace, String localName);
+    public abstract String getAttribute(String localName, String namespace);
     
     /**
      * Get the value of a single attribute as a string.

@@ -180,7 +180,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String namespace, String localName) {
+    public String getAttribute(String localName, String namespace) {
         return getAttribute(localName, namespace, XMLConstants.DEFAULT_NS_PREFIX);
     }
     
