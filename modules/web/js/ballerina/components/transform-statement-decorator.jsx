@@ -18,6 +18,7 @@
 
 import log from 'log';
 import React from 'react';
+import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { statement } from './../configs/designer-defaults';
@@ -34,9 +35,22 @@ import select2 from 'select2';
 import TransformRender from '../../ballerina/components/transform-render';
 import ActiveArbiter from './active-arbiter';
 import ImageUtil from './image-util';
+import TransformExpanded from './transform-expanded';
 import alerts from 'alerts';
 
 const text_offset = 50;
+
+// We need to keep this state in the viewstate of the model
+// But the model is reset by undo redo operations and coming back from source view
+// So for now its kept in this static variable
+let expanded = false;
+
+// Need static references to the mapper object and predefined structs used to draw the expanded view
+// Because new transform-statement-decorator component instances need aceess to mapper
+// used to draw the expanded view if undo redo happens at expanded view
+let mapper;
+let predefinedStructs;
+let self;
 
 class TransformStatementDecorator extends React.Component {
 
@@ -51,6 +65,33 @@ class TransformStatementDecorator extends React.Component {
 	        innerDropZoneExist: false,
             active: 'hidden',
         };
+    }
+
+    static getComponentInstance(){
+        return self;
+    }
+
+    componentWillMount() {
+        self = this;
+        if(expanded){
+            mapper.disconnectAll(); // remove all connections made from the previous mapper
+            this.predefinedStructs = predefinedStructs;
+            this.mapper = mapper
+
+            _.forEach(this.props.model.getInput(), (input) => {
+                //trim expression to remove any possible white spaces
+                this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
+            });
+
+            _.forEach(this.props.model.getOutput(), (output) => {
+                //trim expression to remove any possible white spaces
+                this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
+            });
+
+            _.forEach(this.props.model.getChildren(), (statement) => {
+                this.createConnection(statement);
+            });
+        }
     }
 
     componentDidMount() {
@@ -76,6 +117,7 @@ class TransformStatementDecorator extends React.Component {
     onDelete() {
         this.props.model.remove();
     }
+
     /**
      * Navigates to codeline in the source view from the design view node
      *
@@ -87,6 +129,7 @@ class TransformStatementDecorator extends React.Component {
         editor.setActiveView('SOURCE_VIEW');
         editor.jumpToLine({ expression: fullExpression });
     }
+
     /**
      * Renders breakpoint indicator
      */
@@ -141,7 +184,202 @@ class TransformStatementDecorator extends React.Component {
         return argArray;
     }
 
+    getSourcesAndTargets() {
+        const packageObj = this.context.environment;
+
+        let variables = this.props.model.filterChildrenInScope(
+                                     this.props.model.getFactory().isVariableDefinitionStatement)
+        let argHolders = this.props.model.filterChildrenInScope(
+                                     this.props.model.getFactory().isArgumentParameterDefinitionHolder)
+        let paramArgs = [];
+        _.forEach(argHolders, argHolder => {
+            _.forEach(argHolder.getChildren(), arg => {
+                paramArgs.push(arg);
+            });
+        });
+
+        let transformVars = this.getTransformVarJson(variables.concat(paramArgs));
+        const items = [];
+
+        _.forEach(transformVars,(arg) => {
+            let isStruct = false;
+            _.forEach(packageObj.getStructDefinitions(), (predefinedStruct) => {
+                if (arg.type == predefinedStruct.getName()) {
+                    let struct = this.createType(arg.name, arg.type, predefinedStruct);
+                    items.push({name: struct.name, type: struct.typeName});
+                    isStruct = true;
+                }
+            });
+
+            if (!isStruct) {
+                let variableType = {};
+                variableType.id = arg.id;
+                variableType.name = arg.name;
+                variableType.type = arg.type;
+                this.predefinedStructs.push(variableType);
+                items.push({name: variableType.name, type: variableType.type});
+            }
+        });
+
+        return items;
+    }
+
+    onSourceAdd(currentSelection) {
+        let inputDef = BallerinaASTFactory
+                                .createSimpleVariableReferenceExpression({ variableName: currentSelection });
+        if (this.setSource(currentSelection, this.predefinedStructs, this.props.model, inputDef.id)) {
+            let inputs = this.props.model.getInput();
+            inputs.push(inputDef);
+            this.props.model.setInput(inputs);
+        }
+    }
+
+    onTargetAdd(currentSelection) {
+        let outDef = BallerinaASTFactory
+                                .createSimpleVariableReferenceExpression({ variableName: currentSelection });
+        if (this.setTarget(currentSelection, this.predefinedStructs, this.props.model, outDef.id)) {
+            let outputs = this.props.model.getOutput();
+            outputs.push(outDef);
+            this.props.model.setOutput(outputs);
+        }
+    }
+
+    static onConnectionCallback(connection) {
+        const self = TransformStatementDecorator.getComponentInstance();
+        const sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
+        const targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
+        let sourceExpression;
+        let targetExpression;
+
+        if (sourceStruct !== undefined) {
+            sourceExpression = self.getStructAccessNode(
+                connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
+        }
+        if (targetStruct !== undefined) {
+            targetExpression = self.getStructAccessNode(
+                connection.targetStruct, connection.targetProperty, (targetStruct.type == 'struct'));
+        }
+
+        if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+            //Connection is from source struct to target struct.
+            const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            const leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+            leftOperand.addChild(targetExpression);
+            const rightOperand = BallerinaASTFactory.createRightOperandExpression();
+            rightOperand.addChild(sourceExpression);
+            assignmentStmt.addChild(leftOperand);
+            assignmentStmt.addChild(rightOperand);
+            self.props.model.addChild(assignmentStmt);
+            return assignmentStmt.id;
+        }
+
+        if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
+            // Connection source is not a struct and target is a struct.
+            // Source could be a function node.
+            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
+            assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
+            return assignmentStmtSource.id;
+        }
+
+        if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+            // Connection target is not a struct and source is a struct.
+            // Target is a function node.
+            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
+            return assignmentStmtTarget.id;
+        }
+
+        // Connection source and target are not structs
+        // Source and target are function nodes.
+
+        // target reference might be function invocation expression or assignment statement
+        // based on how the nested invocation is drawn. i.e. : adding two function nodes and then drawing
+        // will be different from removing a param from a function and then drawing the connection
+        // to the parent function invocation.
+        const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
+
+        const assignmentStmtSource = connection.sourceReference;
+        assignmentStmtTarget.getRightExpression().getChildren()[0].addChild(assignmentStmtSource.getRightExpression().getChildren()[0]);
+
+        //remove the source assignment statement since it is now included in the target assignment statement.
+        const transformStmt = assignmentStmtSource.getParent();
+        transformStmt.removeChild(assignmentStmtSource);
+
+        return assignmentStmtTarget.id;
+    };
+
+
+    static onDisconnectionCallback(connection) {
+        const self = TransformStatementDecorator.getComponentInstance();
+        // on removing a connection
+        const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
+        const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
+
+        let sourceExpression, targetExpression;
+
+        if (targetStruct !== undefined){
+            sourceExpression = self.getStructAccessNode(
+                connection.targetStruct, connection.targetProperty, (targetStruct.type === 'struct'));
+        } else {
+            sourceExpression = self.getStructAccessNode(
+                connection.targetStruct, connection.targetProperty, false);
+        }
+
+        if (sourceStruct !== undefined) {
+            targetExpression = self.getStructAccessNode(
+                connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
+        } else {
+            targetExpression = self.getStructAccessNode(
+                connection.sourceStruct, connection.sourceProperty, false);
+        }
+
+        if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+            const assignmentStmt = _.find(self.props.model.children, { id: connection.id });
+            self.props.model.removeChild(assignmentStmt);
+        } else if (!_.isUndefined(sourceStruct) && _.isUndefined(targetStruct)) {
+            // Connection source is not a struct and target is a struct.
+            // Source is a function node.
+            const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
+
+            // get the function invocation expression for nested and single cases.
+            const funcInvocationExpression = self.findFunctionInvocationById(assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+            const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
+                return (child.getExpressionString().trim() === targetExpression.getExpressionString().trim());
+            });
+            funcInvocationExpression.removeChild(expression);
+        } else if (_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
+            // Connection target is not a struct and source is a struct.
+            // Target could be a function node.
+            const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
+            const expression = _.find(assignmentStmtTarget.getLeftExpression().getChildren(), (child) => {
+                return (child.getExpressionString().trim() === sourceExpression.getExpressionString().trim());
+            });
+            assignmentStmtTarget.getLeftExpression().removeChild(expression);
+        } else {
+            // Connection source and target are not structs
+            // Source and target could be function nodes.
+            const targetFuncInvocationExpression = connection.targetReference;
+            const sourceFuncInvocationExpression = connection.sourceReference;
+
+            targetFuncInvocationExpression.removeChild(sourceFuncInvocationExpression);
+        }
+    };
+
+    onUnmount() {
+        expanded=false;
+    }
+
     onExpand() {
+        const { designView } = this.context;
+        designView.setTransformActive(true, this.props.model);
+    }
+
+    onRetract() {
+        expanded = false;
+        ReactDom.unmountComponentAtNode($('#transform-expanded-container')[0]);
+    }
+
+    onExpandOld() {
         self = this;
         let sourceId = 'sourceStructs' + this.props.model.id;
         let targetId = 'targetStructs' + this.props.model.id;
@@ -338,7 +576,7 @@ class TransformStatementDecorator extends React.Component {
 
                 return assignmentStmtTarget.id;
             }
-            
+
         };
 
         let onDisconnectionCallback = function (connection) {
@@ -626,7 +864,7 @@ class TransformStatementDecorator extends React.Component {
             con[type + 'Id'] = expression.getID();
         } else if (BallerinaASTFactory.isSimpleVariableReferenceExpression(expression)) {
             con[type + 'Struct'] = expression.getVariableName();
-            const varRef = _.find(self.predefinedStructs, { name: expression.getVariableName() });
+            const varRef = _.find(this.predefinedStructs, { name: expression.getVariableName() });
             if (!_.isUndefined(varRef)) {
                 con[type + 'Type'] = [varRef.type];
             }
@@ -646,7 +884,7 @@ class TransformStatementDecorator extends React.Component {
     drawConnection(id, source, target) {
         const con = { id: id };
         _.merge(con, source, target);
-        self.mapper.addConnection(con);
+        this.mapper.addConnection(con);
     }
 
     /**
@@ -656,7 +894,7 @@ class TransformStatementDecorator extends React.Component {
      * @memberof TransformStatementDecorator
      */
     findExistingAssignmentStatement(id) {
-        return _.find(self.props.model.getChildren(), (child) => {
+        return _.find(this.props.model.getChildren(), (child) => {
             return child.getID() === id;
         });
     }
@@ -685,7 +923,7 @@ class TransformStatementDecorator extends React.Component {
      * @memberof TransformStatementDecorator
      */
     findEnclosingAssignmentStatement(id) {
-        let assignmentStmts = self.props.model.getChildren();
+        let assignmentStmts = this.props.model.getChildren();
         let assignmentStmt = this.findExistingAssignmentStatement(id);
         if (assignmentStmt === undefined) {
             return _.find(assignmentStmts, (assignmentStmt) => {
@@ -721,7 +959,7 @@ class TransformStatementDecorator extends React.Component {
 
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
             let fieldName = expression.getFieldName();
-            const structDef = _.find(self.predefinedStructs, { name: structName });
+            const structDef = _.find(this.predefinedStructs, { name: structName });
             if (_.isUndefined(structDef)) {
                 alerts.error('Struct definition for variable "' + structName + '" cannot be found');
                 return;
@@ -757,12 +995,12 @@ class TransformStatementDecorator extends React.Component {
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
-                property.innerType = self.createType(property.name, typeName, innerStruct);
+                property.innerType = this.createType(property.name, typeName, innerStruct);
             }
 
             struct.properties.push(property);
         });
-        self.predefinedStructs.push(struct);
+        this.predefinedStructs.push(struct);
         return struct;
     }
 
@@ -998,28 +1236,28 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             return false;
         }
 
-        const removeFunc = function(id) {
-            self.mapper.removeType(id);
-            _.remove(self.props.model.getInput(),(currentObject) => {
+        const removeFunc = id => {
+            this.mapper.removeType(id);
+            _.remove(this.props.model.getInput(),(currentObject) => {
                 return currentObject.getVariableName() === id;
             });
-            self.removeAssignmentStatements(id, "source");
-            self.props.model.setInput(self.props.model.getInput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            this.removeAssignmentStatements(id, "source");
+            this.props.model.setInput(this.props.model.getInput());
+            var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
 
         if (!sourceSelection.added) {
             if (sourceSelection.type == 'struct') {
-                self.mapper.addSourceType(sourceSelection, removeFunc);
+                this.mapper.addSourceType(sourceSelection, removeFunc);
             } else {
-                self.mapper.addVariable(sourceSelection, 'source', removeFunc);
+                this.mapper.addVariable(sourceSelection, 'source', removeFunc);
             }
             sourceSelection.added = true;
             return true;
-        } 
+        }
             return false;
-        
+
     }
 
     setTarget(currentSelection, predefinedStructs) {
@@ -1029,28 +1267,28 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
             return false;
         }
 
-        const removeFunc = function(id) {
-            self.mapper.removeType(id);
-            _.remove(self.props.model.getOutput(),(currentObject) => {
+        const removeFunc = id => {
+            this.mapper.removeType(id);
+            _.remove(this.props.model.getOutput(),(currentObject) => {
                 return currentObject.getVariableName() === id;
             });
-            self.removeAssignmentStatements(id, "target");
-            self.props.model.setOutput(self.props.model.getOutput());
-            var currentSelectionObj =  _.find(self.predefinedStructs, { name:id});
+            this.removeAssignmentStatements(id, "target");
+            this.props.model.setOutput(this.props.model.getOutput());
+            var currentSelectionObj =  _.find(this.predefinedStructs, { name:id});
             currentSelectionObj.added = false;
         }
 
         if (!targetSelection.added) {
             if (targetSelection.type == 'struct') {
-                self.mapper.addTargetType(targetSelection, removeFunc);
+                this.mapper.addTargetType(targetSelection, removeFunc);
             } else {
-                self.mapper.addVariable(targetSelection, 'target', removeFunc);
+                this.mapper.addVariable(targetSelection, 'target', removeFunc);
             }
             targetSelection.added = true;
             return true;
-        } 
+        }
             return false;
-        
+
     }
 
     removeAssignmentStatements(id, type) {
@@ -1058,7 +1296,7 @@ x={bBox.x} y={this.statementBox.y} width={bBox.w} height={this.statementBox.h} c
         if(type == "source") {
             index = 1;
         }
-        _.remove(self.props.model.getChildren(),(currentObject) => {
+        _.remove(this.props.model.getChildren(),(currentObject) => {
             var condition = false;
             if (currentObject.children[index].children[0].getFactory()
                            .isFieldBasedVarRefExpression(currentObject.children[index].children[0])) {
