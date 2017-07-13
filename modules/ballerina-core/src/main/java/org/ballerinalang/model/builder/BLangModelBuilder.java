@@ -267,14 +267,14 @@ public class BLangModelBuilder {
 
         if (importPkgMap.get(importPkg.getName()) != null) {
             String errMsg = BLangExceptionHelper
-                    .constructSemanticError(location, SemanticErrors.REDECLARED_IMPORT_PACKAGE, importPkg.getName());
+                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
         
         // Check whether there is a namespace declaration with the same name
         if (namespaces.contains(importPkg.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.CONFLICT_WITH_NAMESPACE_DCLR, importPkg.getName());
+                    SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
 
@@ -1862,15 +1862,15 @@ public class BLangModelBuilder {
         if (prefix != null) {
             // check whether there is any package import with the same prefix
             if (importPkgMap.containsKey(prefix)) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.CONFLICT_WITH_PKG_IMPORT, prefix);
+                String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL,
+                        prefix);
                 errorMsgs.add(errMsg);
             }
-            
+
             // Add the prefix to a temp list, to validate against the package prefix when importing packages.
             namespaces.add(prefix);
         }
-        
+
         Identifier identifier = new Identifier(prefix);
         NamespaceDeclaration namspaceDclr = new NamespaceDeclaration(location, wsDescriptor, namespaceUri, prefix,
                 currentPackagePath, identifier, currentScope);
@@ -1883,7 +1883,7 @@ public class BLangModelBuilder {
         NamespaceDeclarationStmt namespaceDclrStmt = new NamespaceDeclarationStmt(location, namspaceDclr);
         addToBlockStmt(namespaceDclrStmt);
     }
-    
+
     /**
      * Create an XML attributes map reference expression.
      * 
@@ -1891,16 +1891,16 @@ public class BLangModelBuilder {
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param singleAttribute Flag indicating whether this is a single attribute reference
      */
-    public void createXmlAttributesRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, 
+    public void createXmlAttributesRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
             boolean singleAttribute) {
         Expression indexExpr = null;
         if (singleAttribute) {
             indexExpr = exprStack.pop();
         }
-        
+
         VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
-        XMLAttributesRefExpr xmlAttributesRefExpr = new XMLAttributesRefExpr(location, whiteSpaceDescriptor,
-                varRefExpr, indexExpr);
+        XMLAttributesRefExpr xmlAttributesRefExpr = new XMLAttributesRefExpr(location, whiteSpaceDescriptor, varRefExpr,
+                indexExpr);
         varRefExpr.setParentVarRefExpr(xmlAttributesRefExpr);
         exprStack.push(xmlAttributesRefExpr);
     }

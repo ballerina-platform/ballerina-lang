@@ -2235,35 +2235,34 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
         VariableReferenceExpr varRefExpr = xmlAttributesRefExpr.getVarRefExpr();
         varRefExpr.accept(this);
-        
+
         if (varRefExpr.getType() != BTypes.typeXML) {
             BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr, SemanticErrors.INCOMPATIBLE_TYPES,
-                BTypes.typeXML, varRefExpr.getType());
+                    BTypes.typeXML, varRefExpr.getType());
         }
-        
+
         Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
         if (indexExpr == null) {
             if (xmlAttributesRefExpr.isLHSExpr()) {
-                BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr, 
+                BLangExceptionHelper.throwSemanticError(xmlAttributesRefExpr,
                         SemanticErrors.XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED);
             }
             xmlAttributesRefExpr.setType(BTypes.typeXMLAttributes);
             return;
         }
-        
+
         xmlAttributesRefExpr.setType(BTypes.typeString);
         indexExpr.accept(this);
         if (indexExpr instanceof XMLQNameExpr) {
             ((XMLQNameExpr) indexExpr).setUsedInXML(true);
             return;
-        } else {
-            populateNamespaceMap(xmlAttributesRefExpr);
         }
-        
+
         if (indexExpr.getType() != BTypes.typeString) {
-            BLangExceptionHelper.throwSemanticError(indexExpr, SemanticErrors.NON_STRING_MAP_INDEX, 
+            BLangExceptionHelper.throwSemanticError(indexExpr, SemanticErrors.NON_STRING_MAP_INDEX,
                     indexExpr.getType());
         }
+        populateNamespaceMap(xmlAttributesRefExpr);
     }
 
     @Override
@@ -2273,9 +2272,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(xmlQNameRefExpr.getPrefix());
         BLangSymbol symbol = currentScope.resolve(nsSymbolName);
-        
+
         if (symbol == null) {
-            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE, 
+            BLangExceptionHelper.throwSemanticError(xmlQNameRefExpr, SemanticErrors.UNDEFINED_NAMESPACE,
                     xmlQNameRefExpr.getPrefix());
         }
         String namepsaceUri = ((NamespaceDeclaration) symbol).getNamespaceUri();
@@ -2427,8 +2426,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NamespaceDeclaration namespaceDclr) {
-        // Redeclaring the namespaces are allowed. Hence no validation is done here.
-        currentScope.define(new NamespaceSymbolName(namespaceDclr.getPrefix()), namespaceDclr);
+        // Check whether this namespace is already defined, if not define it.
+        NamespaceSymbolName nsSymbolName = new NamespaceSymbolName(namespaceDclr.getPrefix());
+
+        BLangSymbol nsSymbol = currentScope.resolve(nsSymbolName);
+        if (nsSymbol != null && nsSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+            BLangExceptionHelper.throwSemanticError(namespaceDclr, SemanticErrors.REDECLARED_SYMBOL,
+                    namespaceDclr.getPrefix());
+        }
+
+        currentScope.define(nsSymbolName, namespaceDclr);
     }
 
     // Private methods.
@@ -3682,10 +3689,10 @@ public class SemanticAnalyzer implements NodeVisitor {
      * Populate the namespace map of a {@link XMLAttributesRefExpr}.
      * Namespaces are looked-up in the scopes visible to the provided expression.
      * 
-     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the bamespaces
+     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr} to populate the namespaces
      */
     private void populateNamespaceMap(XMLAttributesRefExpr xmlAttributesRefExpr) {
-        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
+        Map<String, String> namespaces = new HashMap<String, String>();
         SymbolScope scope = currentScope;
         while (true) {
             for (Entry<SymbolName, BLangSymbol> symbols : scope.getSymbolMap().entrySet()) {
@@ -3695,8 +3702,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
 
                 NamespaceDeclaration namespaceDecl = (NamespaceDeclaration) symbols.getValue();
-                if (!namespaceDecl.isDefaultNamespace() && !namespaces.containsKey(namespaceDecl.getPrefix()) &&
-                        !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
+                if (!namespaceDecl.isDefaultNamespace() && !namespaces.containsKey(namespaceDecl.getPrefix())
+                        && !namespaces.containsValue(namespaceDecl.getNamespaceUri())) {
                     namespaces.put(namespaceDecl.getPrefix(), namespaceDecl.getNamespaceUri());
                 }
             }
@@ -3706,6 +3713,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             scope = scope.getEnclosingScope();
         }
+
+        xmlAttributesRefExpr.setNamespaces(namespaces);
     }
 
     /**

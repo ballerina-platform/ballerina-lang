@@ -838,55 +838,55 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
     }
-    
+
     @Test
     public void testGetNamespaceAsAttribute() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetNamespaceAsAttribute");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "http://sample.com/wso2/f");
     }
-    
+
     @Test
     public void testGetAttributeWithQName() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar1");
-        
+
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "bar2");
-        
+
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "");
     }
-    
+
     @Test
     public void testUsingQNameAsString() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testUsingQNameAsString");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a1}wso2");
-        
+
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a1}ballerina");
     }
-    
+
     @Test
     public void testGetAttributesAsMap() {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributesAsMap");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
-                "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
-        
+        Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":"
+                + "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+
         Assert.assertTrue(returns[1] instanceof BMap);
-        Assert.assertEquals(returns[1].stringValue(), "{\"{http://sample.com/default/namepsace}ns0\":" +
-                "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
-        
+        Assert.assertEquals(returns[1].stringValue(), "{\"{http://sample.com/default/namepsace}ns0\":"
+                + "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
+
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "bar1");
-        
+
         Assert.assertTrue(returns[3] instanceof BString);
         Assert.assertEquals(returns[3].stringValue(), "bar1");
     }
-    
+
     @Test
     public void testNamespaceDclr() {
         BValue[] returns = BLangFunctions.invokeNew(namespaceProgFile, "testNamespaceDclr");
@@ -899,20 +899,26 @@ public class XMLTest {
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
     }
-    
+
     @Test
     public void testInnerScopeNamespaceDclr() {
         BValue[] returns = BLangFunctions.invokeNew(namespaceProgFile, "testInnerScopeNamespaceDclr");
         Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
-        
+        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a1}foo");
+
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a3}foo");
-        
+
         Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/a2}foo");
+        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/a1}foo");
     }
-    
+
+    @Test(expectedExceptions = { SemanticException.class }, 
+            expectedExceptionsMessageRegExp = "redeclareNamespaces.bal:11: redeclared symbol 'ns0'")
+    public void testRedeclaringNamespace() {
+        BTestUtils.getProgramFile("samples/xml/redeclareNamespaces.bal");
+    }
+
     @Test(expectedExceptions = { SemanticException.class }, 
             expectedExceptionsMessageRegExp = "attributeMapInvalidUse.bal:6: incompatible types: 'xml-attributes' " +
             "cannot be assigned to 'map'")
@@ -928,31 +934,28 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"{http://www.w3.org/2000/xmlns/}ns0\":" +
             "\"http://sample.com/wso2/a1\",\"{http://sample.com/wso2/a1}foo1\":\"bar1\",\"foo2\":\"bar2\"}");
     }
-    
-    @Test(expectedExceptions = { SemanticException.class }, 
-            expectedExceptionsMessageRegExp = "namespaceConflictWithPkgImport.bal:6: package import already exists " +
-            "with the name 'x'")
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "namespaceConflictWithPkgImport.bal:6: redeclared symbol 'x'")
     public void testNamespaceConflictWithPkgImport() {
-        ProgramFile xmlAttributeMapInvalidUsage =
-                BTestUtils.getProgramFile("samples/xml/namespaceConflictWithPkgImport.bal");
+        ProgramFile xmlAttributeMapInvalidUsage = BTestUtils
+                .getProgramFile("samples/xml/namespaceConflictWithPkgImport.bal");
     }
-    
-    @Test(expectedExceptions = { SemanticException.class }, 
-            expectedExceptionsMessageRegExp = "pkgImportConflictWithNamespace.bal:4: namespace already exists with " +
-            "the name 'x'")
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "pkgImportConflictWithNamespace.bal:4: redeclared symbol 'x'")
     public void testPkgImportConflictWithNamespace() {
-        ProgramFile xmlAttributeMapInvalidUsage =
-                BTestUtils.getProgramFile("samples/xml/pkgImportConflictWithNamespace.bal");
+        ProgramFile xmlAttributeMapInvalidUsage = BTestUtils
+                .getProgramFile("samples/xml/pkgImportConflictWithNamespace.bal");
     }
-    
-    @Test(expectedExceptions = { SemanticException.class }, 
-            expectedExceptionsMessageRegExp = "getAttributesFromNonXml.bal:4: incompatible types: expected 'xml', " +
-            "found 'map'")
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "getAttributesFromNonXml.bal:4: incompatible types: expected 'xml', "
+                    + "found 'map'")
     public void testGetAttributesFromNonXml() {
-        ProgramFile xmlAttributeMapInvalidUsage =
-                BTestUtils.getProgramFile("samples/xml/getAttributesFromNonXml.bal");
+        ProgramFile xmlAttributeMapInvalidUsage = BTestUtils.getProgramFile("samples/xml/getAttributesFromNonXml.bal");
     }
-    
+
     @Test(expectedExceptions = { SemanticException.class }, 
             expectedExceptionsMessageRegExp = "updateAttributeMap.bal:3: xml attributes cannot be updated as a " +
             "collection. update attributes one at a time")
