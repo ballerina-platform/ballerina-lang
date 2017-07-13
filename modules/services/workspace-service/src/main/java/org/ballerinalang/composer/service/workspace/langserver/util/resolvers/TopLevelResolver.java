@@ -7,6 +7,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Resolves all items that can appear as a top level element in the file.
@@ -19,43 +20,28 @@ public class TopLevelResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         if (!this.isAnnotationContext(dataModel)) {
-            CompletionItem importItem = new CompletionItem();
-            importItem.setLabel(ItemResolverConstants.IMPORT);
-            importItem.setInsertText(ItemResolverConstants.IMPORT + " ");
-            importItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            importItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            completionItems.add(importItem);
-
-            CompletionItem packageItem = new CompletionItem();
-            packageItem.setLabel(ItemResolverConstants.PACKAGE);
-            packageItem.setInsertText(ItemResolverConstants.PACKAGE + " ");
-            packageItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            packageItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            completionItems.add(packageItem);
-
-            CompletionItem functionItem = new CompletionItem();
-            functionItem.setLabel(ItemResolverConstants.FUNCTION);
-            functionItem.setInsertText(ItemResolverConstants.FUNCTION_TEMPLATE);
-            functionItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            functionItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            completionItems.add(functionItem);
-
-            CompletionItem serviceItem = new CompletionItem();
-            serviceItem.setLabel(ItemResolverConstants.SERVICE);
-            serviceItem.setInsertText(ItemResolverConstants.SERVICE_TEMPLATE);
-            serviceItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            serviceItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            completionItems.add(serviceItem);
-
-            CompletionItem connectorDefItem = new CompletionItem();
-            connectorDefItem.setLabel(ItemResolverConstants.CONNECTOR);
-            connectorDefItem.setInsertText(ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
-            connectorDefItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-            connectorDefItem.setSortText(ItemResolverConstants.PRIORITY_4);
-            completionItems.add(connectorDefItem);
+            addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
+            addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
+            addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
+                    ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.STRUCT,
+                    ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
+                    ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
         }
 
         completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         return completionItems;
+    }
+
+    void addStaticItem(List<CompletionItem> completionItems, String label, String insertText) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel(label);
+        item.setInsertText(insertText);
+        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        item.setSortText(ItemResolverConstants.PRIORITY_4);
+        completionItems.add(item);
     }
 }
