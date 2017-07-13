@@ -1,5 +1,6 @@
 package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
@@ -19,20 +20,28 @@ public class TopLevelResolver extends AbstractItemResolver {
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (!this.isAnnotationContext(dataModel)) {
-            addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
-            addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
-            addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
-            addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
-            addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
-                    ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
-            addStaticItem(completionItems, ItemResolverConstants.STRUCT,
-                    ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
-            addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
-                    ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
-        }
 
-        completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+        ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
+        AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
+                resolvers.get(parserRuleContext.getClass());
+        if (errorContextResolver != null && errorContextResolver != this) {
+            completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
+        } else {
+            if (!this.isAnnotationContext(dataModel)) {
+                addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
+                addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
+                addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
+                addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
+                addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
+                        ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
+                addStaticItem(completionItems, ItemResolverConstants.STRUCT,
+                        ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
+                addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
+                        ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
+
+            }
+            completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+        }
         return completionItems;
     }
 
