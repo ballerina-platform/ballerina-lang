@@ -51,7 +51,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
             Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
             if (packages == null) {
-                packages = Utils.getAllPackages();
+                packages = Utils.getAllPackages().entrySet();
             }
             List<CompletionItem> collect = packages.stream()
                     .map(i -> i.getValue().getAnnotations())
@@ -60,7 +60,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
                         String insertText = lastPart(i.getPackagePath()) + ":" + i.getName();
                         importItem.setLabel("@" + insertText + " (" + i.getPackagePath() + ")");
-                        importItem.setInsertText(insertText);
+                        importItem.setInsertText(insertText + "{}");
                         importItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
                         importItem.setSortText(ItemResolverConstants.PRIORITY_4);
                         return importItem;

@@ -11,8 +11,10 @@ public class TextDocumentPositionParams {
      * TODO: Need to refactor this to keep track of the document identifier. we need to issue didChange notifications
      */
     private String text;
-
     private Position position;
+    private String fileName;
+    private String filePath;
+    private String packageName;
 
     public String getText() {
         return text;
@@ -28,5 +30,30 @@ public class TextDocumentPositionParams {
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }

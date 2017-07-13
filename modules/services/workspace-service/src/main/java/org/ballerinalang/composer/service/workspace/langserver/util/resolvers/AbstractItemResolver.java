@@ -175,15 +175,17 @@ public abstract class AbstractItemResolver {
      */
     private String getFunctionSignature(BallerinaFunction ballerinaFunction) {
         StringBuffer signature = new StringBuffer(ballerinaFunction.getName());
-        String initString = "(";
+        String initString = "";
+        String endString = ")";
+        signature.append("(");
         for (ParameterDef simpleTypeName : ballerinaFunction.getParameterDefs()) {
             signature.append(initString).append(simpleTypeName.getTypeName()).append(" ").
                     append(simpleTypeName.getName());
             initString = ", ";
         }
-        signature.append(")");
+        signature.append(endString);
         initString = "(";
-        String endString = "";
+        endString = "";
         for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
             signature.append(initString).append(simpleTypeName.getTypeName());
             initString = ", ";

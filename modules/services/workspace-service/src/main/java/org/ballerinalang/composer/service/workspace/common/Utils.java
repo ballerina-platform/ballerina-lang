@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *  Class with common utility functions used by workspace services
@@ -113,9 +112,9 @@ public class Utils {
      * Get all the ballerina packages associated with the runtime
      * @return - packages set
      */
-    public static Set<Map.Entry<String, ModelPackage>> getAllPackages() {
+    public static Map<String, ModelPackage> getAllPackages() {
         BallerinaProgramContentProvider programContentProvider = BallerinaProgramContentProvider.getInstance();
-        Set<Map.Entry<String, ModelPackage>> packages = programContentProvider.getAllPackages().entrySet();
+        Map<String, ModelPackage> packages = programContentProvider.getAllPackages();
         return packages;
     }
 }
