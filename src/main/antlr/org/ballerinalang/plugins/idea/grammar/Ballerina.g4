@@ -279,7 +279,19 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' codeBlockBody '}' ('else' 'if' '(' expression ')' '{' codeBlockBody '}')* ('else' '{' codeBlockBody '}')?
+    :  ifClause elseIfClause* elseClause? '}'
+    ;
+
+ifClause
+    :   'if' '(' expression ')' '{' codeBlockBody
+    ;
+
+elseIfClause
+    :   '}' 'else' 'if' '(' expression ')' '{' codeBlockBody
+    ;
+
+elseClause
+    :   '}' 'else' '{' codeBlockBody
     ;
 
 codeBlockBody
@@ -317,14 +329,14 @@ joinClause
     :   '}' 'join' ('(' joinConditions ')')? '(' codeBlockParameter ')' '{' codeBlockBody
     ;
 
-// below typeName is only 'message[]'
-timeoutClause
-    :   '}' 'timeout' '(' expression ')' '(' codeBlockParameter ')'  '{' codeBlockBody
-    ;
-
 joinConditions
     :   'some' IntegerLiteral (Identifier (',' Identifier)*)? 	# anyJoinCondition
     |   'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
+    ;
+
+// below typeName is only 'message[]'
+timeoutClause
+    :   '}' 'timeout' '(' expression ')' '(' codeBlockParameter ')'  '{' codeBlockBody
     ;
 
 tryCatchStatement

@@ -126,7 +126,8 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == CODE_BLOCK_BODY) {
-                    if (parentElementType == IF_ELSE_STATEMENT || parentElementType == TRY_CATCH_STATEMENT
+                    if (parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
+                            || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
                             || parentElementType == CATCH_CLAUSE || parentElementType == FINALLY_CLAUSE
                             || parentElementType == JOIN_CLAUSE || parentElementType == TIMEOUT_CLAUSE
                             || parentElementType == TRANSACTION_STATEMENT || parentElementType == ABORTED_CLAUSE
