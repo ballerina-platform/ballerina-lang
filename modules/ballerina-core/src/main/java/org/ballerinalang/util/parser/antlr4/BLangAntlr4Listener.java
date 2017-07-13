@@ -1000,9 +1000,15 @@ public class BLangAntlr4Listener implements BallerinaListener {
         boolean argsAvailable = ctx.expressionList() != null;
         List<BLangModelBuilder.NameReference> filterNameReferenceList = new ArrayList<>();
 
-        if (nameReferenceStack.size() > 1 && !isCompositeConnector) {
-            while (nameReferenceStack.size() > 1) {
-                filterNameReferenceList.add(nameReferenceStack.pop());
+        if (nameReferenceStack.size() > 1) {
+            if (!isCompositeConnector) {
+                while (nameReferenceStack.size() > 1) {
+                    filterNameReferenceList.add(nameReferenceStack.pop());
+                }
+            } else {
+                while (nameReferenceStack.size() > 2) {
+                    filterNameReferenceList.add(nameReferenceStack.pop());
+                }
             }
         }
 
@@ -1033,7 +1039,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
                     filterWhiteSpaceDescriptor = WhiteSpaceUtil.getConnectorInitWithFilterExpWS(tokenStream, ctx);
                 }
                 List<Boolean> argExistenceList = new ArrayList<>();
-                for (BallerinaParser.ExpressionListContext expressionListContext : filterConnectorInitStack) {
+                int filterCount = filterConnectorInitStack.size();
+                for (int i = 0; i < filterCount; i++) {
+                    BallerinaParser.ExpressionListContext expressionListContext = filterConnectorInitStack.pop();
                     if (expressionListContext != null) {
                         argExistenceList.add(true);
                     } else {
@@ -1114,7 +1122,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 filterWhiteSpaceDescriptor = WhiteSpaceUtil.getCompositeConnectorInitWithFilterExpWS(tokenStream, ctx);
             }
             List<Boolean> argExistenceList = new ArrayList<>();
-            for (BallerinaParser.ExpressionListContext expressionListContext : filterConnectorInitStack) {
+            int filterCount = filterConnectorInitStack.size();
+            for (int i = 0; i < filterCount; i++) {
+                BallerinaParser.ExpressionListContext expressionListContext = filterConnectorInitStack.pop();
                 if (expressionListContext != null) {
                     argExistenceList.add(true);
                 } else {

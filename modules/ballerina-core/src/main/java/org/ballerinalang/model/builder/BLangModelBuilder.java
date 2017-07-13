@@ -865,7 +865,7 @@ public class BLangModelBuilder {
         List<Expression> argExprList = new ArrayList<>();
         int compConLen = compositeConnectorInitExprStack.size();
         ConnectorInitExpr[] inputConnectorInitExprs = new ConnectorInitExpr[compConLen];
-        for (int i = 0; i < compConLen; i++) {
+        for (int i = compConLen - 1; i >= 0; i--) {
             inputConnectorInitExprs[i] = compositeConnectorInitExprStack.pop();
         }
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, whiteSpaceDescriptor, inputConnectorInitExprs);
@@ -904,12 +904,16 @@ public class BLangModelBuilder {
         }
 
         List<Expression> argExprList = new ArrayList<>();
-        ConnectorInitExpr[] inputConnectorInitExprs = (ConnectorInitExpr[]) compositeConnectorInitExprStack.toArray();
+        int compConLen = compositeConnectorInitExprStack.size();
+        ConnectorInitExpr[] inputConnectorInitExprs = new ConnectorInitExpr[compConLen];
+        for (int i = compConLen - 1; i >= 0; i--) {
+            inputConnectorInitExprs[i] = compositeConnectorInitExprStack.pop();
+        }
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, whiteSpaceDescriptor, inputConnectorInitExprs);
         argExprList.add(arrayInitExpr);
         if (argsAvailable) {
             argExprList.addAll(exprListStack.pop());
-            checkArgExprValidity(location, argExprList);
+            //checkArgExprValidity(location, argExprList);
         } else {
             argExprList = new ArrayList<>(0);
         }
