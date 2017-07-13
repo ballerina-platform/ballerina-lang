@@ -185,7 +185,7 @@ class TransformStatementDecorator extends React.Component {
     }
 
     getSourcesAndTargets() {
-        const packageObj = this.context.renderingContext.getPackagedScopedEnvironment().getCurrentPackage();
+        const packageObj = this.context.environment;
 
         let variables = this.props.model.filterChildrenInScope(
                                      this.props.model.getFactory().isVariableDefinitionStatement)
@@ -370,66 +370,8 @@ class TransformStatementDecorator extends React.Component {
     }
 
     onExpand() {
-        self = this;
-        expanded = true;
-        this.predefinedStructs = [];
-        predefinedStructs = this.predefinedStructs;
-
-        ReactDom.render(
-            <TransformExpanded
-                model={this.props.model}
-                editor={this.context.editor}
-                onClose={this.onRetract}
-                sourcesAndTargets={this.getSourcesAndTargets()}
-                onTransformDropZoneActivate={this.onTransformDropZoneActivate.bind(this)}
-                onTransformDropZoneDeactivate={this.onTransformDropZoneDeactivate.bind(this)}
-                onSourceAdd={this.onSourceAdd.bind(this)}
-                onTargetAdd={this.onTargetAdd.bind(this)}
-                onUnmount={this.onUnmount}
-            />,
-            $('#transform-expanded-container')[0]);
-
-        this.mapper = new TransformRender(
-            TransformStatementDecorator.onConnectionCallback, TransformStatementDecorator.onDisconnectionCallback);
-        mapper = this.mapper;
-
-        _.forEach(this.props.model.getInput(), (input) => {
-            //trim expression to remove any possible white spaces
-            this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
-        });
-
-        _.forEach(this.props.model.getOutput(), (output) => {
-            //trim expression to remove any possible white spaces
-            this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
-        });
-
-        _.forEach(this.props.model.getChildren(), (statement) => {
-            this.createConnection(statement);
-        });
-
-        $(window).on('resize', () => {
-            self.mapper.reposition(self.mapper);
-        });
-
-        $('.leftType, .rightType, .middle-content').on('scroll', () => {
-            self.mapper.reposition(self.mapper);
-        });
-
-        this.props.model.on('child-added', (node) => {
-            if (BallerinaASTFactory.isAssignmentStatement(node) &&
-                    BallerinaASTFactory.isFunctionInvocationExpression(node.getChildren()[1].getChildren()[0])) {
-                const functionInvocationExpression = node.getChildren()[1].getChildren()[0];
-                const func = this.getFunctionDefinition(functionInvocationExpression);
-                if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
-                    return;
-                }
-                this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-
-                // remove function invocation parameters
-                _.remove(functionInvocationExpression.getChildren());
-            }
-        });
+        const { designView } = this.context;
+        designView.setTransformActive(true, this.props.model);
     }
 
     onRetract() {

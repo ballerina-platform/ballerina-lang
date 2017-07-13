@@ -64,6 +64,7 @@ export default class SuggestionsDropdown extends React.Component {
                 suggestions={this.state.suggestions}
                 onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                 onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                onSuggestionSelected={this.props.onSuggestionSelected}
                 shouldRenderSuggestions={shouldRenderSuggestions}
                 getSuggestionValue={getSuggestionValue}
                 renderSuggestion={renderSuggestion}
