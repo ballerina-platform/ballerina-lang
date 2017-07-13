@@ -93,7 +93,7 @@ class SourceView extends React.Component {
             getLangServerClientInstance()
                 .then((langserverClient) => {
                     const completer = SourceViewCompleterFactory.getSourceViewCompleter(langserverClient);
-                    langTools.addCompleter(completer);
+                    langTools.setCompleters(completer);
                 })
                 .catch(log.error);
             this.editor = editor;
