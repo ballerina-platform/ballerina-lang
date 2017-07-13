@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
@@ -123,6 +124,15 @@ public class BTypes {
         BType bType = null;
         if (symbol instanceof BType) {
             bType = (BType) symbol;
+            if ((bType instanceof BJSONType) && (typeName.getConstraint() != null)) {
+                symbol = symbolScope.resolve(new SymbolName(typeName.getConstraint().getName(),
+                                                            typeName.getConstraint().getPackagePath()));
+                if (symbol == null) {
+                    throw new SemanticException(getNodeLocationStr(location) + "undefined struct type '" + typeName +
+                                                "' for constraining json");
+                }
+                ((BJSONType) bType).setConstraint((StructDef) symbol);
+            }
         }
 
         if (bType != null) {

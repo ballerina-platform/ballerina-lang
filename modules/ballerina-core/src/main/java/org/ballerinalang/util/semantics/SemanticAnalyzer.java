@@ -123,6 +123,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -2146,6 +2147,19 @@ public class SemanticAnalyzer implements NodeVisitor {
             fieldBasedVarRefExpr.setType(((BMapType) varRefType).getElementType());
 
         } else if (varRefType == BTypes.typeJSON) {
+            StructDef structDefReference = ((BJSONType) varRefType).getConstraint();
+            if (structDefReference != null) {
+                BLangSymbol fieldSymbol = structDefReference.resolveMembers(
+                        new SymbolName(fieldName, structDefReference.getPackagePath()));
+                if (fieldSymbol == null) {
+                    throw BLangExceptionHelper
+                            .getSemanticError(varRefExpr.getNodeLocation(), SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT,
+                                              fieldName, structDefReference.getName());
+                }
+                VariableDef fieldDef = (VariableDef) fieldSymbol;
+                fieldBasedVarRefExpr.setFieldDef(fieldDef);
+                fieldBasedVarRefExpr.setType(fieldDef.getType());
+            }
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
 
         } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {

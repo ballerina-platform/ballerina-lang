@@ -683,6 +683,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         String builtInRefTypeName = ctx.getChild(0).getText();
         SimpleTypeName simpleTypeName = new SimpleTypeName(builtInRefTypeName);
+
+        if (ctx.nameReference() != null) {
+            BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
+            modelBuilder.validateAndSetPackagePath(getCurrentLocation(ctx), nameReference);
+            if (nameReference != null) {
+                SimpleTypeName constraint =
+                        new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
+                                           nameReference.getPackagePath(), null);
+                simpleTypeName.setConstraint(constraint);
+            }
+        }
+
         simpleTypeName.setNodeLocation(getCurrentLocation(ctx));
         if (isVerboseMode) {
             WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
