@@ -644,12 +644,12 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(Worker worker) {
-        checkAndSetClosestScope(worker);
         // Open a new symbol scope. This is done manually to avoid falling back to package scope
         parentScope.push(currentScope);
         currentScope = worker;
         parentCallableUnit.push(currentCallableUnit);
         currentCallableUnit = worker;
+        checkAndSetClosestScope(worker);
 
         //resolveWorkerInteractions(worker.gerWorkerInteractions());
 
