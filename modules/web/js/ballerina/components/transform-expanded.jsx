@@ -332,7 +332,6 @@ class TransformExpanded extends React.Component {
                 'Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
             return;
         }
-
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
         } else {
@@ -449,7 +448,7 @@ class TransformExpanded extends React.Component {
         let assignmentStmt = this.findExistingAssignmentStatement(id);
         if (assignmentStmt === undefined) {
             return _.find(assignmentStmts, (assignmentStmt) => {
-                let expression = this.findFunctionInvocationById(assignmentStmt.getRightExpression(), id);
+                let expression = this.findFunctionInvocationById(assignmentStmt, id);
                 if (expression !== undefined) {
                     return assignmentStmt;
                 }
@@ -545,11 +544,11 @@ class TransformExpanded extends React.Component {
         });
 
         $(window).on('resize', () => {
-            self.mapper.reposition(self.mapper);
+            this.mapper.reposition(this.mapper);
         });
 
         $('.leftType, .rightType, .middle-content').on('scroll', () => {
-            self.mapper.reposition(self.mapper);
+            this.mapper.reposition(this.mapper);
         });
 
         this.props.model.on('child-added', (node) => {
