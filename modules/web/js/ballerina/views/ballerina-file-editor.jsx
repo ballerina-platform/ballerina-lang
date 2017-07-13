@@ -63,11 +63,11 @@ class BallerinaFileEditor extends React.Component {
         this.sourceModified = false;
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
-            // Change was done from source editor.
-            // just keep track of it for the moment and when user tries
-            // to switch back to a different view, we will try rebuild
-            // the ast. See BallerinaFileEditor#setActiveView
-            // NOTE: this is to avoid caling building AST for each change
+            // Change was done from the source view.
+            // Just keep track of it for the moment and when user tries
+            // to switch back to a different view, we will try to rebuild
+            // the ast. See BallerinaFileEditor#setActiveView.
+            // NOTE: This is to avoid unnecessary parser invocations for each change
             // event in source view
             if (evt.originEvt.type === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                 this.sourceModified = true;
