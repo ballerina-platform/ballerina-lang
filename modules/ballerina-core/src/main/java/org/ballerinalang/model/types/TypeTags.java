@@ -41,4 +41,6 @@ public class TypeTags {
     public static final int ARRAY_TAG = 16;
     public static final int ANNOTATION_TAG = 17;
     public static final int NULL_TAG = 18;
+
+    public static final int TYPE_TAG = 19;
 }

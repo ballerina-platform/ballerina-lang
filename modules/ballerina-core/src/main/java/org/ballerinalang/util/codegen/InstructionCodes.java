@@ -191,6 +191,7 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
+    int LENGTHOF = 158;
 
     // Type cast
     int I2ANY = 160;
@@ -248,5 +249,15 @@ public interface InstructionCodes {
     int RRET = 236;
     int RET = 237;
 
-    int INSTRUCTION_CODE_COUNT = 238;
+    int TYPEOF_INT = 238;
+    int TYPEOF_FLOAT = 239;
+    int TYPEOF_STRING = 240;
+    int TYPEOF_BOOLEAN = 241;
+    int TYPEOF_BLOB = 242;
+    int TYPEOF_REF = 243;
+
+    int TEQ = 244;
+    int TNE = 255;
+
+    int INSTRUCTION_CODE_COUNT = 256;
 }

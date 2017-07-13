@@ -65,7 +65,7 @@ annotation ServiceConfig attach service {
 annotation Authorization {
     string name;
     string description;
-    string type;
+    string _type;
     string apiName;
     string in;
     string flow;
@@ -96,14 +96,14 @@ annotation ParameterInfo {
     string description;
     boolean required;
     string allowEmptyValue;
-    string type;
+    string _type;
     string format;
     string collectionFormat;
     Item[] items;
 }
 
 annotation Item {
-    string type;
+    string _type;
     string format;
     string collectionFormat;
     string items;
@@ -131,10 +131,10 @@ annotation Response {
 annotation Header {
     string name;
     string description;
-    string type;
+    string _type;
 }
 
 annotation Example {
-    string type;
+    string _type;
     string value;
 }

@@ -730,6 +730,14 @@ public class BLangModelBuilder {
                 expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.NOT, rExpr);
                 break;
 
+            case "lengthof":
+                expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.LENGTHOF, rExpr);
+                break;
+
+            case "typeof":
+                expr = new UnaryExpression(location, whiteSpaceDescriptor, Operator.TYPEOF, rExpr);
+                break;
+
             default:
                 String errMsg = BLangExceptionHelper
                         .constructSemanticError(location, SemanticErrors.UNSUPPORTED_OPERATOR, op);
