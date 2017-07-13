@@ -86,7 +86,16 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source could be a function node.
             const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
-            assignmentStmtSource.getRightExpression().addChild(sourceExpression);
+            let funcNode;
+            if (BallerinaASTFactory.isFunctionInvocationExpression(connection.targetReference)) {
+                funcNode = connection.targetReference;
+            } else {
+                funcNode = connection.targetReference.getRightExpression();
+            }
+            let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
+                                                (param) => { return param.name == connection.targetProperty[0]});
+            funcNode.removeChild(funcNode.children[index], true);
+            funcNode.addChild(sourceExpression, index);
             return assignmentStmtSource.id;
         }
 
@@ -94,7 +103,11 @@ class TransformExpanded extends React.Component {
             // Connection target is not a struct and source is a struct.
             // Target is a function node.
             const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            assignmentStmtTarget.getLeftExpression().addChild(targetExpression);
+            let index = _.findIndex(self.getFunctionDefinition(
+                                                    connection.sourceReference.getRightExpression()).getReturnParams(),
+                                                            (param) => {
+                                                                return param.name == connection.sourceProperty[0]});
+            assignmentStmtTarget.getLeftExpression().addChild(targetExpression, index);
             return assignmentStmtTarget.id;
         }
 
@@ -549,9 +562,6 @@ class TransformExpanded extends React.Component {
                     return;
                 }
                 this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
-
-                // remove function invocation parameters
-                _.remove(functionInvocationExpression.getChildren());
             }
         });
     }
