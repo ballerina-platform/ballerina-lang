@@ -154,8 +154,8 @@ class TransformRender {
     disconnectAll(connection) {
         this.jsPlumbInstance.detachEveryConnection();
         $('.middle-content').empty(); // remove function views
-        $('.left-content').empty(); // remove function views
-        $('.right-content').empty(); // remove function views
+        $('.leftType').empty(); // remove function views
+        $('.rightType').empty(); // remove function views
     }
 
 /**
