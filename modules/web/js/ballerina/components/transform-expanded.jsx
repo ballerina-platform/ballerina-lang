@@ -35,15 +35,14 @@ class TransformExpanded extends React.Component {
             selectedSource: '-1',
             selectedTarget: '-1',
         }
-
-        this.predefinedStructs = this.getSourcesAndTargets();
+        this.predefinedStructs = [];
+        this.getSourcesAndTargets();
 
         this.onSourceSelect = this.onSourceSelect.bind(this);
         this.onTargetSelect = this.onTargetSelect.bind(this);
         this.onSourceAdd = this.onSourceAdd.bind(this);
         this.onTargetAdd = this.onTargetAdd.bind(this);
         this.onClose = this.onClose.bind(this);
-        this.getSourcesAndTargets = this.getSourcesAndTargets.bind(this);
         this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
         this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.onTransformDropZoneActivate = this.onTransformDropZoneActivate.bind(this);
@@ -488,6 +487,24 @@ class TransformExpanded extends React.Component {
         return prop;
     }
 
+    getStructDefinition(packageIdentifier, structName) {
+        let _package;
+        if (packageIdentifier !== undefined) {
+            _package = this.context.environment.getPackageByIdentifier(packageIdentifier);
+        } else {
+            _package = this.context.environment.getCurrentPackage();
+        }
+
+        if (_package === undefined) {
+            alerts.error('Referred package ' + packageIdentifier + ' cannot be resolved');
+            return;
+        }
+
+        return _.find(_package.getStructDefinitions(), (structDef) => {
+            return structName === structDef.getName();
+        });
+    }
+
     createType(name, typeName, predefinedStruct) {
         let struct = {};
         struct.name = name;
@@ -730,6 +747,7 @@ class TransformExpanded extends React.Component {
                 variableType.id = arg.id;
                 variableType.name = arg.name;
                 variableType.type = arg.type;
+                this.predefinedStructs.push(variableType);
                 items.push({name: variableType.name, type: variableType.type});
             }
         });
