@@ -32,19 +32,19 @@ public class BallerinaTypes {
 
     }
 
-    public static final List<RuleIElementType> ruleIElementTypes =
+    private static final List<RuleIElementType> ruleIElementTypes =
             PSIElementTypeFactory.getRuleIElementTypes(BallerinaLanguage.INSTANCE);
 
-    public static final List<TokenIElementType> tokenIElementTypes =
+    private static final List<TokenIElementType> tokenIElementTypes =
             PSIElementTypeFactory.getTokenIElementTypes(BallerinaLanguage.INSTANCE);
 
     public static final TokenIElementType IDENTIFIER = tokenIElementTypes.get(BallerinaLexer.Identifier);
     public static final TokenIElementType COMMENT_STATEMENT = tokenIElementTypes.get(BallerinaLexer.LINE_COMMENT);
     public static final TokenIElementType QUOTED_STRING = tokenIElementTypes.get(BallerinaLexer.QuotedStringLiteral);
-    public static final TokenIElementType BACKTICKED_STRING = tokenIElementTypes.get(BallerinaLexer
-            .BacktickStringLiteral);
+    public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
+    public static final TokenIElementType BACKTICKED_STRING =
+            tokenIElementTypes.get(BallerinaLexer.BacktickStringLiteral);
     public static final TokenIElementType ERRCHAR = tokenIElementTypes.get(BallerinaLexer.ERRCHAR);
-    public static final TokenIElementType SINGLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.SINGLEQUOTE);
     public static final TokenIElementType DOUBLE_QUOTE = tokenIElementTypes.get(BallerinaLexer.DOUBLEQUOTE);
     public static final TokenIElementType BACK_TICK = tokenIElementTypes.get(BallerinaLexer.BACKTICK);
 
@@ -59,12 +59,10 @@ public class BallerinaTypes {
     public static final RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(RULE_functionDefinition);
     public static final RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(RULE_serviceDefinition);
     public static final RuleIElementType RESOURCE_DEFINITION = ruleIElementTypes.get(RULE_resourceDefinition);
-    public static final RuleIElementType CONNECTOR_DEFINITION =
-            ruleIElementTypes.get(RULE_connectorDefinition);
+    public static final RuleIElementType CONNECTOR_DEFINITION = ruleIElementTypes.get(RULE_connectorDefinition);
     public static final RuleIElementType ACTION_DEFINITION = ruleIElementTypes.get(RULE_actionDefinition);
     public static final RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(RULE_structDefinition);
-    public static final RuleIElementType TYPE_MAPPER_DEFINTION =
-            ruleIElementTypes.get(RULE_typeMapperDefinition);
+    public static final RuleIElementType TYPE_MAPPER_DEFINTION = ruleIElementTypes.get(RULE_typeMapperDefinition);
 
     public static final RuleIElementType IF_ELSE_STATEMENT = ruleIElementTypes.get(RULE_ifElseStatement);
     public static final RuleIElementType CODE_BLOCK_BODY = ruleIElementTypes.get(RULE_codeBlockBody);
@@ -82,8 +80,7 @@ public class BallerinaTypes {
     public static final RuleIElementType ABORTED_CLAUSE = ruleIElementTypes.get(RULE_abortedClause);
     public static final RuleIElementType COMMITTED_CLAUSE = ruleIElementTypes.get(RULE_committedClause);
     public static final RuleIElementType TRANSFORM_STATEMENT = ruleIElementTypes.get(RULE_transformStatement);
-    public static final RuleIElementType TRANSFORM_STATEMENT_BODY =
-            ruleIElementTypes.get(RULE_transformStatementBody);
+    public static final RuleIElementType TRANSFORM_STATEMENT_BODY = ruleIElementTypes.get(RULE_transformStatementBody);
     public static final RuleIElementType XML_LOCAL_NAME = ruleIElementTypes.get(RULE_xmlLocalName);
     public static final RuleIElementType NAME_REFERENCE = ruleIElementTypes.get(RULE_nameReference);
     public static final RuleIElementType VARIABLE_REFERENCE = ruleIElementTypes.get(RULE_variableReference);
@@ -96,8 +93,7 @@ public class BallerinaTypes {
     public static final RuleIElementType XML_ATTRIB = ruleIElementTypes.get(RULE_xmlAttrib);
 
     public static final RuleIElementType PARAMETER_LIST = ruleIElementTypes.get(RULE_parameterList);
-    public static final RuleIElementType ANNOTATION_ATTACHMENT =
-            ruleIElementTypes.get(RULE_annotationAttachment);
+    public static final RuleIElementType ANNOTATION_ATTACHMENT = ruleIElementTypes.get(RULE_annotationAttachment);
     public static final RuleIElementType ATTACHMENT_POINT = ruleIElementTypes.get(RULE_attachmentPoint);
     public static final RuleIElementType ANNOTATION_ATTRIBUTE_LIST =
             ruleIElementTypes.get(RULE_annotationAttributeList);
@@ -195,8 +191,6 @@ public class BallerinaTypes {
     public static final TokenIElementType CARET = tokenIElementTypes.get(BallerinaLexer.CARET);
     public static final TokenIElementType MOD = tokenIElementTypes.get(BallerinaLexer.MOD);
     public static final TokenIElementType AT = tokenIElementTypes.get(BallerinaLexer.AT);
-
-    public static final TokenIElementType INTEGER_LITERAL = tokenIElementTypes.get(BallerinaLexer.IntegerLiteral);
 
     public static final TokenSet OPERATORS = TokenSet.create(ASSIGN, EQUAL, LE, GE, NOTEQUAL, AND, OR, MUL, DIV,
             BITAND, BITOR, CARET, MOD);

@@ -62,39 +62,10 @@ public class StructValueReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         List<LookupElement> results = new LinkedList<>();
-
         IdentifierPSINode identifier = getElement();
-
         PsiFile containingFile = identifier.getContainingFile();
         PsiFile originalFile = containingFile.getOriginalFile();
-        // Todo -  Add functions, global variables, constants in current package from name reference
 
-
-        // Todo - use util
-        //                List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-        //        for (PsiElement importedPackage : importedPackages) {
-        //            PsiReference reference = importedPackage.findReferenceAt(0);
-        //            if (reference == null) {
-        //                continue;
-        //            }
-        //            PsiElement resolvedElement = reference.resolve();
-        //            if (resolvedElement == null) {
-        //                continue;
-        //            }
-        //            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-        //                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        //            results.add(lookupElement);
-        //        }
-        //
-        //        List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-        //                (containingFile);
-        //        for (PsiDirectory unImportedPackage : unImportedPackages) {
-        //            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
-        // (unImportedPackage,
-        //                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-        //            results.add(lookupElement);
-        //        }
         List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                 PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
                 BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -103,18 +74,10 @@ public class StructValueReference extends BallerinaElementReference {
         // Todo - improve suggesting elements from a package in StructValueNode since it will not be identified properly
         MapStructKeyValueNode mapStructKeyValueNode = PsiTreeUtil.getParentOfType(identifier,
                 MapStructKeyValueNode.class);
-
         if (mapStructKeyValueNode != null) {
-
             MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getChildOfType(mapStructKeyValueNode,
                     MapStructKeyNode.class);
-
             if (mapStructKeyNode != null) {
-                //            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
-                //            if (prevVisibleLeaf != null && ":".equals(prevVisibleLeaf.getText())) {
-                //                PsiElement packageName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
-                //                if (packageName != null) {
-
 
                 // Todo - use util?
                 List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
@@ -145,11 +108,9 @@ public class StructValueReference extends BallerinaElementReference {
         }
 
         PsiDirectory currentPackage = originalFile.getParent();
-
         if (currentPackage != null) {
             List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(currentPackage);
             results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
-
 
             List<PsiElement> globalVariables =
                     BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(currentPackage);
@@ -163,7 +124,6 @@ public class StructValueReference extends BallerinaElementReference {
         ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
                 TopLevelDefinition.class, LowerLevelDefinition.class);
         if (scope != null) {
-
             int caretOffset = identifier.getStartOffset();
 
             List<PsiElement> variables = BallerinaPsiImplUtil.getAllLocalVariablesInResolvableScope(scope,
@@ -181,106 +141,6 @@ public class StructValueReference extends BallerinaElementReference {
             List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsInResolvableScope(scope);
             results.addAll(BallerinaCompletionUtils.createConstantLookupElements(constants));
         }
-
-
-        //        IdentifierPSINode identifier = getElement();
-        //        PsiElement parent = identifier.getParent();
-        //
-        //        PackageNameNode packageNameNode = PsiTreeUtil.getChildOfType(parent, PackageNameNode.class);
-        //        if (packageNameNode == null) {
-        //            results.addAll(getVariantsFromCurrentPackage());
-        //        } else {
-        //            results.addAll(getVariantsFromPackage(packageNameNode));
-        //        }
         return results.toArray(new LookupElement[results.size()]);
-    }
-
-    @NotNull
-    private List<LookupElement> getVariantsFromCurrentPackage() {
-        List<LookupElement> results = new LinkedList<>();
-
-        IdentifierPSINode identifier = getElement();
-        PsiFile containingFile = identifier.getContainingFile();
-        PsiFile originalFile = containingFile.getOriginalFile();
-        PsiDirectory containingPackage = originalFile.getParent();
-
-        List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-        for (PsiElement importedPackage : importedPackages) {
-            PsiReference reference = importedPackage.findReferenceAt(0);
-            if (reference == null) {
-                continue;
-            }
-            PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null) {
-                continue;
-            }
-            PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(resolvedPackage,
-                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.add(lookupElement);
-        }
-
-        List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-                (containingFile);
-        for (PsiDirectory unImportedPackage : unImportedPackages) {
-            LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement(unImportedPackage,
-                    BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.add(lookupElement);
-        }
-
-        if (containingPackage != null) {
-
-            List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(containingPackage);
-            results.addAll(BallerinaCompletionUtils.createFunctionsLookupElements(functions));
-
-        }
-
-
-        VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
-                VariableDefinitionNode.class);
-        if (variableDefinitionNode == null) {
-
-        } else {
-            TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
-            if (typeNameNode == null) {
-                // Todo - resolve variable to definition
-            } else {
-                PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
-                if (reference == null) {
-                    return results;
-                }
-
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    return results;
-                }
-
-                PsiElement resolvedElementParent = resolvedElement.getParent();
-                if (resolvedElementParent instanceof StructDefinitionNode) {
-
-                    // Todo - use an util method?
-                    Collection<FieldDefinitionNode> fieldDefinitionNodes =
-                            PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
-                    for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-                        IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType(fieldDefinitionNode,
-                                IdentifierPSINode.class);
-                        TypeNameNode fieldType = PsiTreeUtil.getChildOfType(fieldDefinitionNode, TypeNameNode.class);
-                        if (fieldName == null || fieldType == null) {
-                            continue;
-                        }
-                        LookupElement lookupElement = BallerinaCompletionUtils.createFieldLookupElement(fieldName,
-                                fieldType, (IdentifierPSINode) resolvedElement);
-                        results.add(lookupElement);
-                    }
-
-                }
-            }
-        }
-        return results;
-    }
-
-    @NotNull
-    private List<LookupElement> getVariantsFromPackage(@NotNull PackageNameNode packageNameNode) {
-        return new LinkedList<>();
     }
 }

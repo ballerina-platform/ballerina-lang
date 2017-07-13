@@ -107,13 +107,9 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     addFunctionSpecificKeywords(parameters, result);
 
                     result.addAllElements(BallerinaCompletionUtils.createCommonKeywords());
-
                 }
-
-
                 addValueKeywords(result);
             }
-
 
             ConnectorBodyNode connectorBodyNode = PsiTreeUtil.getParentOfType(element, ConnectorBodyNode.class);
             if (connectorBodyNode != null) {
@@ -125,7 +121,6 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             if (connectorDefinitionNode != null) {
                 addConnectorSpecificKeywords(result);
             }
-
             return;
         }
 
@@ -158,7 +153,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                     ServiceBodyNode serviceBodyNode = PsiTreeUtil.getParentOfType(element, ServiceBodyNode.class);
                     if (serviceBodyNode != null) {
-                        addServiceSpecificKeywords(result);
+                        result.addAllElements(createServiceSpecificKeywords());
                     }
 
 
@@ -174,7 +169,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
 
         if (parent instanceof ResourceDefinitionNode) {
-            addServiceSpecificKeywords(result);
+            result.addAllElements(createServiceSpecificKeywords());
         }
 
 

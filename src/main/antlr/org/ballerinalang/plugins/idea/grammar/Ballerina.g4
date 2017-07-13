@@ -595,7 +595,6 @@ BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
 AT              : '@';
-SINGLEQUOTE     : '\'';
 DOUBLEQUOTE     : '"';
 BACKTICK        : '`';
 

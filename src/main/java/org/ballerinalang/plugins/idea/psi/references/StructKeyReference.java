@@ -43,41 +43,33 @@ public class StructKeyReference extends BallerinaElementReference {
         super(element);
     }
 
-
     @Nullable
     @Override
     public PsiElement resolve() {
-
         IdentifierPSINode identifier = getElement();
 
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
         if (variableDefinitionNode == null) {
-
             // Todo - resolve variable to definition
-
             AssignmentStatementNode assignmentStatementNode = PsiTreeUtil.getParentOfType(identifier,
                     AssignmentStatementNode.class);
             if (assignmentStatementNode == null) {
 
             } else {
-
                 VariableReferenceListNode variableReferenceListNode =
                         PsiTreeUtil.getChildOfType(assignmentStatementNode, VariableReferenceListNode.class);
                 if (variableReferenceListNode == null) {
                     return null;
                 }
-
                 PsiElement variableReferenceNode = variableReferenceListNode.getFirstChild();
                 if (variableReferenceNode == null) {
                     return null;
                 }
-
                 PsiReference reference = variableReferenceNode.findReferenceAt(0);
                 if (reference == null) {
                     return null;
                 }
-
                 PsiElement resolvedElement = reference.resolve();
                 if (resolvedElement == null) {
                     return null;
@@ -86,10 +78,8 @@ public class StructKeyReference extends BallerinaElementReference {
                 if (!(parent instanceof VariableDefinitionNode)) {
                     return null;
                 }
-
                 return resolveDefinition(((VariableDefinitionNode) parent));
             }
-
         } else {
             return resolveDefinition(variableDefinitionNode);
         }
@@ -121,9 +111,7 @@ public class StructKeyReference extends BallerinaElementReference {
         VariableDefinitionNode variableDefinitionNode = PsiTreeUtil.getParentOfType(identifier,
                 VariableDefinitionNode.class);
         if (variableDefinitionNode == null) {
-
             // Todo - resolve variable to definition
-
         } else {
             TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
             if (typeNameNode == null) {
@@ -133,34 +121,14 @@ public class StructKeyReference extends BallerinaElementReference {
                 if (reference == null) {
                     return results;
                 }
-
                 PsiElement resolvedElement = reference.resolve();
                 if (resolvedElement == null) {
                     return results;
                 }
-
                 PsiElement resolvedElementParent = resolvedElement.getParent();
                 if (resolvedElementParent instanceof StructDefinitionNode) {
-
-                    // Todo - use an util method?
                     Collection<FieldDefinitionNode> fieldDefinitionNodes =
                             PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
-                    //                    for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {
-                    //                        IdentifierPSINode fieldName = PsiTreeUtil.getChildOfType
-                    // (fieldDefinitionNode,
-                    //                                IdentifierPSINode.class);
-                    //                        TypeNameNode fieldType = PsiTreeUtil.getChildOfType
-                    // (fieldDefinitionNode, TypeNameNode.class);
-                    //                        if (fieldName == null || fieldType == null) {
-                    //                            continue;
-                    //                        }
-                    //                        LookupElement lookupElement = BallerinaCompletionUtils
-                    // .createFieldLookupElement(fieldName,
-                    //                                fieldType, (IdentifierPSINode) resolvedElement,
-                    //                                PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-                    //                        results.add(lookupElement);
-                    //                    }
-
                     results = BallerinaCompletionUtils.createFieldLookupElements(fieldDefinitionNodes,
                             (IdentifierPSINode) resolvedElement,
                             PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -177,29 +145,22 @@ public class StructKeyReference extends BallerinaElementReference {
 
     @Nullable
     private PsiElement resolveDefinition(@NotNull VariableDefinitionNode variableDefinitionNode) {
-
         IdentifierPSINode identifier = getElement();
-
         TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
-
             return null;
-
         } else {
             PsiReference reference = typeNameNode.findReferenceAt(typeNameNode.getTextLength());
             if (reference == null) {
                 return null;
             }
-
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement == null) {
                 return null;
             }
-
             PsiElement resolvedElementParent = resolvedElement.getParent();
             if (resolvedElementParent instanceof StructDefinitionNode) {
-
-                // Todo - use an util method?
+                // Todo - use an util method
                 Collection<FieldDefinitionNode> fieldDefinitionNodes =
                         PsiTreeUtil.findChildrenOfType(resolvedElementParent, FieldDefinitionNode.class);
                 for (FieldDefinitionNode fieldDefinitionNode : fieldDefinitionNodes) {

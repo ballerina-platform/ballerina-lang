@@ -18,6 +18,9 @@ package org.ballerinalang.plugins.idea.psi.scopes;
 
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 
+/**
+ * Represents a lower level definition like Action, Resource, etc.
+ */
 public interface LowerLevelDefinition extends ScopeNode {
 
 }

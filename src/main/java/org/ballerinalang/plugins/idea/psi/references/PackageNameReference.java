@@ -56,40 +56,12 @@ public class PackageNameReference extends BallerinaElementReference implements P
         if (fullyQualifiedPackageNameNode == null) {
             PsiFile containingFile = identifier.getContainingFile();
             PsiFile originalFile = containingFile.getOriginalFile();
-            //            List<PsiElement> importedPackages = BallerinaPsiImplUtil.getImportedPackages(containingFile);
-            //
-            //            for (PsiElement importedPackage : importedPackages) {
-            //                PsiReference reference = importedPackage.findReferenceAt(0);
-            //                if (reference == null) {
-            //                    continue;
-            //                }
-            //                PsiElement resolvedElement = reference.resolve();
-            //                if (resolvedElement == null) {
-            //                    continue;
-            //                }
-            //                PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;
-            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
-            // (resolvedPackage,
-            //                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            //                results.add(lookupElement);
-            //            }
-            //
-            //            List<PsiDirectory> unImportedPackages = BallerinaPsiImplUtil.getAllUnImportedPackages
-            // (containingFile);
-            //
-            //            for (PsiDirectory unImportedPackage : unImportedPackages) {
-            //                LookupElement lookupElement = BallerinaCompletionUtils.createPackageLookupElement
-            // (unImportedPackage,
-            //                        PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            //                results.add(lookupElement);
-            //            }
+
             // Todo - change insert handler for source annotations
             List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
                     PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
                     BallerinaAutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
             results.addAll(packages);
-
-        } else {
 
         }
         return results.toArray(new LookupElement[results.size()]);
@@ -156,7 +128,6 @@ public class PackageNameReference extends BallerinaElementReference implements P
                 }
             }
         }
-
         return results.toArray(new ResolveResult[results.size()]);
     }
 }

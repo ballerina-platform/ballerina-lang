@@ -18,6 +18,10 @@ package org.ballerinalang.plugins.idea.psi.scopes;
 
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 
+/**
+ * Represent a code block within a definition node.
+ * Eg: Try-Catch block
+ */
 public interface CodeBlockScope extends ScopeNode {
 
 }

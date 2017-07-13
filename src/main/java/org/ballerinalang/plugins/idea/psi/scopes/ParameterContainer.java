@@ -16,6 +16,9 @@
 
 package org.ballerinalang.plugins.idea.psi.scopes;
 
+/**
+ * Indicates that the scope can contain parameters.
+ */
 public interface ParameterContainer {
 
 }

@@ -115,8 +115,6 @@ import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
 
 public class BallerinaParserDefinition implements ParserDefinition {
@@ -126,8 +124,6 @@ public class BallerinaParserDefinition implements ParserDefinition {
     static {
         PSIElementTypeFactory.defineLanguageIElementTypes(BallerinaLanguage.INSTANCE,
                 BallerinaParser.tokenNames, BallerinaParser.ruleNames);
-        List<TokenIElementType> tokenIElementTypes =
-                PSIElementTypeFactory.getTokenIElementTypes(BallerinaLanguage.INSTANCE);
     }
 
     public static final TokenSet IDENTIFIER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,

@@ -17,7 +17,9 @@
 package org.ballerinalang.plugins.idea.psi.scopes;
 
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-
+/**
+ * Indicates that the scope can contain variables.
+ */
 public interface VariableContainer extends ScopeNode {
 
 }

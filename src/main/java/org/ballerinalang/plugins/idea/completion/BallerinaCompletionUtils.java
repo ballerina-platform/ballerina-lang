@@ -33,12 +33,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
-import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
@@ -46,9 +43,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
-import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
@@ -339,24 +334,6 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(XMLNS, KEYWORDS_PRIORITY));
     }
 
-    /**
-     * Adds attachment points as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     */
-    static void addAttachmentPointsAsLookups(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, SERVICE);
-        addKeywordAsLookup(resultSet, RESOURCE);
-        addKeywordAsLookup(resultSet, CONNECTOR);
-        addKeywordAsLookup(resultSet, ACTION);
-        addKeywordAsLookup(resultSet, FUNCTION);
-        addKeywordAsLookup(resultSet, TYPEMAPPER);
-        addKeywordAsLookup(resultSet, STRUCT);
-        addKeywordAsLookup(resultSet, CONST);
-        addKeywordAsLookup(resultSet, PARAMETER);
-        addKeywordAsLookup(resultSet, ANNOTATION);
-    }
-
     public static List<LookupElement> createAttachmentPointsAsLookups() {
         List<LookupElement> lookupElements = new LinkedList<>();
         lookupElements.add(createKeywordAsLookup(SERVICE));
@@ -459,9 +436,11 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addJoinConditionKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, ALL);
-        addKeywordAsLookup(resultSet, SOME);
+    static List<LookupElement> addJoinConditionKeywords(@NotNull CompletionResultSet resultSet) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(ALL));
+        lookupElements.add(createKeywordAsLookup(SOME));
+        return lookupElements;
     }
 
     static void addCreateKeyword(@NotNull CompletionResultSet resultSet) {
@@ -488,41 +467,16 @@ public class BallerinaCompletionUtils {
         }
     }
 
-    /**
-     * Adds function specific keywords like <b>return</b> as lookup elements.
-     *
-     * @param parameters parameters which contain details of completion invocation
-     * @param resultSet  result list which is used to add lookups
-     */
-    static void addActionSpecificKeywords(@NotNull CompletionParameters parameters,
-                                          @NotNull CompletionResultSet resultSet) {
-        PsiFile file = parameters.getOriginalFile();
-        PsiElement element = file.findElementAt(parameters.getOffset());
-        ActionDefinitionNode actionDefinitionNode = PsiTreeUtil.getParentOfType(element, ActionDefinitionNode.class);
-        if (actionDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, RETURN);
-        }
+    static List<LookupElement> getResourceSpecificKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(REPLY));
+        return lookupElements;
     }
 
-    /**
-     * Adds action specific keywords like <b>reply</b> as lookup elements.
-     *
-     * @param parameters parameters which contain details of completion invocation
-     * @param resultSet  result list which is used to add lookups
-     */
-    static void addResourceSpecificKeywords(@NotNull CompletionParameters parameters,
-                                            @NotNull CompletionResultSet resultSet) {
-        PsiFile file = parameters.getOriginalFile();
-        PsiElement element = file.findElementAt(parameters.getOffset());
-        ResourceDefinitionNode resourceDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                ResourceDefinitionNode.class);
-        if (resourceDefinitionNode != null) {
-            addKeywordAsLookup(resultSet, REPLY);
-        }
-    }
-
-    static void addServiceSpecificKeywords(@NotNull CompletionResultSet resultSet) {
-        addKeywordAsLookup(resultSet, RESOURCE);
+    static List<LookupElement> createServiceSpecificKeywords() {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        lookupElements.add(createKeywordAsLookup(RESOURCE));
+        return lookupElements;
     }
 
     static void addConnectorSpecificKeywords(@NotNull CompletionResultSet resultSet) {
@@ -558,72 +512,6 @@ public class BallerinaCompletionUtils {
     public static LookupElement createPackageLookupElement(@NotNull PsiDirectory directory,
                                                            @Nullable InsertHandler<LookupElement> handler) {
         return createPackageLookupElement(directory).withInsertHandler(handler);
-    }
-
-    /**
-     * Suggests annotations from a package according to the current context .
-     *
-     * @param parameters     parameters which contain details of completion invocation
-     * @param resultSet      result list which is used to add lookups
-     * @param packageElement package name node
-     * @param type           type of the annotation to be suggested
-     */
-    static void suggestAnnotationsFromPackage(@NotNull CompletionParameters parameters,
-                                              @NotNull CompletionResultSet resultSet,
-                                              @Nullable PsiElement packageElement, @NotNull String type) {
-        PsiFile originalFile = parameters.getOriginalFile();
-        if (packageElement != null) {
-            // Get all imported packages in current file
-            List<PsiElement> packages = BallerinaPsiImplUtil.getImportedPackages(originalFile);
-            for (PsiElement pack : packages) {
-                // Compare text to identify the correct package
-                //                if (packageElement.getText().equals(pack.getText())) {
-                //                    // Resolve the package and get all matching directories. But all imported
-                // packages should be
-                //                    // unique. So the maximum size of this should be 1. If this is 0, that means
-                // the package is
-                //                    // not imported. If this is more than 1, it means there are duplicate package
-                // imports or
-                //                    // there are multiple packages with the same name.
-                //                    PsiDirectory[] psiDirectories =
-                //                            BallerinaPsiImplUtil.resolveDirectory(((PackageNameNode) pack)
-                // .getNameIdentifier());
-                //                    if (psiDirectories.length == 1) {
-                //                        // Get all annotations in the package.
-                //                        List<PsiElement> attachmentsForType =
-                //                                BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType
-                // (psiDirectories[0], type);
-                //                        addAnnotationsAsLookups(resultSet, attachmentsForType);
-                //                    }
-                //                    // Else situation cannot/should not happen since all the imported packages are
-                // unique.
-                //                    // This should be highlighted using an annotator.
-                //                }
-            }
-        } else {
-            // If the packageElement is null, that means we want to get all annotations in the current package.
-            PsiDirectory containingDirectory = originalFile.getContainingDirectory();
-            if (containingDirectory != null) {
-                List<PsiElement> attachments =
-                        BallerinaPsiImplUtil.getAllAnnotationAttachmentsForType(containingDirectory, type);
-                addAnnotationsAsLookups(resultSet, attachments);
-            }
-        }
-    }
-
-    /**
-     * Helper method to add annotations as lookup elements.
-     *
-     * @param resultSet   result list which is used to add lookups
-     * @param annotations list of annotations which needs to be added
-     */
-    private static void addAnnotationsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> annotations) {
-        for (PsiElement annotation : annotations) {
-            LookupElementBuilder builder = LookupElementBuilder.create(annotation.getText())
-                    .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
-                    .withInsertHandler(BracesInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY));
-        }
     }
 
     @NotNull
@@ -866,22 +754,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    /**
-     * Helper method to add actions as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param actions   list of actions which needs to be added
-     */
-    static void addActionsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> actions) {
-        for (PsiElement action : actions) {
-            LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
-                    .withTypeText("Action").withIcon(BallerinaIcons.ACTION).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(action.getParent()))
-                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
-        }
-    }
-
     @NotNull
     public static List<LookupElement> createActionLookupElements(@NotNull List<PsiElement> actions) {
         List<LookupElement> lookupElements = new LinkedList<>();
@@ -937,25 +809,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    /**
-     * Adds variables in the resolvable scopes as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param element   element in the current caret position
-     */
-    private static void addVariablesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiElement element) {
-        PsiElement context = element.getContext();
-        if (context == null) {
-            context = element.getParent().getContext();
-        }
-        List<PsiElement> variables = BallerinaPsiImplUtil.getAllVariablesInResolvableScope(element, context);
-        for (PsiElement variable : variables) {
-            LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
-                    .withTypeText("Variable").withIcon(BallerinaIcons.VARIABLE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-        }
-    }
-
     @NotNull
     public static LookupElement createVariableLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
@@ -971,25 +824,6 @@ public class BallerinaCompletionUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements;
-    }
-
-    /**
-     * Adds variables in the resolvable scopes as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param element   element in the current caret position
-     */
-    private static void addParametersAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiElement element) {
-        PsiElement context = element.getContext();
-        if (context == null) {
-            context = element.getParent().getContext();
-        }
-        List<PsiElement> variables = BallerinaPsiImplUtil.getAllParametersInResolvableScope(element, context);
-        for (PsiElement variable : variables) {
-            LookupElementBuilder builder = LookupElementBuilder.create(variable.getText())
-                    .withTypeText("Parameter").withIcon(BallerinaIcons.PARAMETER);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-        }
     }
 
     @NotNull
@@ -1009,31 +843,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    /**
-     * Helper method to add constants as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      original file which we are editing
-     */
-    private static void addConstantsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> constants = BallerinaPsiImplUtil.getAllConstantsFromPackage(file.getParent());
-        addConstantsAsLookups(resultSet, constants);
-    }
-
-    /**
-     * Helper method to add constants as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param constants list of constants which needs to be added
-     */
-    static void addConstantsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> constants) {
-        for (PsiElement constant : constants) {
-            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
-                    .withTypeText("Constant").withIcon(BallerinaIcons.CONSTANT);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-        }
-    }
-
     @NotNull
     public static LookupElement createConstantLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
@@ -1051,31 +860,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    /**
-     * Helper method to add global variables as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      original file which we are editing
-     */
-    private static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> constants = BallerinaPsiImplUtil.getAllGlobalVariablesFromPackage(file.getParent());
-        addGlobalVariablesAsLookups(resultSet, constants);
-    }
-
-    /**
-     * Helper method to add global variables as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param constants list of constants which needs to be added
-     */
-    static void addGlobalVariablesAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> constants) {
-        for (PsiElement constant : constants) {
-            LookupElementBuilder builder = LookupElementBuilder.create(constant.getText())
-                    .withTypeText("Variable").withIcon(BallerinaIcons.GLOBAL_VARIABLE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-        }
-    }
-
     @NotNull
     public static LookupElement createGlobalVariableLookupElement(@NotNull PsiElement element) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
@@ -1091,22 +875,6 @@ public class BallerinaCompletionUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements;
-    }
-
-    /**
-     * Adds variables, parameters, constants, global variables as lookups.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      file which is currently being edited
-     * @param element   element in the current context
-     */
-    static void addVariableTypesAsLookups(@NotNull CompletionResultSet resultSet, PsiFile file,
-                                          PsiElement element) {
-        addVariablesAsLookups(resultSet, element);
-        addParametersAsLookups(resultSet, element);
-        addConstantsAsLookups(resultSet, file);
-        addGlobalVariablesAsLookups(resultSet, file);
-        addValueKeywords(resultSet);
     }
 
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
@@ -1135,32 +903,6 @@ public class BallerinaCompletionUtils {
         if (withStructs) {
             addStructsAsLookups(resultSet, file);
         }
-    }
-
-    /**
-     * Adds a field as a lookup. Field can be either a struct field or annotation field.
-     *
-     * @param resultSet           result list which is used to add lookups
-     * @param fieldNameIdentifier element which can be used to get the field text
-     * @param definitionNode      struct/annotation definition node to get the tail text
-     * @param typeName            type of the field
-     * @param withInsertHandler   whether to add an insert handler
-     * @param withAutoCompletion  whether to invoke auto complete popup
-     */
-    static void addFieldAsLookup(@NotNull CompletionResultSet resultSet, PsiElement fieldNameIdentifier,
-                                 PsiElement definitionNode, TypeNameNode typeName, boolean withInsertHandler,
-                                 boolean withAutoCompletion) {
-        LookupElementBuilder builder = LookupElementBuilder.create(fieldNameIdentifier.getText())
-                .withTypeText(typeName.getText()).withIcon(BallerinaIcons.FIELD)
-                .withTailText(" -> " + definitionNode.getText(), true);
-        if (withInsertHandler) {
-            if (withAutoCompletion) {
-                builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            } else {
-                builder = builder.withInsertHandler(PackageCompletionInsertHandler.INSTANCE);
-            }
-        }
-        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
     }
 
     @NotNull
@@ -1201,57 +943,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    static void addArrayLengthAsLookup(@NotNull CompletionResultSet resultSet) {
-        LookupElementBuilder builder = LookupElementBuilder.create("length");
-        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-    }
-
-    static void addDefaultAsLookup(@NotNull CompletionResultSet resultSet) {
-        LookupElementBuilder builder = LookupElementBuilder.create("default");
-        resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-    }
-
-    static void addWorkersAsLookup(@NotNull CompletionResultSet resultSet, List<WorkerDeclarationNode> workers) {
-        for (WorkerDeclarationNode worker : workers) {
-            PsiElement identifier = worker.getNameIdentifier();
-            if (identifier == null) {
-                continue;
-            }
-            LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText())
-                    .withTypeText("Worker").withIcon(BallerinaIcons.WORKER);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY));
-        }
-    }
-
-    /**
-     * Handles situations where we want to consider previous node content before adding lookup elements to the
-     * current node.
-     *
-     * @param parameters    parameters which passed to completion contributor
-     * @param resultSet     result list which is used to add lookups
-     * @param offset        offset of  the current element
-     * @param iNodeStrategy lookup element adding strategy if the previous element is an identifier node
-     * @param lNodeStrategy lookup element adding strategy if the previous element is a leaf node
-     * @param oNodeStrategy lookup element adding strategy if the previous element is not an identifier or leaf node
-     */
-    static void checkPrevNodeAndHandle(@NotNull CompletionParameters parameters,
-                                       @NotNull CompletionResultSet resultSet, int offset,
-                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> iNodeStrategy,
-                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> lNodeStrategy,
-                                       Strategy<CompletionParameters, CompletionResultSet, PsiElement> oNodeStrategy) {
-        PsiFile originalFile = parameters.getOriginalFile();
-        PsiElement prevElement = getPreviousNonEmptyElement(originalFile, offset);
-        if (prevElement instanceof IdentifierPSINode && iNodeStrategy != null) {
-            iNodeStrategy.execute(parameters, resultSet, prevElement);
-        } else if (prevElement instanceof LeafPsiElement && lNodeStrategy != null) {
-            lNodeStrategy.execute(parameters, resultSet, prevElement);
-        } else {
-            if (oNodeStrategy != null) {
-                oNodeStrategy.execute(parameters, resultSet, prevElement);
-            }
-        }
-    }
-
     /**
      * Returns the non empty element which is a previous sibling of the current node.
      *
@@ -1267,101 +958,5 @@ public class BallerinaCompletionUtils {
             prevElement = originalFile.findElementAt(offset - count++);
         }
         return prevElement;
-    }
-
-    /**
-     * Identifies whether the given element type is an expression separator element type.
-     * <p>
-     * Eg: +, -, /, *, <, >, >=, <=, ==, !=, &&, ||, =
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is an expression separator element type, {@code false}
-     * otherwise.
-     */
-    static boolean isExpressionSeparator(IElementType elementType) {
-        return isArithmeticOperator(elementType) || isRelationalOperator(elementType)
-                || isLogicalOperator(elementType) || isAssignmentOperator(elementType);
-    }
-
-    /**
-     * Identifies whether the given element type is an arithmetic operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is an arithmetic operator type, {@code false} otherwise.
-     */
-    private static boolean isArithmeticOperator(IElementType elementType) {
-        return isAdditiveOperator(elementType) || isMultiplicativeOperator(elementType);
-    }
-
-    /**
-     * Identifies whether the given element type is an additive operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is an additive operator type, {@code false} otherwise.
-     */
-    private static boolean isAdditiveOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.ADD || elementType == BallerinaTypes.SUB;
-    }
-
-    /**
-     * Identifies whether the given element type is a multiplicative operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is a multiplicative operator type, {@code false} otherwise.
-     */
-    private static boolean isMultiplicativeOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.MUL || elementType == BallerinaTypes.DIV ||
-                elementType == BallerinaTypes.MOD;
-    }
-
-    /**
-     * Identifies whether the given element type is a relational operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is a relational operator type, {@code false} otherwise.
-     */
-    private static boolean isRelationalOperator(IElementType elementType) {
-        return isComparisonOperator(elementType) || isEqualityOperator(elementType);
-    }
-
-    /**
-     * Identifies whether the given element type is a comparison operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is a comparison operator type, {@code false} otherwise.
-     */
-    private static boolean isComparisonOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.LE || elementType == BallerinaTypes.GE ||
-                elementType == BallerinaTypes.GT || elementType == BallerinaTypes.LT;
-    }
-
-    /**
-     * Identifies whether the given element type is an equality operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is an equality operator type, {@code false} otherwise.
-     */
-    private static boolean isEqualityOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.EQUAL || elementType == BallerinaTypes.NOTEQUAL;
-    }
-
-    /**
-     * Identifies whether the given element type is a logical operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is a logical operator type, {@code false} otherwise.
-     */
-    private static boolean isLogicalOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.AND || elementType == BallerinaTypes.OR;
-    }
-
-    /**
-     * Identifies whether the given element type is an assignment operator type.
-     *
-     * @param elementType element type to be checked
-     * @return {@code true} if the provided element type is an assignment operator type, {@code false} otherwise.
-     */
-    private static boolean isAssignmentOperator(IElementType elementType) {
-        return elementType == BallerinaTypes.ASSIGN;
     }
 }

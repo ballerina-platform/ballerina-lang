@@ -258,11 +258,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
                 PsiReference reference = nameIdentifier.findReferenceAt(nameIdentifier.getTextLength());
 
-
-                //                // Get the reference for this node. This can be used to resolve functions defined
-                // in the same
-                //                // package. Otherwise, we have to use the getReferences() as below.
-                //                PsiReference reference = nameIdentifier.getReference();
                 if (reference != null) {
                     // Resolve the reference
                     PsiElement resolvedElement = reference.resolve();

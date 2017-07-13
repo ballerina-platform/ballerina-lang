@@ -18,6 +18,9 @@ package org.ballerinalang.plugins.idea.psi.scopes;
 
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 
+/**
+ * Represents a top level definition like Function, Service, etc.
+ */
 public interface TopLevelDefinition extends ScopeNode {
 
 }
