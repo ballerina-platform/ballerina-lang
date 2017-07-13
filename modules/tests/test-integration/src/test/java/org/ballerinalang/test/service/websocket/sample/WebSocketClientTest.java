@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.util.websocket.client.WebSocketClient;
-import org.ballerinalang.test.util.websocket.server.WebSocketServer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,21 +28,18 @@ import org.testng.annotations.Test;
  */
 public class WebSocketClientTest extends WebSocketIntegrationTest {
 
-    private final int port = 8888;
     private final int threadSleepTime = 100;
-    private final int clientCount = 10;
-    private final WebSocketServer webSocketServer = new WebSocketServer(port);
+    private final int clientCount = 2;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
 
     {
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i] = new WebSocketClient("ws://localhost:" + port + "/mediation/ws");
+            wsClients[i] = new WebSocketClient("ws://localhost:9090/client-connector/ws");
         }
     }
 
     @Test
     public void testMediation() throws Exception {
-        webSocketServer.run();
         handshakeAllClients(wsClients);
         for (int i = 0; i < clientCount; i++) {
             wsClients[i].sendText(i + "");
@@ -57,6 +53,5 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
         }
 
         shutDownAllClients(wsClients);
-        webSocketServer.stop();
     }
 }
