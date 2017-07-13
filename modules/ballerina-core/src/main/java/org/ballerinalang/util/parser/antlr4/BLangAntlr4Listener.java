@@ -53,6 +53,7 @@ import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.NameReferenceContext;
 import org.ballerinalang.util.parser.BallerinaParser.NamespaceDeclarationContext;
+import org.ballerinalang.util.parser.BallerinaParser.NamespaceDeclarationStatementContext;
 import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
@@ -1753,6 +1754,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
         modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
                 argsAvailable);
+    }
+
+    @Override
+    public void enterNamespaceDeclarationStatement(NamespaceDeclarationStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamespaceDeclarationStatement(NamespaceDeclarationStatementContext ctx) {
+
     }
 
     @Override

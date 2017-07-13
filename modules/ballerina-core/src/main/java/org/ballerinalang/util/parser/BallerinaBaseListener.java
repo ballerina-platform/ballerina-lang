@@ -1096,6 +1096,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNamespaceDeclarationStatement(BallerinaParser.NamespaceDeclarationStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNamespaceDeclarationStatement(BallerinaParser.NamespaceDeclarationStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNamespaceDeclaration(BallerinaParser.NamespaceDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}

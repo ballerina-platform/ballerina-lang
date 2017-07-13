@@ -924,6 +924,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNamespaceDeclarationStatement(BallerinaParser.NamespaceDeclarationStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#namespaceDeclarationStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNamespaceDeclarationStatement(BallerinaParser.NamespaceDeclarationStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namespaceDeclaration}.
 	 * @param ctx the parse tree
 	 */

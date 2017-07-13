@@ -212,7 +212,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
-    |   namespaceDeclaration
+    |   namespaceDeclarationStatement
     ;
 
 transformStatement
@@ -419,6 +419,10 @@ abortStatement
 
 actionInvocation
     :   nameReference '.' Identifier '(' expressionList? ')'
+    ;
+
+namespaceDeclarationStatement
+    :   namespaceDeclaration
     ;
 
 namespaceDeclaration
