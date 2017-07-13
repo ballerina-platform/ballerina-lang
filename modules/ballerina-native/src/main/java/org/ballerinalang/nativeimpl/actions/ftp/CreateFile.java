@@ -50,7 +50,7 @@ public class CreateFile extends AbstractFtpAction {
         String pathString = file.getStringField(0);
         propertyMap.put(FileConstants.PROPERTY_URI, pathString);
         propertyMap.put(FileConstants.PROPERTY_ACTION, FileConstants.ACTION_CREATE);
-        if (type.equalsIgnoreCase(FileConstants.TYPE_FOLDER)) {
+        if (type.equalsIgnoreCase(FileConstants.TYPE_FOLDER)) { //TODO: Refactor the file/dir type recognition
             propertyMap.put(FileConstants.PROPERTY_FOLDER, Boolean.TRUE.toString());
         }
         try {
