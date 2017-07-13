@@ -144,6 +144,7 @@ define(([], function () {
                     id: 'export-diagram',
                 },
                 disabled: false,
+                separator: true,
             }
         ],
 

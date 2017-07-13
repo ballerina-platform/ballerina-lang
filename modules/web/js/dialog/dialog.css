@@ -31,6 +31,20 @@
     margin-left: 30px;
 }
 
+.file-type-selector{
+    float: right;
+    margin-right: 43px;
+}
+
+.file-type-list {
+    background-color: #2c2c2c;
+    border: none;
+}
+
+.file-type-item:hover {
+    background-color: #464646;
+}
+
 .file-dialog-form-btn{
     float: right;
     margin-right: 43px;
