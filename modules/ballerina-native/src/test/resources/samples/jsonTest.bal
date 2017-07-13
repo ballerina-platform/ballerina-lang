@@ -1,4 +1,6 @@
 import ballerina.lang.jsons;
+import ballerina.lang.xmls;
+
 function getString(json msg, string jsonPath) (string){
     return jsons:getString(msg, jsonPath);
 }
@@ -112,4 +114,26 @@ function rename(json msg, string jsonPath, string oldKey, string newKey) (string
 
 function toString(json msg) (string){
     return jsons:toString(msg);
+}
+
+function testToXML(json msg) (xml){
+    jsons:Options options = {};
+    return jsons:toXML(msg, options);
+}
+
+function testToXMLString(json msg) (string){
+    jsons:Options options = {};
+    xml xmlData = jsons:toXML(msg, options);
+    return xmls:toString(xmlData);
+}
+
+function testToXMLWithXMLSequence(json msg) (string){
+    jsons:Options options = {};
+    xml xmlSequence = jsons:toXML(msg, options);
+    return xmls:toString(xmlSequence);
+}
+
+function testToXMLWithOptions(json msg) (xml){
+    jsons:Options options = {attributePrefix:"#", arrayEntryTag:"wrapper"};
+    return jsons:toXML(msg, options);
 }

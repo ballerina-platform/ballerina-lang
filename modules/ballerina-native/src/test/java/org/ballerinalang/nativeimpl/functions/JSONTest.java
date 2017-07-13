@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
+import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -24,6 +25,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -47,6 +50,26 @@ public class JSONTest {
     private static final String jsonBooleanArray = "{'availability':[true, false]}";
     private static final String jsonElementArray = "{'persons':[{'fname':'Jack','lname':'Taylor'}, {'fname':'Peter'," +
             "'lname':'Roy'}]}";
+    private static final String jsonToXML1 = "{'bookStore':{'storeName':'foo','postalCode':94,'isOpen':true,'address':"
+            + "{'street':'PalmGrove','city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
+    private static final String jsonToXML2 = "{'books':[{'bookName':'book1','bookId':101},{'bookName':'book2',"
+            + "'bookId':102},{'bookName':'book3','bookId':103}]}";
+    private static final String jsonToXML3 = "{'books':[[{'bookName':'book1','bookId':101}],[{'bookName':'book2',"
+            + "'bookId':102}],[{'bookName':'book3','bookId':103}]]}";
+    private static final String jsonToXML4 = "{'books':['book1','book2','book3']}";
+    private static final String jsonToXML5 = "5";
+    private static final String jsonToXML6 = "[3,4,5]";
+    private static final String jsonToXML7 = "{'bookStore':{'storeName':'foo','postalCode':94,'isOpen':true,'address':"
+            + "{'street':'PalmGrove','city': 'Colombo','country':'SriLanka'},'codes':[4, 8, 9]},'metaInfo':'someinfo'}";
+    private static final String jsonToXML8 = "{'name': 'John','age': 30,'car': null}";
+    private static final String jsonToXML9 = "{'Person':{'name':'John','age':30,'car':null}}";
+    private static final String jsonToXML10 = "{'address': {},'homeAddresses': [],'phoneNumbers': []}";
+    private static final String jsonToXML11 = "{'info':{'address': {},'homeAddresses': ['a', 'b'],'phoneNumbers': []}}";
+    private static final String jsonToXML12 = "{'info':{'name': 'John','age': 30,'car': 'honda', '@id': '100'}}";
+    private static final String jsonToXML13 = "{'bookStore':{'@storeName':'foo','postalCode':94,'isOpen':true,"
+            + "'address':{'street':'PalmGrove','@city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
+    private static final String jsonToXML14 = "{'bookStore':{'#storeName':'foo','postalCode':94,'isOpen':true,"
+            + "'address':{'street':'PalmGrove','#city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
 
     @BeforeClass
     public void setup() {
@@ -55,7 +78,7 @@ public class JSONTest {
 
     
     /*
-     * Test Get-Functions 
+     * Test Get-Functions
      */
 
     @Test(description = "Get a string in a valid jsonpath")
@@ -453,6 +476,180 @@ public class JSONTest {
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML1() {
+        BValue[] args = { new BJSON(jsonToXML1) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<bookStore><storeName>foo"
+                + "</storeName><postalCode>94</postalCode><isOpen>true</isOpen><address><street>PalmGrove</street>"
+                + "<city>Colombo</city><country>SriLanka</country></address><codes><item>4</item><item>8</item>"
+                + "<item>9</item></codes></bookStore>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML2() {
+        BValue[] args = { new BJSON(jsonToXML2) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<books><item><bookName>book1</bookName><bookId>101</bookId>"
+                + "</item><item><bookName>book2</bookName><bookId>102</bookId></item><item><bookName>book3</bookName>"
+                + "<bookId>103</bookId></item></books>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML3() {
+        BValue[] args = { new BJSON(jsonToXML3) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<books><item><item><bookName>book1</bookName><bookId>101"
+                + "</bookId></item></item><item><item><bookName>book2</bookName><bookId>102</bookId></item></item>"
+                + "<item><item><bookName>book3</bookName><bookId>103</bookId></item></item></books>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML4() {
+        BValue[] args = { new BJSON(jsonToXML4) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<books><item>book1</item><item>book2</item><item>book3"
+                + "</item></books>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML5() {
+        BValue[] args = { new BJSON(jsonToXML5) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLString", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String returnElement = (returns[0]).stringValue();
+        Assert.assertEquals(returnElement, "5");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML6() {
+        BValue[] args = { new BJSON(jsonToXML6) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<item>3</item><item>4</item><item>5</item>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML7() {
+        BValue[] args = { new BJSON(jsonToXML7) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<bookStore><storeName>foo</storeName><postalCode>94</postalCode>"
+                + "<isOpen>true</isOpen><address><street>PalmGrove</street><city>Colombo</city>"
+                + "<country>SriLanka</country></address><codes><item>4</item><item>8</item><item>9</item></codes>"
+                + "</bookStore><metaInfo>someinfo</metaInfo>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML8() {
+        BValue[] args = { new BJSON(jsonToXML8) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<name>John</name><age>30</age>"
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML9() {
+        BValue[] args = { new BJSON(jsonToXML9) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<Person><name>John</name><age>30</age>"
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></Person>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML10() {
+        BValue[] args = { new BJSON(jsonToXML10) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<address/><homeAddresses/><phoneNumbers/>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML11() {
+        BValue[] args = { new BJSON(jsonToXML11) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<info><address/><homeAddresses><item>a</item><item>b</item>"
+                + "</homeAddresses><phoneNumbers/></info>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML12() {
+        BValue[] args = { new BJSON(jsonToXML12) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<info id=\"100\"><name>John</name><age>30</age><car>honda</car>"
+                + "</info>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML13() {
+        BValue[] args = { new BJSON(jsonToXML13) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
+                + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
+                + "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
+    }
+
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testToXML14() {
+        BValue[] args = { new BJSON(jsonToXML14) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithOptions", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<bookStore storeName=\"foo\"><postalCode>94</postalCode>"
+                + "<isOpen>true</isOpen><address city=\"Colombo\"><street>PalmGrove</street><country>SriLanka</country>"
+                + "</address><codes><wrapper>4</wrapper><wrapper>8</wrapper><wrapper>9</wrapper></codes></bookStore>");
+    }
+
 
     private String getJsonAsString(BValue bValue) {
         return bValue.stringValue().replace("\\r|\\n|\\t| ", "");
