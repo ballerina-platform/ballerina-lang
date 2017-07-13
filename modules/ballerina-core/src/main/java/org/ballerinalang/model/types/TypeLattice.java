@@ -352,7 +352,7 @@ public class TypeLattice {
         conversionLattice.addVertex(structV, false);
 
         conversionLattice.addEdge(structV, mapV, SAFE, InstructionCodes.T2MAP);
-        conversionLattice.addEdge(structV, jsonV, SAFE, InstructionCodes.T2JSON);
+        conversionLattice.addEdge(structV, jsonV, UNSAFE, InstructionCodes.T2JSON);
         conversionLattice.addEdge(jsonV, structV, UNSAFE, InstructionCodes.JSON2T);
         conversionLattice.addEdge(mapV, structV, UNSAFE, InstructionCodes.MAP2T);
     }
