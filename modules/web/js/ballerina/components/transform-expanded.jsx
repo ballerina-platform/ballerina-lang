@@ -134,12 +134,10 @@ class TransformExpanded extends React.Component {
         if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
             //Connection is from source struct to target struct.
             const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            const leftOperand = BallerinaASTFactory.createLeftOperandExpression();
-            leftOperand.addChild(targetExpression);
-            const rightOperand = BallerinaASTFactory.createRightOperandExpression();
-            rightOperand.addChild(sourceExpression);
-            assignmentStmt.addChild(leftOperand);
-            assignmentStmt.addChild(rightOperand);
+            let varRefList = BallerinaASTFactory.createVariableReferenceList();
+            varRefList.addChild(targetExpression);
+            assignmentStmt.addChild(varRefList, 0);
+            assignmentStmt.addChild(sourceExpression, 1);
             self.props.model.addChild(assignmentStmt);
             return assignmentStmt.id;
         }
@@ -148,7 +146,7 @@ class TransformExpanded extends React.Component {
             // Connection source is not a struct and target is a struct.
             // Source could be a function node.
             const assignmentStmtSource = self.findEnclosingAssignmentStatement(connection.targetReference.id);
-            assignmentStmtSource.getChildren()[1].getChildren()[0].addChild(sourceExpression);
+            assignmentStmtSource.getRightExpression().addChild(sourceExpression);
             return assignmentStmtSource.id;
         }
 
@@ -156,7 +154,7 @@ class TransformExpanded extends React.Component {
             // Connection target is not a struct and source is a struct.
             // Target is a function node.
             const assignmentStmtTarget = self.findEnclosingAssignmentStatement(connection.sourceReference.id);
-            assignmentStmtTarget.getChildren()[0].addChild(targetExpression);
+            assignmentStmtTarget.getLeftExpression().addChild(targetExpression);
             return assignmentStmtTarget.id;
         }
 
@@ -170,8 +168,7 @@ class TransformExpanded extends React.Component {
         const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
-        assignmentStmtTarget.getRightExpression().getChildren()[0].addChild(assignmentStmtSource.getRightExpression().getChildren()[0]);
-
+        assignmentStmtTarget.getRightExpression().addChild(assignmentStmtSource.getRightExpression());
         //remove the source assignment statement since it is now included in the target assignment statement.
         const transformStmt = assignmentStmtSource.getParent();
         transformStmt.removeChild(assignmentStmtSource);
@@ -253,8 +250,8 @@ class TransformExpanded extends React.Component {
         if (BallerinaASTFactory.isAssignmentStatement(statement)) {
             // There can be multiple left expressions.
             // E.g. : e.name, e.username = p.first_name;
-            const leftExpressions = statement.getChildren()[0];
-            const rightExpression = statement.getChildren()[1].getChildren()[0];
+            const leftExpressions = statement.getLeftExpression();
+            const rightExpression = statement.getRightExpression();
 
             if (BallerinaASTFactory.isFieldBasedVarRefExpression(rightExpression) ||
                   BallerinaASTFactory.isSimpleVariableReferenceExpression(rightExpression)) {
@@ -592,8 +589,8 @@ class TransformExpanded extends React.Component {
 
         this.props.model.on('child-added', (node) => {
             if (BallerinaASTFactory.isAssignmentStatement(node) &&
-                    BallerinaASTFactory.isFunctionInvocationExpression(node.getChildren()[1].getChildren()[0])) {
-                const functionInvocationExpression = node.getChildren()[1].getChildren()[0];
+                    BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
+                const functionInvocationExpression = node.getRightExpression();
                 const func = this.getFunctionDefinition(functionInvocationExpression);
                 if (_.isUndefined(func)) {
                     alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
@@ -608,7 +605,6 @@ class TransformExpanded extends React.Component {
     }
 
     onSourceSelect(e, {suggestionValue}) {
-        console.log(e, suggestionValue);
         this.setState({
             selectedSource: suggestionValue,
         });
