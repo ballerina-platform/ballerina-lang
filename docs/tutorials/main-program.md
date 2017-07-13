@@ -114,8 +114,12 @@ The weather forecast API can be done for any country. Washington (USA) is used i
 1. The page that appears provides details about the API and provides sample calls for different types of requirements. Under the **By city ID** section, you can access a JSON file from http://bulk.openweathermap.org/sample/. This includes all the country codes available.
     ![alt text](../images/WeatherJSON.png)
 
-### The URL to call
+### Call the API
 
 Now that you have got the API key and the country code, you can identify the URL that you need to call from Ballerina. The URL is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
 
-Here the `appid` is the API key and the country code is `Washington,US`.
+> Here the `appid` is the API key and the country code is `Washington,US`.
+
+Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**).
+
+![alt text](../images/PostmanWeather.png)
