@@ -542,6 +542,35 @@ class TransformExpanded extends React.Component {
         return struct;
     }
 
+    componentDidUpdate(prevProps) {
+        if(this.props.model === prevProps.model) {
+            return;
+        }
+
+        const nextProps = this.props;
+        this.mapper.disconnectAll();
+
+        this.predefinedStructs = [];
+        this.getSourcesAndTargets();
+
+        this.mapper = new TransformRender(
+            this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
+
+        _.forEach(nextProps.model.getInput(), (input) => {
+            //trim expression to remove any possible white spaces
+            this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
+        });
+
+        _.forEach(nextProps.model.getOutput(), (output) => {
+            //trim expression to remove any possible white spaces
+            this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
+        });
+
+        _.forEach(nextProps.model.getChildren(), (statement) => {
+            this.createConnection(statement);
+        });
+    }
+
     componentDidMount() {
         this.mapper = new TransformRender(
             this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));

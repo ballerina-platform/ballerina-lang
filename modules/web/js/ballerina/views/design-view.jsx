@@ -31,6 +31,21 @@ class DesignView extends React.Component {
         this.diagramContainer = ref;
     }
 
+    /**
+    * Get the transform expanded view active state.
+    * @return {boolean} true if transform expanded view is active.
+    * @memberof DesignView
+    */
+    getTransformActive() {
+        return this.state.isTransformActive;
+    }
+
+    /**
+    * Set the transform expanded view active state.
+    * @param {boolean} isTransformActive - whether transform expanded view is active.
+    * @param {ASTNode} activeTransformModel - model related to expanded transform statement.
+    * @memberof DesignView
+    */
     setTransformActive(isTransformActive, activeTransformModel) {
         this.setState({
             isTransformActive,
