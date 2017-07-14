@@ -89,16 +89,16 @@ globalVariableDefinition
     ;
 
 attachmentPoint
-     : 'service' ('<' Identifier? '>')?
-     | 'resource'
-     | 'connector'
-     | 'action'
-     | 'function'
-     | 'typemapper'
-     | 'struct'
-     | 'const'
-     | 'parameter'
-     | 'annotation'
+     : 'service' ('<' Identifier? '>')?             # serviceAttachPoint
+     | 'resource'                                   # resourceAttachPoint
+     | 'connector'                                  # connectorAttachPoint
+     | 'action'                                     # actionAttachPoint
+     | 'function'                                   # functionAttachPoint
+     | 'typemapper'                                 # typemapperAttachPoint
+     | 'struct'                                     # structAttachPoint
+     | 'const'                                      # constAttachPoint
+     | 'parameter'                                  # parameterAttachPoint
+     | 'annotation'                                 # annotationAttachPoint
      ;
 
 annotationBody

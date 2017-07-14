@@ -22,6 +22,7 @@ import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -475,15 +476,15 @@ public class BLangModelBuilder {
      * @param attachPkg Package in which this annotation is valid.
      */
     public void addAnnotationtAttachmentPoint(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                              String attachmentPoint, String attachPkg) {
+                                              AttachmentPoint attachmentPoint, String attachPkg) {
         if (whiteSpaceDescriptor != null) {
             annotationDefBuilder.getWhiteSpaceDescriptor()
                     .getChildDescriptor(ATTACHMENT_POINTS)
-                    .addChildDescriptor(attachmentPoint, whiteSpaceDescriptor);
+                    .addChildDescriptor(attachmentPoint.getValue(), whiteSpaceDescriptor);
         }
         AnnotationAttachmentPoint annotationAttachmentPoint;
         if (attachPkg == null) {
-            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, attachPkg);
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, null);
         } else if (attachPkg.isEmpty()) {
             annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, currentPackagePath);
         } else {
@@ -1795,9 +1796,9 @@ public class BLangModelBuilder {
         nameReference.setPkgPath(importPkg.getPath());
     }
 
-    private String validateAndGetPackagePath(NodeLocation location, String PkgName) {
-        ImportPackage importPkg = getImportPackage(PkgName);
-        checkForUndefinedPackagePath(location, PkgName, importPkg, () -> PkgName);
+    private String validateAndGetPackagePath(NodeLocation location, String pkgName) {
+        ImportPackage importPkg = getImportPackage(pkgName);
+        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName);
 
         if (importPkg == null) {
             return currentPackagePath;

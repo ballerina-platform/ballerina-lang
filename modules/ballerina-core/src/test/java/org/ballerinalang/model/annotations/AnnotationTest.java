@@ -154,6 +154,11 @@ public class AnnotationTest {
         
     }
 
+    @Test(description = "Test annotation attachment package valdation")
+    public void testValidAnnoatationAttachmentPackage() {
+        BTestUtils.parseBalFile("lang/annotations/pkg/valid");
+    }
+
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",
@@ -258,6 +263,25 @@ public class AnnotationTest {
                 "'string', found 'int'")
     public void testInvalidConstantAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-constant-annotation.bal");
+    }
+
+    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
+            "for given protocol package",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "lang/annotations/pkg/error1/invalid-service1.bal:6: annotation " +
+                    "'lang.annotations.pkg.first:Sample' is not allowed in service<lang.annotations.pkg.second>")
+    public void testInvalidAttachmentInServiceWithDifferentProtocolPkg() {
+        BTestUtils.parseBalFile("lang/annotations/pkg/error1");
+    }
+
+    @Test(description = "Test invalid annotation attachment for service where annotation attachment is only valid" +
+            "for annotation def protocol package",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "lang/annotations/pkg/error2/invalid-service2.bal:5: annotation " +
+                    "'lang.annotations.pkg.first:SampleConfigSecond' is not " +
+                    "allowed in service<lang.annotations.pkg.first>")
+    public void testInvalidAttachmentInServiceWhenAttachPointIsDifferentPkg() {
+        BTestUtils.parseBalFile("lang/annotations/pkg/error2");
     }
     
     @Test(description = "Test default values for annotation")

@@ -26,9 +26,9 @@ package org.ballerinalang.model;
 public class AnnotationAttachmentPoint {
 
     private String pkgPath;
-    private String attachmentPoint;
+    private AttachmentPoint attachmentPoint;
 
-    public AnnotationAttachmentPoint(String attachmentPoint, String pkgPath) {
+    public AnnotationAttachmentPoint(AttachmentPoint attachmentPoint, String pkgPath) {
         this.attachmentPoint = attachmentPoint;
         this.pkgPath = pkgPath;
     }
@@ -37,7 +37,25 @@ public class AnnotationAttachmentPoint {
         return pkgPath;
     }
 
-    public String getAttachmentPoint() {
+    public AttachmentPoint getAttachmentPoint() {
         return attachmentPoint;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AnnotationAttachmentPoint)) {
+            return false;
+        }
+
+        AnnotationAttachmentPoint other = (AnnotationAttachmentPoint) obj;
+        if (!attachmentPoint.equals(other.getAttachmentPoint())) {
+            return false;
+        }
+        //This equality check is one way, that is only if this object has the pkg, then only it checks for equality
+        //with the given "other" object.
+        if (pkgPath != null && !pkgPath.equals(other.getPkgPath())) {
+            return false;
+        }
+        return true;
     }
 }

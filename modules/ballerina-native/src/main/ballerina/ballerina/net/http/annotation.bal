@@ -19,15 +19,14 @@ annotation Path attach resource {
     string value;
 }
 
-annotation config attach service {
+annotation configuration attach service<> {
     string host;
     int port;
+    int httpsPort;
     string basePath;
-    string scheme;
     string keyStoreFile;
     string keyStorePass;
     string certPass;
-    string version;
 }
 
 annotation PathParam attach parameter {

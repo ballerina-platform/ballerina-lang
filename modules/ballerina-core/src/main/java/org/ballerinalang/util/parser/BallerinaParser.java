@@ -1446,18 +1446,125 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class AttachmentPointContext extends ParserRuleContext {
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public AttachmentPointContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_attachmentPoint; }
+	 
+		public AttachmentPointContext() { }
+		public void copyFrom(AttachmentPointContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class ParameterAttachPointContext extends AttachmentPointContext {
+		public ParameterAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterAttachmentPoint(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterParameterAttachPoint(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAttachmentPoint(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitParameterAttachPoint(this);
+		}
+	}
+	public static class ServiceAttachPointContext extends AttachmentPointContext {
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
+		public ServiceAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterServiceAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitServiceAttachPoint(this);
+		}
+	}
+	public static class ActionAttachPointContext extends AttachmentPointContext {
+		public ActionAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterActionAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitActionAttachPoint(this);
+		}
+	}
+	public static class ConnectorAttachPointContext extends AttachmentPointContext {
+		public ConnectorAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterConnectorAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConnectorAttachPoint(this);
+		}
+	}
+	public static class FunctionAttachPointContext extends AttachmentPointContext {
+		public FunctionAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterFunctionAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionAttachPoint(this);
+		}
+	}
+	public static class ConstAttachPointContext extends AttachmentPointContext {
+		public ConstAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterConstAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConstAttachPoint(this);
+		}
+	}
+	public static class AnnotationAttachPointContext extends AttachmentPointContext {
+		public AnnotationAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterAnnotationAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAnnotationAttachPoint(this);
+		}
+	}
+	public static class StructAttachPointContext extends AttachmentPointContext {
+		public StructAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterStructAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitStructAttachPoint(this);
+		}
+	}
+	public static class TypemapperAttachPointContext extends AttachmentPointContext {
+		public TypemapperAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypemapperAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypemapperAttachPoint(this);
+		}
+	}
+	public static class ResourceAttachPointContext extends AttachmentPointContext {
+		public ResourceAttachPointContext(AttachmentPointContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterResourceAttachPoint(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitResourceAttachPoint(this);
 		}
 	}
 
@@ -1469,6 +1576,7 @@ public class BallerinaParser extends Parser {
 			setState(412);
 			switch (_input.LA(1)) {
 			case T__5:
+				_localctx = new ServiceAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(395);
@@ -1496,6 +1604,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__10:
+				_localctx = new ResourceAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(403);
@@ -1503,6 +1612,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__15:
+				_localctx = new ConnectorAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(404);
@@ -1510,6 +1620,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__16:
+				_localctx = new ActionAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(405);
@@ -1517,6 +1628,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__14:
+				_localctx = new FunctionAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(406);
@@ -1524,6 +1636,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__22:
+				_localctx = new TypemapperAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(407);
@@ -1531,6 +1644,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__17:
+				_localctx = new StructAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
 				setState(408);
@@ -1538,6 +1652,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__23:
+				_localctx = new ConstAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(409);
@@ -1545,6 +1660,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__24:
+				_localctx = new ParameterAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 9);
 				{
 				setState(410);
@@ -1552,6 +1668,7 @@ public class BallerinaParser extends Parser {
 				}
 				break;
 			case T__18:
+				_localctx = new AnnotationAttachPointContext(_localctx);
 				enterOuterAlt(_localctx, 10);
 				{
 				setState(411);
