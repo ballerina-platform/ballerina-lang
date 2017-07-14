@@ -21,6 +21,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.common.Utils;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.model.AnnotationDef;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * AnnotationAttachmentResolver
@@ -38,7 +40,7 @@ import java.util.stream.Collectors;
 public class AnnotationAttachmentResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
-                                           HashMap<Class, AbstractItemResolver> resolvers) {
+                                                  HashMap<Class, AbstractItemResolver> resolvers) {
         return filterAnnotations(dataModel);
     }
 
@@ -49,30 +51,42 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
      */
     ArrayList<CompletionItem> filterAnnotations(SuggestionsFilterDataModel dataModel) {
 
-            Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
-            if (packages == null) {
-                packages = Utils.getAllPackages().entrySet();
+        Set<Map.Entry<String, ModelPackage>> packages = dataModel.getPackages();
+        if (packages == null) {
+            packages = Utils.getAllPackages().entrySet();
+        }
+        Stream<AnnotationDef> annotationDefStream = packages.stream().map(i -> i.getValue().getAnnotations())
+                .flatMap(Collection::stream);
+        List<CompletionItem> collect = annotationDefStream.map(i -> {
+            CompletionItem importItem = new CompletionItem();
+
+            String insertText = lastPart(i.getPackagePath()) + ":" + i.getName();
+            importItem.setLabel("@" + insertText + " (" + i.getPackagePath() + ")");
+            if (dataModel.getParserRuleContext() == null) {
+                insertText = "@" + insertText;
+            } else {
+                if (findPreviousToken(dataModel, "@", 3) < 0) {
+                    insertText = "@" + insertText;
+                }
             }
-            List<CompletionItem> collect = packages.stream()
-                    .map(i -> i.getValue().getAnnotations())
-                    .flatMap(Collection::stream).map(i -> {
-                        CompletionItem importItem = new CompletionItem();
+            if (i.getAnnotationAttributeDefs().size() == 0) {
+                importItem.setInsertText(insertText + "{}");
+            } else {
+                importItem.setInsertText(insertText + "{${1}}");
+            }
+            importItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
+            importItem.setSortText(ItemResolverConstants.PRIORITY_4);
+            return importItem;
+        }).collect(Collectors.toList());
 
-                        String insertText = lastPart(i.getPackagePath()) + ":" + i.getName();
-                        importItem.setLabel("@" + insertText + " (" + i.getPackagePath() + ")");
-                        importItem.setInsertText(insertText + "{}");
-                        importItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-                        importItem.setSortText(ItemResolverConstants.PRIORITY_4);
-                        return importItem;
-                    }).collect(Collectors.toList());
-
-            ArrayList<CompletionItem> list = new ArrayList<>();
-            list.addAll(collect);
-            return list;
+        ArrayList<CompletionItem> list = new ArrayList<>();
+        list.addAll(collect);
+        return list;
     }
 
     /**
      * Get the last string part to append
+     *
      * @param packagePath - package path
      * @return {@link String}
      */

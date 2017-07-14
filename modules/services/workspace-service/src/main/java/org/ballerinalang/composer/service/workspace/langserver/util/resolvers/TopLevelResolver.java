@@ -5,6 +5,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,23 +25,29 @@ public class TopLevelResolver extends AbstractItemResolver {
         ParserRuleContext parserRuleContext = dataModel.getParserRuleContext();
         AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
                 resolvers.get(parserRuleContext.getClass());
-        if (errorContextResolver != null && errorContextResolver != this) {
+
+        boolean noAt = findPreviousToken(dataModel, "@", 5) < 0;
+        if (noAt && (errorContextResolver == null ||
+                     errorContextResolver == this ||
+                     parserRuleContext instanceof BallerinaParser.AnnotationAttachmentContext)) {
+
+            addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
+            addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
+            addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
+                    ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.STRUCT,
+                    ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
+            addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
+                    ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
+
+        }
+        if (errorContextResolver instanceof PackageNameContextResolver) {
             completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
         } else {
-            if (!this.isAnnotationContext(dataModel)) {
-                addStaticItem(completionItems, ItemResolverConstants.IMPORT, ItemResolverConstants.IMPORT + " ");
-                addStaticItem(completionItems, ItemResolverConstants.PACKAGE, ItemResolverConstants.PACKAGE + " ");
-                addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
-                addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
-                addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
-                        ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
-                addStaticItem(completionItems, ItemResolverConstants.STRUCT,
-                        ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
-                addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
-                        ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
-
-            }
-            completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+            completionItems.addAll(
+                    resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
         }
         return completionItems;
     }
