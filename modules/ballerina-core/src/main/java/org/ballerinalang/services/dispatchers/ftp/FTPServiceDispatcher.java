@@ -100,7 +100,7 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
             String dir = elementsMap.get(Constants.ANNOTATION_DIR_PATH);
             if (dir == null) {
                 throw new BallerinaException("Cannot create file system server without dirPath");
-            } else if (!(dir.contains("ftp:") || dir.contains("sftp:") || dir.contains("ftps:"))) {
+            } else if (!(dir.startsWith("ftp:") || dir.startsWith("sftp:") || dir.startsWith("ftps:"))) {
                 throw new BallerinaException("ftp server connector should refer to a ftp, sftp or ftps dirPath");
             }
             String serviceName = service.getName();
