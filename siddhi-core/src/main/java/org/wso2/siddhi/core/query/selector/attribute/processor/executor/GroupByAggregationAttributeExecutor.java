@@ -20,9 +20,7 @@ package org.wso2.siddhi.core.query.selector.attribute.processor.executor;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.query.selector.QuerySelector;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 
 import java.util.HashMap;
@@ -33,6 +31,7 @@ import java.util.Map;
  */
 public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
+    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private final ConfigReader configReader;
     protected Map<String, AttributeAggregator> aggregatorMap = new HashMap<String, AttributeAggregator>();
 
@@ -53,11 +52,7 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
             }
             return aOutput;
         }
-        String key = QuerySelector.getThreadLocalGroupByKey();
-        if (key == null) {
-            key = IncrementalExecutor.getThreadLocalGroupByKey(); // TODO: 5/30/17 this is a hack to get local key in
-                                                                  // incremental processing
-        }
+        String key = keyThreadLocal.get();
         AttributeAggregator currentAttributeAggregator = aggregatorMap.get(key);
         if (currentAttributeAggregator == null) {
             currentAttributeAggregator = attributeAggregator.cloneAggregator(key);
@@ -98,5 +93,9 @@ public class GroupByAggregationAttributeExecutor extends AbstractAggregationAttr
             aAttributeAggregator.restoreState(entry.getValue());
             aggregatorMap.put(key, aAttributeAggregator);
         }
+    }
+
+    public static ThreadLocal<String> getKeyThreadLocal() {
+        return keyThreadLocal;
     }
 }

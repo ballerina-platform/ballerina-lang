@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.executor.condition.ConditionExpressionExecutor;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.selector.attribute.processor.AttributeProcessor;
+import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ public class QuerySelector implements Processor {
 
 
     private static final Logger log = Logger.getLogger(QuerySelector.class);
-    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<String>();
     private Selector selector;
     private SiddhiAppContext siddhiAppContext;
     private boolean currentOn = false;
@@ -65,10 +65,6 @@ public class QuerySelector implements Processor {
         this.expiredOn = expiredOn;
         this.selector = selector;
         this.siddhiAppContext = siddhiAppContext;
-    }
-
-    public static String getThreadLocalGroupByKey() {
-        return keyThreadLocal.get();
     }
 
     @Override
@@ -144,7 +140,7 @@ public class QuerySelector implements Processor {
                     case EXPIRED:
                         eventPopulator.populateStateEvent(event);
                         String groupedByKey = groupByKeyGenerator.constructEventKey(event);
-                        keyThreadLocal.set(groupedByKey);
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupedByKey);
 
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
@@ -156,7 +152,7 @@ public class QuerySelector implements Processor {
                                 currentComplexEventChunk.add(new GroupedComplexEvent(groupedByKey, event));
                             }
                         }
-                        keyThreadLocal.remove();
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
                         break;
                     case TIMER:
                         break;
@@ -227,7 +223,7 @@ public class QuerySelector implements Processor {
                     case EXPIRED:
                         eventPopulator.populateStateEvent(event);
                         String groupByKey = groupByKeyGenerator.constructEventKey(event);
-                        keyThreadLocal.set(groupByKey);
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupByKey);
 
                         for (AttributeProcessor attributeProcessor : attributeProcessorList) {
                             attributeProcessor.process(event);
@@ -240,7 +236,7 @@ public class QuerySelector implements Processor {
                                 groupedEvents.put(groupByKey, event);
                             }
                         }
-                        keyThreadLocal.remove();
+                        GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
                         break;
                     case TIMER:
                         break;

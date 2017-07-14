@@ -151,7 +151,8 @@ public class SiddhiAnnotationProcessor extends AbstractProcessor {
                             break;
                         case AnnotationConstants.INCREMENTAL_ATTRIBUTE_AGGREGATOR_SUPER_CLASS:
                             abstractAnnotationProcessor =
-                                    new CompositeAggregatorValidationAnnotationProcessor(extensionClassFullName);
+                                    new IncrementalAggregationAttributeValidationAnnotationProcessor(
+                                            extensionClassFullName);
                             break;
                         default:
                             //Throw error if no matching super class.

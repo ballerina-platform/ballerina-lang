@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
+import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByAggregationAttributeExecutor;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.IncrementalTimeConverterUtil;
 import org.wso2.siddhi.core.util.Scheduler;
@@ -43,7 +44,6 @@ import java.util.Map;
 public class IncrementalExecutor implements Executor {
     static final Logger LOG = Logger.getLogger(IncrementalExecutor.class);
 
-    private static final ThreadLocal<String> keyThreadLocal = new ThreadLocal<>();
     private final StreamEvent resetEvent;
     private final ExpressionExecutor timestampExpressionExecutor;
     private TimePeriod.Duration duration;
@@ -110,10 +110,6 @@ public class IncrementalExecutor implements Executor {
         this.resetEvent = streamEventPool.borrowEvent();
         this.resetEvent.setType(ComplexEvent.Type.RESET);
         setNextExecutor(child);
-    }
-
-    public static String getThreadLocalGroupByKey() {
-        return keyThreadLocal.get();
     }
 
     public void setScheduler(Scheduler scheduler) {
@@ -188,7 +184,7 @@ public class IncrementalExecutor implements Executor {
             if (isGroupBy) {
                 try {
                     String groupedByKey = groupByKeyGenerator.constructEventKey(streamEvent);
-                    keyThreadLocal.set(groupedByKey);
+                    GroupByAggregationAttributeExecutor.getKeyThreadLocal().set(groupedByKey);
                     if (baseIncrementalValueGroupByStoreList != null) {
                         Map<String, BaseIncrementalValueStore> baseIncrementalValueGroupByStore =
                                 baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
@@ -203,7 +199,7 @@ public class IncrementalExecutor implements Executor {
                         process(streamEvent, aBaseIncrementalValueStore);
                     }
                 } finally {
-                    keyThreadLocal.remove();
+                    GroupByAggregationAttributeExecutor.getKeyThreadLocal().remove();
                 }
             } else {
                 if (baseIncrementalValueStoreList != null) {

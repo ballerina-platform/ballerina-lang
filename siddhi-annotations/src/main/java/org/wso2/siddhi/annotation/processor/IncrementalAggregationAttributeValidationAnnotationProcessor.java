@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,10 +18,11 @@
 package org.wso2.siddhi.annotation.processor;
 
 /**
- * This processor will extend the validation rules for validate composite aggregator specific annotation contents.
+ * This processor will extend the validation rules for validate Aggregation Attribute specific annotation contents.
  */
-public class CompositeAggregatorValidationAnnotationProcessor extends AbstractAnnotationProcessor {
-    public CompositeAggregatorValidationAnnotationProcessor(String extensionClassFullName) {
+public class IncrementalAggregationAttributeValidationAnnotationProcessor extends AbstractAnnotationProcessor {
+    public IncrementalAggregationAttributeValidationAnnotationProcessor(String extensionClassFullName) {
         super(extensionClassFullName);
-    } // TODO: 6/20/17 fix this
+    }
+    // TODO: 7/14/17 Implement validation
 }
