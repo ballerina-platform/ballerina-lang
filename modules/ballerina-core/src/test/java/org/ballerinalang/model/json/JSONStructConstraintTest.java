@@ -60,6 +60,36 @@ public class JSONStructConstraintTest {
         Assert.assertEquals((returns[5]).stringValue(), "London");
     }
 
+    @Test(description = "Test basic json struct constraint during json initialization")
+    public void testStructConstraintInInitialization() {
+        BValue[] returns = BLangFunctions.invokeNew(BTestUtils.getProgramFile(
+                                                            "lang/jsontype/json-struct-constraint.bal"),
+                                                    "testJsonInitializationWithStructConstraint");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue((((BJSON) returns[0]).value()).isTextual());
+        Assert.assertEquals(returns[0].stringValue(), "John Doe");
+
+        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue((((BJSON) returns[1]).value()).isInt());
+        Assert.assertEquals((((BJSON) returns[1]).value()).asInt(), 30);
+
+        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertTrue((((BJSON) returns[2]).value()).isTextual());
+        Assert.assertEquals(returns[2].stringValue(), "London");
+    }
+
+    @Test(description = "Test invalid json imported struct constraint",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp =
+                    "json-struct-constraint-initialize-invalid.bal:8: unknown field 'firstName' in json with struct " +
+                    "constraint 'Person'")
+    public void testStructConstraintInInitializationInvalid() {
+        BLangFunctions.invokeNew(BTestUtils.getProgramFile(
+            "lang/jsontype/json-struct-constraint-initialize-invalid.bal"),
+             "testJsonInitializationWithStructConstraintInvalid");
+    }
+
     @Test(description = "Test invalid field accessing in lhs as per struct constraint in json",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =

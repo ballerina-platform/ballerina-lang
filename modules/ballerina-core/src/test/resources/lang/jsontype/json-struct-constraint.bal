@@ -14,3 +14,8 @@ function testJsonStructConstraint() (json, json, json, string, int, string){
     var address, _ = (string) j.address;
     return j.name, j.age, j.address, name, age, address;
 }
+
+function testJsonInitializationWithStructConstraint() (json, json, json){
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    return j.name, j.age, j.address;
+}

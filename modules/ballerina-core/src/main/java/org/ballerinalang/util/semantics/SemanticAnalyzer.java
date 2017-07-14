@@ -3371,6 +3371,19 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
 
+            if (inheritedType == BTypes.typeJSON) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = ((BJSONType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
+                            new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                            SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                }
+            }
+
             // for JSON init expr, check the type compatibility of the value.
             if (BTypes.isValueType(valueExprType)) {
                 TypeCastExpression typeCastExpr = checkWideningPossible(BTypes.typeJSON, valueExpr);
