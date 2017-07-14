@@ -209,7 +209,12 @@ class LangServerClientController extends EventChannel {
     }
 
 
-    getProgramPackages(options, callback, callbackObj){
+    /**
+     * Get program packages request processor
+     * @param {object} options - get program packages' options
+     * @param {function} callback - callback function to set the program packages in the editor
+     */
+    getProgramPackages(options, callback){
         const session = new RequestSession();
         const message = {
             id: session.getId(),

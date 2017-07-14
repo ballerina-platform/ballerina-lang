@@ -202,12 +202,17 @@ class SourceView extends React.Component {
         );
     }
 
+    /**
+     * lifecycle hook for component will receive props
+     */
     componentWillReceiveProps(nextProps) {
         if(!nextProps.parseFailed) {
             getLangServerClientInstance()
                 .then((langserverClient) => {
+                    // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    let fileData = {fileName: nextProps.file.getName(), filePath: nextProps.file.getPath() , packageName: nextProps.file.getPackageName()}
+                    let fileData = {fileName: nextProps.file.getName(), filePath: nextProps.file.getPath() , 
+                        packageName: nextProps.file.getPackageName()}
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })

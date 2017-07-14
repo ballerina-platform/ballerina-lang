@@ -130,7 +130,7 @@ export function getProgramPackages(file, langServerClientInstance) {
             .then((langserverClient) => {
                 langserverClient.getProgramPackages(fileOptions, (data) => {
                     resolve(data);
-                }, this);
+                });
             })
             .catch(error => reject(error));
     });

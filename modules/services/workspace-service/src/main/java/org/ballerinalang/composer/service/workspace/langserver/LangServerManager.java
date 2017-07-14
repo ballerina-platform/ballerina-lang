@@ -94,9 +94,7 @@ public class LangServerManager {
     private WorkspaceSymbolProvider symbolProvider = new WorkspaceSymbolProvider();
 
     private Set<Map.Entry<String, ModelPackage>> packages;
-
     private Map<Path, Map<String, ModelPackage>> programPackagesMap;
-
     private Map<Path, BLangProgram> programMap;
 
     /**
@@ -129,7 +127,6 @@ public class LangServerManager {
             this.langserver = new LangServer(port);
             this.langserver.startServer();
         }
-        initBackgroundJobs();
     }
 
     void addLaunchSession(Channel channel) {
@@ -412,6 +409,13 @@ public class LangServerManager {
     }
 
 
+    /**
+     * Get all the packages in the program directory. If the given file is not saved in the file-system, this will
+     * return only the native/built-in packages. And also calling this method will update the "programPackagesMap"
+     * which is used to keep program packages against a file path
+     *
+     * @param message Request Message
+     */
     private void getProgramPackages(Message message) {
         if (message instanceof RequestMessage) {
             JsonObject response = new JsonObject();
@@ -422,19 +426,17 @@ public class LangServerManager {
             String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
-            //boolean isDirty = textDocumentPositionParams.isDirty();
 
             if ("temp".equals(filePath)) {
-                // Load all the packages associated the runtime in the background
+                // Load all the packages associated the runtime
                 packages = Utils.getAllPackages();
-                LangServerManager.this.setPackages(packages.entrySet());
 
             } else {
                 Path file = Paths.get(filePath + File.separator + fileName);
                 packages = resolveProgramPackages(Paths.get(filePath), packageName);
                 programPackagesMap.put(file, packages);
             }
-
+            LangServerManager.this.setPackages(packages.entrySet());
 
             // add package info into response
             Gson gson = new Gson();
@@ -442,7 +444,6 @@ public class LangServerManager {
             JsonParser parser = new JsonParser();
             JsonArray packagesArray = parser.parse(json).getAsJsonArray();
             response.add("packages", packagesArray);
-
 
             ResponseMessage responseMessage = new ResponseMessage();
             responseMessage.setId(((RequestMessage) message).getId());
@@ -466,7 +467,6 @@ public class LangServerManager {
                     TextDocumentPositionParams.class);
             String textContent = textDocumentPositionParams.getText();
             Position position = textDocumentPositionParams.getPosition();
-            //String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -539,46 +539,9 @@ public class LangServerManager {
         return bLangProgram;
     }
 
-//    private Map<String, ModelPackage> getProgramPackages(java.nio.file.Path filePath, String packageName) {
-//        Map<String, ModelPackage> modelPackageMap = new HashMap();
-//        java.nio.file.Path programDirPath = WorkspaceUtils.gerProgramDirectory(filePath, packageName);
-//
-//
-//        List<Path> filePaths = new ArrayList<>();
-//        WorkspaceUtils.searchFilePathsForBalFiles(programDirPath, filePaths, Constants.DIRECTORY_DEPTH);
-//
-//
-//        for (java.nio.file.Path path : filePaths) {
-//            int compare = path.compareTo(programDirPath);
-//            String sourcePath = (String) path.toString().subSequence(path.toString().length() - compare + 1,
-//                    path.toString().length());
-//
-//            BLangProgram bLangProgram = new BLangProgramLoader().loadMain(programDirPath, Paths.get(sourcePath));
-//            String[] packageNames = {bLangProgram.getMainPackage().getName()};
-//            modelPackageMap.putAll(WorkspaceUtils.getResolvedPackagesMap(bLangProgram, packageNames));
-//        }
-//
-//        return modelPackageMap;
-//    }
-
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
     }
-
-    /**
-     * initialize any background job
-     */
-    private void initBackgroundJobs() {
-        Runnable run = new Runnable() {
-            public void run() {
-                // Load all the packages associated the runtime in the background
-                Map<String, ModelPackage> packages = Utils.getAllPackages();
-                LangServerManager.this.setPackages(packages.entrySet());
-            }
-        };
-        (new Thread(run)).start();
-    }
-
 
     /**
      * Generate a json with packages in program directory
@@ -688,11 +651,6 @@ public class LangServerManager {
             return;
         }
     }
-
-//    private java.nio.file.Path deriveFilePath(String fileName, String filePath) {
-//        return Paths.get(filePath + File.separator + fileName);
-//    }
-
 
     // End Notification Handlers
 
