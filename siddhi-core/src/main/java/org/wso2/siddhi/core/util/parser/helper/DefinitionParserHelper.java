@@ -677,7 +677,7 @@ public class DefinitionParserHelper {
         Map<String, String> options = new HashMap<String, String>();
         Map<String, String> dynamicOptions = new HashMap<String, String>();
         for (Element element : annotation.getElements()) {
-            if (Pattern.matches("\\{\\{.*?}}", element.getValue())) {
+            if (Pattern.matches("\\{\\{.*?\\}\\}", element.getValue())) {
                 if (supportedDynamicOptionList.contains(element.getKey())) {
                     dynamicOptions.put(element.getKey(), element.getValue());
                 } else {
