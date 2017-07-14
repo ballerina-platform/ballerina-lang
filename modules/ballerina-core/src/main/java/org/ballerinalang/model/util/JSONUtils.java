@@ -29,9 +29,7 @@ import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
-import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.DataTableJSONDataSource;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
@@ -630,15 +628,15 @@ public class JSONUtils {
         try {
             BXML xml;
             JsonNode jsonNode = json.value();
-            ArrayList<OMNode> omElementArrayList = new ArrayList<>();
-            iterateJSONTree(jsonNode, null, null, omElementArrayList, attributePrefix, arrayEntryTag);
+            ArrayList<BXML> omElementArrayList = traverseTree(jsonNode, attributePrefix, arrayEntryTag);
             if (omElementArrayList.size() == 1) {
-                xml = new BXMLItem(omElementArrayList.get(0));
+                xml = omElementArrayList.get(0);
             } else {
+                //There is a multi rooted node and create xml sequence from it
                 BRefValueArray elementsSeq = new BRefValueArray();
                 int count = omElementArrayList.size();
                 for (int i = 0; i < count; i++) {
-                    elementsSeq.add(i, new BXMLItem(omElementArrayList.get(i)));
+                    elementsSeq.add(i, omElementArrayList.get(i));
                 }
                 xml = new BXMLSequence(elementsSeq);
             }
@@ -648,20 +646,51 @@ public class JSONUtils {
         }
     }
 
-    private static OMElement iterateJSONTree(JsonNode node, String nodeName, OMElement rootElement,
-            ArrayList<OMNode> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
-        OMElement root = null;
-        OMElement tempOmElement;
+    /**
+     * Traverse a JSON root node and produces the corresponding xml items.
+     *
+     * @param node {@link JsonNode} to be traversed
+     * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
+     * @return List of xml items genereated during the traversal.
+     */
+    private static ArrayList<BXML> traverseTree(JsonNode node, String attributePrefix, String arrayEntryTag)
+            throws Exception {
+        ArrayList<BXML> xmlArray = new ArrayList<>();
+        if (node.isValueNode()) {
+            BXML xml = XMLUtils.parse(node.asText());
+            xmlArray.add(xml);
+        } else {
+            traverseJsonNode(node, null, null, xmlArray, attributePrefix, arrayEntryTag);
+        }
+        return xmlArray;
+    }
+
+    /**
+     * Traverse a JSON node ad produces the corresponding xml items.
+     *
+     * @param node {@link JsonNode} to be traversed
+     * @param nodeName name of the current traversing node
+     * @param parentElement parent element of the current node
+     * @param omElementArrayList List of xml iterms generated
+     * @param attributePrefix String prefix used for attributes
+     * @param arrayEntryTag String used as the tag in the arrays
+     * @return List of xml items genereated during the traversal.
+     */
+    private static OMElement traverseJsonNode(JsonNode node, String nodeName, OMElement parentElement,
+            ArrayList<BXML> omElementArrayList, String attributePrefix, String arrayEntryTag) throws Exception {
+        OMElement currentRoot = null;
         boolean processNode = true;
         if (nodeName != null) {
-            root = OM_FACTORY.createOMElement(nodeName, null);
+            currentRoot = OM_FACTORY.createOMElement(nodeName, null);
+            //Extract attributes and set to the immidiate parent.
             if (nodeName.startsWith(attributePrefix)) {
                 if (!node.isValueNode()) {
-                    throw new BallerinaException("testttt");
+                    throw new BallerinaException("attribute cannot be an object or array");
                 }
-                if (rootElement != null) {
+                if (parentElement != null) {
                     String attributeKey = nodeName.substring(1);
-                    rootElement.addAttribute(attributeKey, node.asText(), null);
+                    parentElement.addAttribute(attributeKey, node.asText(), null);
                     processNode = false;
                 }
             }
@@ -671,54 +700,43 @@ public class JSONUtils {
             while (nodeIterator.hasNext()) {
                 Entry<String, JsonNode> nodeEntry = nodeIterator.next();
                 JsonNode objectNode = nodeEntry.getValue();
-                tempOmElement = iterateJSONTree(objectNode, nodeEntry.getKey(), root, omElementArrayList,
+                currentRoot = traverseJsonNode(objectNode, nodeEntry.getKey(), currentRoot, omElementArrayList,
                         attributePrefix, arrayEntryTag);
-                if (nodeName == null) {
-                    omElementArrayList.add(tempOmElement);
-                } else {
-                    root = tempOmElement;
+                if (nodeName == null) { //Outermost object
+                    omElementArrayList.add(new BXMLItem(currentRoot));
+                    currentRoot = null;
                 }
             }
         } else if (node.isArray()) {
             Iterator<JsonNode> arrayItemsIterator = node.elements();
             while (arrayItemsIterator.hasNext()) {
                 JsonNode arrayNode = arrayItemsIterator.next();
-                tempOmElement = iterateJSONTree(arrayNode, arrayEntryTag, root, omElementArrayList, attributePrefix,
-                        arrayEntryTag);
-                if (nodeName == null) {
-                    omElementArrayList.add(tempOmElement);
-                } else {
-                    root = tempOmElement;
+                currentRoot = traverseJsonNode(arrayNode, arrayEntryTag, currentRoot, omElementArrayList,
+                        attributePrefix, arrayEntryTag);
+                if (nodeName == null) { //Outermost array
+                    omElementArrayList.add(new BXMLItem(currentRoot));
+                    currentRoot = null;
                 }
             }
-        } else if (node.isValueNode()) {
-            if (nodeName != null) {
-                if (node.isNull()) {
-                    OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
-                    root.addAttribute(NIL, "true", xsiNameSpace);
-                } else {
-                    OMText txt1 = OM_FACTORY.createOMText(root, node.asText());
-                    root.addChild(txt1);
-                }
+        } else if (node.isValueNode() && currentRoot != null) {
+            if (node.isNull()) {
+                OMNamespace xsiNameSpace = OM_FACTORY.createOMNamespace(XSI_NAMESPACE, XSI_PREFIX);
+                currentRoot.addAttribute(NIL, "true", xsiNameSpace);
             } else {
-                OMElement omElement = AXIOMUtil.stringToOM("<root>" + node.asText() + "</root>");
-                Iterator<OMNode> children = omElement.getChildren();
-                if (children.hasNext()) {
-                    OMNode omNode = children.next();
-                    omNode = omNode.detach();
-                    omElementArrayList.add(omNode);
-                }
+                OMText txt1 = OM_FACTORY.createOMText(currentRoot, node.asText());
+                currentRoot.addChild(txt1);
             }
         } else {
-            throw new BallerinaException("test");
+            throw new BallerinaException("error in converting json to xml");
         }
-        if (rootElement != null) {
+        //Set the current constructed root the parent element
+        if (parentElement != null) {
             if (processNode) {
-                rootElement.addChild(root);
+                parentElement.addChild(currentRoot);
             }
-            root = rootElement;
+            currentRoot = parentElement;
         }
-        return root;
+        return currentRoot;
     }
 
     /**

@@ -50,6 +50,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
         value = "Converts a JSON object to a xml representation") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "options",
+        value = "Options for json to xml conversion ") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "XML value of the given JSON") })
 public class ToXML extends AbstractJSONFunction {

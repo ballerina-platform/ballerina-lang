@@ -477,8 +477,8 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML1() {
+    @Test(description = "Convert complex json object in to xml")
+    public void testToXMLComplexObject() {
         BValue[] args = { new BJSON(jsonToXML1) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -491,8 +491,8 @@ public class JSONTest {
                 + "<item>9</item></codes></bookStore>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML2() {
+    @Test(description = "Convert json object with array within")
+    public void testToXMLArrayObject() {
         BValue[] args = { new BJSON(jsonToXML2) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -504,8 +504,8 @@ public class JSONTest {
                 + "<bookId>103</bookId></item></books>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML3() {
+    @Test(description = "Convert json object which has an array within an array")
+    public void testToXMLArrayWithinArrayObject() {
         BValue[] args = { new BJSON(jsonToXML3) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -517,8 +517,8 @@ public class JSONTest {
                 + "<item><item><bookName>book3</bookName><bookId>103</bookId></item></item></books>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML4() {
+    @Test(description = "Convert json object with simple array")
+    public void testToXMLSimpleArrayObject() {
         BValue[] args = { new BJSON(jsonToXML4) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -529,8 +529,8 @@ public class JSONTest {
                 + "</item></books>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML5() {
+    @Test(description = "Convert a json object with value only")
+    public void testToXMLJsonWithValue() {
         BValue[] args = { new BJSON(jsonToXML5) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLString", args);
 
@@ -540,8 +540,8 @@ public class JSONTest {
         Assert.assertEquals(returnElement, "5");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML6() {
+    @Test(description = "Convert a json object with array")
+    public void testToXMLJsonArray() {
         BValue[] args = { new BJSON(jsonToXML6) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
 
@@ -551,8 +551,8 @@ public class JSONTest {
         Assert.assertEquals(textValue, "<item>3</item><item>4</item><item>5</item>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML7() {
+    @Test(description = "Convert a json object with multi rooted object")
+    public void testToXMLMultirootedObjects() {
         BValue[] args = { new BJSON(jsonToXML7) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
 
@@ -565,8 +565,8 @@ public class JSONTest {
                 + "</bookStore><metaInfo>someinfo</metaInfo>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML8() {
+    @Test(description = "Convert a json object with null elements in the array")
+    public void testToXMLNullElementsInArray() {
         BValue[] args = { new BJSON(jsonToXML8) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
 
@@ -577,8 +577,8 @@ public class JSONTest {
                 + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML9() {
+    @Test(description = "Convert a json object with null object elements")
+    public void testToXMLNullElementsInObject() {
         BValue[] args = { new BJSON(jsonToXML9) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -589,8 +589,8 @@ public class JSONTest {
                 + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></Person>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML10() {
+    @Test(description = "Convert a json object with empty elements")
+    public void testToXMLEmptyElements() {
         BValue[] args = { new BJSON(jsonToXML10) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
 
@@ -600,8 +600,8 @@ public class JSONTest {
         Assert.assertEquals(textValue, "<address/><homeAddresses/><phoneNumbers/>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML11() {
+    @Test(description = "Convert a json object with empty elements and non emepty elements")
+    public void testToXMLEmptyElementsWithNonEmpty() {
         BValue[] args = { new BJSON(jsonToXML11) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -612,8 +612,8 @@ public class JSONTest {
                 + "</homeAddresses><phoneNumbers/></info>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML12() {
+    @Test(description = "Convert a simple json object with attributes")
+    public void testToXMLAttributes() {
         BValue[] args = { new BJSON(jsonToXML12) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -624,8 +624,8 @@ public class JSONTest {
                 + "</info>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML13() {
+    @Test(description = "Convert a complex json object with attributes")
+    public void testToXMLComplexAttributes() {
         BValue[] args = { new BJSON(jsonToXML13) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
 
@@ -637,8 +637,8 @@ public class JSONTest {
                 + "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
     }
 
-    @Test(description = "Get a string in a valid jsonpath")
-    public void testToXML14() {
+    @Test(description = "Convert a complex json object with attributes and custom attribute prefix")
+    public void testToXMLComplexAttributesCustomPrefix() {
         BValue[] args = { new BJSON(jsonToXML14) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithOptions", args);
 
