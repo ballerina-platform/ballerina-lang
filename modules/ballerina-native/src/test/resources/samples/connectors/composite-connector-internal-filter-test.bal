@@ -77,8 +77,8 @@ connector TestLBConnector(TestConnector[] testConnectorArray, string algorithm) 
         system:println("Connector index is TTTTTT " + index);
         TestConnector t1 = testConnectorArray[index];
         count = count + 1;
+        system:println("Action1 in LB connector started " + algorithm);
         string retValue = TestConnector.action1(t1, msg);
-        system:println("Action1 in test connector started " + algorithm);
         return retValue;
     }
 

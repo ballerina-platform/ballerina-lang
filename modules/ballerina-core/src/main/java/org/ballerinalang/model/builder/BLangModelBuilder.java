@@ -923,6 +923,10 @@ public class BLangModelBuilder {
                 argExprList.toArray(new Expression[argExprList.size()]));
         connectorInitExpr.setCompositeConnectorInit(true);
 
+        for (ConnectorInitExpr connectorInitExpr1 : inputConnectorInitExprs) {
+            connectorInitExpr1.setParentConnectorInitExpr(connectorInitExpr);
+        }
+
         ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
 
         //int j = 0;

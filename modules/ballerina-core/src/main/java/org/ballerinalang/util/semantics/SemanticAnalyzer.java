@@ -2042,7 +2042,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
-            visit(filterConnectorInitExpr);
+            if (!filterConnectorInitExpr.isCompositeConnectorInit()) {
+                visit(filterConnectorInitExpr);
+            }
             BType filterConnectorType = filterConnectorInitExpr.getFilterSupportedType();
             // Resolve reference connector type if this is a filter connector
             if (filterConnectorType != null && filterConnectorType instanceof BallerinaConnectorDef) {

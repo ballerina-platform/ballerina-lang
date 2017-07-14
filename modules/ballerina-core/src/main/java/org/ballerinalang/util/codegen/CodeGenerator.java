@@ -1674,8 +1674,12 @@ public class CodeGenerator implements NodeVisitor {
         // Generate code for filterConnectors if there are any
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
-            visit(filterConnectorInitExpr);
-            connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
+            if (!filterConnectorInitExpr.isCompositeConnectorInit()) {
+                visit(filterConnectorInitExpr);
+                connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
+            } else {
+                connectorInitExpr.setTempOffset(connectorRegIndex);
+            }
         }
 
         // Invoke Connector init native action if any
