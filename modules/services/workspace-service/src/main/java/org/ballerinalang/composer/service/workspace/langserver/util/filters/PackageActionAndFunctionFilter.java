@@ -27,6 +27,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
@@ -106,16 +107,21 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
 
         for (SymbolInfo symbolInfo : symbolInfoList) {
             CompletionItem completionItem = new CompletionItem();
+            FunctionSignature functionSignature;
             if (symbolInfo.getSymbolName().contains(".ClientConnector.")) {
                 canSuggestClientConnector = true;
                 String[] tokens = symbolInfo.getSymbolName().split("\\.");
-                completionItem.setInsertText("ClientConnector." + tokens[tokens.length - 1] + "(${1})");
-                completionItem.setLabel("ClientConnector." + tokens[tokens.length - 1]);
+                functionSignature = this.getFunctionSignature(tokens[tokens.length - 1],
+                        ((NativeUnitProxy) symbolInfo.getSymbol()).load());
+                completionItem.setInsertText("ClientConnector." + functionSignature.getInsertText());
+                completionItem.setLabel("ClientConnector." + functionSignature.getLabel());
                 completionItem.setDetail(ItemResolverConstants.ACTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_5);
             } else {
-                completionItem.setInsertText(symbolInfo.getSymbolName() + "(${1})");
-                completionItem.setLabel(symbolInfo.getSymbolName());
+                functionSignature = this.getFunctionSignature(symbolInfo.getSymbolName(),
+                        ((NativeUnitProxy) symbolInfo.getSymbol()).load());
+                completionItem.setInsertText(functionSignature.getInsertText());
+                completionItem.setLabel(functionSignature.getLabel());
                 completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
                 completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
             }
@@ -131,5 +137,68 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
             completionItems.add(clientConnectorType);
         }
         return completionItems;
+    }
+
+    /**
+     * Get the function signature
+     * @param functionName - function name
+     * @param nativeUnit - Native Unit
+     * @return {@link FunctionSignature}
+     */
+    private FunctionSignature getFunctionSignature(String functionName, NativeUnit nativeUnit) {
+        StringBuilder signature = new StringBuilder(functionName + "(");
+        StringBuilder signatureInsertText = new StringBuilder(functionName + "(");
+
+        // Create the parameter list
+        SimpleTypeName[] argumentTypeNames = nativeUnit.getArgumentTypeNames();
+        String[] argumentNames = nativeUnit.getArgumentNames();
+        for (int itr = 0; itr < argumentTypeNames.length; itr++) {
+            signature.append(argumentTypeNames[itr])
+                    .append(" ")
+                    .append(argumentNames[itr]);
+
+            signatureInsertText.append("${")
+                    .append(itr + 1)
+                    .append(":")
+                    .append(argumentNames[itr])
+                    .append("}");
+            if (itr < argumentTypeNames.length - 1) {
+                signature.append(", ");
+                signatureInsertText.append(", ");
+            }
+        }
+        signature.append(")");
+        signatureInsertText.append(")");
+        return new FunctionSignature(signatureInsertText.toString(), signature.toString());
+    }
+
+    /**
+     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction
+     * Signature Completion Item
+     */
+    private static class FunctionSignature {
+        private String insertText;
+        private String label;
+
+        FunctionSignature(String insertText, String label) {
+            this.insertText = insertText;
+            this.label = label;
+        }
+
+        String getInsertText() {
+            return insertText;
+        }
+
+        public void setInsertText(String insertText) {
+            this.insertText = insertText;
+        }
+
+        String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
     }
 }

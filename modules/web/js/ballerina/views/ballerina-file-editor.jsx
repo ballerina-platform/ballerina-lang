@@ -33,7 +33,7 @@ import BallerinaEnvFactory from './../env/ballerina-env-factory';
 import BallerinaEnvironment from './../env/environment';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED } from './../../constants/events';
+import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 
@@ -55,13 +55,14 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            parsePending: false,
             swaggerViewTargetService: undefined,
             parseFailed: true,
             syntaxErrors: [],
             model: new BallerinaASTRoot(),
             activeView: DESIGN_VIEW,
         };
-        this.sourceModified = false;
+        this.isASTInvalid = false;
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             // Change was done from the source view.
@@ -70,16 +71,25 @@ class BallerinaFileEditor extends React.Component {
             // the ast. See BallerinaFileEditor#setActiveView.
             // NOTE: This is to avoid unnecessary parser invocations for each change
             // event in source view
-            if (evt.originEvt.type === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                this.sourceModified = true;
-            } else if (evt.originEvt.type === CHANGE_EVT_TYPES.TREE_MODIFIED) {
+            const originEvtType = evt.originEvt.type;
+            if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
+                this.isASTInvalid = true;
+            } else if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // change was done from design view
                 // AST is directly modified hence no need to parse again
                 // we just need to update the diagram
                 this.update();
+            } else if (originEvtType === UNDO_EVENT
+                        || originEvtType === REDO_EVENT) {
+                this.isASTInvalid = true;
+                this.update();
             }
         });
         this.environment = new PackageScopedEnvironment();
+        // FIXME: ToolPalette doesn't consume full height if tab was
+        // not active while initial loading
+        // listening to 'tab-activate' and calling re-render to avoid that
+        this.props.tab.on(TAB_ACTIVATE, () => this.update());
     }
 
     /**
@@ -89,7 +99,9 @@ class BallerinaFileEditor extends React.Component {
         // parse the file & build the tree
         // then init the env with parsed symbols
         this.validateAndParseFile()
-            .then(state => this.setState(state))
+            .then(state => {
+                this.setState(state)
+            })
             .catch(error => log.error(error));
     }
 
@@ -97,7 +109,17 @@ class BallerinaFileEditor extends React.Component {
      * Update the diagram
      */
     update() {
-        this.forceUpdate();
+        if (this.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
+            this.validateAndParseFile()
+                .then((state) => {
+                    this.isASTInvalid = false;
+                    this.setState(state);
+                    this.forceUpdate();
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.forceUpdate();
+        }
     }
 
     /**
@@ -141,21 +163,8 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
-        const newState = {
-            activeView: newView
-        }
-        // if modifications were done from source view
-        // reparse the file
-        if (this.sourceModified) {
-            this.validateAndParseFile()
-                .then((state) => {
-                    this.sourceModified = false;
-                    this.setState(_.merge(state, newState));
-                })
-                .catch(error => log.error(error));
-        } else {
-            this.setState(newState);
-        }
+        this.state.activeView = newView;
+        this.update();
     }
 
     /**
@@ -180,10 +189,15 @@ class BallerinaFileEditor extends React.Component {
      * 
      */
     validateAndParseFile() {
+        this.setState({
+            parsePending: true,
+        })
         const file = this.props.file;
         return new Promise((resolve, reject) => {
             // final state to be passed into resolve
-            let newState = {};
+            let newState = {
+                parsePending: false,
+            };
             // first validate the file for syntax errors
             validateFile(file)
                 .then((errors) => {
@@ -251,11 +265,11 @@ class BallerinaFileEditor extends React.Component {
      * @memberof BallerinaFileEditor
      */
     render() {
-        // Desiding which view to show depends on several factors.
-        // Eventhough we have a state called activeView, we cannot simply decide from that.
+        // Decision on which view to show, depends on several factors.
+        // Even-though we have a state called activeView, we cannot simply decide on that value.
         // For example, for the design-view or the swagger-view to be active, we need to make sure
-        // that the file is parsed properly and an AST is available. For these reasons, we 
-        // use several other states such as parseFailed, syntaxErrors, etc. to decide
+        // that the file is parsed properly and an AST is available. For this reason and more, we 
+        // use several other states called parseFailed, syntaxErrors, etc. to decide
         // which view to show.
         // ----------------------------
         // syntaxErrors  - An array of errors received from validator service.
@@ -269,16 +283,22 @@ class BallerinaFileEditor extends React.Component {
         const showSwaggerView = !this.state.parseFailed 
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW;
+        const showLoadingOverlay = this.state.parsePending;
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
-        if (showDesignView) {
-            this.props.tabHeader.removeClass(sourceViewTabHeaderClass);
+        if (showSourceView || showLoadingOverlay) {
+            this.props.tab.getHeader().addClass(sourceViewTabHeaderClass);
         } else {
-            this.props.tabHeader.addClass(sourceViewTabHeaderClass);
+            this.props.tab.getHeader().removeClass(sourceViewTabHeaderClass);
         }
 
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
+                <div className='bal-file-editor-loading-container' style={{ display: showLoadingOverlay ? 'block' : 'none' }}>
+                    <div id="parse-pending-loader">
+                        loading                      
+                    </div>
+                </div>
                 <div style={{ display: showDesignView ? 'block' : 'none' }}>
                     <DesignView model={this.state.model} />
                 </div>
@@ -295,7 +315,7 @@ class BallerinaFileEditor extends React.Component {
 
 BallerinaFileEditor.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    tabHeader: PropTypes.instanceOf(Object).isRequired,
+    tab: PropTypes.instanceOf(Object).isRequired,
     commandManager: PropTypes.instanceOf(commandManager).isRequired
 };
 

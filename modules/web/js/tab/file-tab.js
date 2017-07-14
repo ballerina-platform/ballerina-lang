@@ -25,6 +25,7 @@ import File from '../workspace/file';
 import BallerinaFileEditor from '../ballerina/views/ballerina-file-editor.jsx';
 import UndoManager from '../ballerina/undo-manager/undo-manager';
 import UndoableBalEditorOperation from '../ballerina/undo-manager/undoable-bal-editor-operation';
+import { UNDO_EVENT, REDO_EVENT } from './../constants/events';
 
 /**
  * Represents a file tab used for editing ballerina.
@@ -61,7 +62,10 @@ class FileTab extends Tab {
         });
 
         this.file.on('content-modified', (evt) => {
-            this._handleUndoRedoStackOnUpdate(evt);
+            if (evt.originEvt.type !== UNDO_EVENT 
+                    && evt.originEvt.type !== REDO_EVENT) {
+                this._handleUndoRedoStackOnUpdate(evt);
+            }
             this.app.workspaceManager.updateMenuItems();
         });
     }
@@ -97,7 +101,7 @@ class FileTab extends Tab {
         const fileEditorEventChannel = new EventChannel();
         const editorProps = {
             file: this.file,
-            tabHeader: this.getHeader(),
+            tab: this,
             commandManager: this.app.commandManager,
         };
 

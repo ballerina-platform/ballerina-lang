@@ -147,9 +147,14 @@ class StructDefinition extends React.Component {
         const self = this;
         this.renderTextBox(textValue, bBox, (value) => {
             value = this.addQuotesToString(type, value);
-            if (!value || !value.length) {
-                const valueArrayId = model.getChildren()[1].id;
-                model.removeChildById(valueArrayId);
+            if (!value) {
+                if (model) {
+                    const valueArrayId = model.getChildren()[1].id;
+                    model.removeChildById(valueArrayId);
+                }
+                self.setState({
+                    newValue: '',
+                });
             } else if (model) {
                 model.setValue(value);
             } else {

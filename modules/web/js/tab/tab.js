@@ -19,6 +19,7 @@ import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
 import Backbone from 'backbone';
+import { TAB_ACTIVATE, TAB_DEACTIVATE } from './../constants/events';
 
 /**
  * Backbone view for a Tab.
@@ -74,8 +75,10 @@ const Tab = Backbone.View.extend(
                 this._isActive = isActive;
                 if (isActive) {
                     this.$el.addClass(_.get(this.options, 'cssClass.tab_active'));
+                    this.trigger(TAB_ACTIVATE);
                 } else {
                     this.$el.removeClass(_.get(this.options, 'cssClass.tab_active'));
+                    this.trigger(TAB_DEACTIVATE);
                 }
             }
         },
