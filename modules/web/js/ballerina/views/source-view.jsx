@@ -104,11 +104,12 @@ class SourceView extends React.Component {
             // register handler for source format command
             this.props.commandManager.registerHandler(FORMAT, this.format, this);
             // listen to changes done to file content 
-            // by other means and update ace content accordingly
+            // by other means (eg: design-view changes or redo/undo actions) 
+            // and update ace content accordingly
             this.props.file.on(CONTENT_MODIFIED, (evt) => {
                 if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                     // no need to update the file again, hence
-                    // the second arg
+                    // the second arg to skip update event
                     this.replaceContent(evt.newContent, true);
                 }
             });
@@ -127,6 +128,8 @@ class SourceView extends React.Component {
                 const sourceGenVisitor = new SourceGenVisitor();
                 ast.accept(sourceGenVisitor);
                 const formattedContent = sourceGenVisitor.getGeneratedSource();
+                // Note the second arg. We need to inform others about this change.
+                // Eg: undo manager should track this and the file should be updated.
                 this.replaceContent(formattedContent, false);
             })
             .catch(error => log.error(error));

@@ -65,21 +65,27 @@ class BallerinaFileEditor extends React.Component {
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             // Change was done from the source view.
-            // Just keep track of it for the moment and when user tries
+            // Just mark the AST as invalid for the moment and when user tries
             // to switch back to a different view, we will try to rebuild
-            // the ast. See BallerinaFileEditor#setActiveView.
+            // the AST. See BallerinaFileEditor#setActiveView.
             // NOTE: This is to avoid unnecessary parser invocations for each change
             // event in source view
             const originEvtType = evt.originEvt.type;
             if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                 this.isASTInvalid = true;
             } else if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
-                // change was done from design view
-                // AST is directly modified hence no need to parse again
-                // we just need to update the diagram
+                // Change was done from design view.
+                // AST is directly modified, hence no need to parse again.
+                // We just need to update the diagram.
                 this.update();
             } else if (originEvtType === UNDO_EVENT
                         || originEvtType === REDO_EVENT) {
+                // Undo/Redo works based on the source-diff for each user action.
+                // Hence upon undo/redo, current AST becomes invalid.
+                // Hence we set this flag to indicate it. Dependening on the 
+                // active view - it will decide whether it need to parse
+                // now or later (eg: when switching back from source)
+                // see BallerinaFileEditor#update
                 this.isASTInvalid = true;
                 this.update();
             }
@@ -108,6 +114,10 @@ class BallerinaFileEditor extends React.Component {
      * Update the diagram
      */
     update() {
+        // We need to rebuild the AST if we are not in source-view
+        // and current AST is marked as invalid.
+        // Current AST can become invalid due to reasons 
+        // such as modifications from source view, undo/redo 
         if (this.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
             this.validateAndParseFile()
                 .then((state) => {
@@ -162,6 +172,10 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
+        // avoid additional re-render by directly updating state
+        // next call update() to re-render 
+        // (and parse before re-render if necessary)
+        // @see BallerinaFileEditor#update 
         this.state.activeView = newView;
         this.update();
     }
