@@ -1022,7 +1022,7 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     width: 100%;
     background-color: rgb(60, 60, 60);
     color: white;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .syntax-errors-container {
@@ -1062,4 +1062,23 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
   to {
     width: 20px;    
   }
+}
+
+
+.loading-overlay-enter {
+  opacity: 0.01;
+}
+
+.loading-overlay-enter.loading-overlay-enter-active {
+  opacity: 0.5;
+  transition: opacity 300ms ease-in;
+}
+
+.loading-overlay-leave {
+  opacity: 0.5;
+}
+
+.loading-overlay-leave.loading-overlay-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
 }

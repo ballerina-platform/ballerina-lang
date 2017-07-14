@@ -20,6 +20,7 @@ import _ from 'lodash';
 import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import ASTVisitor from 'ballerina/visitors/ast-visitor';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
@@ -320,11 +321,19 @@ class BallerinaFileEditor extends React.Component {
 
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
-                <div className='bal-file-editor-loading-container' style={{ display: showLoadingOverlay ? 'block' : 'none' }}>
-                    <div id="parse-pending-loader">
-                        loading<br />                     
-                    </div>
-                </div>
+                <CSSTransitionGroup
+                    transitionName="loading-overlay"
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                >
+                    {showLoadingOverlay &&
+                        <div className='bal-file-editor-loading-container'>
+                            <div id="parse-pending-loader">
+                                loading<br />                     
+                            </div>
+                        </div>
+                    }    
+                </CSSTransitionGroup>
                 <div style={{ display: showDesignView ? 'block' : 'none' }}>
                     <DesignView model={this.state.model} />
                 </div>
