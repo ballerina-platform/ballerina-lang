@@ -34,7 +34,7 @@ public class BallerinaIcons {
     public static final Icon VARIABLE = AllIcons.Nodes.Variable;
     public static final Icon GLOBAL_VARIABLE = new LayeredIcon(AllIcons.Nodes.Variable, AllIcons.Nodes.StaticMark);
     public static final Icon PARAMETER = AllIcons.Nodes.Parameter;
-    public static final Icon CONSTANT = AllIcons.Nodes.Class;
+    public static final Icon CONSTANT = AllIcons.Nodes.Class; // Todo - change icon
     public static final Icon CONNECTOR = AllIcons.Nodes.Class;
     public static final Icon ACTION = AllIcons.Nodes.Deploy;
     public static final Icon SERVICE = AllIcons.Nodes.Static;

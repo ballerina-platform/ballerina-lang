@@ -70,9 +70,12 @@ public abstract class BallerinaResolveTestBase extends BallerinaCodeInsightFixtu
         fileContent = fileContent.replace(NO_REF_MARK, "");
         fileContent = fileContent.replace(DEF_MARK, "");
 
-        file = myFixture.configureByText(BallerinaFileType.INSTANCE, fileContent);
+        // Delete the current file. Otherwise it will cause false positives and tests will fail.
+        ApplicationManager.getApplication().runWriteAction(file::delete);
 
-        processPsiFile(file, referenceIndex, noReferenceIndex, definitionIndex);
+        PsiFile newFile = myFixture.configureByText(BallerinaFileType.INSTANCE, fileContent);
+
+        processPsiFile(newFile, referenceIndex, noReferenceIndex, definitionIndex);
 
         doResolveTest();
     }

@@ -125,8 +125,8 @@ public class BallerinaStackFrame extends XStackFrame {
     //                    continue;
     //                }
     //
-    //                PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
-    //                        PackagePathNode.class);
+    //                FullyQualifiedPackageNameNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
+    //                        FullyQualifiedPackageNameNode.class);
     //                if (packagePathNode != null) {
     //                    if (packageName.equals(packagePathNode.getText())) {
     //                        return matchingFile;

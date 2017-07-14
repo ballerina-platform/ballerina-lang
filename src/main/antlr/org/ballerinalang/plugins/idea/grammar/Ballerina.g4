@@ -16,15 +16,15 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packagePath ';'
+    :   'package' fullyQualifiedPackageName ';'
     ;
 
 importDeclaration
-    :   'import' packagePath ('as' alias)? ';'
+    :   'import' fullyQualifiedPackageName ('as' alias)? ';'
     ;
 
-packagePath
-    :   (packageName '.')* packageName
+fullyQualifiedPackageName
+    :   packageName ('.' packageName)*
     ;
 
 packageName
@@ -127,7 +127,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' valueTypeName Identifier '=' simpleLiteral ';'
+    :   'const' valueTypeName Identifier '=' expression ';'
     ;
 
 workerDeclaration
@@ -176,7 +176,7 @@ xmlLocalName
     ;
 
  annotationAttachment
-     :   '@' nameReference '{' annotationAttributeList? '}'
+     :   '@' annotationReference '{' annotationAttributeList? '}'
      ;
 
  annotationAttributeList
@@ -251,7 +251,15 @@ mapStructLiteral
     ;
 
 mapStructKeyValue
-    :   expression ':' expression
+    :   mapStructKey ':' mapStructValue
+    ;
+
+mapStructKey
+    :   expression
+    ;
+
+mapStructValue
+    :   expression
     ;
 
 arrayLiteral
@@ -259,7 +267,7 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   'create' nameReference '(' expressionList? ')'
+    :   'create' connectorReference '(' expressionList? ')'
     ;
 
 assignmentStatement
@@ -271,12 +279,32 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement* '}')?
+    :  ifClause elseIfClause* elseClause? '}'
+    ;
+
+ifClause
+    :   'if' '(' expression ')' '{' codeBlockBody
+    ;
+
+elseIfClause
+    :   '}' 'else' 'if' '(' expression ')' '{' codeBlockBody
+    ;
+
+elseClause
+    :   '}' 'else' '{' codeBlockBody
+    ;
+
+codeBlockBody
+    :   statement*
+    ;
+
+codeBlockParameter
+    :   typeName Identifier
     ;
 
 //todo replace with 'foreach'
 iterateStatement
-    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
+    :   'iterate' '(' codeBlockParameter ':' expression ')' '{' codeBlockBody '}'
     ;
 
 whileStatement
@@ -293,9 +321,12 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '{' workerDeclaration* '}'
-        ('join' ('(' joinConditions ')')? '(' typeName Identifier ')' '{' statement* '}')?
-        ('timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}')?
+    : 'fork' '{' workerDeclaration* joinClause? timeoutClause? '}'
+    ;
+
+// below typeName is only 'message[]'
+joinClause
+    :   '}' 'join' ('(' joinConditions ')')? '(' codeBlockParameter ')' '{' codeBlockBody
     ;
 
 joinConditions
@@ -303,8 +334,26 @@ joinConditions
     |   'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
     ;
 
+// below typeName is only 'message[]'
+timeoutClause
+    :   '}' 'timeout' '(' expression ')' '(' codeBlockParameter ')'  '{' codeBlockBody
+    ;
+
 tryCatchStatement
-    :   'try' '{' statement* '}' (( 'catch' '(' typeName Identifier ')' '{' statement* '}' )+ ( 'finally' '{' statement* '}' )?) | ( 'finally' '{' statement* '}' )
+    :   'try' '{' codeBlockBody catchClauses '}'
+    ;
+
+catchClauses
+    : catchClause+ finallyClause?
+    | finallyClause
+    ;
+
+catchClause
+    :  '}' 'catch' '(' codeBlockParameter ')' '{' codeBlockBody
+    ;
+
+finallyClause
+    : '}' 'finally' '{' codeBlockBody
     ;
 
 throwStatement
@@ -364,7 +413,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   nameReference '(' expressionList? ')' ';'
+    :   functionReference '(' expressionList? ')' ';'
     ;
 
 actionInvocationStatement
@@ -373,8 +422,20 @@ actionInvocationStatement
     ;
 
 transactionStatement
-    :   'transaction' '{' statement* '}' (('aborted' '{' statement* '}')? ('committed' '{' statement* '}')?
-                                          | ('committed' '{' statement* '}')? ('aborted' '{' statement* '}')?)
+    :   'transaction' '{' codeBlockBody transactionHandlers? '}'
+    ;
+
+transactionHandlers
+    : abortedClause committedClause
+    | committedClause abortedClause
+    ;
+
+abortedClause
+    :   '}' 'aborted' '{' codeBlockBody
+    ;
+
+committedClause
+    :   '}' 'committed' '{' codeBlockBody
     ;
 
 abortStatement
@@ -382,7 +443,7 @@ abortStatement
     ;
 
 actionInvocation
-    :   nameReference '.' Identifier '(' expressionList? ')'
+    :   connectorReference '.' Identifier '(' expressionList? ')'
     ;
 
 namespaceDeclaration
@@ -401,7 +462,7 @@ expression
     |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
-    |   functionInvocation                              # functionInvocationExpression
+    |   functionReference '(' expressionList? ')'       # functionInvocationExpression
     |   '(' typeName ')' simpleExpression               # typeCastingExpression
     |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
@@ -419,13 +480,21 @@ simpleExpression
     :   expression
     ;
 
-functionInvocation
-    :   nameReference '(' expressionList? ')'
-    ;
-
 //reusable productions
 
 nameReference
+    :   (packageName ':')? Identifier
+    ;
+
+functionReference
+    :   (packageName ':')? Identifier
+    ;
+
+connectorReference
+    :   (packageName ':')? Identifier
+    ;
+
+annotationReference
     :   (packageName ':')? Identifier
     ;
 
@@ -551,7 +620,6 @@ BITOR           : '|';
 CARET           : '^';
 MOD             : '%';
 AT              : '@';
-SINGLEQUOTE     : '\'';
 DOUBLEQUOTE     : '"';
 BACKTICK        : '`';
 
