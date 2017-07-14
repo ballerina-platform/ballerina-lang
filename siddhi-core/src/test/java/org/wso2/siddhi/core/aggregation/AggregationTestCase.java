@@ -266,12 +266,12 @@ public class AggregationTestCase {
         inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
         Thread.sleep(2000);
 
-        inputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289956000L});
-        inputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289956000L});
-        Thread.sleep(60000);
-
-        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
-        Thread.sleep(60000);
+//        inputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289956000L});
+//        inputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289956000L});
+//        Thread.sleep(60000);
+//
+//        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
+//        Thread.sleep(60000);
         siddhiAppRuntime.shutdown();
     }
 
