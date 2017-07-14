@@ -87,7 +87,6 @@ public class JoinQueryTestCase {
                                         Expression.variable("symbol").ofStream("t"),
                                         Compare.Operator.EQUAL,
                                         Expression.variable("symbol").ofStream("t")),
-                                null,
                                 JoinInputStream.EventTrigger.LEFT
                         )
                 ).

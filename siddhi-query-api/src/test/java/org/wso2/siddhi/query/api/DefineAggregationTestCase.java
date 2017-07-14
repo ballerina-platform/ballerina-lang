@@ -2,10 +2,15 @@ package org.wso2.siddhi.query.api;
 
 import org.junit.Test;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
+import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
+import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Expression;
+import org.wso2.siddhi.query.api.expression.condition.Compare;
 
 public class DefineAggregationTestCase {
     @Test
@@ -24,7 +29,7 @@ public class DefineAggregationTestCase {
 
     @Test
     public void testDefineAggregationWithExactTimeSpecifier() {
-        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregationDefinition")
+        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregation")
                 .from(InputStream.stream("StockStream"))
                 .select(Selector.basicSelector()
                         .select("timestamp", Expression.variable("timestamp").ofStream("StockStream"))
@@ -35,5 +40,49 @@ public class DefineAggregationTestCase {
                 .every(TimePeriod.interval(TimePeriod.Duration.SECONDS,
                         TimePeriod.Duration.MINUTES,
                         TimePeriod.Duration.HOURS));
+    }
+
+    @Test
+    public void testAggregationJoin() {
+        Query.query().
+                from(
+                        InputStream.joinStream(
+                                InputStream.stream("s1", "cseEventStream").
+                                        filter(Expression.and(
+                                                Expression.compare(
+                                                        Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                        Compare.Operator.GREATER_THAN,
+                                                        Expression.variable("price").ofStream("cseEventStream")),
+                                                Expression.compare(Expression.value(100),
+                                                        Compare.Operator.GREATER_THAN_EQUAL,
+                                                        Expression.variable("volume").ofStream("cseEventStream")
+                                                )
+                                                )
+                                        ).window("lengthBatch", Expression.value(50)),
+                                JoinInputStream.Type.JOIN,
+                                InputStream.stream("s2", "StockAggregation"),
+                                Expression.compare(
+                                        Expression.variable("price").ofStream("s1"),
+                                        Compare.Operator.EQUAL,
+                                        Expression.variable("price").ofStream("s2")),
+                                Within.within(Expression.value("2014-02-15T00:00:00Z"),
+                                        Expression.value("2014-03-16T00:00:00Z")),
+                                Expression.value("day")
+                        )
+                ).
+                select(
+                        Selector.selector().
+                                select("symbol", Expression.variable("symbol").ofStream("cseEventStream")).
+                                select(null, Expression.variable("symbol").ofStream("cseEventStream")).
+                                groupBy(Expression.variable("symbol").ofStream("cseEventStream")).
+                                having(
+                                        Expression.compare(
+                                                Expression.add(Expression.value(7), Expression.value(9.5)),
+                                                Compare.Operator.GREATER_THAN,
+                                                Expression.variable("price"))
+                                )
+                ).
+                insertInto("StockQuote", OutputStream.OutputEventType.EXPIRED_EVENTS);
+
     }
 }

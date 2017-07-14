@@ -217,11 +217,6 @@ public class JoinInputStreamParser {
             compareCondition = Expression.value(true);
         }
 
-        if (joinInputStream.getWithin() != null) {
-            throw new OperationNotSupportedException("within not support for joins, found withing time '" + (
-                    (TimeConstant) joinInputStream.getWithin()).getValue() + " ms'");
-        }
-
         MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder
                 (metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
         CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition,

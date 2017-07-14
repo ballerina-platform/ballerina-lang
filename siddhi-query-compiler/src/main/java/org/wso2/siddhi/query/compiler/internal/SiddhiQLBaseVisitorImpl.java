@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.SiddhiApp;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
@@ -634,12 +635,17 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         SingleInputStream leftStream = (SingleInputStream) visit(ctx.left_source);
         SingleInputStream rightStream = (SingleInputStream) visit(ctx.right_source);
         JoinInputStream.Type joinType = (JoinInputStream.Type) visit(ctx.join());
-        TimeConstant timeConstant = null;
-        Expression onCondition = null;
         JoinInputStream.EventTrigger eventTrigger = null;
+        Expression onCondition = null;
+        Within within = null;
+        Expression per = null;
 
-        if (ctx.within_time() != null) {
-            timeConstant = (TimeConstant) visit(ctx.within_time());
+        if (ctx.within_time_range() != null) {
+            within = (Within) visit(ctx.within_time_range());
+        }
+
+        if (ctx.per() != null) {
+            per = (Expression) visit(ctx.per());
         }
 
         if (ctx.expression() != null) {
@@ -654,7 +660,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             eventTrigger = JoinInputStream.EventTrigger.ALL;
         }
 
-        return InputStream.joinStream(leftStream, joinType, rightStream, onCondition, timeConstant, eventTrigger);
+        return InputStream.joinStream(leftStream, joinType, rightStream, onCondition, eventTrigger, within, per);
 
     }
 
@@ -2175,19 +2181,6 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 + context.start.getLine() + ":" + context.start.getCharPositionInLine() + ", " + message);
     }
 
-    private static class Source {
-
-        private String streamId;
-        private boolean isInnerStream;
-    }
-
-    private static class StreamReference {
-
-        private String streamId;
-        private boolean isInnerStream;
-        private Integer streamIndex;
-    }
-
     @Override
     public TimePeriod.Duration visitAggregation_time_duration(
             @NotNull SiddhiQLParser.Aggregation_time_durationContext ctx) {
@@ -2297,5 +2290,27 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         aggregationDefinition.every(timePeriod);
 
         return aggregationDefinition;
+    }
+
+    @Override
+    public Object visitWithin_time_range(SiddhiQLParser.Within_time_rangeContext ctx) {
+        if (ctx.end_pattern == null) {
+            return Within.within((Expression) visit(ctx.start_pattern));
+        } else {
+            return Within.within((Expression) visit(ctx.start_pattern), (Expression) visit(ctx.end_pattern));
+        }
+    }
+
+    private static class Source {
+
+        private String streamId;
+        private boolean isInnerStream;
+    }
+
+    private static class StreamReference {
+
+        private String streamId;
+        private boolean isInnerStream;
+        private Integer streamIndex;
     }
 }
