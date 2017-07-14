@@ -33,6 +33,7 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
     private ConnectorInitExpr parentConnectorInitExpr;
     // This variable has been introduced to support the filter connector framework
     private BType filterSupportedType;
+    private boolean isCompositeConnectorInit;
 
     public ConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, SimpleTypeName typeName,
                              Expression[] argExprs) {
@@ -58,6 +59,14 @@ public class ConnectorInitExpr extends RefTypeInitExpr {
 
     public void setFilterSupportedType(BType filterSupportedType) {
         this.filterSupportedType = filterSupportedType;
+    }
+
+    public boolean isCompositeConnectorInit() {
+        return isCompositeConnectorInit;
+    }
+
+    public void setCompositeConnectorInit(boolean compositeConnectorInit) {
+        isCompositeConnectorInit = compositeConnectorInit;
     }
 
     @Override

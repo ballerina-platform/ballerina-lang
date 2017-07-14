@@ -14,15 +14,15 @@ function testCompositeConnector()(string, string) {
 
 }
 
-connector FilterConnector<TestConnector t>(string param1) {
+connector FilterConnector<TestLBConnector t>(string param1) {
 
     action action1(FilterConnector testConnector, message msg) (string){
           system:println("Action1 in filter connector started " + param1);
           string x;
-          x = TestConnector.action1(t, msg);
+          x = TestLBConnector.action1(t, msg);
           system:println(x);
           string y;
-          y = TestConnector.action2(t, msg);
+          y = TestLBConnector.action2(t, msg);
           system:println(y);
           return x;
     }

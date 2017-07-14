@@ -42,20 +42,7 @@ public class CompositeConnectorTest {
         BString value2 = (BString) returns[1];
         String expected = "XXXX";
         Assert.assertEquals(value1.stringValue(), expected);
-        String expected2 = "2222222";
-        Assert.assertEquals(value2.stringValue(), expected2);
-    }
-
-    @Test(description = "Test composite connector with internal filter for some connectors")
-    public void testCompositeConnectorInternalFilterSome() {
-        programFile = BTestUtils.getProgramFile("samples/connectors/composite-connector-internal-filter-test.bal");
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCompositeConnector2");
-        Assert.assertEquals(returns.length, 2);
-        BString value1 = (BString) returns[0];
-        BString value2 = (BString) returns[1];
-        String expected = "XXXX";
-        Assert.assertEquals(value1.stringValue(), expected);
-        String expected2 = "URI2";
+        String expected2 = "YYYY";
         Assert.assertEquals(value2.stringValue(), expected2);
     }
 

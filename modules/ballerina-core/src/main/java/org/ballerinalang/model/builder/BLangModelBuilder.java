@@ -881,6 +881,7 @@ public class BLangModelBuilder {
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
+        connectorInitExpr.setCompositeConnectorInit(true);
         exprStack.push(connectorInitExpr);
         isCompositeConnectorInitStarted = false;
     }
@@ -920,6 +921,7 @@ public class BLangModelBuilder {
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
+        connectorInitExpr.setCompositeConnectorInit(true);
 
         ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
 

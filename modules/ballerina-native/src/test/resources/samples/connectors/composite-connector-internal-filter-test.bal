@@ -2,21 +2,7 @@ import ballerina.lang.system;
 
 function testCompositeConnector()(string, string) {
     TestLBConnector testLB = create TestLBConnector ([create TestConnector("URI1") with FilterConnector("XXXX"),
-                        create TestConnector("URI2") with FilterConnector2("YYYY")], "RoundRobin");
-    message request = {};
-    string value1;
-    string value2;
-    value1 = TestLBConnector.action1(testLB, request);
-    system:println("Value returned from action invocation is " + value1);
-    value2 = TestLBConnector.action1(testLB, request);
-    system:println("Value returned from action invocation is " + value2);
-    return value1, value2;
-
-}
-
-function testCompositeConnector2()(string, string) {
-    TestLBConnector testLB = create TestLBConnector ([create TestConnector("URI1") with FilterConnector("XXXX"),
-                        create TestConnector("URI2")], "RoundRobin");
+                        create TestConnector("URI2") with FilterConnector("YYYY")], "RoundRobin");
     message request = {};
     string value1;
     string value2;
