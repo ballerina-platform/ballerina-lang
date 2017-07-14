@@ -28,11 +28,11 @@ public class Constants {
     public static final String ANNOTATION_CONCURRENCY = "Concurrency";
     public static final String ANNOTATION_SFTP_SETTINGS = "SftpSettings";
     public static final String PROTOCOL_FTP = "ftp";
-    public static final String PROTOCOL_FILE_SYSTEM = "file_system";
+    public static final String PROTOCOL_FILE_SYSTEM = "fs";
     public static final String TRANSPORT_PROPERTY_SERVICE_NAME = "TRANSPORT_FILE_SERVICE_NAME";
     public static final String FTP_PACKAGE_NAME = "ballerina.net.ftp";
 
-    public static final String ANNOTATION_DIR_PATH = "dirPath";
+    public static final String ANNOTATION_DIR_URI = "dirURI";
     public static final String ANNOTATION_FILE_PATTERN = "fileNamePattern";
     public static final String ANNOTATION_POLLING_INTERVAL = "pollingInterval";
     public static final String ANNOTATION_CRON_EXPRESSION = "cronExpression";

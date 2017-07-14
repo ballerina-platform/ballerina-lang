@@ -1,7 +1,7 @@
 package ballerina.net.ftp;
 
 annotation config attach service {
-    string dirPath;
+    string dirURI;
     string fileNamePattern;
     string pollingInterval;
     string cronExpression;

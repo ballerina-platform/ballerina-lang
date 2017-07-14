@@ -96,7 +96,7 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
             if (sftpInfo != null) {
                 addSftpProperties(elementsMap, sftpInfo);
             }
-            String dir = elementsMap.get(Constants.ANNOTATION_DIR_PATH);
+            String dir = elementsMap.get(Constants.ANNOTATION_DIR_URI);
             if (dir == null) {
                 throw new BallerinaException("Cannot create file system server without dirPath");
             } else if (!(dir.startsWith("ftp:") || dir.startsWith("sftp:") || dir.startsWith("ftps:"))) {
@@ -131,9 +131,9 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
 
     private Map<String, String> getServerConnectorParamMap(AnnotationAttachmentInfo info) {
         Map<String, String> convertedMap = new HashMap<>();
-        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_PATH))) {
-            convertedMap.put(Constants.ANNOTATION_DIR_PATH,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_PATH).getStringValue());
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_URI))) {
+            convertedMap.put(Constants.ANNOTATION_DIR_URI,
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_URI).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_PATTERN))) {
             convertedMap.put(Constants.ANNOTATION_FILE_PATTERN,
