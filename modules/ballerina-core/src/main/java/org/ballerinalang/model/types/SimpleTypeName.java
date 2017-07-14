@@ -32,28 +32,34 @@ public class SimpleTypeName {
     protected String name;
     protected String pkgName;
     protected String pkgPath;
+    protected SimpleTypeName constraint;
     protected SymbolName symbolName;
     protected boolean isArrayType;
     protected int dimensions = 1;
 
-    public SimpleTypeName(String name, String pkgName, String pkgPath) {
+    public SimpleTypeName(String name, String pkgName, String pkgPath, SimpleTypeName constraint) {
         this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
+        this.constraint = constraint;
+    }
+
+    public SimpleTypeName(String name, String pkgName, String pkgPath) {
+        this(name, pkgName, pkgPath, null);
     }
 
     public SimpleTypeName(String name) {
-        this(name, null, null);
+        this(name, null, null, null);
     }
     
     public SimpleTypeName(String name, boolean isArrayType, int dimensions) {
-        this(name, null, null);
+        this(name, null, null, null);
         this.isArrayType = isArrayType;
         this.dimensions = dimensions;
     }
     
     public SimpleTypeName(String name, String pkgPath, boolean isArrayType, int dimensions) {
-        this(name, null, null);
+        this(name, null, null, null);
         this.isArrayType = isArrayType;
         this.pkgPath = pkgPath;
         this.dimensions = dimensions;
@@ -61,6 +67,14 @@ public class SimpleTypeName {
 
     public String getName() {
         return name;
+    }
+
+    public SimpleTypeName getConstraint() {
+        return constraint;
+    }
+
+    public void setConstraint(SimpleTypeName constraint) {
+        this.constraint = constraint;
     }
 
     public String getPackageName() {

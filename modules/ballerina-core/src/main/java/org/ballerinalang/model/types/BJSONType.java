@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
@@ -28,6 +29,8 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BJSONType extends BType {
 
+    protected StructDef constraint;
+
     /**
      * Create a {@code BJSONType} which represents the boolean type.
      *
@@ -35,6 +38,14 @@ public class BJSONType extends BType {
      */
     BJSONType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BJSON.class);
+    }
+
+    public StructDef getConstraint() {
+        return this.constraint;
+    }
+
+    public void setConstraint(StructDef constraint) {
+        this.constraint = constraint;
     }
 
     @Override

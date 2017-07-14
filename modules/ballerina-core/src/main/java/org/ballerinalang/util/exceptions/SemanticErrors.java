@@ -118,7 +118,8 @@ public enum SemanticErrors {
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
     CANNOT_CONVERT_WITH_SUGGESTION("cannot.convert.with.suggestion", "SEMANTIC_0095"),
     CANNOT_CAST_WITH_SUGGESTION("cannot.cast.with.suggestion", "SEMANTIC_0096"),
-    NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment", "SEMANTIC_0097")
+    NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment", "SEMANTIC_0097"),
+    UNKNOWN_FIELD_IN_JSON_STRUCT("unknown.field.in.json.struct", "SEMANTIC_0098")
     ;
 
     private String errorMsgKey;
