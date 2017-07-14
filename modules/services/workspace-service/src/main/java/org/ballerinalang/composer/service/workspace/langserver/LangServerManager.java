@@ -427,7 +427,7 @@ public class LangServerManager {
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
 
-            if ("temp".equals(filePath)) {
+            if ("temp".equals(filePath) || "".equals(packageName)) {
                 // Load all the packages associated the runtime
                 packages = Utils.getAllPackages();
 
@@ -480,12 +480,9 @@ public class LangServerManager {
             AutoCompleteSuggester autoCompleteSuggester = new AutoCompleteSuggesterImpl();
             CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(position);
             try {
-                SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
                 ArrayList symbols = new ArrayList<>();
-
                 CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
-
-                if ("temp".equals(filePath)) {
+                if ("temp".equals(filePath) ||  "".equals(packageName)) {
                     BallerinaFile ballerinaFile =
                             autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
                     capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
@@ -503,6 +500,7 @@ public class LangServerManager {
                 }
 
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
+                SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
                 dm.setClosestScope(completionItemAccumulator.getClosestScope());
                 // set all the packages associated with the runtime. "this.getPackages()" might return null as process
                 // of loading packages is running in a separate thread. See initBackgroundJobs() method.
