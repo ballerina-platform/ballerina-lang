@@ -203,7 +203,7 @@ public class TypeLattice {
         conversionLattice.addEdge(datatableV, xmlV, UNSAFE, InstructionCodes.DT2XML);
         conversionLattice.addEdge(datatableV, jsonV, UNSAFE, InstructionCodes.DT2JSON);
         
-        conversionLattice.addEdge(xmlAttributesV, mapV, SAFE, InstructionCodes.XMLATTR2MAP);
+        conversionLattice.addEdge(xmlAttributesV, mapV, SAFE, InstructionCodes.XMLATTRS2MAP);
     }
 
     /**

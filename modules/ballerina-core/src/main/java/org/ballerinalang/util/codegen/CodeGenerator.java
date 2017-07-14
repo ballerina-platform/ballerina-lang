@@ -2019,7 +2019,7 @@ public class CodeGenerator implements NodeVisitor {
         Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
         if (indexExpr == null) {
             int xmlValueRegIndex = ++regIndexes[REF_OFFSET];
-            emit(InstructionCodes.XML2ATTRS, varRefRegIndex, xmlValueRegIndex);
+            emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
             xmlAttributesRefExpr.setTempOffset(xmlValueRegIndex);
             return;
         }

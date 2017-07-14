@@ -248,8 +248,8 @@ public interface InstructionCodes {
     int RRET = 236;
     int RET = 237;
 
-    int XML2ATTRS = 238;
-    int XMLATTR2MAP = 239;
+    int XML2XMLATTRS = 238;
+    int XMLATTRS2MAP = 239;
     int XMLATTRLOAD = 240;
     int XMLATTRSTORE = 241;
     int S2QNAME = 242;

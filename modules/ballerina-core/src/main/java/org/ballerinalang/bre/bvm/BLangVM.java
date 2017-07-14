@@ -1301,7 +1301,7 @@ public class BLangVM {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
-                case InstructionCodes.XMLATTR2MAP:
+                case InstructionCodes.XMLATTRS2MAP:
                     execTypeConversionOpcodes(sf, opcode, operands);
                     break;
 
@@ -1469,7 +1469,7 @@ public class BLangVM {
                     sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
                             xmlQName.getPrefix());
                     break;
-                case InstructionCodes.XML2ATTRS:
+                case InstructionCodes.XML2XMLATTRS:
                     i = operands[0];
                     j = operands[1];
 
@@ -1871,7 +1871,7 @@ public class BLangVM {
                     handleTypeConversionError(sf, k, TypeConstants.JSON_TNAME, TypeConstants.XML_TNAME);
                 }
                 break;
-            case InstructionCodes.XMLATTR2MAP:
+            case InstructionCodes.XMLATTRS2MAP:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];

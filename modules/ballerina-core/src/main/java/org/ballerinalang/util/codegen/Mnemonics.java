@@ -226,11 +226,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
         
-        mnemonics[InstructionCodes.XML2ATTRS] = "xml2attrs";
+        mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2attrs";
         mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
-        mnemonics[InstructionCodes.XMLATTR2MAP] = "xmlattr2map";
+        mnemonics[InstructionCodes.XMLATTRS2MAP] = "xmlattr2map";
         mnemonics[InstructionCodes.NEWQNAME] = "qnameload";
     }
 
