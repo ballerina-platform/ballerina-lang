@@ -145,21 +145,42 @@ class StructDefinition extends React.Component {
     handleValueClick(type, textValue, elementBBox, model) {
         const bBox = { x: elementBBox.x, y: elementBBox.y, h: elementBBox.height, w: elementBBox.width };
         const self = this;
+        let state = false;
         this.renderTextBox(textValue, bBox, (value) => {
-            value = this.addQuotesToString(type, value);
-            if (!value) {
+            // Only checks for the simple literals
+            if (type === 'int' && /^[-]?\d+$/.test(value)) {
+                state = true;
+            } else if (type === 'float' && parseFloat(value)) {
+                state = true;
+            } else if (type === 'boolean' && (/\btrue\b/.test(value) || /\bfalse\b/.test(value))) {
+                state = true;
+            } else if (type === 'string') {
+                state = true;
+            } else {
+                state = false;
+            }
+            if (value) {
+                if (state === true) {
+                    value = this.addQuotesToString(type, value);
+                    if (model) {
+                        model.setValue(value);
+                    } else {
+                        self.setState({
+                            newValue: value,
+                        });
+                    }
+                } else {
+                    const errorString = 'Type of the default value is not compatible with the expected struct type';
+                    Alerts.error(errorString);
+                    throw errorString;
+                }
+            } else {
                 if (model) {
                     const valueArrayId = model.getChildren()[1].id;
                     model.removeChildById(valueArrayId);
                 }
                 self.setState({
                     newValue: '',
-                });
-            } else if (model) {
-                model.setValue(value);
-            } else {
-                self.setState({
-                    newValue: value,
                 });
             }
         });
