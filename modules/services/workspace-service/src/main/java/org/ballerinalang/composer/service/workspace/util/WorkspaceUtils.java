@@ -437,6 +437,12 @@ public class WorkspaceUtils {
     }
 
 
+    /**
+     * Get program directory
+     * @param filePath    - file path to parent directory of the .bal file
+     * @param packageName - package name
+     * @return
+     */
     public static java.nio.file.Path gerProgramDirectory(java.nio.file.Path filePath, String packageName) {
         java.nio.file.Path parentDir = null;
         if (!".".equals(packageName)) {
