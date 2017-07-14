@@ -57,7 +57,6 @@ import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -437,10 +436,7 @@ public class AggregationParser {
     }
 
     private static boolean isRange(TimePeriod timePeriod) {
-        if (timePeriod.getOperator() == TimePeriod.Operator.RANGE) {
-            return true;
-        }
-        return false;
+        return timePeriod.getOperator() == TimePeriod.Operator.RANGE;
     }
 
     private static List<TimePeriod.Duration> getSortedPeriods(TimePeriod timePeriod) {
@@ -466,7 +462,7 @@ public class AggregationParser {
                 return 0;
             }
         };
-        Collections.sort(copyDurations, periodComparator);
+        copyDurations.sort(periodComparator);
         return copyDurations;
     }
 
@@ -483,9 +479,7 @@ public class AggregationParser {
         }
 
         if (startIndex == endIndex) {
-
             filledDurations.add(start);
-
         } else {
             TimePeriod.Duration[] temp = new TimePeriod.Duration[endIndex - startIndex + 1];
             System.arraycopy(durations, startIndex, temp, 0, endIndex - startIndex + 1);
@@ -513,26 +507,4 @@ public class AggregationParser {
         }
         return aggregationTableMap;
     }
-
-//    public static class ExpressionExecutorDetails {
-//        private ExpressionExecutor executor;
-//        private String executorName;
-//
-//        public ExpressionExecutorDetails(ExpressionExecutor executor, String executorName) {
-//            this.executor = executor;
-//            this.executorName = executorName;
-//        }
-//
-//        public ExpressionExecutor getExecutor() {
-//            return this.executor;
-//        }
-//
-//        public String getExecutorName() {
-//            return this.executorName;
-//        }
-//
-//        public ExpressionExecutorDetails copy() {
-//            return new ExpressionExecutorDetails(executor, executorName);
-//        }
-//    }
 }
