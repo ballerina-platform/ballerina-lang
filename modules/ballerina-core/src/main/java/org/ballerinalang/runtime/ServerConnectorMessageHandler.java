@@ -182,18 +182,28 @@ public class ServerConnectorMessageHandler {
                 BType btype = bTypes[i];
                 String value = resourceArgumentValues.get(paramNameArray[i]);
 
-                if (value == null) {
+                // Set default values
+                if (value == null || "".equals(value)) {
+                    if (btype == BTypes.typeString) {
+                        stringLocalVars[stringParamCount++] = "";
+                    }
                     continue;
                 }
 
                 if (btype == BTypes.typeString) {
                     stringLocalVars[stringParamCount++] = value;
-                } else if (btype == BTypes.typeInt) {
-                    intLocalVars[intParamCount++] = Integer.getInteger(value);
+                } else if (btype == BTypes.typeBoolean) {
+                    if ("true".equalsIgnoreCase(value)) {
+                        intLocalVars[intParamCount++] = 1;
+                    } else if ("false".equalsIgnoreCase(value)) {
+                        intLocalVars[intParamCount++] = 0;
+                    } else {
+                        throw new BallerinaException("Unsupported parameter type for parameter " + value);
+                    }
                 } else if (btype == BTypes.typeFloat) {
                     doubleLocalVars[doubleParamCount++] = new Double(value);
                 } else if (btype == BTypes.typeInt) {
-                    longLocalVars[longParamCount++] = Long.getLong(value);
+                    longLocalVars[longParamCount++] = Long.parseLong(value);
                 } else {
                     throw new BallerinaException("Unsupported parameter type for parameter " + value);
                 }
@@ -209,8 +219,13 @@ public class ServerConnectorMessageHandler {
         calleeSF.setRefLocalVars(refLocalVars);
 
         // Execute workers
+        // Pass the incoming message variable into the worker invocations
+        // Fix #2623
+        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(resourceInfo,
+                defaultWorkerInfo, -1, new int[0]);
+        callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
-        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, calleeSF, retRegs);
+        BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(packageInfo.getProgramFile());
         if (VMDebugManager.getInstance().isDebugEnagled()) {

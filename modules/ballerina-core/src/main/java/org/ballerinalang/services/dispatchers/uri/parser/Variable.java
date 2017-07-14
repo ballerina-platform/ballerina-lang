@@ -18,9 +18,11 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
+/**
+ * Variable represents the variables in the uri.
+ */
 public class Variable {
 
     private String name;

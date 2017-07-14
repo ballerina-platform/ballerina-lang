@@ -18,12 +18,13 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.util.Map;
 
+/**
+ * ReservedStringExpression represents path segments that have RESERVED characters.
+ */
 public class ReservedStringExpression extends SimpleStringExpression {
 
     public ReservedStringExpression(String token) throws URITemplateException {
@@ -38,7 +39,7 @@ public class ReservedStringExpression extends SimpleStringExpression {
     @Override
     protected String encodeValue(String value) {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0 ; i < value.length(); i++) {
+        for (int i = 0; i < value.length(); i++) {
             char ch = value.charAt(i);
             if (super.isReserved(ch)) {
                 builder.append(ch);

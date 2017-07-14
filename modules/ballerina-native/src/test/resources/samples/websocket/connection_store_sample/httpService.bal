@@ -20,4 +20,12 @@ service<http> dataService {
         message res = {};
         reply res;
     }
+
+    @http:GET {}
+    @http:Path {value:"/close/{id}"}
+    resource closeConnection (message m, @http:PathParam {value:"id"} string id) {
+        ws:closeStoredConnection(id);
+        message res = {};
+        reply res;
+    }
 }

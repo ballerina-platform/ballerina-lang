@@ -38,6 +38,8 @@ import java.util.TimeZone;
 
 /**
  * Contains utility methods for time related functions.
+ *
+ * @since 0.89
  */
 public abstract class AbstractTimeFunction extends AbstractNativeFunction {
 

@@ -26,8 +26,6 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,15 +75,11 @@ public class TryCatchStmt extends AbstractStatement {
      */
     public static class CatchBlock implements SymbolScope {
 
-        private final SymbolScope enclosingScope;
         private ParameterDef parameterDef;
-        private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt catchBlock;
         private WhiteSpaceDescriptor whiteSpaceDescriptor;
 
-        public CatchBlock(SymbolScope enclosingScope) {
-            this.enclosingScope = enclosingScope;
-            this.symbolMap = new HashMap<>();
+        public CatchBlock() {
         }
 
         public ParameterDef getParameterDef() {
@@ -103,22 +97,22 @@ public class TryCatchStmt extends AbstractStatement {
 
         @Override
         public SymbolScope getEnclosingScope() {
-            return this.enclosingScope;
+            return catchBlock.getEnclosingScope();
         }
 
         @Override
         public void define(SymbolName name, BLangSymbol symbol) {
-            symbolMap.put(name, symbol);
+            catchBlock.define(name, symbol);
         }
 
         @Override
         public BLangSymbol resolve(SymbolName name) {
-            return resolve(symbolMap, name);
+            return catchBlock.resolve(name);
         }
 
         @Override
         public Map<SymbolName, BLangSymbol> getSymbolMap() {
-            return Collections.unmodifiableMap(this.symbolMap);
+            return catchBlock.getSymbolMap();
         }
 
         public BlockStmt getCatchBlockStmt() {
@@ -143,13 +137,9 @@ public class TryCatchStmt extends AbstractStatement {
      */
     public static class FinallyBlock implements SymbolScope {
 
-        private final SymbolScope enclosingScope;
-        private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt finallyBlock;
 
-        public FinallyBlock(SymbolScope enclosingScope) {
-            this.enclosingScope = enclosingScope;
-            this.symbolMap = new HashMap<>();
+        public FinallyBlock() {
         }
 
         @Override
@@ -159,22 +149,22 @@ public class TryCatchStmt extends AbstractStatement {
 
         @Override
         public SymbolScope getEnclosingScope() {
-            return this.enclosingScope;
+            return finallyBlock.getEnclosingScope();
         }
 
         @Override
         public void define(SymbolName name, BLangSymbol symbol) {
-            symbolMap.put(name, symbol);
+            finallyBlock.define(name, symbol);
         }
 
         @Override
         public BLangSymbol resolve(SymbolName name) {
-            return resolve(symbolMap, name);
+            return finallyBlock.resolve(name);
         }
 
         @Override
         public Map<SymbolName, BLangSymbol> getSymbolMap() {
-            return Collections.unmodifiableMap(this.symbolMap);
+            return finallyBlock.getSymbolMap();
         }
 
         public BlockStmt getFinallyBlockStmt() {

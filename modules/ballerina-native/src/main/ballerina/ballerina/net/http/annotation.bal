@@ -23,7 +23,7 @@ annotation config attach service {
     string host;
     int port;
     string basePath;
-    string schema;
+    string scheme;
     string keyStoreFile;
     string keyStorePass;
     string certPass;
@@ -36,4 +36,12 @@ annotation PathParam attach parameter {
 
 annotation QueryParam attach parameter {
     string value;
+}
+
+annotation Consumes attach resource {
+    string[] value;
+}
+
+annotation Produces attach resource {
+    string[] value;
 }

@@ -137,7 +137,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
-import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.LinkerException;
@@ -286,50 +285,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConstDef constDef) {
-        SimpleTypeName typeName = constDef.getTypeName();
-        BType lhsType = BTypes.resolveType(typeName, currentScope, constDef.getNodeLocation());
-        constDef.setType(lhsType);
-        if (!BTypes.isValueType(lhsType)) {
-            BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INVALID_TYPE, typeName);
-        }
-
-        // Check whether this constant is already defined.
-        SymbolName symbolName = new SymbolName(constDef.getName(), currentPkg);
-        if (currentScope.resolve(symbolName) != null) {
-            BLangExceptionHelper.throwSemanticError(constDef,
-                    SemanticErrors.REDECLARED_SYMBOL, constDef.getName());
-        }
-
-        // Define the constant in the package scope
-        currentScope.define(symbolName, constDef);
-
-        Expression rExpr = constDef.getRhsExpr();
-        rExpr.accept(this);
-
-        // Check type assignability
-        AssignabilityResult result = performAssignabilityCheck(lhsType, rExpr);
-        if (result.expression != null) {
-            constDef.setRhsExpr(result.expression);
-        } else if (!result.assignable) {
-            BLangExceptionHelper.throwSemanticError(constDef,
-                    SemanticErrors.INCOMPATIBLE_ASSIGNMENT, rExpr.getType(), lhsType);
-        }
+        VariableDefStmt variableDefStmt = constDef.getVariableDefStmt();
+        variableDefStmt.accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
             annotationAttachment.accept(this);
         }
 
-        // Set memory location
-        ConstantLocation memLocation = new ConstantLocation(++staticMemAddrOffset);
-        constDef.setMemoryLocation(memLocation);
-
         // Insert constant initialization stmt to the package init function
         SimpleVarRefExpr varRefExpr = new SimpleVarRefExpr(constDef.getNodeLocation(),
                 constDef.getWhiteSpaceDescriptor(), constDef.getName(), null, null);
         varRefExpr.setVariableDef(constDef);
         AssignStmt assignStmt = new AssignStmt(constDef.getNodeLocation(),
-                new Expression[]{varRefExpr}, constDef.getRhsExpr());
+                new Expression[]{varRefExpr}, variableDefStmt.getRExpr());
         pkgInitFuncStmtBuilder.addStmt(assignStmt);
     }
 
@@ -358,10 +327,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             annotationAttachment.accept(this);
         }
 
-        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
-            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
-                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
-        }
+        //TODO if this validation is present, then can't run main methods in a file which has a service
+//        if (!DispatcherRegistry.getInstance().protocolPkgExist(service.getProtocolPkgPath())) {
+//            throw BLangExceptionHelper.getSemanticError(service.getNodeLocation(),
+//                    SemanticErrors.INVALID_SERVICE_PROTOCOL, service.getProtocolPkgPath());
+//        }
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
@@ -2306,9 +2276,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (isUnsafeCastPossible) {
                 typeCastExpr.setOpcode(InstructionCodes.CHECKCAST);
             } else {
-                // TODO: print a suggestion
-                BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
-                        sourceType, targetType);
+                TypeEdge conversionEdge = TypeLattice.getTransformLattice().getEdgeFromTypes(sourceType,
+                        targetType, null);
+                if (conversionEdge != null) {
+                    throw BLangExceptionHelper.getSemanticError(typeCastExpr.getNodeLocation(),
+                            SemanticErrors.CANNOT_CAST_WITH_SUGGESTION, sourceType, targetType);
+                }
+                throw BLangExceptionHelper.getSemanticError(typeCastExpr.getNodeLocation(),
+                        SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST, sourceType, targetType);
             }
         }
 
@@ -2364,8 +2339,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                 return;
             }
         } else {
-            // TODO: print a suggestion
-            BLangExceptionHelper.throwSemanticError(typeConversionExpr,
+            TypeEdge castEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
+            if (castEdge != null) {
+                throw BLangExceptionHelper.getSemanticError(typeConversionExpr.getNodeLocation(),
+                        SemanticErrors.CANNOT_CONVERT_WITH_SUGGESTION, sourceType, targetType);
+            }
+            throw BLangExceptionHelper.getSemanticError(typeConversionExpr.getNodeLocation(),
                     SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, sourceType, targetType);
         }
 
@@ -2602,6 +2581,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (assignStmt.isDeclaredWithVar()) {
             // This set data structure is used to check for repeated variable names in the assignment statement
             Set<String> varNameSet = new HashSet<>();
+            int declaredVarCount = 0;
             for (Expression expr : lExprs) {
                 if (!(expr instanceof SimpleVarRefExpr)) {
                     throw BLangExceptionHelper.getSemanticError(assignStmt.getNodeLocation(),
@@ -2610,7 +2590,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 SimpleVarRefExpr refExpr = (SimpleVarRefExpr) expr;
                 String varName = refExpr.getVarName();
-                if (!varName.equals("_") && !varNameSet.add(varName)) {
+                // Continue to next iteration if variable symbol is underscore '_' == ignore
+                if (varName.equals("_")) {
+                    declaredVarCount++;
+                    continue;
+                }
+
+                if (!varNameSet.add(varName)) {
                     BLangExceptionHelper.throwSemanticError(assignStmt,
                             SemanticErrors.VAR_IS_REPEATED_ON_LEFT_SIDE_ASSIGNMENT, varName);
                 }
@@ -2623,14 +2609,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 // Check whether this variable is already defined, if not define it.
                 SymbolName varDefSymName = new SymbolName(variableDef.getName(), currentPkg);
-                BLangSymbol varSymbol = currentScope.resolve(symbolName);
+                BLangSymbol varSymbol = currentScope.resolve(varDefSymName);
                 if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
-                    BLangExceptionHelper.throwSemanticError(variableDef, SemanticErrors.REDECLARED_SYMBOL,
-                            variableDef.getName());
+                    declaredVarCount++;
+                    continue;
                 }
                 currentScope.define(varDefSymName, variableDef);
                 // Set memory location
                 setMemoryLocation(variableDef);
+            }
+            if (declaredVarCount == lExprs.length) {
+                throw new SemanticException(BLangExceptionHelper.constructSemanticError(
+                        assignStmt.getNodeLocation(), SemanticErrors.NO_NEW_VARIABLES_VAR_ASSIGNMENT));
             }
         }
 
@@ -2926,7 +2916,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.STRUCT) {
             variableDef.setMemoryLocation(new StructVarLocation(++structMemAddrOffset));
         } else if (currentScope.getScopeName() == SymbolScope.ScopeName.PACKAGE) {
-            variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
+            if (variableDef instanceof GlobalVariableDef) {
+                variableDef.setMemoryLocation(new GlobalVarLocation(++staticMemAddrOffset));
+            } else if (variableDef instanceof ConstDef) {
+                variableDef.setMemoryLocation(new ConstantLocation(++staticMemAddrOffset));
+            }
         }
     }
 
