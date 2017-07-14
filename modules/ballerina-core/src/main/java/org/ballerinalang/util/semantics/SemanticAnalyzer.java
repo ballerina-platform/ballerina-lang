@@ -27,6 +27,7 @@ import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
@@ -879,8 +880,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
         if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
-            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+            Optional<AnnotationAttachmentPoint> matchingAttachmentPoint = Arrays
+                    .stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> {
+                        if (attachmentPoint.getPkgPath() != null && !attachmentPoint.getPkgPath().equals(currentPkg)){
+                            return false;
+                        }
+                        if (!attachmentPoint.getAttachmentPoint().equals(attachedPoint.getValue())) {
+                            return false;
+                        }
+                        return true;
+                    })
                     .findAny();
             if (!matchingAttachmentPoint.isPresent()) {
                 BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED,

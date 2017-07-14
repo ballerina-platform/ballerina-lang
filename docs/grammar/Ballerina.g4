@@ -89,7 +89,7 @@ globalVariableDefinition
     ;
 
 attachmentPoint
-     : 'service'
+     : 'service' ('<' Identifier? '>')?
      | 'resource'
      | 'connector'
      | 'action'

@@ -456,11 +456,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
+        String attachmentPoint = ctx.getChild(0).getText();
+        String attachPkg = null;
+        if (ctx.getChildCount() > 3) {
+            attachPkg = ctx.getChild(2).getText();
+        } else if (ctx.getChildCount() > 1){
+            attachPkg = "";
+        }
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
         }
-        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor, ctx.getText());
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                attachmentPoint, attachPkg);
     }
 
     @Override

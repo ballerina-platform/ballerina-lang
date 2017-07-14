@@ -18,6 +18,7 @@
 package org.ballerinalang.model.builder;
 
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
@@ -471,15 +472,25 @@ public class BLangModelBuilder {
      * @param location Location of the target in the source file
      * @param whiteSpaceDescriptor Holds whitespace region data
      * @param attachmentPoint Point to which this annotation can be attached
+     * @param attachPkg Package in which this annotation is valid.
      */
     public void addAnnotationtAttachmentPoint(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                              String attachmentPoint) {
+                                              String attachmentPoint, String attachPkg) {
         if (whiteSpaceDescriptor != null) {
             annotationDefBuilder.getWhiteSpaceDescriptor()
                     .getChildDescriptor(ATTACHMENT_POINTS)
                     .addChildDescriptor(attachmentPoint, whiteSpaceDescriptor);
         }
-        annotationDefBuilder.addAttachmentPoint(attachmentPoint);
+        AnnotationAttachmentPoint annotationAttachmentPoint;
+        if (attachPkg == null) {
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, attachPkg);
+        } else if (attachPkg.isEmpty()) {
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, currentPackagePath);
+        } else {
+            String packagePath = validateAndGetPackagePath(location, attachPkg);
+            annotationAttachmentPoint = new AnnotationAttachmentPoint(attachmentPoint, packagePath);
+        }
+        annotationDefBuilder.addAttachmentPoint(annotationAttachmentPoint);
     }
 
     /**
@@ -1043,7 +1054,7 @@ public class BLangModelBuilder {
     public void createService(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
                               String protocolPkgName) {
         currentCUGroupBuilder.setNodeLocation(location);
-        String protocolPkgPath = validateAndGetPackagePathForServiceProtocol(location, protocolPkgName);
+        String protocolPkgPath = validateAndGetPackagePath(location, protocolPkgName);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setProtocolPkgName(protocolPkgName);
@@ -1784,9 +1795,9 @@ public class BLangModelBuilder {
         nameReference.setPkgPath(importPkg.getPath());
     }
 
-    private String validateAndGetPackagePathForServiceProtocol(NodeLocation location, String protocolPkgName) {
-        ImportPackage importPkg = getImportPackage(protocolPkgName);
-        checkForUndefinedPackagePath(location, protocolPkgName, importPkg, () -> protocolPkgName);
+    private String validateAndGetPackagePath(NodeLocation location, String PkgName) {
+        ImportPackage importPkg = getImportPackage(PkgName);
+        checkForUndefinedPackagePath(location, PkgName, importPkg, () -> PkgName);
 
         if (importPkg == null) {
             return currentPackagePath;
