@@ -19,42 +19,30 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BJSONType} represents a JSON document.
+ * {@code BJSONConstraintType} represents a JSON document constrained by a struct definition.
  *
- * @since 0.8.0
+ * @since 0.9.0
  */
-public class BJSONType extends BType {
+public class BJSONConstraintType extends BJSONType {
+
+    protected StructDef constraint;
 
     /**
-     * Create a {@code BJSONType} which represents the boolean type.
+     * Create a {@code BJSONConstraintType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
-    BJSONType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BJSON.class);
+    BJSONConstraintType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope);
     }
 
-    @Override
-    public <V extends BValue> V getZeroValue() {
-        return null;
+    public StructDef getConstraint() {
+        return this.constraint;
     }
 
-    @Override
-    public <V extends BValue> V getEmptyValue() {
-        return (V) new BJSON("{}");
-    }
-
-    @Override
-    public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_REFTYPE, TypeEnum.JSON.getName());
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.JSON_TAG;
+    public void setConstraint(StructDef constraint) {
+        this.constraint = constraint;
     }
 }

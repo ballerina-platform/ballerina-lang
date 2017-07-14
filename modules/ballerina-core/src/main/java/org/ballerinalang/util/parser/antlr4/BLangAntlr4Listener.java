@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.model.types.ConstraintTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.util.parser.BallerinaListener;
 import org.ballerinalang.util.parser.BallerinaParser;
@@ -690,8 +691,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (nameReference != null) {
                 SimpleTypeName constraint =
                         new SimpleTypeName(nameReference.getName(), nameReference.getPackageName(),
-                                           nameReference.getPackagePath(), null);
-                simpleTypeName.setConstraint(constraint);
+                                           nameReference.getPackagePath());
+                simpleTypeName = new ConstraintTypeName(builtInRefTypeName);
+                ((ConstraintTypeName)simpleTypeName).setConstraint(constraint);
             }
         }
 

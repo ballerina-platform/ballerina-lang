@@ -124,14 +124,17 @@ public class BTypes {
         BType bType = null;
         if (symbol instanceof BType) {
             bType = (BType) symbol;
-            if ((bType instanceof BJSONType) && (typeName.getConstraint() != null)) {
-                symbol = symbolScope.resolve(new SymbolName(typeName.getConstraint().getName(),
-                                                            typeName.getConstraint().getPackagePath()));
-                if (symbol == null) {
-                    throw new SemanticException(getNodeLocationStr(location) + "undefined struct type '" + typeName +
-                                                "' for constraining json");
+            if ((bType instanceof BJSONType)) {
+                if (typeName instanceof ConstraintTypeName) {
+                    SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
+                    symbol = symbolScope.resolve(new SymbolName(constraint.getName(), constraint.getPackagePath()));
+                    if (symbol == null) {
+                        throw new SemanticException(getNodeLocationStr(location) + "undefined struct type '" + typeName +
+                                                    "' for constraining json");
+                    }
+                    bType = new BJSONConstraintType(bType.getName(), bType.getPackagePath(), bType.getSymbolScope());
+                    ((BJSONConstraintType)bType).setConstraint((StructDef) symbol);
                 }
-                ((BJSONType) bType).setConstraint((StructDef) symbol);
             }
         }
 

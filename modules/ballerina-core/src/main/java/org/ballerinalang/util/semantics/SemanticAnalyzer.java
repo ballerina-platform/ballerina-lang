@@ -123,6 +123,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
@@ -2147,7 +2148,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             fieldBasedVarRefExpr.setType(((BMapType) varRefType).getElementType());
 
         } else if (varRefType == BTypes.typeJSON) {
-            StructDef structDefReference = ((BJSONType) varRefType).getConstraint();
+            fieldBasedVarRefExpr.setType(BTypes.typeJSON);
+        } else if (varRefType instanceof BJSONConstraintType) {
+            StructDef structDefReference = ((BJSONConstraintType) varRefType).getConstraint();
             if (structDefReference != null) {
                 BLangSymbol fieldSymbol = structDefReference.resolveMembers(
                         new SymbolName(fieldName, structDefReference.getPackagePath()));
@@ -2156,12 +2159,11 @@ public class SemanticAnalyzer implements NodeVisitor {
                             .getSemanticError(varRefExpr.getNodeLocation(), SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT,
                                               fieldName, structDefReference.getName());
                 }
-                VariableDef fieldDef = (VariableDef) fieldSymbol;
-                fieldBasedVarRefExpr.setFieldDef(fieldDef);
-                fieldBasedVarRefExpr.setType(fieldDef.getType());
+//                VariableDef fieldDef = (VariableDef) fieldSymbol;
+//                fieldBasedVarRefExpr.setFieldDef(fieldDef);
+//                fieldBasedVarRefExpr.setType(fieldDef.getType());
             }
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
-
         } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
             if (fieldBasedVarRefExpr.isLHSExpr()) {
                 //cannot assign a value to array length
@@ -3371,9 +3373,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
 
-            if (inheritedType == BTypes.typeJSON) {
+            if (inheritedType instanceof BJSONConstraintType) {
                 String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
-                StructDef constraintStructDef = ((BJSONType) inheritedType).getConstraint();
+                StructDef constraintStructDef = ((BJSONConstraintType) inheritedType).getConstraint();
                 if (constraintStructDef != null) {
                     BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
                             new SymbolName(key, constraintStructDef.getPackagePath()));
@@ -3491,6 +3493,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
+            assignabilityResult.assignable = true;
+            return assignabilityResult;
+        }
+
+        if ((rhsType instanceof BJSONConstraintType) && (lhsType == BTypes.typeJSON)) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
         }
