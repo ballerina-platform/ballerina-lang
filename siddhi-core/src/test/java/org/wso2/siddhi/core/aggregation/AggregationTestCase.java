@@ -94,11 +94,15 @@ public class AggregationTestCase {
         LOG.info("Incremental Processing: externalTimeTest");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
-                "price2 float, volume long , quantity int, timestamp long);";
-        String query = " define aggregation test " + "from cseEventStream "
-                + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
-                + "group by symbol " + "aggregate by timestamp every sec...year ;";
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = "" +
+                "define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
@@ -164,11 +168,13 @@ public class AggregationTestCase {
         LOG.info("Incremental Processing: eventTimeTest");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
-                "price2 float, volume long , quantity int, timestamp long);";
-        String query = " define aggregation test " + "from cseEventStream "
-                + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
-                + "group by symbol " + "aggregate every sec...hour ;";
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = " define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " + "aggregate every sec...hour ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
@@ -201,11 +207,15 @@ public class AggregationTestCase {
         LOG.info("Incremental Processing: externalTimeOutOfOrderTest1");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
-                "price2 float, volume long , quantity int, timestamp long);";
-        String query = " define aggregation test " + "from cseEventStream "
-                + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
-                + "group by symbol " + "aggregate by timestamp every sec...year ;";
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = "" +
+                "define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
@@ -253,11 +263,15 @@ public class AggregationTestCase {
         LOG.info("Incremental Processing: externalTimeOutOfOrderTest2");
         SiddhiManager siddhiManager = new SiddhiManager();
 
-        String cseEventStream = "define stream cseEventStream (symbol string, price1 float, " +
-                "price2 float, volume long , quantity int, timestamp long);";
-        String query = " define aggregation test " + "from cseEventStream "
-                + "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  "
-                + "group by symbol " + "aggregate by timestamp every sec...year ;";
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = "" +
+                "define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year ;";
 
         SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
 
@@ -265,29 +279,29 @@ public class AggregationTestCase {
         siddhiAppRuntime.start();
 
         // Thursday, June 1, 2017 4:05:50 AM
-        inputHandler.send(new Object[] { "WSO2", 50f, 60f, 90L, 6, 1496289950000L });
-        inputHandler.send(new Object[] { "WSO2", 70f, null, 40L, 10, 1496289950000L });
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
 
         // Thursday, June 1, 2017 4:05:53 AM
-        inputHandler.send(new Object[] { "WSO2", 60f, 44f, 200L, 56, 1496289953000L });
-        inputHandler.send(new Object[] { "WSO2", 100f, null, 200L, 16, 1496289953000L });
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289953000L});
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289953000L});
 
         // Thursday, June 1, 2017 4:05:52 AM
-        inputHandler.send(new Object[] { "IBM", 900f, null, 200L, 60, 1496289952000L });
-        inputHandler.send(new Object[] { "IBM", 500f, null, 200L, 7, 1496289952000L });
+        inputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289952000L});
+        inputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289952000L});
 
         // Thursday, June 1, 2017 4:05:51 AM
-        inputHandler.send(new Object[] { "IBM", 100f, null, 200L, 26, 1496289951000L });
-        inputHandler.send(new Object[] { "IBM", 100f, null, 200L, 96, 1496289951000L });
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289951000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289951000L});
 
         // Thursday, June 1, 2017 4:05:53 AM
-        inputHandler.send(new Object[] { "IBM", 400f, null, 200L, 9, 1496289953000L });
+        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496289953000L});
 
         // Thursday, June 1, 2017 4:05:54 AM
-        inputHandler.send(new Object[] { "IBM", 600f, null, 200L, 6, 1496289954000L });
+        inputHandler.send(new Object[]{"IBM", 600f, null, 200L, 6, 1496289954000L});
 
         // Thursday, June 1, 2017 4:06:56 AM
-        inputHandler.send(new Object[] { "IBM", 1000f, null, 200L, 9, 1496290016000L });
+        inputHandler.send(new Object[]{"IBM", 1000f, null, 200L, 9, 1496290016000L});
 
         Thread.sleep(2000);
         siddhiAppRuntime.shutdown();

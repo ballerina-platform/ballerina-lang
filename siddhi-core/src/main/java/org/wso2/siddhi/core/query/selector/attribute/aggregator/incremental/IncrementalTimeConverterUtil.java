@@ -66,21 +66,21 @@ public class IncrementalTimeConverterUtil {
         }
     }
 
-    public static long getEmitTimeOfLastEventToRemove(long currentEmitTime, TimePeriod.Duration duration,
+    public static long getEmitTimeOfLastEventToRemove(long currentTime, TimePeriod.Duration duration,
             int bufferCount) {
         switch (duration) {
         case SECONDS:
-            return currentEmitTime - bufferCount * 1000L;
+            return currentTime - bufferCount * 1000L;
         case MINUTES:
-            return currentEmitTime - bufferCount * 60000L;
+            return currentTime - bufferCount * 60000L;
         case HOURS:
-            return currentEmitTime - bufferCount % 3600000L;
+            return currentTime - bufferCount % 3600000L;
         case DAYS:
-            return currentEmitTime - bufferCount % 86400000L;
+            return currentTime - bufferCount % 86400000L;
         case MONTHS:
-            return getEmitTimeOfLastEventToRemoveForMonth(currentEmitTime, bufferCount);
+            return getEmitTimeOfLastEventToRemoveForMonth(currentTime, bufferCount);
         case YEARS:
-            return getEmitTimeOfLastEventToRemoveForYear(currentEmitTime, bufferCount);
+            return getEmitTimeOfLastEventToRemoveForYear(currentTime, bufferCount);
         default:
             throw new SiddhiAppRuntimeException("Undefined duration " + duration.toString());
         }

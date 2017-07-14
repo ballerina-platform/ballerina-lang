@@ -30,10 +30,8 @@ import org.wso2.siddhi.core.util.ThreadBarrier;
 public class EntryValveExecutor implements Executor, Schedulable {
     private Executor next;
     private ThreadBarrier threadBarrier;
-    private SiddhiAppContext siddhiAppContext;
 
     public EntryValveExecutor(SiddhiAppContext siddhiAppContext) {
-        this.siddhiAppContext = siddhiAppContext;
         threadBarrier = siddhiAppContext.getThreadBarrier();
     }
 
@@ -66,31 +64,6 @@ public class EntryValveExecutor implements Executor, Schedulable {
     @Override
     public void setNextExecutor(Executor executor) {
         next = executor;
-    }
-
-    /**
-     * Set as the last element of the executor chain
-     *
-     * @param executor Last executor in the chain
-     */
-    @Override
-    public void setToLast(Executor executor) {
-        if (next == null) {
-            this.next = executor;
-        } else {
-            this.next.setToLast(executor);
-        }
-    }
-
-    /**
-     * Clone a copy of executor
-     *
-     * @param key partition key
-     * @return cloned executor
-     */
-    @Override
-    public Executor cloneExecutor(String key) {
-        return new EntryValveExecutor(siddhiAppContext);
     }
 
     /**

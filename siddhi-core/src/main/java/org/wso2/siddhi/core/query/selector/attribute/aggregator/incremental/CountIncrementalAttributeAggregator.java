@@ -34,10 +34,10 @@ import org.wso2.siddhi.query.api.expression.Expression;
                 description = "TBD"
         )
 )
-public class CountIncrementalAttributeAggregator extends CompositeAggregator {
+public class CountIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
 
-    private Attribute[] incrementalAttributes;
-    private Expression[] initialValues;
+    private Attribute[] baseAttributes;
+    private Expression[] baseAttributesInitialValues;
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
@@ -51,10 +51,10 @@ public class CountIncrementalAttributeAggregator extends CompositeAggregator {
         count = new Attribute("_COUNT_".concat(attributeName), Attribute.Type.LONG);
         countInitialValue = Expression.value(1L);
 
-        this.incrementalAttributes = new Attribute[] { count };
-        this.initialValues = new Expression[] { countInitialValue };
+        this.baseAttributes = new Attribute[] { count };
+        this.baseAttributesInitialValues = new Expression[] { countInitialValue };
 
-        assert incrementalAttributes.length == initialValues.length;
+        assert baseAttributes.length == baseAttributesInitialValues.length;
     }
 
     @Override
@@ -72,19 +72,19 @@ public class CountIncrementalAttributeAggregator extends CompositeAggregator {
     }
 
     @Override
-    public Attribute[] getIncrementalAttributes() {
-        return this.incrementalAttributes;
+    public Attribute[] getBaseAttributes() {
+        return this.baseAttributes;
     }
 
     @Override
-    public Expression[] getIncrementalAttributeInitialValues() {
-        return this.initialValues;
+    public Expression[] getBaseAttributeInitialValues() {
+        return this.baseAttributesInitialValues;
     }
 
     @Override
-    public Expression[] getIncrementalAggregators() {
+    public Expression[] getBaseAggregators() {
         Expression countAggregator = Expression.function("sum",
-                Expression.variable(getIncrementalAttributes()[0].getName()));
+                Expression.variable(getBaseAttributes()[0].getName()));
         return new Expression[] { countAggregator };
     }
 }

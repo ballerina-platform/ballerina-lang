@@ -1,37 +1,38 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.Executor;
+import org.wso2.siddhi.core.query.input.stream.single.EntryValveExecutor;
+import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 
 public class AggregationRuntime {
-    private StreamRuntime streamRuntime;
-    private IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver;
-
-    private Executor entryValveExecutor;
+    private final AggregationDefinition aggregationDefinition;
+    private final SiddhiAppContext siddhiAppContext;
+    private SingleStreamRuntime singleStreamRuntime;
+    private EntryValveExecutor entryValveExecutor;
 
     public AggregationRuntime(AggregationDefinition aggregationDefinition, SiddhiAppContext siddhiAppContext,
-                              StreamRuntime streamRuntime, MetaComplexEvent metaComplexEvent, IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver) {
-        this.streamRuntime = streamRuntime;
-        this.incrementalExecuteStreamReceiver = incrementalExecuteStreamReceiver;
+                              SingleStreamRuntime singleStreamRuntime, EntryValveExecutor entryValveExecutor) {
+        this.aggregationDefinition = aggregationDefinition;
+        this.siddhiAppContext = siddhiAppContext;
+        this.singleStreamRuntime = singleStreamRuntime;
+        this.entryValveExecutor = entryValveExecutor;
     }
 
-    public void setExecutor(Executor executor) {
-        this.entryValveExecutor = executor;
+    public AggregationDefinition getAggregationDefinition() {
+        return aggregationDefinition;
     }
 
-    public Executor getExecutor() {
-        return this.entryValveExecutor;
+    public SiddhiAppContext getSiddhiAppContext() {
+        return siddhiAppContext;
     }
 
-    public StreamRuntime getStreamRuntime() {
-        return streamRuntime;
+    public SingleStreamRuntime getSingleStreamRuntime() {
+        return singleStreamRuntime;
     }
 
-    public IncrementalExecuteStreamReceiver getIncrementalExecuteStreamReceiver() {
-        return incrementalExecuteStreamReceiver;
+    public EntryValveExecutor getEntryValveExecutor() {
+        return entryValveExecutor;
     }
 }

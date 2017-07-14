@@ -53,18 +53,4 @@ public interface Executor {
      */
     void setNextExecutor(Executor executor);
 
-    /**
-     * Set as the last element of the execution chain
-     *
-     */
-    void setToLast(Executor executor);
-
-    /**
-     * Clone a copy of processor
-     *
-     * @param key partition key
-     * @return cloned processor
-     */
-    Executor cloneExecutor(String key);
-
 }

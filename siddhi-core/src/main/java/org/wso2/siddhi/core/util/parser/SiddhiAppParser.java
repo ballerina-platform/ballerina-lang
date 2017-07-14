@@ -196,7 +196,7 @@ public class SiddhiAppParser {
         defineTableDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTableDefinitionMap());
         defineWindowDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getWindowDefinitionMap());
         defineFunctionDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getFunctionDefinitionMap());
-        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap(), siddhiAppContext);
+        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap());
         for (Window window : siddhiAppRuntimeBuilder.getWindowMap().values()) {
             String metricName =
                     siddhiAppContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
@@ -246,7 +246,6 @@ public class SiddhiAppParser {
             throw new DuplicateDefinitionException(e.getMessage() + " in siddhi app \"" +
                     siddhiAppContext.getName() + "\"", e);
         }
-        defineAggregationDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getAggregationDefinitionMap());
 
         //Done last as they have to be started last
         defineTriggerDefinitions(siddhiAppRuntimeBuilder, siddhiApp.getTriggerDefinitionMap());

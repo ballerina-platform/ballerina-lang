@@ -36,10 +36,10 @@ import org.wso2.siddhi.query.api.expression.Expression;
                 description = "TBD"
         )
 )
-public class SumIncrementalAttributeAggregator extends CompositeAggregator {
+public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
 
-    private Attribute[] incrementalAttributes;
-    private Expression[] initialValues;
+    private Attribute[] baseAttributes;
+    private Expression[] baseAttributesInitialValues;
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
@@ -60,11 +60,11 @@ public class SumIncrementalAttributeAggregator extends CompositeAggregator {
             throw new SiddhiAppRuntimeException(
                     "Sum aggregation cannot be executed on " + "attribute type " + attributeType.toString());
         }
-        this.incrementalAttributes = new Attribute[] { sum };
-        this.initialValues = new Expression[] { sumInitialValue }; // Original attribute names
+        this.baseAttributes = new Attribute[]{sum};
+        this.baseAttributesInitialValues = new Expression[]{sumInitialValue}; // Original attribute names
         // used for initial values, since those would be executed using original meta
 
-        assert incrementalAttributes.length == initialValues.length;
+        assert baseAttributes.length == baseAttributesInitialValues.length;
     }
 
     @Override
@@ -82,19 +82,19 @@ public class SumIncrementalAttributeAggregator extends CompositeAggregator {
     }
 
     @Override
-    public Attribute[] getIncrementalAttributes() {
-        return this.incrementalAttributes;
+    public Attribute[] getBaseAttributes() {
+        return this.baseAttributes;
     }
 
     @Override
-    public Expression[] getIncrementalAttributeInitialValues() {
-        return this.initialValues;
+    public Expression[] getBaseAttributeInitialValues() {
+        return this.baseAttributesInitialValues;
     }
 
     @Override
-    public Expression[] getIncrementalAggregators() {
+    public Expression[] getBaseAggregators() {
         Expression sumAggregator = Expression.function("sum",
-                Expression.variable(getIncrementalAttributes()[0].getName()));
-        return new Expression[] { sumAggregator };
+                Expression.variable(getBaseAttributes()[0].getName()));
+        return new Expression[]{sumAggregator};
     }
 }

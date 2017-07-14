@@ -28,7 +28,6 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecuteStreamReceiver;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.stream.input.source.Source;
@@ -148,11 +147,10 @@ public class SiddhiAppRuntimeBuilder {
                 windowDefinitionMap, aggregationDefinitionMap);
         aggregationDefinitionMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
         AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, siddhiAppContext,
-                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, lockSynchronizer);
-        IncrementalExecuteStreamReceiver incrementalExecuteStreamReceiver =
-                aggregationRuntime.getIncrementalExecuteStreamReceiver();
-        streamJunctionMap.get(incrementalExecuteStreamReceiver.getStreamId()).
-                subscribe(incrementalExecuteStreamReceiver);
+                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap);
+        ProcessStreamReceiver processStreamReceiver = aggregationRuntime.getSingleStreamRuntime().
+                getProcessStreamReceiver();
+        streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {

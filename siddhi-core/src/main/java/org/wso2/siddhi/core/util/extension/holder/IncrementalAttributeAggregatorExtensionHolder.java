@@ -19,28 +19,28 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.CompositeAggregator;
+import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Holder to store {@link CompositeAggregator} Extensions.
+ * Holder to store {@link IncrementalAttributeAggregator} Extensions.
  */
-public class CompositeAggregatorExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz = CompositeAggregator.class;
+public class IncrementalAttributeAggregatorExtensionHolder extends AbstractExtensionHolder {
+    private static Class clazz = IncrementalAttributeAggregator.class;
 
-    private CompositeAggregatorExtensionHolder(SiddhiAppContext siddhiAppContext) {
+    private IncrementalAttributeAggregatorExtensionHolder(SiddhiAppContext siddhiAppContext) {
         super(clazz, siddhiAppContext);
     }
 
-    public static CompositeAggregatorExtensionHolder getInstance(SiddhiAppContext siddhiAppContext) {
+    public static IncrementalAttributeAggregatorExtensionHolder getInstance(SiddhiAppContext siddhiAppContext) {
         ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = siddhiAppContext.getSiddhiContext()
                 .getExtensionHolderMap();
         AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder = new CompositeAggregatorExtensionHolder(siddhiAppContext);
+            abstractExtensionHolder = new IncrementalAttributeAggregatorExtensionHolder(siddhiAppContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
-        return (CompositeAggregatorExtensionHolder) extensionHolderMap.get(clazz);
+        return (IncrementalAttributeAggregatorExtensionHolder) extensionHolderMap.get(clazz);
     }
 }

@@ -36,10 +36,10 @@ import org.wso2.siddhi.query.api.expression.Expression;
         )
 )
 // TODO: 6/20/17 fix annotations
-public class AvgIncrementalAttributeAggregator extends CompositeAggregator {
+public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggregator {
 
-    private Attribute[] incrementalAttributes;
-    private Expression[] initialValues;
+    private Attribute[] baseAttributes;
+    private Expression[] baseAttributesInitialValues;
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
@@ -56,17 +56,17 @@ public class AvgIncrementalAttributeAggregator extends CompositeAggregator {
         countIncrementalAttributeAggregator.init(attributeName, attributeType);
 
         // Only one attribute exists for sum and count
-        sum = sumIncrementalAttributeAggregator.getIncrementalAttributes()[0];
-        count = countIncrementalAttributeAggregator.getIncrementalAttributes()[0];
+        sum = sumIncrementalAttributeAggregator.getBaseAttributes()[0];
+        count = countIncrementalAttributeAggregator.getBaseAttributes()[0];
 
         // Only one init value exists for sum and count
-        sumInitialValue = sumIncrementalAttributeAggregator.getIncrementalAttributeInitialValues()[0];
-        countInitialValue = countIncrementalAttributeAggregator.getIncrementalAttributeInitialValues()[0];
+        sumInitialValue = sumIncrementalAttributeAggregator.getBaseAttributeInitialValues()[0];
+        countInitialValue = countIncrementalAttributeAggregator.getBaseAttributeInitialValues()[0];
 
-        this.incrementalAttributes = new Attribute[] { sum, count };
-        this.initialValues = new Expression[] { sumInitialValue, countInitialValue };
+        this.baseAttributes = new Attribute[] { sum, count };
+        this.baseAttributesInitialValues = new Expression[] { sumInitialValue, countInitialValue };
 
-        assert incrementalAttributes.length == initialValues.length;
+        assert baseAttributes.length == baseAttributesInitialValues.length;
     }
 
     @Override
@@ -90,21 +90,21 @@ public class AvgIncrementalAttributeAggregator extends CompositeAggregator {
     }
 
     @Override
-    public Attribute[] getIncrementalAttributes() {
-        return this.incrementalAttributes;
+    public Attribute[] getBaseAttributes() {
+        return this.baseAttributes;
     }
 
     @Override
-    public Expression[] getIncrementalAttributeInitialValues() {
-        return this.initialValues;
+    public Expression[] getBaseAttributeInitialValues() {
+        return this.baseAttributesInitialValues;
     }
 
     @Override
-    public Expression[] getIncrementalAggregators() {
+    public Expression[] getBaseAggregators() {
         Expression sumAggregator = Expression.function("sum",
-                Expression.variable(getIncrementalAttributes()[0].getName()));
+                Expression.variable(getBaseAttributes()[0].getName()));
         Expression countAggregator = Expression.function("sum",
-                Expression.variable(getIncrementalAttributes()[1].getName()));
+                Expression.variable(getBaseAttributes()[1].getName()));
         return new Expression[] { sumAggregator, countAggregator };
     }
 }

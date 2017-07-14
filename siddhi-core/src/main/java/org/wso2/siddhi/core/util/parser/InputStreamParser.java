@@ -46,7 +46,7 @@ public class InputStreamParser {
      * Parse an InputStream returning corresponding StreamRuntime
      *
      * @param inputStream                input stream to be parsed
-     * @param siddhiAppContext       associated siddhi siddhiAppContext
+     * @param siddhiAppContext           associated siddhi siddhiAppContext
      * @param streamDefinitionMap        map containing user given stream definitions
      * @param tableDefinitionMap         table definition map
      * @param windowDefinitionMap        window definition map
@@ -56,7 +56,7 @@ public class InputStreamParser {
      * @param latencyTracker             latency tracker
      * @param outputExpectsExpiredEvents is output expects ExpiredEvents
      * @param queryName                  query name of input stream belongs to.
-     * @return  StreamRuntime
+     * @return StreamRuntime
      */
     public static StreamRuntime parse(InputStream inputStream, SiddhiAppContext siddhiAppContext,
                                       Map<String, AbstractDefinition> streamDefinitionMap,
@@ -64,8 +64,8 @@ public class InputStreamParser {
                                       Map<String, AbstractDefinition> windowDefinitionMap,
                                       Map<String, Table> tableMap, Map<String, Window> eventWindowMap,
                                       List<VariableExpressionExecutor> executors,
-                                      LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents, String
-                                              queryName) {
+                                      LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents,
+                                      String queryName) {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
@@ -73,25 +73,25 @@ public class InputStreamParser {
             boolean batchProcessingAllowed = window != null;      // If stream is from window, allow batch
             // processing
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(),
-                                                                                    latencyTracker, queryName);
+                    latencyTracker, queryName);
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
-                                                            siddhiAppContext, executors, streamDefinitionMap,
+                    siddhiAppContext, executors, streamDefinitionMap,
                     null, windowDefinitionMap, tableMap,
-                                                            new MetaStreamEvent(), processStreamReceiver,
+                    new MetaStreamEvent(), processStreamReceiver,
                     true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
             return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), siddhiAppContext,
-                                                          streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
                     tableMap, eventWindowMap,
-                                                          executors, latencyTracker, outputExpectsExpiredEvents,
+                    executors, latencyTracker, outputExpectsExpiredEvents,
                     queryName);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), siddhiAppContext,
-                                                           metaStateEvent, streamDefinitionMap, null,
+                    metaStateEvent, streamDefinitionMap, null,
                     null, tableMap, executors, latencyTracker,
-                                                           queryName);
+                    queryName);
         } else {
             throw new OperationNotSupportedException();
         }
