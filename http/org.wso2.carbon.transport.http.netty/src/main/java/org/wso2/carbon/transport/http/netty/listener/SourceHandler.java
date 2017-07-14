@@ -183,6 +183,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                                                         this.listenerConfiguration, httpRequest, isSecuredConnection,
                                                         ctx));
 
+            // TODO: handle Idle state in WebSocket with configurations.
+            pipeline.remove("idleStateHandler");
             pipeline.remove(this);
 
         } catch (Exception e) {
@@ -190,7 +192,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             Code 1002 : indicates that an endpoint is terminating the connection
             due to a protocol error.
              */
-            ctx.channel().writeAndFlush(new CloseWebSocketFrame(1002, ""));
+                ctx.channel().writeAndFlush(new CloseWebSocketFrame(1002, ""));
 
             ctx.close();
             throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
