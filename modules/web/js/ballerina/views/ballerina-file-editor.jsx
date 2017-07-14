@@ -35,6 +35,7 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
+import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -218,14 +219,16 @@ class BallerinaFileEditor extends React.Component {
                                 .then(() => {
                                     this.environment.init();
                                     // fetch program packages
-                                    getProgramPackages(file)
+                                    getProgramPackages(file, getLangServerClientInstance())
                                         .then((data) => {
                                             // if any packages were found
-                                            if (!_.isNil(data.packages)) {
+                                            let packages = data.result.packages;
+                                            if (!_.isNil(packages)) {
                                                 const pkges = [];
-                                                data.packages.forEach((pkgNode) => {
+                                                packages.forEach((pkgNode) => {
                                                     const pkg = BallerinaEnvFactory.createPackage();
                                                     pkg.initFromJson(pkgNode);
+                                                    pkges.push(pkg);
                                                 });
                                                 this.environment.addPackages(pkges);
                                             }

@@ -205,6 +205,31 @@ class LangServerClientController extends EventChannel {
         this.langserverChannel.sendMessage(message);
     }
 
+
+    getProgramPackages(options, callback, callbackObj){
+        const session = new RequestSession();
+        const message = {
+            id: session.getId(),
+            jsonrpc: '2.0',
+            method: 'programDirectory/packages',
+            params: {
+                text: options.textDocument,
+                position: options.position,
+                fileName: options.fileName,
+                filePath: options.filePath,
+                packageName: options.packageName
+            },
+        };
+
+        session.setMessage(message);
+        session.setCallback((responseMsg) => {
+            callback(responseMsg);
+        });
+        this.requestSessions.push(session);
+        this.langserverChannel.sendMessage(message);
+    }
+
+
     // End language server notifications
 
     /**
