@@ -58,7 +58,7 @@ class ServicePreviewView extends React.PureComponent {
                             }}
                         />
                         {!this.state.imagesLoadStatus[index] &&
-                            <i className="fw fw-loader5 fw-spin fw-2x" />
+                            <i className="fw fw-loader2 fw-spin fw-lg loader-center" />
                         }
                         <div className="caption">
                             <h4>{config.sampleName}</h4>
