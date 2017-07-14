@@ -19,7 +19,6 @@ import React from 'react';
 import './import-declaration-expanded.css';
 import ImageUtil from './image-util';
 import PropTypes from 'prop-types';
-import Renderer from './renderer';
 import SuggestionsText from './suggestions-text';
 import ImportDeclarationItem from './import-declaration-item';
 
@@ -117,7 +116,3 @@ export default class importDeclarationExpanded extends React.Component {
         );
     }
 }
-
-importDeclarationExpanded.contextTypes = {
-    renderer: PropTypes.instanceOf(Renderer).isRequired,
-};

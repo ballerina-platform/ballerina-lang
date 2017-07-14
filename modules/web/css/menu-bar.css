@@ -119,6 +119,11 @@
 .context-menu-separator {
     border-bottom-color: #444;
 }
+
+.menu-item-separator {
+    border-top: 1px solid #444;
+}
+
 .btn{
     border: 0;
 }

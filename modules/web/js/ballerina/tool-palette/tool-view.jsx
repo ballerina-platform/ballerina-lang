@@ -156,10 +156,9 @@ class ToolView extends React.Component {
      */
     handleClickOpenDocumentation(e) {
         e.stopPropagation();
-        const { tool, group, application } = this.props;
+        const { tool, group } = this.props;
         const functionName = tool.get('title') + (tool.parent ? tool.parent : '');
-        application.commandManager.dispatch('open-documentation',
-                            group.get('toolGroupName'), functionName);
+        this.context.editor.openDocumentation(group.get('toolGroupName'), functionName);
     }
 
     /**
@@ -259,6 +258,7 @@ ToolView.propTypes = {
 
 ToolView.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ToolView;

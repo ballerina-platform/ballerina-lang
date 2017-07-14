@@ -163,7 +163,7 @@ class ExpressionEditor {
     }
 
     render(container) {
-        container.append(this.expressionEditor);
+        $(container).append(this.expressionEditor);
     }
 
     distroy() {

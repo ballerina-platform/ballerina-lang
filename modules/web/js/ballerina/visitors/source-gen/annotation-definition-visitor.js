@@ -18,6 +18,7 @@
 
 import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import SourceGenUtil from './source-gen-util';
 
 /**
@@ -50,13 +51,11 @@ class AnnotationDefinitionVisitor extends AbstractSourceGenVisitor {
         annotationDefinition.setLineNumber(lineNumber, { doSilently: true });
 
         let constructedSourceSegment = '';
-        _.forEach(annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotation),
-                (annotationNode) => {
-                    if (annotationNode.isSupported()) {
-                        constructedSourceSegment += annotationNode.toString()
-                        + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-                    }
-                });
+        annotationDefinition.getChildrenOfType(annotationDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
+            });
 
         constructedSourceSegment += 'annotation' + annotationDefinition.getWSRegion(0)
             + annotationDefinition.getAnnotationName() + annotationDefinition.getWSRegion(1);

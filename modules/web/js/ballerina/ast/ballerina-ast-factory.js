@@ -87,9 +87,9 @@ import annotationAttributeDefinition from './annotation-attribute-definition';
 import parameterDefinition from './parameter-definition';
 import argumentParameterDefinitionHolder from './argument-parameter-definition-holder';
 import returnParameterDefinitionHolder from './return-parameter-definition-holder';
-import annotation from './annotations/annotation';
-import annotationEntry from './annotations/annotation-entry';
-import annotationEntryArray from './annotations/annotation-entry-array';
+import AnnotationAttachment from './annotations/annotation-attachment';
+import AnnotationAttribute from './annotations/annotation-attribute';
+import AnnotationAttributeValue from './annotations/annotation-attribute-value';
 import transformStatement from './statements/transform-statement';
 import forkJoinStatement from './statements/fork-join-statement';
 import timeoutStatement from './statements/timeout-statement';
@@ -103,6 +103,7 @@ import continueStatement from './statements/continue-statement';
 import connectorInitExpression from './expressions/connector-init-expression';
 import simpleTypeName from './simple-type-name';
 import VariableReferenceList from './variable-reference-list';
+import BValue from './b-value';
 
 /**
  * @class BallerinaASTFactory
@@ -711,12 +712,30 @@ BallerinaASTFactory.createTransformStatement = function (args) {
 };
 
 /**
- * creates {@link Annotation}
+ * creates {@link AnnotationAttachment}
  * @param  {Object} args arguments for creating a new annotation.
- * @return {Annotation}      new annotation object.
+ * @return {AnnotationAttachment}      new annotation object.
  */
-BallerinaASTFactory.createAnnotation = function (args) {
-    return new annotation(args);
+BallerinaASTFactory.createAnnotationAttachment = function (args) {
+    return new AnnotationAttachment(args);
+};
+
+/**
+ * creates {@link AnnotationAttribute}
+ * @param  {Object} args arguments for creating a new annotation attribute.
+ * @return {AnnotationAttribute} new annotation attribute object.
+ */
+BallerinaASTFactory.createAnnotationAttribute = function (args) {
+    return new AnnotationAttribute(args);
+};
+
+/**
+ * Creates a {@link AnnotationAttributeValue}
+ * @param {Object} args Arguments for creating a new annotation attribute value.
+ * @return {AnnotationAttributeValue}
+ */
+BallerinaASTFactory.createAnnotationAttributeValue = (args) => {
+    return new AnnotationAttributeValue(args);
 };
 
 /**
@@ -734,24 +753,6 @@ BallerinaASTFactory.createArgumentParameterDefinitionHolder = function (args) {
 
 BallerinaASTFactory.createReturnParameterDefinitionHolder = function (args) {
     return new returnParameterDefinitionHolder();
-};
-/**
- * creates {@link AnnotationEntry}
- * @param {object} args Arguments to create the annotation entry node.
- * @param {string} [args.leftValue='value'] The value of the key.
- * @param {string|Annotation|AnnotationEntryArray} args.rightValue The value of the right hand element.
- * @return {AnnotationEntry}      new annotation key value object.
- */
-BallerinaASTFactory.createAnnotationEntry = function (args) {
-    return new annotationEntry(args);
-};
-
-/**
- * creates {@link AnnotationEntryArray}
- * @return {AnnotationEntryArray}      new annotation value array object.
- */
-BallerinaASTFactory.createAnnotationEntryArray = function () {
-    return new annotationEntryArray();
 };
 
 /**
@@ -806,6 +807,15 @@ BallerinaASTFactory.createContinueStatement = function (args) {
  * */
 BallerinaASTFactory.createAbortStatement = function (args) {
     return new abortStatement();
+};
+
+/**
+ * Creates new {@link BValue}.
+ * @param {Object} Arguments for creating a bvalue object.
+ * @return {Bvalue} new Bvalue
+ */
+BallerinaASTFactory.createBValue = (args) => {
+    return new BValue(args);
 };
 
 /**
@@ -1441,30 +1451,30 @@ BallerinaASTFactory.isCommentStatement = function (child) {
 };
 
 /**
- * instanceof check for annotation ast node.
- * @param  {ASTNode}  child The ast node
- * @return {Boolean}       true if same type, else false
+ * instanceof check for annotation attachment ast node.
+ * @param  {ASTNode} child The ast node
+ * @return {Boolean} true if same type, else false
  */
-BallerinaASTFactory.isAnnotation = function (child) {
-    return child instanceof annotation;
+BallerinaASTFactory.isAnnotationAttachment = (child) => {
+    return child instanceof AnnotationAttachment;
 };
 
 /**
- * instanceof check for annotationEntry ast node.
- * @param  {ASTNode}  child The ast node
- * @return {Boolean}       true if same type, else false
+ * instanceof check for annotation attribute ast node.
+ * @param  {ASTNode} child The ast node
+ * @return {Boolean} true if same type, else false
  */
-BallerinaASTFactory.isAnnotationEntry = function (child) {
-    return child instanceof annotationEntry;
+BallerinaASTFactory.isAnnotationAttribute = (child) => {
+    return child instanceof AnnotationAttribute;
 };
 
 /**
- * instanceof check for annotationEntryArray ast node.
+ * instanceof check for AnnotationAttributeValue ast node.
  * @param  {ASTNode}  child The ast node
- * @return {Boolean}       true if same type, else false
+ * @return {Boolean}  true if same type, else false
  */
-BallerinaASTFactory.isAnnotationEntryArray = function (child) {
-    return child instanceof annotationEntryArray;
+BallerinaASTFactory.isAnnotationAttributeValue = function (child) {
+    return child instanceof AnnotationAttributeValue;
 };
 
 /**
@@ -1548,6 +1558,15 @@ BallerinaASTFactory.isContinueStatement = function (child) {
     return child instanceof continueStatement;
 };
 
+/**
+ * instanceof check for the BValue.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ */
+BallerinaASTFactory.isBValue = (child) => {
+    return child instanceof BValue;
+};
+
 BallerinaASTFactory.createFromJson = function (jsonNode) {
     let node;
     const nodeType = jsonNode.type;
@@ -1562,14 +1581,14 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
     case 'import':
         node = BallerinaASTFactory.createImportDeclaration();
         break;
-    case 'annotation':
-        node = BallerinaASTFactory.createAnnotation();
+    case 'annotation_attachment':
+        node = BallerinaASTFactory.createAnnotationAttachment();
         break;
-    case 'annotation_entry':
-        node = BallerinaASTFactory.createAnnotationEntry();
+    case 'annotation_attribute':
+        node = BallerinaASTFactory.createAnnotationAttribute();
         break;
-    case 'annotation_entry_array':
-        node = BallerinaASTFactory.createAnnotationEntryArray();
+    case 'annotation_attribute_value':
+        node = BallerinaASTFactory.createAnnotationAttributeValue();
         break;
     case 'service_definition':
         node = BallerinaASTFactory.createServiceDefinition();
@@ -1819,6 +1838,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'continue_statement':
         node = BallerinaASTFactory.createContinueStatement();
+        break;
+    case 'bvalue':
+        node = BallerinaASTFactory.createBValue();
         break;
     default:
         throw new Error('Unknown node definition for ' + jsonNode.type);

@@ -131,16 +131,16 @@ class AnnotationDefinition extends React.Component {
      * @return {[string]} Attachment types
      * */
     getTypeDropdownValues() {
-        const { renderingContext } = this.context;
-        return renderingContext.environment.getAnnotationAttachmentTypes();
+        const { environment } = this.context;
+        return environment.getAnnotationAttachmentTypes();
     }
 
     getAnnotationAttachmentPointsForSuggestions() {
-        const { renderingContext } = this.context;
+        const { environment } = this.context;
         const suggestions = [];
-        for (let i = 0; i < renderingContext.environment.getAnnotationAttachmentTypes().length; i++) {
+        for (let i = 0; i < environment.getAnnotationAttachmentTypes().length; i++) {
             const suggestion = {
-                name: renderingContext.environment.getAnnotationAttachmentTypes()[i],
+                name: environment.getAnnotationAttachmentTypes()[i],
             };
             suggestions.push(suggestion);
         }
@@ -174,7 +174,7 @@ class AnnotationDefinition extends React.Component {
 }
 
 AnnotationDefinition.contextTypes = {
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
+    environment: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default AnnotationDefinition;

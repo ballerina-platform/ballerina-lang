@@ -59,7 +59,7 @@ class BallerinaASTRoot extends ASTNode {
                 // TODO : use the same check for variable def stmt when right expression
                 // is refactored to directly contain the expression.
                 if (child.getRightExpression() !== undefined) {
-                    const expression = child.getRightExpression().getChildren()[0];
+                    const expression = child.getRightExpression();
                     if (expression
                          && (factory.isFunctionInvocationExpression(expression)
                               || factory.isActionInvocationExpression(expression))
@@ -82,7 +82,7 @@ class BallerinaASTRoot extends ASTNode {
                     addImport(child.getFullPackageName(), options);
                 }
             } else if (factory.isServiceDefinition(child)) {
-                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                const annotations = child.getChildrenOfType(factory.isAnnotationAttachment);
                 const resources = child.getChildrenOfType(factory.isResourceDefinition);
                 _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
@@ -91,7 +91,7 @@ class BallerinaASTRoot extends ASTNode {
                     addImportsForTopLevel(resource, options);
                 });
             } else if (factory.isResourceDefinition(child)) {
-                const annotations = child.getChildrenOfType(factory.isAnnotation);
+                const annotations = child.getChildrenOfType(factory.isAnnotationAttachment);
                 _.forEach(annotations, (annotation) => {
                     addImport(annotation.getFullPackageName(), options);
                 });
@@ -113,22 +113,11 @@ class BallerinaASTRoot extends ASTNode {
     }
 
     /**
-     * Setter function for PackageDefinition
-     * @param packageDefinition
-     */
-    setPackageDefinition(packageDefinition, options) {
-        if (!_.isNil(packageDefinition)) {
-            packageDefinition.setParent(this, options);
-            this.setAttribute('packageDefinition', packageDefinition, options);
-        }
-    }
-
-    /**
      * Getter function for PackageDefinition
      * @return {*}
      */
     getPackageDefinition() {
-        return this.packageDefinition;
+        return this.getChildrenOfType(this.getFactory().isPackageDefinition)[0];
     }
 
     /**

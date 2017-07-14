@@ -18,17 +18,18 @@
 import _ from 'lodash';
 import Backbone from 'backbone';
 import log from 'log';
+import { CONTENT_MODIFIED } from './../constants/events';
 
 let File = Backbone.Model.extend(
     {
         defaults: {
             path: 'temp',
             name: 'untitled',
-            content: undefined,
+            packageName: '',
+            content: '',
             isPersisted: false,
             lastPersisted: _.now(),
             isDirty: true,
-            langserverCallbacks: undefined,
         },
 
         initialize (attrs, options) {
@@ -40,39 +41,14 @@ let File = Backbone.Model.extend(
                     throw errMsg;
                 }
                 this._storage = _.get(options, 'storage');
-                this._storage .create(this);
-            }
-        },
-
-        save(){
-            if(!_.isNil(this._storage.get(this.id))){
-                this._storage.update(this);
-            } else {
                 this._storage.create(this);
             }
-
-            if (this.isPersisted()) {
-                /**
-                 * We send the fileDidSave notification to the language server on the file save
-                 */
-                const docUri = this.getPath() + '/' + this.getName();
-                // Send document closed notification to the language server
-                let didSaveOptions = {
-                    didSaveParams: {
-                        textDocument: {
-                            documentUri: docUri,
-                            documentId: this.id
-                        },
-                        text: this.getContent()
-                    }
-                };
-                this.getLangserverCallbacks().documentDidSaveNotification(didSaveOptions);
-            }
-            return this;
         },
 
         setPath(path){
             this.set('path', path);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
@@ -83,27 +59,68 @@ let File = Backbone.Model.extend(
 
         setPersisted(isPersisted){
             this.set('isPersisted', isPersisted);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
         setLastPersisted(lsatPersisted){
             this.set('lastPersisted', lsatPersisted);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
         setDirty(isDirty){
             this.set('isDirty', isDirty);
             this.trigger('dirty-state-change', isDirty);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
         setName(name){
             this.set('name', name);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
-        setContent(name){
-            this.set('content', name);
+        /**
+         * Set content of the file
+         * @param {string} newContent new file content
+         * @param {Object} originEvt Originating change event
+         * 
+         * @emits File#content-modified
+         */
+        setContent(newContent, originEvt){
+            const oldContent = this.get('content');
+            this.set('content', newContent);
+            /**
+             * Fired when a change is made to file content
+             * @event File#content-modified
+             * 
+             */
+            const evt = {
+                oldContent,
+                newContent,
+                originEvt
+            }
+            this.trigger(CONTENT_MODIFIED, evt);
+            // if the new content is not equal to old content
+            // set file dirty
+            if (!_.isEqual(oldContent, newContent)) {
+                this.setDirty(true);
+            }
+            // save to local storage
+            this._saveToLocalStorage();
+            return this;
+        },
+
+        setPackageName(pkgName){
+            this.set('packageName', pkgName);
+            // save to local storage
+            this._saveToLocalStorage();
             return this;
         },
 
@@ -123,6 +140,9 @@ let File = Backbone.Model.extend(
             return this.get('lastPersisted');
         },
 
+        getPackageName(){
+            return this.get('packageName');
+        },
 
         isPersisted(){
             return this.get('isPersisted');
@@ -132,13 +152,14 @@ let File = Backbone.Model.extend(
             return this.get('isDirty');
         },
 
-        setLangserverCallbacks(callbacks) {
-            this.set('langserverCallbacks', callbacks);
-        },
-
-        getLangserverCallbacks() {
-            return this.get('langserverCallbacks');
-        },
+        _saveToLocalStorage(){
+            if(!_.isNil(this._storage.get(this.id))){
+                this._storage.update(this);
+            } else {
+                this._storage.create(this);
+            }
+            return this;
+        }
     },
 );
 

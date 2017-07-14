@@ -26,6 +26,8 @@ import ToolGroupView from './tool-group-view';
 import './tool-palette.css';
 import ToolGroup from './../tool-palette/tool-group';
 import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
+import BallerinaASTRoot from '../ast/ballerina-ast-root';
+import PackageScopedEnvironment from './../env/package-scoped-environment';
 
 
 class ToolsPanel extends React.Component {
@@ -59,7 +61,6 @@ class ToolsPane extends React.Component {
                 {this.props.constructs &&
                     <ToolGroupView group={this.props.constructs}
                                    key="constructs"
-                                   application={this.props.application}
                                    showGridStyles
                     />}
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
@@ -67,7 +68,6 @@ class ToolsPane extends React.Component {
                     group={this.props.currentTools}
                     key="Current Package"
                     showGridStyles={false}
-                    application={this.props.application}
                 />}
                 <ToolsPanel name="Connectors">
                     {this.props.connectors}
@@ -237,39 +237,12 @@ class ToolPaletteView extends React.Component {
             tab: 'tools',
             search: '',
         };
-
-        this.editor = props.editor;
-        this.setModel(this.editor.getModel());
-        this.editor.on('update-diagram', () => {
-            // only update model if it's new
-            if (this.getModel().id !== this.editor.getModel().id) {
-                this.setModel(this.editor.getModel());
-            }
-            this.forceUpdate();
-        });
-        this.editor.on('update-tool-palette', () => {
-            this.forceUpdate();
-        });
-    }
-
-    getChildContext() {
-        return { dragDropManager: this.props.dragDropManager };
     }
 
     onSearchTextChange(value) {
         this.setState({ search: value });
     }
 
-    setModel(model) {
-        this.model = model;
-        this.model.on('tree-modified', () => {
-            this.forceUpdate();
-        });
-    }
-
-    getModel() {
-        return this.model;
-    }
 
     changePane(type) {
         this.setState({ tab: type, search: '' });
@@ -442,12 +415,12 @@ class ToolPaletteView extends React.Component {
 
         const searching = this.state.search.length > 0;
         // get the model
-        const model = this.props.editor.getModel();
+        const model = this.context.astRoot;
         // get the environment
-        const environment = this.props.editor.getEnvironment();
+        const environment = this.context.environment;
         // get the current package
-        const currentPackage = this.props.editor.generateCurrentPackage();
-        let currentTools = this.package2ToolGroup(currentPackage,'both',this.props.editor.getTransformState());
+        const currentPackage = environment.createCurrentPackageFromAST(model);
+        let currentTools = this.package2ToolGroup(currentPackage,'both',this.props.isTransformActive);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -472,11 +445,10 @@ class ToolPaletteView extends React.Component {
                             group={group}
                             key={`connector${item.getPackageName()}`}
                             showGridStyles={false}
-                            application={this.props.application}
                         />);
                     }
 
-                    group = this.package2ToolGroup(pkg, 'functions',this.props.editor.getTransformState());
+                    group = this.package2ToolGroup(pkg, 'functions',this.props.isTransformActive);
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -485,13 +457,12 @@ class ToolPaletteView extends React.Component {
                                 group={group}
                                 key={`library${item.getPackageName()}`}
                                 showGridStyles={false}
-                                application={this.props.application}
                             />);
                     }
                 }
             });
             // if the tab state is tool we will see if the transform is opened.
-            if (this.props.editor.getTransformState()) {
+            if (this.props.isTransformActive) {
                 state = 'transform';
             }
         } else {
@@ -511,11 +482,10 @@ class ToolPaletteView extends React.Component {
                                 group={group}
                                 key={`connector${pkg.getName()}`}
                                 showGridStyles={false}
-                                application={this.props.application}
                             />);
                     }
                 } else {
-                    group = this.package2ToolGroup(pkg, 'functions', this.props.editor.getTransformState());
+                    group = this.package2ToolGroup(pkg, 'functions', this.props.isTransformActive);
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
 
                     if (group !== undefined && !_.isEmpty(group.tools)) {
@@ -525,7 +495,6 @@ class ToolPaletteView extends React.Component {
                                 group={group}
                                 key={`library${pkg.getName()}`}
                                 showGridStyles={false}
-                                application={this.props.application}
                             />);
                     }
                 }
@@ -535,7 +504,7 @@ class ToolPaletteView extends React.Component {
         // calculate the height of the tool.
         // this is a hack need to find a better approch.
         // let scrollHeight = window.innerHeight - 176;
-        const scrollHeight = $(this.props.container).height() - 50;
+        const scrollHeight = $(this.props.getContainer()).height() - 50;
 
         constructs.collapsed = true;
         constructs = this.searchTools(this.state.search, constructs);
@@ -575,8 +544,13 @@ class ToolPaletteView extends React.Component {
     }
 }
 
-ToolPaletteView.childContextTypes = {
-    dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
+ToolPaletteView.propTypes = {
+    isTransformActive: PropTypes.bool.isRequired
+};
+
+ToolPaletteView.contextTypes = {
+    astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
+    environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
 };
 
 export default ToolPaletteView;

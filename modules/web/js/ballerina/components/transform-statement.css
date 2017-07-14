@@ -222,13 +222,38 @@ svg.plumbConnect path {
     height: 30px
 }
 
+.transformOverlay-content .react-autosuggest__input {
+    padding-left: 10px;
+    height: 28px;
+    width: 250px;
+}
+
+.transformOverlay-content .react-autosuggest__container {
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.transformOverlay-content .react-autosuggest__suggestion {
+    padding-left: 10px;
+}
+
+.transformOverlay-content .react-autosuggest__suggestions-list {
+    top: 40px;
+    width: 250px;
+    margin: 0;
+    list-style-type: none;
+}
+
+.transformOverlay-content .react-autosuggest__suggestions-container {
+    width: 250px;
+}
+
 .type-select-header {
     padding-top: 15px;
     padding-left: 10px;
 }
 
 .transformOverlay {
-    display: none;
     position: fixed;
     padding-left: 280px;
     padding-top: 83px;

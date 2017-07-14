@@ -21,6 +21,10 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import LangserverChannel from './langserver-channel';
 import RequestSession from './request-session';
+import { getServiceEndpoint } from './../api-client/api-client';
+
+//holds the singleton of lang server client
+let instance = undefined;
 
 /**
  * Class for language server client controller
@@ -34,19 +38,28 @@ class LangServerClientController extends EventChannel {
     constructor(options) {
         super();
         this.langserverChannel = undefined;
-        this.endpoint = _.get(options, 'application.config.services.langserver.endpoint');
         this.requestSessions = [];
         this.isInitialized = false;
-        this.init();
     }
 
     /**
      * Initialize LangServerClientController
      */
     init() {
-        this.langserverChannel = new LangserverChannel({ endpoint: this.endpoint, clientController: this });
-        this.langserverChannel.on('connected', () => {
-            this.initializeRequest();
+        return new Promise((resolve, reject) => {
+            this.langserverChannel = new LangserverChannel({ 
+                /** fetch endpoint from util */
+                endpoint: getServiceEndpoint('langserver'), 
+                clientController: this });
+            this.langserverChannel.on('connected', () => {
+                this.initializeRequest()
+                    .then(resolve)
+                    .catch(reject);
+            });
+            this.langserverChannel.on('error', (error) => {
+                instance = undefined;
+                reject(error);
+            });
         });
     }
 
@@ -56,18 +69,22 @@ class LangServerClientController extends EventChannel {
      * Send the initialize request to the language server
      */
     initializeRequest() {
-        const session = new RequestSession();
-        const message = {
-            id: session.getId(),
-            jsonrpc: '2.0',
-            method: 'initialize',
-        };
-        session.setMessage(message);
-        session.setCallback(() => {
-            this.initializeResponseHandler(session);
+        return new Promise((resolve, reject) => {
+            const session = new RequestSession();
+            const message = {
+                id: session.getId(),
+                jsonrpc: '2.0',
+                method: 'initialize',
+            };
+            session.setMessage(message);
+            session.setCallback(() => {
+                this.isInitialized = true;
+                resolve();
+            });
+            this.requestSessions.push(session);
+            this.langserverChannel.sendMessage(message);
         });
-        this.requestSessions.push(session);
-        this.langserverChannel.sendMessage(message);
+        
     }
 
     /**
@@ -76,6 +93,10 @@ class LangServerClientController extends EventChannel {
      * @param {function} callback Callback method for handling the response
      */
     workspaceSymbolRequest(query, callback) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.workspaceSymbolRequest(query, callback));
+            return;
+        }
         const session = new RequestSession();
         const message = {
             id: session.getId(),
@@ -102,6 +123,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did open options
      */
     documentDidOpenNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidOpenNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didOpen',
@@ -118,6 +143,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did close options
      */
     documentDidCloseNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidCloseNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didClose',
@@ -134,6 +163,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} options - document did save options
      */
     documentDidSaveNotification(options) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.documentDidSaveNotification(options));
+            return;
+        }
         const message = {
             jsonrpc: '2.0',
             method: 'textDocument/didSave',
@@ -149,6 +182,10 @@ class LangServerClientController extends EventChannel {
      * @param {function} callback - callback function to set the completions in the editor
      */
     getCompletions(options, callback) {
+        if (!this.isInitialized) {
+            this.once('langserver-initialized', () => this.getCompletions(options, callback));
+            return;
+        }
         const session = new RequestSession();
         const message = {
             id: session.getId(),
@@ -181,16 +218,6 @@ class LangServerClientController extends EventChannel {
         session.executeCallback(message);
     }
 
-    // Start Language server response handlers
-
-    /**
-     * Initialize the response handler
-     */
-    initializeResponseHandler() {
-        // initialize response message received
-        this.trigger('langserver-initialized');
-        this.isInitialized = true;
-    }
 
     /**
      * Check whether the language server is initialized
@@ -203,4 +230,32 @@ class LangServerClientController extends EventChannel {
     // End language server response handlers
 }
 
-export default LangServerClientController;
+/**
+ * Method to initialize the singleton of lang server client
+ */
+function initLangServerClientInstance() {
+    instance = new LangServerClientController();
+    return new Promise((resolve, reject) => {
+        instance.init()
+            .then(resolve)
+            .catch((error) => {
+                instance = undefined;
+                reject(error);
+            })
+    });
+}
+
+/**
+ * method to fetch langserver client sigleton
+ */
+export function getLangServerClientInstance() {
+    return new Promise((resolve, reject) => {
+        if (instance !== undefined) {
+            resolve(instance);
+        } else {
+            initLangServerClientInstance()
+                .then(() => { resolve(instance) })
+                .catch(reject);
+        }
+    })
+}

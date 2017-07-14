@@ -102,7 +102,8 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      */
     void populateBallerinaFunctionCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
-        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()));
+        completionItem.setLabel(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getLabel());
+        completionItem.setInsertText(getFunctionSignature((BallerinaFunction) symbolInfo.getSymbol()).getInsertText());
         completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
     }
@@ -173,16 +174,27 @@ public abstract class AbstractItemResolver {
      * @param ballerinaFunction - ballerina function instance
      * @return {@link String}
      */
-    private String getFunctionSignature(BallerinaFunction ballerinaFunction) {
-        StringBuffer signature = new StringBuffer(ballerinaFunction.getName());
-        String initString = "(";
-        for (ParameterDef simpleTypeName : ballerinaFunction.getParameterDefs()) {
-            signature.append(initString).append(simpleTypeName.getTypeName()).append(" ").
-                    append(simpleTypeName.getName());
-            initString = ", ";
+    private FunctionSignature getFunctionSignature(BallerinaFunction ballerinaFunction) {
+        StringBuffer signature = new StringBuffer(ballerinaFunction.getName() + "(");
+        StringBuffer insertText = new StringBuffer(ballerinaFunction.getName() + "(");
+        ParameterDef[] parameterDefs = ballerinaFunction.getParameterDefs();
+
+        for (int itr = 0; itr < parameterDefs.length; itr++) {
+            signature.append(parameterDefs[itr].getTypeName()).append(" ")
+                    .append(parameterDefs[itr].getName());
+            insertText.append("${")
+                    .append((itr + 1))
+                    .append(":")
+                    .append(parameterDefs[itr].getName())
+                    .append("}");
+            if (itr < parameterDefs.length - 1) {
+                signature.append(", ");
+                insertText.append(", ");
+            }
         }
         signature.append(")");
-        initString = "(";
+        insertText.append(")");
+        String initString = "(";
         String endString = "";
         for (ParameterDef simpleTypeName : ballerinaFunction.getReturnParameters()) {
             signature.append(initString).append(simpleTypeName.getTypeName());
@@ -190,7 +202,7 @@ public abstract class AbstractItemResolver {
             endString = ")";
         }
         signature.append(endString);
-        return signature.toString();
+        return new FunctionSignature(insertText.toString(), signature.toString());
     }
 
     /**
@@ -281,5 +293,35 @@ public abstract class AbstractItemResolver {
         }
 
         return equalSignIndex;
+    }
+
+    /**
+     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction
+     * Signature Completion Item
+     */
+    private static class FunctionSignature {
+        private String insertText;
+        private String label;
+
+        FunctionSignature(String insertText, String label) {
+            this.insertText = insertText;
+            this.label = label;
+        }
+
+        String getInsertText() {
+            return insertText;
+        }
+
+        public void setInsertText(String insertText) {
+            this.insertText = insertText;
+        }
+
+        String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
     }
 }

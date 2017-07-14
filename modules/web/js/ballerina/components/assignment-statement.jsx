@@ -211,8 +211,6 @@ AssignmentStatement.propTypes = {
 AssignmentStatement.contextTypes = {
     dragDropManager: PropTypes.instanceOf(DragDropManager).isRequired,
     messageManager: PropTypes.instanceOf(MessageManager).isRequired,
-    container: PropTypes.instanceOf(Object).isRequired,
-    renderingContext: PropTypes.instanceOf(Object).isRequired,
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 

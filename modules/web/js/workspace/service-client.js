@@ -139,7 +139,7 @@ class ServiceClient extends EventChannel {
                 text: fileData.content,
             },
         };
-        this.application.langseverClientController.documentDidOpenNotification(documentOptions);
+        //this.application.langseverClientController.documentDidOpenNotification(documentOptions);
 
         return new File({
             name: fileName,
@@ -223,8 +223,7 @@ class ServiceClient extends EventChannel {
                 data = response;
                 file.setDirty(false)
                     .setPersisted(true)
-                    .setLastPersisted(_.now())
-                    .save();
+                    .setLastPersisted(_.now());
                 log.debug(`File ${file.getName()} saved successfully at ${file.getPath()}`);
             },
             error(xhr, textStatus, errorThrown) {

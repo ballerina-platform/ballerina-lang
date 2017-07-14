@@ -70,7 +70,7 @@ class PanelDecorator extends React.Component {
 
     onCollapseClick() {
         this.props.model.viewState.collapsed = !this.props.model.viewState.collapsed;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 
     onDelete() {
@@ -188,7 +188,8 @@ class PanelDecorator extends React.Component {
             annotationBodyHeight = this.props.model.viewState.components.annotation.h;
         }
         const titleComponents = this.getTitleComponents(this.props.titleComponentData);
-        const annotations = this.props.model.getChildren().filter(child => BallerinaASTFactory.isAnnotation(child));
+        const annotations = this.props.model.getChildren().filter(
+                                                        child => BallerinaASTFactory.isAnnotationAttachment(child));
         const annotationString = this.getAnnotationsString(annotations);
         const annotationComponents = this.getAnnotationComponents(annotations, bBox, titleHeight);
 
@@ -373,7 +374,7 @@ class PanelDecorator extends React.Component {
 
     onAnnotationEditButtonClick() {
         this.props.model.viewState.showAnnotationContainer = !this.props.model.viewState.showAnnotationContainer;
-        this.context.editor.trigger('update-diagram');
+        this.context.editor.update();
     }
 }
 

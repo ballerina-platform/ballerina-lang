@@ -165,23 +165,20 @@ class Dropdown extends React.Component {
 }
 
 export default class Renderer {
-    constructor(overlay) {
-        this.overlay = overlay;
-    }
 
-    renderTextBox(options) {
+    static renderTextBox(options, overlay) {
         ReactDOM.render(
             <TextBox {...options} />,
-            this.overlay);
+             overlay);
     }
-    renderDropdown(options) {
+    static renderDropdown(options, overlay) {
         ReactDOM.render(
             <Dropdown {...options} />,
-            this.overlay);
+              overlay);
     }
-    renderStructOperations(options) {
+    static renderStructOperations(options, overlay) {
         ReactDOM.render(
             <CreateStruct {...options} />,
-            this.overlay);
+              overlay);
     }
 }

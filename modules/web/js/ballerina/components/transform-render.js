@@ -30,7 +30,6 @@ import './transform-statement.css';
  */
 const jsPlumb = jsPlumbLib.jsPlumb;
 
-
 class TransformRender {
     constructor(onConnectionCallback, onDisconnectCallback) {
         this.references = [];
@@ -145,6 +144,18 @@ class TransformRender {
         this.disconnectCallback(propertyConnection);
     // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
     // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
+    }
+
+
+/**
+ * Disconnects all the connection created.
+ * This does not remove the associated children from the model
+ */
+    disconnectAll(connection) {
+        this.jsPlumbInstance.detachEveryConnection();
+        $('.middle-content').empty(); // remove function views
+        $('.leftType').empty(); // remove function views
+        $('.rightType').empty(); // remove function views
     }
 
 /**

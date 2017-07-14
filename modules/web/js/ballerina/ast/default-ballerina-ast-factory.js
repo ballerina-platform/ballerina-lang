@@ -81,11 +81,10 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const resourceDef = BallerinaASTFactory.createResourceDefinition(args);
 
     // Creating GET http method annotation.
-    const getHttpMethodAnnotation = BallerinaASTFactory.createAnnotation({
+    const getHttpMethodAnnotation = BallerinaASTFactory.createAnnotationAttachment({
         fullPackageName: 'ballerina.net.http',
         packageName: 'http',
-        identifier: 'GET',
-        uniqueIdentifier: 'httpMethod',
+        name: 'GET',
     });
     resourceDef.addChild(getHttpMethodAnnotation, 0);
 
@@ -100,18 +99,18 @@ DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
     const replyStatement = DefaultBallerinaASTFactory.createReplyStatement(args);
     resourceDef.addChild(replyStatement);
 
-    const responsesAnnotation = BallerinaASTFactory.createAnnotation({
+    const responsesAnnotation = BallerinaASTFactory.createAnnotationAttachment({
         fullPackageName: 'ballerina.net.http.swagger',
         packageName: 'swagger',
-        identifier: 'Responses',
+        name: 'Responses',
     });
 
-    // Creating the responses array entry
-    const responsesAnnotationArray = BallerinaASTFactory.createAnnotationEntryArray();
-    const responseAnnotationEntry = BallerinaASTFactory.createAnnotationEntry({
-        rightValue: responsesAnnotationArray,
+    const annotationAttribute = BallerinaASTFactory.createAnnotationAttribute({
+        key: 'value',
     });
-    responsesAnnotation.addChild(responseAnnotationEntry);
+
+    annotationAttribute.addChild(BallerinaASTFactory.createAnnotationAttributeValue());
+    responsesAnnotation.addChild(annotationAttribute);
     responsesAnnotation.accept(new EnableDefaultWSVisitor());
     return resourceDef;
 };
@@ -278,6 +277,7 @@ DefaultBallerinaASTFactory.createAssignmentFunctionInvocationStatement = functio
                     functionInvokeString += ', ';
                 }
                 functionInvokeString += param.name;
+                funcInvocationExpression.addChild(BallerinaASTFactory.createNullLiteralExpression());
             });
         }
         functionInvokeString += ')';

@@ -17,6 +17,7 @@
  */
 
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 
 /**
  * Visitor for a constant definition source generation
@@ -46,13 +47,11 @@ class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
 
         // Adding annotations
         let constructedSourceSegment = '';
-        const astFactory = constantDefinition.getFactory();
-        for (const annotationNode of constantDefinition.getChildrenOfType(astFactory.isAnnotation)) {
-            if (annotationNode.isSupported()) {
-                constructedSourceSegment += annotationNode.toString()
-                    + ((annotationNode.whiteSpace.useDefault) ? this.getIndentation() : '');
-            }
-        }
+        constantDefinition.getChildrenOfType(constantDefinition.getFactory().isAnnotationAttachment).forEach(
+            (annotationAttachment) => {
+                const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
+                annotationAttachment.accept(annotationAttachmentVisitor);
+            });
 
         constructedSourceSegment += constantDefinition.getConstantDefinitionAsString();
 

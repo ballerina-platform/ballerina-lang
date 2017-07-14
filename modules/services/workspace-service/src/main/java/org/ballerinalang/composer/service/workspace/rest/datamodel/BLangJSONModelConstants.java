@@ -42,8 +42,10 @@ public class BLangJSONModelConstants {
     public static final String TYPE_MAPPER_NAME = "type_mapper_name";
 
     public static final String IS_PUBLIC_FUNCTION = "is_public_function";
-
+    
     public static final String ANNOTATION_NAME = "annotation_name";
+    
+    public static final String ANNOTATION_ATTACHMENT_NAME = "annotation_attachment_name";
 
     public static final String ANNOTATION_ATTACHMENT_POINTS = "annotation_attachment_points";
 
@@ -89,21 +91,19 @@ public class BLangJSONModelConstants {
 
     public static final String RESOURCE_DEFINITION = "resource_definition";
 
+    public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
+    
+    public static final String ANNOTATION_ATTRIBUTE = "annotation_attribute";
+    
+    public static final String ANNOTATION_ATTRIBUTE_PAIR_KEY = "annotation_attribute_pair_key";
+    
+    public static final String ANNOTATION_ATTRIBUTE_VALUE = "annotation_attribute_value";
+
     public static final String PARAMETER_DEFINITION = "parameter_definition";
 
-    public static final String ANNOTATION = "annotation";
+    public static final String ANNOTATION_ATTACHMENT_PACKAGE_NAME = "annotation_attachment_package_name";
 
-    public static final String ANNOTATION_ENTRY = "annotation_entry";
-
-    public static final String ANNOTATION_ENTRY_ARRAY = "annotation_entry_array";
-
-    public static final String ANNOTATION_ENTRY_KEY = "annotation_entry_key";
-
-    public static final String ANNOTATION_ENTRY_VALUE = "annotation_entry_value";
-
-    public static final String ANNOTATION_PACKAGE_NAME = "annotation_package_name";
-
-    public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";
+    public static final String ANNOTATION_ATTACHMENT_FULL_PACKAGE_NAME = "annotation_attachment_full_package_name";
 
     public static final String VARIABLE_DEFINITION = "variable_definition";
 
@@ -332,4 +332,10 @@ public class BLangJSONModelConstants {
     public static final String JOIN_WORKERS = "join_workers";
 
     public static final String JOIN_COUNT = "join_count";
+    
+    public static final String BVALUE = "bvalue";
+    
+    public static final String BVALUE_TYPE = "bvalue_type";
+    
+    public static final String BVALUE_STRING_VALUE = "bvalue_string_value";
 }
