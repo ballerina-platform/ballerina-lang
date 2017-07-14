@@ -43,7 +43,7 @@ public class Constants {
     public static final String GITHUB_OWNER_WSO2_EXTENSIONS = "wso2-extensions";
 
     public static final String MKDOCS_CONFIG_PAGES_KEY = "pages";
-    public static final String MKDOCS_CONFIG_PAGES_API_KEY = "Api";
+    public static final String MKDOCS_CONFIG_PAGES_API_KEY = "API Docs";
     public static final String MKDOCS_FILE_SEPARATOR = "/";
 
     public static final String README_FILE_NAME = "README";
