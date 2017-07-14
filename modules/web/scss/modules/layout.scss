@@ -44,6 +44,17 @@
       width: 200px;
       padding: 10px;
       margin-bottom: 30px;
+      height: 50px;
+
+      & > a {
+        position: relative;
+
+        & >.loader-center{
+          position:absolute;
+          top: calc(50% - 10px);
+          opacity: 0.3;
+        }
+      }
     }
 
     & .btn {
