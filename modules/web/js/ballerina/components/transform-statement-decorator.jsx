@@ -67,30 +67,11 @@ class TransformStatementDecorator extends React.Component {
         };
     }
 
-    static getComponentInstance(){
-        return self;
-    }
-
     componentWillMount() {
-        self = this;
-        if(expanded){
-            mapper.disconnectAll(); // remove all connections made from the previous mapper
-            this.predefinedStructs = predefinedStructs;
-            this.mapper = mapper
+        const { designView } = this.context;
 
-            _.forEach(this.props.model.getInput(), (input) => {
-                //trim expression to remove any possible white spaces
-                this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
-            });
-
-            _.forEach(this.props.model.getOutput(), (output) => {
-                //trim expression to remove any possible white spaces
-                this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
-            });
-
-            _.forEach(this.props.model.getChildren(), (statement) => {
-                this.createConnection(statement);
-            });
+        if(designView.getTransformActive()) {
+            designView.setTransformActive(true, this.props.model)
         }
     }
 

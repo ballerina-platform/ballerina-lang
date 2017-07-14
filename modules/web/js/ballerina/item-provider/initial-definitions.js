@@ -131,6 +131,14 @@ const createBreakStatementTool = {
     nodeFactoryMethod: BallerinaASTFactory.createBreakStatement,
 };
 
+const createContinueStatementTool = {
+    id: 'continue',
+    name: 'Continue',
+    cssClass: 'icon fw fw-continue',
+    title: 'Continue',
+    nodeFactoryMethod: BallerinaASTFactory.createContinueStatement,
+};
+
 const createTryCatchStatementTool = {
     id: 'try-catch',
     name: 'Try-Catch',
@@ -241,7 +249,7 @@ const statementToolDefArray = [createIfStatementTool, createAssignmentExpression
     createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
     createThrowStatementTool, createWorkerInvocationStatementTool, createWorkerReplyStatementTool,
     createTransformStatementTool, createJoinStatementTool, createAbortStatementTool,
-    createTransactionAbortedStatementTool];
+    createTransactionAbortedStatementTool, createContinueStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',
