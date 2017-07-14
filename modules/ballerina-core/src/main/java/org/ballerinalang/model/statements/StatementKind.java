@@ -43,6 +43,7 @@ public enum StatementKind {
     WORKER_INVOCATION(17),
     WORKER_REPLY(18),
     TRANSFORM(19),
+    NAMESPACE_DECLARATION(20),
 
     // Blocks
     CALLABLE_UNIT_BLOCK(30),
