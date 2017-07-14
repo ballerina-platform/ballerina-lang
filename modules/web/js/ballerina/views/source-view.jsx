@@ -68,6 +68,7 @@ class SourceView extends React.Component {
         this.editor = undefined;
         this.inSilentMode = false;
         this.format = this.format.bind(this);
+        this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
     }
 
     /**
@@ -90,12 +91,6 @@ class SourceView extends React.Component {
             });
             editor.setBehavioursEnabled(true);
             editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
-            getLangServerClientInstance()
-                .then((langserverClient) => {
-                    const completer = SourceViewCompleterFactory.getSourceViewCompleter(langserverClient);
-                    langTools.setCompleters(completer);
-                })
-                .catch(error => log.error(error));
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
             this.props.commandManager.getCommands().forEach((command) => {
@@ -208,6 +203,24 @@ class SourceView extends React.Component {
                 </div>
             </div>
         );
+    }
+
+    /**
+     * lifecycle hook for component will receive props
+     */
+    componentWillReceiveProps(nextProps) {
+        if(!nextProps.parseFailed) {
+            getLangServerClientInstance()
+                .then((langserverClient) => {
+                    // Set source view completer
+                    const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
+                    let fileData = {fileName: nextProps.file.getName(), filePath: nextProps.file.getPath() , 
+                        packageName: nextProps.file.getPackageName()}
+                    const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
+                    langTools.setCompleters(completer);
+                })
+                .catch(error => log.error(error));
+        }
     }
 }
 

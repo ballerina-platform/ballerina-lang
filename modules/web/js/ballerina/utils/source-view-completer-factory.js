@@ -32,7 +32,7 @@ class CompleterFactory {
      * @param {object} langserverController - language server controller
      * @return {*[]} - array
      */
-    static getSourceViewCompleter(langserverController) {
+    getSourceViewCompleter(langserverController, fileData) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
                 const completions = [];
@@ -43,6 +43,9 @@ class CompleterFactory {
                         line: cursorPosition.row + 1,
                         character: cursorPosition.column,
                     },
+                    fileName: fileData.fileName,
+                    filePath: fileData.filePath,
+                    packageName: fileData.packageName,
                 };
                 langserverController.getCompletions(options, (response) => {
                     response.result.map((completionItem) => {

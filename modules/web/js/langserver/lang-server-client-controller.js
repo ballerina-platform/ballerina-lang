@@ -194,6 +194,9 @@ class LangServerClientController extends EventChannel {
             params: {
                 text: options.textDocument,
                 position: options.position,
+                fileName: options.fileName,
+                filePath: options.filePath,
+                packageName: options.packageName
             },
         };
 
@@ -204,6 +207,36 @@ class LangServerClientController extends EventChannel {
         this.requestSessions.push(session);
         this.langserverChannel.sendMessage(message);
     }
+
+
+    /**
+     * Get program packages request processor
+     * @param {object} options - get program packages' options
+     * @param {function} callback - callback function to set the program packages in the editor
+     */
+    getProgramPackages(options, callback){
+        const session = new RequestSession();
+        const message = {
+            id: session.getId(),
+            jsonrpc: '2.0',
+            method: 'programDirectory/packages',
+            params: {
+                text: options.textDocument,
+                position: options.position,
+                fileName: options.fileName,
+                filePath: options.filePath,
+                packageName: options.packageName
+            },
+        };
+
+        session.setMessage(message);
+        session.setCallback((responseMsg) => {
+            callback(responseMsg);
+        });
+        this.requestSessions.push(session);
+        this.langserverChannel.sendMessage(message);
+    }
+
 
     // End language server notifications
 

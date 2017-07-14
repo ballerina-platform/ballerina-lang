@@ -23,7 +23,7 @@ export function fetchConfigs() {
                 resolve(response.data);
             }).catch(error => reject(error));
     });
-}   
+}
 
 /**
  * Invoke validate service for the given file
@@ -106,7 +106,14 @@ export function parseContent(content) {
  * and returns a promise with packages
  * @param {File} file
  */
-export function getProgramPackages(file) {
+export function getProgramPackages(file, langServerClientInstance) {
+    const fileOptions = {
+        fileName: file.getName(),
+        filePath: file.getPath(),
+        packageName: file.getPackageName(),
+        content: file.getContent(),
+        isDirty: file.isDirty()
+    };
     const payload = {
         fileName: file.getName(),
         filePath: file.getPath(),
@@ -119,10 +126,13 @@ export function getProgramPackages(file) {
     };
 
     return new Promise((resolve, reject) => {
-        axios.post(endpoint, payload, { headers })
-            .then((response) => {
-                resolve(response.data);
-            }).catch(error => reject(error));
+        langServerClientInstance
+            .then((langserverClient) => {
+                langserverClient.getProgramPackages(fileOptions, (data) => {
+                    resolve(data);
+                });
+            })
+            .catch(error => reject(error));
     });
 }
 
