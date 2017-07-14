@@ -271,14 +271,17 @@ class AnnotationAttachment extends React.Component {
         }
 
         let packageName = '';
-        if (!(this.props.model.getPackageName() === undefined || this.props.model.getPackageName() === null)) {
+        if (!(this.props.model.getPackageName() === undefined ||
+                    this.props.model.getPackageName() === null ||
+                    this.props.model.getPackageName() !== 'Current Package')) {
             packageName = `${this.props.model.getPackageName()}:`;
         }
 
-        return (<span
-            className="annotation-attachment-package-name"
-            onClick={this.onPackageNameEdit}
-        >@{packageName}</span>);
+        return (<span className="annotation-attachment-package-name">@
+            <span
+                onClick={this.onPackageNameEdit}
+            >{packageName}</span>
+        </span>);
     }
 
     /**
