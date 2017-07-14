@@ -998,18 +998,14 @@ public class BLangVM {
                 case InstructionCodes.LENGTHOF:
                     i = operands[0];
                     j = operands[1];
+                    if (sf.refRegs[i] == null) {
+                        handleNullRefError();
+                        break;
+                    }
                     if (sf.refRegs[i] instanceof BNewArray) {
                         BNewArray newArray = (BNewArray) sf.refRegs[i];
-                        if (newArray == null) {
-                            handleNullRefError();
-                            break;
-                        }
                         sf.longRegs[j] = newArray.size();
                     } else if (sf.refRegs[i] instanceof BJSON) {
-                        if (sf.refRegs[i] == null) {
-                            handleNullRefError();
-                            break;
-                        }
                         if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
