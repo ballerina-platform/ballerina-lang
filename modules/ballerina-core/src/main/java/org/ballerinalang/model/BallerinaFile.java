@@ -229,7 +229,7 @@ public class BallerinaFile implements Node {
         }
 
         public void addNamespaceDeclaration(NamespaceDeclaration namespaceDclr) {
-            this.packageBuilder.addNamespaceDeclarationStmt(namespaceDclr);
+            this.packageBuilder.addNamespaceDeclaration(namespaceDclr);
         }
 
         public BallerinaFile build() {
