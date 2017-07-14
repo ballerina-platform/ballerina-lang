@@ -46,7 +46,7 @@ class WelcomeView extends React.Component {
                                     onLoad={() => this.setState({ logoLoaded: true })}
                                 />
                                 {!this.state.logoLoaded &&
-                                    <i className="fw fw-loader5 fw-spin fw-2x" />
+                                    <i className="fw fw-loader2 fw-spin fw-lg loader-center" />
                                 }
                             </a>
                         </div>
