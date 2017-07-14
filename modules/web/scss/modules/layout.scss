@@ -113,6 +113,10 @@
             min-height: 100px;
             margin: 15px;
             cursor: pointer;
+            width: 90%;
+            height: 0;
+            padding-bottom: 66.67%;
+            position: relative;
 
             &.multiple {
               box-shadow: 0 0.0625em 0.1875em 0 rgba(0, 0, 0, 0.1),
@@ -132,10 +136,19 @@
 
             & > img{
               max-width: 90%;
+              position: absolute;
+            }
+
+            & > .loader-center{
+              position:absolute;
+              top: calc(50% - 10px);
+              opacity: 0.3;
             }
 
             & > .caption {
               padding: 10px 10px 0 10px;
+              position: absolute;
+              bottom: 0;
 
               & > h4 {
                 font-size: 12pt;
