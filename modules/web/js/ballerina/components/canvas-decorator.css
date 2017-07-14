@@ -10,3 +10,7 @@
     fill: green;
     fill-opacity: 0;
 }
+
+.grid-background {
+    min-height: 1000px;
+}

@@ -1025,6 +1025,13 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     opacity: 0.6;
 }
 
+.syntax-errors-container {
+    left: 5%;
+    top: 5%;
+    width: 90%;
+    position: absolute;
+}
+
 #parse-pending-loader{
     left: calc(50% - 132px);
     top: 50%;
