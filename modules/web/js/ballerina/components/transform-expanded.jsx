@@ -164,7 +164,7 @@ class TransformExpanded extends React.Component {
 
             // get the function invocation expression for nested and single cases.
             const funcInvocationExpression = self.findFunctionInvocationById(
-                assignmentStmtSource.getRightExpression(), connection.targetReference.id);
+                assignmentStmtSource, connection.targetReference.id);
             const expression = _.find(funcInvocationExpression.getChildren(), (child) => {
                 return (child.getExpressionString().trim() === targetExpression.getExpressionString().trim());
             });
@@ -542,6 +542,49 @@ class TransformExpanded extends React.Component {
         return struct;
     }
 
+    componentDidUpdate(prevProps) {
+        if(this.props.model === prevProps.model) {
+            return;
+        }
+
+        const nextProps = this.props;
+        this.mapper.disconnectAll();
+
+        this.predefinedStructs = [];
+        this.getSourcesAndTargets();
+
+        this.mapper = new TransformRender(
+            this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
+
+        _.forEach(nextProps.model.getInput(), (input) => {
+            //trim expression to remove any possible white spaces
+            this.setSource(input.getExpressionString().trim(), this.predefinedStructs);
+        });
+
+        _.forEach(nextProps.model.getOutput(), (output) => {
+            //trim expression to remove any possible white spaces
+            this.setTarget(output.getExpressionString().trim(), this.predefinedStructs);
+        });
+
+        _.forEach(nextProps.model.getChildren(), (statement) => {
+            this.createConnection(statement);
+        });
+
+        this.props.model.on('child-added', (node) => {
+            if (BallerinaASTFactory.isAssignmentStatement(node) &&
+                    BallerinaASTFactory.isFunctionInvocationExpression(node.getRightExpression())) {
+                const functionInvocationExpression = node.getRightExpression();
+                const func = this.getFunctionDefinition(functionInvocationExpression);
+                if (_.isUndefined(func)) {
+                    alerts.error('Function definition for "' +
+                        functionInvocationExpression.getFunctionName() + '" cannot be found');
+                    return;
+                }
+                this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));
+            }
+        });
+    }
+
     componentDidMount() {
         this.mapper = new TransformRender(
             this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
@@ -574,7 +617,8 @@ class TransformExpanded extends React.Component {
                 const functionInvocationExpression = node.getRightExpression();
                 const func = this.getFunctionDefinition(functionInvocationExpression);
                 if (_.isUndefined(func)) {
-                    alerts.error('Function definition for "' + functionInvocationExpression.getFunctionName() + '" cannot be found');
+                    alerts.error('Function definition for "' +
+                        functionInvocationExpression.getFunctionName() + '" cannot be found');
                     return;
                 }
                 this.mapper.addFunction(func, node, node.getParent().removeChild.bind(node.getParent()));

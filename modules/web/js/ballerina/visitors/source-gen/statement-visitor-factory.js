@@ -45,6 +45,7 @@ import TimeoutStatementVisitor from './timeout-statement-visitor';
 import ForkJoinStatementVisitor from './fork-join-statement-visitor';
 import JoinStatementVisitor from './join-statement-visitor';
 import CommittedStatementVisitor from './committed-statement-visitor';
+import ContinueStatementVisitor from './continue-statement-visitor';
 
 class StatementVisitorFactor {
     getStatementVisitor(statement, parent) {
@@ -106,6 +107,8 @@ class StatementVisitorFactor {
             return new AbortStatementVisitor(parent);
         } else if (ASTFactory.isCommittedStatement(statement)) {
             return new CommittedStatementVisitor(parent);
+        } else if (ASTFactory.isContinueStatement(statement)) {
+            return new ContinueStatementVisitor(parent);
         }
 
         return undefined;

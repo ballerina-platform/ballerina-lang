@@ -43,6 +43,9 @@ import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.FileSystemPackageRepository;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -431,5 +434,64 @@ public class WorkspaceUtils {
             pkgRepositories.add(constructLoader);
         }
         return pkgRepositories.toArray(new BuiltinPackageRepository[0]);
+    }
+
+
+    /**
+     * Get program directory
+     * @param filePath    - file path to parent directory of the .bal file
+     * @param packageName - package name
+     * @return
+     */
+    public static java.nio.file.Path gerProgramDirectory(java.nio.file.Path filePath, String packageName) {
+        java.nio.file.Path parentDir = null;
+        if (!".".equals(packageName)) {
+            // find nested directory count using package name
+            int directoryCount = (packageName.contains(".")) ? packageName.split("\\.").length
+                    : 1;
+            // find program directory
+            parentDir = filePath;
+            for (int i = 0; i < directoryCount; ++i) {
+                if (parentDir != null) {
+                    parentDir = parentDir.getParent();
+                }
+            }
+        }
+        return parentDir;
+    }
+
+
+    /**
+     * Recursive method to search for .bal files and add their parent directory paths to the provided List
+     * @param programDirPath - program directory path
+     * @param filePaths - file path list
+     * @param depth - depth of the directory hierarchy which we should search from the program directory
+     */
+    public static void searchFilePathsForBalFiles(java.nio.file.Path programDirPath,
+                                            List<java.nio.file.Path> filePaths, int depth) {
+        // this method is a recursive method. depth is the iteration count and we should return based on the depth count
+        if (depth < 0) {
+            return;
+        }
+        try {
+            DirectoryStream<Path> stream = Files.newDirectoryStream(programDirPath);
+            depth = depth - 1;
+            for (java.nio.file.Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    searchFilePathsForBalFiles(entry, filePaths, depth);
+                }
+                java.nio.file.Path file = entry.getFileName();
+                if (file != null) {
+                    String fileName = file.toString();
+                    if (fileName.endsWith(".bal")) {
+                        filePaths.add(entry.getParent());
+                    }
+                }
+            }
+            stream.close();
+        } catch (IOException e) {
+            // we are ignoring any exception and proceed.
+            return;
+        }
     }
 }

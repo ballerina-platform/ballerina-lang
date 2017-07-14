@@ -325,6 +325,19 @@ class StatementVisitor extends ASTVisitor {
     endVisitBreakStatement(statement) {
     }
 
+    canVisitContinueStatement(statement) {
+        return false;
+    }
+
+    beginVisitContinueStatement(statement) {
+    }
+
+    visitContinueStatement(statement) {
+    }
+
+    endVisitContinueStatement(statement) {
+    }
+
     canVisitAbortStatement(statement) {
         return false;
     }
@@ -423,6 +436,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitWhileStatement(node);
         } else if (ASTFactory.isBreakStatement(node)) {
             return this.visitBreakStatement(node);
+        } else if (ASTFactory.isContinueStatement(node)) {
+            return this.visitContinueStatement(node);
         } else if (ASTFactory.isIfElseStatement(node)) {
             return this.visitIfElseStatement(node);
         } else if (ASTFactory.isIfStatement(node)) {
@@ -486,6 +501,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitWhileStatement(node);
         } else if (ASTFactory.isBreakStatement(node)) {
             return this.canVisitBreakStatement(node);
+        } else if (ASTFactory.isContinueStatement(node)) {
+            return this.canVisitContinueStatement(node);
         } else if (ASTFactory.isIfElseStatement(node)) {
             return this.canVisitIfElseStatement(node);
         } else if (ASTFactory.isIfStatement(node)) {
@@ -555,6 +572,8 @@ class StatementVisitor extends ASTVisitor {
             this.beginVisitWhileStatement(node);
         } else if (ASTFactory.isBreakStatement(node)) {
             return this.beginVisitBreakStatement(node);
+        } else if (ASTFactory.isContinueStatement(node)) {
+            return this.beginVisitContinueStatement(node);
         } else if (ASTFactory.isIfElseStatement(node)) {
             return this.beginVisitIfElseStatement(node);
         } else if (ASTFactory.isIfStatement(node)) {
@@ -624,6 +643,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitWhileStatement(node);
         } else if (ASTFactory.isBreakStatement(node)) {
             return this.endVisitBreakStatement(node);
+        } else if (ASTFactory.isContinueStatement(node)) {
+            return this.endVisitContinueStatement(node);
         } else if (ASTFactory.isIfElseStatement(node)) {
             return this.endVisitIfElseStatement(node);
         } else if (ASTFactory.isIfStatement(node)) {

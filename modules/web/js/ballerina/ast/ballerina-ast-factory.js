@@ -99,6 +99,7 @@ import transactionStatement from './statements/transaction-statement';
 import abortedStatement from './statements/aborted-statement';
 import abortStatement from './statements/abort-statement';
 import committedStatement from './statements/committed-statement';
+import continueStatement from './statements/continue-statement';
 import connectorInitExpression from './expressions/connector-init-expression';
 import simpleTypeName from './simple-type-name';
 import VariableReferenceList from './variable-reference-list';
@@ -788,6 +789,15 @@ BallerinaASTFactory.createAbortedStatement = function (args) {
  * */
 BallerinaASTFactory.createCommittedStatement = function (args) {
     return new committedStatement();
+};
+
+/**
+ * Create {@link }
+ * @param {object} args - Arguments to create the continue statement.
+ * @return {} new Committed Statement.
+ * */
+BallerinaASTFactory.createContinueStatement = function (args) {
+    return new continueStatement();
 };
 
 /**
@@ -1540,6 +1550,15 @@ BallerinaASTFactory.isCommittedStatement = function (child) {
 };
 
 /**
+ * instanceof check for the ContinueStatement.
+ * @param {ASTNode} child - the ast node.
+ * @return {boolean} - true if same type, else false.
+ * */
+BallerinaASTFactory.isContinueStatement = function (child) {
+    return child instanceof continueStatement;
+};
+
+/**
  * instanceof check for the BValue.
  * @param {ASTNode} child - the ast node.
  * @return {boolean} - true if same type, else false.
@@ -1816,6 +1835,9 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         break;
     case 'committed_statement':
         node = BallerinaASTFactory.createCommittedStatement();
+        break;
+    case 'continue_statement':
+        node = BallerinaASTFactory.createContinueStatement();
         break;
     case 'bvalue':
         node = BallerinaASTFactory.createBValue();

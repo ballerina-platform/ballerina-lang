@@ -20,6 +20,7 @@ import _ from 'lodash';
 import commandManager from 'command';
 import React from 'react';
 import PropTypes from 'prop-types';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import ASTVisitor from 'ballerina/visitors/ast-visitor';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
@@ -35,6 +36,7 @@ import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visito
 import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
+import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -65,21 +67,27 @@ class BallerinaFileEditor extends React.Component {
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             // Change was done from the source view.
-            // Just keep track of it for the moment and when user tries
+            // Just mark the AST as invalid for the moment and when user tries
             // to switch back to a different view, we will try to rebuild
-            // the ast. See BallerinaFileEditor#setActiveView.
+            // the AST. See BallerinaFileEditor#setActiveView.
             // NOTE: This is to avoid unnecessary parser invocations for each change
             // event in source view
             const originEvtType = evt.originEvt.type;
             if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                 this.isASTInvalid = true;
             } else if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
-                // change was done from design view
-                // AST is directly modified hence no need to parse again
-                // we just need to update the diagram
+                // Change was done from design view.
+                // AST is directly modified, hence no need to parse again.
+                // We just need to update the diagram.
                 this.update();
             } else if (originEvtType === UNDO_EVENT
                         || originEvtType === REDO_EVENT) {
+                // Undo/Redo works based on the source-diff for each user action.
+                // Hence upon undo/redo, current AST becomes invalid.
+                // Hence we set this flag to indicate it. Dependening on the 
+                // active view - it will decide whether it need to parse
+                // now or later (eg: parse only when switching back from source)
+                // see BallerinaFileEditor#update
                 this.isASTInvalid = true;
                 this.update();
             }
@@ -108,6 +116,10 @@ class BallerinaFileEditor extends React.Component {
      * Update the diagram
      */
     update() {
+        // We need to rebuild the AST if we are not in source-view
+        // and current AST is marked as invalid.
+        // Current AST can become invalid due to actions 
+        // such as modifications from source view, undo/redo 
         if (this.isASTInvalid && this.state.activeView !== SOURCE_VIEW) {
             this.validateAndParseFile()
                 .then((state) => {
@@ -150,10 +162,10 @@ class BallerinaFileEditor extends React.Component {
      * @param {ServiceDefinition} serviceDef Service def node to display
      */
     showSwaggerViewForService(serviceDef) {
-        this.setState({
-            swaggerViewTargetService: serviceDef,
-            activeView: SWAGGER_VIEW
-        });
+        // not using setState to avoid multiple re-renders
+        // this.update() will finally trigger re-render 
+        this.state.swaggerViewTargetService = serviceDef;
+        this.state.activeView = SWAGGER_VIEW;
         this.update();
     }
 
@@ -162,6 +174,10 @@ class BallerinaFileEditor extends React.Component {
      * @param {string} newView ID of the new View
      */
     setActiveView(newView) {
+        // avoid additional re-render by directly updating state
+        // next call update() to re-render 
+        // (and parse before re-render if necessary)
+        // @see BallerinaFileEditor#update 
         this.state.activeView = newView;
         this.update();
     }
@@ -209,7 +225,19 @@ class BallerinaFileEditor extends React.Component {
                         // Hence resolve now.
                         resolve(newState);
                     } else {
-                        newState.syntaxErrors = [];
+                        // we need to fire a update for this state as soon as we 
+                        // receive the validate response to prevent additional
+                        // wait time to some user actions.
+                        // For example: User had a syntax error (and current state represents it) and corrected it in 
+                        // source editor. Then he wanted to move design view. If we do not do the update here,
+                        // (meaning if we set newState.syntaxErrors = [] without using setState)
+                        // displaying design view will be delayed until the rest of the logic in this function
+                        // is finished. Instead, we do the update here, so it will switch to design view as soon
+                        // as it knows the syntax is valid. However, the loading overlay will displayed until
+                        // the AST is ready so that render can continue.
+                        this.setState({
+                            syntaxErrors: [],
+                        })
                     }
                     // if not, continue parsing the file & building AST
                     parseFile(file)
@@ -232,14 +260,16 @@ class BallerinaFileEditor extends React.Component {
                                 .then(() => {
                                     this.environment.init();
                                     // fetch program packages
-                                    getProgramPackages(file)
+                                    getProgramPackages(file, getLangServerClientInstance())
                                         .then((data) => {
                                             // if any packages were found
-                                            if (!_.isNil(data.packages)) {
+                                            let packages = data.result.packages;
+                                            if (!_.isNil(packages)) {
                                                 const pkges = [];
-                                                data.packages.forEach((pkgNode) => {
+                                                packages.forEach((pkgNode) => {
                                                     const pkg = BallerinaEnvFactory.createPackage();
                                                     pkg.initFromJson(pkgNode);
+                                                    pkges.push(pkg);
                                                 });
                                                 this.environment.addPackages(pkges);
                                             }
@@ -264,7 +294,7 @@ class BallerinaFileEditor extends React.Component {
     render() {
         // Decision on which view to show, depends on several factors.
         // Even-though we have a state called activeView, we cannot simply decide on that value.
-        // For example, for the design-view or the swagger-view to be active, we need to make sure
+        // For example, for swagger-view to be active, we need to make sure
         // that the file is parsed properly and an AST is available. For this reason and more, we 
         // use several other states called parseFailed, syntaxErrors, etc. to decide
         // which view to show.
@@ -272,10 +302,13 @@ class BallerinaFileEditor extends React.Component {
         // syntaxErrors  - An array of errors received from validator service.
         // parseFailed   - Indicates whether the parser was invoked successfully and an AST was built.
         // activeView    - Indicates which view user wanted to be displayed.
+        // parsePending  - Indicates an ongoing validate & parse process in background
 
-        const showDesignView = (!this.state.parseFailed && this.state.activeView === DESIGN_VIEW);
-        const showSourceView =  this.state.syntaxErrors.length > 0
-                                    || this.state.parseFailed 
+        const showDesignView = (!this.state.parseFailed || this.state.parsePending)
+                                    && _.isEmpty(this.state.syntaxErrors)
+                                        && this.state.activeView === DESIGN_VIEW;
+        const showSourceView = this.state.parseFailed
+                                    || !_.isEmpty(this.state.syntaxErrors)
                                         || this.state.activeView === SOURCE_VIEW;
         const showSwaggerView = !this.state.parseFailed 
                                     && !_.isNil(this.state.swaggerViewTargetService)
@@ -291,16 +324,24 @@ class BallerinaFileEditor extends React.Component {
 
         return (
             <div id={`bal-file-editor-${this.props.file.id}`}>
-                <div className='bal-file-editor-loading-container' style={{ display: showLoadingOverlay ? 'block' : 'none' }}>
-                    <div id="parse-pending-loader">
-                        loading                      
-                    </div>
-                </div>
+                <CSSTransitionGroup
+                    transitionName="loading-overlay"
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                >
+                    {showLoadingOverlay &&
+                        <div className='bal-file-editor-loading-container'>
+                            <div id="parse-pending-loader">
+                                loading<br />                     
+                            </div>
+                        </div>
+                    }    
+                </CSSTransitionGroup>
                 <div style={{ display: showDesignView ? 'block' : 'none' }}>
                     <DesignView model={this.state.model} />
                 </div>
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
-                    <SourceView file={this.props.file} commandManager={this.props.commandManager} />
+                    <SourceView parseFailed={this.state.parseFailed} file={this.props.file} commandManager={this.props.commandManager} />
                 </div>
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView targetService={this.state.swaggerViewTargetService} />

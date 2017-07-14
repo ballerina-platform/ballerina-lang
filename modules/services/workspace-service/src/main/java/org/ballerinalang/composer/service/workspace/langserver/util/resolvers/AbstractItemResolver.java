@@ -237,27 +237,7 @@ public abstract class AbstractItemResolver {
      * @return {@link Boolean}
      */
     public boolean isAnnotationContext(SuggestionsFilterDataModel dataModel) {
-        TokenStream tokenStream = dataModel.getTokenStream();
-        int tokenIndex = dataModel.getTokenIndex();
-        int searchIndex = tokenIndex - 1;
-        boolean continueSearch = true;
-        boolean isAnnotation = false;
-
-        while (continueSearch) {
-            if (searchIndex < 0) {
-                continueSearch = false;
-            } else {
-                Token token = tokenStream.get(searchIndex);
-                if (token.getChannel() == 0 && token.getText().equals("@")) {
-                    continueSearch = false;
-                    isAnnotation = true;
-                } else {
-                    searchIndex--;
-                }
-            }
-        }
-
-        return isAnnotation;
+        return findPreviousToken(dataModel, "@", 3) >= 0;
     }
 
     /**
@@ -324,4 +304,28 @@ public abstract class AbstractItemResolver {
             this.label = label;
         }
     }
+
+    protected int findPreviousToken(SuggestionsFilterDataModel dataModel, String needle, int maxSteps) {
+        TokenStream tokenStream = dataModel.getTokenStream();
+        if (tokenStream == null) {
+            return -1;
+        }
+        int searchIndex = dataModel.getTokenIndex();
+
+        while (maxSteps > 0) {
+            if (searchIndex < 0) {
+                return -1;
+            }
+            Token token = tokenStream.get(searchIndex);
+            if (token.getChannel() == 0) {
+                if (token.getText().equals(needle)) {
+                    return searchIndex;
+                }
+                maxSteps--;
+            }
+            searchIndex--;
+        }
+        return -1;
+    }
+
 }
