@@ -2029,11 +2029,13 @@ public class CodeGenerator implements NodeVisitor {
         
         // If this is a string representation of qname
         if (!(indexExpr instanceof XMLQNameExpr)) {
-            int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
-            emit(InstructionCodes.S2QNAME, qnameRegIndex, qnameLoadedRegIndex);
-            qnameRegIndex = qnameLoadedRegIndex;
-            
-            generateUriLookupInstructions(xmlAttributesRefExpr, qnameRegIndex);
+            int localNameRegIndex = ++regIndexes[STRING_OFFSET];
+            int uriRegIndex = ++regIndexes[STRING_OFFSET];
+            emit(InstructionCodes.S2QNAME, qnameRegIndex, localNameRegIndex, uriRegIndex);
+
+            qnameRegIndex = ++regIndexes[REF_OFFSET];
+            generateUriLookupInstructions(xmlAttributesRefExpr.getNamespaces(), localNameRegIndex, uriRegIndex,
+                    qnameRegIndex, xmlAttributesRefExpr.getNodeLocation());
         }
         
         if (variableStore) {
@@ -2081,7 +2083,7 @@ public class CodeGenerator implements NodeVisitor {
         prefixLiteral.accept(this);
         
         int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
-        emit(InstructionCodes.QNAMELOAD, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(), 
+        emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(), 
                 prefixLiteral.getTempOffset(), qnameLoadedRegIndex);
         xmlQNameRefExpr.setTempOffset(qnameLoadedRegIndex);
     }
@@ -2741,63 +2743,74 @@ public class CodeGenerator implements NodeVisitor {
         }
         this.regIndexes = regIndexesOriginal;
     }
-    
+
     /**
      * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
      * get the prefix of it as the prefix to be used.
-     *  
+     * 
      * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr}
      * @param qnameRegIndex Registry index of the qname
      */
-    private void generateUriLookupInstructions(XMLAttributesRefExpr xmlAttributesRefExpr, int qnameRegIndex) {
-        Map<String, String> namespaces = xmlAttributesRefExpr.getNamespaces();
+    private void generateUriLookupInstructions(Map<String, String> namespaces, int localNameRegIndex, int uriRegIndex,
+            int targetQnameRegIndex, NodeLocation location) {
         if (namespaces.isEmpty()) {
+            createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
             return;
         }
-        int uriLoadedRegIndex = ++regIndexes[STRING_OFFSET];
-        emit(InstructionCodes.QNAMEURILOAD, qnameRegIndex, uriLoadedRegIndex);
-        
+
         List<Instruction> gotoInstructionList = new ArrayList<>();
         Instruction ifInstruction;
         Instruction gotoInstruction;
         for (Entry<String, String> keyValues : namespaces.entrySet()) {
-            
+
             // Below section creates the condition to compare the namespace uri's
-            
+
             // store the comparing uri as string
-            BasicLiteral uriLiteral = new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(),
-                null, new BString(keyValues.getValue()));
+            BasicLiteral uriLiteral = new BasicLiteral(location, null, new BString(keyValues.getValue()));
             uriLiteral.setType(BTypes.typeString);
             uriLiteral.accept(this);
 
             int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
             int exprIndex = ++regIndexes[BOOL_OFFSET];
-            emit(opcode, uriLoadedRegIndex, uriLiteral.getTempOffset(), exprIndex);
+            emit(opcode, uriRegIndex, uriLiteral.getTempOffset(), exprIndex);
 
             ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE, exprIndex, -1);
             emit(ifInstruction);
 
             // Below section creates instructions to be executed, if the above condition succeeds (then body)
-            
+
             // create the prifix literal
-            BasicLiteral prefixLiteral =
-                new BasicLiteral(xmlAttributesRefExpr.getNodeLocation(), null, new BString(keyValues.getKey()));
+            BasicLiteral prefixLiteral = new BasicLiteral(location, null, new BString(keyValues.getKey()));
             prefixLiteral.setType(BTypes.typeString);
             prefixLiteral.accept(this);
 
-            // update the qname's prefix
-            emit(InstructionCodes.QNAMEPREFIXSTORE, qnameRegIndex, prefixLiteral.getTempOffset());
+            // create a qname
+            emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.getTempOffset(),
+                    targetQnameRegIndex);
 
             gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
             emit(gotoInstruction);
             gotoInstructionList.add(gotoInstruction);
             ifInstruction.setOperand(1, nextIP());
         }
-        
+
+        // else part. create a qname with empty prefix
+        createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
+
         int nextIP = nextIP();
         for (Instruction instruction : gotoInstructionList) {
             instruction.setOperand(0, nextIP);
         }
+    }
+
+    private void createQNameWithEmptyPrefix(int localNameRegIndex, int uriRegIndex, int targetQnameRegIndex,
+            NodeLocation location) {
+        BasicLiteral prefixLiteral = new BasicLiteral(location, null, BTypes.typeString.getEmptyValue());
+        prefixLiteral.setType(BTypes.typeString);
+        prefixLiteral.accept(this);
+
+        emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.getTempOffset(),
+                targetQnameRegIndex);
     }
 
     /**

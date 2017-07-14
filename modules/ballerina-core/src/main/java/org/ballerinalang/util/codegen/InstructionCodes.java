@@ -249,13 +249,11 @@ public interface InstructionCodes {
     int RET = 237;
 
     int XML2ATTRS = 238;
-    int XMLATTRLOAD = 239;
-    int XMLATTRSTORE = 240;
-    int S2QNAME = 241;
-    int XMLATTR2MAP = 242;
-    int QNAMELOAD = 243;
-    int QNAMEPREFIXSTORE = 244;
-    int QNAMEURILOAD = 245;
+    int XMLATTR2MAP = 239;
+    int XMLATTRLOAD = 240;
+    int XMLATTRSTORE = 241;
+    int S2QNAME = 242;
+    int NEWQNAME = 243;
     
-    int INSTRUCTION_CODE_COUNT = 246;
+    int INSTRUCTION_CODE_COUNT = 244;
 }

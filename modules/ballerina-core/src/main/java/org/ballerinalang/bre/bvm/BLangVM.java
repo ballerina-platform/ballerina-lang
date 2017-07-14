@@ -1433,40 +1433,40 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    
+
                     xmlVal = (BXML) sf.refRegs[i];
                     if (xmlVal == null) {
                         handleNullRefError();
                         break;
                     }
-                    
+
                     xmlQName = (BXMLQName) sf.refRegs[j];
                     if (xmlQName == null) {
                         handleNullRefError();
                         break;
                     }
-                    
-                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(), 
+
+                    xmlVal.setAttribute(xmlQName.getLocalName(), xmlQName.getUri(), xmlQName.getPrefix(),
                             sf.stringRegs[k]);
                     break;
                 case InstructionCodes.XMLATTRLOAD:
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    
+
                     xmlVal = (BXML) sf.refRegs[i];
                     if (xmlVal == null) {
                         handleNullRefError();
                         break;
                     }
-                    
+
                     xmlQName = (BXMLQName) sf.refRegs[j];
                     if (xmlQName == null) {
                         handleNullRefError();
                         break;
                     }
-                    
-                    sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(), 
+
+                    sf.stringRegs[k] = xmlVal.getAttribute(xmlQName.getLocalName(), xmlQName.getUri(),
                             xmlQName.getPrefix());
                     break;
                 case InstructionCodes.XML2ATTRS:
@@ -1478,58 +1478,32 @@ public class BLangVM {
                         sf.refRegs[j] = null;
                         break;
                     }
-                    
+
                     sf.refRegs[j] = new BXMLAttributes(xmlVal);
                     break;
                 case InstructionCodes.S2QNAME:
                     i = operands[0];
                     j = operands[1];
+                    k = operands[2];
                     String qNameStr = sf.stringRegs[i];
-                    
-                    String localName, uri;
 
                     if (qNameStr.startsWith("{") && qNameStr.indexOf('}') > 0) {
-                        localName = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
-                        uri = qNameStr.substring(1, qNameStr.indexOf('}'));
+                        sf.stringRegs[j] = qNameStr.substring(qNameStr.indexOf('}') + 1, qNameStr.length());
+                        sf.stringRegs[k] = qNameStr.substring(1, qNameStr.indexOf('}'));
                     } else {
-                        localName = qNameStr;
-                        uri = "";
+                        sf.stringRegs[j] = qNameStr;
+                        sf.stringRegs[k] = "";
                     }
 
-                    sf.refRegs[j] = new BXMLQName(localName, uri, "");
                     break;
-                case InstructionCodes.QNAMELOAD:
+                case InstructionCodes.NEWQNAME:
                     localNameIndex = operands[0];
                     uriIndex = operands[1];
                     prefixIndex = operands[2];
                     i = operands[3];
-                    
-                    sf.refRegs[i] = new BXMLQName(sf.stringRegs[localNameIndex], sf.stringRegs[uriIndex], 
+
+                    sf.refRegs[i] = new BXMLQName(sf.stringRegs[localNameIndex], sf.stringRegs[uriIndex],
                             sf.stringRegs[prefixIndex]);
-                    break;
-                case InstructionCodes.QNAMEPREFIXSTORE:
-                    i = operands[0];
-                    j = operands[1];
-                    
-                    xmlQName = (BXMLQName) sf.refRegs[i];
-                    if (xmlQName == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    
-                    xmlQName.setPrefix(sf.stringRegs[j]);
-                    break;
-                case InstructionCodes.QNAMEURILOAD:
-                    i = operands[0];
-                    j = operands[1];
-                    
-                    xmlQName = (BXMLQName) sf.refRegs[i];
-                    if (xmlQName == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    
-                    sf.stringRegs[j] = xmlQName.getUri();
                     break;
                 default:
                     throw new UnsupportedOperationException();

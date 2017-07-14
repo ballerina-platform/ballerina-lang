@@ -231,9 +231,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
         mnemonics[InstructionCodes.XMLATTR2MAP] = "xmlattr2map";
-        mnemonics[InstructionCodes.QNAMELOAD] = "qnameload";
-        mnemonics[InstructionCodes.QNAMEPREFIXSTORE] = "qnameprefixstore";
-        mnemonics[InstructionCodes.QNAMEURILOAD] = "qnameuriload";
+        mnemonics[InstructionCodes.NEWQNAME] = "qnameload";
     }
 
     public static String getMnem(int opcode) {
