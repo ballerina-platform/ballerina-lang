@@ -422,23 +422,17 @@ public class LangServerManager {
             String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
+            //boolean isDirty = textDocumentPositionParams.isDirty();
 
-
-            if (fileName != null && packageName != null) {
-
-                Path file = Paths.get(filePath + File.separator + fileName);
-                if (programPackagesMap.containsKey(file)) {
-                    packages = programPackagesMap.get(file);
-                } else {
-                    packages = resolveProgramPackages(Paths.get(filePath), packageName);
-                    programPackagesMap.put(file, packages);
-                }
-
-
-            } else {
+            if ("temp".equals(filePath)) {
                 // Load all the packages associated the runtime in the background
                 packages = Utils.getAllPackages();
                 LangServerManager.this.setPackages(packages.entrySet());
+
+            } else {
+                Path file = Paths.get(filePath + File.separator + fileName);
+                packages = resolveProgramPackages(Paths.get(filePath), packageName);
+                programPackagesMap.put(file, packages);
             }
 
 
@@ -472,7 +466,7 @@ public class LangServerManager {
                     TextDocumentPositionParams.class);
             String textContent = textDocumentPositionParams.getText();
             Position position = textDocumentPositionParams.getPosition();
-            String fileName = textDocumentPositionParams.getFileName();
+            //String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -493,7 +487,12 @@ public class LangServerManager {
 
                 CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
 
-                if (fileName != null && packageName != null) {
+                if ("temp".equals(filePath)) {
+                    BallerinaFile ballerinaFile =
+                            autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
+                    capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
+                    ballerinaFile.accept(completionItemAccumulator);
+                } else {
                     Path file = Paths.get(filePath);
                     BLangProgram bLangProgram;
                     if (programMap.containsKey(file)) {
@@ -503,11 +502,6 @@ public class LangServerManager {
                         programMap.put(file, bLangProgram);
                     }
                     bLangProgram.accept(completionItemAccumulator);
-                } else {
-                    BallerinaFile ballerinaFile =
-                            autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
-                    capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
-                    ballerinaFile.accept(completionItemAccumulator);
                 }
 
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();

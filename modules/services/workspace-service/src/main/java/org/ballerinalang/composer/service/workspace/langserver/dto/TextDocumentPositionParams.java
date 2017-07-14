@@ -15,6 +15,7 @@ public class TextDocumentPositionParams {
     private String fileName;
     private String filePath;
     private String packageName;
+    private boolean isDirty;
 
     public String getText() {
         return text;
@@ -55,5 +56,13 @@ public class TextDocumentPositionParams {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        isDirty = dirty;
     }
 }

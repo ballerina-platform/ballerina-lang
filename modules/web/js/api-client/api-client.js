@@ -112,6 +112,7 @@ export function getProgramPackages(file, langServerClientInstance) {
         filePath: file.getPath(),
         packageName: file.getPackageName(),
         content: file.getContent(),
+        isDirty: file.isDirty()
     };
     const payload = {
         fileName: file.getName(),

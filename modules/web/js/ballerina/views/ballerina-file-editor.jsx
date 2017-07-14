@@ -303,7 +303,7 @@ class BallerinaFileEditor extends React.Component {
                     <DesignView model={this.state.model} />
                 </div>
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
-                    <SourceView file={this.props.file} commandManager={this.props.commandManager} />
+                    <SourceView parseFailed={this.state.parseFailed} file={this.props.file} commandManager={this.props.commandManager} />
                 </div>
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
                     <SwaggerView targetService={this.state.swaggerViewTargetService} />
