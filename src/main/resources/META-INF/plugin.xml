@@ -55,6 +55,10 @@
         <annotator language="Ballerina"
                    implementationClass="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
+        <!--string manipulator-->
+        <lang.elementManipulator forClass="org.ballerinalang.plugins.idea.psi.QuotedLiteralString"
+                                 implementationClass="org.ballerinalang.plugins.idea.psi.manipulator.BallerinaStringManipulator"/>
+
         <!--formatter-->
         <lang.formatter language="Ballerina"
                         implementationClass="org.ballerinalang.plugins.idea.formatter.BallerinaFormattingModelBuilder"/>
