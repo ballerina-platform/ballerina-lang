@@ -147,7 +147,7 @@ public class SiddhiAppRuntimeBuilder {
                 windowDefinitionMap, aggregationDefinitionMap);
         aggregationDefinitionMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
         AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, siddhiAppContext,
-                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap);
+                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, this);
         ProcessStreamReceiver processStreamReceiver = aggregationRuntime.getSingleStreamRuntime().
                 getProcessStreamReceiver();
         streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);

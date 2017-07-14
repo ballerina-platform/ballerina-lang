@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -32,18 +31,18 @@ import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAggregationProcessor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalAttributeAggregator;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalExecutor;
-import org.wso2.siddhi.core.table.InMemoryTable;
 import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.SiddhiAppRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.extension.holder.IncrementalAttributeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.Window;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
@@ -60,6 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,7 +75,8 @@ public class AggregationParser {
                                            Map<String, AbstractDefinition> tableDefinitionMap,
                                            Map<String, AbstractDefinition> windowDefinitionMap,
                                            Map<String, Table> tableMap,
-                                           Map<String, Window> windowMap) {
+                                           Map<String, Window> windowMap,
+                                           SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder) {
 
         if (aggregationDefinition == null) {
             throw new SiddhiAppCreationException(
@@ -163,18 +164,6 @@ public class AggregationParser {
             bufferSize = Integer.parseInt(element.getValue());
         }
 
-        // Create in-memory default table definitions and add to tableMap // TODO: 6/11/17 must later be taken from
-        // @store. Optional?
-        List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
-        initDefaultTables(tableMap, aggregatorName, incrementalDurations,
-                processedMetaStreamEvent, siddhiAppContext);
-
-        IncrementalExecutor rootIncrementalExecutor = buildIncrementalExecutorChain(
-                siddhiAppContext, aggregatorName, isProcessingOnExternalTime,
-                processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
-                bufferSize, incrementalDurations);
-
-
         // Create new scheduler
         EntryValveExecutor entryValveExecutor = new EntryValveExecutor(siddhiAppContext);
         LockWrapper lockWrapper = new LockWrapper(aggregatorName);
@@ -184,22 +173,35 @@ public class AggregationParser {
                 entryValveExecutor, siddhiAppContext);
         scheduler.init(lockWrapper, aggregatorName);
         scheduler.setStreamEventPool(new StreamEventPool(processedMetaStreamEvent, 10));
-        rootIncrementalExecutor.setScheduler(scheduler);
-
-        // Connect entry valve to root incremental executor
-        entryValveExecutor.setNextExecutor(rootIncrementalExecutor);
 
         QueryParserHelper.reduceMetaComplexEvent(incomingMetaStreamEvent);
         QueryParserHelper.reduceMetaComplexEvent(processedMetaStreamEvent);
         QueryParserHelper.updateVariablePosition(incomingMetaStreamEvent, incomingVariableExpressionExecutors);
         QueryParserHelper.updateVariablePosition(processedMetaStreamEvent, processVariableExpressionExecutors);
+
+
+        List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
+        HashMap<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName, incrementalDurations,
+                processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
+                aggregationDefinition.getAnnotations());
+
+        IncrementalExecutor rootIncrementalExecutor = buildIncrementalExecutorChain(
+                siddhiAppContext, aggregatorName, isProcessingOnExternalTime,
+                processedMetaStreamEvent, processExpressionExecutors, groupByKeyGenerator,
+                bufferSize, incrementalDurations, aggregationTables);
+        rootIncrementalExecutor.setScheduler(scheduler);
+
+        // Connect entry valve to root incremental executor
+        entryValveExecutor.setNextExecutor(rootIncrementalExecutor);
+
+
         QueryParserHelper.initStreamRuntime(streamRuntime, incomingMetaStreamEvent, lockWrapper, aggregatorName);
 
         streamRuntime.setCommonProcessor(new IncrementalAggregationProcessor(rootIncrementalExecutor,
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
         AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition, siddhiAppContext,
-                ((SingleStreamRuntime) streamRuntime), entryValveExecutor);
+                ((SingleStreamRuntime) streamRuntime), rootIncrementalExecutor, entryValveExecutor);
 
         return aggregationRuntime;
     }
@@ -207,7 +209,8 @@ public class AggregationParser {
     private static IncrementalExecutor buildIncrementalExecutorChain(
             SiddhiAppContext siddhiAppContext, String aggregatorName, boolean isProcessingOnExternalTime,
             MetaStreamEvent processedMetaStreamEvent, List<ExpressionExecutor> processExpressionExecutors,
-            GroupByKeyGenerator groupByKeyGenerator, int bufferSize, List<TimePeriod.Duration> incrementalDurations) {
+            GroupByKeyGenerator groupByKeyGenerator, int bufferSize, List<TimePeriod.Duration> incrementalDurations,
+            HashMap<TimePeriod.Duration, Table> aggregationTables) {
         // Create incremental executors
         IncrementalExecutor child;
         IncrementalExecutor root = null;
@@ -218,10 +221,10 @@ public class AggregationParser {
                 isRoot = true;
             }
             child = root;
-            root = new IncrementalExecutor(incrementalDurations.get(i),
-                    cloneExpressionExecutors(processExpressionExecutors),
+            TimePeriod.Duration duration = incrementalDurations.get(i);
+            root = new IncrementalExecutor(duration, cloneExpressionExecutors(processExpressionExecutors),
                     groupByKeyGenerator, processedMetaStreamEvent, bufferSize, aggregatorName, child, isRoot,
-                    siddhiAppContext, isProcessingOnExternalTime);
+                    aggregationTables.get(duration), siddhiAppContext, isProcessingOnExternalTime);
         }
         return root;
     }
@@ -419,7 +422,7 @@ public class AggregationParser {
         // Retrieve the external timestamp. If not given, this would return null.
         Expression timestampExpression = aggregationDefinition.getAggregateAttribute();
         if (timestampExpression == null) {
-            timestampExpression = AttributeFunction.function("currentTimeMillis",null);
+            timestampExpression = AttributeFunction.function("currentTimeMillis", null);
         }
         ExpressionExecutor timestampExecutor = ExpressionParser.parseExpression(timestampExpression,
                 metaStreamEvent, 0, tableMap, variableExpressionExecutors,
@@ -491,29 +494,24 @@ public class AggregationParser {
         return filledDurations;
     }
 
-    private static void initDefaultTables(Map<String, Table> tableMap, String aggregatorName,
-                                          List<TimePeriod.Duration> durations, MetaStreamEvent newMeta,
-                                          SiddhiAppContext siddhiAppContext) {
+    private static HashMap<TimePeriod.Duration, Table> initDefaultTables(
+            String aggregatorName, List<TimePeriod.Duration> durations,
+            StreamDefinition streamDefinition, SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
+            List<Annotation> annotations) {
+        HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
         for (TimePeriod.Duration duration : durations) {
-            TableDefinition tableDefinition = TableDefinition.id(aggregatorName + "_" + duration.toString());
-            MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
-            for (Attribute attribute : newMeta.getOnAfterWindowData()) {
+            String tableId = aggregatorName + "_" + duration.toString();
+            TableDefinition tableDefinition = TableDefinition.id(tableId);
+            for (Attribute attribute : streamDefinition.getAttributeList()) {
                 tableDefinition.attribute(attribute.getName(), attribute.getType());
-                tableMetaStreamEvent.addOutputData(attribute); // A new meta needs to be created since
-                // value mapping is done based on output data in in-memory tables. newMeta has no output data.
             }
-
-            tableMetaStreamEvent.addInputDefinition(tableDefinition);
-
-            StreamEventPool tableStreamEventPool = new StreamEventPool(tableMetaStreamEvent, 10);
-            StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent,
-                    tableStreamEventPool);
-            ConfigReader configReader = null;
-            InMemoryTable inMemoryTable = new InMemoryTable();
-            inMemoryTable.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, configReader,
-                    siddhiAppContext);
-            tableMap.putIfAbsent(tableDefinition.getId(), inMemoryTable);
+            for (Annotation annotation : annotations) {
+                tableDefinition.annotation(annotation);
+            }
+            siddhiAppRuntimeBuilder.defineTable(tableDefinition);
+            aggregationTableMap.put(duration, siddhiAppRuntimeBuilder.getTableMap().get(tableId));
         }
+        return aggregationTableMap;
     }
 
 //    public static class ExpressionExecutorDetails {

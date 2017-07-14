@@ -27,6 +27,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.GroupByKeyGenerator;
+import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 
@@ -45,6 +46,7 @@ public class IncrementalExecutor implements Executor {
     private final StreamEvent resetEvent;
     private final ExpressionExecutor timestampExpressionExecutor;
     private TimePeriod.Duration duration;
+    private Table table;
     private SiddhiAppContext siddhiAppContext;
     private String aggregatorName;
     private GroupByKeyGenerator groupByKeyGenerator;
@@ -53,6 +55,7 @@ public class IncrementalExecutor implements Executor {
     private long nextEmitTime = -1;
     private boolean isProcessingOnExternalTime;
     private int currentBufferIndex = 0;
+    private long startTimeOfAggregates = -1;
     private boolean timerStarted = false;
     private boolean isGroupBy;
     private Executor next;
@@ -68,17 +71,19 @@ public class IncrementalExecutor implements Executor {
     public IncrementalExecutor(TimePeriod.Duration duration, List<ExpressionExecutor> processExpressionExecutors,
                                GroupByKeyGenerator groupByKeyGenerator, MetaStreamEvent metaStreamEvent,
                                int bufferSize, String aggregatorName, IncrementalExecutor child,
-                               boolean isRoot, SiddhiAppContext siddhiAppContext, boolean isProcessingOnExternalTime) {
+                               boolean isRoot, Table table, SiddhiAppContext siddhiAppContext,
+                               boolean isProcessingOnExternalTime) {
         this.duration = duration;
         this.next = child;
         this.isRoot = isRoot;
+        this.table = table;
         this.siddhiAppContext = siddhiAppContext;
         this.aggregatorName = aggregatorName;
         this.bufferSize = bufferSize;
         this.streamEventPool = new StreamEventPool(metaStreamEvent, 10);
         this.isProcessingOnExternalTime = isProcessingOnExternalTime;
         this.timestampExpressionExecutor = processExpressionExecutors.remove(0);
-        this.baseIncrementalValueStore = new BaseIncrementalValueStore(processExpressionExecutors);
+        this.baseIncrementalValueStore = new BaseIncrementalValueStore(-1, processExpressionExecutors);
 
         if (groupByKeyGenerator != null) {
             this.groupByKeyGenerator = groupByKeyGenerator;
@@ -96,7 +101,7 @@ public class IncrementalExecutor implements Executor {
             if (bufferSize > 0) {
                 baseIncrementalValueStoreList = new ArrayList<BaseIncrementalValueStore>(bufferSize + 1);
                 for (int i = 0; i < bufferSize + 1; i++) {
-                    baseIncrementalValueStoreList.add(baseIncrementalValueStore.cloneStore(null));
+                    baseIncrementalValueStoreList.add(baseIncrementalValueStore.cloneStore(null, -1));
                 }
             }
         }
@@ -129,11 +134,12 @@ public class IncrementalExecutor implements Executor {
 
     @Override
     public void execute(ComplexEventChunk streamEventChunk) {
+        streamEventChunk.reset();
         while (streamEventChunk.hasNext()) {
             StreamEvent streamEvent = (StreamEvent) streamEventChunk.next();
             streamEventChunk.remove();
 
-            LOG.info(duration + "..." + streamEvent.getType());
+//            LOG.info(duration + "..." + streamEvent.getType());
 
             // Create new chunk to hold one stream event only
             // ComplexEventChunk<StreamEvent> newEventChunk = new ComplexEventChunk<>(streamEvent, streamEvent,
@@ -142,7 +148,7 @@ public class IncrementalExecutor implements Executor {
 
             if (timestamp >= nextEmitTime) {
                 nextEmitTime = IncrementalTimeConverterUtil.getNextEmitTime(timestamp, duration);
-                long startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration);
+                startTimeOfAggregates = IncrementalTimeConverterUtil.getStartTimeOfAggregates(timestamp, duration);
                 dispatchAggregateEvents(startTimeOfAggregates, timestamp);
                 sendTimerEvent(streamEvent, timestamp);
             }
@@ -231,12 +237,12 @@ public class IncrementalExecutor implements Executor {
                                 baseIncrementalValueGroupByStoreList.get(currentBufferIndex);
                         BaseIncrementalValueStore aBaseIncrementalValueStore =
                                 baseIncrementalValueGroupByStore.computeIfAbsent(groupedByKey,
-                                        k -> baseIncrementalValueStore.cloneStore(k));
+                                        k -> baseIncrementalValueStore.cloneStore(k, startTimeOfAggregates));
                         process(streamEvent, aBaseIncrementalValueStore);
                     } else {
                         BaseIncrementalValueStore aBaseIncrementalValueStore =
                                 baseIncrementalValueStoreMap.computeIfAbsent(groupedByKey,
-                                        k -> baseIncrementalValueStore.cloneStore(k));
+                                        k -> baseIncrementalValueStore.cloneStore(k, startTimeOfAggregates));
                         process(streamEvent, aBaseIncrementalValueStore);
                     }
                 } finally {
@@ -493,6 +499,7 @@ public class IncrementalExecutor implements Executor {
             StreamEvent streamEvent = createStreamEvent(aBaseIncrementalValueStore);
             ComplexEventChunk<StreamEvent> eventChunk = new ComplexEventChunk<>(true);
             eventChunk.add(streamEvent);
+            table.addEvents(eventChunk);
             next.execute(eventChunk);
         }
         cleanBaseIncrementalValueStore(startTimeOfNewAggregates, aBaseIncrementalValueStore);
@@ -505,6 +512,7 @@ public class IncrementalExecutor implements Executor {
                 StreamEvent streamEvent = createStreamEvent(aBaseIncrementalValueStore);
                 eventChunk.add(streamEvent);
             }
+            table.addEvents(eventChunk);
             next.execute(eventChunk);
         }
         baseIncrementalValueGroupByStore.clear();
@@ -528,8 +536,7 @@ public class IncrementalExecutor implements Executor {
         }
     }
 
-//    private void sendToNextExecutor(Map<String, BaseIncrementalValueStore> baseAggregatesToDispatch) {
-//        InMemoryTable inMemoryTable = ((InMemoryTable) tableMap.get(aggregatorName + "_" + this.duration.toString()));
+//    private void sendToNextExecutor(ComplexEventChunk<StreamEvent> streamEventChunk ) {
 //        ComplexEventChunk<StreamEvent> newComplexEventChunk;
 //        for (Map.Entry<String, BaseIncrementalValueStore> baseAggregateToDispatch : baseAggregatesToDispatch
 //                .entrySet()) {
@@ -567,29 +574,25 @@ public class IncrementalExecutor implements Executor {
         private List<ExpressionExecutor> expressionExecutors;
         private boolean isProcessed = false;
 
-        public BaseIncrementalValueStore(List<ExpressionExecutor> expressionExecutors) {
-            this(-1, expressionExecutors);
-        }
-
-        private BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors) {
+        public BaseIncrementalValueStore(long timeStamp, List<ExpressionExecutor> expressionExecutors) {
             this.timestamp = timeStamp;
-            this.values = new Object[expressionExecutors.size()];
+            this.values = new Object[expressionExecutors.size() + 1];
             this.expressionExecutors = expressionExecutors;
         }
 
         public void clearValues() {
-            this.values = new Object[expressionExecutors.size()];
+            this.values = new Object[expressionExecutors.size() + 1];
         }
 
         public void setValue(Object value, int position) {
             values[position] = value;
         }
 
-        public BaseIncrementalValueStore cloneStore(String key) {
+        public BaseIncrementalValueStore cloneStore(String key, long timestamp) {
             List<ExpressionExecutor> newExpressionExecutors = new ArrayList<>(expressionExecutors.size());
             expressionExecutors.forEach(expressionExecutor ->
                     newExpressionExecutors.add(expressionExecutor.cloneExecutor(key)));
-            return new BaseIncrementalValueStore(newExpressionExecutors);
+            return new BaseIncrementalValueStore(timestamp, newExpressionExecutors);
         }
 
     }

@@ -4,7 +4,6 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -18,7 +17,7 @@ import java.util.List;
 public class IncrementalAggregationProcessor implements Processor {
     private final List<ExpressionExecutor> incomingExpressionExecutors;
     private final MetaStreamEvent processedMetaStreamEvent;
-    private final StreamEventCloner streamEventCloner;
+    private final StreamEventPool streamEventPool;
     private IncrementalExecutor incrementalExecutor;
 
     public IncrementalAggregationProcessor(IncrementalExecutor incrementalExecutor,
@@ -27,8 +26,7 @@ public class IncrementalAggregationProcessor implements Processor {
         this.incrementalExecutor = incrementalExecutor;
         this.incomingExpressionExecutors = incomingExpressionExecutors;
         this.processedMetaStreamEvent = processedMetaStreamEvent;
-        this.streamEventCloner = new StreamEventCloner(processedMetaStreamEvent,
-                new StreamEventPool(processedMetaStreamEvent, 5));
+        this.streamEventPool = new StreamEventPool(processedMetaStreamEvent, 5);
     }
 
     @Override
@@ -37,9 +35,14 @@ public class IncrementalAggregationProcessor implements Processor {
                 new ComplexEventChunk<>(complexEventChunk.isBatch());
         while (complexEventChunk.hasNext()) {
             ComplexEvent complexEvent = complexEventChunk.next();
-            streamEventChunk.add(streamEventCloner.copyStreamEvent((StreamEvent) complexEvent));
+            StreamEvent borrowedEvent = streamEventPool.borrowEvent();
+            for (int i = 0; i < incomingExpressionExecutors.size(); i++) {
+                ExpressionExecutor expressionExecutor = incomingExpressionExecutors.get(i);
+                borrowedEvent.setOutputData(expressionExecutor.execute(complexEvent), i);
+            }
+            streamEventChunk.add(borrowedEvent);
         }
-        incrementalExecutor.execute(complexEventChunk);
+        incrementalExecutor.execute(streamEventChunk);
     }
 
     @Override
