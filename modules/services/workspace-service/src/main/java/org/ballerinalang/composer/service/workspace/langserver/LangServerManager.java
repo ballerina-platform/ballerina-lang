@@ -480,8 +480,6 @@ public class LangServerManager {
             AutoCompleteSuggester autoCompleteSuggester = new AutoCompleteSuggesterImpl();
             CapturePossibleTokenStrategy capturePossibleTokenStrategy = new CapturePossibleTokenStrategy(position);
             try {
-
-
                 SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
                 ArrayList symbols = new ArrayList<>();
 
@@ -525,10 +523,20 @@ public class LangServerManager {
         }
     }
 
+    /**
+     * Get packages
+     * @return a map contains package details
+     */
     private Set<Map.Entry<String, ModelPackage>> getPackages() {
         return this.packages;
     }
 
+    /**
+     * Get BLangProgram
+     * @param filePath    - file path to parent directory of the .bal file
+     * @param packageName - package name
+     * @return
+     */
     private BLangProgram getBLangProgram(java.nio.file.Path filePath, String packageName) {
         java.nio.file.Path programDirPath = WorkspaceUtils.gerProgramDirectory(filePath, packageName);
         int compare = filePath.compareTo(programDirPath);
@@ -539,6 +547,10 @@ public class LangServerManager {
         return bLangProgram;
     }
 
+    /**
+     * Set packages
+     * @param packages - packages set
+     */
     private void setPackages(Set<Map.Entry<String, ModelPackage>> packages) {
         this.packages = packages;
     }
