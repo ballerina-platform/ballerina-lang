@@ -1,5 +1,4 @@
 import ballerina.lang.xmls;
-import ballerina.lang.system;
 
 function getString(xml msg, string xPath) (string) {
     return xmls:getString(msg, xPath);
@@ -199,64 +198,6 @@ function testToString() (string) {
     xml book = bookComment + bookName + bookId + bookAuthor + bookMeta;
     
     return xmls:toString(book);
-}
-
-function testSetAttribute() (xml) {
-    xml book = xmls:parse("<book>Book1</book>");
-    xmls:setAttribute(book, "{http://sample/com}id", "ns0", "1234");
-    return book;
-}
-
-function testSetAttributeWithoutPrefix() (xml) {
-    xml book = xmls:parse("<book xmlns=\"http://sample/com\">Book1</book>");
-    xmls:setAttribute(book, "{http://sample/com}id", "", "1234");
-    return book;
-}
-
-function testSetAttributeWithoutNamspaceUri() (xml) {
-    xml book = xmls:parse("<book xmlns=\"http://sample/com\">Book1</book>");
-    xmls:setAttribute(book, "id", "ns1","1234");
-    return book;
-}
-
-function testSetAttributeWithoutNamspaceAndPrefix() (xml) {
-    xml book = xmls:parse("<book>Book1</book>");
-    xmls:setAttribute(book, "id", "", "1234");
-    return book;
-}
-
-function testSetAttributeWithoutLocalName() (xml) {
-    xml book = xmls:parse("<book>Book1</book>");
-    xmls:setAttribute(book, "{http://sample/com}", "ns0", "1234");
-    return book;
-}
-
-function testGetAttribute() (string) {
-    xml book = xmls:parse("<book xmlns:ns0=\"http://sample/com\" ns0:id=\"1234\">Book1</book>");
-    string attribute = xmls:getAttribute(book, "{http://sample/com}id");
-    system:println(attribute);
-    return attribute;
-}
-
-function testGetNonExistingAttribute() (string) {
-    xml book = xmls:parse("<book xmlns:ns0=\"http://sample/com\" ns0:id=\"1234\">Book1</book>");
-    string attribute = xmls:getAttribute(book, "{http://sample/com}status");
-    system:println(attribute);
-    return attribute;
-}
-
-function testGetAttributeWithoutNamespace() (string) {
-    xml book = xmls:parse("<book xmlns:ns0=\"http://sample/com\" ns0:id=\"1234\" id=\"789\">Book1</book>");
-    string attribute = xmls:getAttribute(book, "{}id");
-    system:println(attribute);
-    return attribute;
-}
-
-function testGetAttributeWithoutLocalname() (string) {
-    xml book = xmls:parse("<book xmlns:ns0=\"http://sample/com\" ns0:id=\"1234\" id=\"789\">Book1</book>");
-    string attribute = xmls:getAttribute(book, "{}");
-    system:println(attribute);
-    return attribute;
 }
 
 function testStrip() (xml, xml) {

@@ -386,6 +386,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         public void setBallerinaFileList(List<BallerinaFile> ballerinaFileList) {
             this.ballerinaFileList = ballerinaFileList;
         }
+        
+        public void addNamespaceDeclaration(NamespaceDeclaration namespaceDclr) {
+            this.compilationUnitList.add(namespaceDclr);
+        }
 
         public BLangPackage build() {
             bLangPackage.compilationUnits = this.compilationUnitList.toArray(new CompilationUnit[0]);
