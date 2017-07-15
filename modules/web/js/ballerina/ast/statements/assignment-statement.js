@@ -105,6 +105,7 @@ class AssignmentStatement extends Statement {
         let state = true;
         if (parsedJson.children) {
             if (parsedJson.children.length !== 1) {
+                // Only checks for the simple literals
                 if (parsedJson.children[1].type === 'basic_literal_expression') {
                     const variableType = parsedJson.children[0].children[0].variable_type;
                     const defaultValueType = parsedJson.children[1].basic_literal_type;
@@ -117,8 +118,6 @@ class AssignmentStatement extends Statement {
                             callback({ isValid: false, response: parsedJson });
                         }
                     }
-                } else if (parsedJson.children[1].type === 'reference_type_init_expression'
-                    || parsedJson.children[1].type === 'array_init_expression') {
                 }
             }
             if (state === true) {
