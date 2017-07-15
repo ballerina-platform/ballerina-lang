@@ -150,7 +150,7 @@ class StructDefinition extends React.Component {
             // Only checks for the simple literals
             if (type === 'int' && /^[-]?\d+$/.test(value)) {
                 state = true;
-            } else if (type === 'float' && parseFloat(value)) {
+            } else if (type === 'float' && ((/\d*\.?\d+/.test(value) || parseFloat(value)))) {
                 state = true;
             } else if (type === 'boolean' && (/\btrue\b/.test(value) || /\bfalse\b/.test(value))) {
                 state = true;

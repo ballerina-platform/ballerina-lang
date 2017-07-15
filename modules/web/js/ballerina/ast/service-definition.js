@@ -154,8 +154,6 @@ class ServiceDefinition extends ASTNode {
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
                 stmtString += ' = ' + assignedValue;
             }
-            // newVariableDefinitionStatement.setStatementFromString(stmtString);
-
             newVariableDefinitionStatement.setStatementFromString(stmtString, ({ isValid, response }) => {
                 if (!isValid) {
                     return;
