@@ -125,6 +125,15 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == MAP_STRUCT_LITERAL) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == CODE_BLOCK_BODY) {
+                    if (parentElementType == IF_CLAUSE || parentElementType == ELSE_IF_CLAUSE
+                            || parentElementType == ELSE_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
+                            || parentElementType == CATCH_CLAUSE || parentElementType == FINALLY_CLAUSE
+                            || parentElementType == JOIN_CLAUSE || parentElementType == TIMEOUT_CLAUSE
+                            || parentElementType == TRANSACTION_STATEMENT || parentElementType == ABORTED_CLAUSE
+                            || parentElementType == COMMITTED_CLAUSE) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.

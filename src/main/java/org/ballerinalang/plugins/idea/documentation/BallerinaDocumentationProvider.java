@@ -30,13 +30,13 @@ import org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeValueNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
@@ -308,7 +308,7 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      * @return the package which contains the given element.
      */
     @Nullable
-    private static PackagePathNode getContainingPackage(PsiElement element) {
+    private static FullyQualifiedPackageNameNode getContainingPackage(PsiElement element) {
         // Get the containing file.
         PsiFile containingFile = element.getContainingFile();
         if (containingFile == null) {
@@ -320,8 +320,8 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (packageDeclarationNode == null) {
             return null;
         }
-        // Return the PackagePathNode since it contains the package.
-        return PsiTreeUtil.findChildOfType(packageDeclarationNode, PackagePathNode.class);
+        // Return the FullyQualifiedPackageNameNode since it contains the package.
+        return PsiTreeUtil.findChildOfType(packageDeclarationNode, FullyQualifiedPackageNameNode.class);
     }
 
     /**
@@ -460,18 +460,19 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
      */
     private static AnnotationAttributeValueNode getAnnotationAttributeNode(PsiElement annotation,
                                                                            String annotationType) {
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(annotation, NameReferenceNode.class);
-        if (nameReferenceNode == null) {
+        AnnotationReferenceNode annotationReferenceNode = PsiTreeUtil.findChildOfType(annotation,
+                AnnotationReferenceNode.class);
+        if (annotationReferenceNode == null) {
             return null;
         }
-        PsiElement nameReferenceNodeIdentifier = nameReferenceNode.getNameIdentifier();
+        PsiElement nameReferenceNodeIdentifier = annotationReferenceNode.getNameIdentifier();
         if (nameReferenceNodeIdentifier == null) {
             return null;
         }
         if (!annotationType.equals(nameReferenceNodeIdentifier.getText())) {
             return null;
         }
-        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(nameReferenceNode, PackageNameNode.class);
+        PackageNameNode packageNameNode = PsiTreeUtil.findChildOfType(annotationReferenceNode, PackageNameNode.class);
         if (packageNameNode == null) {
             return null;
         }

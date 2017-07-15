@@ -39,6 +39,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     private static final String FILE_TEMPLATE_NAME = "Ballerina File";
     private static final String MAIN_TEMPLATE_NAME = "Ballerina Main";
     private static final String SERVICE_TEMPLATE_NAME = "Ballerina Service";
+    private static final String CONNECTOR_TEMPLATE_NAME = "Ballerina Connector";
 
     private static final String NEW_BALLERINA_FILE = "New Ballerina File";
     private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
@@ -52,6 +53,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
                                @NotNull CreateFileFromTemplateDialog.Builder builder) {
         builder.setTitle(NEW_BALLERINA_FILE).addKind("Ballerina Main", BallerinaIcons.ICON, MAIN_TEMPLATE_NAME)
                 .addKind("Ballerina Service", BallerinaIcons.ICON, SERVICE_TEMPLATE_NAME)
+                .addKind("Ballerina Connector", BallerinaIcons.ICON, CONNECTOR_TEMPLATE_NAME)
                 .addKind("Empty File", BallerinaIcons.ICON, FILE_TEMPLATE_NAME);
     }
 

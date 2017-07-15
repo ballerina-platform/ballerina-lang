@@ -20,11 +20,11 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformStatementBodyNode extends ANTLRPsiNode  implements ScopeNode {
+public class TransformStatementBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public TransformStatementBodyNode(@NotNull ASTNode node) {
         super(node);

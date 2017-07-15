@@ -208,6 +208,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.add("typemapper");
         expectedLookups.add("annotation");
         expectedLookups.add("test");
+        myFixture.addFileToProject("test/file.bal", "string s = \"\";");
         doTest("import test; \n<caret> \nfunction A(){}", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -282,6 +283,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConstantAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret> const string S=\"\";", null, '@', "test");
     }
 
@@ -291,7 +293,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConstantAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
+        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach service {}");
         doCheckResult("test.bal", "import org.test; @test:<caret> const string S=\"\";", null, null);
     }
 
@@ -474,7 +476,6 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         doTest("import org.test; function F(){ test:<caret> }", "S");
     }
 
-
     /**
      * Test function level lookups.
      */
@@ -487,6 +488,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>function A(){}", null, '@', "test");
     }
 
@@ -593,9 +595,10 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(COMMON_KEYWORDS);
         expectedLookups.addAll(VALUE_KEYWORDS);
         expectedLookups.addAll(FUNCTION_LEVEL_KEYWORDS);
-        expectedLookups.add("pack");
         expectedLookups.add("test");
-        doTest("import org.pack; function test () { <caret> }",
+        expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
+        doTest("import org.test; function test () { <caret> }",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -840,7 +843,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionFromPackageInvocation23() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test", "false", "null", "true");
+                "args", "main", "test", "s");
     }
 
     public void testFunctionFromPackageInvocation24() {
@@ -868,13 +871,13 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testVarDefinitionWithTraileringCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = \"TEST\" + <caret> }",
-                "args", "main", "test", "false", "null", "true");
+                "args", "main", "test");
     }
 
     public void testVarDefinitionWithLeadingCode() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = <caret> + \"TEST\" }",
-                "args", "main", "test", "create", "false", "null", "true");
+                "args", "main", "test", "create");
     }
 
     public void testConnectorInit() {
@@ -902,8 +905,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreation() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "A", "test", "false",
-                "null", "true");
+        doTest("import org.test; function A(){ test:TestConnector c = create <caret> }", "test");
     }
 
     public void testConnectorCreationPackageAutoCompletion() {
@@ -914,9 +916,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testConnectorCreationCreateKeyword() {
         myFixture.addFileToProject("org/test/con.bal", "connector TestConnector{}");
-        // todo - remove c
         doTest("import org.test; function A(){ test:TestConnector c = <caret> test:TestConnector() }",
-                "create", "A", "c", "test", "false", "null", "true");
+                "create", "A", "test");
     }
 
     public void testVariablesInitializationAfterDeclaration() {
@@ -970,12 +971,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
 
     public void testVariablesWhenMultipleVariablesAvailableAfterLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = s1 + <caret> }",
-                "s1", "s2", "A", "false", "null", "true");
+                "s1", "s2", "A");
     }
 
     public void testVariablesWhenMultipleVariablesAvailableBeforeLeafElement() {
         doTest("function A(){ string s1 = \"Test\"; string s2 = \"Test\"; string s3 = <caret> + s2; }",
-                "s1", "s2", "A", "create", "false", "null", "true");
+                "s1", "s2", "A", "create");
     }
 
     public void testVariablesInNewLineWhenMultipleVariablesAvailable() {
@@ -1065,6 +1066,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; function B(<caret>)", expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
@@ -1073,6 +1075,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testFunctionParamWithImportsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; function B(te<caret>)",
                 "import org.test; function B(test:)", null);
     }
@@ -1102,6 +1105,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; function test(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1113,6 +1117,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; function test(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1147,7 +1152,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testPackageInvocationInParameterAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "struct test {}");
         doCheckResult("test.bal", "import org.test; function A(test:t<caret>)",
-                "import org.test; function A(test:test)", null);
+                "import org.test; function A(test:test )", null);
     }
 
     // todo - query param annotations
@@ -1178,6 +1183,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testServiceAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>service S{}", null, '@', "test");
     }
 
@@ -1253,17 +1259,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testResourceAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; service<http> S{<caret>}", null, '@', "test");
-    }
-
-    public void testResourceAnnotationWithImportsNoAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "function test(){}");
-        doCheckResult("test.bal", "import org.test; service S{@test<caret>}", null, ':');
-    }
-
-    public void testResourceAnnotationWithImportsWithNoMatchingAnnotationDefinitions() {
-        myFixture.addFileToProject("org/test/file.bal", "annotation TEST attach test {}");
-        doCheckResult("test.bal", "import org.test; service S{@test:<caret>}", null, null);
     }
 
     public void testResourceAnnotationWithImportsWithMatchingAnnotationDefinitions() {
@@ -1330,6 +1327,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; service<http> S { resource R(<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1340,6 +1338,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testResourceParamWithImportsAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; service<http> S { resource R(te<caret>)",
                 "import org.test; service<http> S { resource R(test:)", null);
     }
@@ -1350,8 +1349,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(ANY_TYPE);
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("service<http> S { resource R(string s,<caret>)", expectedLookups.toArray(new String[expectedLookups
-                .size()]));
+        doTest("service<http> S { resource R(string s,<caret>)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testCaretBeforeResourceParamWithoutImports() {
@@ -1360,8 +1359,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(ANY_TYPE);
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
-        doTest("service<http> S { resource R(<caret>string s)", expectedLookups.toArray(new String[expectedLookups
-                .size()]));
+        doTest("service<http> S { resource R(<caret>string s)",
+                expectedLookups.toArray(new String[expectedLookups.size()]));
     }
 
     public void testCaretAfterResourceParamWithImports() {
@@ -1371,6 +1370,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; service<http> S { resource R(string s,<caret>)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1382,6 +1382,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
         expectedLookups.addAll(XMLNS_TYPE);
         expectedLookups.addAll(REFERENCE_TYPES);
         expectedLookups.add("test");
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; service<http> S { resource R(<caret>string s)",
                 expectedLookups.toArray(new String[expectedLookups.size()]));
     }
@@ -1398,6 +1399,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>connector A(){}", null, '@', "test");
     }
 
@@ -1464,7 +1466,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testConnectorBodyAfterAnnotation() {
-        doTest("connector C(){ @test:test{} <caret> }", "action");
+        doTest("connector C(){ @test:test{} <caret> }", "action", "C");
     }
 
     public void testConnectorBodyVariableDeclarationPackage() {
@@ -1513,7 +1515,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testConnectorBodyVariableInitializationPackageInvocationAutoCompletion() {
         myFixture.addFileToProject("org/test/file.bal", "package org.test; connector TEST () {}");
         doCheckResult("test.bal", "import org.test; connector C(){ test:TEST t = create test:T<caret> }",
-                "import org.test; connector C(){ test:TEST t = create test:TEST }", null);
+                "import org.test; connector C(){ test:TEST t = create test:TEST() }", null);
     }
 
     /**
@@ -1528,6 +1530,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testActionAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; connector C(){ <caret> action A()(message) {} }", null, '@',
                 "test");
     }
@@ -1601,6 +1604,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testStructAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>struct S{}", null, '@', "test");
     }
 
@@ -1661,8 +1665,8 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testSingleLevelStructInSameFileValue() {
-        doTest("struct Name { string firstName; } function test(){ string name=\"\"; Name name = { " +
-                "firstName:<caret> }; }", "name", "test", "false", "null", "true");
+        doTest("struct Name { string firstName; } function test(){ string firstName=\"\"; Name name = { " +
+                "firstName:<caret> }; }", "firstName", "test");
     }
 
     public void testMultiLevelStructInSameFile() {
@@ -1693,6 +1697,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testTypeMapperAnnotationWithImports() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; <caret>typemapper T(int)(string) {}", null, '@', "test");
     }
 

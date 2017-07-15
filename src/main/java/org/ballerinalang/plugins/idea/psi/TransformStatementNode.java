@@ -20,11 +20,11 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformStatementNode extends ANTLRPsiNode  implements ScopeNode {
+public class TransformStatementNode extends ANTLRPsiNode  implements CodeBlockScope {
 
     public TransformStatementNode(@NotNull ASTNode node) {
         super(node);

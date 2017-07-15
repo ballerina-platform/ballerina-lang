@@ -22,10 +22,10 @@ import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.BallerinaCodeInsightFixtureTestCase;
-import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
-import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer;
-import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType;
+import org.ballerinalang.plugins.idea.runconfig.RunConfigurationKind;
+import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
+import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationProducer;
+import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunConfigurationType;
 
 public class BallerinaRunConfigurationProducerTest extends BallerinaCodeInsightFixtureTestCase {
 

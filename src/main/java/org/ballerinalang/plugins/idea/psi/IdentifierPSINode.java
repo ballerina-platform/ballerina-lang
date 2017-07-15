@@ -30,13 +30,20 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
+import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueReference;
+import org.ballerinalang.plugins.idea.psi.references.AnnotationReference;
+import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
+import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.FieldReference;
+import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
-import org.ballerinalang.plugins.idea.psi.references.VariableReference;
+import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
+import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,11 +71,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (getParent() == null) {
             return this;
         }
-        PsiElement newID = Trees.createLeafFromText(getProject(),
-                BallerinaLanguage.INSTANCE,
-                getContext(),
-                name,
-                BallerinaParserDefinition.ID);
+        PsiElement newID = Trees.createLeafFromText(getProject(), BallerinaLanguage.INSTANCE, getContext(), name,
+                BallerinaTypes.IDENTIFIER);
         if (newID != null) {
             // use replace on leaves but replaceChild on ID nodes that are part of defs/decls.
             return this.replace(newID);
@@ -94,6 +98,9 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
     public PsiReference getReference() {
         PsiElement parent = getParent();
         IElementType elType = parent.getNode().getElementType();
+
+        PsiElement prevVisibleLeaf;
+
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
             switch (((RuleIElementType) elType).getRuleIndex()) {
@@ -101,35 +108,100 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new PackageNameReference(this);
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
-                case RULE_statement:
-                    return new StatementReference(this);
                 case RULE_nameReference:
-                case RULE_field:
+                    MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getParentOfType(parent, MapStructKeyNode.class);
+                    if (mapStructKeyNode != null) {
+                        return new StructKeyReference(this);
+                    }
+                    MapStructValueNode mapStructValueNode = PsiTreeUtil.getParentOfType(parent,
+                            MapStructValueNode.class);
+                    if (mapStructValueNode != null) {
+                        return new StructValueReference(this);
+                    }
+
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
+                    if (prevVisibleLeaf != null) {
+                        if (".".equals(prevVisibleLeaf.getText())) {
+                            return new FieldReference(this);
+                        }
+                        // Todo - remove ","
+                        if ((prevVisibleLeaf instanceof IdentifierPSINode)
+                                && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
+                            return null;
+                        } else if (("attach".equals(prevVisibleLeaf.getText()) || ",".equals(prevVisibleLeaf.getText()))
+                                && prevVisibleLeaf.getParent() instanceof AnnotationDefinitionNode) {
+                            return new AttachmentPointReference(this);
+                        }
+                    }
                     return new NameReference(this);
-                case RULE_variableReference:
-                case RULE_parameter:
-                    // If "package:" is typed as an argument, it will be identified as a variableReference. So we
-                    // need to match it with a regex and return a PackageNameReference.
-                    if (parent.getText().matches(".+:")) {
-                        return new PackageNameReference(this);
-                    }
-                    PsiElement prevSibling = getPrevSibling();
-                    if (prevSibling != null && prevSibling.getText().matches(".+:")) {
-                        return new PackageNameReference(this);
-                    }
-                    return new VariableReference(this);
+                case RULE_field:
+                    return new FieldReference(this);
+                case RULE_functionReference:
+                    return new FunctionReference(this);
+                case RULE_annotationReference:
+                    return new AnnotationReference(this);
+                case RULE_connectorReference:
+                    return new ConnectorReference(this);
                 case RULE_annotationAttribute:
                     return new AnnotationAttributeReference(this);
+                case RULE_attachmentPoint:
+                    return new AttachmentPointReference(this);
+                case RULE_statement:
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+
+                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+                        PsiElement prevSibling = prevVisibleLeaf.getPrevSibling();
+                        if (prevSibling != null) {
+                            PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+                            if (reference != null) {
+                                PsiElement resolvedElement = reference.resolve();
+                                if (resolvedElement != null) {
+                                    PsiElement connectorDefinition = resolvedElement.getParent();
+                                    if (connectorDefinition instanceof ConnectorDefinitionNode) {
+                                        return new ActionInvocationReference(this);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+                        return new FieldReference(this);
+                    }
+
+                    PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getPsi());
+                    if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
+                        return new PackageNameReference(this);
+                    }
+                    return new StatementReference(this);
                 default:
                     return null;
             }
         }
         if (parent instanceof PsiErrorElement) {
-            if (parent.getParent() instanceof StatementNode) {
-                return new StatementReference(this);
-            }
+            return suggestReferenceType(parent);
         }
         return null;
+    }
+
+    private PsiReference suggestReferenceType(@NotNull PsiElement parent) {
+        PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getParent());
+        if (nextVisibleLeaf != null) {
+            if (":".equals(nextVisibleLeaf.getText())) {
+                return new PackageNameReference(this);
+            } else if (".".equals(nextVisibleLeaf.getText())) {
+                return new NameReference(this);
+            }
+        }
+
+        if (parent.getParent() instanceof AttachmentPointNode) {
+            return new AttachmentPointReference(this);
+        }
+
+        if (parent.getParent() instanceof AnnotationAttachmentNode) {
+            return new AnnotationAttributeValueReference(this);
+        }
+
+        return new NameReference(this);
     }
 
     @Override
