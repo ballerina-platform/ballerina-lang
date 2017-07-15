@@ -126,7 +126,6 @@ public class HTTPServicesRegistry {
                 throw new BallerinaException(
                         "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
             }
-
             servicesOnInterface.put(basePath, service);
             logger.info("Service deployed : " + service.getName() + " with context " + basePath);
             return;
@@ -139,13 +138,13 @@ public class HTTPServicesRegistry {
                 // Assumption : this is always sequential, no two simultaneous calls can get here
                 servicesOnInterface = new HashMap<>();
                 servicesInfoMap.put(listenerId, servicesOnInterface);
-                ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerId);
-
-                if (connector == null) {
-                    connector = BallerinaConnectorManager.getInstance()
+                //It comes to here means, this is a new http configuration, in that case,
+                //shouldn't try to find a listener in connector manager, because, if there is already
+                //a listener for the given id, then we don't have a way to make sure that
+                //configuration are same in given configuration and existing listener
+                ServerConnector connector = BallerinaConnectorManager.getInstance()
                             .createServerConnector(Constants.PROTOCOL_HTTP, listenerId, propMap);
-                    listenerPropMap.put(listenerId, propMap);
-                }
+                listenerPropMap.put(listenerId, propMap);
                 if (connector == null) {
                     throw new BallerinaException(
                             "ServerConnector interface not registered for : " + listenerId);
@@ -163,10 +162,8 @@ public class HTTPServicesRegistry {
                 throw new BallerinaException(
                         "service with base path :" + basePath + " already exists in listener : " + listenerInterface);
             }
-
             servicesOnInterface.put(basePath, service);
         }
-
         logger.info("Service deployed : " + service.getName() + " with context " + basePath);
     }
 
@@ -236,7 +233,6 @@ public class HTTPServicesRegistry {
             httpsPropMap.put(Constants.ANNOTATION_ATTRIBUTE_CERT_PASS, certPassAttrVal.getStringValue());
             listenerConfMap.put(buildInterfaceName(httpsPropMap), httpsPropMap);
         }
-
         return listenerConfMap;
     }
 
