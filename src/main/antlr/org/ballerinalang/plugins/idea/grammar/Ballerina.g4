@@ -781,8 +781,8 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["\\\n\r]
-    |   EscapeSequence
+    :   ~["\n\r]
+    |   '\\' ["]
     ;
 
 // §3.10.6 Escape Sequences for Character and String Literals
