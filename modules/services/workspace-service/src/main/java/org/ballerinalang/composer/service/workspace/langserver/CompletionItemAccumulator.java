@@ -45,6 +45,7 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -89,10 +90,12 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
+import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -103,6 +106,7 @@ import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -1125,6 +1129,16 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     @Override
+    public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
+
+    }
+
+    @Override
+    public void visit(NamespaceDeclaration namespaceDclr) {
+
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
         checkAndSetClosestScope(replyStmt);
 
@@ -1422,6 +1436,16 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
         VariableReferenceExpr varRefExpr = indexBasedVarRefExpr.getVarRefExpr();
         varRefExpr.accept(this);
+    }
+
+    @Override
+    public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
+
+    }
+
+    @Override
+    public void visit(XMLQNameExpr xmlQNameRefExpr) {
+
     }
 
     @Override
