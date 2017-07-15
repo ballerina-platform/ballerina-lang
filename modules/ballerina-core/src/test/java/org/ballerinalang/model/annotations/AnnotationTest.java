@@ -154,6 +154,12 @@ public class AnnotationTest {
         
     }
 
+    @Test(description = "Test constant as annotation attribute value")
+    public void testConstAsAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/constant-as-attribute-value.bal");
+
+    }
+
     // Negative tests
     
     @Test(description = "Test child annotation from a wrong package",
@@ -258,6 +264,22 @@ public class AnnotationTest {
                 "'string', found 'int'")
     public void testInvalidConstantAnnotation() {
         BTestUtils.parseBalFile("lang/annotations/invalid-constant-annotation.bal");
+    }
+
+    @Test(description = "Test global variable as annotation attribute value",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "variable-as-attribute-value.bal:4: annotation attribute " +
+                    "value should be either constant reference or a basic literal")
+    public void testVariableAsAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/variable-as-attribute-value.bal");
+    }
+
+    @Test(description = "Test type mismatch in annotation attribute value",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "attribute-value-type-mismatch.bal:4: incompatible types: " +
+                    "expected 'string', found 'int'")
+    public void testTypeMismatchInAttributeValue() {
+        BTestUtils.parseBalFile("lang/annotations/attribute-value-type-mismatch.bal");
     }
     
     @Test(description = "Test default values for annotation")
