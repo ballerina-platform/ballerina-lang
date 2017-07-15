@@ -924,7 +924,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 visitSingleValueExpr(varRefExpr);
                 if (!(varRefExpr.getVariableDef() instanceof ConstDef)) {
                     throw BLangExceptionHelper.getSemanticError(attributeValue.getNodeLocation(),
-                            SemanticErrors.ATTRIBUTE_VAL_CANNOT_REFERE_NON_CONST);
+                            SemanticErrors.ATTRIBUTE_VAL_CANNOT_REFER_NON_CONST);
                 }
                 attributeValue.setType(varRefExpr.getType());
                 BType lhsType = BTypes.resolveType(attributeType, currentScope, annotation.getNodeLocation());
