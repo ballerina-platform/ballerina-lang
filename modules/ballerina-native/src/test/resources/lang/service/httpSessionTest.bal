@@ -7,7 +7,7 @@ struct Data {
             string name;
         }
 
-@http:config{basePath:"/sample"}
+@http:configuration{basePath:"/sample"}
 service<http> sample {
     @http:GET{}
     @http:Path{value:"/test1"}
@@ -115,7 +115,7 @@ service<http> sample {
     }
 }
 
-@http:config{basePath:"/counter"}
+@http:configuration{basePath:"/counter"}
 service<http> counter {
     @http:GET{}
     @http:Path{value:"/echo"}
@@ -154,7 +154,7 @@ service<http> counter {
     }
 }
 
-@http:config{basePath:"/sample2"}
+@http:configuration{basePath:"/sample2"}
 service<http> sample2 {
     @http:GET{}
     resource echoName (message m) {

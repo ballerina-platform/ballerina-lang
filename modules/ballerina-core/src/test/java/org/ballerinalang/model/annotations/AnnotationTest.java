@@ -196,7 +196,7 @@ public class AnnotationTest {
     @Test(description = "Test an annotation attached in a wrong point",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "wrongly-attached-annot.bal:7: annotation 'Bar' is not allowed in" +
-                " functions")
+                " function")
     public void testWronglyAttachedAnnot() {
         BTestUtils.parseBalFile("lang/annotations/wrongly-attached-annot.bal");
     }

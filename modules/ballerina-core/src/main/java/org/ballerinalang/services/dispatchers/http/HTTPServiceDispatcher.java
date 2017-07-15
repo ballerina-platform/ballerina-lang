@@ -159,7 +159,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private String getServiceBasePath(ServiceInfo service) {
         String basePath = service.getName();
         AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants
-                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIG);
+                .HTTP_PACKAGE_PATH, Constants.ANNOTATION_NAME_CONFIGURATION);
 
         if (annotationInfo != null) {
             AnnotationAttributeValue annotationAttributeValue = annotationInfo.getAnnotationAttributeValue

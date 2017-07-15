@@ -41,7 +41,6 @@ import org.ballerinalang.util.parser.BallerinaParser.AnnotationBodyContext;
 import org.ballerinalang.util.parser.BallerinaParser.AnnotationDefinitionContext;
 import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralExpressionContext;
-import org.ballerinalang.util.parser.BallerinaParser.AttachmentPointContext;
 import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeTypeExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.CallableUnitBodyContext;

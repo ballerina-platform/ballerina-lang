@@ -1,5 +1,7 @@
 package ballerina.net.http;
 
+import ballerina.net.ws;
+
 annotation GET attach resource {
 }
 
@@ -19,7 +21,7 @@ annotation Path attach resource {
     string value;
 }
 
-annotation configuration attach service<> {
+annotation configuration attach service<>, service<ws> {
     string host;
     int port;
     int httpsPort;

@@ -81,7 +81,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
                 Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
         AnnotationAttachmentInfo config = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
-                Constants.ANNOTATION_NAME_CONFIG);
+                Constants.ANNOTATION_NAME_CONFIGURATION);
 
         if (websocketUpgradePathAnnotation != null &&
                 websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {

@@ -5,7 +5,7 @@ import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
 
-@http:config {basePath:"/productsservice"}
+@http:configuration {basePath:"/productsservice"}
 service<http> productmgt {
     map productsMap = populateSampleProducts();
 

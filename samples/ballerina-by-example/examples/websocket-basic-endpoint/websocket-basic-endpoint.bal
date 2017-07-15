@@ -5,7 +5,7 @@ import ballerina.net.ws;
 import ballerina.doc;
 
 @doc:Description {value:"WebSocket endpoint is defined as a composition of  BasePath + WebSocketUpgradePath."}
-@http:config{basePath:"/endpoint"}
+@http:configuration{basePath:"/endpoint"}
 @ws:WebSocketUpgradePath {value:"/ws"}
 service<ws> websocketServerEndpoint {
 
