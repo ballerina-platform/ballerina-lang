@@ -66,8 +66,8 @@ public class BallerinaRemoteSettingsEditor extends SettingsEditor<BallerinaRemot
         configuration.setParams(myParamsField.getComponent().getText());
         configuration.setWorkingDirectory(myWorkingDirectoryField.getComponent().getText());
 
-        configuration.setRemoteDebugHost(myHost.getComponent().getText());
-        configuration.setRemoteDebugPort(myPort.getComponent().getText());
+        configuration.setRemoteDebugHost(myHost.getComponent().getText().trim());
+        configuration.setRemoteDebugPort(myPort.getComponent().getText().trim());
     }
 
     @NotNull

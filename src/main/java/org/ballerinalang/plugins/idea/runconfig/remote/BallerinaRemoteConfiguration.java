@@ -29,7 +29,16 @@ import org.ballerinalang.plugins.idea.runconfig.BallerinaRunConfigurationWithMai
 import org.ballerinalang.plugins.idea.runconfig.ui.BallerinaRemoteSettingsEditor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class BallerinaRemoteConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRemoteRunningState> {
+
+    private static final String IP_REGEX = "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$";
+    private static final Pattern IP_PATTERN = Pattern.compile(IP_REGEX);
+
+    private static final String PORT_REGEX = "^\\d{1,5}$";
+    private static final Pattern PORT_PATTERN = Pattern.compile(PORT_REGEX);
 
     public BallerinaRemoteConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
@@ -57,6 +66,14 @@ public class BallerinaRemoteConfiguration extends BallerinaRunConfigurationWithM
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
         super.checkBaseConfiguration();
-        // Todo - validate remote address
+
+        Matcher matcher = IP_PATTERN.matcher(getRemoteDebugHost());
+        if (!matcher.find()) {
+            throw new RuntimeConfigurationException("Entered remote host address is incorrect.");
+        }
+        matcher = PORT_PATTERN.matcher(getRemoteDebugPort());
+        if (!matcher.find()) {
+            throw new RuntimeConfigurationException("Entered remote port is incorrect.");
+        }
     }
 }
