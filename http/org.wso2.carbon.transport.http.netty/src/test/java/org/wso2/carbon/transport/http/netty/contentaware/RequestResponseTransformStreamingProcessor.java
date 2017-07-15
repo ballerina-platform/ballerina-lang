@@ -89,7 +89,7 @@ public class RequestResponseTransformStreamingProcessor implements CarbonMessage
 
     @Override
     public String getId() {
-        return null;
+        return "RequestResponseTransformStreamingProcessor";
     }
 
     private class EngineCallBack implements CarbonCallback {

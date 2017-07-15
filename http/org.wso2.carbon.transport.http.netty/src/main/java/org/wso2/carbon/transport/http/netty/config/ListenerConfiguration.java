@@ -80,6 +80,9 @@ public class ListenerConfiguration {
     @XmlAttribute
     private int socketIdleTimeout;
 
+    @XmlAttribute
+    private String messageProcessorId;
+
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = getDefaultParameters();
@@ -193,6 +196,14 @@ public class ListenerConfiguration {
             return defaultVal;
         }
         return socketIdleTimeout;
+    }
+
+    public String getMessageProcessorId() {
+        return messageProcessorId;
+    }
+
+    public void setMessageProcessorId(String messageProcessorId) {
+        this.messageProcessorId = messageProcessorId;
     }
 
     public void setSocketIdleTimeout(int socketIdleTimeout) {

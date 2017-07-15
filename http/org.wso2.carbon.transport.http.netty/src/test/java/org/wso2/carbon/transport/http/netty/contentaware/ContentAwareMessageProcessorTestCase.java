@@ -41,13 +41,13 @@ import java.util.List;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test case for echo message from MessageProcessor level
+ * A test case for echo message from MessageProcessor level.
  */
 public class ContentAwareMessageProcessorTestCase {
     private static final Logger log = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
 
     private List<HTTPServerConnector> serverConnectors;
-
+    private CarbonMessageProcessor carbonMessageProcessor;
     private TransportsConfiguration configuration;
 
     private HTTPServer httpServer;
@@ -73,6 +73,8 @@ public class ContentAwareMessageProcessorTestCase {
             urlConn.disconnect();
         } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
 
     }
@@ -84,7 +86,7 @@ public class ContentAwareMessageProcessorTestCase {
         String responseValue = "YYYYYYY";
         String expectedValue = responseValue + ":" + requestValue;
         try {
-            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformProcessor(responseValue);
+            carbonMessageProcessor = new RequestResponseTransformProcessor(responseValue);
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
@@ -95,17 +97,18 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseTransformFromProcessorTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
     @Test
     public void requestResponseCreationFromProcessorTestCase() {
-
         String requestValue = "XXXXXXXX";
         String responseValue = "YYYYYYY";
         String expectedValue = responseValue + ":" + requestValue;
         try {
-            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationProcessor(responseValue);
+            carbonMessageProcessor = new RequestResponseCreationProcessor(responseValue);
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
@@ -116,16 +119,17 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseCreationFromProcessorTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
 
     }
 
     @Test
     public void requestResponseStreamingFromProcessorTestCase() {
-
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseCreationStreamingProcessor();
+            carbonMessageProcessor = new RequestResponseCreationStreamingProcessor();
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
@@ -136,6 +140,8 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseStreamingFromProcessorTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
 
     }
@@ -145,7 +151,7 @@ public class ContentAwareMessageProcessorTestCase {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            CarbonMessageProcessor carbonMessageProcessor = new RequestResponseTransformStreamingProcessor();
+            carbonMessageProcessor = new RequestResponseTransformStreamingProcessor();
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             TestUtil.writeContent(urlConn, requestValue);
@@ -156,6 +162,8 @@ public class ContentAwareMessageProcessorTestCase {
         } catch (IOException e) {
             TestUtil.handleException(
                     "IOException occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
@@ -164,7 +172,7 @@ public class ContentAwareMessageProcessorTestCase {
 
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
-            CarbonMessageProcessor carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
+            carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
             urlConn.setChunkedStreamingMode(-1); // Enable Chunking
@@ -175,6 +183,8 @@ public class ContentAwareMessageProcessorTestCase {
             urlConn.disconnect();
         } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running responseStreamingWithoutBufferingTestCase", e);
+        } finally {
+            TestUtil.removeMessageProcessor(carbonMessageProcessor);
         }
     }
 
@@ -182,5 +192,4 @@ public class ContentAwareMessageProcessorTestCase {
     public void cleanUp() throws ServerConnectorException {
         TestUtil.cleanUp(serverConnectors, httpServer);
     }
-
 }
