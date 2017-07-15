@@ -142,9 +142,8 @@ public class HTTPServicesRegistry {
                 ServerConnector connector = BallerinaConnectorManager.getInstance().getServerConnector(listenerId);
 
                 if (connector == null) {
-                    String protocol = propMap.get(Constants.ANNOTATION_ATTRIBUTE_SCHEME);
                     connector = BallerinaConnectorManager.getInstance()
-                            .createServerConnector(protocol, listenerId, propMap);
+                            .createServerConnector(Constants.PROTOCOL_HTTP, listenerId, propMap);
                     listenerPropMap.put(listenerId, propMap);
                 }
                 if (connector == null) {
