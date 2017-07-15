@@ -46,9 +46,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
 
 public class BallerinaSdkUtil {
 
@@ -149,6 +152,14 @@ public class BallerinaSdkUtil {
         VirtualFile file = VirtualFileManager.getInstance().findFileByUrl(
                 VfsUtilCore.pathToUrl(FileUtil.join(sdkPath, srcPath)));
         return file != null && file.isDirectory() ? file : null;
+    }
+
+    public static LinkedHashSet<VirtualFile> getSourcesPathsToLookup(@NotNull Project project, @Nullable Module module) {
+        LinkedHashSet<VirtualFile> sdkAndGoPath = newLinkedHashSet();
+        ContainerUtil.addIfNotNull(sdkAndGoPath, getSdkSrcDir(project, module));
+        // Todo  - add Ballerina Path
+//        ContainerUtil.addAllNotNull(sdkAndGoPath, getBallerinaPathSources(project, module));
+        return sdkAndGoPath;
     }
 
     @NotNull
