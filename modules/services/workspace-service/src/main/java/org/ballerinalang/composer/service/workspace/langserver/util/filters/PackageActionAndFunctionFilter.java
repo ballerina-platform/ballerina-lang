@@ -32,6 +32,7 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -128,13 +129,15 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
             completionItems.add(completionItem);
         }
 
+        completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
+
         if (canSuggestClientConnector) {
             CompletionItem clientConnectorType = new CompletionItem();
             clientConnectorType.setInsertText("ClientConnector");
             clientConnectorType.setLabel("ClientConnector");
             clientConnectorType.setDetail(ItemResolverConstants.CLIENT_CONNECTOR_TYPE);
             clientConnectorType.setSortText(ItemResolverConstants.PRIORITY_7);
-            completionItems.add(clientConnectorType);
+            completionItems.add(0, clientConnectorType);
         }
         return completionItems;
     }
