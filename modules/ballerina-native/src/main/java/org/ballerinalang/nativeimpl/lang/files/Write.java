@@ -28,8 +28,10 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.NonWritableChannelException;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Writes a file using the given input stream.
@@ -50,20 +52,19 @@ import java.io.OutputStream;
         value = "The file which the blob should be written to") })
 public class Write extends AbstractNativeFunction {
 
-    @Override public BValue[] execute(Context context) {
-
+    @Override
+    public BValue[] execute(Context context) {
         byte[] content = getBlobArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 0);
         try {
-            OutputStream outputStream = (BufferedOutputStream) destination.getNativeData("outStream");
-            if (outputStream == null) {
-                throw new BallerinaException("file is not opened in write or append mode:" 
-                        + destination.getStringField(0));
+            SeekableByteChannel sbc = (SeekableByteChannel) destination.getNativeData("channel");
+            if (sbc == null) {
+                throw new BallerinaException("file " + destination.getStringField(0) + " is not opened yet");
             }
-            outputStream.write(content);
-            outputStream.flush();
-
-        } catch (Throwable e) {
+            sbc.write(ByteBuffer.wrap(content));
+        } catch (NonWritableChannelException e) {
+            throw new BallerinaException("channel not opened in write mode: " + e.getMessage(), e);
+        } catch (IOException e) {
             throw new BallerinaException("failed to write to file: " + e.getMessage(), e);
         }
         return VOID_RETURN;

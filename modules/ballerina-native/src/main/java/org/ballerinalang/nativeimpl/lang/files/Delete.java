@@ -28,7 +28,11 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Deletes a file from a given location.
@@ -46,34 +50,22 @@ import java.io.File;
         value = "File that should be deleted") })
 public class Delete extends AbstractNativeFunction {
 
-    @Override 
+    @Override
     public BValue[] execute(Context context) {
-
         BStruct target = (BStruct) getRefArgument(context, 0);
-        File targetFile = new File(target.getStringField(0));
-        if (!targetFile.exists()) {
-            throw new BallerinaException("failed to delete file: file not found: " + targetFile.getPath());
+        Path targetPath = Paths.get(target.getStringField(0));
+        if (!Files.exists(targetPath)) {
+            throw new BallerinaException("error: ballerina.lang.errors:Error, message: failed to delete file:" +
+                                         " file not found: " + targetPath.toString());
         }
-        if (!delete(targetFile)) {
-            throw new BallerinaException("failed to delete file: " + targetFile.getPath());
+        try {
+            Files.delete(targetPath);
+        } catch (DirectoryNotEmptyException e) {
+            throw new BallerinaException("Directory not empty: " + targetPath.toString());
+        } catch (IOException e) {
+            throw new BallerinaException("failed to delete file: " + targetPath.toString());
         }
         return VOID_RETURN;
-    }
-
-    private boolean delete(File targetFile) {
-
-        String[] entries = targetFile.list();
-        if (entries != null && entries.length != 0) {
-            for (String s : entries) {
-                File currentFile = new File(targetFile.getPath(), s);
-                if (currentFile.isDirectory()) {
-                    delete(currentFile);
-                } else if (!currentFile.delete()) {
-                    return false;
-                }
-            }
-        }
-        return targetFile.delete();
     }
 
 }

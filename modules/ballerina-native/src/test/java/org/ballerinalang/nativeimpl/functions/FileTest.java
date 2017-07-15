@@ -35,15 +35,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Test cases for ballerina.model.file.
@@ -210,7 +208,7 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to delete file: " +
+            expectedExceptionsMessageRegExp = ".*error: ballerina.lang.errors:Error, message: failed to delete file: " +
             "file not found: temp[\\\\/]delete-non-existing-file.txt.*")
     public void testDeleteNonExistentFile() {
         String targetPath = "temp/delete-non-existing-file.txt";
@@ -218,19 +216,19 @@ public class FileTest {
         BLangFunctions.invokeNew(programFile, "testDelete", args);
     }
 
-    @Test
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: directory not empty: temp.*")
     public void testDeleteDir() throws IOException {
         String fileOne = "temp/delete-file-one.txt";
         String fileTwo = "temp/delete-file-two.txt";
         File one = new File(fileOne);
         File two = new File(fileTwo);
         String targetPath = "temp";
-        File targetFile = new File(targetPath);
         if (one.createNewFile() && two.createNewFile()) {
             BValue[] args = { new BString(targetPath) };
 
             BLangFunctions.invokeNew(programFile, "testDelete", args);
-            Assert.assertFalse(targetFile.exists(), "Target Directory exists");
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -241,35 +239,28 @@ public class FileTest {
         String sourcePath = "temp/open-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
-
-            BValue[] args = { new BString(sourcePath) , new BString("rw")};
+            BValue[] args = {new BString(sourcePath), new BString("rw")};
             BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("ra");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("r");
-            sourceStruct =  (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNotNull(sourceStruct.getNativeData("inStream"), "Input Stream not found");
-            Assert.assertNull(sourceStruct.getNativeData("outStream"), "Output Stream found in read mode");
-
-            args[1] = new BString("w");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in write mode");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
-            args[1] = new BString("a");
-            sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testOpen", args)[0];
-            Assert.assertNull(sourceStruct.getNativeData("inStream"), "Input Stream not found in append mode");
-            Assert.assertNotNull(sourceStruct.getNativeData("outStream"), "Output Stream not found");
-
+            Assert.assertTrue(((SeekableByteChannel) sourceStruct.getNativeData("channel")).isOpen(),
+                              "Channel not opened");
         } else {
             Assert.fail("Error in file creation.");
         }
+    }
+
+    @Test
+    public void testOpenWithInvalidParams() throws IOException {
+        String targetPath = "temp/write-file.txt";
+        File targetFile = new File(targetPath);
+        byte[] content = "Sample Text".getBytes();
+        BBlob byteContent = new BBlob(content);
+        OutputStream outputStream = new FileOutputStream(targetFile);
+        outputStream.write(content);
+        BValue[] args = { byteContent, new BString(targetPath) };
+        BLangFunctions.invokeNew(programFile, "testOpenWithInvalidParams", args);
+        Assert.assertTrue(targetFile.exists(), "File not created");
+        Assert.assertNotEquals("Sample Text".getBytes(), getBytesFromFile(targetFile), "File opened in write mode");
+        Assert.assertEquals("Sample TextSample Text".getBytes(), getBytesFromFile(targetFile), "Written wrong content");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -281,17 +272,15 @@ public class FileTest {
         BLangFunctions.invokeNew(programFile, "testOpen", args);
     }
 
-    @Test(expectedExceptions = IOException.class)
+    @Test
     public void testClose() throws IOException {
         String sourcePath = "temp/close-file.txt";
         File sourceFile = new File(sourcePath);
         if (sourceFile.createNewFile()) {
             BValue[] args = { new BString(sourcePath) };
             BStruct sourceStruct = (BStruct) BLangFunctions.invokeNew(programFile, "testClose", args)[0];
-            InputStream inputStream = (BufferedInputStream) sourceStruct.getNativeData("inStream");
-            OutputStream outputStream = (BufferedOutputStream) sourceStruct.getNativeData("outStream");
-            inputStream.read();
-            outputStream.write(1);
+            SeekableByteChannel channel = (SeekableByteChannel) sourceStruct.getNativeData("channel");
+            Assert.assertFalse(channel.isOpen(), "Channel not closed");
         } else {
             Assert.fail("Error in file creation.");
         }
@@ -310,8 +299,8 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to write to " +
-            "file: file is not opened in write or append mode.*")
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: file temp[\\\\/]write-non-opened.txt is not opened yet.*")
     public void testWriteWithoutOpeningFile() {
         String targetPath = "temp/write-non-opened.txt";
         byte[] content = "Sample Text".getBytes();
@@ -334,8 +323,8 @@ public class FileTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to read from " +
-            "file: file is not opened in read mode.*")
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, " +
+                                              "message: file temp[\\\\/]read-non-opened-file.txt is not opened yet.*")
     public void testReadWithoutOpeningFile() throws IOException {
         String targetPath = "temp/read-non-opened-file.txt";
         File targetFile = new File(targetPath);

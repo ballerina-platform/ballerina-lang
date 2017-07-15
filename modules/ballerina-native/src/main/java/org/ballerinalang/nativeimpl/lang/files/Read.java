@@ -31,8 +31,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedInputStream;
-import java.util.Arrays;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.NonReadableChannelException;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Get the blob from a file.
@@ -64,17 +66,24 @@ public class Read extends AbstractNativeFunction {
         BStruct file = (BStruct) getRefArgument(context, 0);
         int bytesToRead = (int) getIntArgument(context, 0);
         byte[] data;
-        int nRead;
+        long nRead;
         try {
-            BufferedInputStream is = (BufferedInputStream) file.getNativeData("inStream");
-            if (is == null) {
-                throw new BallerinaException("file is not opened in read mode: " + file.getStringField(0));
+            SeekableByteChannel sbc = (SeekableByteChannel) file.getNativeData("channel");
+            if (sbc == null) {
+                throw new BallerinaException("file " + file.getStringField(0) + " is not opened yet");
             }
-            data = new byte[bytesToRead];
-            nRead = is.read(data, 0, bytesToRead);
-        } catch (Throwable e) {
+
+            if ((bytesToRead == -1) || (bytesToRead > sbc.size())) {
+                bytesToRead = (int) sbc.size();
+            }
+            ByteBuffer byteBuffer = ByteBuffer.allocate(bytesToRead);
+            nRead = sbc.read(byteBuffer);
+            data = byteBuffer.array();
+        } catch (NonReadableChannelException e) {
+            throw new BallerinaException("file is not opened in read mode: " + e.getMessage(), e);
+        } catch (IOException e) {
             throw new BallerinaException("failed to read from file: " + e.getMessage(), e);
         }
-        return getBValues(new BBlob(Arrays.copyOf(data, nRead)), new BInteger(nRead));
+        return getBValues(new BBlob(data), new BInteger(nRead));
     }
 }

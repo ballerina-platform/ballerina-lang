@@ -27,16 +27,16 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Copies a file from a given location to another.
@@ -58,80 +58,65 @@ import java.io.OutputStream;
         value = "The location where the File should be pasted") })
 public class Copy extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Copy.class);
-    
     @Override
     public BValue[] execute(Context context) {
 
         BStruct source = (BStruct) getRefArgument(context, 0);
         BStruct destination = (BStruct) getRefArgument(context, 1);
 
-        File sourceFile = new File(source.getStringField(0));
-        File destinationFile = new File(destination.getStringField(0));
+        Path sourcePath = Paths.get(source.getStringField(0));
+        Path destinationPath = Paths.get(destination.getStringField(0));
 
-        if (!sourceFile.exists()) {
-            throw new BallerinaException("failed to copy file: file not found: " + sourceFile.getPath());
+        if (!Files.exists(sourcePath)) {
+            throw new BallerinaException("failed to copy file: file not found: " + sourcePath);
         }
-        File parent = destinationFile.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            throw new BallerinaException("failed to copy file: cannot create directory: " + parent.getPath());
+
+        Path parent = destinationPath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new BallerinaException("failed to copy file: cannot create directory: " + parent);
+            }
         }
-        if (!copy(sourceFile, destinationFile)) {
-            throw new BallerinaException("failed to copy file: " + sourceFile.getPath());
+
+        try {
+            Files.walkFileTree(sourcePath, new CopyDirVisitor(sourcePath, destinationPath,
+                                                              new CopyOption[] { StandardCopyOption.REPLACE_EXISTING,
+                                                                                 StandardCopyOption.COPY_ATTRIBUTES }));
+        } catch (IOException e) {
+            throw new BallerinaException("failed to copy file: " + sourcePath);
         }
 
         return VOID_RETURN;
     }
 
-    private boolean copy(File src, File dest) {
+    private static class CopyDirVisitor extends SimpleFileVisitor<Path> {
+        private final Path fromPath;
+        private final Path toPath;
+        private final CopyOption[] copyOptions;
 
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            if (src.isDirectory()) {
-                if (!dest.exists() && !dest.mkdir()) {
-                    return false;
-                }
-                String files[] = src.list();
-                if (files == null) {
-                    return false;
-                }
-                for (String file : files) {
-                    File srcFile = new File(src, file);
-                    File destFile = new File(dest, file);
-                    //recursive copy
-                    if (!copy(srcFile, destFile)) {
-                        return false;
-                    }
-                }
-            } else {
-                in = new FileInputStream(src);
-                out = new FileOutputStream(dest);
-                byte[] buffer = new byte[1024];
-                int length;
+        private CopyDirVisitor(Path fromPath, Path toPath, CopyOption[] copyOptions) {
+            this.fromPath = fromPath;
+            this.toPath = toPath;
+            this.copyOptions = copyOptions;
+        }
 
-                while ((length = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, length);
-                }
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetPath = toPath.resolve(fromPath.relativize(dir));
+            if (!Files.exists(targetPath)) {
+                Files.createDirectory(targetPath);
             }
-            return true;
-        } catch (IOException e) {
-            throw new BallerinaException("failed to copy file: " + e.getMessage(), e);
-        } finally {
-            if (in != null) {
-                closeQuietly(in);
-            }
-            if (out != null) {
-                closeQuietly(out);
-            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, toPath.resolve(fromPath.relativize(file)), copyOptions);
+            return FileVisitResult.CONTINUE;
         }
     }
 
-    private void closeQuietly(Closeable resource) {
-        try {
-            resource.close();
-        } catch (IOException e) {
-            logger.error("Exception during Resource.close()", e);
-        }
-    }
 }

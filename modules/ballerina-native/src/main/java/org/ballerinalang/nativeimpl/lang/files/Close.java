@@ -26,13 +26,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
 
 /**
  * Can be used to close a file object.
@@ -55,20 +54,14 @@ public class Close extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BStruct struct = (BStruct) getRefArgument(context, 0);
-        BufferedInputStream is = (BufferedInputStream) struct.getNativeData("inStream");
-        BufferedOutputStream os = (BufferedOutputStream) struct.getNativeData("outStream");
-        closeQuietly(is);
-        closeQuietly(os);
-        return VOID_RETURN;
-    }
-
-    private void closeQuietly(Closeable resource) {
+        SeekableByteChannel channel = (SeekableByteChannel) struct.getNativeData("channel");
         try {
-            if (resource != null) {
-                resource.close();
+            if (channel != null) {
+                channel.close();
             }
         } catch (IOException e) {
-            log.error("Exception during Resource.close()", e);
+            throw new BallerinaException("failed to close file: " + e.getMessage(), e);
         }
+        return VOID_RETURN;
     }
 }
