@@ -54,17 +54,37 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         String serviceUrl = "http://localhost:9094/echo";
-        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
+        String requestMsg = "{\"key\":\"value\"}";
+        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
         if (response == null) {
             //Retrying to avoid intermittent test failure
-            response = HttpClientRequest.doPost(serviceUrl, requestMessage, headers);
+            response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
         }
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        String respMsg = "hello world";
+        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+    }
+
+    @Test(description = "Test echo service with dynamic port shared")
+    public void testEchoServiceWithDynamicPortShared() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        String serviceUrl = "http://localhost:9094/echoOne/abc";
+        String requestMsg = "{\"key\":\"value\"}";
+        HttpResponse response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+        if (response == null) {
+            //Retrying to avoid intermittent test failure
+            response = HttpClientRequest.doPost(serviceUrl, requestMsg, headers);
+        }
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        String respMsg = "hello world";
+        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
     }
 
     @Test(description = "Test echo service with dynamic port and scheme https")
@@ -73,17 +93,38 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         String serviceUrl = "https://localhost:9095/echo";
         String serverHome = getServerInstance().getServerHome();
-        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
+        String requestMsg = "{\"key\":\"value\"}";
+        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
         if (response == null) {
             //Retrying to avoid intermittent test failure 
-            response = HttpsClientRequest.doPost(serviceUrl, requestMessage, headers, serverHome);
+            response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
         }
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        String respMsg = "hello world";
+        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
+    }
+
+    @Test(description = "Test echo service with dynamic port and scheme https with port shared")
+    public void testEchoServiceWithDynamicPortHttpsShared() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
+        String serviceUrl = "https://localhost:9095/echoOne/abc";
+        String serverHome = getServerInstance().getServerHome();
+        String requestMsg = "{\"key\":\"value\"}";
+        HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+        if (response == null) {
+            //Retrying to avoid intermittent test failure
+            response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
+        }
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        String respMsg = "hello world";
+        Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
     }
 
 
