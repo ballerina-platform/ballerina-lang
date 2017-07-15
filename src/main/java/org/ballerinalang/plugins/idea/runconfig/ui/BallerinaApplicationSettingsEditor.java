@@ -26,7 +26,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
-import com.intellij.ui.components.JBCheckBox;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.runconfig.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
@@ -49,13 +48,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     private LabeledComponent<RawCommandLineEditor> myParamsField;
     private LabeledComponent<TextFieldWithBrowseButton> myWorkingDirectoryField;
     private LabeledComponent<ModulesComboBox> myModulesComboBox;
-    private LabeledComponent<JBCheckBox> myRemoteDebuggingEnabled;
-    private JPanel myRemoteDebuggingPanel;
-    private LabeledComponent<EditorTextField> myHost;
-    private LabeledComponent<EditorTextField> myPort;
     private Project myProject;
-    private EditorTextField myHostField;
-    private EditorTextField myPortField;
 
     public BallerinaApplicationSettingsEditor(Project project) {
         myProject = project;
@@ -73,12 +66,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
 
         myModulesComboBox.getComponent().setModules(configuration.getValidModules());
         myModulesComboBox.getComponent().setSelectedModule(configuration.getConfigurationModule().getModule());
-
-        myRemoteDebuggingEnabled.getComponent().setSelected(configuration.isRemoteDebuggingEnabled());
-        onRemoteDebuggingStateChanged();
-
-        myHost.getComponent().setText(configuration.getRemoteDebugHost());
-        myPort.getComponent().setText(configuration.getRemoteDebugPort());
 
         myParamsField.getComponent().setText(configuration.getParams());
         myWorkingDirectoryField.getComponent().setText(configuration.getWorkingDirectory());
@@ -99,9 +86,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         } else {
             myParamsField.setVisible(true);
         }
-        configuration.setRemoteDebuggingEnabled(myRemoteDebuggingEnabled.getComponent().isSelected());
-        configuration.setRemoteDebugHost(myHost.getComponent().getText());
-        configuration.setRemoteDebugPort(myPort.getComponent().getText());
     }
 
     @NotNull
@@ -129,21 +113,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
 
         myModulesComboBox = new LabeledComponent<>();
         myModulesComboBox.setComponent(new ModulesComboBox());
-
-        myRemoteDebuggingEnabled = new LabeledComponent<>();
-        JBCheckBox checkBox = new JBCheckBox();
-        checkBox.addActionListener(event -> onRemoteDebuggingStateChanged());
-        myRemoteDebuggingEnabled.setComponent(checkBox);
-
-        myHost = new LabeledComponent<>();
-        myHostField = new EditorTextField();
-        myHostField.setPreferredWidth(300);
-        myHost.setComponent(myHostField);
-
-        myPort = new LabeledComponent<>();
-        myPortField = new EditorTextField();
-        myPortField.setPreferredWidth(100);
-        myPort.setComponent(myPortField);
     }
 
     private static ListCellRendererWrapper<RunConfigurationKind> getRunKindListCellRendererWrapper() {
@@ -175,11 +144,5 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         }
         boolean isMainSelected = selectedKind == RunConfigurationKind.MAIN;
         myParamsField.setVisible(isMainSelected);
-    }
-
-    private void onRemoteDebuggingStateChanged() {
-        boolean selected = myRemoteDebuggingEnabled.getComponent().isSelected();
-        myHost.setEnabled(selected);
-        myPort.setEnabled(selected);
     }
 }

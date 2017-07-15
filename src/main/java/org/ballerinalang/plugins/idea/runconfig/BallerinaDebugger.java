@@ -34,8 +34,9 @@ import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import org.ballerinalang.plugins.idea.debugger.BallerinaDebugProcess;
 import org.ballerinalang.plugins.idea.debugger.BallerinaWebSocketConnector;
-import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationRunningState;
+import org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteConfiguration;
+import org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunningState;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,32 +67,38 @@ public class BallerinaDebugger extends GenericProgramRunner {
             BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
 
             int port = findFreePort();
-            FileDocumentManager.getInstance().saveAllDocuments();
 
-            if (!isRemoteDebuggingEnabled(env)) {
-                ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(historyProcessListener);
-                ((BallerinaApplicationRunningState) state).setDebugPort(port);
-            }
+            FileDocumentManager.getInstance().saveAllDocuments();
+            ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(historyProcessListener);
+            ((BallerinaApplicationRunningState) state).setDebugPort(port);
 
             return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
 
                 @NotNull
                 @Override
                 public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
-                    if (isRemoteDebuggingEnabled(env)) {
-                        // Get the remote host address.
-                        String address = getRemoteAddress(env);
-                        // Create a new connector. This will be used to communicate with the debugger.
-                        BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
-                        return new BallerinaDebugProcess(session, ballerinaDebugSession, null);
-                    } else {
-                        // Get the host address.
-                        String address = NetUtils.getLocalHostString() + ":" + port;
-                        // Create a new connector. This will be used to communicate with the debugger.
-                        BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
-                        return new BallerinaDebugProcess(session, ballerinaDebugSession,
-                                getExecutionResults(state, env));
+                    // Get the host address.
+                    String address = NetUtils.getLocalHostString() + ":" + port;
+                    // Create a new connector. This will be used to communicate with the debugger.
+                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    return new BallerinaDebugProcess(session, ballerinaDebugSession, getExecutionResults(state, env));
+                }
+            }).getRunContentDescriptor();
+        } else if (state instanceof BallerinaRemoteRunningState) {
+            FileDocumentManager.getInstance().saveAllDocuments();
+            return XDebuggerManager.getInstance(env.getProject()).startSession(env, new XDebugProcessStarter() {
+
+                @NotNull
+                @Override
+                public XDebugProcess start(@NotNull XDebugSession session) throws ExecutionException {
+                    // Get the remote host address.
+                    String address = getRemoteAddress(env);
+                    if (address == null || address.isEmpty()) {
+                        throw new ExecutionException("Invalid remote address.");
                     }
+                    // Create a new connector. This will be used to communicate with the debugger.
+                    BallerinaWebSocketConnector ballerinaDebugSession = new BallerinaWebSocketConnector(address);
+                    return new BallerinaDebugProcess(session, ballerinaDebugSession, null);
                 }
             }).getRunContentDescriptor();
         }
@@ -108,36 +115,27 @@ public class BallerinaDebugger extends GenericProgramRunner {
         return executionResult;
     }
 
-    private boolean isRemoteDebuggingEnabled(@NotNull ExecutionEnvironment env) {
-        RunnerAndConfigurationSettings runnerAndConfigurationSettings = env.getRunnerAndConfigurationSettings();
-        if (runnerAndConfigurationSettings == null) {
-            return false;
-        }
-        RunConfiguration configurationSettings = runnerAndConfigurationSettings.getConfiguration();
-        if (configurationSettings instanceof BallerinaApplicationConfiguration) {
-            BallerinaApplicationConfiguration applicationConfiguration =
-                    (BallerinaApplicationConfiguration) configurationSettings;
-            if (applicationConfiguration.isRemoteDebuggingEnabled()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    @Nullable
     private String getRemoteAddress(@NotNull ExecutionEnvironment env) {
         RunnerAndConfigurationSettings runnerAndConfigurationSettings = env.getRunnerAndConfigurationSettings();
         if (runnerAndConfigurationSettings == null) {
-            return "";
+            return null;
         }
         RunConfiguration configurationSettings = runnerAndConfigurationSettings.getConfiguration();
-        if (configurationSettings instanceof BallerinaApplicationConfiguration) {
-            BallerinaApplicationConfiguration applicationConfiguration =
-                    (BallerinaApplicationConfiguration) configurationSettings;
+        if (configurationSettings instanceof BallerinaRemoteConfiguration) {
+            BallerinaRemoteConfiguration applicationConfiguration =
+                    (BallerinaRemoteConfiguration) configurationSettings;
             String remoteDebugHost = applicationConfiguration.getRemoteDebugHost();
+            if (remoteDebugHost.isEmpty()) {
+                return null;
+            }
             String remoteDebugPort = applicationConfiguration.getRemoteDebugPort();
+            if (remoteDebugPort.isEmpty()) {
+                return null;
+            }
             return remoteDebugHost + ":" + remoteDebugPort;
         }
-        return "";
+        return null;
     }
 
     private static int findFreePort() {
