@@ -40,7 +40,7 @@ public abstract class BallerinaCompletionTestBase extends BallerinaCodeInsightFi
                        @Nullable Character c, String... expectedLookups) {
         PsiFile testFile = myFixture.addFileToProject(relativePath, before);
         myFixture.configureFromExistingVirtualFile(testFile.getVirtualFile());
-        myFixture.completeBasic();
+        myFixture.complete(CompletionType.BASIC, 0);
         if (c != null) {
             myFixture.type(c);
         }

@@ -18,17 +18,14 @@ package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReferenceBase;
-import com.intellij.psi.ResolveResult;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode>
-        implements PsiPolyVariantReference {
+public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode> {
 
     public BallerinaElementReference(@NotNull IdentifierPSINode element) {
         /** WARNING: You must send up the text range or you get this error:
@@ -53,10 +50,6 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
      */
     @Override
     public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
-        //		System.out.println(getClass().getSimpleName()+".handleElementRename("+myElement.getName()
-        // +"->"+newElementName+
-        //			                   ") on "+myElement+" at "+Integer.toHexString(myElement.hashCode()));
-
         return myElement.setName(newElementName);
     }
 
@@ -68,25 +61,10 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
     @Nullable
     @Override
     public PsiElement resolve() {
-        //		System.out.println(getClass().getSimpleName()+
-        //		                   ".resolve("+myElement.getName()+
-        //		                   " at "+Integer.toHexString(myElement.hashCode())+")");
         ScopeNode scope = (ScopeNode) myElement.getContext();
         if (scope == null) {
             return null;
         }
         return scope.resolve(myElement);
     }
-
-    @NotNull
-    @Override
-    public ResolveResult[] multiResolve(boolean incompleteCode) {
-        return new ResolveResult[0];
-    }
-
-    /**
-     * Is the targeted def a subtree associated with this ref's kind of node?
-     * E.g., for a variable def, this should return true for VardefSubtree.
-     */
-    public abstract boolean isDefinitionNode(PsiElement def);
 }

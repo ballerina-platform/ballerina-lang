@@ -19,15 +19,12 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
+public class ConnectorBodyNode extends ANTLRPsiNode implements VariableContainer {
 
     public ConnectorBodyNode(@NotNull ASTNode node) {
         super(node);
@@ -36,18 +33,6 @@ public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof NameReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier");
-        } else if (element.getParent() instanceof PackageNameNode) {
-            // todo - check and remove
-            return BallerinaPsiImplUtil.findPackageNameReference(element);
-        } else if (element.getParent() instanceof TypeNameNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
-        }
         return null;
     }
 }
