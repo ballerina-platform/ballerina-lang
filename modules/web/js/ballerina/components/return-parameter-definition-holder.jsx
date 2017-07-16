@@ -17,7 +17,8 @@
  */
 import React from 'react';
 import TagController from './utils/tag-component';
-import { getComponentForNodeArray } from './utils';
+import {getComponentForNodeArray} from './utils';
+import FragmentUtils from './../utils/fragment-utils';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -36,11 +37,11 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { environment } = this.context;
+        const {environment} = this.context;
         const dropdownData = [];
         const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
+            dropdownData.push({id: bType, text: bType});
         });
 
         return dropdownData;
@@ -52,30 +53,28 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * @return {boolean} true||false
      * */
     addReturnParameter(input) {
+        const fragment = FragmentUtils.createReturnParameterFragment(input);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
         const model = this.props.model;
-        const splitedExpression = input.split(' ');
 
-        const parameterDef = model.getFactory().createParameterDefinition();
-        const bType = splitedExpression[0];
-        if (this.validateType(bType)) {
-            parameterDef.setTypeName(bType);
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
+                let parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                parameterDefinition.initFromJson(parsedJson);
+                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                    this.props.model.addChild(parameterDefinition);
+                    return true;
+                } else {
+                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                    Alerts.error(errorString);
+                    return false;
+                }
+            }
         } else {
-            const errorString = `Incorrect Variable Type: ${bType}`;
+            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
             Alerts.error(errorString);
             return false;
         }
-
-        if (!_.isNil(splitedExpression[1])) {
-            parameterDef.setName(splitedExpression[1]);
-            if (this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
-                const errorString = `Variable Already exists: ${splitedExpression[1]}`;
-                Alerts.error(errorString);
-                return false;
-            }
-        }
-
-        this.props.model.addChild(parameterDef);
-        return true;
     }
 
     /**

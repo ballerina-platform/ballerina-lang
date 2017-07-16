@@ -22,6 +22,20 @@ class FragmentUtils {
         };
     }
 
+    static createArgumentParameterFragment(sourceString) {
+        return {
+            expectedNodeType: 'argument_parameter_definitions',
+            source: sourceString
+        }
+    }
+
+    static createReturnParameterFragment(sourceString) {
+        return {
+            expectedNodeType: 'return_parameter_definitions',
+            source: sourceString
+        }
+    }
+
     static parseFragment(fragment) {
         let data = {};
         $.ajax({
@@ -36,7 +50,7 @@ class FragmentUtils {
                 data = response;
             },
             error() {
-                data = { error: 'Unable to call fragment parser Backend.' };
+                data = {error: 'Unable to call fragment parser Backend.'};
             },
         });
         return data;
