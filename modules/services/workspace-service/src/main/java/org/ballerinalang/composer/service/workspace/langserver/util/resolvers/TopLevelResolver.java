@@ -56,8 +56,8 @@ public class TopLevelResolver extends AbstractItemResolver {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
-        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        item.setSortText(ItemResolverConstants.PRIORITY_4);
+        item.setDetail(ItemResolverConstants.SNIPPET_TYPE);
+        item.setSortText(ItemResolverConstants.PRIORITY_7);
         completionItems.add(item);
     }
 }

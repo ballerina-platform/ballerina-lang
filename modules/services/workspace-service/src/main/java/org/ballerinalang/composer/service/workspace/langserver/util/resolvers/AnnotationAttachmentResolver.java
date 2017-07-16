@@ -27,6 +27,7 @@ import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilter
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +76,12 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
                 importItem.setInsertText(insertText + "{${1}}");
             }
             importItem.setDetail(ItemResolverConstants.ANNOTATION_TYPE);
-            importItem.setSortText(ItemResolverConstants.PRIORITY_4);
+            importItem.setSortText(ItemResolverConstants.PRIORITY_6);
             return importItem;
         }).collect(Collectors.toList());
 
         ArrayList<CompletionItem> list = new ArrayList<>();
+        collect.sort(Comparator.comparing(CompletionItem::getLabel));
         list.addAll(collect);
         return list;
     }

@@ -39,14 +39,21 @@ public class ServiceContextResolver extends AbstractItemResolver {
             // Add resource
             CompletionItem resource = new CompletionItem();
             resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
-            resource.setInsertText("resource ${1:name} (message ${2:m}){\n    ${3}\n}");
-            resource.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+            resource.setInsertText(ItemResolverConstants.RESOURCE_TEMPLATE);
+            resource.setDetail(ItemResolverConstants.SNIPPET_TYPE);
             resource.setSortText(ItemResolverConstants.PRIORITY_7);
             completionItems.add(resource);
         }
 
         // Add annotations
         completionItems.addAll(resolvers.get(AnnotationAttachment.class).resolveItems(dataModel, symbols, resolvers));
+
+        HashMap<String, Integer> prioritiesMap = new HashMap<>();
+        prioritiesMap.put(ItemResolverConstants.RESOURCE_TYPE, ItemResolverConstants.PRIORITY_7);
+        prioritiesMap.put(ItemResolverConstants.ANNOTATION_TYPE, ItemResolverConstants.PRIORITY_6);
+        prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_5);
+        prioritiesMap.put(ItemResolverConstants.B_TYPE, ItemResolverConstants.PRIORITY_4);
+        this.assignItemPriorities(prioritiesMap, completionItems);
 
         return completionItems;
     }

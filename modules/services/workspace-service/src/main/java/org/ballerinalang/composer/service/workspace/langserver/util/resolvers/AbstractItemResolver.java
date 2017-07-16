@@ -28,6 +28,7 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
@@ -69,6 +70,8 @@ public abstract class AbstractItemResolver {
                 this.populateVariableDefCompletionItem(completionItem, symbolInfo);
             } else if ((symbolInfo.getSymbol() instanceof StructDef)) {
                 this.populateStructDefCompletionItem(completionItem, symbolInfo);
+            } else if (symbolInfo.getSymbol() instanceof BType) {
+                this.populateBTypeCompletionItem(completionItem, symbolInfo);
             }
             completionItems.add(completionItem);
         });
@@ -138,6 +141,15 @@ public abstract class AbstractItemResolver {
         completionItem.setLabel(((StructDef) symbolInfo.getSymbol()).getName());
         completionItem.setDetail(ItemResolverConstants.STRUCT_TYPE);
         completionItem.setSortText(ItemResolverConstants.PRIORITY_6);
+    }
+
+    /**
+     * Populate the BType Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
+    void populateBTypeCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setDetail(ItemResolverConstants.B_TYPE);
     }
 
 
@@ -328,4 +340,16 @@ public abstract class AbstractItemResolver {
         return -1;
     }
 
+    /**
+     * Assign the Priorities to the completion items
+     * @param itemPriorityMap - Map of item priorities against the Item type
+     * @param completionItems - list of completion items
+     */
+    public void assignItemPriorities(HashMap<String, Integer> itemPriorityMap, List<CompletionItem> completionItems) {
+        completionItems.forEach(completionItem -> {
+            if (itemPriorityMap.containsKey(completionItem.getDetail())) {
+                completionItem.setSortText(itemPriorityMap.get(completionItem.getDetail()));
+            }
+        });
+    }
 }

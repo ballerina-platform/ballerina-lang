@@ -23,6 +23,7 @@ import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionIte
 import org.ballerinalang.composer.service.workspace.langserver.util.filters.PackageActionAndFunctionFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.filters.StatementTemplateFilter;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
@@ -36,18 +37,32 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
 
+        HashMap<String, Integer> prioritiesMap = new HashMap<>();
+
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         if (isActionOrFunctionInvocationStatement(dataModel)) {
             PackageActionAndFunctionFilter actionAndFunctionFilter = new PackageActionAndFunctionFilter();
-            return actionAndFunctionFilter
+
+            ArrayList<CompletionItem> completionItems = actionAndFunctionFilter
                     .getCompletionItems(actionAndFunctionFilter.filterItems(dataModel, symbols, null));
+
+            prioritiesMap.put(ItemResolverConstants.FUNCTION_TYPE, ItemResolverConstants.PRIORITY_7);
+            prioritiesMap.put(ItemResolverConstants.ACTION_TYPE, ItemResolverConstants.PRIORITY_6);
+            this.assignItemPriorities(prioritiesMap, completionItems);
+
+            return completionItems;
         } else {
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
             populateCompletionItemList(symbols, completionItems);
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             completionItems.addAll(statementTemplateFilter.filterItems(dataModel, symbols, null));
+
+            prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_6);
+            prioritiesMap.put(ItemResolverConstants.STATEMENT_TYPE, ItemResolverConstants.PRIORITY_5);
+            this.assignItemPriorities(prioritiesMap, completionItems);
+
             return completionItems;
         }
     }
