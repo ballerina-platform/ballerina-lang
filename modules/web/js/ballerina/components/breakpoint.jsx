@@ -98,10 +98,6 @@ Breakpoint.propTypes = {
 
 Breakpoint.defaultProps = {
     isBreakpoint: false,
-};
-
-Breakpoint.defaultProps = {
-    isBreakpoint: false,
     onClick: () => {},
 };
 

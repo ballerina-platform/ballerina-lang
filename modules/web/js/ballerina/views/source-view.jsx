@@ -12,7 +12,8 @@ import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
 import { FORMAT } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
-import BallerinaASTDeserializer  from './../ast/ballerina-ast-deserializer';
+import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
+import debuggerHOC from '../../debugger/debugger-hoc';
 
 import 'brace';
 import 'brace/ext/language_tools';
@@ -108,6 +109,26 @@ class SourceView extends React.Component {
                     this.replaceContent(evt.newContent, true);
                 }
             });
+
+            editor.on('guttermousedown', (e) => {
+                const target = e.domEvent.target;
+                if (target.className.indexOf('ace_gutter-cell') === -1) {
+                    return;
+                }
+                if (!editor.isFocused()) {
+                    return;
+                }
+
+                const row = e.getDocumentPosition().row;
+                const breakpoints = e.editor.session.getBreakpoints(row, 0);
+                if (!breakpoints[row]) {
+                    this.props.addBreakpoint(row + 1);
+                    e.editor.session.setBreakpoint(row);
+                } else {
+                    this.props.removeBreakpoint(row + 1);
+                    e.editor.session.clearBreakpoint(row);
+                }
+            });
         }
     }
 
@@ -136,7 +157,7 @@ class SourceView extends React.Component {
      * @param {*} newContent content to insert
      */
     replaceContent (newContent, skipFileUpdate) {
-        if (skipFileUpdate) {  
+        if (skipFileUpdate) {
             this.skipFileUpdate = true;
         }
         const session = this.editor.getSession();
@@ -145,7 +166,7 @@ class SourceView extends React.Component {
         session.replace(contentRange, newContent);
     }
 
-    shouldComponentUpdate () {
+    shouldComponentUpdate() {
         // update ace editor - https://github.com/ajaxorg/ace/issues/1245
         this.editor.resize(true);
         // keep this component unaffected from react re-render
@@ -221,16 +242,38 @@ class SourceView extends React.Component {
                 })
                 .catch(error => log.error(error));
         }
+
+        const { debugHit, sourceViewBreakpoints } = nextProps;
+        if (debugHit > 0) {
+            if (this.debugPointMarker) {
+                this.editor.getSession().removeMarker(this.debugPointMarker);
+            }
+            this.debugPointMarker = this.editor.getSession().addMarker(
+                new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
+        }
+        if (!debugHit && this.debugPointMarker) {
+            this.editor.getSession().removeMarker(this.debugPointMarker);
+        }
+
+        this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
 
 SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired
+    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
+    addBreakpoint: PropTypes.func.isRequired,
+    removeBreakpoint: PropTypes.func.isRequired,
+    debugHit: PropTypes.number,
+};
+
+SourceView.defaultProps = {
+    debugHit: null,
 };
 
 SourceView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default SourceView;
+export default debuggerHOC(SourceView);
