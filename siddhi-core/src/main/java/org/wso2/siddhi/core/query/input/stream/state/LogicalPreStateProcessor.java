@@ -82,6 +82,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
         clonedEvent.setEvent(stateId, null);
         newAndEveryStateEventList.add(clonedEvent);
         if (partnerStatePreProcessor != null) {
+            clonedEvent.setEvent(partnerStatePreProcessor.stateId, null);
             partnerStatePreProcessor.newAndEveryStateEventList.add(clonedEvent);
         }
     }
