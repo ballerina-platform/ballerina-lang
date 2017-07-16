@@ -68,13 +68,18 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
                 workerItem.setLabel(ItemResolverConstants.WORKER);
                 workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
                 workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-                workerItem.setSortText(ItemResolverConstants.PRIORITY_7);
+                workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
                 completionItems.add(workerItem);
 
                 completionItems
                         .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
             }
         }
+
+        HashMap<String, Integer> prioritiesMap = new HashMap<>();
+        prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_7);
+        prioritiesMap.put(ItemResolverConstants.B_TYPE, ItemResolverConstants.PRIORITY_6);
+        this.assignItemPriorities(prioritiesMap, completionItems);
 
         return completionItems;
     }

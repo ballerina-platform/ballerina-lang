@@ -24,6 +24,7 @@ import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.It
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -141,6 +142,8 @@ public class StatementTemplateFilter implements SymbolFilter {
         abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
         abortItem.setSortText(ItemResolverConstants.PRIORITY_6);
         completionItems.add(abortItem);
+
+        completionItems.sort(Comparator.comparing(CompletionItem::getLabel));
 
         return completionItems;
     }

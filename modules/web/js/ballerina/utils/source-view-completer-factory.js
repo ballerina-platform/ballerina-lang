@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from 'lodash';
 /**
  * Class to represent source view completer factory
  */
@@ -48,14 +49,17 @@ class CompleterFactory {
                     packageName: fileData.packageName,
                 };
                 langserverController.getCompletions(options, (response) => {
-                    response.result.map((completionItem) => {
+                    const sortedArr = _.orderBy(response.result, ['sortText'], ['desc']);
+                    let score = sortedArr.length;
+                    sortedArr.map((completionItem) => {
                         completions.push(
                             {
                                 caption: completionItem.label,
                                 snippet: completionItem.insertText,
                                 meta: completionItem.detail,
-                                score: completionItem.sortText,
+                                score: 100 + (score || 0),
                             });
+                        score--;
                     });
                     callback(null, completions);
                 });
