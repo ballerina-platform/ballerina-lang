@@ -93,8 +93,7 @@ public class BLangVMWorkers {
         @Override
         public WorkerResult call() throws BallerinaException {
             BRefValueArray bRefValueArray = new BRefValueArray(new BArrayType(BTypes.typeAny));
-            bLangVM.execWorker(bContext,
-                    workerInfo.getCodeAttributeInfo().getCodeAddrs(), workerInfo.getWorkerEndIP());
+            bLangVM.execWorker(bContext, workerInfo.getCodeAttributeInfo().getCodeAddrs());
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);

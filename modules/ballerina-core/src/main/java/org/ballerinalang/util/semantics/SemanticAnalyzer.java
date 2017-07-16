@@ -153,6 +153,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
  *
@@ -242,7 +244,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BallerinaFunction.BallerinaFunctionBuilder functionBuilder =
                 new BallerinaFunction.BallerinaFunctionBuilder(bLangPackage);
         functionBuilder.setNodeLocation(pkgLocation);
-        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + ".<init>"));
+        functionBuilder.setIdentifier(new Identifier(bLangPackage.getPackagePath() + INIT_FUNCTION_SUFFIX));
         functionBuilder.setPkgPath(bLangPackage.getPackagePath());
         pkgInitFuncStmtBuilder = new BlockStmt.BlockStmtBuilder(bLangPackage.getNodeLocation(),
                 bLangPackage);

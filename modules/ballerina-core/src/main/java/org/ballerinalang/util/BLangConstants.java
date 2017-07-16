@@ -15,19 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util;
 
 /**
- * {@code AttributeInfo} contains metadata of a construct in Ballerina.
+ * This file contains a list of constant values used by Ballerina Compiler and the Bytecode interpreter.
  *
- * // TODO Improve this explanation
- *
- * @since 0.87
+ * @since 0.90
  */
-public interface AttributeInfo {
+public class BLangConstants {
 
-    String CODE_ATTRIBUTE = "CodeAttribute";
-    String ANNOTATIONS_ATTRIBUTE = "AnnotationsAttribute";
-    String PARAMETER_ANNOTATIONS_ATTRIBUTE = "ParameterAnnotationsAttribute";
-    String LOCAL_VARIABLES_ATTRIBUTE = "LocalVariableAttribute";
+    public static final String INIT_FUNCTION_SUFFIX = ".<init>";
+
+    // int, float, string, boolean, blob, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    public static final int INT_OFFSET = 0;
+    public static final int FLOAT_OFFSET = 1;
+    public static final int STRING_OFFSET = 2;
+    public static final int BOOL_OFFSET = 3;
+    public static final int BLOB_OFFSET = 4;
+    public static final int REF_OFFSET = 5;
 }

@@ -61,7 +61,7 @@ public class EnvironmentInitializer {
 
         for (String servicePackageName : programFile.getServicePackageNameList()) {
             PackageInfo packageInfo = programFile.getPackageInfo(servicePackageName);
-            for (ServiceInfo service : packageInfo.getServiceInfoList()) {
+            for (ServiceInfo service : packageInfo.getServiceInfoEntries()) {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
                     dispatcher.serviceUnregistered(service);
                 });

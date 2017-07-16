@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -25,36 +25,49 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class AnnotationAttachmentInfo {
-
-    protected String pkgPath;
-    protected String name;
+public class AnnAttachmentInfo {
 
     protected int pkgPathCPIndex;
+    protected String pkgPath;
+
     protected int nameCPIndex;
+    protected String name;
 
-    private Map<String, AnnotationAttributeValue> attributeValueMap = new HashMap<>();
+    private Map<String, AnnAttributeKeyValuePair> attributeValueMap = new LinkedHashMap<>();
 
-    public AnnotationAttachmentInfo(String pkgPath, int pkgPathCPIndex, String name, int nameCPIndex) {
-        this.pkgPath = pkgPath;
+    public AnnAttachmentInfo(int pkgPathCPIndex, String pkgPath, int nameCPIndex, String name) {
         this.pkgPathCPIndex = pkgPathCPIndex;
-        this.name = name;
+        this.pkgPath = pkgPath;
         this.nameCPIndex = nameCPIndex;
+        this.name = name;
     }
 
-    public void addAnnotationAttribute(String name, AnnotationAttributeValue attributeValue) {
-        attributeValueMap.put(name, attributeValue);
-    }
-
-    public AnnotationAttributeValue getAnnotationAttributeValue(String name) {
-        return attributeValueMap.get(name);
+    public int getPkgPathCPIndex() {
+        return pkgPathCPIndex;
     }
 
     public String getPkgPath() {
         return pkgPath;
     }
 
+    public int getNameCPIndex() {
+        return nameCPIndex;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void addAttributeValue(int nameCPIndex, String name, AnnAttributeValue attributeValue) {
+        attributeValueMap.put(name, new AnnAttributeKeyValuePair(nameCPIndex, name, attributeValue));
+    }
+
+    public AnnAttributeValue getAttributeValue(String name) {
+        AnnAttributeKeyValuePair keyValuePair = attributeValueMap.get(name);
+        return keyValuePair != null ? keyValuePair.getAttributeValue() : null;
+    }
+
+    public AnnAttributeKeyValuePair[] getAttributeKeyValuePairs() {
+        return attributeValueMap.values().toArray(new AnnAttributeKeyValuePair[0]);
     }
 }

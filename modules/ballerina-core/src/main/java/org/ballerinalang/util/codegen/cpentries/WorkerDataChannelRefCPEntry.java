@@ -59,7 +59,8 @@ public class WorkerDataChannelRefCPEntry implements ConstantPoolEntry {
     }
 
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_FUNCTION_REF;
+        // TODO
+        return EntryType.CP_ENTRY_WORKER_INVOKE;
     }
 
     @Override

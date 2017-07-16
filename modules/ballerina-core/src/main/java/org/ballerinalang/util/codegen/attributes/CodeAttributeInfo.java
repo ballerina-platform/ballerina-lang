@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util.codegen.attributes;
 
 /**
  * {@code CodeAttributeInfo} contains bytecode instructions of an callable unit in Ballerina .
@@ -26,7 +26,6 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
-
 
     private int maxLongLocalVars;
     private int maxDoubleLocalVars;
@@ -46,10 +45,6 @@ public class CodeAttributeInfo implements AttributeInfo {
 
     // Base code address in the instruction array
     private int codeAddrs = -1;
-
-    public int getAttributeNameIndex() {
-        return attributeNameIndex;
-    }
 
     public void setAttributeNameIndex(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;
@@ -91,7 +86,7 @@ public class CodeAttributeInfo implements AttributeInfo {
         return maxBValueLocalVars;
     }
 
-    public void setMaxBValueLocalVars(int maxBValueLocalVars) {
+    public void setMaxRefLocalVars(int maxBValueLocalVars) {
         this.maxBValueLocalVars = maxBValueLocalVars;
     }
 
@@ -131,7 +126,7 @@ public class CodeAttributeInfo implements AttributeInfo {
         return maxBValueRegs;
     }
 
-    public void setMaxBValueRegs(int maxBValueRegs) {
+    public void setMaxRefRegs(int maxBValueRegs) {
         this.maxBValueRegs = maxBValueRegs;
     }
 
@@ -158,4 +153,15 @@ public class CodeAttributeInfo implements AttributeInfo {
     public void setMaxByteRegs(int maxByteRegs) {
         this.maxByteRegs = maxByteRegs;
     }
+
+    @Override
+    public Kind getKind() {
+        return Kind.CODE_ATTRIBUTE;
+    }
+
+    @Override
+    public int getAttributeNameIndex() {
+        return attributeNameIndex;
+    }
+
 }

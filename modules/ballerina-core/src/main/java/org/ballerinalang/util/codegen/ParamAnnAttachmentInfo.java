@@ -26,16 +26,16 @@ import java.util.List;
  *
  * @since 0.87
  */
-public class ParamAnnotationAttachmentInfo {
+public class ParamAnnAttachmentInfo {
     private int paramIdex;
 
-    private List<AnnotationAttachmentInfo> attachmentList = new ArrayList<>();
+    private List<AnnAttachmentInfo> attachmentList = new ArrayList<>();
 
-    public ParamAnnotationAttachmentInfo(int paramIdex) {
+    public ParamAnnAttachmentInfo(int paramIdex) {
         this.paramIdex = paramIdex;
     }
 
-    public void addAnnotationAttachmentInfo(AnnotationAttachmentInfo attachmentInfo) {
+    public void addAnnotationAttachmentInfo(AnnAttachmentInfo attachmentInfo) {
         attachmentList.add(attachmentInfo);
     }
 

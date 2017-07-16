@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
@@ -24,24 +25,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @since 0.87
+ * {@code GlobalVarInfo} represents a global variable or a constant in a compiled package.
+ *
+ * @since 0.90
  */
-public class StructureTypeInfo implements AttributeInfoPool {
-    protected int pkgPathCPIndex;
-    protected String packagePath;
+public class PackageVarInfo implements AttributeInfoPool {
 
-    protected int nameCPIndex;
-    protected String name;
+    private int nameCPIndex;
+    private String name;
 
-    private PackageInfo packageInfo;
+    private int signatureCPIndex;
+    private String typeSignature;
 
+    private BType type;
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public StructureTypeInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name) {
-        this.pkgPathCPIndex = pkgPathCPIndex;
-        this.packagePath = packagePath;
+    public PackageVarInfo(int nameCPIndex, String name, int signatureCPIndex, String typeSignature) {
         this.nameCPIndex = nameCPIndex;
         this.name = name;
+        this.signatureCPIndex = signatureCPIndex;
+        this.typeSignature = typeSignature;
     }
 
     public int getNameCPIndex() {
@@ -52,31 +55,30 @@ public class StructureTypeInfo implements AttributeInfoPool {
         return name;
     }
 
-    public String getPackagePath() {
-        return packagePath;
+    public int getSignatureCPIndex() {
+        return signatureCPIndex;
     }
 
-    public PackageInfo getPackageInfo() {
-        return packageInfo;
+    public String getTypeSignature() {
+        return typeSignature;
     }
 
-    protected void setPackageInfo(PackageInfo packageInfo) {
-        this.packageInfo = packageInfo;
-        // Update Cache values.
-//        name = ((UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex)).getValue();
+    public BType getType() {
+        return type;
     }
 
-    @Override
+    public void setType(BType type) {
+        this.type = type;
+    }
+
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
         return attributeInfoMap.get(attributeKind);
     }
 
-    @Override
     public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
         attributeInfoMap.put(attributeKind, attributeInfo);
     }
 
-    @Override
     public AttributeInfo[] getAttributeInfoEntries() {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }

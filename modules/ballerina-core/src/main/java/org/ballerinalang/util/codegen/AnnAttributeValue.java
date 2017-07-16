@@ -22,25 +22,51 @@ package org.ballerinalang.util.codegen;
  *
  * @since 0.87
  */
-public class AnnotationAttributeValue {
-    //    private BType attributeType;
-    private int typeTag;
+public class AnnAttributeValue {
+    private int typeDescCPIndex;
+    private String typeDesc;
 
+    private int valueCPIndex = -1;
     private long intValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
 
-    private AnnotationAttachmentInfo annotationAttachmentValue;
+    private AnnAttachmentInfo annotationAttachmentValue;
 
-    private AnnotationAttributeValue[] attributeValueArray;
+    private AnnAttributeValue[] attributeValueArray;
 
-    public int getTypeTag() {
-        return typeTag;
+    public AnnAttributeValue(int typeDescCPIndex, String typeDesc) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.typeDesc = typeDesc;
     }
 
-    public void setTypeTag(int typeTag) {
-        this.typeTag = typeTag;
+    public AnnAttributeValue(int typeDescCPIndex, String typeDesc, AnnAttachmentInfo annotationAttachmentValue) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.typeDesc = typeDesc;
+        this.annotationAttachmentValue = annotationAttachmentValue;
+    }
+
+    public AnnAttributeValue(int typeDescCPIndex, String typeDesc, AnnAttributeValue[] attributeValueArray) {
+        this.typeDescCPIndex = typeDescCPIndex;
+        this.typeDesc = typeDesc;
+        this.attributeValueArray = attributeValueArray;
+    }
+
+    public int getTypeDescCPIndex() {
+        return typeDescCPIndex;
+    }
+
+    public String getTypeDesc() {
+        return typeDesc;
+    }
+
+    public int getValueCPIndex() {
+        return valueCPIndex;
+    }
+
+    public void setValueCPIndex(int valueCPIndex) {
+        this.valueCPIndex = valueCPIndex;
     }
 
     public long getIntValue() {
@@ -67,7 +93,7 @@ public class AnnotationAttributeValue {
         this.stringValue = stringValue;
     }
 
-    public boolean isBooleanValue() {
+    public boolean getBooleanValue() {
         return booleanValue;
     }
 
@@ -75,19 +101,11 @@ public class AnnotationAttributeValue {
         this.booleanValue = booleanValue;
     }
 
-    public AnnotationAttachmentInfo getAnnotationAttachmentValue() {
+    public AnnAttachmentInfo getAnnotationAttachmentValue() {
         return annotationAttachmentValue;
     }
 
-    public void setAnnotationAttachmentValue(AnnotationAttachmentInfo annotationAttachmentValue) {
-        this.annotationAttachmentValue = annotationAttachmentValue;
-    }
-
-    public AnnotationAttributeValue[] getAttributeValueArray() {
+    public AnnAttributeValue[] getAttributeValueArray() {
         return attributeValueArray;
-    }
-
-    public void setAttributeValueArray(AnnotationAttributeValue[] valueArray) {
-        this.attributeValueArray = valueArray;
     }
 }

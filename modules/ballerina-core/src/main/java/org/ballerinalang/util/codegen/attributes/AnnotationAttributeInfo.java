@@ -15,7 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util.codegen;
+package org.ballerinalang.util.codegen.attributes;
+
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +29,30 @@ import java.util.List;
  */
 public class AnnotationAttributeInfo implements AttributeInfo {
 
-    private List<AnnotationAttachmentInfo> attachmentList = new ArrayList<>();
+    // Index to a UTF8CPEntry
+    private int attributeNameIndex;
 
-    public void addAnnotationAttachmentInfo(AnnotationAttachmentInfo attachmentInfo) {
+    private List<AnnAttachmentInfo> attachmentList = new ArrayList<>();
+
+    public AnnotationAttributeInfo(int attributeNameIndex) {
+        this.attributeNameIndex = attributeNameIndex;
+    }
+
+    public void addAttachmentInfo(AnnAttachmentInfo attachmentInfo) {
         attachmentList.add(attachmentInfo);
     }
 
-    public List<AnnotationAttachmentInfo> getAnnotationAttachmentInfo() {
-        return attachmentList;
+    public AnnAttachmentInfo[] getAttachmentInfoEntries() {
+        return attachmentList.toArray(new AnnAttachmentInfo[0]);
+    }
+
+    @Override
+    public Kind getKind() {
+        return Kind.ANNOTATIONS_ATTRIBUTE;
+    }
+
+    @Override
+    public int getAttributeNameIndex() {
+        return attributeNameIndex;
     }
 }

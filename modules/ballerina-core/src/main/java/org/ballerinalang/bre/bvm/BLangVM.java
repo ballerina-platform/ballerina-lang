@@ -69,20 +69,21 @@ import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
-import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -92,7 +93,7 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
@@ -144,7 +145,6 @@ public class BLangVM {
         this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
-    // TODO Remove
     private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
@@ -155,7 +155,7 @@ public class BLangVM {
 
     public void run(Context context) {
         StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPool();
+        this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = context;
@@ -168,7 +168,7 @@ public class BLangVM {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
-            this.constPool = controlStack.currentFrame.packageInfo.getConstPool();
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
             handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
                     calleeSF.returnValues, retTypes);
@@ -197,7 +197,7 @@ public class BLangVM {
         }
     }
 
-    public void execWorker(Context context, int startIP, int endIP) {
+    public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
         run(context);
     }
@@ -225,7 +225,7 @@ public class BLangVM {
 
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
 
         FunctionInfo functionInfo;
@@ -1323,15 +1323,15 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BBooleanArray();
                     break;
-                case InstructionCodes.RNEWARRAY:
-                    i = operands[0];
-                    cpIndex = operands[1];
-                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BRefValueArray(typeCPEntry.getType());
-                    break;
                 case InstructionCodes.LNEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BBlobArray();
+                    break;
+                case InstructionCodes.RNEWARRAY:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.JSONNEWARRAY:
                     i = operands[0];
@@ -1436,7 +1436,7 @@ public class BLangVM {
         int cpIndex; // Index of the constant pool
 
         BRefType bRefType;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
             case InstructionCodes.I2ANY:
@@ -1566,16 +1566,16 @@ public class BLangVM {
                 cpIndex = operands[1];
                 j = operands[2];
                 k = operands[3];
-                typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
+                } else if (checkCast(bRefType.getType(), typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
                     sf.refRegs[j] = null;
-                    handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
+                    handleTypeCastError(sf, k, bRefType.getType(), typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.NULL2JSON:
@@ -1887,7 +1887,7 @@ public class BLangVM {
         //todo below line number is a dummy line number - remove later
         FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
         LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
-                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
         if (localVarAttrInfo != null) {
             for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
@@ -1980,36 +1980,20 @@ public class BLangVM {
     }
 
     private void createNewConnector(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BConnector bConnector = new BConnector(structureTypeInfo.getType());
-        bConnector.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bConnector.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+        BConnector bConnector = new BConnector(connectorInfo.getType());
         sf.refRegs[i] = bConnector;
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BStruct bStruct = new BStruct(structureTypeInfo.getType());
-        bStruct.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bStruct.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
+        BStruct bStruct = new BStruct(structInfo.getType());
         sf.refRegs[i] = bStruct;
     }
 
@@ -2053,7 +2037,7 @@ public class BLangVM {
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
         // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
@@ -2398,7 +2382,7 @@ public class BLangVM {
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool();
+            this.constPool = callersSF.packageInfo.getConstPoolEntries();
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
@@ -2790,7 +2774,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
             sf.refRegs[j] = null;
@@ -2803,9 +2787,8 @@ public class BLangVM {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        BStructType structType = (BStructType) typeCPEntry.getType();
+        BStructType structType = (BStructType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
-        bStruct.init(structType.getFieldCount());
 
         Set<String> keys = bMap.keySet();
         for (BStructType.StructField structField : structType.getStructFields()) {
@@ -2877,7 +2860,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
             sf.refRegs[j] = null;
@@ -2885,12 +2868,12 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
-                    typeCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeCPEntry.getType().toString());
+                    typeRefCPEntry.getType() + "': " + e.getMessage();
+            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeRefCPEntry.getType().toString());
         }
     }
 
@@ -2944,7 +2927,7 @@ public class BLangVM {
         // match should be not null at this point.
         if (match != null) {
             PackageInfo packageInfo = currentFrame.packageInfo;
-            this.constPool = packageInfo.getConstPool();
+            this.constPool = packageInfo.getConstPoolEntries();
             this.code = packageInfo.getInstructions();
             ip = match.getIpTarget();
             return;

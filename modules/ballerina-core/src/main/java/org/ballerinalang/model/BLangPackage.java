@@ -209,7 +209,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     }
 
     @Override
-    public BLangSymbol resolve(SymbolName name) {
+    public BLangSymbol resolve(SymbolName name)     {
         if (name.getPkgPath() == null) {
             return resolve(symbolMap, name);
         }

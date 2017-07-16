@@ -17,6 +17,9 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.runtime.worker.WorkerDataChannel;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,28 +29,31 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class WorkerInfo {
+public class WorkerInfo implements AttributeInfoPool {
 
     private String workerName;
     private int workerNameCPIndex;
-    private int workerEndIP;
-
-    private CallableUnitInfo callableUnitInfo;
 
     private WorkerDataChannel workerDataChannelForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
 
-    private Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
+    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public WorkerInfo(String workerName, int workerNameCPIndex) {
+    public WorkerInfo(int workerNameCPIndex, String workerName) {
         this.workerName = workerName;
         this.workerNameCPIndex = workerNameCPIndex;
         this.codeAttributeInfo = new CodeAttributeInfo();
+
+        this.attributeInfoMap.put(AttributeInfo.Kind.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     public String getWorkerName() {
         return workerName;
+    }
+
+    public int getWorkerNameCPIndex() {
+        return workerNameCPIndex;
     }
 
     public CodeAttributeInfo getCodeAttributeInfo() {
@@ -56,14 +62,19 @@ public class WorkerInfo {
 
     public void setCodeAttributeInfo(CodeAttributeInfo codeAttributeInfo) {
         this.codeAttributeInfo = codeAttributeInfo;
+        this.attributeInfoMap.put(AttributeInfo.Kind.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
-    public AttributeInfo getAttributeInfo(String attributeName) {
-        return attributeInfoMap.get(attributeName);
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
     }
 
-    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeName, attributeInfo);
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
     public WorkerDataChannel getWorkerDataChannelForForkJoin() {
@@ -72,13 +83,5 @@ public class WorkerInfo {
 
     public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
         this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
-    }
-
-    public int getWorkerEndIP() {
-        return workerEndIP;
-    }
-
-    public void setWorkerEndIP(int workerEndIP) {
-        this.workerEndIP = workerEndIP;
     }
 }

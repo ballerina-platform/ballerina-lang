@@ -70,7 +70,7 @@ public class BLangProgramRunner {
                 throw new BLangRuntimeException("error: " + stackTraceStr);
             }
 
-            for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
+            for (ServiceInfo serviceInfo : packageInfo.getServiceInfoEntries()) {
                 // Invoke service init function
                 BLangFunctions.invokeFunction(programFile, packageInfo,
                         serviceInfo.getInitFunctionInfo(), bContext);

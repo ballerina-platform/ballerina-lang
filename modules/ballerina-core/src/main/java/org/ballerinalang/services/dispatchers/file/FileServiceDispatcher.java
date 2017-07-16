@@ -20,7 +20,7 @@ package org.ballerinalang.services.dispatchers.file;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -64,7 +64,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        AnnotationAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants.FILE_PACKAGE_NAME,
+        AnnAttachmentInfo annotationInfo = service.getAnnotationAttachmentInfo(Constants.FILE_PACKAGE_NAME,
                 Constants.ANNOTATION_FILE_SOURCE);
 
         if (annotationInfo != null) {
