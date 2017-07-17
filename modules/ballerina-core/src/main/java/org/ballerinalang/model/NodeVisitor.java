@@ -46,9 +46,11 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
+import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -59,6 +61,7 @@ import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.ThrowStmt;
@@ -157,6 +160,10 @@ public interface NodeVisitor {
 
     void visit(AbortStmt abortStmt);
 
+    void visit(NamespaceDeclarationStmt namespaceDeclarationStmt);
+    
+    void visit(NamespaceDeclaration namespaceDclr);
+
     // Expressions
 
     void visit(AddExpression addExpr);
@@ -214,12 +221,17 @@ public interface NodeVisitor {
     void visit(JSONArrayInitExpr jsonArrayInitExpr);
 
     void visit(KeyValueExpr keyValueExpr);
-
+    
     void visit(SimpleVarRefExpr simpleVarRefExpr);
 
     void visit(FieldBasedVarRefExpr fieldBasedVarRefExpr);
 
     void visit(IndexBasedVarRefExpr indexBasedVarRefExpr);
+    
+    void visit(XMLAttributesRefExpr xmlAttributesRefExpr);
+    
+    void visit(XMLQNameExpr xmlQNameRefExpr);
 
     void visit(NullLiteral nullLiteral);
+
 }

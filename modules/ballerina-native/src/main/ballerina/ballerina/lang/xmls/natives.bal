@@ -148,16 +148,6 @@ native function copy(xml x) (xml);
 @doc:Param { value:"xmlStr: String representation of XML" }
 native function parse(string xmlStr) (xml);
 
-@doc:Description { value:"Get the value of an attribute in an XML"}
-@doc:Param { value:"x: An XML object" }
-@doc:Param { value:"qname: Qualified name of the element" }
-native function getAttribute(xml x, string qname) (string);
-
-@doc:Description { value:"Set the value of an attribute in an XML"}
-@doc:Param { value:"x: An XML object" }
-@doc:Param { value:"qname: Qualified name of the attribute" }
-native function setAttribute(xml x, string qname, string prefix, string value);
-
 @doc:Description { value:"Strips any text items from an XML sequence that are all whitespace."}
 @doc:Param { value:"x: An XML object" }
 native function strip(xml x) (xml);
@@ -167,3 +157,8 @@ native function strip(xml x) (xml);
 @doc:Param { value:"startIndex: Start index, inclusive" }
 @doc:Param { value:"endIndex: End index, exclusive" }
 native function slice(xml x, int startIndex, int endIndex) (xml);
+
+@doc:Description { value:"Sets the attributes to the provided attributes map."}
+@doc:Param { value:"x: An XML object" }
+@doc:Param { value:"attributes: Attributes map" }
+native function setAttributes(xml x, map attributes);
