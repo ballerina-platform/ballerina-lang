@@ -770,39 +770,37 @@ class TransformExpanded extends React.Component {
     }
 
     getSourcesAndTargets() {
-        const packageObj = this.context.environment.getCurrentPackage();
-
-        let variables = this.props.model.filterChildrenInScope(
+        const variables = this.props.model.filterChildrenInScope(
                                      this.props.model.getFactory().isVariableDefinitionStatement)
-        let argHolders = this.props.model.filterChildrenInScope(
+        const argHolders = this.props.model.filterChildrenInScope(
                                      this.props.model.getFactory().isArgumentParameterDefinitionHolder)
-        let paramArgs = [];
-        _.forEach(argHolders, argHolder => {
-            _.forEach(argHolder.getChildren(), arg => {
+        const paramArgs = [];
+        _.forEach(argHolders, (argHolder) => {
+            _.forEach(argHolder.getChildren(), (arg) => {
                 paramArgs.push(arg);
             });
         });
 
-        let transformVars = this.getTransformVarJson(variables.concat(paramArgs));
+        const transformVars = this.getTransformVarJson(variables.concat(paramArgs));
         const items = [];
 
-        _.forEach(transformVars,(arg) => {
+        _.forEach(transformVars, (arg) => {
             let isStruct = false;
-            _.forEach(packageObj.getStructDefinitions(), (predefinedStruct) => {
-                if (arg.type === predefinedStruct.getName()) {
-                    let struct = this.createType(arg.name, arg.type, predefinedStruct);
-                    items.push({name: struct.name, type: struct.typeName});
-                    isStruct = true;
-                }
-            });
+            const structDef = this.getStructDefinition(arg.pkgName, arg.type);
+
+            if (structDef !== undefined) {
+                const struct = this.createType(arg.name, arg.type, structDef);
+                items.push({ name: struct.name, type: struct.typeName });
+                isStruct = true;
+            }
 
             if (!isStruct) {
-                let variableType = {};
+                const variableType = {};
                 variableType.id = arg.id;
                 variableType.name = arg.name;
                 variableType.type = arg.type;
                 this.predefinedStructs.push(variableType);
-                items.push({name: variableType.name, type: variableType.type});
+                items.push({ name: variableType.name, type: variableType.type });
             }
         });
 
@@ -810,7 +808,7 @@ class TransformExpanded extends React.Component {
     }
 
     setSource(currentSelection, predefinedStructs) {
-        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection });
         if (_.isUndefined(sourceSelection)){
             alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
