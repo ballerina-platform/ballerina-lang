@@ -1,5 +1,22 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.composer.service.workspace.swagger;
 
+import com.google.gson.JsonParser;
 import io.swagger.models.Contact;
 import io.swagger.models.Info;
 import io.swagger.models.Operation;
@@ -28,20 +45,41 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test classes for swagger services.
+ */
 public class SwaggerServiceMapperTest {
     private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapperTest.class);
+    private JsonParser parser = new JsonParser();
+    
+    /**
+     * Data provider for swagger test cases.
+     * @return List of swagger test cases.
+     */
     @DataProvider(name = "SwaggerSamples")
     public static Object[][] swaggerSamples() {
-        return new Object[][] { { "usecase-1", "Service1" }, { "usecase-2", "Service1" } };
+        return new Object[][] { { "usecase-1", "Service1" },
+                                { "usecase-2", "Service1" },
+                                { "usecase-3", "Service3" },
+                                { "usecase-4", "Service4" },
+                                { "usecase-5", "Service5" } };
     }
     
+    /**
+     * Execute tests converting ballerina source to swagger definitions.
+     * @param usecaseName The name of the file.
+     * @param serviceName The name of the service.
+     * @throws IOException
+     */
     @Test(dataProvider = "SwaggerSamples")
     public void testBallerinaToSwaggerConversion(String usecaseName, String serviceName) throws IOException {
         String ballerinaSource = this.readFile("input/" + usecaseName + ".bal");
         String generatedSwagger = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
     
         String expectedSwagger = readFile("output/" + usecaseName + ".json");
-        Assert.assertEquals(generatedSwagger, expectedSwagger, "Invalid Swagger definition generated.");
+        Assert.assertTrue(parser.parse(generatedSwagger).equals(parser.parse(expectedSwagger)),
+                "Invalid Swagger definition generated.\nExpected: " + parser.parse(generatedSwagger).toString() +
+                "\nActual: " + parser.parse(expectedSwagger).toString());
     }
 
 
