@@ -232,3 +232,53 @@ struct Animal {
     int size;
     int age;
 }
+
+function refTypeAccessTestMultiArrayNegativeCase() (int) {
+    json[][][][][][][] jsonMulti = [];
+    int[][][][][][][] intMulti = [];
+    if ((typeof jsonMulti) == (typeof intMulti)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestMultiArrayPositiveCase() (int) {
+    json[][][][][][][] jsonMulti = [];
+    json[][][][][][][] jsonMulti_2 = [];
+    if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestMultiArrayDifferentDimensionCase() (int) {
+    json[][][][][][][] jsonMulti = [];
+    json[][][][][][] jsonMulti_2 = [];
+    if ((typeof jsonMulti) == (typeof jsonMulti_2)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestMultiArrayDifferentDimensionCaseTwo() (int) {
+    json[][][][][][][] jsonMulti = [];
+    int[][][][][][] intMulti = [];
+    if ((typeof jsonMulti) == (typeof intMulti)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+function refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() (int) {
+    json[][][][][][][] jsonMulti = [];
+    int[][][][][][] intMulti = [];
+    if ((typeof jsonMulti) != (typeof intMulti)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}

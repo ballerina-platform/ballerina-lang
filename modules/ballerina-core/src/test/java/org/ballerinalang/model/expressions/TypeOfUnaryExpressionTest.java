@@ -291,6 +291,76 @@ public class TypeOfUnaryExpressionTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test reference type access expression type of multi dimensional array negative case")
+    public void testRefTypeAccessTestMultiArrayNegativeCase() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestMultiArrayNegativeCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 2;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test reference type access expression type of multi dimensional array positive case")
+    public void testRefTypeAccessTestMultiArrayPositiveCase() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestMultiArrayPositiveCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test reference type access expression type of different dimensional arrays case")
+    public void testRefTypeAccessTestMultiArrayDifferentDimensionCase() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestMultiArrayDifferentDimensionCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 2;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test reference type access expression type of different dimensional two type arrays case")
+    public void testRefTypeAccessTestMultiArrayDifferentDimensionCaseTwo() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestMultiArrayDifferentDimensionCaseTwo", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 2;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test reference type access expression type of different dimensional two type arrays " +
+            "check not quality case")
+    public void testRefTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestMultiArrayDifferentDimensionNotEqualityCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
 }
 
 
