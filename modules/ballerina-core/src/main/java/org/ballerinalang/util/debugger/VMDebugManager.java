@@ -198,7 +198,6 @@ public class VMDebugManager {
         //suspend the current thread till debugging process finishes
         try {
             executionWaitSem.acquire();
-            debugSession.notifyExit(); //We may need to remove this,
         } catch (InterruptedException e) {
             // Do nothing probably someone wants to shutdown the thread.
             Thread.currentThread().interrupt();
