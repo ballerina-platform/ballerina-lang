@@ -90,11 +90,6 @@ const FileTabList = TabList.extend(
             }
         },
         setActiveTab(tab) {
-            $('#transformOverlay').remove();
-            // This is a hack @todo need to refactor transformer code 
-            if (tab._fileEditor !== undefined) {
-                tab._fileEditor.setTransformState(false);
-            }
             TabList.prototype.setActiveTab.call(this, tab);
         },
         addTab(tab) {
