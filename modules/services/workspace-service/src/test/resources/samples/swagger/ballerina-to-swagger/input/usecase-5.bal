@@ -79,7 +79,7 @@ service<http> Service5 {
         value: [
             @swagger:ParameterInfo {
                 name: "limit",
-                description: "The limit of the records.",
+                description: "The limit of the records."
             },
             @swagger:ParameterInfo {
                 name: "isEmpty",
