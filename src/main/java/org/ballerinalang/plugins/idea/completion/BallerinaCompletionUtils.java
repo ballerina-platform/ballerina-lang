@@ -877,6 +877,23 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
+    @NotNull
+    public static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Namespace").withIcon(BallerinaIcons.NAMESPACE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static List<LookupElement> createNamespaceLookupElements(@NotNull List<PsiElement> namespaces) {
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (PsiElement namespace : namespaces) {
+            LookupElement lookupElement = BallerinaCompletionUtils.createNamespaceLookupElement(namespace);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
     static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
                            boolean withFunctions, boolean withConnectors, boolean withStructs,
                            InsertHandler... insertHandlers) {

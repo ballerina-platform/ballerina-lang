@@ -39,6 +39,7 @@ import org.ballerinalang.plugins.idea.psi.references.AttachmentPointReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
 import org.ballerinalang.plugins.idea.psi.references.FieldReference;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
+import org.ballerinalang.plugins.idea.psi.references.NameSpaceReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -103,12 +104,19 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
 
         // do not return a reference for the ID nodes in a definition
         if (elType instanceof RuleIElementType) {
+            XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(parent, XmlAttribNode.class);
             switch (((RuleIElementType) elType).getRuleIndex()) {
                 case RULE_packageName:
+                    if (xmlAttribNode != null) {
+                        return new NameSpaceReference(this);
+                    }
                     return new PackageNameReference(this);
                 case RULE_actionInvocation:
                     return new ActionInvocationReference(this);
                 case RULE_nameReference:
+                    if (xmlAttribNode != null) {
+                        return new NameSpaceReference(this);
+                    }
                     MapStructKeyNode mapStructKeyNode = PsiTreeUtil.getParentOfType(parent, MapStructKeyNode.class);
                     if (mapStructKeyNode != null) {
                         return new StructKeyReference(this);
