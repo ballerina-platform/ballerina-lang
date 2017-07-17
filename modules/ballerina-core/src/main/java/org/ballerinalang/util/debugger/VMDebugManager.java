@@ -198,7 +198,7 @@ public class VMDebugManager {
         //suspend the current thread till debugging process finishes
         try {
             executionWaitSem.acquire();
-            debugSession.notifyExit();
+            debugSession.notifyExit(); //We may need to remove this,
         } catch (InterruptedException e) {
             // Do nothing probably someone wants to shutdown the thread.
             Thread.currentThread().interrupt();
@@ -272,6 +272,9 @@ public class VMDebugManager {
      * @param debugSession current debugging session
      */
     public void notifyExit(VMDebugSession debugSession) {
+        if (!isDebugSessionActive()) {
+            return;
+        }
         MessageDTO message = new MessageDTO();
         message.setCode(DebugConstants.CODE_EXIT);
         message.setMessage(DebugConstants.MSG_EXIT);

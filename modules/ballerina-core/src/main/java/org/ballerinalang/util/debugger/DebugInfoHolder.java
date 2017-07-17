@@ -164,22 +164,22 @@ public class DebugInfoHolder {
     }
 
     public void resume() {
-        currentCommand = DebugInfoHolder.DebugCommand.RESUME;
+        currentCommand = DebugCommand.RESUME;
         releaseLock();
     }
 
     public void stepIn() {
-        currentCommand = DebugInfoHolder.DebugCommand.STEP_IN;
+        currentCommand = DebugCommand.STEP_IN;
         releaseLock();
     }
 
     public void stepOver() {
-        currentCommand = DebugInfoHolder.DebugCommand.STEP_OVER;
+        currentCommand = DebugCommand.STEP_OVER;
         releaseLock();
     }
 
     public void stepOut() {
-        currentCommand = DebugInfoHolder.DebugCommand.STEP_OUT;
+        currentCommand = DebugCommand.STEP_OUT;
         releaseLock();
     }
 
@@ -192,7 +192,8 @@ public class DebugInfoHolder {
         STEP_OVER_INTMDT,
         STEP_OUT,
         STEP_OUT_INTMDT,
-        RESUME
+        RESUME,
+        STOP
     }
 
     class DebuggerPkgInfo {

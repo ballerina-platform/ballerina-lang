@@ -79,7 +79,6 @@ import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -1997,55 +1996,49 @@ public class BLangVM {
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
         breakPointInfo.setThreadId(context.getThreadId());
 
+        int callingIp = current.getIp();
         for (int i = controlStack.fp; i >= 0; i--) {
-            FrameInfo frameInfo = getFrameInfo(controlStack.getStack()[i]);
-            if (frameInfo != null) {
-                breakPointInfo.addFrameInfo(frameInfo);
+            StackFrame frame = controlStack.getStack()[i];
+            if (frame == null) {
+                continue;
             }
+
+            String pck = frame.packageInfo.getPkgPath();
+            String functionName = frame.callableUnitInfo.getName();
+            LineNumberInfo callingLine = context.getDebugInfoHolder()
+                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
+                    callingLine.getLineNumber());
+            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
+                    .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+            if (localVarAttrInfo == null) {
+                continue;
+            }
+            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
+                VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
+                if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
+                } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
+                            .getVariableIndex()] == 1 ? true : false));
+                } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
+                    variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
+                } else {
+                    variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
+                }
+                frameInfo.addVariableInfo(variableInfo);
+            });
+            callingIp = frame.retAddrs - 1;
+            if (callingIp < 0) {
+                callingIp = 0;
+            }
+            breakPointInfo.addFrameInfo(frameInfo);
         }
         return breakPointInfo;
-    }
-
-    private FrameInfo getFrameInfo(StackFrame frame) {
-        if (frame == null) {
-            return null;
-        }
-
-        //TODO check which line number to return
-        int callingIp = frame.retAddrs - 1;
-        if (callingIp < 0) {
-            callingIp = 0;
-        }
-        LineNumberInfo callingLine = context.getDebugInfoHolder()
-                .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
-        String pck = frame.packageInfo.getPkgPath();
-        String functionName = frame.callableUnitInfo.getName();
-        //todo below line number is a dummy line number - remove later
-        FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(), callingLine.getLineNumber());
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
-                .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
-        if (localVarAttrInfo == null) {
-            return null;
-        }
-        for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
-            VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
-            if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
-            } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
-            } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
-            } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
-                        .getVariableIndex()] == 1 ? true : false));
-            } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
-            } else {
-                variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
-            }
-            frameInfo.addVariableInfo(variableInfo);
-        }
-        return frameInfo;
     }
 
     private void handleAnyToRefTypeCast(StackFrame sf, int[] operands, BType targetType) {
