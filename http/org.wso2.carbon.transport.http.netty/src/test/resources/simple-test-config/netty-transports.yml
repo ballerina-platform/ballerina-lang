@@ -93,6 +93,7 @@ listenerConfigurations:
 senderConfigurations:
  -
   id: "http-sender"
+  socketIdleTimeout: 120000
   parameters:
     -
      name: "connection.pool.count"
@@ -123,6 +124,7 @@ senderConfigurations:
   scheme: "https"
   trustStoreFile: "simple-test-config/client-truststore.jks"
   trustStorePass: "wso2carbon"
+  socketIdleTimeout: 120000
   parameters:
     -
      name: "connection.pool.count"

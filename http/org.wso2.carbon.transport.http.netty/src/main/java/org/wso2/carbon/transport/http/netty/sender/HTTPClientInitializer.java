@@ -22,14 +22,10 @@ import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * A class that responsible for initialize target server pipeline.
@@ -39,14 +35,10 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
     private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
 
     private SenderConfiguration senderConfiguration;
-
-    protected static final String HANDLER = "handler";
     private TargetHandler handler;
-    private int soTimeOut;
 
     public HTTPClientInitializer(SenderConfiguration senderConfiguration) {
         this.senderConfiguration = senderConfiguration;
-        soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
     }
 
     @Override
@@ -63,11 +55,8 @@ public class HTTPClientInitializer extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("decoder", new HttpResponseDecoder());
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         ch.pipeline().addLast("chunkWriter", new ChunkedWriteHandler());
-        int socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(60000);
-        ch.pipeline().addLast("idleStateHandler",
-                new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0, TimeUnit.MILLISECONDS));
         handler = new TargetHandler();
-        ch.pipeline().addLast(HANDLER, handler);
+        ch.pipeline().addLast("targetHandler", handler);
     }
 
     public TargetHandler getTargetHandler() {

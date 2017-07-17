@@ -182,7 +182,7 @@ public class HTTPServerChannelInitializer extends ChannelInitializer<SocketChann
         p.addLast("compressor", new HttpContentCompressor());
         p.addLast("chunkWriter", new ChunkedWriteHandler());
         try {
-            int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(60000);
+            int socketIdleTimeout = listenerConfiguration.getSocketIdleTimeout(120000);
             p.addLast("idleStateHandler",
                     new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, socketIdleTimeout,
                             TimeUnit.MILLISECONDS));
