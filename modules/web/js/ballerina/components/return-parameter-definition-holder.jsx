@@ -16,18 +16,22 @@
  * under the License.
  */
 import React from 'react';
-import TagController from './utils/tag-component';
-import {getComponentForNodeArray} from './utils';
-import FragmentUtils from './../utils/fragment-utils';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import TagController from './utils/tag-component';
+import { getComponentForNodeArray } from './utils';
+import FragmentUtils from './../utils/fragment-utils';
+import ReturnParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 
 /**
  * Component class for ReturnParameterDefinitionHolder.
  * */
 class ReturnParameterDefinitionHolder extends React.Component {
 
+    /**
+     * constructor for return parameter definition holder.
+     * */
     constructor() {
         super();
         this.addReturnParameter = this.addReturnParameter.bind(this);
@@ -35,13 +39,14 @@ class ReturnParameterDefinitionHolder extends React.Component {
 
     /**
      * Get types of ballerina to which can be applied when declaring variables.
+     * @return {object} dropdown data.
      * */
     getTypeDropdownValues() {
-        const {environment} = this.context;
+        const { environment } = this.context;
         const dropdownData = [];
         const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
-            dropdownData.push({id: bType, text: bType});
+            dropdownData.push({ id: bType, text: bType });
         });
 
         return dropdownData;
@@ -59,22 +64,20 @@ class ReturnParameterDefinitionHolder extends React.Component {
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
             if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                let parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
                 parameterDefinition.initFromJson(parsedJson);
                 if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
                     this.props.model.addChild(parameterDefinition);
                     return true;
-                } else {
-                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                    Alerts.error(errorString);
-                    return false;
                 }
+                const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                Alerts.error(errorString);
+                return false;
             }
-        } else {
-            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
-            Alerts.error(errorString);
-            return false;
         }
+        const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
+        Alerts.error(errorString);
+        return false;
     }
 
     /**
@@ -148,13 +151,21 @@ class ReturnParameterDefinitionHolder extends React.Component {
         const children = getComponentForNodeArray(model.getChildren());
         return (
             <TagController
-                key={model.getID()} model={model} setter={this.addReturnParameter}
-                validateInput={this.validateInput} modelComponents={children}
-                componentData={componentData} groupClass="return-parameter-group"
+                key={model.getID()}
+                model={model}
+                setter={this.addReturnParameter}
+                validateInput={this.validateInput}
+                modelComponents={children}
+                componentData={componentData}
+                groupClass="return-parameter-group"
             />
         );
     }
 }
+
+ReturnParameterDefinitionHolder.propsTypes = {
+    model: PropTypes.instanceOf(ReturnParameterDefinitionHolderAST).isRequired,
+};
 
 ReturnParameterDefinitionHolder.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,

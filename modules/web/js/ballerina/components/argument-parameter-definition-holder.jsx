@@ -22,7 +22,7 @@ import PropTypes from 'prop-types';
 import FragmentUtils from './../utils/fragment-utils';
 import ArgumentParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 import TagController from './utils/tag-component';
-import {getComponentForNodeArray} from './utils';
+import { getComponentForNodeArray } from './utils';
 
 /**
  * Component class for ArgumentParameterDefinitionHolder.
@@ -48,16 +48,16 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @returns {Object[]} Dropdown values.
      * */
     getTypeDropdownValues() {
-        const {environment} = this.context;
+        const { environment } = this.context;
         const dropdownData = [];
         const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
-            dropdownData.push({id: bType, text: bType});
+            dropdownData.push({ id: bType, text: bType });
         });
 
         const structTypes = [];
         _.forEach(structTypes, (sType) => {
-            dropdownData.push({id: sType.getAnnotationName(), text: sType.getAnnotationName()});
+            dropdownData.push({ id: sType.getAnnotationName(), text: sType.getAnnotationName() });
         });
 
         return dropdownData;
@@ -76,22 +76,20 @@ class ArgumentParameterDefinitionHolder extends React.Component {
 
         if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
             if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                let parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
                 parameterDefinition.initFromJson(parsedJson);
                 if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
                     this.props.model.addChild(parameterDefinition);
                     return true;
-                } else {
-                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                    Alerts.error(errorString);
-                    return false;
                 }
+                const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                Alerts.error(errorString);
+                return false;
             }
-        } else {
-            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
-            Alerts.error(errorString);
-            return false;
         }
+        const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
+        Alerts.error(errorString);
+        return false;
     }
 
     /**
