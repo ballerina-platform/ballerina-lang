@@ -53,8 +53,8 @@ import org.ballerinalang.plugins.idea.debugger.dto.BreakPoint;
 import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.ballerinalang.plugins.idea.debugger.protocol.Response;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -216,8 +216,17 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void stop() {
+        XSuspendContext suspendContext = getSession().getSuspendContext();
+        if (suspendContext != null) {
+            XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId =
+                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+                myConnector.sendCommand(Command.STOP, threadId);
+                return;
+            }
+        }
         isDisconnected = true;
-        myConnector.sendCommand(Command.STOP);
         myConnector.close();
     }
 
@@ -277,7 +286,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             });
         } else if (Response.EXIT.name().equals(code) || Response.COMPLETE.name().equals(code)) {
-            getSession().stop();
+            // If we don't call invoke later here, session will not be stopped correctly since this is called from
+            // netty. It seems like this is a blocking action and netty throws an exception.
+            ApplicationManager.getApplication().invokeLater(() -> {
+                XDebugSession session = getSession();
+                if (session != null) {
+                    session.stop();
+                }
+                getSession().getConsoleView().print("Remote debugging finished.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            });
         }
     }
 
@@ -406,20 +424,12 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
                                 PackageDeclarationNode.class);
                         if (packageDeclarationNode != null) {
-
-
-                            PackagePathNode packagePathNode = PsiTreeUtil.getChildOfType(packageDeclarationNode,
-                                    PackagePathNode.class);
+                            FullyQualifiedPackageNameNode packagePathNode =
+                                    PsiTreeUtil.getChildOfType(packageDeclarationNode,
+                                            FullyQualifiedPackageNameNode.class);
                             if (packagePathNode != null && !packagePathNode.getText().isEmpty()) {
                                 packagePath = packagePathNode.getText();
                             }
-                            //                            name = BallerinaUtil.suggestPackageNameForFile(project, file);
-                            //                            // We don't need to use '\' instead of '/' here since the
-                            // debug server will convert it to
-                            //                            // proper separator character.
-                            //                            name = name.replaceAll("\\.", "/") + "/";
-
-
                         }
 
                         stringBuilder.append("{\"packagePath\":\"").append(packagePath).append("\", ");
