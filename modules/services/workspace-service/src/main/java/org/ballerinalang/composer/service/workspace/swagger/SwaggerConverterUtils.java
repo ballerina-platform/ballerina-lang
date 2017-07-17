@@ -56,7 +56,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -509,21 +508,33 @@ public class SwaggerConverterUtils {
      * @return String representation of converted ballerina source
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */
-    public static List<String> generateSwaggerDefinitions(String ballerinaSource) throws IOException {
+    public static String generateSwaggerDefinitions(String ballerinaSource, String serviceName) throws IOException {
         // Get the ballerina model using the ballerina source code.
         BallerinaFile ballerinaFile = SwaggerConverterUtils.getBFileFromBallerinaDefinition(ballerinaSource);
     
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
-        List<String> swaggerDefinitions = new LinkedList<>();
+        String swaggerSource = StringUtils.EMPTY;
         for (int i = 0; i < ballerinaFile.getCompilationUnits().length; i++) {
-            CompilationUnit serviceDefinition = ballerinaFile.getCompilationUnits()[i];
-            if (serviceDefinition instanceof Service) {
-                swaggerDefinitions.add(swaggerServiceMapper.generateSwaggerString(swaggerServiceMapper
-                        .convertServiceToSwagger((Service) serviceDefinition)));
+            CompilationUnit compilationUnit = ballerinaFile.getCompilationUnits()[i];
+            if (compilationUnit instanceof Service) {
+                Service serviceDefinition = (Service) compilationUnit;
+                // Generate swagger string for the mentioned service name.
+                if (StringUtils.isNotBlank(serviceName)) {
+                    if (serviceDefinition.getName().equals(serviceName)) {
+                        Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                        swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+                        break;
+                    }
+                } else {
+                    // If no service name mentioned, then generate swagger definition for the first service.
+                    Swagger swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(serviceDefinition);
+                    swaggerSource = swaggerServiceMapper.generateSwaggerString(swaggerDefinition);
+                    break;
+                }
             }
         }
     
-        return swaggerDefinitions;
+        return swaggerSource;
     }
 
     protected static AnnotationAttachment createSingleValuedAnnotationAttachment(String annotationName,

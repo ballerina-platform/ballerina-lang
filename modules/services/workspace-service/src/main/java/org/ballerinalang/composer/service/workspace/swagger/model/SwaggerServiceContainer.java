@@ -17,8 +17,7 @@
 package org.ballerinalang.composer.service.workspace.swagger.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A model container class which is the request and response.
@@ -28,13 +27,13 @@ public class SwaggerServiceContainer {
      * Stores the ballerina source code.
      */
     @JsonProperty("ballerinaDefinition")
-    private String ballerinaDefinition = null;
+    private String ballerinaDefinition = StringUtils.EMPTY;
     
     /**
      * Stores the list of swagger definitions to each service in the ballerina source code.
      */
-    @JsonProperty("swaggerDefinitions")
-    private String[] swaggerDefinitions = null;
+    @JsonProperty("swaggerDefinition")
+    private String swaggerDefinition = StringUtils.EMPTY;
     
     public String getBallerinaDefinition() {
         return ballerinaDefinition;
@@ -44,12 +43,12 @@ public class SwaggerServiceContainer {
         this.ballerinaDefinition = ballerinaDefinition;
     }
     
-    public String[] getSwaggerDefinitions() {
-        return swaggerDefinitions;
+    public String getSwaggerDefinition() {
+        return swaggerDefinition;
     }
     
-    public void setSwaggerDefinitions(String[] swaggerDefinitions) {
-        this.swaggerDefinitions = swaggerDefinitions;
+    public void setSwaggerDefinition(String swaggerDefinition) {
+        this.swaggerDefinition = swaggerDefinition;
     }
     
     @Override
@@ -61,27 +60,26 @@ public class SwaggerServiceContainer {
             return false;
         }
         
-        SwaggerServiceContainer swaggerServiceContainer = (SwaggerServiceContainer) o;
+        SwaggerServiceContainer that = (SwaggerServiceContainer) o;
         
-        if (!getBallerinaDefinition().equals(swaggerServiceContainer.getBallerinaDefinition())) {
+        if (!getBallerinaDefinition().equals(that.getBallerinaDefinition())) {
             return false;
         }
-        
-        return Arrays.equals(getSwaggerDefinitions(), swaggerServiceContainer.getSwaggerDefinitions());
+        return getSwaggerDefinition().equals(that.getSwaggerDefinition());
     
     }
     
     @Override
     public int hashCode() {
         int result = getBallerinaDefinition().hashCode();
-        result = 31 * result + Arrays.hashCode(getSwaggerDefinitions());
+        result = 31 * result + getSwaggerDefinition().hashCode();
         return result;
     }
     
     @Override
     public String toString() {
-        return "Service{" + "ballerinaDefinition='" + ballerinaDefinition + '\'' + ", swaggerDefinitions=" + Arrays
-                .toString(swaggerDefinitions) + '}';
+        return "SwaggerServiceContainer{" + "ballerinaDefinition='" + ballerinaDefinition + '\'' + ", " +
+               "swaggerDefinition='" + swaggerDefinition + '\'' + '}';
     }
 }
 

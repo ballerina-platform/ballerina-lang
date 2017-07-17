@@ -22,12 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,8 +40,8 @@ import javax.ws.rs.core.Response;
 @Path("/service/swagger")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ServicesApiServiceImpl {
-    private static final Logger logger = LoggerFactory.getLogger(ServicesApiServiceImpl.class);
+public class SwaggerApiServiceImpl {
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerApiServiceImpl.class);
 
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_NAME = "Access-Control-Allow-Origin";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_VALUE = "*";
@@ -50,18 +51,18 @@ public class ServicesApiServiceImpl {
     private static final String ACCESS_CONTROL_ALLOW_METHODS_VALUE = "OPTIONS, POST";
 
     @POST
-    @Path("/convert-to-swagger")
+    @Path("/ballerina-to-swagger")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response convertToSwagger(SwaggerServiceContainer swaggerServiceContainer) {
+    public Response convertToSwagger(SwaggerServiceContainer swaggerServiceContainer,
+                                     @QueryParam("serviceName") String serviceName) {
         try {
             // Get the ballerina source.
             String ballerinaSource = swaggerServiceContainer.getBallerinaDefinition();
             
             // Generate the swagger definitions using ballerina source.
-            List<String> swaggerDefinitions = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource);
-            swaggerServiceContainer.setSwaggerDefinitions(
-                    swaggerDefinitions.toArray(new String[swaggerDefinitions.size()]));
+            String swaggerDefinition = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
+            swaggerServiceContainer.setSwaggerDefinition(swaggerDefinition);
             
             return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
@@ -76,20 +77,19 @@ public class ServicesApiServiceImpl {
 
 
     @POST
-    @Path("/convert-to-ballerina")
+    @Path("/swagger-to-ballerina")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response convertToBallerina(SwaggerServiceContainer swaggerServiceContainer) {
         String ballerinaDefinition = swaggerServiceContainer.getBallerinaDefinition();
         try {
-//            //Take ballerina source and generate swagger and add it to service definition.
-//            if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
-//                String response = SwaggerConverterUtils.generateSwaggerDataModel(ballerinaDefinition);
-//                swaggerServiceContainer.setSwaggerDefinitions(response);
-//            } else {
-//                return Response.noContent().entity("Please provide valid ballerina source").build();
-//                //ballerina source cannot be null or empty.
-//            }
+            //Take ballerina source and generate swagger and add it to service definition.
+            if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
+                SwaggerConverterUtils.generateSwaggerDataModel(ballerinaDefinition);
+            } else {
+                return Response.noContent().entity("Please provide valid ballerina source").build();
+                //ballerina source cannot be null or empty.
+            }
         } catch (Throwable throwable) {
             logger.error("Error while processing service definition at converter service" +
                     throwable.getMessage());
@@ -102,16 +102,16 @@ public class ServicesApiServiceImpl {
         return Response.ok().entity(swaggerServiceContainer).header("Access-Control-Allow-Origin", '*')
                 .build();
     }
-
+    
     @OPTIONS
-    @Path("/convert-to-ballerina")
-    public Response sendCORSHeadersForConvertToBallerinaPost() {
+    @Path("/ballerina-to-swagger")
+    public Response sendCORSHeadersForConvertToSwaggerPost() {
         return sendCORSHeaders();
     }
 
     @OPTIONS
-    @Path("/convert-to-swagger")
-    public Response sendCORSHeadersForConvertToSwaggerPost() {
+    @Path("/swagger-to-ballerina")
+    public Response sendCORSHeadersForConvertToBallerinaPost() {
         return sendCORSHeaders();
     }
     

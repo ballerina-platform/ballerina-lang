@@ -113,7 +113,7 @@ public class ConfigServiceImpl {
         packages.addProperty("endpoint", apiPath + "/service/packages");
 
         JsonObject swagger = new JsonObject();
-        swagger.addProperty("endpoint", apiPath + "/service/swagger/");
+        swagger.addProperty("endpoint", apiPath + "/service/swagger");
 
         JsonObject parser = new JsonObject();
         parser.addProperty("endpoint", apiPath + "/ballerina/model/content");

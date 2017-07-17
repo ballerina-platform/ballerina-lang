@@ -203,30 +203,28 @@ public class SwaggerResourceMapper {
             for (AnnotationAttributeValue headersValue : headersValueArray) {
                 AnnotationAttachment headerAnnotationAttachment = headersValue.getAnnotationValue();
                 Map<String, Property> headers = new HashMap<>();
-                if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
-                    if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("name") &&
-                        null != headerAnnotationAttachment.getAttributeNameValuePairs().get("type")) {
-                        String headerName = headerAnnotationAttachment.getAttributeNameValuePairs().get("name")
-                                .getLiteralValue().stringValue();
-                        String type = headerAnnotationAttachment.getAttributeNameValuePairs().get("type")
-                                .getLiteralValue().stringValue();
-                        Property property = null;
-                        if ("string".equals(type)) {
-                            property = new StringProperty();
-                        } else if ("number".equals(type) || "integer".equals(type)) {
-                            property = new IntegerProperty();
-                        } else if ("boolean".equals(type)) {
-                            property = new BooleanProperty();
-                        } else if ("array".equals(type)) {
-                            property = new ArrayProperty();
+                if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("name") &&
+                    null != headerAnnotationAttachment.getAttributeNameValuePairs().get("type")) {
+                    String headerName = headerAnnotationAttachment.getAttributeNameValuePairs().get("name")
+                            .getLiteralValue().stringValue();
+                    String type = headerAnnotationAttachment.getAttributeNameValuePairs().get("type")
+                            .getLiteralValue().stringValue();
+                    Property property = null;
+                    if ("string".equals(type)) {
+                        property = new StringProperty();
+                    } else if ("number".equals(type) || "integer".equals(type)) {
+                        property = new IntegerProperty();
+                    } else if ("boolean".equals(type)) {
+                        property = new BooleanProperty();
+                    } else if ("array".equals(type)) {
+                        property = new ArrayProperty();
+                    }
+                    if (null != property) {
+                        if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
+                            property.setDescription(headerAnnotationAttachment.getAttributeNameValuePairs()
+                                    .get("description").getLiteralValue().stringValue());
                         }
-                        if (null != property) {
-                            if (null != headerAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
-                                property.setDescription(headerAnnotationAttachment.getAttributeNameValuePairs()
-                                        .get("description").getLiteralValue().stringValue());
-                            }
-                            headers.put(headerName, property);
-                        }
+                        headers.put(headerName, property);
                     }
                 }
                 response.setHeaders(headers);
