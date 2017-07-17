@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
@@ -221,8 +222,8 @@ public class ServerConnectorMessageHandler {
         // Execute workers
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
-        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(resourceInfo,
-                defaultWorkerInfo, -1, new int[0]);
+        StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
+        callerSF.setRefRegs(new BRefType[1]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
         BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);

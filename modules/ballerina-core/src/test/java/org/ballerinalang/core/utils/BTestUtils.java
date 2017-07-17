@@ -71,6 +71,7 @@ public class BTestUtils {
                 targetPath = Paths.get(sourcePath.getName(sourcePath.getNameCount() - 1).toString() + ".balx");
             }
 
+            targetPath = programPath.resolve(targetPath);
             ProgramFileWriter.writeProgram(programFile, targetPath);
             ProgramFileReader reader = new ProgramFileReader(NativeScope.getInstance());
             return reader.readProgram(targetPath);

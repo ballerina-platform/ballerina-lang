@@ -222,7 +222,7 @@ public class BLangFunctions {
         calleeSF.setRefLocalVars(refLocalVars);
 
         // Execute workers
-        BLangVMWorkers.invoke(bLangProgram, functionInfo, calleeSF, retRegs);
+        BLangVMWorkers.invoke(bLangProgram, functionInfo, callerSF, retRegs);
 
         BLangVM bLangVM = new BLangVM(bLangProgram);
         context.setStartIP(codeAttribInfo.getCodeAddrs());

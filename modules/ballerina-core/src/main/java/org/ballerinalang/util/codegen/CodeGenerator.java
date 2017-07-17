@@ -342,7 +342,7 @@ public class CodeGenerator implements NodeVisitor {
             // TODO Populate annotation attribute
         }
     }
-    
+
     private void createServiceInfoEntries(Service[] services) {
         for (Service service : services) {
             // Add Connector name as an UTFCPEntry to the constant pool
@@ -1198,7 +1198,7 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(NamespaceDeclaration namespaceDeclaration) {
     }
-    
+
     // Expressions
 
     @Override
@@ -2068,7 +2068,7 @@ public class CodeGenerator implements NodeVisitor {
 
         indexExpr.accept(this);
         int qnameRegIndex = indexExpr.getTempOffset();
-        
+
         // If this is a string representation of qname
         if (!(indexExpr instanceof XMLQNameExpr)) {
             int localNameRegIndex = ++regIndexes[STRING_OFFSET];
@@ -2079,7 +2079,7 @@ public class CodeGenerator implements NodeVisitor {
             generateUriLookupInstructions(xmlAttributesRefExpr.getNamespaces(), localNameRegIndex, uriRegIndex,
                     qnameRegIndex, xmlAttributesRefExpr.getNodeLocation());
         }
-        
+
         if (variableStore) {
             emit(InstructionCodes.XMLATTRSTORE, varRefRegIndex, qnameRegIndex, rhsExprRegIndex);
         } else {
@@ -2088,14 +2088,14 @@ public class CodeGenerator implements NodeVisitor {
             xmlAttributesRefExpr.setTempOffset(xmlValueRegIndex);
         }
     }
-    
+
     @Override
     public void visit(XMLQNameExpr xmlQNameRefExpr) {
         // If the QName is use outside of XML, treat it as string.
         if (!xmlQNameRefExpr.isUsedInXML()) {
             String qName;
             if (!xmlQNameRefExpr.getNamepsaceUri().isEmpty()) {
-                qName = "{" + xmlQNameRefExpr.getNamepsaceUri()  + "}" + xmlQNameRefExpr.getLocalname();
+                qName = "{" + xmlQNameRefExpr.getNamepsaceUri() + "}" + xmlQNameRefExpr.getLocalname();
             } else {
                 qName = xmlQNameRefExpr.getLocalname();
             }
@@ -2107,29 +2107,29 @@ public class CodeGenerator implements NodeVisitor {
             xmlQNameRefExpr.setTempOffset(qNameLiteral.getTempOffset());
             return;
         }
-        
+
         // Else, treat it as QName
         BasicLiteral localNameLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-            null, new BString(xmlQNameRefExpr.getLocalname()));
+                null, new BString(xmlQNameRefExpr.getLocalname()));
         localNameLiteral.setType(BTypes.typeString);
         localNameLiteral.accept(this);
-        
+
         BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-            null, new BString(xmlQNameRefExpr.getNamepsaceUri()));
+                null, new BString(xmlQNameRefExpr.getNamepsaceUri()));
         namespaceUriLiteral.setType(BTypes.typeString);
         namespaceUriLiteral.accept(this);
-        
+
         BasicLiteral prefixLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
-            null, new BString(xmlQNameRefExpr.getPrefix()));
+                null, new BString(xmlQNameRefExpr.getPrefix()));
         prefixLiteral.setType(BTypes.typeString);
         prefixLiteral.accept(this);
-        
+
         int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
-        emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(), 
+        emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(),
                 prefixLiteral.getTempOffset(), qnameLoadedRegIndex);
         xmlQNameRefExpr.setTempOffset(qnameLoadedRegIndex);
     }
-    
+
     // Private methods
 
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
@@ -2149,7 +2149,6 @@ public class CodeGenerator implements NodeVisitor {
 
         resetIndexes(lvIndexes);
         resetIndexes(regIndexes);
-        resetIndexes(maxRegIndexes);
     }
 
     private void resetIndexes(int[] indexes) {
@@ -2251,7 +2250,24 @@ public class CodeGenerator implements NodeVisitor {
         String[] paramNames = new String[paramDefs.length];
         for (int i = 0; i < paramDefs.length; i++) {
             ParameterDef paramDef = paramDefs[i];
-            paramNames[i] = paramDef.getName();
+
+            // TODO Find a better way to solve the following problem.
+            AnnotationAttachment[] attachments = paramDefs[i].getAnnotations();
+            boolean isAnnotated = false;
+            for (AnnotationAttachment annotationAttachment : attachments) {
+                if ("PathParam".equalsIgnoreCase(annotationAttachment.getName())
+                        || "QueryParam".equalsIgnoreCase(annotationAttachment.getName())) {
+                    paramNames[i] = annotationAttachment.getAttributeNameValuePairs()
+                            .get("value").getLiteralValue().stringValue();
+                    isAnnotated = true;
+                    break;
+                }
+            }
+
+            if (!isAnnotated) {
+                paramNames[i] = paramDef.getName();
+            }
+
             UTF8CPEntry paramNameCPEntry = new UTF8CPEntry(paramNames[i]);
             int paramNameCPIndex = currentPkgInfo.addCPEntry(paramNameCPEntry);
             paramNameCPIndexes[i] = paramNameCPIndex;
@@ -2687,6 +2703,7 @@ public class CodeGenerator implements NodeVisitor {
 
             // Set local variables and reg indexes and reset instance variables to defaults
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
+            resetIndexes(maxRegIndexes);
 
             // Now visit each Worker
             for (Worker worker : workers) {
@@ -2701,8 +2718,11 @@ public class CodeGenerator implements NodeVisitor {
 
                 lvIndexes = lvIndexesCopy.clone();
                 worker.getCallableUnitBody().accept(this);
+
                 //workerInfo.setWorkerEndIP(nextIP());
                 endWorkerInfoUnit(workerInfo.getCodeAttributeInfo());
+                resetIndexes(maxRegIndexes);
+
                 // emit HALT instruction to finish the worker activity
                 emit(InstructionCodes.HALT);
             }
@@ -2713,6 +2733,7 @@ public class CodeGenerator implements NodeVisitor {
             defaultWorker.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
 
             endWorkerInfoUnit(defaultWorker.getCodeAttributeInfo());
+            resetIndexes(maxRegIndexes);
         }
 
         currentlLocalVarAttribInfo = null;
@@ -2812,12 +2833,12 @@ public class CodeGenerator implements NodeVisitor {
     /**
      * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
      * get the prefix of it as the prefix to be used.
-     * 
+     *
      * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr}
-     * @param qnameRegIndex Registry index of the qname
+     * @param qnameRegIndex        Registry index of the qname
      */
     private void generateUriLookupInstructions(Map<String, String> namespaces, int localNameRegIndex, int uriRegIndex,
-            int targetQnameRegIndex, NodeLocation location) {
+                                               int targetQnameRegIndex, NodeLocation location) {
         if (namespaces.isEmpty()) {
             createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
             return;
@@ -2869,7 +2890,7 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     private void createQNameWithEmptyPrefix(int localNameRegIndex, int uriRegIndex, int targetQnameRegIndex,
-            NodeLocation location) {
+                                            NodeLocation location) {
         BasicLiteral prefixLiteral = new BasicLiteral(location, null, BTypes.typeString.getEmptyValue());
         prefixLiteral.setType(BTypes.typeString);
         prefixLiteral.accept(this);
