@@ -185,4 +185,33 @@ public class LengthOfUnaryExpressionTest {
         int expected = 3;
         Assert.assertEquals(actual, expected);
     }
+
+
+    @Test(description = "Test lengthof unary expression when reference point to JSON array.")
+    public void testArrayLengthAccessJSONArrayCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "arrayLengthAccessTestJSONArrayCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 6;
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test lengthof unary expression when reference point to JSON Object.")
+    public void testArrayLengthAccessJSONArrayNegativeNonArrayCase() {
+        BValue[] args = {new BInteger(100), new BInteger(5)};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "arrayLengthAccessTestJSONArrayNegativeNonArrayCase", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = -1;
+        Assert.assertEquals(actual, expected);
+    }
+
 }

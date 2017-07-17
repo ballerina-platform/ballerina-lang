@@ -125,3 +125,17 @@ struct Person {
     string name;
     int[] days;
 }
+
+function arrayLengthAccessTestJSONArrayCase(int x, int y) (int) {
+    json arr = [x,y,5,5,6,6];
+    int length;
+    length = (lengthof arr);
+    return length;
+}
+
+function arrayLengthAccessTestJSONArrayNegativeNonArrayCase(int x, int y) (int) {
+    json arr = {"number1":x, "number2":y};
+    int length;
+    length = (lengthof arr);
+    return length;
+}
