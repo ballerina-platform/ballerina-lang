@@ -80,6 +80,7 @@ public class UpdateRDBMSTableTestCase {
                     "@info(name = 'query2') " +
                     "from UpdateStockStream " +
                     "update StockTable " +
+                    "set price = StockTable.price + 10, StockTable.price = price  " +
                     "   on StockTable.symbol == symbol ;";
 
             SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(streams + query);

@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.ArrayList;
@@ -181,10 +182,10 @@ public abstract class AbstractRecordTable implements Table {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+                       CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers) {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
-        List<Map<String, Object>> updateValues = new ArrayList<>();
+        List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent stateEvent = updatingEventChunk.next();
@@ -196,35 +197,43 @@ public abstract class AbstractRecordTable implements Table {
             }
             updateConditionParameterMaps.add(variableMap);
 
-            Map<String, Object> valueMap = new HashMap<>();
-            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+            Map<String, Object> variableMapForUpdateSet = new HashMap<>();
+            for (Map.Entry<String, ExpressionExecutor> entry :
+                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                variableMapForUpdateSet.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
-            updateValues.add(valueMap);
+            updateSetParameterMaps.add(variableMapForUpdateSet);
+
+//            Map<String, Object> valueMap = new HashMap<>();
+//            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+//                valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
+//                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+//            }
+//            updateValues.add(valueMap);
         }
-        update(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues);
+        update(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
+                compiledUpdateSet, updateSetParameterMaps);
     }
 
     /**
      * Update all matching records
-     *
-     * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
+     *  @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
      * @param compiledCondition            the compiledCondition against which records should be matched for update
+     * @param compiledUpdateSet
      * @param updateValues                 the attributes and values that should be updated for the matching records
      */
     protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
                                    CompiledCondition compiledCondition,
-                                   List<Map<String, Object>> updateValues);
+                                   CompiledUpdateSet compiledUpdateSet, List<Map<String, Object>> updateValues);
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
-                            CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                            CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
         RecordStoreCompiledCondition recordStoreCompiledCondition = ((RecordStoreCompiledCondition) compiledCondition);
         List<Map<String, Object>> updateConditionParameterMaps = new ArrayList<>();
-        List<Map<String, Object>> updateValues = new ArrayList<>();
+        List<Map<String, Object>> updateSetParameterMaps = new ArrayList<>();
         List<Object[]> addingRecords = new ArrayList<>();
         updateOrAddingEventChunk.reset();
         while (updateOrAddingEventChunk.hasNext()) {
@@ -237,33 +246,45 @@ public abstract class AbstractRecordTable implements Table {
             }
             updateConditionParameterMaps.add(variableMap);
 
-            Map<String, Object> valueMap = new HashMap<>();
-            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
-                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+            Map<String, Object> variableMapForUpdateSet = new HashMap<>();
+            for (Map.Entry<String, ExpressionExecutor> entry :
+                    compiledUpdateSet.getExpressionExecutorMap().entrySet()) {
+                variableMapForUpdateSet.put(entry.getKey(), entry.getValue().execute(stateEvent));
             }
-            updateValues.add(valueMap);
+            updateSetParameterMaps.add(variableMapForUpdateSet);
+
+
+            //following block no longer needed....
+//            Map<String, Object> valueMap = new HashMap<>();
+//            for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
+//                valueMap.put(updateAttributeMapper.getStoreEventAttributeName(),
+//                             updateAttributeMapper.getUpdateEventOutputData(stateEvent));
+//            }
+//            updateValues.add(valueMap);
+
             addingRecords.add(stateEvent.getStreamEvent(0).getOutputData());
         }
-        updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition, updateValues,
-                    addingRecords);
+        updateOrAdd(updateConditionParameterMaps, recordStoreCompiledCondition.compiledCondition,
+                compiledUpdateSet, updateSetParameterMaps, addingRecords);
 
     }
 
     /**
      * Try updating the records if they exist else add the records
-     *
-     * @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
+     *  @param updateConditionParameterMaps map of matching StreamVariable Ids and their values corresponding to the
      *                                     compiled condition based on which the records will be updated
      * @param compiledCondition            the compiledCondition against which records should be matched for update
+     * @param compiledUpdateSet
      * @param updateValues                 the attributes and values that should be updated if the condition matches
      * @param addingRecords                the values for adding new records if the update condition did not match
      */
     protected abstract void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
                                         CompiledCondition compiledCondition,
+                                        CompiledUpdateSet compiledUpdateSet,
                                         List<Map<String, Object>> updateValues,
                                         List<Object[]> addingRecords);
 
+    //// TODO: 7/3/17 Rename this to compileExpression. ConditionBuilder to ExpressionBuilder
     @Override
     public CompiledCondition compileCondition(Expression expression,
                                               MatchingMetaInfoHolder matchingMetaInfoHolder,
@@ -278,6 +299,41 @@ public abstract class AbstractRecordTable implements Table {
         return new RecordStoreCompiledCondition(expressionExecutorMap, compiledCondition);
     }
 
+    public CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
+                                              MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
+        CompiledUpdateSet compiledUpdateSet = new CompiledUpdateSet();
+        Map<String, ExpressionExecutor> parentExecutorMap = new HashMap<>();
+        for (UpdateSet.SetAttribute setAttribute: updateSet.getSetAttributeList()) {
+            ConditionBuilder conditionBuilder = new ConditionBuilder(setAttribute.getAssignmentExpression(),
+                    matchingMetaInfoHolder, siddhiAppContext, variableExpressionExecutors, tableMap, queryName);
+            CompiledCondition compiledCondition = compileCondition(conditionBuilder);
+            compiledUpdateSet.put(setAttribute.getTableVariable().getAttributeName(),compiledCondition);
+            Map<String, ExpressionExecutor> expressionExecutorMap = conditionBuilder.getVariableExpressionExecutorMap();
+            mergeExecutorMap(expressionExecutorMap, parentExecutorMap);
+        }
+        compiledUpdateSet.setExpressionExecutorMap(parentExecutorMap);
+        return compiledUpdateSet;
+    }
+
+    /**
+     * Merges childMap into parentMap and returns the new parentMap
+     * @param childMap The map which needs to be merged into the parent map
+     * @param parentMap The map which will include the childMap after the merge.
+     * @return The new parentMap, resulting from the merge.
+     */
+    private static Map<String, ExpressionExecutor> mergeExecutorMap(
+            Map<String, ExpressionExecutor> childMap, Map<String, ExpressionExecutor> parentMap) {
+        for (Map.Entry<String, ExpressionExecutor> entry: childMap.entrySet()) {
+            if (!parentMap.containsKey(entry.getKey())) {
+                parentMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return parentMap; //TODO: 7/12/17 test whether the correct updated map is received
+    }
+
     /**
      * Compile the matching condition
      *
@@ -286,6 +342,9 @@ public abstract class AbstractRecordTable implements Table {
      * updateOrAdd
      */
     protected abstract CompiledCondition compileCondition(ConditionBuilder conditionBuilder);
+
+//    protected abstract CompiledCondition compileSetAttribute(String attributeName,
+//                                                             ConditionBuilder conditionBuilder);
 
     private class RecordStoreCompiledCondition implements CompiledCondition {
         private Map<String, ExpressionExecutor> variableExpressionExecutorMap;
@@ -306,4 +365,16 @@ public abstract class AbstractRecordTable implements Table {
             return new RecordStoreCompiledCondition(newVariableExpressionExecutorMap, compiledCondition);
         }
     }
+
+//    private class RecordStoreCompiledUpdateSet implements CompiledUpdateSet {
+//        private List<CompiledCondition> compiledConditionList = new ArrayList<>();
+//
+//        public void addCompiledCondition(CompiledCondition compiledCondition) {
+//            compiledConditionList.add(compiledCondition);
+//        }
+//
+//        public List<CompiledCondition> getCompiledConditionList() {
+//            return compiledConditionList;
+//        }
+//    }
 }

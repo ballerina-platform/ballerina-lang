@@ -24,12 +24,19 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
+import org.wso2.siddhi.core.table.record.CompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface class to represent Tables in Siddhi. There are multiple implementations. Ex: {@link InMemoryTable}. Table
@@ -47,13 +54,32 @@ public interface Table extends FindableProcessor {
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition);
 
     void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                UpdateAttributeMapper[] updateAttributeMappers);
+                CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers);
 
     void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
                      CompiledCondition compiledCondition,
-                     UpdateAttributeMapper[] updateAttributeMappers,
+                     CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers,
                      AddingStreamEventExtractor addingStreamEventExtractor);
 
     boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
 
+    /**
+     * Builds the "compiled" set clause of an update query.
+     * Here, all the pre-processing that can be done prior to receiving the update event is done,
+     * so that such pre-processing work will not be done at each update-event-arrival.
+     *
+     * @param updateSet                   the set of assignment expressions, each containing the table column to be
+     *                                    updated and the expression to be assigned.
+     * @param matchingMetaInfoHolder      the meta structure of the incoming matchingEvent
+     * @param siddhiAppContext            current siddhi app context
+     * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
+     * @param tableMap                    map of event tables
+     * @param queryName                   query name to which the update statement belongs.
+     * @return
+     */
+    CompiledUpdateSet compileUpdateSet(UpdateSet updateSet,
+                                       MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                       SiddhiAppContext siddhiAppContext,
+                                       List<VariableExpressionExecutor> variableExpressionExecutors,
+                                       Map<String, Table> tableMap, String queryName);
 }

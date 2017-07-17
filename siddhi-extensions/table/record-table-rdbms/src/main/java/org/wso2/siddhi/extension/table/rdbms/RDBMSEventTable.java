@@ -27,6 +27,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.exception.CannotLoadConfigurationException;
 import org.wso2.siddhi.core.table.record.AbstractRecordTable;
+import org.wso2.siddhi.core.table.record.CompiledUpdateSet;
 import org.wso2.siddhi.core.table.record.ConditionBuilder;
 import org.wso2.siddhi.core.table.record.RecordIterator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -35,6 +36,7 @@ import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSQueryConfigurationEntry;
 import org.wso2.siddhi.extension.table.rdbms.config.RDBMSTypeMapping;
 import org.wso2.siddhi.extension.table.rdbms.exception.RDBMSTableException;
+import org.wso2.siddhi.extension.table.rdbms.util.Constant;
 import org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableUtils;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -51,6 +53,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -64,7 +67,6 @@ import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANN
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_URL;
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.ANNOTATION_ELEMENT_USERNAME;
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.CLOSE_PARENTHESIS;
-import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.EQUALS;
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.OPEN_PARENTHESIS;
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS;
 import static org.wso2.siddhi.extension.table.rdbms.util.RDBMSTableConstants.PLACEHOLDER_COLUMNS_VALUES;
@@ -255,10 +257,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void update(List<Map<String, Object>> updateConditionParameterMaps, CompiledCondition compiledCondition,
-                          List<Map<String, Object>> updateValues) {
-        String sql = this.composeUpdateQuery(compiledCondition);
+                          CompiledUpdateSet compiledUpdateSet, List<Map<String, Object>> updateValues) {
+        String sql = this.composeUpdateQuery(compiledCondition, compiledUpdateSet);
         try {
-            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition, updateValues);
+            this.batchProcessUpdates(sql, updateConditionParameterMaps, compiledCondition,
+                    compiledUpdateSet, updateValues);
         } catch (SQLException e) {
             throw new RDBMSTableException("Error performing record update operations on table '" + this.tableName
                     + "': " + e.getMessage(), e);
@@ -267,9 +270,11 @@ public class RDBMSEventTable extends AbstractRecordTable {
 
     @Override
     protected void updateOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                               CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
+                               CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet,
+                               List<Map<String, Object>> updateSetParameterMaps,
                                List<Object[]> addingRecords) {
-        this.updateOrInsertRecords(updateConditionParameterMaps, compiledCondition, updateValues, addingRecords);
+        this.updateOrInsertRecords(updateConditionParameterMaps, compiledCondition, compiledUpdateSet,
+                updateSetParameterMaps, addingRecords);
     }
 
     @Override
@@ -313,17 +318,14 @@ public class RDBMSEventTable extends AbstractRecordTable {
      *
      * @return the composed SQL query in string form.
      */
-    private String composeUpdateQuery(CompiledCondition compiledCondition) {
+    private String composeUpdateQuery(CompiledCondition compiledCondition, CompiledUpdateSet compiledUpdateSet) {
         String sql = this.resolveTableName(this.queryConfigurationEntry.getRecordUpdateQuery());
         String condition = ((RDBMSCompiledCondition) compiledCondition).getCompiledQuery();
-        StringBuilder columnsValues = new StringBuilder();
-        this.attributes.forEach(attribute -> {
-            columnsValues.append(attribute.getName()).append(EQUALS).append(QUESTION_MARK);
-            if (this.attributes.indexOf(attribute) != this.attributes.size() - 1) {
-                columnsValues.append(SEPARATOR);
-            }
-        });
-        sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, columnsValues.toString());
+        String result = compiledUpdateSet.getUpdateSetMap().entrySet().stream().map(e -> e.getKey()
+                + " = " + ((RDBMSCompiledCondition) e.getValue()).getCompiledQuery())
+                .collect(Collectors.joining(", "));
+        sql = sql.replace(PLACEHOLDER_COLUMNS_VALUES, result);
+
         sql = RDBMSTableUtils.isEmpty(condition) ? sql.replace(PLACEHOLDER_CONDITION, "") :
                 RDBMSTableUtils.formatQueryWithCondition(sql, condition);
         return sql;
@@ -336,29 +338,46 @@ public class RDBMSEventTable extends AbstractRecordTable {
      * @param sql                          the SQL update operation as string.
      * @param updateConditionParameterMaps the runtime parameters that should be populated to the condition.
      * @param compiledCondition            the condition that was built during compile time.
-     * @param updateValues                 the runtime parameters that should be populated to the update statement.
+     * @param updateSetParameterMaps                 the runtime parameters that should be populated to the update statement.
      * @throws SQLException if the update operation fails.
      */
     private void batchProcessUpdates(String sql, List<Map<String, Object>> updateConditionParameterMaps,
                                      CompiledCondition compiledCondition,
-                                     List<Map<String, Object>> updateValues) throws SQLException {
-        final int seed = this.attributes.size();
+                                     CompiledUpdateSet compiledUpdateSet,
+                                     List<Map<String, Object>> updateSetParameterMaps) throws SQLException {
+        // TODO: 7/14/17 test & make sure that correct updateSetParameterMaps are set
         Connection conn = this.getConnection();
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(sql);
             Iterator<Map<String, Object>> conditionParamIterator = updateConditionParameterMaps.iterator();
-            Iterator<Map<String, Object>> valueIterator = updateValues.iterator();
+            Iterator<Map<String, Object>> valueIterator = updateSetParameterMaps.iterator();
             while (conditionParamIterator.hasNext() && valueIterator.hasNext()) {
                 Map<String, Object> conditionParameters = conditionParamIterator.next();
                 Map<String, Object> values = valueIterator.next();
+
+                int ordinal = 1;
+                for (Map.Entry<String, CompiledCondition> assignmentEntry :
+                        compiledUpdateSet.getUpdateSetMap().entrySet()) {
+                    for (Map.Entry<Integer, Object> parameterEntry :
+                            ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
+                        Object parameter = parameterEntry.getValue();
+                        if (parameter instanceof Constant) {
+                            Constant constant = (Constant) parameter;
+                            RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
+                                    constant.getValue());
+                        } else {
+                            Attribute variable = (Attribute) parameter;
+                            RDBMSTableUtils.populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
+                                    values.get(variable.getName()));
+                        }
+                        ordinal++;// TODO: 7/12/17 possible bug when parameter is neither Constant nor Attribute.
+                    }
+                }
+
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
                 RDBMSTableUtils.resolveCondition(stmt, (RDBMSCompiledCondition) compiledCondition, conditionParameters,
-                        seed);
-                for (Attribute attribute : this.attributes) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(stmt, this.attributes.indexOf(attribute) + 1,
-                            attribute.getType(), values.get(attribute.getName()));
-                }
+                        ordinal);
                 stmt.addBatch();
             }
             stmt.executeBatch();
@@ -372,34 +391,49 @@ public class RDBMSEventTable extends AbstractRecordTable {
      *
      * @param updateConditionParameterMaps update parameters that should be populated for each condition.
      * @param compiledCondition            the condition that was built during compile time.
-     * @param updateValues                 the values for which the update operation should be done
+     * @param compiledUpdateSet
+     * @param updateSetParameterMaps       the values for which the update operation should be done
      *                                     (i.e. the new values).
      * @param addingRecords                the records that should be inserted to the DB should the update operation
-     *                                     fail.
      */
     private void updateOrInsertRecords(List<Map<String, Object>> updateConditionParameterMaps,
-                                       CompiledCondition compiledCondition, List<Map<String, Object>> updateValues,
+                                       CompiledCondition compiledCondition,
+                                       CompiledUpdateSet compiledUpdateSet, List<Map<String, Object>> updateSetParameterMaps,
                                        List<Object[]> addingRecords) {
         int counter = 0;
-        final int seed = this.attributes.size();
         Connection conn = this.getConnection(false);
         PreparedStatement updateStmt = null;
         PreparedStatement insertStmt = null;
         try {
-            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition));
+            updateStmt = conn.prepareStatement(this.composeUpdateQuery(compiledCondition, compiledUpdateSet));
             insertStmt = conn.prepareStatement(this.composeInsertQuery());
-            while (counter < updateValues.size()) {
+            while (counter < updateSetParameterMaps.size()) {
                 int rowsChanged;
-                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
-                Map<String, Object> values = updateValues.get(counter);
+                Map<String, Object> values = updateSetParameterMaps.get(counter); //'values' are used for replacing ?s in the SET clause
                 //Incrementing the ordinals of the conditions in the statement with the # of variables to be updated
-                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
-                        conditionParameters, seed);
-                for (Attribute attribute : this.attributes) {
-                    RDBMSTableUtils.populateStatementWithSingleElement(updateStmt,
-                            this.attributes.indexOf(attribute) + 1, attribute.getType(),
-                            values.get(attribute.getName()));
+
+                int ordinal = 1;
+                for (Map.Entry<String, CompiledCondition> assignmentEntry :
+                        compiledUpdateSet.getUpdateSetMap().entrySet()) {
+                    for (Map.Entry<Integer, Object> parameterEntry :
+                            ((RDBMSCompiledCondition) assignmentEntry.getValue()).getParameters().entrySet()) {
+                        Object parameter = parameterEntry.getValue();
+                        if (parameter instanceof Constant) {
+                            Constant constant = (Constant) parameter;
+                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, constant.getType(),
+                                    constant.getValue());
+                        } else {
+                            Attribute variable = (Attribute) parameter;
+                            RDBMSTableUtils.populateStatementWithSingleElement(updateStmt, ordinal, variable.getType(),
+                                    values.get(variable.getName()));
+                        }
+                        ordinal++;// TODO: 7/12/17 possible bug when parameter is neither Constant nor Attribute.
+                    }
                 }
+                Map<String, Object> conditionParameters = updateConditionParameterMaps.get(counter);
+                RDBMSTableUtils.resolveCondition(updateStmt, (RDBMSCompiledCondition) compiledCondition,
+                        conditionParameters, ordinal);
+
                 rowsChanged = updateStmt.executeUpdate();
                 conn.commit();
                 if (rowsChanged < 1) {

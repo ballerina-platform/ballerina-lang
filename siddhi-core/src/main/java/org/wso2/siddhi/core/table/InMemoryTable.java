@@ -26,6 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.core.table.record.CompiledUpdateSet;
 import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -36,6 +37,7 @@ import org.wso2.siddhi.core.util.parser.EventHolderPasser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.execution.query.output.stream.UpdateSet;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.HashMap;
@@ -99,7 +101,7 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
-                       UpdateAttributeMapper[] updateAttributeMappers) {
+                       CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
             ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
@@ -111,8 +113,9 @@ public class InMemoryTable implements Table, Snapshotable {
 
     @Override
     public void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk, CompiledCondition compiledCondition,
-                            UpdateAttributeMapper[] updateAttributeMappers,
+                            CompiledUpdateSet compiledUpdateSet, UpdateAttributeMapper[] updateAttributeMappers,
                             AddingStreamEventExtractor addingStreamEventExtractor) {
+        // TODO: 6/30/17 Use compiledUpdateSet
         try {
             readWriteLock.writeLock().lock();
             ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate
@@ -156,6 +159,15 @@ public class InMemoryTable implements Table, Snapshotable {
                                               Map<String, Table> tableMap, String queryName) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 siddhiAppContext, variableExpressionExecutors, tableMap, tableDefinition.getId());
+    }
+
+    // TODO: 7/3/17 implement
+    @Override
+    public CompiledUpdateSet compileUpdateSet(UpdateSet updateSet, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              SiddhiAppContext siddhiAppContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, Table> tableMap, String queryName) {
+        return null;
     }
 
 

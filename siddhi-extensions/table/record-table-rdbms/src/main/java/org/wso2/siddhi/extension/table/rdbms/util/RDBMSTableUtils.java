@@ -121,25 +121,26 @@ public class RDBMSTableUtils {
      * @param compiledCondition     the compiled condition which was built during compile time and now is being provided
      *                              by the Siddhi runtime.
      * @param conditionParameterMap the map which contains the runtime value(s) for the condition.
-     * @param seed                  the integer factor by which the ordinal count will be incremented when populating
+     * @param ordinal                  the integer factor by which the ordinal count will be incremented when populating
      *                              the {@link PreparedStatement}.
      * @throws SQLException in the unlikely case where there are errors when setting values to the statement
      *                      (e.g. type mismatches)
      */
     public static void resolveCondition(PreparedStatement stmt, RDBMSCompiledCondition compiledCondition,
-                                        Map<String, Object> conditionParameterMap, int seed) throws SQLException {
+                                        Map<String, Object> conditionParameterMap, int ordinal) throws SQLException {
         SortedMap<Integer, Object> parameters = compiledCondition.getParameters();
         for (Map.Entry<Integer, Object> entry : parameters.entrySet()) {
             Object parameter = entry.getValue();
             if (parameter instanceof Constant) {
                 Constant constant = (Constant) parameter;
-                populateStatementWithSingleElement(stmt, seed + entry.getKey(), constant.getType(),
+                populateStatementWithSingleElement(stmt, ordinal, constant.getType(),
                         constant.getValue());
             } else {
                 Attribute variable = (Attribute) parameter;
-                populateStatementWithSingleElement(stmt, seed + entry.getKey(), variable.getType(),
+                populateStatementWithSingleElement(stmt, ordinal, variable.getType(),
                         conditionParameterMap.get(variable.getName()));
             }
+            ordinal++;
         }
     }
 
