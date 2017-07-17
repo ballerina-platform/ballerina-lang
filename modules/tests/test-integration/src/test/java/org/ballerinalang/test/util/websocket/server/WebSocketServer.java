@@ -39,7 +39,7 @@ public final class WebSocketServer {
         this.port = port;
     }
 
-    public void run() throws Exception {
+    public void run() throws InterruptedException {
         final SslContext sslCtx = null;
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();

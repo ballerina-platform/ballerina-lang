@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
  */
 public class WebSocketClientTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 100;
-    private final int clientCount = 2;
+    private final int threadSleepTime = 50;
+    private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
 
     {
@@ -41,14 +41,13 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
     @Test
     public void testMediation() throws Exception {
         handshakeAllClients(wsClients);
+
         for (int i = 0; i < clientCount; i++) {
             wsClients[i].sendText(i + "");
+            Thread.sleep(threadSleepTime);
         }
 
-        Thread.sleep(threadSleepTime);
-
         for (int i = 0; i < clientCount; i++) {
-            wsClients[i].sendText(i + "");
             Assert.assertEquals(wsClients[i].getTextReceived(), "client service : " + i);
         }
 
