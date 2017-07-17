@@ -101,7 +101,8 @@ const GlobalDefinitions = ({ bBox, title, numberOfItems, onExpand }) => {
                 height={iconSize}
                 className="property-pane-action-button-delete"
                 xlinkHref={ImageUtil.getSVGIconString('view')}
-            />
+            >
+                <title>View Global Variables</title> </image>
         </g>
     );
 };
