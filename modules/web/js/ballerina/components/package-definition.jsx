@@ -257,7 +257,9 @@ class PackageDefinition extends React.Component {
                         onClick={this.handlePackageIconClick}
                         x={bBox.x + ((headerHeight - iconSize) / 2)}
                         y={bBox.y + ((headerHeight - iconSize) / 2)}
-                    />
+                    >
+                        <title>Package Name</title>
+                    </image>
                 </g>
                 {
                     importsExpanded ?
