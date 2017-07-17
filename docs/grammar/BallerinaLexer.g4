@@ -22,6 +22,7 @@ CONST       : 'const' ;
 TYPEMAPPER  : 'typemapper' ;
 WORKER      : 'worker' ;
 XMLNS       : 'xmlns' ;
+RETURNS     : 'returns';
 
 TYPE_INT        : 'int' ;
 TYPE_FLOAT      : 'float' ;
