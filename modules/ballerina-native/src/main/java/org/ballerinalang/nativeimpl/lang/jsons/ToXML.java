@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Converts a XML to the corresponding JSON representation.
+ * Converts a JSON to the corresponding XML representation.
  *
  * @since 0.90
  */
@@ -47,11 +47,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Converts a JSON object to a xml representation") })
+        value = "Converts a JSON object to a XML representation") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "options",
-        value = "Options for json to xml conversion ") })
+        value = "Options for JSON to XML conversion ") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "XML value of the given JSON") })
 public class ToXML extends AbstractJSONFunction {
@@ -60,7 +60,7 @@ public class ToXML extends AbstractJSONFunction {
     public BValue[] execute(Context ctx) {
         BXML xml = null;
         try {
-            // Accessing Parameters../
+            // Accessing Parameters
             BJSON json = (BJSON) getRefArgument(ctx, 0);
             BStruct optionsStruct = ((BStruct) getRefArgument(ctx, 1));
             String attributePrefix = optionsStruct.getStringField(0);
@@ -70,7 +70,6 @@ public class ToXML extends AbstractJSONFunction {
         } catch (Throwable e) {
             ErrorHandler.handleJsonException("convert json to xml", e);
         }
-
         return getBValues(xml);
     }
 }
