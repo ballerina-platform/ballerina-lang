@@ -72,4 +72,16 @@ public class CompositeConnectorTest {
         Assert.assertEquals(value2.stringValue(), expected2);
     }
 
+    @Test(description = "Test composite connector with internal filter and array based syntax")
+    public void testCompositeConnectorInternalArray() {
+        programFile = BTestUtils.getProgramFile("samples/connectors/composite-connector-internal-array.bal");
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testCompositeConnector");
+        Assert.assertEquals(returns.length, 2);
+        BString value1 = (BString) returns[0];
+        BString value2 = (BString) returns[1];
+        String expected = "LB1";
+        Assert.assertEquals(value1.stringValue(), expected);
+        String expected2 = "LB2";
+        Assert.assertEquals(value2.stringValue(), expected2);
+    }
 }
