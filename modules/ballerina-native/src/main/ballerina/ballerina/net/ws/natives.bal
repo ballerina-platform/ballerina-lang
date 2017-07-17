@@ -58,10 +58,6 @@ connector ClientConnector (string url, string callbackService) {
     @doc:Param { value:"text: text which should be sent"}
     native action pushText(ClientConnector c, string text);
 
-    @doc:Description { value:"Closing the connection with server"}
-    @doc:Param { value:"c: WebSocket Client Connector"}
-    native action close(ClientConnector c);
-
 }
 
 
