@@ -33,6 +33,7 @@ class BallerinaEnvironment extends EventChannel {
     constructor(args) {
         super();
         this.initialized = false;
+        this.initPending = false;
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
         this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
@@ -40,7 +41,16 @@ class BallerinaEnvironment extends EventChannel {
 
     initialize() {
         return new Promise((resolve, reject) => {
+            // avoid doing init multiple times.
+            // if one is pending already, just subscribe to
+            // finish event once
+            if (this.initPending) {
+                this.once('initialized', () => {
+                    resolve();
+                });
+            }
             if (!this.initialized) {
+                this.initPending = true;
                 getLangServerClientInstance()
                     .then((langServerClient) => {
                         langServerClient.workspaceSymbolRequest('builtinTypes', (data) => {
@@ -49,6 +59,8 @@ class BallerinaEnvironment extends EventChannel {
                                 .then(() => {
                                     this.initializeAnnotationAttachmentPoints();
                                     this.initialized = true;
+                                    this.initPending = false;
+                                    this.trigger('initialized');
                                     resolve();
                                 })
                                 .catch(reject);
