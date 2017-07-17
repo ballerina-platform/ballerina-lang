@@ -285,7 +285,7 @@ class BallerinaFileEditor extends React.Component {
                                             }
                                             this.update();
                                         })
-                                        .catch(reject)
+                                        .catch(error => log.error(error));
                                 })
                                 .catch(reject);          
                         })
