@@ -1100,7 +1100,10 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    sf.intRegs[k] = sf.refRegs[i].value() == sf.refRegs[j].value() ? 1 : 0;
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = sf.refRegs[i].equals(sf.refRegs[j]) ? 1 : 0;
                     break;
 
                 case InstructionCodes.INE:
@@ -1137,7 +1140,10 @@ public class BLangVM {
                     i = operands[0];
                     j = operands[1];
                     k = operands[2];
-                    sf.intRegs[k] = sf.refRegs[i].value() != sf.refRegs[j].value() ? 1 : 0;
+                    if (sf.refRegs[i] == null || sf.refRegs[j] == null) {
+                        handleNullRefError();
+                    }
+                    sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                     break;
 
                 case InstructionCodes.IGT:

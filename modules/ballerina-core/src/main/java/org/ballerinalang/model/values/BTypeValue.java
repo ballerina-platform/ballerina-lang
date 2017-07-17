@@ -18,6 +18,7 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
@@ -56,6 +57,22 @@ public class BTypeValue implements BRefType<BType> {
     @Override
     public BValue copy() {
         return new BTypeValue(typeValue);
+    }
+
+    public boolean equals(Object obj) {
+        BTypeValue typeValue = (BTypeValue) obj;
+        if ((typeValue.value() instanceof BArrayType) &&
+                (this.value() instanceof BArrayType)) {
+            BArrayType objArrayType = (BArrayType) typeValue.value();
+            BArrayType thisArrayType = (BArrayType) this.value();
+            if (objArrayType.getDimensions() != thisArrayType.getDimensions()) {
+                return false;
+            }
+            return (new BTypeValue(thisArrayType.getElementType()))
+                    .equals(new BTypeValue(objArrayType.getElementType()));
+        } else {
+            return typeValue.value() == this.value();
+        }
     }
 
 }
