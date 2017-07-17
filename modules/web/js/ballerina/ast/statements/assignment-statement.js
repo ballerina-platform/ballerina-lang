@@ -113,7 +113,7 @@ class AssignmentStatement extends Statement {
                     if (variableType !== defaultValueType &&
                         !(variableType === 'float' && defaultValueType === 'int')) {
                         state = false;
-                        log.error('Variable type and the default value type are not the same');
+                        log.warn('Variable type and the default value type are not the same');
                         if (_.isFunction(callback)) {
                             callback({ isValid: false, response: parsedJson });
                         }

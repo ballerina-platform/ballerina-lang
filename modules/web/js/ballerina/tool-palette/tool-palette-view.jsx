@@ -209,17 +209,11 @@ class ToolSearch extends React.Component {
         });
         this.props.onTextChange('');
     }
-/*
-    handleClick = () => {
-        ReactDOM.findDOMNode(this.refs.form).value = "";
-    }
-*/
-
 
     render() {
         if (this.state.text) {
             return (
-                <div className="non-user-selectable">
+                <div className="non-user-selectable wrapper">
                     <div className="search-bar">
                         <i className="fw fw-search searchIcon" />
                         <i className="fw fw-cancel clearIcon" onClick={this.clearText} />
@@ -236,7 +230,7 @@ class ToolSearch extends React.Component {
             );
         }
         return (
-            <div className="non-user-selectable">
+            <div className="non-user-selectable wrapper">
                 <div className="search-bar">
                     <i className="fw fw-search searchIcon" />
                     <input

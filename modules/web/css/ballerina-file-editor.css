@@ -9,7 +9,6 @@
 .design-view-container {
     padding-left: 244px;
     padding-top: 0;
-    overflow-y: scroll;
     height: 100%;
 }
 
@@ -22,6 +21,7 @@
     height: auto;
     min-height: 1000px;
     position: relative;
+    overflow-x: scroll;
 }
 
 .canvas-top-controls-container{
@@ -1082,3 +1082,8 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
   opacity: 0.01;
   transition: opacity 300ms ease-in;
 }
+
+/*
+#element::-webkit-scrollbar {
+    display: none;
+}*/
