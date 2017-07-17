@@ -19,8 +19,8 @@
 package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.util.websocket.client.WebSocketClient;
-import org.ballerinalang.test.util.websocket.server.WebSocketFrameHandler;
-import org.ballerinalang.test.util.websocket.server.WebSocketServerInitializer;
+import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServerFrameHandler;
+import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServerInitializer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class WebSocketClientTest extends WebSocketIntegrationTest {
 
-    private final int threadSleepTime = 50;
+    private final int threadSleepTime = 100;
     private final int clientCount = 5;
     private final WebSocketClient[] wsClients = new WebSocketClient[clientCount];
 
@@ -47,9 +47,9 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
         for (int i = 0; i < clientCount; i++) {
             // Send and wait to receive message back from the remote server.
             wsClients[i].sendText(i + "");
-            Thread.sleep(threadSleepTime);
         }
 
+        Thread.sleep(threadSleepTime);
         for (int i = 0; i < clientCount; i++) {
             Assert.assertEquals(wsClients[i].getTextReceived(), "client service : " + i);
         }
@@ -57,10 +57,27 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
     }
 
     @Test
-    public void testRemoteConnectionClosure() throws InterruptedException {
+    public void testRemoteConnectionClosureFromRemoteClient() throws InterruptedException {
         wsClients[0].shutDown();
+        Thread.sleep(threadSleepTime);
+
         boolean isConnectionClosed = false;
-        for (WebSocketFrameHandler frameHandler : WebSocketServerInitializer.FRAME_HANDLERS) {
+        for (WebSocketRemoteServerFrameHandler frameHandler : WebSocketRemoteServerInitializer.FRAME_HANDLERS) {
+            if (!frameHandler.isOpen()) {
+                isConnectionClosed = true;
+                break;
+            }
+        }
+        Assert.assertTrue(isConnectionClosed);
+    }
+
+    @Test
+    public void testRemoteConnectionClosureFromBallerina() throws InterruptedException {
+        wsClients[1].sendText("closeMe");
+        Thread.sleep(threadSleepTime);
+
+        boolean isConnectionClosed = false;
+        for (WebSocketRemoteServerFrameHandler frameHandler : WebSocketRemoteServerInitializer.FRAME_HANDLERS) {
             if (!frameHandler.isOpen()) {
                 isConnectionClosed = true;
                 break;

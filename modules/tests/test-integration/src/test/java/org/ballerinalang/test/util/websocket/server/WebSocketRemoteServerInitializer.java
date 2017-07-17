@@ -33,15 +33,15 @@ import java.util.List;
 /**
  * Initializer for WebSocket server for Testing.
  */
-public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel> {
+public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final String WEBSOCKET_PATH = "/websocket";
 
     private final SslContext sslCtx;
 
-    public static final List<WebSocketFrameHandler> FRAME_HANDLERS = new LinkedList<>();
+    public static final List<WebSocketRemoteServerFrameHandler> FRAME_HANDLERS = new LinkedList<>();
 
-    public WebSocketServerInitializer(SslContext sslCtx) {
+    public WebSocketRemoteServerInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
     }
 
@@ -56,7 +56,7 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(new WebSocketServerCompressionHandler());
         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
 
-        WebSocketFrameHandler frameHandler = new WebSocketFrameHandler();
+        WebSocketRemoteServerFrameHandler frameHandler = new WebSocketRemoteServerFrameHandler();
         FRAME_HANDLERS.add(frameHandler);
         pipeline.addLast(frameHandler);
     }
