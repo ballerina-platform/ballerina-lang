@@ -847,7 +847,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
-                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,
@@ -858,12 +858,12 @@ public class WhiteSpaceUtil {
     }
 
     public static WhiteSpaceDescriptor getFunctionInvocationExprWS(CommonTokenStream tokenStream,
-                                                           BallerinaParser.FunctionInvocationExpressionContext ctx) {
+                                                      BallerinaParser.FunctionInvocationReferenceContext ctx) {
         WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_PRECEDING_WHITESPACE,
                 getWhitespaceToLeft(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_NAME_REF_TO_ARG_LIST_START,
-                getWhitespaceToRight(tokenStream, ctx.nameReference().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.variableReference().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_ARG_LIST_START_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, STARTING_PAREN).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.FUNCTION_INVOCATION_EXPR_END_TO_NEXT_TOKEN,

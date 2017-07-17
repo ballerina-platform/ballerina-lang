@@ -798,19 +798,20 @@ public class BLangModelBuilder {
     }
 
     public void addFunctionInvocationExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                          NameReference nameReference, boolean argsAvailable) {
+                                          boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
+        SimpleVarRefExpr varRefExpr = (SimpleVarRefExpr) exprStack.pop();
         if (argsAvailable) {
             List<Expression> argExprList = exprListStack.pop();
             checkArgExprValidity(location, argExprList);
             cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(nameReference.name);
-        cIExprBuilder.setPkgName(nameReference.pkgName);
-        cIExprBuilder.setPkgPath(nameReference.pkgPath);
+        cIExprBuilder.setName(varRefExpr.getVarName());
+        cIExprBuilder.setPkgName(varRefExpr.getPkgName());
+        cIExprBuilder.setPkgPath(varRefExpr.getPkgPath());
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         invocationExpr.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         exprStack.push(invocationExpr);
@@ -1658,15 +1659,17 @@ public class BLangModelBuilder {
     }
 
     public void createFunctionInvocationStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                             NameReference nameReference, boolean argsAvailable) {
+                                             boolean argsAvailable) {
 
-        addFunctionInvocationExpr(location, whiteSpaceDescriptor, nameReference, argsAvailable);
-        FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.peek();
+        if (varRefExpr instanceof SimpleVarRefExpr) {
+            addFunctionInvocationExpr(location, whiteSpaceDescriptor, argsAvailable);
+            FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
 
-
-        FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
-        functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
-        blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+            FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
+            functionInvocationStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
+            blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+        }
     }
 
     public void createWorkerInvocationStmt(String workerName, NodeLocation sourceLocation,

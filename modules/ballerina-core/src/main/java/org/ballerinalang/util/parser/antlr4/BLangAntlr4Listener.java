@@ -313,6 +313,14 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    }
+
+    @Override
+    public void exitLambdaFunction(BallerinaParser.LambdaFunctionContext ctx) {
+    }
+
+    @Override
     public void enterCallableUnitSignature(CallableUnitSignatureContext ctx) {
 
     }
@@ -876,6 +884,14 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             simpleTypeName.setWhiteSpaceDescriptor(ws);
         }
         typeNameStack.push(simpleTypeName);
+    }
+
+    @Override
+    public void enterFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) {
+    }
+
+    @Override
+    public void exitFunctionTypeName(BallerinaParser.FunctionTypeNameContext ctx) {
     }
 
     @Override
@@ -1719,6 +1735,27 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+    }
+
+    @Override
+    public void exitFunctionInvocationReference(BallerinaParser.FunctionInvocationReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean argsAvailable = ctx.expressionList() != null;
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
+            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
+        }
+
+        NodeLocation currentLocation = getCurrentLocation(ctx);
+        modelBuilder.addFunctionInvocationExpr(currentLocation, whiteSpaceDescriptor, argsAvailable);
+    }
+
+    @Override
     public void enterFieldVariableReference(BallerinaParser.FieldVariableReferenceContext ctx) {
 
     }
@@ -1820,10 +1857,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-        modelBuilder.createFunctionInvocationStmt(currentLocation, whiteSpaceDescriptor,
-                nameReference, argsAvailable);
+        modelBuilder.createFunctionInvocationStmt(currentLocation, whiteSpaceDescriptor, argsAvailable);
     }
 
     @Override
@@ -2017,27 +2051,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
-    public void enterFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
+    public void enterLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) {
     }
 
     @Override
-    public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean argsAvailable = ctx.expressionList() != null;
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
-            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
-        }
-
-        NodeLocation currentLocation = getCurrentLocation(ctx);
-        BLangModelBuilder.NameReference nameReference = nameReferenceStack.pop();
-        modelBuilder.validateAndSetPackagePath(currentLocation, nameReference);
-        modelBuilder.addFunctionInvocationExpr(currentLocation, whiteSpaceDescriptor,
-                nameReference, argsAvailable);
+    public void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) {
     }
 
     @Override
@@ -2232,11 +2250,11 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
-    public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+    public void enterTypeList(BallerinaParser.TypeListContext ctx) {
     }
 
     @Override
-    public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+    public void exitTypeList(BallerinaParser.TypeListContext ctx) {
         if (ctx.exception != null) {
             return;
         }
