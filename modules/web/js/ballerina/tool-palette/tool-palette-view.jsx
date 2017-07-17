@@ -59,9 +59,10 @@ class ToolsPane extends React.Component {
         return (
             <div>
                 {this.props.constructs &&
-                    <ToolGroupView group={this.props.constructs}
-                                   key="constructs"
-                                   showGridStyles
+                    <ToolGroupView
+                        group={this.props.constructs}
+                        key="constructs"
+                        showGridStyles
                     />}
                 {this.props.currentTools && !_.isEmpty(this.props.currentTools.tools) &&
                 <ToolGroupView
@@ -190,6 +191,7 @@ class ToolSearch extends React.Component {
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
+        this.clearText = this.clearText.bind(this);
         this.state = {
             text: '',
         };
@@ -200,7 +202,39 @@ class ToolSearch extends React.Component {
         this.props.onTextChange(e.target.value);
     }
 
+
+    clearText(e) {
+        this.setState({
+            text: '',
+        });
+        this.props.onTextChange('');
+    }
+/*
+    handleClick = () => {
+        ReactDOM.findDOMNode(this.refs.form).value = "";
+    }
+*/
+
+
     render() {
+        if (this.state.text) {
+            return (
+                <div className="non-user-selectable">
+                    <div className="search-bar">
+                        <i className="fw fw-search searchIcon" />
+                        <i className="fw fw-cancel clearIcon" onClick={this.clearText} />
+                        <input
+                            className="search-input"
+                            id="search-field"
+                            placeholder="Search"
+                            type="text"
+                            onChange={this.handleChange}
+                            value={this.state.text}
+                        />
+                    </div>
+                </div>
+            );
+        }
         return (
             <div className="non-user-selectable">
                 <div className="search-bar">
@@ -224,7 +258,7 @@ class ToolPaletteView extends React.Component {
     /**
      * Creates an instance of ToolPaletteView.
      * @param {any} props react props.
-     * 
+     *
      * @memberof ToolPaletteView
      */
     constructor(props) {
@@ -281,7 +315,7 @@ class ToolPaletteView extends React.Component {
      *
      * @param {any} pckg package to be converted.
      * @param {string} [mode='both' | 'connectors' | 'functions' ] include connectors or functions.
-     * @param {boolean} [transform=false]  
+     * @param {boolean} [transform=false]
      * @returns {ToolGroup}
      *
      * @memberof ToolPaletteView
@@ -378,7 +412,6 @@ class ToolPaletteView extends React.Component {
                         functionTool._returnParams = functionDef.getReturnParams();
                         definitions.push(functionTool);
                     }
-
                 } else {
                     const packageName = _.last(_.split(pckg.getName(), '.'));
                     const functionTool = {};
@@ -420,7 +453,7 @@ class ToolPaletteView extends React.Component {
         const environment = this.context.environment;
         // get the current package
         const currentPackage = environment.createCurrentPackageFromAST(model);
-        let currentTools = this.package2ToolGroup(currentPackage,'both',this.props.isTransformActive);
+        let currentTools = this.package2ToolGroup(currentPackage, 'both', this.props.isTransformActive);
         currentTools = this.searchTools(this.state.search, _.cloneDeep(currentTools));
         if (currentTools !== undefined) {
             currentTools.collapsed = searching;
@@ -448,7 +481,7 @@ class ToolPaletteView extends React.Component {
                         />);
                     }
 
-                    group = this.package2ToolGroup(pkg, 'functions',this.props.isTransformActive);
+                    group = this.package2ToolGroup(pkg, 'functions', this.props.isTransformActive);
                     group = this.searchTools(this.state.search, _.cloneDeep(group));
                     if (group !== undefined && !_.isEmpty(group.tools)) {
                         group.collapsed = searching;
@@ -545,7 +578,7 @@ class ToolPaletteView extends React.Component {
 }
 
 ToolPaletteView.propTypes = {
-    isTransformActive: PropTypes.bool.isRequired
+    isTransformActive: PropTypes.bool.isRequired,
 };
 
 ToolPaletteView.contextTypes = {

@@ -159,11 +159,19 @@
     font-size: 14px;
     padding:6px 6px 5px;
     border: 0px solid #d9d9d9;
-    width: 100%;
+    width: calc(100% - 20px);
+    float: right;
 }
 .searchIcon{
     position: absolute;
-    right: 17px;
+    left: 5px;
+    top: 9px;
+    color: #7b7b7b;
+    float: left;
+}
+.clearIcon{
+    position: absolute;
+    right: 10px;
     top: 9px;
     color: #7b7b7b;
 }
