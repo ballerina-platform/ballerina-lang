@@ -23,11 +23,9 @@ import io.swagger.models.Operation;
  */
 public class OperationAdaptor {
 
-
     Operation operation;
     String path;
     String httpOperation;
-
 
     OperationAdaptor() {
         this.operation = new Operation();
