@@ -1028,32 +1028,13 @@ public class BLangVM {
                     }
                     break;
 
-                case InstructionCodes.TYPEOF_INT:
-                    i = operands[0];
+                case InstructionCodes.TYPELOAD:
+                    cpIndex = operands[0];
                     j = operands[1];
-                    sf.refRegs[j] = new BTypeValue(BTypes.typeInt);
+                    TypeCPEntry typeEntry = (TypeCPEntry) constPool[cpIndex];
+                    sf.refRegs[j] = new BTypeValue(typeEntry.getType());
                     break;
-                case InstructionCodes.TYPEOF_FLOAT:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BTypeValue(BTypes.typeFloat);
-                    break;
-                case InstructionCodes.TYPEOF_STRING:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BTypeValue(BTypes.typeString);
-                    break;
-                case InstructionCodes.TYPEOF_BOOLEAN:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BTypeValue(BTypes.typeBoolean);
-                    break;
-                case InstructionCodes.TYPEOF_BLOB:
-                    i = operands[0];
-                    j = operands[1];
-                    sf.refRegs[j] = new BTypeValue(BTypes.typeBlob);
-                    break;
-                case InstructionCodes.TYPEOF_REF:
+                case InstructionCodes.TYPEOF:
                     i = operands[0];
                     j = operands[1];
                     if (sf.refRegs[i] == null) {

@@ -182,12 +182,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
         mnemonics[InstructionCodes.LENGTHOFJSON] = "lengthofjson";
 
-        mnemonics[InstructionCodes.TYPEOF_INT] = "typeofint";
-        mnemonics[InstructionCodes.TYPEOF_FLOAT] = "typeoffloat";
-        mnemonics[InstructionCodes.TYPEOF_STRING] = "typeofstring";
-        mnemonics[InstructionCodes.TYPEOF_BOOLEAN] = "typeofboolean";
-        mnemonics[InstructionCodes.TYPEOF_BLOB] = "typeofblob";
-        mnemonics[InstructionCodes.TYPEOF_REF] = "typeofref";
+        mnemonics[InstructionCodes.TYPEOF] = "typeof";
+        mnemonics[InstructionCodes.TYPELOAD] = "typeload";
 
         // Type cast
         mnemonics[InstructionCodes.ANY2I] = "any2i";

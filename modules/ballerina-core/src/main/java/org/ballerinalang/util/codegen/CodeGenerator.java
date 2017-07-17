@@ -1242,9 +1242,16 @@ public class CodeGenerator implements NodeVisitor {
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
         } else if (Operator.TYPEOF.equals(unaryExpr.getOperator())) {
-            opcode = getOpcode(rExpr.getType().getTag(), InstructionCodes.TYPEOF_INT);
-            exprIndex = ++regIndexes[REF_OFFSET];
-            emit(opcode, rExpr.getTempOffset(), exprIndex);
+
+            if (rExpr.getType() == BTypes.typeAny) {
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPEOF, rExpr.getTempOffset(), exprIndex);
+            } else {
+                TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(rExpr.getType().getSig()));
+                int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPELOAD, typeCPindex, exprIndex);
+            }
 
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
             opcode = InstructionCodes.BNOT;

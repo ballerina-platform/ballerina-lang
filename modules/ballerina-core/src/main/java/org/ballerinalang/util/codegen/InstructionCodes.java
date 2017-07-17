@@ -257,15 +257,11 @@ public interface InstructionCodes {
     int S2QNAME = 242;
     int NEWQNAME = 243;
 
-    int TYPEOF_INT = 244;
-    int TYPEOF_FLOAT = 245;
-    int TYPEOF_STRING = 246;
-    int TYPEOF_BOOLEAN = 247;
-    int TYPEOF_BLOB = 248;
-    int TYPEOF_REF = 249;
+    int TYPEOF = 244;
+    int TYPELOAD = 245;
 
-    int TEQ = 250;
-    int TNE = 251;
+    int TEQ = 246;
+    int TNE = 247;
 
-    int INSTRUCTION_CODE_COUNT = 252;
+    int INSTRUCTION_CODE_COUNT = 248;
 }
