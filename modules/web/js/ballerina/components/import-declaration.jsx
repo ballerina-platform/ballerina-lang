@@ -92,7 +92,8 @@ const ImportDeclaration = ({ bBox, viewState, noOfImports, onClick }) => {
                 xlinkHref={ImageUtil.getSVGIconString('view')}
                 x={iconBbox.x}
                 y={iconBbox.y}
-            />
+            >
+                <title>View Imported Packages</title> </image>
         </g>
     );
 };

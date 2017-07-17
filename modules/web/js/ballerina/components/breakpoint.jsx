@@ -83,7 +83,8 @@ class Breakpoint extends React.Component {
                 x={this.props.x}
                 y={this.props.y}
                 onClick={this.props.onClick}
-            />
+            >
+                <title>Break point</title> </image>
         );
     }
 }

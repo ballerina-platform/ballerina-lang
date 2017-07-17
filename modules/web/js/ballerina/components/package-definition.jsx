@@ -258,8 +258,8 @@ class PackageDefinition extends React.Component {
                         x={bBox.x + ((headerHeight - iconSize) / 2)}
                         y={bBox.y + ((headerHeight - iconSize) / 2)}
                     >
-                        <title>Package Name</title>
-                    </image>
+
+                        <title>View Package Name</title> </image>
                 </g>
                 {
                     importsExpanded ?

@@ -40,6 +40,7 @@ class PopoutButton extends React.Component {
                     key={`popout-button-${button.text}`}
                     className={`icon fw ${button.icon}`}
                     onClick={e => button.onClick(e)}
+                    title={button.text}
                 />);
         });
     }

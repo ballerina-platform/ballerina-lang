@@ -157,13 +157,20 @@
 .search-input{
     background-color: #f0f0f0;
     font-size: 14px;
-    padding:6px 6px 5px;
+    padding:6px 6px 5px 30px;
     border: 0px solid #d9d9d9;
     width: 100%;
 }
 .searchIcon{
     position: absolute;
-    right: 17px;
+    left: 5px;
+    top: 9px;
+    color: #7b7b7b;
+    float: left;
+}
+.clearIcon{
+    position: absolute;
+    right: 10px;
     top: 9px;
     color: #7b7b7b;
 }
@@ -272,4 +279,13 @@ a.tool-palette-add-button:focus, a.tool-palette-add-button:hover{
 .tool-pane-header .icon{
     font-size: 15px;
     color:#ccc;
+}
+i.fw-search {
+    position: absolute;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.wrapper {
+    position: relative;
 }

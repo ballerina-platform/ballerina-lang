@@ -92,7 +92,8 @@ class ActionBox extends React.Component {
                 xlinkHref={ImageUtil.getSVGIconString('delete-dark')}
                 x={bBox.x + horizontalGap}
                 y={y}
-            />
+            >
+                <title>Delete</title> </image>
             {this.props.onBreakpointClick &&
             <Breakpoint
                 x={bBox.x + iconSize + (horizontalGap * 2)}
@@ -110,7 +111,8 @@ class ActionBox extends React.Component {
                 x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
                 y={y}
                 onClick={this.props.onJumptoCodeLine}
-            />
+            >
+                <title>Jump to Source</title> </image>
         </g>);
     }
 
