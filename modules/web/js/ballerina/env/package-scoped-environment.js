@@ -27,7 +27,6 @@ class PackageScopedEnvironment {
     }
 
     init() {
-        this._packages = _.union(this._packages, Environment.getPackages());
         this._types = _.union(this._types, Environment.getTypes());
         this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
