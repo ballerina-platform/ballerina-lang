@@ -62,6 +62,8 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      */
     public static final String PI_END = "?>";
     
+    public static final String ZERO_STRING_VALUE = BTypes.typeString.getZeroValue().stringValue();
+    
     /**
      * Check whether the XML sequence is empty.
      * 
@@ -100,39 +102,47 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     /**
      * Get the value of a single attribute as a string.
      * 
-     * @param namespace Namespace of the attribute
      * @param localName Local name of the attribute
+     * @param namespace Namespace of the attribute
      * @return Value of the attribute
      */
-    public abstract BString getAttribute(String namespace, String localName);
+    public abstract String getAttribute(String localName, String namespace);
     
     /**
      * Get the value of a single attribute as a string.
      * 
+     * @param localName Local name of the attribute
      * @param namespace Namespace of the attribute
      * @param prefix    Prefix of the namespace
-     * @param localName Local name of the attribute
      * @return Value of the attribute
      */
-    public abstract BString getAttribute(String namespace, String prefix, String localName);
+    public abstract String getAttribute(String localName, String namespace, String prefix);
     
     /**
-     * Set the value of a single attribute as a {@link BString}.
+     * Set the value of a single attribute. If the attribute already exsists, then the value will be updated.
+     * Otherwise a new attribute will be added.
      * 
      * @param namespace Namespace of the attribute
      * @param prefix Namespace prefix of the attribute
      * @param localName Local name of the attribute
      * @param value Value of the attribute
      */
-    public abstract void setAttribute(String namespace, String prefix, String localName, String value);
+    public abstract void setAttribute(String localName, String namespace, String prefix, String value);
 
-    
     /**
      * Get attributes as a {@link BMap}.
      * 
      * @return Attributes as a {@link BMap}
      */
-    public abstract BMap<?, ?> getAttributes();
+    public abstract BMap<?, ?> getAttributesMap();
+    
+
+    /**
+     * Set the attributes of the XML{@link BMap}.
+     * 
+     * @param attributes Attributes to be set.
+     */
+    public abstract void setAttributes(BMap<String, ?> attributes);
 
     /**
      * Get all the elements-type items, in the given sequence.
@@ -174,13 +184,6 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract void setChildren(BXML<?> seq);
     
     /**
-     * Set the attributes to the element.
-     * 
-     * @param attributes Attributes as a map
-     */
-    public abstract void setAttribute(BMap<BString, ?> attributes);
-    
-    /**
      * Strips any text items from the XML that are all whitespace.
      *
      * @return striped xml
@@ -198,6 +201,15 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * Returns a deep copy of the XML.
      */
     public abstract BXML<?> copy();
+    
+    /**
+     * Slice and return a subsequence of the given XML sequence.
+     * 
+     * @param startIndex    To slice
+     * @param endIndex      To slice
+     * @return sliced sequence
+     */
+    public abstract BValue slice(long startIndex, long endIndex);
     
     /**
      * {@inheritDoc}
@@ -250,13 +262,4 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
             throw new BallerinaException(message + t.getMessage());
         }
     }
-
-    /**
-     * Slice and return a subsequence of the given XML sequence.
-     * 
-     * @param startIndex    To slice
-     * @param endIndex      To slice
-     * @return sliced sequence
-     */
-    public abstract BValue slice(long startIndex, long endIndex);
 }

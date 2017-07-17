@@ -48,6 +48,7 @@ public class BTypes {
     public static BType typeAny;
     public static BType typeConnector;
     public static BType typeNull;
+    public static BType typeXMLAttributes;
     public static BType typeType;
 
     private static boolean initialized = false;
@@ -74,7 +75,6 @@ public class BTypes {
         globalScope.define(typeAny.getSymbolName(), typeAny);
         globalScope.define(typeType.getSymbolName(), typeType);
         globalScope.define(typeConnector.getSymbolName(), typeConnector);
-        globalScope.define(typeNull.getSymbolName(), typeNull);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
@@ -113,6 +113,7 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         typeNull = new BNullType(TypeConstants.NULL_TNAME, null, globalScope);
+        typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null, globalScope);
 
         initialized = true;
     }

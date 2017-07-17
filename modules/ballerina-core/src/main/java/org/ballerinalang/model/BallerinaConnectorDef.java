@@ -120,7 +120,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         return sizeOfConnectorMem;
     }
 
-
     // Methods in Node interface
 
     @Override

@@ -250,15 +250,22 @@ public interface InstructionCodes {
     int RRET = 236;
     int RET = 237;
 
-    int TYPEOF_INT = 238;
-    int TYPEOF_FLOAT = 239;
-    int TYPEOF_STRING = 240;
-    int TYPEOF_BOOLEAN = 241;
-    int TYPEOF_BLOB = 242;
-    int TYPEOF_REF = 243;
+    int XML2XMLATTRS = 238;
+    int XMLATTRS2MAP = 239;
+    int XMLATTRLOAD = 240;
+    int XMLATTRSTORE = 241;
+    int S2QNAME = 242;
+    int NEWQNAME = 243;
 
-    int TEQ = 244;
-    int TNE = 255;
+    int TYPEOF_INT = 244;
+    int TYPEOF_FLOAT = 245;
+    int TYPEOF_STRING = 246;
+    int TYPEOF_BOOLEAN = 247;
+    int TYPEOF_BLOB = 248;
+    int TYPEOF_REF = 249;
 
-    int INSTRUCTION_CODE_COUNT = 256;
+    int TEQ = 250;
+    int TNE = 251;
+
+    int INSTRUCTION_CODE_COUNT = 252;
 }

@@ -42,6 +42,7 @@ import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.Operator;
@@ -84,10 +85,12 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
+import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -98,6 +101,7 @@ import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -144,6 +148,8 @@ import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 /**
@@ -300,7 +306,7 @@ public class CodeGenerator implements NodeVisitor {
             varDef.setMemoryLocation(globalVarLocation);
         }
     }
-
+    
     private void createServiceInfoEntries(Service[] services) {
         for (Service service : services) {
             // Add Connector name as an UTFCPEntry to the constant pool
@@ -1131,7 +1137,14 @@ public class CodeGenerator implements NodeVisitor {
         emit(abortInstructions.peek());
     }
 
+    @Override
+    public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
+    }
 
+    @Override
+    public void visit(NamespaceDeclaration namespaceDeclaration) {
+    }
+    
     // Expressions
 
     @Override
@@ -2025,7 +2038,85 @@ public class CodeGenerator implements NodeVisitor {
         }
     }
 
+    @Override
+    public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        boolean variableStore = arrayMapAssignment && xmlAttributesRefExpr.getParentVarRefExpr() == null;
+        VariableReferenceExpr varRefExpr = xmlAttributesRefExpr.getVarRefExpr();
+        varRefExpr.accept(this);
+        int varRefRegIndex = varRefExpr.getTempOffset();
 
+        Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
+        if (indexExpr == null) {
+            int xmlValueRegIndex = ++regIndexes[REF_OFFSET];
+            emit(InstructionCodes.XML2XMLATTRS, varRefRegIndex, xmlValueRegIndex);
+            xmlAttributesRefExpr.setTempOffset(xmlValueRegIndex);
+            return;
+        }
+
+        indexExpr.accept(this);
+        int qnameRegIndex = indexExpr.getTempOffset();
+        
+        // If this is a string representation of qname
+        if (!(indexExpr instanceof XMLQNameExpr)) {
+            int localNameRegIndex = ++regIndexes[STRING_OFFSET];
+            int uriRegIndex = ++regIndexes[STRING_OFFSET];
+            emit(InstructionCodes.S2QNAME, qnameRegIndex, localNameRegIndex, uriRegIndex);
+
+            qnameRegIndex = ++regIndexes[REF_OFFSET];
+            generateUriLookupInstructions(xmlAttributesRefExpr.getNamespaces(), localNameRegIndex, uriRegIndex,
+                    qnameRegIndex, xmlAttributesRefExpr.getNodeLocation());
+        }
+        
+        if (variableStore) {
+            emit(InstructionCodes.XMLATTRSTORE, varRefRegIndex, qnameRegIndex, rhsExprRegIndex);
+        } else {
+            int xmlValueRegIndex = ++regIndexes[REF_OFFSET];
+            emit(InstructionCodes.XMLATTRLOAD, varRefRegIndex, qnameRegIndex, xmlValueRegIndex);
+            xmlAttributesRefExpr.setTempOffset(xmlValueRegIndex);
+        }
+    }
+    
+    @Override
+    public void visit(XMLQNameExpr xmlQNameRefExpr) {
+        // If the QName is use outside of XML, treat it as string.
+        if (!xmlQNameRefExpr.isUsedInXML()) {
+            String qName;
+            if (!xmlQNameRefExpr.getNamepsaceUri().isEmpty()) {
+                qName = "{" + xmlQNameRefExpr.getNamepsaceUri()  + "}" + xmlQNameRefExpr.getLocalname();
+            } else {
+                qName = xmlQNameRefExpr.getLocalname();
+            }
+
+            BasicLiteral qNameLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
+                    null, new BString(qName));
+            qNameLiteral.setType(BTypes.typeString);
+            qNameLiteral.accept(this);
+            xmlQNameRefExpr.setTempOffset(qNameLiteral.getTempOffset());
+            return;
+        }
+        
+        // Else, treat it as QName
+        BasicLiteral localNameLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
+            null, new BString(xmlQNameRefExpr.getLocalname()));
+        localNameLiteral.setType(BTypes.typeString);
+        localNameLiteral.accept(this);
+        
+        BasicLiteral namespaceUriLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
+            null, new BString(xmlQNameRefExpr.getNamepsaceUri()));
+        namespaceUriLiteral.setType(BTypes.typeString);
+        namespaceUriLiteral.accept(this);
+        
+        BasicLiteral prefixLiteral = new BasicLiteral(xmlQNameRefExpr.getNodeLocation(),
+            null, new BString(xmlQNameRefExpr.getPrefix()));
+        prefixLiteral.setType(BTypes.typeString);
+        prefixLiteral.accept(this);
+        
+        int qnameLoadedRegIndex = ++regIndexes[REF_OFFSET];
+        emit(InstructionCodes.NEWQNAME, localNameLiteral.getTempOffset(), namespaceUriLiteral.getTempOffset(), 
+                prefixLiteral.getTempOffset(), qnameLoadedRegIndex);
+        xmlQNameRefExpr.setTempOffset(qnameLoadedRegIndex);
+    }
+    
     // Private methods
 
     private void endWorkerInfoUnit(CodeAttributeInfo codeAttributeInfo) {
@@ -2694,6 +2785,75 @@ public class CodeGenerator implements NodeVisitor {
             parent = parent.getParent();
         }
         this.regIndexes = regIndexesOriginal;
+    }
+
+    /**
+     * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
+     * get the prefix of it as the prefix to be used.
+     * 
+     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr}
+     * @param qnameRegIndex Registry index of the qname
+     */
+    private void generateUriLookupInstructions(Map<String, String> namespaces, int localNameRegIndex, int uriRegIndex,
+            int targetQnameRegIndex, NodeLocation location) {
+        if (namespaces.isEmpty()) {
+            createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
+            return;
+        }
+
+        List<Instruction> gotoInstructionList = new ArrayList<>();
+        Instruction ifInstruction;
+        Instruction gotoInstruction;
+        for (Entry<String, String> keyValues : namespaces.entrySet()) {
+
+            // Below section creates the condition to compare the namespace uri's
+
+            // store the comparing uri as string
+            BasicLiteral uriLiteral = new BasicLiteral(location, null, new BString(keyValues.getValue()));
+            uriLiteral.setType(BTypes.typeString);
+            uriLiteral.accept(this);
+
+            int opcode = getOpcode(BTypes.typeString.getTag(), InstructionCodes.IEQ);
+            int exprIndex = ++regIndexes[BOOL_OFFSET];
+            emit(opcode, uriRegIndex, uriLiteral.getTempOffset(), exprIndex);
+
+            ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE, exprIndex, -1);
+            emit(ifInstruction);
+
+            // Below section creates instructions to be executed, if the above condition succeeds (then body)
+
+            // create the prifix literal
+            BasicLiteral prefixLiteral = new BasicLiteral(location, null, new BString(keyValues.getKey()));
+            prefixLiteral.setType(BTypes.typeString);
+            prefixLiteral.accept(this);
+
+            // create a qname
+            emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.getTempOffset(),
+                    targetQnameRegIndex);
+
+            gotoInstruction = new Instruction(InstructionCodes.GOTO, -1);
+            emit(gotoInstruction);
+            gotoInstructionList.add(gotoInstruction);
+            ifInstruction.setOperand(1, nextIP());
+        }
+
+        // else part. create a qname with empty prefix
+        createQNameWithEmptyPrefix(localNameRegIndex, uriRegIndex, targetQnameRegIndex, location);
+
+        int nextIP = nextIP();
+        for (Instruction instruction : gotoInstructionList) {
+            instruction.setOperand(0, nextIP);
+        }
+    }
+
+    private void createQNameWithEmptyPrefix(int localNameRegIndex, int uriRegIndex, int targetQnameRegIndex,
+            NodeLocation location) {
+        BasicLiteral prefixLiteral = new BasicLiteral(location, null, BTypes.typeString.getEmptyValue());
+        prefixLiteral.setType(BTypes.typeString);
+        prefixLiteral.accept(this);
+
+        emit(InstructionCodes.NEWQNAME, localNameRegIndex, uriRegIndex, prefixLiteral.getTempOffset(),
+                targetQnameRegIndex);
     }
 
     /**

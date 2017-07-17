@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.ballerinalang.model.DataTableJSONDataSource;
@@ -609,12 +610,17 @@ public class JSONUtils {
         }
         
         JsonNode jsonElement = element == null ? null : element.value();
+        ArrayNode arrayNode = ((ArrayNode) jsonNode);
         try {
-            if (jsonNode.size() <= index) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE,
-                    index, jsonNode.size());
+            if (arrayNode.size() <= index) {
+                // auto-grow the array
+                for (int i = arrayNode.size(); i < index; i++) {
+                    arrayNode.add(NullNode.getInstance());
+                }
+                arrayNode.add(jsonElement);
+            } else {
+                arrayNode.set((int) index, jsonElement);
             }
-            ((ArrayNode) jsonNode).set((int) index, jsonElement);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
