@@ -60,6 +60,9 @@ function breakpointHOC(WrappedComponent) {
                     this.setState({
                         isBreakpoint: true,
                     });
+                    if (typeof this.props.model.addBreakpoint === 'function') {
+                        this.props.model.addBreakpoint();
+                    }
                 }
             });
             this.removeListner = DebugManager.on('breakpoint-removed', ({ lineNumber, fileName: bpFileName }) => {
@@ -69,6 +72,9 @@ function breakpointHOC(WrappedComponent) {
                     this.setState({
                         isBreakpoint: false,
                     });
+                    if (typeof this.props.model.removeBreakPoint === 'function') {
+                        this.props.model.removeBreakPoint();
+                    }
                 }
             });
             this.hitListner = DebugManager.on('debug-hit', this.debugHit.bind(this));
@@ -79,11 +85,11 @@ function breakpointHOC(WrappedComponent) {
          * hook for componentWillUnmount
          */
         componentWillUnmount() {
-            DebugManager.off('breakpoint-added', null, this.addListner);
-            DebugManager.off('breakpoint-removed', null, this.removeListner);
-            DebugManager.off('debug-hit', null, this.hitListner);
-            DebugManager.off('debug-hit', null, this.endListner);
-            DebugManager.off('debug-hit', null, this.cmpListner);
+            DebugManager.off('breakpoint-added', this.addListner, this);
+            DebugManager.off('breakpoint-removed', this.removeListner, this);
+            DebugManager.off('debug-hit', this.hitListner, this);
+            DebugManager.off('session-ended', this.endListner, this);
+            DebugManager.off('session-completed', this.cmpListner, this);
         }
         /**
          * indicate a debug hit

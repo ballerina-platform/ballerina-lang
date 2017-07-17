@@ -50,12 +50,12 @@ function debuggerHOC(WrappedComponent) {
          * hook for componentWillUnmount
          */
         componentWillUnmount() {
-            DebugManager.off('breakpoint-added', null, this.addListner);
-            DebugManager.off('breakpoint-removed', null, this.removeListner);
-            DebugManager.off('debug-hit', null, this.hitListner);
-            DebugManager.off('session-ended', null, this.endListner);
-            DebugManager.off('session-completed', null, this.cmpListner);
-            DebugManager.off('resume-execution', null, this.resumeListner);
+            DebugManager.off('breakpoint-added', this.addListner, this);
+            DebugManager.off('breakpoint-removed', this.removeListner, this);
+            DebugManager.off('debug-hit', this.hitListner, this);
+            DebugManager.off('session-ended', this.endListner, this);
+            DebugManager.off('session-completed', this.cmpListner, this);
+            DebugManager.off('resume-execution', this.resumeListner, this);
         }
         /**
          * update breakpoints

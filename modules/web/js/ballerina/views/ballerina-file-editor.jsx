@@ -39,6 +39,7 @@ import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
+import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -195,12 +196,13 @@ class BallerinaFileEditor extends React.Component {
         const sourceGenVisitor = new SourceGenVisitor();
         this.state.model.accept(sourceGenVisitor);
         const newContent = sourceGenVisitor.getGeneratedSource();
+        // set breakpoints to model
+        this.reCalculateBreakpoints(this.state.model);
+        // this.markBreakpointsOnAST(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
             type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
-        // set breakpoints to model
-        this.markBreakpointsOnAST(this.state.model);
     }
 
     /**
@@ -295,7 +297,16 @@ class BallerinaFileEditor extends React.Component {
                 .catch(reject);
         });
     }
-
+    reCalculateBreakpoints(newAst) {
+        const findBreakpointsVisiter = new FindBreakpointLinesVisitor(newAst);
+        newAst.accept(findBreakpointsVisiter);
+        const breakpoints = findBreakpointsVisiter.getBreakpoints();
+        const fileName = this.props.file.getName();
+        DebugManager.removeAllBreakpoints(fileName);
+        breakpoints.forEach((lineNumber) => {
+            DebugManager.addBreakPoint(lineNumber, fileName);
+        });
+    }
     markBreakpointsOnAST(ast) {
         const fileName = this.props.file.getName();
         const breakpoints = DebugManager.getDebugPoints(fileName);
