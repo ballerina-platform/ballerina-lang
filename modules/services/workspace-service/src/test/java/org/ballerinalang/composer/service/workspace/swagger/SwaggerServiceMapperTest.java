@@ -78,8 +78,8 @@ public class SwaggerServiceMapperTest {
     
         String expectedSwagger = readFile("output/" + usecaseName + ".json");
         Assert.assertTrue(parser.parse(generatedSwagger).equals(parser.parse(expectedSwagger)),
-                "Invalid Swagger definition generated.\nExpected: " + parser.parse(generatedSwagger).toString() +
-                "\nActual: " + parser.parse(expectedSwagger).toString());
+                "Invalid Swagger definition generated.\nExpected: " + parser.parse(expectedSwagger).toString() +
+                "\nActual: " + parser.parse(generatedSwagger).toString());
     }
 
 

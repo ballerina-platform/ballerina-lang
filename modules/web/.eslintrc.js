@@ -51,6 +51,7 @@ module.exports = {
         "react/prefer-stateless-function": ["off"],
         "no-mixed-operators": ["error", {"allowSamePrecedence": true}],
         "jsx-quotes": ["off"],
+        "no-else-return": "off",
     },
     "plugins": [
         "react"

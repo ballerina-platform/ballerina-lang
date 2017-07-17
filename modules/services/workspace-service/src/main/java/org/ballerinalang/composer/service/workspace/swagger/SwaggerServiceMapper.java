@@ -83,6 +83,8 @@ public class SwaggerServiceMapper {
      */
     public Swagger convertServiceToSwagger(Service service) {
         Swagger swagger = new Swagger();
+        // Setting default values.
+        swagger.setBasePath('/' + service.getName());
         
         this.parseServiceInfoAnnotationAttachment(service, swagger);
         // TODO: parseSwaggerAnnotationAttachment(service, swagger);

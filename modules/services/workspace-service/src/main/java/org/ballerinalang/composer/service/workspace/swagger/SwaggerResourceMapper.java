@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.core.MediaType;
 
 /**
  * This class will do resource mapping from ballerina to swagger.
@@ -135,7 +136,7 @@ public class SwaggerResourceMapper {
             op.setPath('/' + resource.getName());
             Response response = new Response()
                     .description("Successful")
-                    .example("application/json", "Ok");
+                    .example(MediaType.APPLICATION_JSON, "Ok");
             op.getOperation().response(200, response);
             op.getOperation().setOperationId(resource.getName());
             op.getOperation().setParameters(null);
