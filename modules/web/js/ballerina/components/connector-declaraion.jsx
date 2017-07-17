@@ -23,6 +23,7 @@ import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
 import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
+import StatementDecorator from './statement-decorator';
 
 /**
  * Get all components.
@@ -94,23 +95,33 @@ class ConnectorDeclaration extends React.Component {
         connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         connectorBBox.w = DesignerDefaults.lifeLine.width;
         connectorBBox.h = statementContainerBBox.h + (DesignerDefaults.lifeLine.head.height * 2);
+        const connectorInitializeStartY = model.viewState.components.statementViewState.bBox.y +
+            ((model.getViewState().components.statementViewState.bBox.h
+            + model.getViewState().components.statementViewState.components['drop-zone'].h) / 2);
 
         const classes = {
             lineClass: 'connector-life-line',
             polygonClass: 'connector-life-line-polygon',
         };
 
-        return (<g>
-            <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
-            <LifeLine
-                title={connectorName}
-                bBox={connectorBBox}
-                editorOptions={this.editorOptions}
-                onDelete={this.onDelete}
-                classes={classes}
-            />
-            {children}
-        </g>
+        return (
+            <g>
+                <StatementDecorator
+                    model={model}
+                    viewState={model.viewState.components.statementViewState}
+                    expression={connectorName}
+                />
+                <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
+                <LifeLine
+                    title={connectorName}
+                    bBox={connectorBBox}
+                    editorOptions={this.editorOptions}
+                    onDelete={this.onDelete}
+                    classes={classes}
+                    startSolidLineFrom={connectorInitializeStartY}
+                />
+                {children}
+            </g>
         );
     }
 }

@@ -36,7 +36,6 @@ class ConnectorDeclarationPositionCalcVisitor {
      * @memberOf ConnectorDeclarationPositionCalcVisitor
      * */
     canVisit() {
-        log.debug('can visit ConnectorDeclarationPositionCalcVisitor');
         return true;
     }
 
@@ -48,7 +47,6 @@ class ConnectorDeclarationPositionCalcVisitor {
      * @memberOf ConnectorDeclarationPositionCalcVisitor
      * */
     beginVisit(node) {
-        log.debug('begin visit ConnectorDeclarationPositionCalcVisitor');
         const viewState = node.getViewState();
         const bBox = viewState.bBox;
         const parent = node.getParent();
@@ -65,7 +63,7 @@ class ConnectorDeclarationPositionCalcVisitor {
         }
         let y = parentViewState.components.body.getTop() + DesignerDefaults.innerPanel.body.padding.top;
 
-        if(parentViewState.components.variablesPane){
+        if (parentViewState.components.variablesPane) {
             y += (parentViewState.components.variablesPane.h + DesignerDefaults.panel.body.padding.top);
         }
 
@@ -74,6 +72,45 @@ class ConnectorDeclarationPositionCalcVisitor {
 
         viewState.components.statementContainer.x = x;
         viewState.components.statementContainer.y = y + DesignerDefaults.lifeLine.head.height;
+
+        // Calculate the position of the statement box which denotes the position of the connector declaration
+        const parentStatementContainer = parentViewState.components.statementContainer || {};
+        const parentStatements = parent.filterChildren(child =>
+        ASTFactory.isStatement(child) || ASTFactory.isExpression(child) || ASTFactory.isConnectorDeclaration(child));
+        const currentIndex = _.findIndex(parentStatements, node);
+        let statementBoxY;
+
+        /**
+         * Here we center the statement box based on the parent's statement container's dimensions
+         * Always the statement container's width should be greater than the statements/expressions
+         */
+        if (parentStatementContainer.w < bBox.w) {
+            const exception = {
+                message: 'Invalid statement container width found, statement width should be ' +
+                'greater than or equal to statement/ statement width ',
+            };
+            throw exception;
+        }
+        const statementBBox = viewState.components.statementViewState.bBox;
+        const statementBoxX = parentStatementContainer.x + ((parentStatementContainer.w - statementBBox.w) / 2);
+        if (currentIndex === 0) {
+            statementBoxY = parentStatementContainer.y;
+        } else if (currentIndex > 0) {
+            const previousChild = parentStatements[currentIndex - 1];
+            if (ASTFactory.isConnectorDeclaration(previousChild)) {
+                statementBoxY = previousChild.getViewState().components.statementViewState.bBox.getBottom();
+            } else {
+                statementBoxY = previousChild.getViewState().bBox.getBottom();
+            }
+        } else {
+            const exception = {
+                message: `Invalid Index found for ${node.getType()}`,
+            };
+            throw exception;
+        }
+
+        viewState.components.statementViewState.bBox.x = statementBoxX;
+        viewState.components.statementViewState.bBox.y = statementBoxY;
     }
 
     /**
@@ -82,7 +119,6 @@ class ConnectorDeclarationPositionCalcVisitor {
      * @memberOf ConnectorDeclarationPositionCalcVisitor
      * */
     visit() {
-        log.debug('visit ConnectorDeclarationPositionCalcVisitor');
     }
 
     /**
@@ -91,7 +127,6 @@ class ConnectorDeclarationPositionCalcVisitor {
      * @memberOf ConnectorDeclarationPositionCalcVisitor
      * */
     endVisit() {
-        log.debug('end visit ConnectorDeclarationPositionCalcVisitor');
     }
 
     /**

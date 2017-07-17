@@ -191,16 +191,26 @@ class SizingUtil {
         }
 
         components.statementContainer = new SimpleBBox();
-        const statementChildren = node.filterChildren(BallerinaASTFactory.isStatement);
+        const statementChildren = node.filterChildren(
+            child => BallerinaASTFactory.isStatement(child) || BallerinaASTFactory.isConnectorDeclaration(child));
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         let statementWidth = DesignerDefaults.statementContainer.width + statementContainerWidthPadding;
         let statementHeight = 0;
 
         _.forEach(statementChildren, (child) => {
-            statementHeight += child.viewState.bBox.h;
-            if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
-                statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
+            let childW = 0;
+            let childH = 0;
+            if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+                childW = child.viewState.components.statementViewState.bBox.w;
+                childH = child.viewState.components.statementViewState.bBox.h;
+            } else {
+                childW = child.viewState.bBox.w;
+                childH = child.viewState.bBox.h;
+            }
+            statementHeight += childH;
+            if ((childW + statementContainerWidthPadding) > statementWidth) {
+                statementWidth = childW + statementContainerWidthPadding;
             }
         });
 
