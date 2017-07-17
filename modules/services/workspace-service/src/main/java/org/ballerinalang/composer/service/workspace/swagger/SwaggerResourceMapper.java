@@ -138,6 +138,7 @@ public class SwaggerResourceMapper {
                     .example("application/json", "Ok");
             op.getOperation().response(200, response);
             op.getOperation().setOperationId(resource.getName());
+            op.getOperation().setParameters(null);
     
             // Parsing annotations.
             this.parsePathAnnotationAttachment(resource, op);
@@ -259,7 +260,11 @@ public class SwaggerResourceMapper {
                     queryParameter.required(false);
                     // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
                     // Set type
-                    queryParameter.setType(typeName);
+                    if ("int".equals(typeName)) {
+                        queryParameter.setType("integer");
+                    } else {
+                        queryParameter.setType(typeName);
+                    }
                     // Note: 'format' to be added using annotations, hence skipped here.
                     queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterName);
 
@@ -279,7 +284,11 @@ public class SwaggerResourceMapper {
                     // Note: 'description' to be added using annotations, hence skipped here.
                     // Note: 'allowEmptyValue' to be added using annotations, hence skipped here.
                     // Set type
-                    pathParameter.setType(typeName);
+                    if ("int".equals(typeName)) {
+                        pathParameter.setType("integer");
+                    } else {
+                        pathParameter.setType(typeName);
+                    }
                     // Note: 'format' to be added using annotations, hence skipped here.
                     pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterName);
                     op.addParameter(pathParameter);
@@ -351,7 +360,7 @@ public class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void createExternalDocsModel(AnnotationAttributeValue annotationAttributeValue, Operation operation) {
-        if (null != annotationAttributeValue.getAnnotationValue()) {
+        if (null != annotationAttributeValue) {
             AnnotationAttachment externalDocAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
             ExternalDocs externalDocs = new ExternalDocs();
             if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
@@ -373,12 +382,14 @@ public class SwaggerResourceMapper {
      * @param operation The swagger operation.
      */
     private void createTagModel(AnnotationAttributeValue annotationAttributeValue, Operation operation) {
-        if (annotationAttributeValue.getValueArray().length > 0) {
-            List<String> tags = new LinkedList<>();
-            for (AnnotationAttributeValue tagAttributeValue : annotationAttributeValue.getValueArray()) {
-                tags.add(tagAttributeValue.getLiteralValue().stringValue());
+        if (null != annotationAttributeValue) {
+            if (annotationAttributeValue.getValueArray().length > 0) {
+                List<String> tags = new LinkedList<>();
+                for (AnnotationAttributeValue tagAttributeValue : annotationAttributeValue.getValueArray()) {
+                    tags.add(tagAttributeValue.getLiteralValue().stringValue());
+                }
+                operation.setTags(tags);
             }
-            operation.setTags(tags);
         }
     }
     

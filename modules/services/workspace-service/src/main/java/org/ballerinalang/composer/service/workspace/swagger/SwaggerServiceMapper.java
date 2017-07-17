@@ -31,6 +31,8 @@ import io.swagger.models.auth.In;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.auth.SecuritySchemeDefinition;
 import io.swagger.util.Json;
+import org.ballerinalang.composer.service.workspace.swagger.model.Developer;
+import org.ballerinalang.composer.service.workspace.swagger.model.Organization;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
@@ -197,7 +199,7 @@ public class SwaggerServiceMapper {
      */
     private void parseServiceInfoAnnotationAttachment(Service service, Swagger swagger) {
         Optional<AnnotationAttachment> swaggerInfoAnnotation = Arrays.stream(service.getAnnotations())
-                .filter(a -> this.checkIfSwaggerAnnotation(a) && "SwaggerInfo".equals(a.getName()))
+                .filter(a -> this.checkIfSwaggerAnnotation(a) && "ServiceInfo".equals(a.getName()))
                 .findFirst();
         
         Info info = new Info()
@@ -226,8 +228,61 @@ public class SwaggerServiceMapper {
             this.createExternalDocsModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs()
                     .get("externalDoc"), swagger);
             this.createTagModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("tag"), swagger);
+            this.createOrganizationModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("organization"),
+                    info);
+            this.createDevelopersModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("developers"),
+                    info);
         }
         swagger.setInfo(info);
+    }
+    
+    /**
+     * Creates vendor extension for developers.
+     * @param annotationAttributeValue The annotation attribute value for developer vendor extension.
+     * @param info The info definition.
+     */
+    private void createDevelopersModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+        if (null != annotationAttributeValue) {
+            if (annotationAttributeValue.getValueArray().length > 0) {
+                Developer[] developers = new Developer[annotationAttributeValue.getValueArray().length];
+                for (int i = 0; i < annotationAttributeValue.getValueArray().length; i++) {
+                    AnnotationAttachment developerAnnotation = annotationAttributeValue.getValueArray()[i]
+                            .getAnnotationValue();
+                    Developer developer = new Developer();
+                    if (null != developerAnnotation.getAttributeNameValuePairs().get("name")) {
+                        developer.setName(developerAnnotation.getAttributeNameValuePairs().get("name")
+                                .getLiteralValue().stringValue());
+                    }
+                    if (null != developerAnnotation.getAttributeNameValuePairs().get("email")) {
+                        developer.setEmail(developerAnnotation.getAttributeNameValuePairs().get("email")
+                                .getLiteralValue().stringValue());
+                    }
+                    developers[i] = developer;
+                }
+                info.setVendorExtension("x-developers", developers);
+            }
+        }
+    }
+    
+    /**
+     * Creates vendor extension for organization.
+     * @param annotationAttributeValue The annotation attribute value for organization vendor extension.
+     * @param info The info definition.
+     */
+    private void createOrganizationModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
+        if (null != annotationAttributeValue) {
+            AnnotationAttachment organizationAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
+            Organization organization = new Organization();
+            if (null != organizationAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
+                organization.setName(organizationAnnotationAttachment.getAttributeNameValuePairs().get("name")
+                        .getLiteralValue().stringValue());
+            }
+            if (null != organizationAnnotationAttachment.getAttributeNameValuePairs().get("url")) {
+                organization.setUrl(organizationAnnotationAttachment.getAttributeNameValuePairs().get("url")
+                        .getLiteralValue().stringValue());
+            }
+            info.setVendorExtension("x-organization", organization);
+        }
     }
     
     /**
@@ -236,7 +291,7 @@ public class SwaggerServiceMapper {
      * @param swagger The swagger definition which the tags needs to be build on.
      */
     private void createTagModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
-        if (annotationAttributeValue.getValueArray().length > 0) {
+        if (null != annotationAttributeValue && annotationAttributeValue.getValueArray().length > 0) {
             List<Tag> tags = new LinkedList<>();
             for (AnnotationAttributeValue tagAttributeValue : annotationAttributeValue.getValueArray()) {
                 AnnotationAttachment tagAnnotationAttachment = tagAttributeValue.getAnnotationValue();
@@ -262,7 +317,7 @@ public class SwaggerServiceMapper {
      * @param swagger The swagger definition which the external docs needs to be build on.
      */
     private void createExternalDocsModel(AnnotationAttributeValue annotationAttributeValue, Swagger swagger) {
-        if (null != annotationAttributeValue.getAnnotationValue()) {
+        if (null != annotationAttributeValue) {
             AnnotationAttachment externalDocAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
             ExternalDocs externalDocs = new ExternalDocs();
             if (null != externalDocAnnotationAttachment.getAttributeNameValuePairs().get("description")) {
@@ -284,7 +339,7 @@ public class SwaggerServiceMapper {
      * @param info The info definition which the contact needs to be build on.
      */
     private void createContactModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
-        if (null != annotationAttributeValue.getAnnotationValue()) {
+        if (null != annotationAttributeValue) {
             AnnotationAttachment contactAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
             Contact contact = new Contact();
             if (null != contactAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
@@ -310,7 +365,7 @@ public class SwaggerServiceMapper {
      * @param info The info definition which the license needs to be build on.
      */
     private void createLicenseModel(AnnotationAttributeValue annotationAttributeValue, Info info) {
-        if (null != annotationAttributeValue.getAnnotationValue()) {
+        if (null != annotationAttributeValue) {
             AnnotationAttachment licenseAnnotationAttachment = annotationAttributeValue.getAnnotationValue();
             License license = new License();
             if (null != licenseAnnotationAttachment.getAttributeNameValuePairs().get("name")) {
