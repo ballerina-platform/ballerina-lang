@@ -56,6 +56,7 @@ class BallerinaFileEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            undoRedoPending: false,
             parsePending: false,
             swaggerViewTargetService: undefined,
             parseFailed: true,
@@ -89,6 +90,10 @@ class BallerinaFileEditor extends React.Component {
                 // now or later (eg: parse only when switching back from source)
                 // see BallerinaFileEditor#update
                 this.isASTInvalid = true;
+                // directly modifying state knowing that the next line with
+                // this.update will trigger a re-render - hence to avoid 
+                // two re-renders
+                this.state.undoRedoPending = true;
                 this.update();
             }
         });
@@ -212,6 +217,7 @@ class BallerinaFileEditor extends React.Component {
             // final state to be passed into resolve
             let newState = {
                 parsePending: false,
+                undoRedoPending: false,
             };
             // first validate the file for syntax errors
             validateFile(file)
@@ -259,6 +265,10 @@ class BallerinaFileEditor extends React.Component {
                             BallerinaEnvironment.initialize()
                                 .then(() => {
                                     this.environment.init();
+
+                                    // Resolve now and let rest happen in background
+                                    resolve(newState);
+
                                     // fetch program packages
                                     getProgramPackages(file, getLangServerClientInstance())
                                         .then((data) => {
@@ -273,9 +283,7 @@ class BallerinaFileEditor extends React.Component {
                                                 });
                                                 this.environment.addPackages(pkges);
                                             }
-                                            // All the things are successfull.
-                                            // resolve now.
-                                            resolve(newState);
+                                            this.update();
                                         })
                                         .catch(reject)
                                 })
@@ -313,10 +321,10 @@ class BallerinaFileEditor extends React.Component {
         const showSwaggerView = !this.state.parseFailed 
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW;
-        const showLoadingOverlay = this.state.parsePending;
+        const showLoadingOverlay = this.state.parsePending && !this.state.undoRedoPending;
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
-        if (showSourceView || showLoadingOverlay) {
+        if (showSourceView) {
             this.props.tab.getHeader().addClass(sourceViewTabHeaderClass);
         } else {
             this.props.tab.getHeader().removeClass(sourceViewTabHeaderClass);
