@@ -62,6 +62,21 @@ public class TypeOfUnaryExpressionTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test reference type access expression trivial equality with type declared " +
+            "as variables with var")
+    public void testRefTypeAccessExprTrivialEqualityCaseWithTypeDeclaredWithVar() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
+                "refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = (int) ((BInteger) returns[0]).intValue();
+        int expected = 1;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Test reference type access expression trivial equality negative case")
     public void testRefTypeAccessExprTrivialEqualityNegativeCase() {
         BValue[] args = {};

@@ -21,6 +21,19 @@ function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclared() (int) {
     }
 }
 
+function refTypeAccessTestTrivialEqualityPositiveCaseWithTypeDeclaredWithVar() (int) {
+    int temp_int = 2;
+    int temp_int_1 = 5;
+    var temp_int_type = (typeof temp_int);
+    var temp_int_1_type = (typeof temp_int_1);
+
+    if (temp_int_type == temp_int_1_type) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 function refTypeAccessTestTrivialEqualityNegativeCase() (int) {
     int temp_int = 2;
     string temp_str = "dummy";
