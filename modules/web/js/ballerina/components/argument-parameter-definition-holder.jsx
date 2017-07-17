@@ -19,6 +19,7 @@ import React from 'react';
 import Alerts from 'alerts';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import FragmentUtils from './../utils/fragment-utils';
 import ArgumentParameterDefinitionHolderAST from './../ast/argument-parameter-definition-holder';
 import TagController from './utils/tag-component';
 import { getComponentForNodeArray } from './utils';
@@ -68,31 +69,25 @@ class ArgumentParameterDefinitionHolder extends React.Component {
      * @return {boolean} true|false
      * */
     addArgumentParameter(input) {
+        input = input.replace(';', '');
+        const fragment = FragmentUtils.createArgumentParameterFragment(input);
+        const parsedJson = FragmentUtils.parseFragment(fragment);
         const model = this.props.model;
-        const splitedExpression = input.split(' ');
 
-        if (!this.checkWhetherIdentifierAlreadyExist(splitedExpression[1])) {
-            const parameterDef = model.getFactory().createParameterDefinition();
-            const bType = splitedExpression[0];
-            if (this.validateType(bType)) {
-                parameterDef.setTypeName(bType);
-            } else {
-                const errorString = `Incorrect Variable Type: ${bType}`;
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
+                const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                parameterDefinition.initFromJson(parsedJson);
+                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                    this.props.model.addChild(parameterDefinition);
+                    return true;
+                }
+                const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
                 Alerts.error(errorString);
                 return false;
             }
-
-            if (splitedExpression[1]) {
-                parameterDef.setName(splitedExpression[1]);
-            } else {
-                const errorString = 'Invalid Variable Name.';
-                Alerts.error(errorString);
-                return false;
-            }
-            this.props.model.addChild(parameterDef);
-            return true;
         }
-        const errorString = `Variable Already exists: ${splitedExpression[1]}`;
+        const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
         Alerts.error(errorString);
         return false;
     }

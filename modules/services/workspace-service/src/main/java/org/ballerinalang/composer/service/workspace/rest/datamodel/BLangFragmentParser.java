@@ -89,6 +89,14 @@ public class BLangFragmentParser {
                 fragmentNode.remove(BLangJSONModelConstants.CHILDREN);
                 fragmentNode.remove(BLangJSONModelConstants.JOIN_PARAMETER);
                 break;
+            case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
+                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
+                break;
+            case BLangFragmentParserConstants.RETURN_PARAMETER:
+                fragmentNode = functionObj.getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(1)
+                        .getAsJsonObject().getAsJsonArray(BLangJSONModelConstants.CHILDREN).get(0).getAsJsonObject();
+                break;
             default:
                 fragmentNode = new JsonObject();
                 fragmentNode.addProperty(ERROR, "cannot find node for given fragment");
@@ -133,7 +141,7 @@ public class BLangFragmentParser {
                 .getStatements().length == 1)
                 /* if the only recovered error is the additional semicolon error*/
                 && errorStrategy.getErrorTokens().size() == 1 &&
-                    errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
+                errorStrategy.getErrorTokens().get(0).getText().contains("unwanted token ';'"))) {
             BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(jsonModelRoot);
             bFile.accept(jsonModelBuilder);
         } else {
@@ -157,6 +165,14 @@ public class BLangFragmentParser {
             case BLangFragmentParserConstants.JOIN_CONDITION:
                 parsableText = getFromTemplate(
                         BLangFragmentParserConstants.FORK_JOIN_CONDITION_WRAPPER, sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.ARGUMENT_PARAMETER:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_PARAMETER_WRAPPER,
+                        sourceFragment.getSource());
+                break;
+            case BLangFragmentParserConstants.RETURN_PARAMETER:
+                parsableText = getFromTemplate(BLangFragmentParserConstants.FUNCTION_SIGNATURE_RETURN_WRAPPER,
+                        sourceFragment.getSource());
                 break;
             default:
                 parsableText = "";
