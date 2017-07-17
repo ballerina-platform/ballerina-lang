@@ -90,6 +90,18 @@ class SourceView extends React.Component {
                 enableBasicAutocompletion: true,
             });
             editor.setBehavioursEnabled(true);
+            // bind auto complete to key press
+            editor.commands.on('afterExec', (e) => {
+                if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
+                    setTimeout(() => {
+                        try {
+                            editor.execCommand('startAutocomplete');
+                        } finally {
+                            // nothing
+                        }
+                    }, 10);
+                }
+            });
             editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
