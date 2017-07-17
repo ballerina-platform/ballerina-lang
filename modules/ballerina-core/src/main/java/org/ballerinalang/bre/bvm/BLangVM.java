@@ -1009,8 +1009,7 @@ public class BLangVM {
                         if (JSONUtils.isJSONArray((BJSON) sf.refRegs[i])) {
                             sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
                         } else {
-                            context.setError(BLangVMErrors.createError(context, ip, " not a json array"));
-                            handleError();
+                            sf.longRegs[j] = -1;
                             break;
                         }
                     }
