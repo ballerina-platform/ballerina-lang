@@ -1215,8 +1215,15 @@ public class CodeGenerator implements NodeVisitor {
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
         } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
-            opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
-                    InstructionCodes.LENGTHOF, regIndexes);
+            BType rType = unaryExpr.getRExpr().getType();
+            if (rType == BTypes.typeJSON) {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOFJSON, regIndexes);
+            } else {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOF, regIndexes);
+
+            }
             opcode = opcodeAndIndex.opcode;
             exprIndex = opcodeAndIndex.index;
             emit(opcode, rExpr.getTempOffset(), exprIndex);
