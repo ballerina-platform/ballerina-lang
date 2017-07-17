@@ -1732,7 +1732,22 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(constantDefinitionObj, constantDefinition.getWhiteSpaceDescriptor());
         constantDefinitionObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .CONSTANT_DEFINITION);
-        constantDefinition.getVariableDefStmt().accept(this);
+        tempJsonArrayRef.push(new JsonArray());
+
+        constantDefinitionObj.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_BTYPE,
+                constantDefinition.getTypeName().getName());
+        constantDefinitionObj.addProperty(BLangJSONModelConstants.CONSTANT_DEFINITION_IDENTIFIER,
+                constantDefinition.getName());
+
+        VariableDefStmt varDefStmt = constantDefinition.getVariableDefStmt();
+
+        if (varDefStmt.getRExpr() != null) {
+            varDefStmt.getRExpr().accept(this);
+        }
+        constantDefinitionObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(constantDefinitionObj);
     }
 
     @Override
