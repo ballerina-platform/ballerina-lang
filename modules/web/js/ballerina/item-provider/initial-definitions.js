@@ -267,7 +267,7 @@ const createTransactionAbortedStatementTool = {
     cssClass: 'icon fw fw-transaction',
     title: 'Transaction',
     nodeFactoryMethod: DefaultBallerinaASTFactory.createTransactionAbortedStatement,
-    definition: 'Series of data manipulation statements that must either fully complete or fully fail, \n leaving the system in a consistent state',
+    definition: 'Series of data manipulation statements that must either fully complete or fully fail, leaving the system in a consistent state',
 };
 
 const statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,

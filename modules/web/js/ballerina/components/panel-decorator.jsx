@@ -148,6 +148,7 @@ class PanelDecorator extends React.Component {
                 width,
             },
             icon: ImageUtil.getSVGIconString('delete'),
+            tooltip: 'Delete',
             onClick: () => this.onDelete(),
             key: `${this.props.model.getID()}-delete-button`,
         };
