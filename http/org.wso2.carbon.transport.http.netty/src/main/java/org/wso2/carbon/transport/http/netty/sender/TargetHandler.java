@@ -104,7 +104,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                             HTTPTransportContextHolder.getInstance().getHandlerExecutor().
                                     executeAtTargetResponseSending(cMsg);
                         }
-                        targetChannel.getChannel().pipeline().remove("idleStateHandler");
+//                        targetChannel.getChannel().pipeline().remove("idleStateHandler");
                         targetChannel.setRequestWritten(false);
                         connectionManager.returnChannel(targetChannel);
                     } else {
@@ -123,7 +123,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
-        targetChannel.getChannel().pipeline().remove("idleStateHandler");
+//        targetChannel.getChannel().pipeline().remove("idleStateHandler");
         targetChannel.setRequestWritten(false);
         connectionManager.invalidateTargetChannel(targetChannel);
 

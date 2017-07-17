@@ -32,7 +32,7 @@ public class TargetChannel {
     private HTTPClientInitializer httpClientInitializer;
     private HttpRoute httpRoute;
     private SourceHandler correlatedSource;
-    private boolean isRequestWritten;
+    private boolean isRequestWritten = false;
 
     public Channel getChannel() {
         return channel;
