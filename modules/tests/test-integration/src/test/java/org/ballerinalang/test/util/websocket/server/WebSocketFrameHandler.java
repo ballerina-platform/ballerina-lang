@@ -33,6 +33,12 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketFrameHandler.class);
 
+    private boolean isOpen = true;
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.debug("channel is active");
@@ -41,6 +47,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.debug("channel is inactive");
+        isOpen = false;
     }
 
     @Override

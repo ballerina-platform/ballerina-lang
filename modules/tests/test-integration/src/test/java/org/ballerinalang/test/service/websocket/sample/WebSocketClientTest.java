@@ -19,6 +19,8 @@
 package org.ballerinalang.test.service.websocket.sample;
 
 import org.ballerinalang.test.util.websocket.client.WebSocketClient;
+import org.ballerinalang.test.util.websocket.server.WebSocketFrameHandler;
+import org.ballerinalang.test.util.websocket.server.WebSocketServerInitializer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,10 +41,11 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
     }
 
     @Test
-    public void testMediation() throws Exception {
+    public void testFullMediation() throws Exception {
         handshakeAllClients(wsClients);
 
         for (int i = 0; i < clientCount; i++) {
+            // Send and wait to receive message back from the remote server.
             wsClients[i].sendText(i + "");
             Thread.sleep(threadSleepTime);
         }
@@ -51,6 +54,19 @@ public class WebSocketClientTest extends WebSocketIntegrationTest {
             Assert.assertEquals(wsClients[i].getTextReceived(), "client service : " + i);
         }
 
+    }
+
+    @Test
+    public void testRemoteConnectionClosure() throws InterruptedException {
+        wsClients[0].shutDown();
+        boolean isConnectionClosed = false;
+        for (WebSocketFrameHandler frameHandler : WebSocketServerInitializer.FRAME_HANDLERS) {
+            if (!frameHandler.isOpen()) {
+                isConnectionClosed = true;
+                break;
+            }
+        }
+        Assert.assertTrue(isConnectionClosed);
         shutDownAllClients(wsClients);
     }
 }
