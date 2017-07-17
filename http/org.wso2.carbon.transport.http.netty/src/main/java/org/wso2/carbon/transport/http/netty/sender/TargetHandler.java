@@ -228,8 +228,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
                 ctx.close();
-            }
-            else if (event.state() == IdleState.WRITER_IDLE) {
+            } else if (event.state() == IdleState.WRITER_IDLE) {
                 ctx.close();
             }
         }
