@@ -26,6 +26,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +40,6 @@ import javax.websocket.Session;
  */
 public class WebSocketConnectionManager {
 
-    /* Server Related Maps */
     // Map<serviceName, Map<sessionId, session>>
     private final Map<String, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
     // Map<groupName, Map<sessionId, session>>
@@ -47,13 +47,15 @@ public class WebSocketConnectionManager {
     // Map<NameToStoreConnection, Session>
     private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
 
-    /* Mediation related maps */
-    // Map <clientSessionID, associatedClientServiceName>
-    private final Map<String, String> clientSessionToClientServiceMap = new ConcurrentHashMap<>();
     // Map <parentServiceName, Connector>
     private final Map<String, List<BConnector>> parentServiceToClientConnectorsMap = new ConcurrentHashMap<>();
+
+    // Map <clientSessionID, associatedClientServiceName>
+    private final Map<String, String> clientSessionToClientServiceMap = new ConcurrentHashMap<>();
     // Map<Connector, Map<serverSessionID, ClientSession>>
     private final Map<BConnector, Map<String, Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
+    // Map<serverSessionID, clientSessionList>
+    private final Map<String, List<Session>> serverSessionToClientSessionsMap = new ConcurrentHashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
 
@@ -226,11 +228,23 @@ public class WebSocketConnectionManager {
                 String clientServiceName = bConnector.getStringField(1);
                 addClientServiceNameToClientSession(clientSession, clientServiceName);
                 clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
+                addClinetSessionForServerSession(serverSession, clientSession);
             }
         }
 
         // Adding connection to broadcast group.
         addConnectionToBroadcast(service, session);
+    }
+
+    private void addClinetSessionForServerSession(Session serverSession, Session clientSession) {
+        String serverSessionID = serverSession.getId();
+        if (serverSessionToClientSessionsMap.containsKey(serverSessionID)) {
+            serverSessionToClientSessionsMap.get(serverSessionID).add(clientSession);
+        } else {
+            List<Session> clientSessions = new LinkedList<>();
+            clientSessions.add(clientSession);
+            serverSessionToClientSessionsMap.put(serverSessionID, clientSessions);
+        }
     }
 
     /**
@@ -329,6 +343,28 @@ public class WebSocketConnectionManager {
      * @param session {@link Session} which should be removed from all the places.
      */
     public void removeConnectionFromAll(Session session) {
+
+        // Remove all the server session related client sessions.
+        if (serverSessionToClientSessionsMap.containsKey(session.getId())) {
+            for (Session clientSession : serverSessionToClientSessionsMap.remove(session.getId())) {
+                if (clientSession.isOpen()) {
+                    try {
+                        clientSession.close();
+                    } catch (IOException e) {
+                        throw new BallerinaException("Internal error occurred when closing client connection");
+                    }
+                }
+
+                // Remove client session from all the maps
+                clientSessionToClientServiceMap.remove(clientSession.getId());
+            }
+        }
+
+        // Removing session from connector map
+        clientConnectorSessionsMap.entrySet().forEach(
+                connectorEntry -> connectorEntry.getValue().remove(session.getId())
+        );
+
         // Removing session from broadcast sessions map
         broadcastSessions.entrySet().forEach(
                 entry -> entry.getValue().entrySet().removeIf(

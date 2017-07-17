@@ -33,9 +33,7 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.websocket.Session;
 
@@ -69,19 +67,6 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    // Closing related client connections.
-                    List<Session> clientSessions =
-                            (List<Session>) statusMessage.getProperty(Constants.WEBSOCKET_CLIENT_SESSIONS_LIST);
-                    clientSessions.stream().forEach(
-                            session -> {
-                                try {
-                                    session.close();
-                                } catch (IOException e) {
-                                    throw new BallerinaException("Error occurred during closing client connections");
-                                }
-                            }
-                    );
-                    // Removing server session
                     Session serverSession = (Session) cMsg.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
                     WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);

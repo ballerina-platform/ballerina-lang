@@ -11,12 +11,14 @@ service<ws> serverConnector {
 
     @ws:OnTextMessage {}
     resource onText(message m) {
-        system:println("Client connector sending message: " + messages:getStringPayload(m));
-        ws:ClientConnector.pushText(c, messages:getStringPayload(m));
-    }
+        string textReceived = messages:getStringPayload(m);
 
-    @ws:OnClose {}
-    resource onClose(message m) {
-        ws:ClientConnector.close(c);
+        if ("closeMe" == textReceived) {
+            system:println("Removing the connection...");
+            ws:closeConnection();
+        } else {
+            system:println("Client connector sending message: " + messages:getStringPayload(m));
+            ws:ClientConnector.pushText(c, messages:getStringPayload(m));
+        }
     }
 }
