@@ -14,79 +14,34 @@ import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.CompilationUnit;
-import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.Service;
-import org.ballerinalang.model.builder.BLangModelBuilder;
-import org.ballerinalang.util.parser.BallerinaLexer;
-import org.ballerinalang.util.parser.BallerinaParser;
-import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SwaggerServiceMapperTest {
     private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapperTest.class);
-    @Test
-    public void testBallerinaToSwaggerConversion() {
-        String ballerinaServiceDefinition = "import ballerina.net.http;\n" +
-                "\n" +
-                "@http:BasePath {value: \"/echo\"}\n" +
-                "service echo {\n" +
-                "\n" +
-                "    @http:POST{}\n" +
-                "    resource echo (message m) {\n" +
-                "        http:convertToResponse(m);\n" +
-                "        reply m;\n" +
-                "    }\n" +
-                "}";
-        InputStream stream = new ByteArrayInputStream(ballerinaServiceDefinition.getBytes(StandardCharsets.UTF_8));
-        ANTLRInputStream antlrInputStream = null;
-        try {
-            antlrInputStream = new ANTLRInputStream(stream);
-        } catch (IOException e) {
-            logger.error("Error occurred while creating antler input stream.", e);
-        }
-        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+    @DataProvider(name = "SwaggerSamples")
+    public static Object[][] swaggerSamples() {
+        return new Object[][] { { "usecase-1", "Service1" }, { "usecase-2", "Service1" } };
+    }
     
-        BLangPackage bLangPackage = new BLangPackage(GlobalScope.getInstance());
-        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-        BLangModelBuilder modelBuilder = new BLangModelBuilder(packageBuilder, "");
+    @Test(dataProvider = "SwaggerSamples")
+    public void testBallerinaToSwaggerConversion(String usecaseName, String serviceName) throws IOException {
+        String ballerinaSource = this.readFile("input/" + usecaseName + ".bal");
+        String generatedSwagger = SwaggerConverterUtils.generateSwaggerDefinitions(ballerinaSource, serviceName);
     
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder, Paths.get("temp/temp.bal"));
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.compilationUnit();
-        BallerinaFile bFile = modelBuilder.build();
-        CompilationUnit[] compilationUnits = bFile.getCompilationUnits();
-        Swagger swaggerDefinition = new Swagger();
-        for (CompilationUnit compilationUnit : compilationUnits) {
-            if (compilationUnit instanceof Service) {
-                //TODO this need to improve iterate through multiple services and generate single swagger file.
-                SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
-                //TODO mapper type need to set according to expected type.
-                //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-                swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger((Service) compilationUnit);
-                break;
-            }
-        }
-        //TODO add complete logic to test all attributes present in swagger object
-        //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
-        //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
-    
+        String expectedSwagger = readFile("output/" + usecaseName + ".json");
+        Assert.assertEquals(generatedSwagger, expectedSwagger, "Invalid Swagger definition generated.");
     }
 
 
@@ -165,5 +120,16 @@ public class SwaggerServiceMapperTest {
         //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
         //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
 
+    }
+    
+    String readFile(String fileName) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL fileResource = classLoader.getResource("samples/swagger/ballerina-to-swagger/" + fileName);
+        if (null != fileResource) {
+            File file = new File(fileResource.getFile());
+            return FileUtils.readFileToString(file, Charset.defaultCharset());
+        } else {
+            throw new IOException("Unable to find file:" + " samples/swagger/ballerina-to-swagger/" + fileName);
+        }
     }
 }

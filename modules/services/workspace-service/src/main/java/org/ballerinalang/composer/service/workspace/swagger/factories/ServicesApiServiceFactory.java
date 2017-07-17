@@ -16,15 +16,15 @@
 package org.ballerinalang.composer.service.workspace.swagger.factories;
 
 
-import org.ballerinalang.composer.service.workspace.swagger.impl.ServicesApiServiceImpl;
+import org.ballerinalang.composer.service.workspace.swagger.impl.SwaggerApiServiceImpl;
 
 /**
  * Service factory class which returns service implementation objects on demand.
  */
 public class ServicesApiServiceFactory {
-    private static final ServicesApiServiceImpl service = new ServicesApiServiceImpl();
+    private static final SwaggerApiServiceImpl service = new SwaggerApiServiceImpl();
 
-    public static ServicesApiServiceImpl getServicesApi() {
+    public static SwaggerApiServiceImpl getServicesApi() {
         return service;
     }
 }

@@ -134,14 +134,23 @@ class AnnotationAttribute extends React.Component {
      * @memberof AnnotationAttribute
      */
     renderAnnotationAttributes(annotationAttachment) {
+        if (this.props.annotationDefinitionModel) {
+            return annotationAttachment.getChildren().map((attribute) => {
+                return (<AnnotationAttribute
+                    key={attribute.getID()}
+                    model={attribute}
+                    annotationDefinitionModel={
+                        AnnotationHelper.getAnnotationDefinition(
+                                                    this.context.environment, annotationAttachment.getFullPackageName(),
+                                                    annotationAttachment.getName())}
+                />);
+            });
+        }
+
         return annotationAttachment.getChildren().map((attribute) => {
             return (<AnnotationAttribute
                 key={attribute.getID()}
                 model={attribute}
-                annotationDefinitionModel={
-                    AnnotationHelper.getAnnotationDefinition(
-                                                this.context.environment, annotationAttachment.getFullPackageName(),
-                                                annotationAttachment.getName())}
             />);
         });
     }
@@ -190,10 +199,16 @@ class AnnotationAttribute extends React.Component {
      * @memberof AnnotationAttribute
      */
     renderKey() {
-        return (<AnnotationAttributeKey
-            attributeModel={this.props.model}
-            annotationDefinitionModel={this.props.annotationDefinitionModel}
-        />);
+        if (this.props.annotationDefinitionModel) {
+            return (<AnnotationAttributeKey
+                attributeModel={this.props.model}
+                annotationDefinitionModel={this.props.annotationDefinitionModel}
+            />);
+        } else {
+            return (<AnnotationAttributeKey
+                attributeModel={this.props.model}
+            />);
+        }
     }
 
     /**
@@ -277,9 +292,10 @@ class AnnotationAttribute extends React.Component {
             const packageName = (<span>{annotationAttachment.getPackageName()}</span>);
             const name = (<span>{annotationAttachment.getName()}</span>);
             const buttons = [];
-            if (AnnotationHelper.getAnnotationDefinition(
-                                    this.context.environment, annotationAttachment.getFullPackageName(),
-                                    annotationAttachment.getName()).getAnnotationAttributeDefinitions().length > 0) {
+            const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
+                                                this.context.environment, annotationAttachment.getFullPackageName(),
+                                                annotationAttachment.getName());
+            if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
                 // Add attribute button
                 const addAttributeButton = {
                     icon: 'fw-add',
@@ -408,7 +424,11 @@ class AnnotationAttribute extends React.Component {
 
 AnnotationAttribute.propTypes = {
     model: PropTypes.instanceOf(AnnotationAttributeAST).isRequired,
-    annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition).isRequired,
+    annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
+};
+
+AnnotationAttribute.defaultProps = {
+    annotationDefinitionModel: undefined,
 };
 
 AnnotationAttribute.contextTypes = {

@@ -153,7 +153,7 @@ class AnnotationAttributeKey extends React.Component {
      * @memberof AnnotationAttributeKey
      */
     render() {
-        if (this.state.isInEdit) {
+        if (this.state.isInEdit && this.props.annotationDefinitionModel) {
             const supportedKeys = this.getSupportedKeys();
             let initialValue = '';
             if (this.props.attributeModel !== undefined &&
@@ -180,12 +180,12 @@ class AnnotationAttributeKey extends React.Component {
 }
 
 AnnotationAttributeKey.propTypes = {
-    attributeModel: PropTypes.instanceOf(AnnotationAttributeAST),
-    annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition).isRequired,
+    attributeModel: PropTypes.instanceOf(AnnotationAttributeAST).isRequired,
+    annotationDefinitionModel: PropTypes.instanceOf(EnvAnnotationDefinition),
 };
 
 AnnotationAttributeKey.defaultProps = {
-    attributeModel: undefined,
+    annotationDefinitionModel: undefined,
 };
 
 AnnotationAttributeKey.contextTypes = {

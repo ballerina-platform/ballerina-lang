@@ -1,13 +1,31 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 import React from 'react';
 import _ from 'lodash';
 import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
+import log from 'log';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
-import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SwaggerParser from './../../swagger-parser/swagger-parser';
-import ConflictModal from './swagger/components/conflict-modal';
-import ConflictMergeModal from './swagger/components/conflict-merge-modal';
+import { getSwaggerDefinition } from '../../api-client/api-client';
+import ServiceDefinition from '../ast/service-definition';
+import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
 
 const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
@@ -26,11 +44,22 @@ class CustomUndoManager extends AceUndoManager {
 }
 
 // look & feel configurations FIXME: Make this overridable from settings
-let theme = 'ace/theme/tomorrow_night';
-let fontSize = '14px';
+const theme = 'ace/theme/tomorrow_night';
+const fontSize = '14px';
 
+/**
+ * React component for the swagger view.
+ *
+ * @class SwaggerView
+ * @extends {React.Component}
+ */
 class SwaggerView extends React.Component {
 
+    /**
+     * Creates an instance of SwaggerView.
+     * @param {Object} props React properties.
+     * @memberof SwaggerView
+     */
     constructor(props) {
         super(props);
         this.container = undefined;
@@ -43,67 +72,43 @@ class SwaggerView extends React.Component {
     }
 
     /**
-     * Generate the swagger spec for current service & the unique ID for the editor
-     */
-    genSwaggerAndID() {
-        if (!_.isNil(this.props.targetService)) {
-            const swaggerJsonVisitor = new SwaggerJsonVisitor();
-            this.props.targetService.accept(swaggerJsonVisitor);
-            this.swagger = swaggerJsonVisitor.getSwaggerJson();
-            this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
-        } else {
-            this.swagger = undefined;
-            this.swaggerEditorID = undefined;
-        }
-    }
-
-    /**
      * When this component is initially rendered, it won't have
-     * a targetService. However, when a user clicks swagger-view 
-     * icon of a service, we update the state of parent component 
+     * a targetService. However, when a user clicks swagger-view
+     * icon of a service, we update the state of parent component
      * and it will eventually provide a new set of props to this.
-     * 
+     *
      * Since we have disabled react rerender for this component
      * {@see SwaggerView#shouldComponentUpdate},
      * we have to grab those new props and update the component
      * manually.
-     * 
+     *
      */
     componentWillReceiveProps(newProps) {
         if (!_.isNil(newProps.targetService)) {
             this.props = newProps;
             this.genSwaggerAndID();
-            this.renderSwaggerEditor();
         }
     }
 
-    renderSwaggerEditor() {
-        if (!_.isNil(this.props.targetService)) {
-            const $container = $(this.container);
-            $container.empty();
-            $container.attr('id', this.swaggerEditorID);
-            this.swaggerEditor = SwaggerEditorBundle({
-                dom_id: `#${this.swaggerEditorID}`,
-            });
-            const $swaggerAceContainer = $container.find('#ace-editor');
-            const swaggerAceContainerID = `z-ace-editor-${this.swaggerEditorID}`;
-            $swaggerAceContainer.attr('id', swaggerAceContainerID);
-            const swaggerAce = ace.edit(swaggerAceContainerID);
-
-            swaggerAce.getSession().setUndoManager(new CustomUndoManager(this.onEditorChange));
-            swaggerAce.$blockScrolling = Infinity;
-            swaggerAce.setTheme(ace.acequire(theme));
-            swaggerAce.setFontSize(fontSize);
-            this.swaggerAce = swaggerAce;
-            this.syncSpec();
-        }
+    shouldComponentUpdate() {
+        // prevent this component being re-rendered by react
+        return false;
     }
-    
-    syncSpec() {
-        this.swaggerEditor.specActions.updateUrl('');
-        this.swaggerEditor.specActions.updateLoadingStatus('success');
-        this.swaggerEditor.specActions.updateSpec(JSON.stringify(this.swagger));
-        this.swaggerEditor.specActions.formatIntoYaml();
+
+    onEditorChange(evt) {
+        // keep swagger spec up-to-date
+        this.swagger = YAML.safeLoad(this.swaggerAce.getValue());
+
+        // IMPORTANT - Check the delta and if this is a single line change,
+        // update Service node on demand
+        // Note: Porting the logic in deprecrated swagger-view module here
+        if (_.has(evt, 'action') && _.isEqual(evt.action, 'aceupdate')) {
+            // Note: Accessing the last delta from deltas in undoable operation
+            const lastDelta = _.last(_.get(_.first(_.first(_.get(evt, 'args'))), 'deltas'));
+            if (_.isEqual(lastDelta.start.row, lastDelta.end.row)) {
+                this.updateResourceMappings(this.props.targetService, lastDelta);
+            }
+        }
     }
 
      /**
@@ -117,77 +122,32 @@ class SwaggerView extends React.Component {
         }
     }
 
-    onEditorChange(evt) {
-        // keep swagger spec up-to-date
-        this.swagger = YAML.safeLoad(this.swaggerAce.getValue());
-
-        // IMPORTANT - Check the delta and if this is a single line change,
-        // update Service node on demand 
-        // Note: Porting the logic in deprecrated swagger-view module here
-        if (_.has(evt, 'action') && _.isEqual(evt.action, 'aceupdate')) {
-            // Note: Accessing the last delta from deltas in undoable operation
-            const lastDelta = _.last(_.get(_.first(_.first(_.get(evt, 'args'))), 'deltas'));
-            if (_.isEqual(lastDelta.start.row, lastDelta.end.row)) {
-                this.updateResourceMappings(this.props.targetService, lastDelta);
-            }
+    /**
+     * Generate the swagger spec for current service & the unique ID for the editor
+     */
+    genSwaggerAndID() {
+        if (!_.isNil(this.props.targetService)) {
+            const sourceGenVisitor = new SourceGenVisitor();
+            this.context.astRoot.accept(sourceGenVisitor);
+            const formattedContent = sourceGenVisitor.getGeneratedSource();
+            getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
+                .then((swaggerDefinition) => {
+                    this.swagger = swaggerDefinition;
+                    this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
+                    this.renderSwaggerEditor();
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.swagger = undefined;
+            this.swaggerEditorID = undefined;
         }
     }
 
-    shouldComponentUpdate() {
-        // prevent this component being re-rendered by react
-        return false;
-    }
-
-    /**
-     * Render the required foundation to init swagger editor
-     */
-    render() {
-        return (
-            <div className="swagger-view-container">
-                <div className="swaggerEditor"
-                    // keep the ref to this element as the container ref
-                    ref={(ref) => { this.container = ref }}
-                    data-editor-url="lib/swagger-editor/#/" 
-                >
-                </div>
-                <div className="bottom-right-controls-container">
-                    <div className="view-design-btn btn-icon">
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-design-view fw-inverse" />
-                        </div>
-                        <div className="bottom-view-label"
-                                onClick={
-                                    () => {
-                                        if (!this.hasSwaggerErrors()) {
-                                            this.updateService();
-                                            this.context.editor.setActiveView(DESIGN_VIEW);
-                                        }
-                                    }
-                                }
-                        >
-                                Design View
-                        </div>
-                    </div>
-                    <div className="view-source-btn btn-icon">
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-code-view fw-inverse" />
-                        </div>
-                        <div className="bottom-view-label"
-                                onClick={
-                                    () => {
-                                        if (!this.hasSwaggerErrors()) {
-                                            this.updateService();
-                                            this.context.editor.setActiveView(SOURCE_VIEW);
-                                        }
-                                    }
-                                }
-                        >
-                                Source View
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+    syncSpec() {
+        this.swaggerEditor.specActions.updateUrl('');
+        this.swaggerEditor.specActions.updateLoadingStatus('success');
+        this.swaggerEditor.specActions.updateSpec(this.swagger);
+        this.swaggerEditor.specActions.formatIntoYaml();
     }
 
     /**
@@ -302,7 +262,7 @@ class SwaggerView extends React.Component {
         oldResourcePath = oldResourcePath.trim().replace(/:\s*$/, '');
 
         const newResourcePath = this.swaggerAce.getSession().getLine(editorEvent.end.row).trim()
-                                                                                                .replace(/:\s*$/, '');
+            .replace(/:\s*$/, '');
         // Getting the httpMethod value
         for (let i = this.swaggerAce.getCursorPosition().row + 1; i <= this.swaggerAce
             .getSession().getLength(); i++) {
@@ -317,7 +277,7 @@ class SwaggerView extends React.Component {
                         'operationId']));
                 if (!_.isUndefined(operationIDLineNumber)) {
                     operationId = this.swaggerAce.getSession().getLine(operationIDLineNumber - 1).trim()
-                                                                                        .replace(/operationId:\s/, '');
+                        .replace(/operationId:\s/, '');
                 }
 
                 // Finding the resource to update
@@ -383,7 +343,7 @@ class SwaggerView extends React.Component {
         oldHttpMethod = oldHttpMethod.trim().replace(/:\s*$/, '');
 
         const newHttpMethod = this.swaggerAce.getSession().getLine(editorEvent.end.row).trim()
-                                                                                                .replace(/:\s*$/, '');
+            .replace(/:\s*$/, '');
         const resourcePath = astPath[1];
 
         // Get the operationId if exists.
@@ -392,7 +352,7 @@ class SwaggerView extends React.Component {
             this.swaggerAce.getValue(), astPath.concat([newHttpMethod, 'operationId']));
         if (!_.isUndefined(operationIDLineNumber)) {
             operationId = this.swaggerAce.getSession().getLine(operationIDLineNumber - 1).trim()
-                                                                                        .replace(/operationId:\s/, '');
+                .replace(/operationId:\s/, '');
         }
 
         // Finding the resource to update
@@ -410,9 +370,9 @@ class SwaggerView extends React.Component {
                 if (!_.isUndefined(currentResourcePathAnnotation) &&
                     !_.isUndefined(currentHttpMethodAnnotation) &&
                     _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase()
-                                                                    .replace(/"/g, ''), resourcePath.toLowerCase()) &&
+                        .replace(/"/g, ''), resourcePath.toLowerCase()) &&
                     _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''),
-                                                                                        oldHttpMethod.toLowerCase())) {
+                        oldHttpMethod.toLowerCase())) {
                     resourceDefinitionToUpdate = resourceDefinition;
                     break;
                 }
@@ -422,7 +382,7 @@ class SwaggerView extends React.Component {
         // Updating the http method of the resource.
         if (resourceDefinitionToUpdate) {
             resourceDefinitionToUpdate.getHttpMethodAnnotation().setIdentifier(newHttpMethod.toUpperCase(),
-                                                                                                { doSilently: true });
+                { doSilently: true });
             this.resourceMappings.set(editorEvent.start.row,
                 {
                     type: 'method',
@@ -440,10 +400,95 @@ class SwaggerView extends React.Component {
     hasSwaggerErrors() {
         return _.size(this.swaggerAce.getSession().getAnnotations());
     }
+
+    renderSwaggerEditor() {
+        if (!_.isNil(this.props.targetService)) {
+            const $container = $(this.container);
+            $container.empty();
+            $container.attr('id', this.swaggerEditorID);
+            this.swaggerEditor = SwaggerEditorBundle({
+                dom_id: `#${this.swaggerEditorID}`,
+            });
+            const $swaggerAceContainer = $container.find('#ace-editor');
+            const swaggerAceContainerID = `z-ace-editor-${this.swaggerEditorID}`;
+            $swaggerAceContainer.attr('id', swaggerAceContainerID);
+            const swaggerAce = ace.edit(swaggerAceContainerID);
+
+            swaggerAce.getSession().setUndoManager(new CustomUndoManager(this.onEditorChange));
+            swaggerAce.$blockScrolling = Infinity;
+            swaggerAce.setTheme(ace.acequire(theme));
+            swaggerAce.setFontSize(fontSize);
+            this.swaggerAce = swaggerAce;
+            this.syncSpec();
+        }
+    }
+
+    /**
+     * Render the required foundation to init swagger editor
+     */
+    render() {
+        return (
+            <div className="swagger-view-container">
+                <div
+                    className="swaggerEditor"
+                    // keep the ref to this element as the container ref
+                    ref={(ref) => { this.container = ref; }}
+                    data-editor-url="lib/swagger-editor/#/"
+                />
+                <div className="bottom-right-controls-container">
+                    <div className="view-design-btn btn-icon">
+                        <div className="bottom-label-icon-wrapper">
+                            <i className="fw fw-design-view fw-inverse" />
+                        </div>
+                        <div
+                            className="bottom-view-label"
+                            onClick={
+                                    () => {
+                                        if (!this.hasSwaggerErrors()) {
+                                            this.updateService();
+                                            this.context.editor.setActiveView(DESIGN_VIEW);
+                                        }
+                                    }
+                                }
+                        >
+                                Design View
+                        </div>
+                    </div>
+                    <div className="view-source-btn btn-icon">
+                        <div className="bottom-label-icon-wrapper">
+                            <i className="fw fw-code-view fw-inverse" />
+                        </div>
+                        <div
+                            className="bottom-view-label"
+                            onClick={
+                                    () => {
+                                        if (!this.hasSwaggerErrors()) {
+                                            this.updateService();
+                                            this.context.editor.setActiveView(SOURCE_VIEW);
+                                        }
+                                    }
+                                }
+                        >
+                                Source View
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 }
+
+SwaggerView.propTypes = {
+    targetService: PropTypes.instanceOf(ServiceDefinition),
+};
+
+SwaggerView.defaultProps = {
+    targetService: undefined,
+};
 
 SwaggerView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default SwaggerView;

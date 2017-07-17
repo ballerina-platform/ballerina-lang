@@ -212,6 +212,25 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         }, this);
     }
 
+    visitAnnotationDefinition(annotationDefinitionAST) {
+        const annotationDefinitionEnv = BallerinaEnvFactory.createAnnotationDefinition();
+        annotationDefinitionEnv.setPackagePath(this.getPackage().getName());
+        annotationDefinitionEnv.setName(annotationDefinitionAST.getAnnotationName());
+        annotationDefinitionEnv.setAttachmentPoints(annotationDefinitionAST.getAttachmentPoints());
+        annotationDefinitionAST.getChildren().forEach((annotationAttrDefAST) => {
+            if (BallerinaASTFactory.isAnnotationAttributeDefinition(annotationAttrDefAST)) {
+                const annotationAttributeDefEnv = BallerinaEnvFactory.createAnnotationAttributeDefinition();
+                annotationAttributeDefEnv.setPackagePath(this.getPackage().getName());
+                annotationAttributeDefEnv.setIdentifier(annotationAttrDefAST.getAttributeName());
+                annotationAttributeDefEnv.setBType(_.trim(annotationAttrDefAST.getAttributeType(), '[] '));
+                annotationAttributeDefEnv.setArrayType(annotationAttrDefAST.getAttributeType().replace(/\s/g, '').includes('[]'));
+                annotationDefinitionEnv.addAnnotationAttributeDefinition(annotationAttributeDefEnv);
+            }
+        });
+
+        this.getPackage().addAnnotationDefinitions(annotationDefinitionEnv);
+    }
+
     /**
      * remove given function definition from the package object
      * @param {Object} functionDef - function definition to be removed

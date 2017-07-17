@@ -47,6 +47,14 @@ class AnnotationHelper {
             }
         }
 
+        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+            if (annotationDefinition.getName() === annotationDefinitionName) {
+                for (const annotationAttribute of annotationDefinition.getAnnotationAttributeDefinitions()) {
+                    annotationAttributes.push(annotationAttribute);
+                }
+            }
+        }
+
         return annotationAttributes;
     }
 
@@ -61,16 +69,24 @@ class AnnotationHelper {
      * @memberof AnnotationHelper
      */
     static getAnnotationDefinition(environment, fullPackageName, annotationDefinitionName) {
+        let matchingAnnotationDefintion;
         for (const packageDefintion of environment.getPackages()) {
             if (packageDefintion.getName() === fullPackageName) {
                 for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                     if (annotationDefinition.getName() === annotationDefinitionName) {
-                        return annotationDefinition;
+                        matchingAnnotationDefintion = annotationDefinition;
                     }
                 }
             }
         }
-        return undefined;
+
+        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+            if (annotationDefinition.getName() === annotationDefinitionName) {
+                matchingAnnotationDefintion = annotationDefinition;
+            }
+        }
+
+        return matchingAnnotationDefintion;
     }
 
     /**
@@ -168,6 +184,7 @@ class AnnotationHelper {
      * Gets attribute definition.
      *
      * @static
+     * @param {PackageScopedEnvironment} environment The ballerina environment.
      * @param {string} attributeName The name of the attribute.
      * @param {string} annotationDefinitionFullPackageName The full package name of the annotation definition which the
      * attribute resides.

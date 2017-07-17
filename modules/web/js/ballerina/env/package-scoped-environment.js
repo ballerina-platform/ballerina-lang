@@ -24,12 +24,14 @@ class PackageScopedEnvironment {
     constructor(args) {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
+        this._annotationAttachmentTypes = [];
     }
 
     init() {
         this._types = _.union(this._types, Environment.getTypes());
         this._currentPackage = new Package({ name: 'Current Package' });
         this._packages.push(this._currentPackage);
+        this.initializeAnnotationAttachmentPoints();
     }
 
     /**
@@ -144,8 +146,8 @@ class PackageScopedEnvironment {
 
     /**
      * Merge package1 into package2 and returns merged package2
-     * @param {Package} package1 
-     * @param {Package} package2 
+     * @param {Package} package1
+     * @param {Package} package2
      * @returns {Package} merged package
      */
     mergePackages(package1, package2){
@@ -183,9 +185,9 @@ class PackageScopedEnvironment {
     }
 
     /**
-     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority 
-     * @param {Array} itemArray1 
-     * @param {Array} itemArray2 
+     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority
+     * @param {Array} itemArray1
+     * @param {Array} itemArray2
      */
     mergePackageItems(itemArray1, itemArray2){
         _.remove(itemArray1, function(item1){
@@ -196,6 +198,23 @@ class PackageScopedEnvironment {
     }
 
 
+    /**
+     * Initialize annotation attachment points for Ballerina Program
+     * */
+    initializeAnnotationAttachmentPoints() {
+        this._annotationAttachmentTypes = _.sortBy(['service', 'resource', 'connector', 'action', 'function',
+            'typemapper', 'struct', 'const', 'parameter', 'annotation'], [function (type) {
+            return type;
+        }]);
+    }
+
+    /**
+     * Get annotation attachment types.
+     * @return {[string]} annotationAttachmentTypes
+     * */
+    getAnnotationAttachmentTypes() {
+        return this._annotationAttachmentTypes;
+    }
 }
 
 export default PackageScopedEnvironment;

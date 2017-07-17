@@ -169,13 +169,16 @@ class AnnotationAttachment extends React.Component {
                 componentsOfAttributes.push(<AnnotationAttribute
                     key={attribute.getID()}
                     model={attribute}
-                    annotationDefinitionModel={
-                        AnnotationHelper.getAnnotationDefinition(
-                                                this.context.environment, model.getFullPackageName(), model.getName())}
+                    annotationDefinitionModel={annotationDefModel}
                 />);
             });
         } else {
-            this.setState({ hasError: true });
+            model.getChildren().forEach((attribute) => {
+                componentsOfAttributes.push(<AnnotationAttribute
+                    key={attribute.getID()}
+                    model={attribute}
+                />);
+            });
         }
 
         return componentsOfAttributes;
@@ -188,9 +191,9 @@ class AnnotationAttachment extends React.Component {
      * @memberof AnnotationAttachment
      */
     renderName() {
-        const supportedNames = AnnotationHelper.getNames(
-                        this.context.environment, this.props.model.getParent(), this.props.model.getFullPackageName());
         if (this.state.isNameInEdit && !this.props.model.getViewState().disableEdit) {
+            const supportedNames = AnnotationHelper.getNames(
+                this.context.environment, this.props.model.getParent(), this.props.model.getFullPackageName());
             const model = this.props.model;
             return (<AutoSuggestHtml
                 items={supportedNames}
@@ -217,7 +220,7 @@ class AnnotationAttachment extends React.Component {
         const buttons = [];
         const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
                         this.context.environment, this.props.model.getFullPackageName(), this.props.model.getName());
-        if (annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
+        if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
             // Add attribute button
             const addAttributeButton = {
                 icon: 'fw-add',
@@ -268,14 +271,17 @@ class AnnotationAttachment extends React.Component {
         }
 
         let packageName = '';
-        if (!(this.props.model.getPackageName() === undefined || this.props.model.getPackageName() === null)) {
+        if (!(this.props.model.getPackageName() === undefined ||
+                    this.props.model.getPackageName() === null ||
+                    this.props.model.getPackageName() !== 'Current Package')) {
             packageName = `${this.props.model.getPackageName()}:`;
         }
 
-        return (<span
-            className="annotation-attachment-package-name"
-            onClick={this.onPackageNameEdit}
-        >@{packageName}</span>);
+        return (<span className="annotation-attachment-package-name">@
+            <span
+                onClick={this.onPackageNameEdit}
+            >{packageName}</span>
+        </span>);
     }
 
     /**
