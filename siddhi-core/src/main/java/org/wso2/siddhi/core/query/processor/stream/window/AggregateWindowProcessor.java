@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.core.util.parser.AggregationRuntime;
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -43,36 +44,37 @@ import java.util.Map;
  * the events there.
  */
 public class AggregateWindowProcessor extends WindowProcessor implements FindableProcessor {
-// TODO: 7/17/17
     private AggregationRuntime aggregationRuntime;
+    private final Within within;
+    private final Expression per;
     private ConfigReader configReader;
     private boolean outputExpectsExpiredEvents;
+    private SiddhiAppContext siddhiAppContext;
 
-    public AggregateWindowProcessor(AggregationRuntime aggregationRuntime) {
+    public AggregateWindowProcessor(AggregationRuntime aggregationRuntime, Within within, Expression per) {
         this.aggregationRuntime = aggregationRuntime;
+        this.within = within;
+        this.per = per;
     }
 
-
     @Override
-    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader, boolean
-            outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
+    protected void init(ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                        boolean outputExpectsExpiredEvents, SiddhiAppContext siddhiAppContext) {
         // nothing to be done
         this.configReader = configReader;
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
+        this.siddhiAppContext = siddhiAppContext;
     }
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
                            StreamEventCloner streamEventCloner) {
         // Pass the event  to the post JoinProcessor
-        nextProcessor.process(streamEventChunk);
     }
-
 
     @Override
     public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
-        return null;  // todo fix
-        //  aggregationRuntime.find(matchingEvent, compiledCondition);
+        return aggregationRuntime.find(matchingEvent, compiledCondition);
     }
 
     @Override
@@ -80,10 +82,8 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
                                               SiddhiAppContext siddhiAppContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, Table> tableMap, String queryName) {
-        // todo fix
-        return  null;
-//        return aggregationRuntime.compileCondition(expression, matchingMetaInfoHolder, siddhiAppContext,
-//                variableExpressionExecutors, tableMap, queryName);
+        return aggregationRuntime.compileCondition(expression, within, per, matchingMetaInfoHolder,
+                variableExpressionExecutors, tableMap, queryName, siddhiAppContext);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class AggregateWindowProcessor extends WindowProcessor implements Findabl
     @Override
     public Processor cloneProcessor(String key) {
         try {
-            AggregateWindowProcessor streamProcessor = new AggregateWindowProcessor(aggregationRuntime);
+            AggregateWindowProcessor streamProcessor = new AggregateWindowProcessor(aggregationRuntime, within, per);
             streamProcessor.inputDefinition = inputDefinition;
             ExpressionExecutor[] innerExpressionExecutors = new ExpressionExecutor[attributeExpressionLength];
             ExpressionExecutor[] attributeExpressionExecutors1 = this.attributeExpressionExecutors;

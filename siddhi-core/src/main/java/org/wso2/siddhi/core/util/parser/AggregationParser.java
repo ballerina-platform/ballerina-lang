@@ -184,7 +184,7 @@ public class AggregationParser {
 
 
         List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
-        HashMap<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName, incrementalDurations,
+        Map<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName, incrementalDurations,
                 processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
                 aggregationDefinition.getAnnotations());
 
@@ -204,8 +204,8 @@ public class AggregationParser {
                 incomingExpressionExecutors, processedMetaStreamEvent));
 
         AggregationRuntime aggregationRuntime = new AggregationRuntime(aggregationDefinition, incrementalExecutorMap,
-                aggregationTables, ((SingleStreamRuntime) streamRuntime), rootIncrementalExecutor, entryValveExecutor, siddhiAppContext
-        );
+                aggregationTables, ((SingleStreamRuntime) streamRuntime), entryValveExecutor,incrementalDurations,
+                siddhiAppContext);
 
         return aggregationRuntime;
     }
@@ -214,7 +214,7 @@ public class AggregationParser {
             SiddhiAppContext siddhiAppContext, String aggregatorName, boolean isProcessingOnExternalTime,
             MetaStreamEvent processedMetaStreamEvent, List<ExpressionExecutor> processExpressionExecutors,
             GroupByKeyGenerator groupByKeyGenerator, int bufferSize, List<TimePeriod.Duration> incrementalDurations,
-            HashMap<TimePeriod.Duration, Table> aggregationTables) {
+            Map<TimePeriod.Duration, Table> aggregationTables) {
         Map<TimePeriod.Duration, IncrementalExecutor> incrementalExecutorMap = new HashMap<>();
         // Create incremental executors
         IncrementalExecutor child;
