@@ -66,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.file-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
             <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
         </dependency>
         <dependency>
