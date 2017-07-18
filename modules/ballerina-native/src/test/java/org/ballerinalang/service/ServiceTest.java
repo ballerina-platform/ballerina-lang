@@ -144,11 +144,13 @@ public class ServiceTest {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/removeHeaders", "GET");
         cMsg.setHeader("header1", "wso2");
         cMsg.setHeader("header2", "ballerina");
+        cMsg.setHeader("header3", "hello");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
 
         Assert.assertNull(response.getHeader("header1"));
         Assert.assertNull(response.getHeader("header2"));
+        Assert.assertNull(response.getHeader("header3"));
     }
 
 

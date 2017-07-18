@@ -30,6 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.Header;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Native function to remove all headers of carbon message.
@@ -51,8 +52,9 @@ public class RemoveHeaders extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getRefArgument(context, 0);
         List<Header> headers = msg.value().getHeaders().getAll();
-        for (Header header : headers) {
-            msg.value().removeHeader(header.getName());
+        if (headers.size() != 0) {
+            List<String> keySet = headers.stream().map(header -> header.getName()).collect(Collectors.toList());
+            keySet.stream().forEach(key -> msg.value().removeHeader(key));
         }
         return VOID_RETURN;
     }

@@ -62,6 +62,10 @@ native function getProperty (message msg, string propertyName) (string);
 @doc:Param { value:"key: The header name" }
 native function removeHeader (message m, string key);
 
+@doc:Description { value:"Removes all transport headers from the message"}
+@doc:Param { value:"m: The message object" }
+native function removeHeaders (message m);
+
 @doc:Description { value:"Sets the message payload using an XML object"}
 @doc:Param { value:"m: The current message object" }
 @doc:Param { value:"payload: The XML payload object" }
@@ -89,6 +93,3 @@ native function setMapPayload (message msg, map payload);
 @doc:Return { value:"string: The value of the map property" }
 native function getStringValue (message m, string propertyName) (string);
 
-@doc:Description { value:"Removes all transport headers from the message"}
-@doc:Param { value:"m: The message object" }
-native function removeHeaders (message m);
