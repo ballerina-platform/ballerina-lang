@@ -28,6 +28,7 @@ import ActionBox from './action-box';
 import DragDropManager from '../tool-palette/drag-drop-manager';
 import ActiveArbiter from './active-arbiter';
 import Breakpoint from './breakpoint';
+import breakpointHOC from './../../debugger/breakpoint-hoc';
 
 const CLASS_MAP = {
     hidden: 'hide-action',
@@ -50,7 +51,6 @@ class BlockStatementDecorator extends React.Component {
             active: 'hidden',
         };
         this.onDelete = this.onDelete.bind(this);
-        this.onBreakpointClick = this.onBreakpointClick.bind(this);
         this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
         this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
         this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
@@ -181,8 +181,8 @@ class BlockStatementDecorator extends React.Component {
                 x={pointX}
                 y={pointY}
                 size={breakpointSize}
-                isBreakpoint={this.props.model.isBreakpoint}
-                onClick={() => this.onBreakpointClick()}
+                isBreakpoint={this.props.isBreakpoint}
+                onClick={() => this.props.onBreakpointClick()}
             />
         );
     }
@@ -192,8 +192,8 @@ class BlockStatementDecorator extends React.Component {
      * @returns {XML} rendered component.
      */
     render() {
-        const { bBox, title, dropTarget, expression } = this.props;
-        const model = this.props.model || dropTarget;
+        const { bBox, title, dropTarget, expression, isBreakpoint, isDebugHit } = this.props;
+        const model = this.props.model;
 
         const titleH = blockStatement.heading.height;
         const titleW = this.props.titleWidth;
@@ -232,7 +232,11 @@ class BlockStatementDecorator extends React.Component {
             actionBox.width,
             actionBox.height);
         const utilClassName = CLASS_MAP[this.state.active];
-
+        
+        let statementRectClass = 'statement-title-rect';
+        if (isDebugHit) {
+            statementRectClass = `${statementRectClass} debug-hit`;
+        }
         const separatorGapV = titleH / 3;
         return (
             <g
@@ -250,7 +254,7 @@ class BlockStatementDecorator extends React.Component {
                     height={titleH}
                     rx="0"
                     ry="0"
-                    className="statement-title-rect"
+                    className={statementRectClass}
                     onClick={!parameterText && this.openExpressionEditor}
                 />
                 <text x={titleX} y={titleY} className="statement-text">{title}</text>
@@ -296,17 +300,17 @@ class BlockStatementDecorator extends React.Component {
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
-                    isBreakpoint={model.isBreakpoint}
+                    isBreakpoint={isBreakpoint}
                     onDelete={this.onDelete}
                     onJumptoCodeLine={this.onJumpToCodeLine}
-                    onBreakpointClick={this.onBreakpointClick}
+                    onBreakpointClick={this.props.onBreakpointClick}
                 />}
                 {
                     <g className={utilClassName}>
                         {this.props.utilities}
                     </g>
                 }
-                { model.isBreakpoint && this.renderBreakpointIndicator() }
+                { isBreakpoint && this.renderBreakpointIndicator() }
             </g>);
     }
 }
@@ -351,6 +355,8 @@ BlockStatementDecorator.propTypes = {
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
     }),
+    onBreakpointClick: PropTypes.func.isRequired,
+    isBreakpoint: PropTypes.bool.isRequired,
 };
 
 BlockStatementDecorator.contextTypes = {
@@ -360,4 +366,4 @@ BlockStatementDecorator.contextTypes = {
     activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
-export default BlockStatementDecorator;
+export default breakpointHOC(BlockStatementDecorator);

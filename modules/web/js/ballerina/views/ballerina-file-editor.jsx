@@ -22,6 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import ASTVisitor from 'ballerina/visitors/ast-visitor';
+import DebugManager from './../../debugger/debug-manager';
 import DesignView from './design-view.jsx';
 import SourceView from './source-view.jsx';
 import SwaggerView from './swagger-view.jsx';
@@ -37,6 +38,8 @@ import { DESIGN_VIEW, SOURCE_VIEW, SWAGGER_VIEW, CHANGE_EVT_TYPES } from './cons
 import { CONTENT_MODIFIED, TAB_ACTIVATE, REDO_EVENT, UNDO_EVENT } from './../../constants/events';
 import { OPEN_SYMBOL_DOCS } from './../../constants/commands';
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
+import FindBreakpointNodesVisitor from './../visitors/find-breakpoint-nodes-visitor';
+import FindBreakpointLinesVisitor from './../visitors/find-breakpoint-lines-visitor';
 
 const sourceViewTabHeaderClass = 'inverse';
 
@@ -104,6 +107,10 @@ class BallerinaFileEditor extends React.Component {
         this.props.tab.on(TAB_ACTIVATE, () => this.update());
     }
 
+    getFile() {
+        return this.props.file;
+    }
+
     /**
      * lifecycle hook for component did mount
      */
@@ -140,9 +147,9 @@ class BallerinaFileEditor extends React.Component {
 
     /**
      * Open documentation for the given symbol
-     * 
-     * @param {string} pkgName 
-     * @param {string} symbolName 
+     *
+     * @param {string} pkgName
+     * @param {string} symbolName
      */
     openDocumentation(pkgName, symbolName) {
         this.props.commandManager
@@ -163,7 +170,7 @@ class BallerinaFileEditor extends React.Component {
 
     /**
      * Display the swagger view for given service def node
-     * 
+     *
      * @param {ServiceDefinition} serviceDef Service def node to display
      */
     showSwaggerViewForService(serviceDef) {
@@ -194,9 +201,12 @@ class BallerinaFileEditor extends React.Component {
         const sourceGenVisitor = new SourceGenVisitor();
         this.state.model.accept(sourceGenVisitor);
         const newContent = sourceGenVisitor.getGeneratedSource();
+        // set breakpoints to model
+        this.reCalculateBreakpoints(this.state.model);
+        // this.markBreakpointsOnAST(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
-            type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt
+            type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
         });
     }
 
@@ -206,7 +216,7 @@ class BallerinaFileEditor extends React.Component {
      * Then init the env with parsed symbols.
      * Finally return a promise which resolve the new state
      * of the component.
-     * 
+     *
      */
     validateAndParseFile() {
         this.setState({
@@ -250,6 +260,7 @@ class BallerinaFileEditor extends React.Component {
                         .then((jsonTree) => {
                             // get ast from json
                             const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
+                            this.markBreakpointsOnAST(ast);
                             // register the listener for ast modifications
                             ast.on(CHANGE_EVT_TYPES.TREE_MODIFIED, (evt) => {
                                 this.onASTModified(evt);
@@ -287,12 +298,29 @@ class BallerinaFileEditor extends React.Component {
                                         })
                                         .catch(reject)
                                 })
-                                .catch(reject);          
+                                .catch(reject);
                         })
                         .catch(reject);
                 })
                 .catch(reject);
         });
+    }
+    reCalculateBreakpoints(newAst) {
+        const findBreakpointsVisiter = new FindBreakpointLinesVisitor(newAst);
+        newAst.accept(findBreakpointsVisiter);
+        const breakpoints = findBreakpointsVisiter.getBreakpoints();
+        const fileName = this.props.file.getName();
+        DebugManager.removeAllBreakpoints(fileName);
+        breakpoints.forEach((lineNumber) => {
+            DebugManager.addBreakPoint(lineNumber, fileName);
+        });
+    }
+    markBreakpointsOnAST(ast) {
+        const fileName = this.props.file.getName();
+        const breakpoints = DebugManager.getDebugPoints(fileName);
+        const findBreakpointsVisitor = new FindBreakpointNodesVisitor(ast);
+        findBreakpointsVisitor.setBreakpoints(breakpoints);
+        ast.accept(findBreakpointsVisitor);
     }
 
     /**
@@ -318,7 +346,7 @@ class BallerinaFileEditor extends React.Component {
         const showSourceView = this.state.parseFailed
                                     || !_.isEmpty(this.state.syntaxErrors)
                                         || this.state.activeView === SOURCE_VIEW;
-        const showSwaggerView = !this.state.parseFailed 
+        const showSwaggerView = !this.state.parseFailed
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW;
         const showLoadingOverlay = this.state.parsePending && !this.state.undoRedoPending;

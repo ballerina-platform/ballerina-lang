@@ -59,6 +59,7 @@ class WhileStatement extends React.Component {
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             <BlockStatementDecorator
                 dropTarget={model} bBox={blockStatementBBox} title={'While'}
+                model={model}
                 expression={expression} editorOptions={this.editorOptions}
             >
                 {children}
