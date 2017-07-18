@@ -329,18 +329,20 @@ class ResourceDefinition extends ASTNode {
     }
 
     /**
-     * Gets the @http:Path{value: '/abc'} annotation AST.
-     * @return {Annotation|undefined}
+     * Gets the @http:Path{value: '/abc'} annotation attachment AST.
+     * @return {AnnotationAttachment|undefined}
      */
     getPathAnnotation(ifNotExist = false) {
         let pathAnnotation;
         _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
-            if (_.isEqual(annotationAST.getPackageName().toLowerCase(), 'http') && _.isEqual(annotationAST.getIdentifier().toLowerCase(), 'path')) {
+            if (annotationAST.getFullPackageName().toLowerCase() === 'ballerina.net.http' &&
+                annotationAST.getPackageName().toLowerCase() === 'http' &&
+                annotationAST.getName() === 'Path') {
                 pathAnnotation = annotationAST;
             }
         });
         // if path annotation is not define we will create one with default behaviour.
-        if (_.isUndefined(pathAnnotation) && ifNotExist) {
+        if (_.isNil(pathAnnotation) && ifNotExist) {
             // Creating path annotation.
             pathAnnotation = BallerinaASTFactory.createAnnotationAttachment({
                 fullPackageName: 'ballerina.net.http',
@@ -351,18 +353,30 @@ class ResourceDefinition extends ASTNode {
             const annotationAttributeValue = BallerinaASTFactory.createAnnotationAttributeValue();
             annotationAttributeValue.addChild(BallerinaASTFactory.createBValue({
                 type: 'string',
-                stringValue: '"' + this.getResourceName() + '"',
+                stringValue: this.getResourceName(),
             }));
 
-            const annotationEntryForPathValue = BallerinaASTFactory.createAnnotationAttribute({
-                leftValue: 'value',
-                rightValue: annotationAttributeValue,
+            const annotationAttribute = BallerinaASTFactory.createAnnotationAttribute({
+                key: 'value',
             });
-            pathAnnotation.addChild(annotationEntryForPathValue);
+            annotationAttribute.addChild(annotationAttributeValue);
+            pathAnnotation.addChild(annotationAttribute);
             this.addChild(pathAnnotation, 1);
         }
 
         return pathAnnotation;
+    }
+
+    getPathAnnotationValue(ifNotExist = false) {
+        const pathAnnotationAttachment = this.getPathAnnotation(ifNotExist);
+        if (pathAnnotationAttachment) {
+            const annotationAttribute = pathAnnotationAttachment.getChildren()[0];
+            const annotationAttributeValue = annotationAttribute.getValue();
+            const bValue = annotationAttributeValue.getChildren()[0];
+            return bValue.getStringValue();
+        } else {
+            return undefined;
+        }
     }
 
     /**
@@ -371,7 +385,7 @@ class ResourceDefinition extends ASTNode {
      */
     getHttpMethodAnnotation() {
         let httpMethodAnnotation;
-        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotation), (annotationAST) => {
+        _.forEach(this.getChildrenOfType(this.getFactory().isAnnotationAttachment), (annotationAST) => {
             if (annotationAST.isHttpMethod()) {
                 httpMethodAnnotation = annotationAST;
             }

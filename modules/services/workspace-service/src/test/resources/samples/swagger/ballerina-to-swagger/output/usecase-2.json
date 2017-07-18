@@ -4,6 +4,7 @@
     "version": "1.0.0",
     "title": "Service1"
   },
+  "basePath": "/Service1",
   "paths": {
     "/Resource1": {
       "get": {

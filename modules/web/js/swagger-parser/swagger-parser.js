@@ -18,6 +18,7 @@
 
 import JS_YAML from 'js-yaml';
 import _ from 'lodash';
+import log from 'log';
 import ASTFactory from '../ballerina/ast/ballerina-ast-factory';
 import DefaultBallerinaASTFactory from '../ballerina/ast/default-ballerina-ast-factory';
 
@@ -87,11 +88,11 @@ class SwaggerParser {
                     if (_.isNil(existingResource)) {
                         existingResource = serviceDefinition.getResourceDefinitions().find((resourceDefinition) => {
                             const httpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-                            const pathAnnotation = resourceDefinition.getPathAnnotation(true);
-                            return !_.isUndefined(httpMethodAnnotation) && !_.isUndefined(pathAnnotation) &&
-                                _.isEqual(pathString, pathAnnotation.getChildren()[0].getRightValue().replace(/"/g, ''))
+                            const pathValue = resourceDefinition.getPathAnnotationValue();
+                            return !_.isNil(httpMethodAnnotation) && !_.isNil(pathValue) &&
+                                _.isEqual(pathString, pathValue.replace(/"/g, ''))
                                  &&
-                                _.isEqual(httpMethodAsString, httpMethodAnnotation.getIdentifier().toLowerCase());
+                                _.isEqual(httpMethodAsString, httpMethodAnnotation.getName().toLowerCase());
                         });
                         // if operationId exists set it as resource name.
                         if (existingResource && operation.operationId) {
@@ -107,10 +108,17 @@ class SwaggerParser {
                 });
             });
         } catch (err) {
+            log.error(err);
             throw new Error('Unable to parse swagger definition.');
         }
     }
 
+    /**
+     * Creates the basePath attribute in @http:config annotation.
+     *
+     * @param {ServiceDefinition} serviceDefinition The service definition which has the annotation attachment.
+     * @memberof SwaggerParser
+     */
     createHttpConfigBasePathAttribute(serviceDefinition) {
         if (!_.isNil(this._swaggerJson.basePath)) {
             const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
@@ -120,24 +128,38 @@ class SwaggerParser {
         }
     }
 
-    createConsumesAnnotation(serviceDefinition, swaggerConsumesDefinition) {
-        if (!_.isNil(swaggerConsumesDefinition)) {
-            const consumesAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
+    /**
+     * Creates @http:Consumes annotation for a given ast.
+     *
+     * @param {SerivceDefinition|ResourceDefintiion} astNode The service or resource defintion.
+     * @param {string[]} swaggerConsumesDefinitions The consumes values.
+     * @memberof SwaggerParser
+     */
+    createConsumesAnnotation(astNode, swaggerConsumesDefinitions) {
+        if (!_.isNil(swaggerConsumesDefinitions) && swaggerConsumesDefinitions.length > 0) {
+            const consumesAnnotation = SwaggerParser.getAnnotationAttachment(astNode, HTTP_FULL_PACKAGE,
                 HTTP_PACKAGE, 'Consumes');
             const consumeBValues = [];
-            swaggerConsumesDefinition.forEach((consumeEntry) => {
+            swaggerConsumesDefinitions.forEach((consumeEntry) => {
                 consumeBValues.push(ASTFactory.createBValue({ stringValue: consumeEntry }));
             });
             SwaggerParser.addNodesAsArrayedAttribute(consumesAnnotation, 'value', consumeBValues);
         }
     }
 
-    createProducesAnnotation(serviceDefinition, swaggerProducesDefinition) {
-        if (!_.isNil(swaggerProducesDefinition)) {
-            const producesAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
+    /**
+     * Creates @http:Produces annotation for a given ast.
+     *
+     * @param {SerivceDefinition|ResourceDefintiion} astNode The service or resource defintion.
+     * @param {string[]} swaggerProducesDefinitions The produces values.
+     * @memberof SwaggerParser
+     */
+    createProducesAnnotation(astNode, swaggerProducesDefinitions) {
+        if (!_.isNil(swaggerProducesDefinitions) && swaggerProducesDefinitions.length > 0) {
+            const producesAnnotation = SwaggerParser.getAnnotationAttachment(astNode, HTTP_FULL_PACKAGE,
                 HTTP_PACKAGE, 'Produces');
             const producesBValues = [];
-            swaggerProducesDefinition.forEach((producesEntry) => {
+            swaggerProducesDefinitions.forEach((producesEntry) => {
                 producesBValues.push(ASTFactory.createBValue({ stringValue: producesEntry }));
             });
             SwaggerParser.addNodesAsArrayedAttribute(producesAnnotation, 'value', producesBValues);
@@ -183,17 +205,17 @@ class SwaggerParser {
             });
 
             if (!_.isNil(this._swaggerJson.info.contact.name)) {
-                const nameBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.contact.name });
+                const nameBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.contact.name });
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'name', nameBValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.url)) {
-                const urlBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.contact.url });
+                const urlBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.contact.url });
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'url', urlBValue);
             }
 
             if (!_.isNil(this._swaggerJson.info.contact.email)) {
-                const emailBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.contact.email });
+                const emailBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.contact.email });
                 SwaggerParser.setAnnotationAttribute(contactAnnotation, 'email', emailBValue);
             }
 
@@ -288,7 +310,6 @@ class SwaggerParser {
      * @param {string} pathString The @http:Path{} value
      * @param {string} httpMethodAsString The http method of the resource. Example: @http:GET{}
      * @param {object} httpMethodJsonObject The http method object of the swagger json.
-     * @private
      */
     mergeToResource(resourceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         // Creating @Path annotation.
@@ -309,6 +330,13 @@ class SwaggerParser {
         this.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
     }
 
+    /**
+     * Creates the @http:Path annotation.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {stringany} pathString The path value.
+     * @memberof SwaggerParser
+     */
     createPathAnnotation(resourceDefinition, pathString) {
         const pathAnnotation = ASTFactory.createAnnotationAttachment({
             fullPackageName: HTTP_FULL_PACKAGE,
@@ -327,6 +355,13 @@ class SwaggerParser {
         resourceDefinition.addChild(pathAnnotation, pathAnnotationIndex);
     }
 
+    /**
+     * Creates or updates the http method for the resource definition.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource defintion to be updated.
+     * @param {string} httpMethodAsString The http method.
+     * @memberof SwaggerParser
+     */
     createHttpMethodAnnotation(resourceDefinition, httpMethodAsString) {
         const methodAnnotation = resourceDefinition.getHttpMethodAnnotation();
         if (!_.isNil(methodAnnotation)) {
@@ -341,42 +376,51 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Remove and create parameter definitions of the resource definition.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {Object[]} swaggerParameters The swagger parameter objects.
+     * @memberof SwaggerParser
+     */
     createParameterDefs(resourceDefinition, swaggerParameters) {
-        // Removing existing parameter definitions except for the first one(message m).
-        const parameterDefinitions = resourceDefinition.getArgumentParameterDefinitionHolder().getChildren();
-        parameterDefinitions.forEach((parameterDefinition, index) => {
-            if (index !== 0) {
-                resourceDefinition.getArgumentParameterDefinitionHolder().removeChild(parameterDefinition);
-            }
-        });
-
-        swaggerParameters.forEach((swaggerParameter) => {
-            const newParameterDefinition = ASTFactory.createParameterDefinition();
-            if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
-                newParameterDefinition.setTypeName('int');
-            } else {
-                newParameterDefinition.setTypeName(swaggerParameter.type);
-            }
-            newParameterDefinition.setName(swaggerParameter.name);
-
-            // Creating parameter annotation.
-            const paramAnnotation = ASTFactory.createAnnotationAttachment({
-                fullPackageName: HTTP_FULL_PACKAGE,
-                packageName: HTTP_PACKAGE,
+        if (!_.isNil(swaggerParameters) && swaggerParameters.length > 0) {
+            // Removing existing parameter definitions except for the first one(message m).
+            const parameterDefinitions = resourceDefinition.getArgumentParameterDefinitionHolder().getChildren();
+            parameterDefinitions.forEach((parameterDefinition, index) => {
+                if (index !== 0) {
+                    resourceDefinition.getArgumentParameterDefinitionHolder().removeChild(parameterDefinition);
+                }
             });
 
-            const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
-            SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
+            swaggerParameters.forEach((swaggerParameter) => {
+                const newParameterDefinition = ASTFactory.createParameterDefinition();
+                if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
+                    newParameterDefinition.setTypeName('int');
+                } else {
+                    newParameterDefinition.setTypeName(swaggerParameter.type);
+                }
+                newParameterDefinition.setName(swaggerParameter.name);
 
-            if (swaggerParameter.in === 'query') {
-                paramAnnotation.setName('QueryParam');
-            } else if (swaggerParameter.in === 'path') {
-                paramAnnotation.setName('PathParam');
-            }
+                // Creating parameter annotation.
+                const paramAnnotation = ASTFactory.createAnnotationAttachment({
+                    fullPackageName: HTTP_FULL_PACKAGE,
+                    packageName: HTTP_PACKAGE,
+                });
 
-            newParameterDefinition.addChild(paramAnnotation);
-            resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
-        });
+                const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
+                SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
+
+                if (swaggerParameter.in === 'query') {
+                    paramAnnotation.setName('QueryParam');
+                } else if (swaggerParameter.in === 'path') {
+                    paramAnnotation.setName('PathParam');
+                }
+
+                newParameterDefinition.addChild(paramAnnotation);
+                resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
+            });
+        }
     }
 
     /**
@@ -421,7 +465,7 @@ class SwaggerParser {
 
                 if (!_.isNil(parameter.required)) {
                     const requiredBValue = ASTFactory.createBValue({ type: 'boolean',
-                        stringValue: parameter.required });
+                        stringValue: parameter.required.toString() });
                     SwaggerParser.setAnnotationAttribute(responseAnnotation, 'required', requiredBValue);
                 }
 
@@ -465,7 +509,10 @@ class SwaggerParser {
     /**
      * Creates the @ResourceConfig annotation for a given {@link ResourceDefinition} using the http method object of the
      * swagger JSON.
-     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {Object} httpMethodJsonObject The swagger operation object.
+     * @memberof SwaggerParser
      */
     createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
         const resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
@@ -494,7 +541,10 @@ class SwaggerParser {
     /**
      * Creates the @Responses annotation for a given {@link ResourceDefinition} using the http method object of the
      * swagger JSON.
-     * @param {ServiceDefinition} resourceDefinition The resource definition to be updated.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {Object} httpMethodJsonObject The swagger operation object.
+     * @memberof SwaggerParser
      */
     createResponsesAnnotation(resourceDefinition, httpMethodJsonObject) {
         if (!_.isNil(httpMethodJsonObject.responses)) {
@@ -541,7 +591,6 @@ class SwaggerParser {
      * @param {string} pathString The @http:Path value.
      * @param {string} httpMethodAsString The http method value.
      * @param {object} httpMethodJsonObject http method object of the swagger JSON.
-     * @private
      */
     _createNewResource(serviceDefinition, pathString, httpMethodAsString, httpMethodJsonObject) {
         const newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
@@ -564,7 +613,6 @@ class SwaggerParser {
      * @param {string} annotationPackage The package of the annotation to be removed.
      * @param {string} annotationIdentifier The identifier of the annotation to be removed.
      * @return {number} The removed annotation index.
-     * @private
      */
     static removeExistingAnnotation(existingAnnotations, annotationPackage, annotationIdentifier) {
         let removedChildIndex = _.size(existingAnnotations);
@@ -582,6 +630,17 @@ class SwaggerParser {
         return removedChildIndex;
     }
 
+    /**
+     * Gets annotation attachment in an ast node. If it doesnt exists, then a new one is created.
+     *
+     * @static
+     * @param {ASTNode} astNode The node which has the annotation attachment.
+     * @param {string} fullPackageName The full package name of the annotation attachment.
+     * @param {string} packageName The package name of the annotation attachment.
+     * @param {string} name The name of the annotation attachment.
+     * @returns {AnnotationAttachment} The annotation attachment.
+     * @memberof SwaggerParser
+     */
     static getAnnotationAttachment(astNode, fullPackageName, packageName, name) {
         const matchingAttachments = astNode.getChildrenOfType(ASTFactory.isAnnotationAttachment)
         .filter((annotationAttachment) => {
@@ -602,6 +661,15 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Creates or updates a value of an attribute of a given annotation attachment.
+     *
+     * @static
+     * @param {AnnotationAttachment} annotationAttachment The annotation attachment which the attribute resides.
+     * @param {string} key The Key of the attribute.
+     * @param {BValue|AnnotationAttachment} valueAST The value of the attribute.
+     * @memberof SwaggerParser
+     */
     static setAnnotationAttribute(annotationAttachment, key, valueAST) {
         const existingAttributes = annotationAttachment.getChildrenOfType(ASTFactory.isAnnotationAttribute);
         const matchingAttributes = existingAttributes.filter((annotationAttribute) => {
@@ -621,6 +689,16 @@ class SwaggerParser {
         }
     }
 
+    /**
+     * Creates an attribute in an annotation attachment which has a array value.
+     *
+     * @static
+     * @param {AnnotationAttachment} annotationAttachment The annotation attachment which the attribute will get
+     * created.
+     * @param {string} key The value of the key,
+     * @param {BValue[]|AnnotationAttachment[]} astNodes The nodes of the array value.
+     * @memberof SwaggerParser
+     */
     static addNodesAsArrayedAttribute(annotationAttachment, key, astNodes) {
         const existingAttributes = annotationAttachment.getChildrenOfType(ASTFactory.isAnnotationAttribute);
         const matchingAttributes = existingAttributes.filter((annotationAttribute) => {
@@ -633,14 +711,14 @@ class SwaggerParser {
             attributeValue.removeAllChildren();
 
             astNodes.forEach((ast) => {
-                const arrayItem = ASTFactory.annotationAttributeValue();
+                const arrayItem = ASTFactory.createAnnotationAttributeValue();
                 arrayItem.addChild(ast);
                 attributeValue.addChild(arrayItem);
             });
         } else {
             const value = ASTFactory.createAnnotationAttributeValue();
             astNodes.forEach((ast) => {
-                const arrayItem = ASTFactory.annotationAttributeValue();
+                const arrayItem = ASTFactory.createAnnotationAttributeValue();
                 arrayItem.addChild(ast);
                 value.addChild(arrayItem);
             });

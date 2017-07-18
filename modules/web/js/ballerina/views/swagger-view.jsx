@@ -31,12 +31,26 @@ const ace = global.ace;
 const SwaggerEditorBundle = global.SwaggerEditorBundle;
 const AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
 
-// override default undo manager of swagger editor
+/**
+ * Class to override default undo manager of swagger editor.
+ *
+ * @class CustomUndoManager
+ * @extends {AceUndoManager}
+ */
 class CustomUndoManager extends AceUndoManager {
+    /**
+     * Creates an instance of CustomUndoManager.
+     * @param {func} onExecute On execute event.
+     * @memberof CustomUndoManager
+     */
     constructor(onExecute) {
         super();
         this.onExecute = onExecute;
     }
+
+    /**
+     * @override
+     */
     execute(args) {
         super.execute(args);
         this.onExecute(args);
@@ -82,6 +96,8 @@ class SwaggerView extends React.Component {
      * we have to grab those new props and update the component
      * manually.
      *
+     * @param {Object} newProps React properties.
+     * @memberof SwaggerView
      */
     componentWillReceiveProps(newProps) {
         if (!_.isNil(newProps.targetService)) {
@@ -90,24 +106,25 @@ class SwaggerView extends React.Component {
         }
     }
 
+    /**
+     * @override
+     */
     shouldComponentUpdate() {
         // prevent this component being re-rendered by react
         return false;
     }
 
-    onEditorChange(evt) {
-        // keep swagger spec up-to-date
-        this.swagger = YAML.safeLoad(this.swaggerAce.getValue());
-
-        // IMPORTANT - Check the delta and if this is a single line change,
-        // update Service node on demand
-        // Note: Porting the logic in deprecrated swagger-view module here
-        if (_.has(evt, 'action') && _.isEqual(evt.action, 'aceupdate')) {
-            // Note: Accessing the last delta from deltas in undoable operation
-            const lastDelta = _.last(_.get(_.first(_.first(_.get(evt, 'args'))), 'deltas'));
-            if (_.isEqual(lastDelta.start.row, lastDelta.end.row)) {
-                this.updateResourceMappings(this.props.targetService, lastDelta);
-            }
+    /**
+     * onChange event for ace editor.
+     * @memberof SwaggerView
+     */
+    onEditorChange() {
+        try {
+            // keep swagger spec up-to-date
+            this.swagger = YAML.safeLoad(this.swaggerAce.getValue());
+        } catch (error) {
+            // No need to throw.
+            log.error(error);
         }
     }
 
@@ -143,252 +160,15 @@ class SwaggerView extends React.Component {
         }
     }
 
+    /**
+     * Update spec in editor.
+     * @memberof SwaggerView
+     */
     syncSpec() {
         this.swaggerEditor.specActions.updateUrl('');
         this.swaggerEditor.specActions.updateLoadingStatus('success');
         this.swaggerEditor.specActions.updateSpec(this.swagger);
         this.swaggerEditor.specActions.formatIntoYaml();
-    }
-
-    /**
-     * Updates mappings of a resource with ace editor event
-     *
-     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions.
-     * @param {Object} editorEvent The ace onChange event.
-     * @return {boolean} True if value is updated, else false.
-     *
-     * @memberof SwaggerView
-     */
-    updateResourceMappings(serviceDefinition, editorEvent) {
-        // If there are no errors.
-        const astPath = this.swaggerEditor.fn.AST.pathForPosition(this.swaggerAce.getValue(), {
-            line: editorEvent.start.row,
-            column: editorEvent.start.column,
-        });
-
-        if (!_.isUndefined(astPath) && _.isArray(astPath)) {
-            if ((_.size(astPath) === 4 && _.isEqual(astPath[3], 'operationId')) ||
-                (this.resourceMappings.has(editorEvent.start.row) &&
-                    this.resourceMappings.get(editorEvent.start.row).type === 'operationId')) {
-                this.updateOperationID(astPath, serviceDefinition, editorEvent);
-                return true;
-            } else if (_.size(astPath) === 1 && _.isEqual(astPath[0], 'paths')) {
-                this.updatePath(astPath, serviceDefinition, editorEvent);
-                return true;
-            } else if (_.size(astPath) === 2) {
-                this.updateHttpMethod(astPath, serviceDefinition, editorEvent);
-                return true;
-            }
-            return false;
-        } else if (_.isNull(astPath) && this.resourceMappings.has(editorEvent.start.row)) {
-            const mapping = this.resourceMappings.get(editorEvent.start.row);
-            if (_.isEqual(mapping.type, 'path') && !_.isUndefined(mapping.ast)) {
-                mapping.ast.getChildren()[0].setRightValue('""', { doSilently: true });
-                return true;
-            } else if (_.isEqual(mapping.type, 'method') && !_.isUndefined(mapping.ast)) {
-                mapping.ast.setIdentifier('', { doSilently: true });
-                return true;
-            }
-            return false;
-        }
-
-        return false;
-    }
-
-    /**
-     * Updates the resource name that maps to a corresponding resource using the editors change event.
-     *
-     * @param {string[]} astPath The ast path
-     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
-     * @param {Object} editorEvent The onchange event object of the ace editor
-     *
-     * @memberof SwaggerView
-     */
-    updateOperationID(astPath, serviceDefinition, editorEvent) {
-        // Getting the old operation ID.
-        let oldOperationID;
-        if (_.isEqual(editorEvent.action, 'insert')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldOperationID = currentValue.substring(0, editorEvent.start.column) +
-                currentValue.substring(editorEvent.end.column, currentValue.length);
-        } else if (_.isEqual(editorEvent.action, 'remove')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldOperationID = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                currentValue.slice(editorEvent.start.column);
-        }
-
-        oldOperationID = oldOperationID.trim();
-
-        // Getting the new operation ID.
-        const newOperationID = this.swaggerAce.getSession().getLine(editorEvent.end.row).trim();
-
-        // Updating resource name .
-        for (const resourceDefinition of serviceDefinition.getResourceDefinitions()) {
-            // Using substring we can avoid having "operationdId: " prefix in the value.
-            if (resourceDefinition.getResourceName() === oldOperationID.substring(13)) {
-                resourceDefinition.setResourceName(newOperationID.substring(13));
-                this.resourceMappings.set(editorEvent.start.row,
-                    {
-                        type: 'operationId',
-                        ast: undefined,
-                    });
-                break;
-            }
-        }
-    }
-
-    /**
-     * Updates the path value that maps to a corresponding resource using the editors change event.
-     *
-     * @param {string[]} astPath The ast path
-     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
-     * @param {Object} editorEvent The onchange event object of the ace editor
-     *
-     * @memberof SwaggerView
-     */
-    updatePath(astPath, serviceDefinition, editorEvent) {
-        // When resource path is modified.
-        let oldResourcePath;
-        if (_.isEqual(editorEvent.action, 'insert')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldResourcePath = currentValue.substring(0, editorEvent.start.column) +
-                currentValue.substring(editorEvent.end.column, currentValue.length);
-        } else if (_.isEqual(editorEvent.action, 'remove')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldResourcePath = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                currentValue.slice(editorEvent.start.column);
-        }
-
-        oldResourcePath = oldResourcePath.trim().replace(/:\s*$/, '');
-
-        const newResourcePath = this.swaggerAce.getSession().getLine(editorEvent.end.row).trim()
-            .replace(/:\s*$/, '');
-        // Getting the httpMethod value
-        for (let i = this.swaggerAce.getCursorPosition().row + 1; i <= this.swaggerAce
-            .getSession().getLength(); i++) {
-            const httpMethodLine = this.swaggerAce.getSession().getLine(i).trim().replace(/:\s*$/, '');
-            if (!_.isEmpty(httpMethodLine)) {
-                const httpMethod = httpMethodLine;
-
-                // Get the operationId if exists.
-                let operationId;
-                const operationIDLineNumber = this.swaggerEditor.fn.AST.getLineNumberForPath(
-                    this.swaggerAce.getValue(), astPath.concat([newResourcePath, httpMethodLine,
-                        'operationId']));
-                if (!_.isUndefined(operationIDLineNumber)) {
-                    operationId = this.swaggerAce.getSession().getLine(operationIDLineNumber - 1).trim()
-                        .replace(/operationId:\s/, '');
-                }
-
-                // Finding the resource to update
-                let resourceDefinitionToUpdate;
-                for (const resourceDefinition of serviceDefinition.getResourceDefinitions()) {
-                    if (!_.isUndefined(operationId) && resourceDefinition.getResourceName() === operationId) {
-                        // Getting the resource to update using the operation ID
-                        resourceDefinitionToUpdate = resourceDefinition;
-                        break;
-                    } else {
-                        // Getting the resource to update using the path and http method.
-                        const currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
-                        const currentResourcePath = currentResourcePathAnnotation.getChildren()[0].getRightValue()
-                            .replace(/"/g, '');
-
-                        const currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-
-                        if (_.isEqual(currentResourcePath, oldResourcePath) &&
-                            _.isEqual(httpMethod, currentHttpMethodAnnotation.getIdentifier().toLowerCase())) {
-                            resourceDefinitionToUpdate = resourceDefinition;
-                            break;
-                        }
-                    }
-                }
-
-                // Updating the path of the resource.
-                if (resourceDefinitionToUpdate) {
-                    resourceDefinitionToUpdate.getPathAnnotation().getChildren()[0].setRightValue(
-                        JSON.stringify(newResourcePath), { doSilently: true });
-                    this.resourceMappings.set(editorEvent.start.row,
-                        {
-                            type: 'path',
-                            ast: resourceDefinitionToUpdate.getPathAnnotation(),
-                        });
-                }
-                break;
-            }
-        }
-    }
-
-    /**
-     * Updates the http method value that maps to a corresponding resource using the editors change event.
-     *
-     * @param {string[]} astPath The ast path
-     * @param {ServiceDefinition} serviceDefinition The service definition which has the resource definitions
-     * @param {Object} editorEvent The onchange event object of the ace editor
-     *
-     * @memberof SwaggerView
-     */
-    updateHttpMethod(astPath, serviceDefinition, editorEvent) {
-        // When http method is updated
-        let oldHttpMethod;
-        if (_.isEqual(editorEvent.action, 'insert')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldHttpMethod = currentValue.substring(0, editorEvent.start.column) +
-                currentValue.substring(editorEvent.end.column, currentValue.length);
-        } else if (_.isEqual(editorEvent.action, 'remove')) {
-            const currentValue = this.swaggerAce.getSession().getLine(editorEvent.start.row);
-            oldHttpMethod = currentValue.slice(0, editorEvent.start.column) + editorEvent.lines[0] +
-                currentValue.slice(editorEvent.start.column);
-        }
-
-        oldHttpMethod = oldHttpMethod.trim().replace(/:\s*$/, '');
-
-        const newHttpMethod = this.swaggerAce.getSession().getLine(editorEvent.end.row).trim()
-            .replace(/:\s*$/, '');
-        const resourcePath = astPath[1];
-
-        // Get the operationId if exists.
-        let operationId;
-        const operationIDLineNumber = this.swaggerEditor.fn.AST.getLineNumberForPath(
-            this.swaggerAce.getValue(), astPath.concat([newHttpMethod, 'operationId']));
-        if (!_.isUndefined(operationIDLineNumber)) {
-            operationId = this.swaggerAce.getSession().getLine(operationIDLineNumber - 1).trim()
-                .replace(/operationId:\s/, '');
-        }
-
-        // Finding the resource to update
-        let resourceDefinitionToUpdate;
-        for (const resourceDefinition of serviceDefinition.getResourceDefinitions()) {
-            if (!_.isUndefined(operationId) && resourceDefinition.getResourceName() === operationId) {
-                // Getting the resource to update using the operation ID
-                resourceDefinitionToUpdate = resourceDefinition;
-                break;
-            } else {
-                // Getting the resource to update using the path and http method.
-                const currentResourcePathAnnotation = resourceDefinition.getPathAnnotation();
-                const currentHttpMethodAnnotation = resourceDefinition.getHttpMethodAnnotation();
-
-                if (!_.isUndefined(currentResourcePathAnnotation) &&
-                    !_.isUndefined(currentHttpMethodAnnotation) &&
-                    _.isEqual(currentResourcePathAnnotation.getChildren()[0].getRightValue().toLowerCase()
-                        .replace(/"/g, ''), resourcePath.toLowerCase()) &&
-                    _.isEqual(currentHttpMethodAnnotation.getIdentifier().toLowerCase().replace(/"/g, ''),
-                        oldHttpMethod.toLowerCase())) {
-                    resourceDefinitionToUpdate = resourceDefinition;
-                    break;
-                }
-            }
-        }
-
-        // Updating the http method of the resource.
-        if (resourceDefinitionToUpdate) {
-            resourceDefinitionToUpdate.getHttpMethodAnnotation().setIdentifier(newHttpMethod.toUpperCase(),
-                { doSilently: true });
-            this.resourceMappings.set(editorEvent.start.row,
-                {
-                    type: 'method',
-                    ast: resourceDefinitionToUpdate.getHttpMethodAnnotation(),
-                });
-        }
     }
 
     /**
@@ -401,6 +181,10 @@ class SwaggerView extends React.Component {
         return _.size(this.swaggerAce.getSession().getAnnotations());
     }
 
+    /**
+     * Renders the editor.
+     * @memberof SwaggerView
+     */
     renderSwaggerEditor() {
         if (!_.isNil(this.props.targetService)) {
             const $container = $(this.container);
@@ -425,6 +209,9 @@ class SwaggerView extends React.Component {
 
     /**
      * Render the required foundation to init swagger editor
+     *
+     * @returns {ReactElement} The view.
+     * @memberof SwaggerView
      */
     render() {
         return (
