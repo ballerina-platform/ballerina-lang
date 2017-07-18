@@ -14,3 +14,7 @@
     padding: 10px;
     list-style-type: none;
 }
+
+.suggestions-text-rect {
+    fill: #eee;
+}

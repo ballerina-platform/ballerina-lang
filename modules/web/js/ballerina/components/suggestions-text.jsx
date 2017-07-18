@@ -21,7 +21,16 @@ import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import './suggestions-text.css';
 
+/**
+ * Class representing the view for inputs with suggestions.
+ * @extends React.Component
+ */
 class SuggestionsText extends React.Component {
+
+    /**
+     * Creates SuggestionsText component instance.
+     * @param {Object} props - React props.
+     */
     constructor(props) {
         super(props);
         this.state = {
@@ -48,30 +57,53 @@ class SuggestionsText extends React.Component {
         };
     }
 
+    /**
+     * @override
+     */
     componentDidMount() {
         this.renderSuggestionsText();
-        this.input && this.input.focus();
+        if (this.input) {
+            this.input.focus();
+        }
     }
 
+    /**
+     * @override
+     */
     componentDidUpdate(prevProps) {
         if (prevProps.show || this.props.show) {
             // If its not showing previously and still not showing no need to re-render
             // this also avoids removing other possible html elements from html overlay
             this.renderSuggestionsText();
-            this.input && this.input.focus();
+            if (this.input) {
+                this.input.focus();
+            }
         }
     }
 
+    /**
+     * When the svg component unmounts the html component in the overlay should also be removed
+     * This is done by rendering a noscript tag
+     * @override
+     */
     componentWillUnmount() {
         ReactDOM.render(<noscript />, this.context.getOverlayContainer());
     }
 
-    onChange(event, { newValue, method }) {
+    /**
+     * Called when a value is typed or pasted in the input box
+     * @param {Object} event - the input change event
+     */
+    onChange(event, { newValue }) {
         this.setState({ value: newValue });
     }
 
-    onKeyDown(e) {
-        if (e.keyCode === 13) {
+    /**
+     * Called for the key down event when a value is typed
+     * @param {Object} event - the keydown event object
+     */
+    onKeyDown(event) {
+        if (event.keyCode === 13) {
             this.props.onEnter(this.state.value);
             this.setState({
                 value: '',
@@ -79,10 +111,21 @@ class SuggestionsText extends React.Component {
         }
     }
 
+    /**
+     * Returns the displayed value for the suggestion
+     * This function to be passed to react autosuggest component
+     * @param {Object} suggestion - the suggestion object
+     */
     getSuggestionValue(suggestion) {
         return suggestion.name;
     }
 
+    /**
+     * Returns suggestions that contains the given query
+     * This function to be passed to react autosuggest component
+     * @param {Object} suggestion - the suggestion object
+     * @returns {Array} The array of suggestions matching the the given query
+     */
     getSuggestions(query) {
         const matches = [];
 
@@ -97,12 +140,19 @@ class SuggestionsText extends React.Component {
         return matches;
     }
 
+    /**
+     * Returns the react element regarding a suggestion
+     * This function to be passed to react autosuggest component
+     * @param {Object} suggestion - the suggestion object
+     * @returns {React.Element} The element regarding the suggestion
+     */
     renderSuggestion(suggestion) {
         const { value } = this.state;
         const sugName = suggestion.name;
         const parts = sugName.split(value);
         const highlightedString = [];
 
+        // Highlight the typed value in the suggestion
         parts.forEach((p, i) => {
             highlightedString.push(<span key={i}>{p}</span>);
             if (i < parts.length - 1) {
@@ -112,14 +162,19 @@ class SuggestionsText extends React.Component {
         });
 
         return (
-          <div>
-              {highlightedString}
+            <div>
+                {highlightedString}
             </div>
         );
     }
 
-    renderSuggestionsContainer({ containerProps, children, query }) {
-        const { x, y, onClick, height = 25, width = 100 } = this.props;
+    /**
+     * Renders the container for suggestions elements.
+     * This function is called by the react autosuggest component
+     * @param {Object} - object containing the containerProps and the suggestions elements
+     */
+    renderSuggestionsContainer({ containerProps, children }) {
+        const { x, y, height = 25, width = 100 } = this.props;
         const allProps = {
             style: {
                 position: 'absolute',
@@ -132,20 +187,22 @@ class SuggestionsText extends React.Component {
         Object.assign(allProps, containerProps);
 
         return (
-          <div {...allProps}>
-              {children}
+            <div {...allProps}>
+                {children}
             </div>
         );
     }
 
+    /**
+     * Renders the react autosuggest element in the html overlay container
+     */
     renderSuggestionsText() {
         if (!this.props.show) {
             ReactDOM.render(<noscript />, this.context.getOverlayContainer());
             return;
         }
 
-        const { x, y, onClick, height = 25, width = 100 } = this.props;
-        const textProps = { x, y, onClick };
+        const { x, y, height = 25, width = 100 } = this.props;
 
         const inputStyle = {
             position: 'absolute',
@@ -164,38 +221,53 @@ class SuggestionsText extends React.Component {
         };
 
         ReactDOM.render(
-          <Autosuggest
-              suggestions={this.state.suggestions}
-              onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-              onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-              getSuggestionValue={this.getSuggestionValue}
-              renderSuggestion={this.renderSuggestion}
-              renderSuggestionsContainer={this.renderSuggestionsContainer}
-              onSuggestionSelected={this.props.onSuggestionSelected}
-              inputProps={inputProps}
-              ref={this.storeInputReference}
-              shouldRenderSuggestions={() => true}
-            />, this.context.getOverlayContainer(),
-        );
+            <Autosuggest
+                suggestions={this.state.suggestions}
+                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                renderSuggestionsContainer={this.renderSuggestionsContainer}
+                onSuggestionSelected={this.props.onSuggestionSelected}
+                inputProps={inputProps}
+                ref={this.storeInputReference}
+                shouldRenderSuggestions={() => true}
+            />, this.context.getOverlayContainer());
     }
 
     render() {
         const { x, y, height, width } = this.props;
 
-        const style = {
-            fill: '#eee',
-        };
+        const style = {};
 
         if (!this.props.show) {
             style.display = 'none';
         }
 
-        return <rect x={x} y={y} height={height} width={width} style={style} />;
+        return <rect x={x} y={y} height={height} width={width} style={style} className='suggestions-text-rect'/>;
     }
 }
 
 SuggestionsText.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+};
+
+SuggestionsText.propTypes = {
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    show: PropTypes.bool,
+    onEnter: PropTypes.func.isRequired,
+    onSuggestionSelected: PropTypes.func,
+    onBlur: PropTypes.func,
+    suggestionsPool: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
+SuggestionsText.defaultProps = {
+    show: true,
+    onSuggestionSelected: undefined,
+    onBlur: undefined,
 };
 
 export default SuggestionsText;
