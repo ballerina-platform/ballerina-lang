@@ -155,7 +155,7 @@ builtInReferenceTypeName
     |   'map' ('<' typeName '>')?
     |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
-    |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
+    |   'json' ('<' nameReference '>')?
     |   'datatable'
     ;
 

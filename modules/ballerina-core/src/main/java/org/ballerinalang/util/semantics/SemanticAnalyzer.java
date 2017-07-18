@@ -128,6 +128,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -2153,7 +2154,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (varRefType == BTypes.typeJSON) {
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
-
+        } else if (varRefType instanceof BJSONConstraintType) {
+            StructDef structDefReference = ((BJSONConstraintType) varRefType).getConstraint();
+            BLangSymbol fieldSymbol = structDefReference.resolveMembers(
+                    new SymbolName(fieldName, structDefReference.getPackagePath()));
+            if (fieldSymbol == null) {
+                throw BLangExceptionHelper
+                        .getSemanticError(varRefExpr.getNodeLocation(), SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT,
+                                fieldName, structDefReference.getName());
+            }
+            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            fieldBasedVarRefExpr.setFieldDef(fieldDef);
+            fieldBasedVarRefExpr.setType(BTypes.typeJSON);
         } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
             if (fieldBasedVarRefExpr.isLHSExpr()) {
                 //cannot assign a value to array length
@@ -3371,7 +3383,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (fieldType == BTypes.typeMap) {
                 refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
-            } else if (fieldType == BTypes.typeJSON) {
+            } else if (fieldType == BTypes.typeJSON || fieldType instanceof BJSONConstraintType) {
                 refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType instanceof StructDef) {
@@ -3430,6 +3442,19 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
                 continue;
+            }
+
+            if (inheritedType instanceof BJSONConstraintType) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = ((BJSONConstraintType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
+                            new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                            SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                }
             }
 
             // for JSON init expr, check the type compatibility of the value.
@@ -3541,6 +3566,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
+        }
+
+        if ((rhsType instanceof BJSONConstraintType) && (lhsType == BTypes.typeJSON)) {
+            assignabilityResult.assignable = true;
+            return assignabilityResult;
+        }
+
+        if ((rhsType instanceof BJSONConstraintType) && (lhsType instanceof BJSONConstraintType)) {
+            if (rhsType.equals(lhsType)){
+                assignabilityResult.assignable = true;
+                return assignabilityResult;
+            }
         }
 
         // Now check whether an implicit cast is available;
