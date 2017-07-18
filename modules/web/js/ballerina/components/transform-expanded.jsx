@@ -518,12 +518,13 @@ class TransformExpanded extends React.Component {
         });
     }
 
-    createType(name, typeName, predefinedStruct) {
+    createType(name, typeName, predefinedStruct, isInner) {
         let struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
+        struct.isInner = isInner
 
         _.forEach(predefinedStruct.getFields(), (field) => {
             let property = {};
@@ -533,7 +534,7 @@ class TransformExpanded extends React.Component {
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
-                property.innerType = this.createType(property.name, typeName, innerStruct);
+                property.innerType = this.createType(property.name, typeName, innerStruct, true);
             }
 
             struct.properties.push(property);
@@ -889,7 +890,7 @@ class TransformExpanded extends React.Component {
     render() {
         const sourceId = 'sourceStructs' + this.props.model.id;
         const targetId = 'targetStructs' + this.props.model.id;
-        const sourcesAndTargets = this.predefinedStructs;
+        const sourcesAndTargets = this.predefinedStructs.filter(endpoint => (!endpoint.isInner));
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
