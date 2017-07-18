@@ -39,14 +39,11 @@ public class Constants {
     public static final String ANNOTATION_ACK_TIMEOUT = "ackTimeOut";
     public static final String ANNOTATION_FILE_COUNT = "perPollFileCount";
 
-
     public static final String ANNOTATION_SORT_ATTRIBUTE = "fileSortAttribute";
     public static final String ANNOTATION_SORT_ASCENDING = "fileSortAscending";
 
-
     public static final String ANNOTATION_ACTION_AFTER_PROCESS = "actionAfterProcess";
     public static final String ANNOTATION_ACTION_AFTER_FAILURE = "actionAfterFailure";
-
 
     public static final String ANNOTATION_MOVE_AFTER_PROCESS = "moveAfterProcess";
     public static final String ANNOTATION_MOVE_AFTER_FAILURE = "moveAfterFailure";
@@ -59,7 +56,4 @@ public class Constants {
     public static final String ANNOTATION_SFTP_IDENTITIES = "sftpIdentities";
     public static final String ANNOTATION_SFTP_IDENTITY_PASS_PHRASE = "sftpIdentityPassPhrase";
     public static final String ANNOTATION_SFTP_USER_DIR_IS_ROOT = "sftpUserDirIsRoot";
-
-
-
 }

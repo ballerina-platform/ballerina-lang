@@ -44,13 +44,13 @@ public class MessageProcessor implements CarbonMessageProcessor {
             if (log.isDebugEnabled()) {
                 log.debug("ballerina received a request message");
             }
-            if (cMsg.getProperty("SINGLE_THREADED") != null) {
-                ThreadPoolFactory.getInstance().getSingleThreadExecutor((String) cMsg.getProperty("SINGLE_THREADED")).
-                        execute(new RequestWorkerThread(cMsg, carbonCallback));
-            } else {
+//            if (cMsg.getProperty("SINGLE_THREADED") != null) {
+//                ThreadPoolFactory.getInstance().getSingleThreadExecutor((String) cMsg.getProperty("SINGLE_THREADED")).
+//                        execute(new RequestWorkerThread(cMsg, carbonCallback));
+//            } else {
                 ThreadPoolFactory.getInstance().getExecutor().execute(new RequestWorkerThread(cMsg, carbonCallback));
-            }
-        } else {
+//            }
+        } else {    
             ServerConnectorMessageHandler.handleOutbound(cMsg, carbonCallback);
         }
         return true;

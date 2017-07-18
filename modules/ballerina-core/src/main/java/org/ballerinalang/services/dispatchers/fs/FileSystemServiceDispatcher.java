@@ -59,11 +59,13 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
         Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
         String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
         if (serviceName == null) {
-            throw new BallerinaException("Service name is not found with the file input stream.");
+            throw new BallerinaException(
+                    "Could not find a service to dispatch. " + Constants.TRANSPORT_PROPERTY_SERVICE_NAME +
+                            " property not set.");
         }
         ServiceInfo service = serviceInfoMap.get(serviceName);
         if (service == null) {
-            throw new BallerinaException("No file service is registered with the service name " + serviceName);
+            throw new BallerinaException("No service registered with the name: " + serviceName);
         }
         return service;
     }

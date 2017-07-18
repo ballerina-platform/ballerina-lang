@@ -22,19 +22,19 @@ package org.ballerinalang.services.dispatchers.file;
  * Constants for File server connector.
  */
 public class Constants {
-    public static final String ANNOTATION_FILE_SOURCE = "FileSource";
-    public static final String PROTOCOL_FILE = "file";
-    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.net.file";
-    public static final String TRANSPORT_PROPERTY_SERVICE_NAME = "TRANSPORT_FILE_SERVICE_NAME";
-    public static final String FILE_PACKAGE_NAME = "ballerina.net.file";
-    public static final String FILE_UPDATE = "FILE_UPDATE";
-    public static final String FILE_ROTATE = "FILE_ROTATE";
-    public static final String FILE_TRANSPORT_EVENT_NAME = "FILE_TRANSPORT_EVENT_NAME";
-    public static final String ANNOTATION_NAME_ON_UPDATE = "OnUpdate";
-    public static final String ANNOTATION_NAME_ON_ROTATE = "OnRotate";
-    public static final String ANNOTATION_ATTRIBUTE_PROTOCOL = "protocol";
-    public static final String ANNOTATION_ATTRIBUTE_PATH = "path";
-    public static final String ANNOTATION_ATTRIBUTE_POLLING_INTERVAL = "pollingInterval";
-    public static final String ANNOTATION_ATTRIBUTE_START_POSTION = "startPosition";
-    public static final String ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL = " maxLinesPerPoll";
+//    public static final String ANNOTATION_FILE_SOURCE = "FileSource";
+//    public static final String PROTOCOL_FILE = "file";
+//    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.net.file";
+//    public static final String TRANSPORT_PROPERTY_SERVICE_NAME = "TRANSPORT_FILE_SERVICE_NAME";
+//    public static final String FILE_PACKAGE_NAME = "ballerina.net.file";
+//    public static final String FILE_UPDATE = "FILE_UPDATE";
+//    public static final String FILE_ROTATE = "FILE_ROTATE";
+//    public static final String FILE_TRANSPORT_EVENT_NAME = "FILE_TRANSPORT_EVENT_NAME";
+//    public static final String ANNOTATION_NAME_ON_UPDATE = "OnUpdate";
+//    public static final String ANNOTATION_NAME_ON_ROTATE = "OnRotate";
+//    public static final String ANNOTATION_ATTRIBUTE_PROTOCOL = "protocol";
+//    public static final String ANNOTATION_ATTRIBUTE_PATH = "path";
+//    public static final String ANNOTATION_ATTRIBUTE_POLLING_INTERVAL = "pollingInterval";
+//    public static final String ANNOTATION_ATTRIBUTE_START_POSTION = "startPosition";
+//    public static final String ANNOTATION_ATTRIBUTE_MAX_LINES_PER_POLL = " maxLinesPerPoll";
 }

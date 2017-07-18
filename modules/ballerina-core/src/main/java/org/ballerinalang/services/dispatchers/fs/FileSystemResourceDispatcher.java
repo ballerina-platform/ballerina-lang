@@ -36,23 +36,26 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class FileSystemResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(FileSystemResourceDispatcher.class);
 
-    @Override public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
-                                           Context balContext) throws BallerinaException {
+    @Override
+    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws BallerinaException {
         return null;
     }
 
     @Override
-    public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback) throws
-            BallerinaException {
+    public ResourceInfo findResource(ServiceInfo service, CarbonMessage cMsg, CarbonCallback callback)
+            throws BallerinaException {
         if (log.isDebugEnabled()) {
             log.debug("Starting to find resource in the file service " + service.getName() + " to " +
                       "deliver the message");
         }
         ResourceInfo[] resourceInfoList = service.getResourceInfoList();
         if (resourceInfoList.length != 1) {
-            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE_SYSTEM +
-                                         "' has to have only one resource associated to itself. " + "Found " +
-                                         resourceInfoList.length + " resources in Service: " + service.getName());
+            throw new BallerinaException("A service bound to the '" + Constants.PROTOCOL_FILE_SYSTEM +
+                                                 "' protocol has to have only one resource associated to itself. " +
+                                                 "Found " +
+                                                 resourceInfoList.length + " resources in service: " +
+                                                 service.getName());
         }
         return resourceInfoList[0];
     }

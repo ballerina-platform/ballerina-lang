@@ -19,7 +19,7 @@
 package org.ballerinalang.services.dispatchers.fs;
 
 /**
- * Constants for File server connector.
+ * Constants for File System Server connector.
  */
 public class Constants {
     public static final String ANNOTATION_CONFIG = "config";
@@ -37,14 +37,11 @@ public class Constants {
     public static final String ANNOTATION_ACK_TIMEOUT = "ackTimeOut";
     public static final String ANNOTATION_FILE_COUNT = "perPollFileCount";
 
-
     public static final String ANNOTATION_SORT_ATTRIBUTE = "fileSortAttribute";
     public static final String ANNOTATION_SORT_ASCENDING = "fileSortAscending";
 
-
     public static final String ANNOTATION_ACTION_AFTER_PROCESS = "actionAfterProcess";
     public static final String ANNOTATION_ACTION_AFTER_FAILURE = "actionAfterFailure";
-
 
     public static final String ANNOTATION_MOVE_AFTER_PROCESS = "moveAfterProcess";
     public static final String ANNOTATION_MOVE_AFTER_FAILURE = "moveAfterFailure";
