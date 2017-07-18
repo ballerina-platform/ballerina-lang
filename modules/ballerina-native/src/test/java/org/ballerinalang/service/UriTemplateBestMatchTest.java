@@ -455,7 +455,7 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test dispatching without verbs")
+    @Test(description = "Test dispatching for the best match")
     public void testBestMatchingResource() {
         String path = "/echo44/echo2";
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
