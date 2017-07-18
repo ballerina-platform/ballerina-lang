@@ -5,7 +5,7 @@ const getSuggestionValue = suggestion => suggestion.name;
 
 const renderSuggestion = suggestion => (
   <div>
-    {suggestion.name}<span style={{color: '#a8a8a8'}}>{` ${suggestion.type}`}</span>
+    {suggestion.name}<span style={{color: '#a8a8a8'}}>{` ${suggestion.typeName || suggestion.type}`}</span>
   </div>
 );
 
