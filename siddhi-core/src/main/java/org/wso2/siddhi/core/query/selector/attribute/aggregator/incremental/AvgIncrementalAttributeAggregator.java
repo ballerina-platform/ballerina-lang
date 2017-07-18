@@ -63,8 +63,8 @@ public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggre
         sumInitialValue = sumIncrementalAttributeAggregator.getBaseAttributeInitialValues()[0];
         countInitialValue = countIncrementalAttributeAggregator.getBaseAttributeInitialValues()[0];
 
-        this.baseAttributes = new Attribute[] { sum, count };
-        this.baseAttributesInitialValues = new Expression[] { sumInitialValue, countInitialValue };
+        this.baseAttributes = new Attribute[]{sum, count};
+        this.baseAttributesInitialValues = new Expression[]{sumInitialValue, countInitialValue};
 
         assert baseAttributes.length == baseAttributesInitialValues.length;
     }
@@ -105,6 +105,11 @@ public class AvgIncrementalAttributeAggregator extends IncrementalAttributeAggre
                 Expression.variable(getBaseAttributes()[0].getName()));
         Expression countAggregator = Expression.function("sum",
                 Expression.variable(getBaseAttributes()[1].getName()));
-        return new Expression[] { sumAggregator, countAggregator };
+        return new Expression[]{sumAggregator, countAggregator};
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return Attribute.Type.DOUBLE;
     }
 }

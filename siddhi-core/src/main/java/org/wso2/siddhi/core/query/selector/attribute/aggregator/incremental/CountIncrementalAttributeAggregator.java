@@ -51,8 +51,8 @@ public class CountIncrementalAttributeAggregator extends IncrementalAttributeAgg
         count = new Attribute("_COUNT_".concat(attributeName), Attribute.Type.LONG);
         countInitialValue = Expression.value(1L);
 
-        this.baseAttributes = new Attribute[] { count };
-        this.baseAttributesInitialValues = new Expression[] { countInitialValue };
+        this.baseAttributes = new Attribute[]{count};
+        this.baseAttributesInitialValues = new Expression[]{countInitialValue};
 
         assert baseAttributes.length == baseAttributesInitialValues.length;
     }
@@ -85,6 +85,11 @@ public class CountIncrementalAttributeAggregator extends IncrementalAttributeAgg
     public Expression[] getBaseAggregators() {
         Expression countAggregator = Expression.function("sum",
                 Expression.variable(getBaseAttributes()[0].getName()));
-        return new Expression[] { countAggregator };
+        return new Expression[]{countAggregator};
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return Attribute.Type.LONG;
     }
 }

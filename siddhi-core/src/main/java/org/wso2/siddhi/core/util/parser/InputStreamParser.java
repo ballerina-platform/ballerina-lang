@@ -51,7 +51,8 @@ public class InputStreamParser {
      * @param tableDefinitionMap         table definition map
      * @param windowDefinitionMap        window definition map
      * @param tableMap                   Table Map
-     * @param eventWindowMap             event window map
+     * @param windowMap                  event window map
+     * @param aggregationMap             aggregator map
      * @param executors                  List to hold VariableExpressionExecutors to update after query parsing
      * @param latencyTracker             latency tracker
      * @param outputExpectsExpiredEvents is output expects ExpiredEvents
@@ -62,14 +63,17 @@ public class InputStreamParser {
                                       Map<String, AbstractDefinition> streamDefinitionMap,
                                       Map<String, AbstractDefinition> tableDefinitionMap,
                                       Map<String, AbstractDefinition> windowDefinitionMap,
-                                      Map<String, Table> tableMap, Map<String, Window> eventWindowMap,
+                                      Map<String, AbstractDefinition> aggregationDefinitionMap,
+                                      Map<String, Table> tableMap,
+                                      Map<String, Window> windowMap,
+                                      Map<String, AggregationRuntime> aggregationMap,
                                       List<VariableExpressionExecutor> executors,
                                       LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents,
                                       String queryName) {
 
         if (inputStream instanceof BasicSingleInputStream || inputStream instanceof SingleInputStream) {
             SingleInputStream singleInputStream = (SingleInputStream) inputStream;
-            Window window = eventWindowMap.get(singleInputStream.getStreamId());
+            Window window = windowMap.get(singleInputStream.getStreamId());
             boolean batchProcessingAllowed = window != null;      // If stream is from window, allow batch
             // processing
             ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(singleInputStream.getStreamId(),
@@ -77,20 +81,20 @@ public class InputStreamParser {
             processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
             return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
                     siddhiAppContext, executors, streamDefinitionMap,
-                    null, windowDefinitionMap, tableMap,
+                    null, windowDefinitionMap, aggregationDefinitionMap, tableMap,
                     new MetaStreamEvent(), processStreamReceiver,
                     true, outputExpectsExpiredEvents, queryName);
         } else if (inputStream instanceof JoinInputStream) {
             return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), siddhiAppContext,
                     streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
-                    tableMap, eventWindowMap,
+                    aggregationDefinitionMap, tableMap, windowMap, aggregationMap,
                     executors, latencyTracker, outputExpectsExpiredEvents,
                     queryName);
         } else if (inputStream instanceof StateInputStream) {
             MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
             return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), siddhiAppContext,
                     metaStateEvent, streamDefinitionMap, null,
-                    null, tableMap, executors, latencyTracker,
+                    null, aggregationDefinitionMap, tableMap, executors, latencyTracker,
                     queryName);
         } else {
             throw new OperationNotSupportedException();

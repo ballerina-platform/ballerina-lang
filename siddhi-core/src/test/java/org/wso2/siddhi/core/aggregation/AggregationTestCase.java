@@ -389,10 +389,10 @@ public class AggregationTestCase {
                 " " +
                 " define aggregation cseEventAggregation " +
                 " from cseEventStream " +
-                " select sum(price) as total, avg(price) as avgPrice " +
+                " select symbol, sum(price) as total, avg(price) as avgPrice " +
                 " aggregate by arrival every sec ... min; " +
                 "" +
-                "define stream barStream (symbol string, value int);" +
+                "define stream barStream (symbol string, value int); " +
                 "" +
                 "from barStream as b join cseEventAggregation as a " +
                 "on a.symbol == b.symbol " +

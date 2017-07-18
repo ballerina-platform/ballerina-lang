@@ -80,6 +80,8 @@ public class SiddhiAppRuntimeBuilder {
             new ConcurrentHashMap<String, Table>(); //contains tables
     private ConcurrentMap<String, Window> windowMap =
             new ConcurrentHashMap<String, Window>(); //contains windows
+    private ConcurrentMap<String, AggregationRuntime> aggregationMap =
+            new ConcurrentHashMap<String, AggregationRuntime>(); //contains aggregation runtime
     private ConcurrentMap<String, EventTrigger> triggerMap =
             new ConcurrentHashMap<String, EventTrigger>(); //contains triggers
     private ConcurrentMap<String, PartitionRuntime> partitionMap =
@@ -143,14 +145,16 @@ public class SiddhiAppRuntimeBuilder {
     }
 
     public void defineAggregation(AggregationDefinition aggregationDefinition) {
+        AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, siddhiAppContext,
+                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, aggregationDefinitionMap, tableMap,
+                windowMap, aggregationMap, this);
         DefinitionParserHelper.validateDefinition(aggregationDefinition, streamDefinitionMap, tableDefinitionMap,
                 windowDefinitionMap, aggregationDefinitionMap);
         aggregationDefinitionMap.putIfAbsent(aggregationDefinition.getId(), aggregationDefinition);
-        AggregationRuntime aggregationRuntime = AggregationParser.parse(aggregationDefinition, siddhiAppContext,
-                streamDefinitionMap, tableDefinitionMap, windowDefinitionMap, tableMap, windowMap, this);
         ProcessStreamReceiver processStreamReceiver = aggregationRuntime.getSingleStreamRuntime().
                 getProcessStreamReceiver();
         streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
+        aggregationMap.putIfAbsent(aggregationDefinition.getId(), aggregationRuntime);
     }
 
     public void addPartition(PartitionRuntime partitionRuntime) {
@@ -163,7 +167,7 @@ public class SiddhiAppRuntimeBuilder {
 
         for (SingleStreamRuntime singleStreamRuntime : streamRuntime.getSingleStreamRuntimes()) {
             ProcessStreamReceiver processStreamReceiver = singleStreamRuntime.getProcessStreamReceiver();
-            if (!processStreamReceiver.toTable()) {
+            if (processStreamReceiver.toStream()) {
                 streamJunctionMap.get(processStreamReceiver.getStreamId()).subscribe(processStreamReceiver);
             }
         }
@@ -227,6 +231,10 @@ public class SiddhiAppRuntimeBuilder {
         return windowMap;
     }
 
+    public ConcurrentMap<String, AggregationRuntime> getAggregationMap() {
+        return aggregationMap;
+    }
+
     public ConcurrentMap<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
     }
@@ -245,6 +253,10 @@ public class SiddhiAppRuntimeBuilder {
 
     public ConcurrentMap<String, AbstractDefinition> getWindowDefinitionMap() {
         return windowDefinitionMap;
+    }
+
+    public ConcurrentMap<String, AbstractDefinition> getAggregationDefinitionMap() {
+        return aggregationDefinitionMap;
     }
 
     public LockSynchronizer getLockSynchronizer() {

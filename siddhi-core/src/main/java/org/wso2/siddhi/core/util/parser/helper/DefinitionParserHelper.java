@@ -86,8 +86,8 @@ import java.util.regex.Pattern;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition>
-            streamDefinitionMap,
+    public static void validateDefinition(AbstractDefinition definition,
+                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> tableDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> windowDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> aggregationDefinitionMap) {
@@ -121,9 +121,9 @@ public class DefinitionParserHelper {
         }
     }
 
-
-    public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction>
-            streamJunctionMap, SiddhiAppContext siddhiAppContext) {
+    public static void addStreamJunction(StreamDefinition streamDefinition,
+                                         ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                         SiddhiAppContext siddhiAppContext) {
         if (!streamJunctionMap.containsKey(streamDefinition.getId())) {
             StreamJunction streamJunction = new StreamJunction(streamDefinition,
                     siddhiAppContext.getExecutorService(),
@@ -186,8 +186,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, Window>
-            eventWindowMap,
+    public static void addWindow(WindowDefinition windowDefinition,
+                                 ConcurrentMap<String, Window> eventWindowMap,
                                  SiddhiAppContext siddhiAppContext) {
         if (!eventWindowMap.containsKey(windowDefinition.getId())) {
             Window table = new Window(windowDefinition, siddhiAppContext);
@@ -195,8 +195,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addFunction(SiddhiAppContext siddhiAppContext, final FunctionDefinition
-            functionDefinition) {
+    public static void addFunction(SiddhiAppContext siddhiAppContext,
+                                   final FunctionDefinition functionDefinition) {
 
         Extension extension = new Extension() {
             @Override
