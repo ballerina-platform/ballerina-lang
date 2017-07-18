@@ -1107,7 +1107,7 @@ public class BLangModelBuilder {
                 currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
-        Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        Expression rhsExpr = exprAvailable && !exprStack.isEmpty() ? exprStack.pop() : null;
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
         variableDefStmt.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
@@ -1959,11 +1959,15 @@ public class BLangModelBuilder {
 
     private void collectAnnotationAttachments(List<AnnotationAttachment> annonAttachmentList, int depth, int index) {
         if (index == depth) {
-            annonAttachmentList.add(annonAttachmentStack.pop());
+            if (!annonAttachmentStack.isEmpty()) {
+                annonAttachmentList.add(annonAttachmentStack.pop());
+            }
         } else {
-            AnnotationAttachment attachment = annonAttachmentStack.pop();
-            collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
-            annonAttachmentList.add(attachment);
+            if (!annonAttachmentStack.isEmpty()) {
+                AnnotationAttachment attachment = annonAttachmentStack.pop();
+                collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
+                annonAttachmentList.add(attachment);
+            }
         }
     }
 

@@ -901,17 +901,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
-        String varName = ctx.Identifier().getText();
-        boolean exprAvailable = ctx.expression() != null ||
-                ctx.connectorInitExpression() != null ||
-                ctx.actionInvocation() != null;
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+        if (!typeNameStack.isEmpty()) {
+            SimpleTypeName typeName = typeNameStack.pop();
+            String varName = ctx.Identifier().getText();
+            boolean exprAvailable = ctx.expression() != null ||
+                    ctx.connectorInitExpression() != null ||
+                    ctx.actionInvocation() != null;
+            WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+            if (isVerboseMode) {
+                whiteSpaceDescriptor = WhiteSpaceUtil.getVariableDefWS(tokenStream, ctx, exprAvailable);
+            }
+            modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
+                    exprAvailable);
         }
-        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), whiteSpaceDescriptor, typeName, varName,
-                exprAvailable);
     }
 
     @Override
