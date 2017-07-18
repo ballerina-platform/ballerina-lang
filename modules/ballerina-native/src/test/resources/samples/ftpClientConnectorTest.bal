@@ -27,11 +27,11 @@ function testWrite(blob content, string targetPath) {
     ftp:ClientConnector.write(ftpConnector, content, target);
 }
 
-function testRead(string sourcePath, blob data, int bytes) {
+function testRead(string sourcePath, blob data) {
     ftp:ClientConnector ftpConnector = create ftp:ClientConnector();
     files:File source = {path : sourcePath};
     ftp:ClientConnector.write(ftpConnector, data, source);
-    blob b = ftp:ClientConnector.read(ftpConnector, source, bytes);
+    blob b = ftp:ClientConnector.read(ftpConnector, source);
 }
 
 function testCreate(string targetPath) {

@@ -8,10 +8,9 @@ connector ClientConnector () {
     @doc:Description { value:"Retrieves blob value of a file"}
     @doc:Param { value:"c: FTP connector" }
     @doc:Param { value:"file: The file to be read" }
-    @doc:Param { value:"number: Number of bytes to be read" }
     @doc:Return { value:"data: The blob containing files read" }
     @doc:Return { value:"numberRead: Number of bytes actually read" }
-    native action read (ClientConnector c, files:File file, int number) (blob);
+    native action read (ClientConnector c, files:File file) (blob);
 
     @doc:Description { value:"Copies a file from a given location to another"}
     @doc:Param { value:"c: FTP connector" }

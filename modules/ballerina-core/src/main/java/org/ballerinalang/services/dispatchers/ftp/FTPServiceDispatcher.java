@@ -56,9 +56,11 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
     public ServiceInfo findService(CarbonMessage cMsg, CarbonCallback callback) {
         Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
         String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
+
         if (serviceName == null) {
             throw new BallerinaException("Service name is not found with the file input stream.");
         }
+
         ServiceInfo service = serviceInfoMap.get(serviceName);
         if (service == null) {
             throw new BallerinaException("No file service is registered with the service name " + serviceName);
@@ -70,38 +72,17 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(ServiceInfo service) {
         AnnotationAttachmentInfo configInfo =
                 service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME, Constants.ANNOTATION_CONFIG);
-        AnnotationAttachmentInfo sortInfo =
-                service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME, Constants.ANNOTATION_SORT);
-        AnnotationAttachmentInfo postProcessInfo =
-                service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME,
-                        Constants.ANNOTATION_POST_PROCESS);
-        AnnotationAttachmentInfo concurrencyInfo =
-                service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME,
-                                                    Constants.ANNOTATION_CONCURRENCY);
-        AnnotationAttachmentInfo sftpInfo =
-                service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME,
-                        Constants.ANNOTATION_SFTP_SETTINGS);
 
         if (configInfo != null) {
             Map<String, String> elementsMap = getServerConnectorParamMap(configInfo);
-            if (sortInfo != null) {
-                addSortProperties(elementsMap, sortInfo);
-            }
-            if (postProcessInfo != null) {
-                addPostProcessProperties(elementsMap, postProcessInfo);
-            }
-            if (concurrencyInfo != null) {
-                addConcurrencyProperties(elementsMap, concurrencyInfo);
-            }
-            if (sftpInfo != null) {
-                addSftpProperties(elementsMap, sftpInfo);
-            }
             String dir = elementsMap.get(Constants.ANNOTATION_DIR_URI);
+
             if (dir == null) {
                 throw new BallerinaException("Cannot create file system server without dirPath");
             } else if (!(dir.startsWith("ftp:") || dir.startsWith("sftp:") || dir.startsWith("ftps:"))) {
                 throw new BallerinaException("ftp server connector should refer to a ftp, sftp or ftps dirPath");
             }
+
             String serviceName = service.getName();
             ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
                     Constants.PROTOCOL_FILE_SYSTEM, serviceName, elementsMap);
@@ -155,72 +136,60 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
             convertedMap.put(Constants.ANNOTATION_FILE_COUNT,
                     info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_COUNT).getStringValue());
         }
-        return convertedMap;
-    }
-
-    private void addSortProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE))) {
-            elements.put(Constants.ANNOTATION_SORT_ATTRIBUTE,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_SORT_ATTRIBUTE,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ASCENDING))) {
-            elements.put(Constants.ANNOTATION_SORT_ASCENDING,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ASCENDING).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_SORT_ASCENDING,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ASCENDING).getStringValue());
         }
-    }
-
-    private void addPostProcessProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS))) {
-            elements.put(Constants.ANNOTATION_ACTION_AFTER_PROCESS,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_ACTION_AFTER_PROCESS,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE))) {
-            elements.put(Constants.ANNOTATION_ACTION_AFTER_FAILURE,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_ACTION_AFTER_FAILURE,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS))) {
-            elements.put(Constants.ANNOTATION_MOVE_AFTER_PROCESS,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_MOVE_AFTER_PROCESS,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE))) {
-            elements.put(Constants.ANNOTATION_MOVE_AFTER_FAILURE,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_MOVE_AFTER_FAILURE,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT))) {
-            elements.put(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_CREATE_DIR))) {
-            elements.put(Constants.ANNOTATION_CREATE_DIR,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_CREATE_DIR).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_CREATE_DIR,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_CREATE_DIR).getStringValue());
         }
-    }
-
-    private void addConcurrencyProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_PARALLEL))) {
-            elements.put(Constants.ANNOTATION_PARALLEL,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_PARALLEL).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_PARALLEL,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_PARALLEL).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE))) {
-            elements.put(Constants.ANNOTATION_THREAD_POOL_SIZE,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_THREAD_POOL_SIZE,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE).getStringValue());
         }
-    }
-
-    private void addSftpProperties(Map<String, String> elements, AnnotationAttachmentInfo info) {
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES))) {
-            elements.put(Constants.ANNOTATION_SFTP_IDENTITIES,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_SFTP_IDENTITIES,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES).getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE))) {
-            elements.put(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE)
-                            .getStringValue());
+            convertedMap.put(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE)
+                                 .getStringValue());
         }
         if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT))) {
-            elements.put(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT,
-                    info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT).getStringValue());
+            convertedMap.put(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT,
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT).getStringValue());
         }
+        return convertedMap;
     }
 
     private boolean validateAttribute(AnnotationAttributeValue annotationAttributeValue) {

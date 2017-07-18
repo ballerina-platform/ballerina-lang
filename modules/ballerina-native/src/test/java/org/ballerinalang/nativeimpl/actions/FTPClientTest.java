@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.actions;
 
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -87,7 +86,7 @@ public class FTPClientTest {
     public void testRead() {
         String targetPath = new File("temp/read-file.txt").getAbsolutePath();
         byte[] content = "Sample Text".getBytes();
-        BValue[] args = { new BString(targetPath), new BBlob(content), new BInteger(1000) };
+        BValue[] args = {new BString(targetPath), new BBlob(content)};
         BValue[] results = BLangFunctions.invokeNew(programFile, "testRead", args);
         Assert.assertEquals(content, ((BBlob) results[0]).blobValue(), "Not read properly");
     }

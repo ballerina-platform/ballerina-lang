@@ -44,8 +44,7 @@ import java.util.Map;
         connectorName = FileConstants.CONNECTOR_NAME,
         args = { @Argument(name = "ftpClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "file", type = TypeEnum.STRUCT, structType = "File",
-                         structPackage = "ballerina.lang.files"),
-                 @Argument(name = "bytes", type = TypeEnum.INT) },
+                         structPackage = "ballerina.lang.files")},
         returnType = {@ReturnType(type = TypeEnum.BLOB)}
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
@@ -54,8 +53,6 @@ import java.util.Map;
         value = "ftp client connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "file",
         value = "The File struct") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "bytes",
-        value = "The number of bytes to be read") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "blob",
         value = "The blob containing files read") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "numberRead",

@@ -78,6 +78,6 @@ public abstract class AbstractFtpAction extends AbstractNativeAction {
 
     //TODO: Refactor this to check for starts with
     protected boolean validateProtocol(String url) {
-        return url.contains("ftp://") || url.contains("sftp://") || url.contains("ftps://");
+        return url.startsWith("ftp://") || url.startsWith("sftp://") || url.startsWith("ftps://");
     }
 }
