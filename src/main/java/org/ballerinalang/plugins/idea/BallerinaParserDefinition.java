@@ -90,7 +90,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
 import org.ballerinalang.plugins.idea.psi.ThrowStatementNode;
@@ -144,9 +144,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ABORT, ABORTED, ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
             CONTINUE, CREATE, ELSE, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, PACKAGE, PARAMETER,
-            REPLY, RESOURCE, RETURN, SERVICE, SOME, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORM, TRY, TYPEMAPPER,
-            VAR, WHILE, WORKER, XMLNS, BOOLEAN, INT, FLOAT, STRING, BLOB, MESSAGE, MAP, XML, XML_DOCUMENT, JSON,
-            DATATABLE, BooleanLiteral, NullLiteral);
+            REPLY, RESOURCE, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORM, TRY,
+            TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, BOOLEAN, INT, FLOAT, STRING, BLOB, MESSAGE, MAP, XML,
+            XML_DOCUMENT, JSON, DATATABLE, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
@@ -276,8 +276,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TypeMapperBodyNode(node);
             case BallerinaParser.RULE_fieldDefinition:
                 return new FieldDefinitionNode(node);
-            case BallerinaParser.RULE_returnTypeList:
-                return new ReturnTypeListNode(node);
+            case BallerinaParser.RULE_typeList:
+                return new TypeListNode(node);
             case BallerinaParser.RULE_connectorInitExpression:
                 return new ConnectorInitExpressionNode(node);
             case BallerinaParser.RULE_serviceDefinition:

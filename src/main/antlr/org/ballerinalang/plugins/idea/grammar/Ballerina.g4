@@ -71,6 +71,10 @@ functionDefinition
     |   'function' Identifier '(' parameterList? ')' returnParameters? '{' callableUnitBody '}'
     ;
 
+lambdaFunction
+    :  'function' '(' parameterList? ')' returnParameters? '{' callableUnitBody '}'
+    ;
+
 connectorDefinition
     :   'connector' Identifier '(' parameterList? ')' '{' connectorBody '}'
     ;
@@ -165,6 +169,11 @@ builtInReferenceTypeName
     |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
     |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
     |   'datatable'
+    |   functionTypeName
+    ;
+
+functionTypeName
+    :   'function' '(' (parameterList | typeList)? ')' returnParameters?
     ;
 
 xmlNamespaceName
@@ -394,6 +403,7 @@ variableReference
     |   variableReference index                     # mapArrayVariableReference
     |   variableReference field                     # fieldVariableReference
     |   variableReference xmlAttrib                 # xmlAttribVariableReference
+    |   variableReference '(' expressionList? ')'   # functionInvocationReference
     ;
 
 field
@@ -462,7 +472,7 @@ expression
     |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
-    |   functionReference '(' expressionList? ')'       # functionInvocationExpression
+    |   lambdaFunction                                  # lambdaFunctionExpression
     |   '(' typeName ')' simpleExpression               # typeCastingExpression
     |   '<' typeName '>' simpleExpression               # typeConversionExpression
     |   ('+' | '-' | '!') simpleExpression              # unaryExpression
@@ -499,10 +509,10 @@ annotationReference
     ;
 
 returnParameters
-    : '(' (parameterList | returnTypeList) ')'
+    : 'returns'? '(' (parameterList | typeList) ')'
     ;
 
-returnTypeList
+typeList
     :   typeName (',' typeName)*
     ;
 
@@ -558,6 +568,7 @@ PARAMETER       : 'parameter';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';
+RETURNS         : 'returns';
 SERVICE         : 'service';
 SOME            : 'some';
 STRUCT          : 'struct';

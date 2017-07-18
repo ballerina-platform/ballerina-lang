@@ -40,7 +40,7 @@ import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
-import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
+import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.jetbrains.annotations.NotNull;
@@ -253,17 +253,17 @@ public class BallerinaDocumentationProvider extends AbstractDocumentationProvide
         if (node == null) {
             return results;
         }
-        // But there can be two possible scenarios. The actual return types can be in either ReturnTypeListNode or
+        // But there can be two possible scenarios. The actual return types can be in either TypeListNode or
         // ParameterListNode. This is because return types can be named parameters. In that case, ParameterListNode is
         // available.
 
-        // First we check for ReturnTypeListNode.
-        ReturnTypeListNode returnTypeListNode = PsiTreeUtil.findChildOfType(node, ReturnTypeListNode.class);
+        // First we check for TypeListNode.
+        TypeListNode typeListNode = PsiTreeUtil.findChildOfType(node, TypeListNode.class);
         // If it is available, that means the return types are not named parameters.
-        if (returnTypeListNode != null) {
+        if (typeListNode != null) {
             // Each parameter will be of type TypeNameNode. So we get all return types.
             Collection<TypeNameNode> typeNameNodes =
-                    PsiTreeUtil.findChildrenOfType(returnTypeListNode, TypeNameNode.class);
+                    PsiTreeUtil.findChildrenOfType(typeListNode, TypeNameNode.class);
             // Add each TypeNameNode to the result list.
             typeNameNodes.forEach(typeNameNode -> results.add(typeNameNode.getText()));
             // Return the results.
