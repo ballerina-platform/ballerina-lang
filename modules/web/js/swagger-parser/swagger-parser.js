@@ -386,12 +386,7 @@ class SwaggerParser {
     createParameterDefs(resourceDefinition, swaggerParameters) {
         if (!_.isNil(swaggerParameters) && swaggerParameters.length > 0) {
             // Removing existing parameter definitions except for the first one(message m).
-            const parameterDefinitions = resourceDefinition.getArgumentParameterDefinitionHolder().getChildren();
-            parameterDefinitions.forEach((parameterDefinition, index) => {
-                if (index !== 0) {
-                    resourceDefinition.getArgumentParameterDefinitionHolder().removeChild(parameterDefinition);
-                }
-            });
+            resourceDefinition.getArgumentParameterDefinitionHolder().getChildren().splice(1);
 
             swaggerParameters.forEach((swaggerParameter) => {
                 const newParameterDefinition = ASTFactory.createParameterDefinition();
@@ -649,6 +644,7 @@ class SwaggerParser {
         });
 
         if (matchingAttachments.length > 0) {
+            matchingAttachments[0].removeAllChildren();
             return matchingAttachments[0];
         } else {
             const newAnnotation = ASTFactory.createAnnotationAttachment({
