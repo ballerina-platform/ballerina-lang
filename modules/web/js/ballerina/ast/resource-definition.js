@@ -367,6 +367,13 @@ class ResourceDefinition extends ASTNode {
         return pathAnnotation;
     }
 
+    /**
+     * Gets the path value in the @http:Path annotation.
+     *
+     * @param {boolean} [ifNotExist=false] Creates if path annotation doesnt exists.
+     * @returns {string} The path value.
+     * @memberof ResourceDefinition
+     */
     getPathAnnotationValue(ifNotExist = false) {
         const pathAnnotationAttachment = this.getPathAnnotation(ifNotExist);
         if (pathAnnotationAttachment) {
