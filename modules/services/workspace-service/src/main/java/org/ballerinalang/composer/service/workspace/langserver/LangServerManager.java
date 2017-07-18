@@ -427,13 +427,11 @@ public class LangServerManager {
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
 
-            if ("temp".equals(filePath) || "".equals(packageName)) {
-                // Load all the packages associated the runtime
-                packages = Utils.getAllPackages();
-
-            } else {
+            // Load all the packages associated the runtime
+            packages = Utils.getAllPackages();
+            if (!("temp".equals(filePath) || "".equals(packageName))) {
                 Path file = Paths.get(filePath + File.separator + fileName);
-                packages = resolveProgramPackages(Paths.get(filePath), packageName);
+                packages.putAll(resolveProgramPackages(Paths.get(filePath), packageName));
                 programPackagesMap.put(file, packages);
             }
             LangServerManager.this.setPackages(packages.entrySet());
