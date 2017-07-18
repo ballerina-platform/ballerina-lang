@@ -50,8 +50,7 @@ class AnnotationAttributeVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
         let constructedSourceSegment = '';
-        constructedSourceSegment += annotationAttribute.getWSRegion(0) +
-                                    annotationAttribute.getKey() +
+        constructedSourceSegment += annotationAttribute.getKey() +
                                     annotationAttribute.getWSRegion(1) +
                                     ':';
         const annotationAttributeValue = annotationAttribute.getValue();
