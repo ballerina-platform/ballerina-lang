@@ -19,16 +19,10 @@ export default class SuggestionsDropdown extends React.Component {
             suggestions: this.props.suggestionsPool,
         }
 
-        this.onChange = this.onChange.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
-        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested .bind(this);
+        this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
     }
-
-    onChange(event, { newValue }) {
-        this.setState({
-            value: newValue
-        });
-    };
 
     onSuggestionsFetchRequested(query) {
         const matches = [];
@@ -49,14 +43,21 @@ export default class SuggestionsDropdown extends React.Component {
         });
     };
 
+    onKeyDown(event) {
+        if (event.keyCode === 13) {
+            this.props.onEnter(event);
+        }
+    }
+
     render() {
-        const { value, suggestions } = this.state;
-        const { placeholder } = this.props;
+        const { suggestions } = this.state;
+        const { placeholder, value, onChange } = this.props;
 
         const inputProps = {
             placeholder,
             value,
-            onChange: this.onChange,
+            onChange,
+            onKeyDown: this.onKeyDown,
         };
 
         return (

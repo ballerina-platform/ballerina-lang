@@ -32,6 +32,8 @@ class TransformExpanded extends React.Component {
     constructor(props, context){
         super(props, context);
         this.state = {
+            typedSource: '',
+            typedTarget: '',
             selectedSource: '-1',
             selectedTarget: '-1',
         }
@@ -47,6 +49,12 @@ class TransformExpanded extends React.Component {
         this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.onTransformDropZoneActivate = this.onTransformDropZoneActivate.bind(this);
         this.onTransformDropZoneDeactivate = this.onTransformDropZoneDeactivate.bind(this);
+        this.onSourceInputChange = this.onSourceInputChange.bind(this);
+        this.onTargetInputChange = this.onTargetInputChange.bind(this);
+        this.onSourceInputEnter = this.onSourceInputEnter.bind(this);
+        this.onTargetInputEnter = this.onTargetInputEnter.bind(this);
+        this.addSource = this.addSource.bind(this);
+        this.addTarget = this.addTarget.bind(this);
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -705,6 +713,17 @@ class TransformExpanded extends React.Component {
         e.stopPropagation();
     }
 
+    onSourceInputChange(e, {newValue}) {
+        this.setState({
+            typedSource: newValue,
+        });
+    }
+
+    onTargetInputChange(e, {newValue}) {
+        this.setState({
+            typedTarget: newValue,
+        });
+    }
 
     onSourceSelect(e, {suggestionValue}) {
         this.setState({
@@ -718,27 +737,41 @@ class TransformExpanded extends React.Component {
         });
     }
 
+    onSourceInputEnter() {
+        this.addSource(this.state.typedSource);
+    }
+
+    onTargetInputEnter() {
+        this.addTarget(this.state.typedTarget);
+    }
 
     onSourceAdd() {
-        const {selectedSource} = this.state;
+        this.addSource(this.state.selectedSource);
+    }
+
+    onTargetAdd() {
+        this.addTarget(this.state.selectedTarget);
+    }
+
+    addSource(selectedSource) {
         let inputDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
         if (this.setSource(selectedSource, this.predefinedStructs, this.props.model, inputDef.id)) {
             let inputs = this.props.model.getInput();
             inputs.push(inputDef);
             this.props.model.setInput(inputs);
+            this.setState({typedSource: ''});
         }
     }
 
-    onTargetAdd() {
-        const {selectedTarget} = this.state;
-
+    addTarget(selectedTarget) {
         let outDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
         if (this.setTarget(selectedTarget, this.predefinedStructs, this.props.model, outDef.id)) {
             let outputs = this.props.model.getOutput();
             outputs.push(outDef);
             this.props.model.setOutput(outputs);
+            this.setState({typedTarget: ''});
         }
     }
 
@@ -908,6 +941,9 @@ class TransformExpanded extends React.Component {
                     <div id ="transformHeaderPadding" className="transform-header-padding"></div>
                     <div className="source-view">
                         <SuggestionsDropdown
+                            value={this.state.typedSource}
+                            onChange={this.onSourceInputChange}
+                            onEnter={this.onSourceInputEnter}
                             suggestionsPool={sourcesAndTargets}
                             placeholder='Select Source'
                             onSuggestionSelected={this.onSourceSelect}
@@ -924,6 +960,9 @@ class TransformExpanded extends React.Component {
                     <div className="middle-content"></div>
                     <div className="target-view">
                         <SuggestionsDropdown
+                            value={this.state.typedTarget}
+                            onChange={this.onTargetInputChange}
+                            onEnter={this.onTargetInputEnter}
                             suggestionsPool={sourcesAndTargets}
                             placeholder='Select Target'
                             onSuggestionSelected={this.onTargetSelect}
