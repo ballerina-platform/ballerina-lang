@@ -17,7 +17,6 @@
  */
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
-import ASTFactory from '../../ast/ballerina-ast-factory';
 
 /**
  * Source gen visitor for annotation attachment.
@@ -29,7 +28,7 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
     /**
      * Creates an instance of AnnotationAttachmentVisitor.
      * @param {AbstractSourceGenVisitor} parent The parent visitor.
-     * @param {boolean} [isFirstAnnotation=false] If its the first visitor.
+     * @param {boolean} [isFirstAnnotation=false] If its the first annotation.
      * @memberof AnnotationAttachmentVisitor
      */
     constructor(parent, isFirstAnnotation = false) {
@@ -61,20 +60,13 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
         }
         let constructedSourceSegment = '@';
         if (!(annotationAttachment.getPackageName() === undefined || annotationAttachment.getPackageName() === '')) {
-            constructedSourceSegment += annotationAttachment.getWSRegion(0) +
-                                        annotationAttachment.getPackageName() +
-                                        ':';
+            constructedSourceSegment += annotationAttachment.getPackageName() + ':';
         }
         constructedSourceSegment += annotationAttachment.getName() + annotationAttachment.getWSRegion(1);
-        if (annotationAttachment.getChildren().length > 0) {
-            constructedSourceSegment += '{' + annotationAttachment.getWSRegion(2);
-        } else {
-            constructedSourceSegment += '{' +
-                                        ' ' +   // As there are no children, we keep in the same
-                                                // line ignoring annotationAttachment.getWSRegion(2)
-                                        '}';
-        }
 
+        const hasChildren = annotationAttachment.getChildren().length > 0;
+        constructedSourceSegment += '{' + ((!hasChildren && useDefaultWS) ? '' : annotationAttachment.getWSRegion(2));
+        constructedSourceSegment += ((hasChildren && useDefaultWS) ? this.getIndentation() : '');
         this.appendSource(constructedSourceSegment);
         this.indent();
     }
@@ -94,17 +86,9 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     endVisitAnnotationAttachment(annotationAttachment) {
         this.outdent();
-        if (annotationAttachment.getChildren().length > 0) {
-            this.appendSource(this.getIndentation());
-            this.appendSource('}');
-        }
-
-        if (!ASTFactory.isAnnotationAttributeValue(annotationAttachment.getParent())) {
-            this.appendSource(annotationAttachment.getWSRegion(3));
-        }
-
-        this.appendSource((annotationAttachment.whiteSpace.useDefault) && !this._isFirstAnnotation ?
-                                                                                this.currentPrecedingIndentation : '');
+        this.appendSource('}' + annotationAttachment.getWSRegion(3));
+        this.appendSource((annotationAttachment.whiteSpace.useDefault && !this._isFirstAnnotation)
+                                ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
 

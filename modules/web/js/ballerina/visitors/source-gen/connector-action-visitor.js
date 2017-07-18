@@ -63,7 +63,9 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
         }
 
         let constructedSourceSegment = '';
-        connectorAction.getChildrenOfType(connectorAction.getFactory().isAnnotationAttachment).forEach(
+        const annotationAttachments = connectorAction.getChildrenOfType(
+                                            connectorAction.getFactory().isAnnotationAttachment);
+        annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;
                 if (index === 0) {
@@ -79,7 +81,10 @@ class ConnectorActionVisitor extends AbstractSourceGenVisitor {
             + this.getEndLinesInSegment(constructedSourceSegment) + 1;
         connectorAction.setLineNumber(lineNumber, { doSilently: true });
 
-        constructedSourceSegment += this.getIndentation() + 'action' + connectorAction.getWSRegion(1)
+        constructedSourceSegment += !_.isEmpty(annotationAttachments) &&
+                                        (useDefaultWS || _.last(annotationAttachments).whiteSpace.useDefault)
+                                            ? this.getIndentation() : '';
+        constructedSourceSegment += 'action' + connectorAction.getWSRegion(1)
             + connectorAction.getActionName()
             + connectorAction.getWSRegion(2) + '(' + connectorAction.getArgumentsAsString()
             + ')' + connectorActionReturnTypesSource
