@@ -153,7 +153,6 @@ public class ServiceTest {
         Assert.assertNull(response.getHeader("header3"));
     }
 
-
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(programFile);

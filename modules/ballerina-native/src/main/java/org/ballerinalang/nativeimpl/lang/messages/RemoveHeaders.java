@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 /**
  * Native function to remove all headers of carbon message.
- * ballerina.model.messages:removeHeaders
+ *
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
@@ -52,7 +52,7 @@ public class RemoveHeaders extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getRefArgument(context, 0);
         List<Header> headers = msg.value().getHeaders().getAll();
-        if (headers.size() != 0) {
+        if (headers.size() > 0) {
             List<String> keySet = headers.stream().map(header -> header.getName()).collect(Collectors.toList());
             keySet.stream().forEach(key -> msg.value().removeHeader(key));
         }
