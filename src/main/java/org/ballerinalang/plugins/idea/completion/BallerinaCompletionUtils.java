@@ -348,6 +348,20 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
+    @NotNull
+    public static List<String> getAllLambdaFunctions() {
+        List<String> lambdaFunctions = new LinkedList<>();
+        lambdaFunctions.add("foreach");
+        lambdaFunctions.add("apply");
+        lambdaFunctions.add("filter");
+        lambdaFunctions.add("count");
+        lambdaFunctions.add("sum");
+        lambdaFunctions.add("average");
+        lambdaFunctions.add("min");
+        lambdaFunctions.add("max");
+        return lambdaFunctions;
+    }
+
     /**
      * Adds a keyword as a lookup.
      *
@@ -688,6 +702,28 @@ public class BallerinaCompletionUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements;
+    }
+
+    @NotNull
+    public static List<LookupElement> createLambdaFunctionLookupElements(@Nullable InsertHandler<LookupElement>
+                                                                                 insertHandler) {
+        @NotNull List<String> lambdaFunctions = getAllLambdaFunctions();
+        List<LookupElement> lookupElements = new LinkedList<>();
+        for (String function : lambdaFunctions) {
+            LookupElement lookupElement = createLambdaFunctionLookupElement(function, insertHandler);
+            lookupElements.add(lookupElement);
+        }
+        return lookupElements;
+    }
+
+    @NotNull
+    public static LookupElement createLambdaFunctionLookupElement(@NotNull String element,
+                                                                  @Nullable InsertHandler<LookupElement>
+                                                                          insertHandler) {
+        LookupElementBuilder builder = LookupElementBuilder.create(element)
+                .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
+                .withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
     /**
