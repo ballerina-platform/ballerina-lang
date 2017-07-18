@@ -134,6 +134,10 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == COMMITTED_CLAUSE) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == EXPRESSION_LIST) {
+                    if (parentElementType == VARIABLE_REFERENCE) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
                 }
 
                 // If the child node text is empty, the IDEA core will throw an exception.
