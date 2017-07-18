@@ -203,6 +203,21 @@
                 <artifactId>commons-pool2</artifactId>
                 <version>${org.apache.commons.pool2.version}</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.quartz-scheduler</groupId>-->
+                <!--<artifactId>quartz</artifactId>-->
+                <!--<version>${quartz.version}</version>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>org.wso2.orbit.org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -307,8 +322,9 @@
         <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
         <commons-vfs2.wso2.version.range>[2.0.0, 3.0.0)</commons-vfs2.wso2.version.range>
         <org.apache.commons.pool2.version>2.4.2</org.apache.commons.pool2.version>
-
-
+        <quartz.version>2.3.0.wso2v1</quartz.version>
+        <quartz.version.range>[2.3.0, 3.0.0)</quartz.version.range>
+        <commons-net.version>3.6</commons-net.version>
 
         <carbon.messaging.version>2.3.3</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
