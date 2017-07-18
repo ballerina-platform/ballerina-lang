@@ -81,13 +81,18 @@ public class SwaggerApiServiceImpl {
     @Produces(MediaType.APPLICATION_JSON)
     public Response convertToBallerina(SwaggerServiceContainer swaggerServiceContainer) {
         String ballerinaDefinition = swaggerServiceContainer.getBallerinaDefinition();
+        String swaggerDefinition = swaggerServiceContainer.getSwaggerDefinition();
         try {
             //Take ballerina source and generate swagger and add it to service definition.
             if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
-                SwaggerConverterUtils.generateSwaggerDataModel(ballerinaDefinition);
+                if (swaggerDefinition != null && !swaggerDefinition.isEmpty()) {
+                    SwaggerConverterUtils.getServiceFromSwaggerDefinition(ballerinaDefinition);
+                } else {
+                    return Response.noContent().entity("Please provide valid swagger source.").build();
+                }
             } else {
-                return Response.noContent().entity("Please provide valid ballerina source").build();
-                //ballerina source cannot be null or empty.
+                // ballerina source cannot be null or empty.
+                return Response.noContent().entity("Please provide valid ballerina source.").build();
             }
         } catch (Throwable throwable) {
             logger.error("Error while processing service definition at converter service" +

@@ -55,6 +55,9 @@ class AnnotationAttachment extends ASTNode {
          */
         this._name = _.get(args, 'name');
 
+        this._isHttpMethod = false;
+        this.setIsHttpMethod();
+
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',      // space before '@' char
             1: ' ',     // space after the name of annotation
@@ -100,8 +103,16 @@ class AnnotationAttachment extends ASTNode {
      * @memberof AnnotationAttachment
      */
     isHttpMethod() {
-        return _.includes(
-            _.map(supportedHttpMethodAnnotations, (e) => { return e.toLowerCase(); }), this.getName().toLowerCase());
+        return this._isHttpMethod;
+    }
+
+    setIsHttpMethod() {
+        if (this._name && _.includes(
+            _.map(supportedHttpMethodAnnotations, (e) => { return e.toLowerCase(); }), this.getName().toLowerCase())) {
+            this._isHttpMethod = true;
+        } else {
+            this._isHttpMethod = false;
+        }
     }
 
     /**
@@ -122,6 +133,8 @@ class AnnotationAttachment extends ASTNode {
         } else {
             this.setName(jsonNode.annotation_attachment_name, { doSilently: true });
         }
+
+        this.setIsHttpMethod();
 
         jsonNode.children.forEach((childNode) => {
             const child = this.getFactory().createFromJson(childNode);

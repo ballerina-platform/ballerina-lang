@@ -213,6 +213,18 @@ class ASTNode extends EventChannel {
     }
 
     /**
+     * Removes all children from a node.
+     *
+     * @param {boolean} ignoreTreeModifiedEvent Ignore event firing
+     * @memberof ASTNode
+     */
+    removeAllChildren(ignoreTreeModifiedEvent) {
+        this.getChildren().forEach((child) => {
+            this.removeChild(child, ignoreTreeModifiedEvent);
+        });
+    }
+
+    /**
      * Accept function in visitor pattern
      * @param visitor {ASTVisitor}
      */
