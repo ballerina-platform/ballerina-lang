@@ -136,7 +136,8 @@ class StatementDecorator extends React.PureComponent {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-                    model.getFactory().isStatement(nodeBeingDragged),
+                    model.getFactory().isStatement(nodeBeingDragged)
+                    || model.getFactory().isConnectorDeclaration(nodeBeingDragged),
                 () => dropTarget.getIndexOfChild(model));
             this.setState({
                 innerDropZoneActivated: true,
