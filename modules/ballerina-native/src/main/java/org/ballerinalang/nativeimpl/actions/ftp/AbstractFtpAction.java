@@ -55,24 +55,6 @@ public abstract class AbstractFtpAction extends AbstractNativeAction {
         } catch (ClientConnectorException e) {
             throw new BallerinaException(e.getMessage(), e, context);
         }
-        try {
-            // Wait till Response comes
-            long startTime = System.currentTimeMillis();
-            while (!callback.isResponseArrived()) {
-                synchronized (context) {
-                    if (!callback.isResponseArrived()) {
-                        logger.debug("Waiting for a response");
-                        context.wait(SENDER_TIMEOUT);
-                        if (System.currentTimeMillis() >= (startTime + SENDER_TIMEOUT)) {
-                            throw new RuntimeException("response was not received within sender timeout of " +
-                                                       SENDER_TIMEOUT / 1000 + " seconds");
-                        }
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            logger.debug("Interrupted while waiting for isExists callback", e);
-        }
         return ((BMessage) callback.getValueRef()).value();
     }
 
