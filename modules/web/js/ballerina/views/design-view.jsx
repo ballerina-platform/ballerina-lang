@@ -24,7 +24,7 @@ class DesignView extends React.Component {
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.dragDropManager = new DragDropManager();
-        this.messageManager = new MessageManager();
+        this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
     }
 
     setDiagramContainer(ref) {

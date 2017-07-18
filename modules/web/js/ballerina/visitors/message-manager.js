@@ -27,12 +27,15 @@ import EventChannel from 'event_channel';
 class MessageManager extends EventChannel {
     /**
      * Constructor for MessageManager
-     * @param {args} args for constructor
+     * @param args {Object}
+     * @param args.getDiagramContainer {Function} Function to call when a ref to diagram container div is needed
+     * 
      * @constructor
      */
-    constructor() {
+    constructor(args) {
         super();
         log.debug('Initialising Message Manager');
+        this.getDiagramContainer = args.getDiagramContainer || undefined;
         this._typeBeingDragged = undefined;
         this._isOnDrag = false;
         this._source = undefined;
@@ -151,7 +154,13 @@ class MessageManager extends EventChannel {
 
     startDrawMessage(mouseUpCallback, targetValidationCallback) {
         const self = this;
-        const container = d3.select($(document).find('.svg-container').get(0));
+        
+        if (this.getDiagramContainer === undefined) {
+            log.error("unable to find container to draw message");
+            return;
+        }
+        const container = d3.select($(this.getDiagramContainer())
+                            .find('.svg-container').get(0));
 
         container.on('mousemove', function (e) {
             self.trigger('message-draw-start');

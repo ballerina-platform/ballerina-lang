@@ -296,7 +296,7 @@ class BallerinaFileEditor extends React.Component {
                                             }
                                             this.update();
                                         })
-                                        .catch(reject)
+                                        .catch(error => log.error(error));
                                 })
                                 .catch(reject);
                         })
@@ -352,7 +352,7 @@ class BallerinaFileEditor extends React.Component {
         const showLoadingOverlay = this.state.parsePending && !this.state.undoRedoPending;
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
-        if (showSourceView) {
+        if (showSourceView || showSwaggerView) {
             this.props.tab.getHeader().addClass(sourceViewTabHeaderClass);
         } else {
             this.props.tab.getHeader().removeClass(sourceViewTabHeaderClass);
