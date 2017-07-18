@@ -110,7 +110,7 @@ class SourceView extends React.Component {
             editor.setBehavioursEnabled(true);
             // bind auto complete to key press
             editor.commands.on('afterExec', (e) => {
-                if (e.command.name === 'insertstring' && /^[\w.]$/.test(e.args)) {
+                if (e.command.name === 'insertstring' && /^[\w.@:]$/.test(e.args)) {
                     setTimeout(() => {
                         try {
                             editor.execCommand('startAutocomplete');

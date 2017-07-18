@@ -230,7 +230,13 @@ public abstract class AbstractItemResolver {
 
         while (continueSearch) {
             if (tokenStream != null && searchIndex < tokenStream.size()) {
-                String tokenStr = tokenStream.get(searchIndex).getText();
+                Token token = tokenStream.get(searchIndex);
+                String tokenStr = token.getText();
+
+                // return 'false' once we found the first token which is not in default channel
+                if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+                    return false;
+                }
                 if (tokenStr.equals(":") || tokenStr.equals(".")) {
                     return true;
                 }
@@ -322,7 +328,7 @@ public abstract class AbstractItemResolver {
         if (tokenStream == null) {
             return -1;
         }
-        int searchIndex = dataModel.getTokenIndex();
+        int searchIndex = dataModel.getTokenIndex() - 1;
 
         while (maxSteps > 0) {
             if (searchIndex < 0) {
