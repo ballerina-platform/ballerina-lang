@@ -89,3 +89,6 @@ native function setMapPayload (message msg, map payload);
 @doc:Return { value:"string: The value of the map property" }
 native function getStringValue (message m, string propertyName) (string);
 
+@doc:Description { value:"Removes all transport headers from the message"}
+@doc:Param { value:"m: The message object" }
+native function removeHeaders (message m);

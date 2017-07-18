@@ -29,4 +29,10 @@ service<http> echo {
         messages:setStringPayload(response, "hello");
         reply response;
     }
+
+    @http:GET {}
+    resource removeHeaders (message m) {
+        messages:removeHeaders(m);
+        reply m;
+    }
 }
