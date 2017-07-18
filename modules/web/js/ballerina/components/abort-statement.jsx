@@ -26,7 +26,7 @@ import AbortStatementAST from './../ast/statements/abort-statement';
  * @class AbortStatement
  * @extends {React.PureComponent}
  */
-class AbortStatement extends React.PureComponent {
+class AbortStatement extends React.Component {
 
     /**
      * Renders the view for an abort statement.

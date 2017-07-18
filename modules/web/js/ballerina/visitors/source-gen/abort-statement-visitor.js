@@ -46,7 +46,7 @@ class AbortStatementVisitor extends AbstractStatementSourceGenVisitor {
 
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
-        abortStatement.setLineNumber(lineNumber);
+        abortStatement.setLineNumber(lineNumber, { doSilently: true });
         const constructedSourceSegment = abortStatement.getStatementString();
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
 
