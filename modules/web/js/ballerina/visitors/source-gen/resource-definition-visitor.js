@@ -52,7 +52,9 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation('\n' + this.getIndentation());
         }
         let constructedSourceSegment = '';
-        resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotationAttachment).forEach(
+        const annotationAttachments = resourceDefinition.getChildrenOfType(
+                                        resourceDefinition.getFactory().isAnnotationAttachment);
+        annotationAttachments.forEach(
             (annotationAttachment, index) => {
                 let annotationAttachmentVisitor;
                 if (index === 0) {
@@ -67,7 +69,10 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
             + this.getEndLinesInSegment(constructedSourceSegment) + 1;
         resourceDefinition.setLineNumber(lineNumber, { doSilently: true });
 
-        constructedSourceSegment += this.getIndentation() + 'resource' + resourceDefinition.getWSRegion(0)
+        constructedSourceSegment += !_.isEmpty(annotationAttachments) &&
+                                        (useDefaultWS || _.last(annotationAttachments).whiteSpace.useDefault)
+                                            ? this.getIndentation() : '';
+        constructedSourceSegment += 'resource' + resourceDefinition.getWSRegion(0)
                   + resourceDefinition.getResourceName()
                   + resourceDefinition.getWSRegion(1)
                   + '(';
