@@ -54,9 +54,9 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // ace look & feel configurations FIXME: Make this overridable from settings
-let aceTheme = 'ace/theme/twilight';
-let fontSize = '14px';
-let scrollMargin = 20;
+const aceTheme = 'ace/theme/twilight';
+const fontSize = '14px';
+const scrollMargin = 20;
 
 // override default undo manager of ace editor
 class NotifyingUndoManager extends AceUndoManager {
@@ -67,9 +67,9 @@ class NotifyingUndoManager extends AceUndoManager {
     execute(args) {
         super.execute(args);
         if (!this.sourceView.skipFileUpdate) {
-            let changeEvent = {
+            const changeEvent = {
                 type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                title: 'Modify source'
+                title: 'Modify source',
             };
             this.sourceView.props.file
                 .setContent(this.sourceView.editor.session.getValue(), changeEvent);
@@ -80,8 +80,8 @@ class NotifyingUndoManager extends AceUndoManager {
 
 class SourceView extends React.Component {
 
-    constructor (props) {
-        super (props);
+    constructor(props) {
+        super(props);
         this.container = undefined;
         this.editor = undefined;
         this.inSilentMode = false;
@@ -128,8 +128,8 @@ class SourceView extends React.Component {
             });
             // register handler for source format command
             this.props.commandManager.registerHandler(FORMAT, this.format, this);
-            // listen to changes done to file content 
-            // by other means (eg: design-view changes or redo/undo actions) 
+            // listen to changes done to file content
+            // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
             this.props.file.on(CONTENT_MODIFIED, (evt) => {
                 if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
@@ -182,15 +182,15 @@ class SourceView extends React.Component {
 
     /**
      * Replace content of the editor while maintaining history
-     * 
+     *
      * @param {*} newContent content to insert
      */
-    replaceContent (newContent, skipFileUpdate) {
+    replaceContent(newContent, skipFileUpdate) {
         if (skipFileUpdate) {
             this.skipFileUpdate = true;
         }
         const session = this.editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(), 
+        const contentRange = new Range(0, 0, session.getLength(),
                         session.getRowLength(session.getLength()));
         session.replace(contentRange, newContent);
     }
@@ -215,18 +215,18 @@ class SourceView extends React.Component {
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
     bindCommand(command) {
-        let id = command.id;
-        let hasShortcut = _.has(command, 'shortcuts');
-        let self = this;
+        const id = command.id;
+        const hasShortcut = _.has(command, 'shortcuts');
+        const self = this;
         if (hasShortcut) {
-            let macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
-            let winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
+            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.editor.commands.addCommand({
                 name: id,
                 bindKey: { win: winShortcut, mac: macShortcut },
                 exec() {
                     self.props.commandManager.dispatch(id);
-                }
+                },
             });
         }
     }
@@ -234,20 +234,25 @@ class SourceView extends React.Component {
     render() {
         return (
             <div className="source-view-container" >
-                <div className='text-editor' ref={ (ref) => { this.container = ref } }/>
-                <div className="bottom-right-controls-container">
-                    <div className="view-design-btn btn-icon">
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-design-view fw-inverse" />
-                        </div>
-                        <div className="bottom-view-label" 
-                                onClick={
+                <div className="wrapperDiv">
+                    <div className="outerSourceDiv">
+                        <div className='text-editor' ref={(ref) => { this.container = ref; }} />
+                        <div className="bottom-right-controls-container">
+                            <div className="view-design-btn btn-icon">
+                                <div className="bottom-label-icon-wrapper">
+                                    <i className="fw fw-design-view fw-inverse" />
+                                </div>
+                                <div
+                                    className="bottom-view-label"
+                                    onClick={
                                     () => {
                                         this.context.editor.setActiveView(DESIGN_VIEW);
                                     }
                                 }
-                        >
+                                >
                             Design View
+                        </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,13 +264,14 @@ class SourceView extends React.Component {
      * lifecycle hook for component will receive props
      */
     componentWillReceiveProps(nextProps) {
-        if(!nextProps.parseFailed) {
+        if (!nextProps.parseFailed) {
             getLangServerClientInstance()
                 .then((langserverClient) => {
                     // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    let fileData = {fileName: nextProps.file.getName(), filePath: nextProps.file.getPath() , 
-                        packageName: nextProps.file.getPackageName()}
+                    const fileData = { fileName: nextProps.file.getName(),
+                        filePath: nextProps.file.getPath(),
+                        packageName: nextProps.file.getPackageName() };
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })

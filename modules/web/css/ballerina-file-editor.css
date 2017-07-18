@@ -21,7 +21,21 @@
     height: auto;
     min-height: 1000px;
     position: relative;
+}
+
+.outerCanvasDiv{
     overflow-x: scroll;
+    overflow-y:scroll;
+    height:100%;
+}
+
+.outerSourceDiv{
+    height:100%;
+}
+
+.wrapperDiv{
+    height: 100vh;
+    padding-bottom: 121px;
 }
 
 .canvas-top-controls-container{
@@ -119,7 +133,7 @@
 }
 
 .text-editor {
-    height: 1000px;
+    height: 100%;
 }
 
 .view-source-btn {
@@ -1082,8 +1096,3 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
   opacity: 0.01;
   transition: opacity 300ms ease-in;
 }
-
-/*
-#element::-webkit-scrollbar {
-    display: none;
-}*/
