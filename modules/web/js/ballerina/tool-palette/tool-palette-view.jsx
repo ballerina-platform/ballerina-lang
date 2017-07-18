@@ -211,28 +211,11 @@ class ToolSearch extends React.Component {
     }
 
     render() {
-        if (this.state.text) {
-            return (
-                <div className="non-user-selectable wrapper">
-                    <div className="search-bar">
-                        <i className="fw fw-search searchIcon" />
-                        <i className="fw fw-cancel clearIcon" onClick={this.clearText} />
-                        <input
-                            className="search-input"
-                            id="search-field"
-                            placeholder="Search"
-                            type="text"
-                            onChange={this.handleChange}
-                            value={this.state.text}
-                        />
-                    </div>
-                </div>
-            );
-        }
         return (
             <div className="non-user-selectable wrapper">
                 <div className="search-bar">
                     <i className="fw fw-search searchIcon" />
+                    {this.state.text && <i className="fw fw-cancel clearIcon" onClick={this.clearText} />}
                     <input
                         className="search-input"
                         id="search-field"
