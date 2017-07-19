@@ -71,6 +71,7 @@ import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
 import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
@@ -1212,6 +1213,15 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
+                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
+                    break;
+                case InstructionCodes.INVOKEVIRTUAL:
+                    cpIndex = operands[0];
+                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
+                    actionInfo = actionRefCPEntry.getActionInfo();
+
+                    cpIndex = operands[1];
+                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
@@ -1982,17 +1992,24 @@ public class BLangVM {
     private void createNewConnector(int[] operands, StackFrame sf) {
         int cpIndex;
         int i;
+        int pIndex = -1;
         StructureRefCPEntry structureRefCPEntry;
         StructureTypeInfo structureTypeInfo;
         int[] fieldCount;
         cpIndex = operands[0];
         i = operands[1];
+        if (operands.length == 3) {
+            pIndex = operands[2];
+        }
         structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
         structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
         fieldCount = structureTypeInfo.getFieldCount();
         BConnector bConnector = new BConnector(structureTypeInfo.getType());
         bConnector.setFieldTypes(structureTypeInfo.getFieldTypes());
         bConnector.init(fieldCount);
+        if (pIndex > -1) {
+            bConnector.setFilterConnector((BConnector) sf.refRegs[pIndex]);
+        }
         sf.refRegs[i] = bConnector;
     }
 
@@ -2038,6 +2055,51 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock();
+    }
+
+    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
+        StackFrame callerSF = controlStack.getCurrentFrame();
+        BType connectorType = paramTypes[0];
+        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
+        ActionInfo newActionInfo = null;
+
+        if (connector != null && connector.getConnectorType() != null) {
+            String connectorName = connector.getConnectorType().getName();
+            int connectorIndex = connectorType.getMethodIP(connectorName);
+            if (connectorIndex > -1) {
+                StructureRefCPEntry connectorStruct = (StructureRefCPEntry) constPool[connectorIndex];
+                if (connectorStruct.getStructureTypeInfo() instanceof ConnectorInfo) {
+                    ConnectorInfo connectorInfo = (ConnectorInfo) connectorStruct.getStructureTypeInfo();
+                    if (!connectorInfo.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
+                        newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
+                    }
+                }
+            }
+
+        }
+
+        WorkerInfo defaultWorkerInfo;
+        if (newActionInfo != null) {
+            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
+        } else {
+            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        }
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+        controlStack.pushFrame(calleeSF);
+
+        // Copy arg values from the current StackFrame to the new StackFrame
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.code = calleeSF.packageInfo.getInstructions();
+        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+
+        // Invoke other workers
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {

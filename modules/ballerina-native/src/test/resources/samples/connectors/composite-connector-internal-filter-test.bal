@@ -1,8 +1,10 @@
 import ballerina.lang.system;
 
 function testCompositeConnector()(string, string) {
-    TestLBConnector testLB = create TestLBConnector ([create TestConnector("URI1") with FilterConnector("XXXX"),
-                        create TestConnector("URI2") with FilterConnector("YYYY")], "RoundRobin");
+    TestConnector t1 = create TestConnector("URI1") with FilterConnector("XXXX");
+    TestConnector t2 = create TestConnector("URI2") with FilterConnector("YYYY");
+    TestConnector[] tArray = [t1, t2];
+    TestLBConnector testLB = create TestLBConnector (tArray, "RoundRobin");
     message request = {};
     string value1;
     string value2;

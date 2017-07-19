@@ -234,7 +234,7 @@ expressionVariableDefinitionStatement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ('=' (connectorInitExpression | compositeConnectorInitExpression | actionInvocation | expression) )? ';'
+    :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
     ;
 
 mapStructLiteral
@@ -261,13 +261,13 @@ filterInitExpressionList
     : filterInitExpression (',' filterInitExpression)*
     ;
 
-compositeConnectorInitExpression
-    :   'create' nameReference '(' compositeConnectorInitSection? (',' expressionList)? ')' ('with' filterInitExpressionList)?
-    ;
-
-compositeConnectorInitSection
-    : '[' connectorInitExpression (',' connectorInitExpression)* ']'
-    ;
+//compositeConnectorInitExpression
+//    :   'create' nameReference '(' compositeConnectorInitSection? (',' expressionList)? ')' ('with' filterInitExpressionList)?
+//    ;
+//
+//compositeConnectorInitSection
+//    : '[' connectorInitExpression (',' connectorInitExpression)* ']'
+//    ;
 
 assignmentStatement
     :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'

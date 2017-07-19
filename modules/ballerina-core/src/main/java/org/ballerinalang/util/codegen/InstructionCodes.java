@@ -223,6 +223,8 @@ public interface InstructionCodes {
     int WRKREPLY = 191;
     int FORKJOIN = 192;
 
+    int INVOKEVIRTUAL = 193;
+
     int INEWARRAY = 200;
     int FNEWARRAY = 201;
     int SNEWARRAY = 202;

@@ -1997,27 +1997,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         connectorInitExpr.setType(inheritedType);
 
-        // Check for the composite connector init expression
-        if (connectorInitExpr.getArgExprs().length > 0 && connectorInitExpr.getArgExprs()[0] instanceof ArrayInitExpr) {
-            ParameterDef parameterDef = ((BallerinaConnectorDef) inheritedType).getParameterDefs()[0];
-            SimpleTypeName simpleTypeName = parameterDef.getTypeName();
-            BType paramType = BTypes.resolveType(simpleTypeName, currentScope, connectorInitExpr.getNodeLocation());
-
-            ArrayInitExpr arrayInitExpr = (ArrayInitExpr) connectorInitExpr.getArgExprs()[0];
-            for (Expression expression : arrayInitExpr.getArgExprs()) {
-                ConnectorInitExpr compositeInnerConnectorInit = (ConnectorInitExpr) expression;
-                SimpleTypeName compositeTypeName = compositeInnerConnectorInit.getTypeName();
-                if (paramType instanceof BArrayType) {
-                    if (((BArrayType) paramType).getElementType().getName().equals(compositeTypeName.getName())) {
-                        arrayInitExpr.setInheritedType(paramType);
-                    } else {
-                        BLangExceptionHelper.throwSemanticError
-                                (connectorInitExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED);
-                    }
-                }
-            }
-        }
-
         for (Expression argExpr : connectorInitExpr.getArgExprs()) {
             visitSingleValueExpr(argExpr);
         }
@@ -2042,9 +2021,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
-            if (!filterConnectorInitExpr.isCompositeConnectorInit()) {
-                visit(filterConnectorInitExpr);
-            }
+            visit(filterConnectorInitExpr);
             BType filterConnectorType = filterConnectorInitExpr.getFilterSupportedType();
             // Resolve reference connector type if this is a filter connector
             if (filterConnectorType != null && filterConnectorType instanceof BallerinaConnectorDef) {
@@ -2053,8 +2030,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                             inheritedType, filterConnectorType);
                 }
             }
-            ((BallerinaConnectorDef) inheritedType).
-                    setParentFilterConnector((BallerinaConnectorDef) filterConnectorInitExpr.getType());
         }
     }
 
@@ -3369,11 +3344,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (refTypeInitExpr instanceof ConnectorInitExpr) {
                 ConnectorInitExpr filterConnectorInitExpr = ((ConnectorInitExpr) refTypeInitExpr).
                         getParentConnectorInitExpr();
+                BType type = null;
                 while (filterConnectorInitExpr != null) {
                     BLangSymbol symbol = currentPackageScope.resolve(new SymbolName(filterConnectorInitExpr.
                             getTypeName().getName(), currentPkg));
                     if (symbol instanceof BType) {
-                        BType type = (BType) symbol;
+                        type = (BType) symbol;
                         filterConnectorInitExpr.setInheritedType(type);
                     }
                     filterConnectorInitExpr.setFilterSupportedType(fieldType);

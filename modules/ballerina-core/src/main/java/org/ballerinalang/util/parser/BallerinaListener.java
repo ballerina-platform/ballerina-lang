@@ -498,26 +498,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#compositeConnectorInitExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#compositeConnectorInitExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitCompositeConnectorInitExpression(BallerinaParser.CompositeConnectorInitExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#compositeConnectorInitSection}.
-	 * @param ctx the parse tree
-	 */
-	void enterCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#compositeConnectorInitSection}.
-	 * @param ctx the parse tree
-	 */
-	void exitCompositeConnectorInitSection(BallerinaParser.CompositeConnectorInitSectionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#assignmentStatement}.
 	 * @param ctx the parse tree
 	 */

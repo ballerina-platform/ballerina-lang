@@ -183,6 +183,8 @@ public class CodeGenerator implements NodeVisitor {
     private PackageInfo currentPkgInfo;
     private int baseConnectorIndex = -1;
     private int lastFilterConnectorIndex = -1;
+    private BType baseType = null;
+    private String childConnectorType = null;
 
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
@@ -265,7 +267,6 @@ public class CodeGenerator implements NodeVisitor {
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
         createConnectorInfoEntries(bLangPackage.getConnectors());
-        createFilterConnectorInfoEntries(bLangPackage.getFilterConnectors());
         createServiceInfoEntries(bLangPackage.getServices());
         createFunctionInfoEntries(bLangPackage.getFunctions());
 
@@ -413,10 +414,6 @@ public class CodeGenerator implements NodeVisitor {
             ((BStructType) structInfo.getType()).setStructFields(structFields);
             resetIndexes(fieldIndexes);
         }
-    }
-
-    private void createFilterConnectorInfoEntries(BallerinaConnectorDef[] connectorDefs) {
-        createConnectorInfoEntries(connectorDefs);
     }
 
     private void createConnectorInfoEntries(BallerinaConnectorDef[] connectorDefs) {
@@ -1410,34 +1407,8 @@ public class CodeGenerator implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
-        // Get the connector ref CP index
-        ConnectorInfo connectorInfo;
-        int connectorRefCPIndex;
-        BallerinaConnectorDef lastFilterConnectorDef = null;
-        BallerinaConnectorDef currentFilterConnectorDef = connectorDef.getParentFilterConnector();
-
-        String currentConnectorName = null;
-        if (currentCallableUnitInfo != null && currentCallableUnitInfo instanceof ActionInfo) {
-            ActionInfo currentAction = (ActionInfo) currentCallableUnitInfo;
-            currentConnectorName = currentAction.getConnectorInfo().getName();
-        }
-
-        while (currentFilterConnectorDef != null) {
-            if (currentConnectorName != null && currentConnectorName.equals(currentFilterConnectorDef.getName())) {
-                break;
-            }
-            lastFilterConnectorDef = currentFilterConnectorDef;
-            currentFilterConnectorDef = currentFilterConnectorDef.getParentFilterConnector();
-        }
-
-        if (lastFilterConnectorDef != null) {
-            //lastFilterConnectorDef.setCodeGenerated(true);
-            connectorInfo = actionPackageInfo.getConnectorInfo(lastFilterConnectorDef.getName());
-            connectorRefCPIndex = getConnectorRefCPIndex(lastFilterConnectorDef);
-        } else {
-            connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
-            connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
-        }
+        ConnectorInfo connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
+        int connectorRefCPIndex = getConnectorRefCPIndex(connectorDef);
 
         String actionName = actionIExpr.getName();
         UTF8CPEntry actionNameCPEntry = new UTF8CPEntry(actionName);
@@ -1625,7 +1596,22 @@ public class CodeGenerator implements NodeVisitor {
 
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
-        emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
+        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
+        if (childConnectorType != null) {
+            emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex, baseConnectorIndex);
+        } else {
+            emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
+        }
+
+        childConnectorType = connectorDef.getName();
+
+        if (baseType == null) {
+            baseType = getVMTypeFromSig(connectorDef.getSig());
+        }
+        baseType.addMethod(connectorDef.getName(), structureRefCPIndex);
+
+        //connectorInitExpr.setTempOffset(connectorRegIndex);
+
         if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
             connectorInitExpr.setTempOffset(connectorRegIndex);
         }
@@ -1672,16 +1658,14 @@ public class CodeGenerator implements NodeVisitor {
         baseConnectorIndex = connectorRegIndex;
 
         // Generate code for filterConnectors if there are any
-        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
+        //ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         if (filterConnectorInitExpr != null) {
-            if (!filterConnectorInitExpr.isCompositeConnectorInit()) {
-                visit(filterConnectorInitExpr);
-                connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
-            } else {
-                connectorInitExpr.setTempOffset(connectorRegIndex);
-            }
+            visit(filterConnectorInitExpr);
+            connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
         }
 
+        baseType = null;
+        childConnectorType = null;
         // Invoke Connector init native action if any
         BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {

@@ -190,9 +190,6 @@ public class BLangModelBuilder {
 
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
-    protected Stack<ConnectorInitExpr> compositeConnectorInitExprStack = new Stack<>();
-    protected boolean isCompositeConnectorInitStarted = false;
-
     protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -853,100 +850,6 @@ public class BLangModelBuilder {
         exprStack.push(refTypeInitExpr);
     }
 
-    public void startCompositeConnectorInit() {
-        if (!compositeConnectorInitExprStack.isEmpty()) {
-            compositeConnectorInitExprStack.empty();
-        }
-        isCompositeConnectorInitStarted = true;
-    }
-
-    public void createCompositeConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                        SimpleTypeName typeName, boolean argsAvailable) {
-        List<Expression> argExprList = new ArrayList<>();
-        int compConLen = compositeConnectorInitExprStack.size();
-        ConnectorInitExpr[] inputConnectorInitExprs = new ConnectorInitExpr[compConLen];
-        for (int i = compConLen - 1; i >= 0; i--) {
-            inputConnectorInitExprs[i] = compositeConnectorInitExprStack.pop();
-        }
-        ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, whiteSpaceDescriptor, inputConnectorInitExprs);
-        //arrayInitExpr.setInheritedType();
-        argExprList.add(arrayInitExpr);
-
-        if (argsAvailable) {
-            argExprList.addAll(exprListStack.pop());
-            //checkArgExprValidityForComposite(location, argExprList);
-        } else {
-            argExprList = new ArrayList<>(0);
-        }
-
-        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
-                argExprList.toArray(new Expression[argExprList.size()]));
-        connectorInitExpr.setCompositeConnectorInit(true);
-        exprStack.push(connectorInitExpr);
-        isCompositeConnectorInitStarted = false;
-    }
-
-    public void createCompositeConnectorWithFilterInitExpr(NodeLocation location,
-                                          WhiteSpaceDescriptor whiteSpaceDescriptor,
-                                          SimpleTypeName typeName, boolean argsAvailable,
-                                          WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
-                                          List<BLangModelBuilder.NameReference> filterNameReferenceList,
-                                          List<Boolean> argExistenceList) {
-        List<List<Expression>> filterArgExprList = new ArrayList<>();
-        for (int i = 0; i < argExistenceList.size(); i++) {
-            List<Expression> filterArgExpr;
-            if (argExistenceList.get(i)) {
-                filterArgExpr = exprListStack.pop();
-                checkArgExprValidity(location, filterArgExpr);
-            } else {
-                filterArgExpr = new ArrayList<>(0);
-            }
-            filterArgExprList.add(filterArgExpr);
-        }
-
-        List<Expression> argExprList = new ArrayList<>();
-        int compConLen = compositeConnectorInitExprStack.size();
-        ConnectorInitExpr[] inputConnectorInitExprs = new ConnectorInitExpr[compConLen];
-        for (int i = compConLen - 1; i >= 0; i--) {
-            inputConnectorInitExprs[i] = compositeConnectorInitExprStack.pop();
-        }
-        ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location, whiteSpaceDescriptor, inputConnectorInitExprs);
-        argExprList.add(arrayInitExpr);
-        if (argsAvailable) {
-            argExprList.addAll(exprListStack.pop());
-            //checkArgExprValidity(location, argExprList);
-        } else {
-            argExprList = new ArrayList<>(0);
-        }
-
-        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
-                argExprList.toArray(new Expression[argExprList.size()]));
-        connectorInitExpr.setCompositeConnectorInit(true);
-
-        for (ConnectorInitExpr connectorInitExpr1 : inputConnectorInitExprs) {
-            connectorInitExpr1.setParentConnectorInitExpr(connectorInitExpr);
-        }
-
-        ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
-
-        //int j = 0;
-        for (int j = filterNameReferenceList.size() - 1; j >= 0; j--) {
-            BLangModelBuilder.NameReference filterNameReference = filterNameReferenceList.get(j);
-            SimpleTypeName filterTypeName = new SimpleTypeName(filterNameReference.getName(),
-                    filterNameReference.getPackageName(), null);
-            List<Expression> argExpr = filterArgExprList.get(j);
-            filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
-            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
-                    filterTypeName,
-                    argExpr.toArray(new Expression[argExpr.size()]));
-            currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
-            currentConnectorInitExpr = filterConnectorInitExpr;
-        }
-
-        exprStack.push(connectorInitExpr);
-
-    }
-
     public void createConnectorInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
                                         SimpleTypeName typeName, boolean argsAvailable) {
         List<Expression> argExprList;
@@ -959,11 +862,7 @@ public class BLangModelBuilder {
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
-        if (isCompositeConnectorInitStarted) {
-            compositeConnectorInitExprStack.push(connectorInitExpr);
-        } else {
-            exprStack.push(connectorInitExpr);
-        }
+        exprStack.push(connectorInitExpr);
     }
 
     public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
@@ -1011,11 +910,7 @@ public class BLangModelBuilder {
         }
 
         //exprStack.push(filterConnectorInitExpr);
-        if (isCompositeConnectorInitStarted) {
-            compositeConnectorInitExprStack.push(connectorInitExpr);
-        } else {
-            exprStack.push(connectorInitExpr);
-        }
+        exprStack.push(connectorInitExpr);
     }
 
 

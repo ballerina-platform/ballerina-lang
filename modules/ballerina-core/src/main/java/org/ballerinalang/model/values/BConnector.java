@@ -38,7 +38,8 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private int[] intFields;
     private byte[][] byteFields;
     private BRefType[] refFields;
-
+    private String polymorphicTypeValue;
+    private BConnector filterConnector;
     private BType connectorType;
 
     // TODO Remove this when old executor is removed
@@ -52,6 +53,14 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     public BConnector(Connector connector, BValue[] connectorMemBlock) {
         this.connector = connector;
         this.connectorMemBlock = connectorMemBlock;
+    }
+
+    public BType getConnectorType() {
+        return connectorType;
+    }
+
+    public void setConnectorType(BType connectorType) {
+        this.connectorType = connectorType;
     }
 
     public BValue getValue(int offset) {
@@ -68,6 +77,22 @@ public final class BConnector implements BRefType<Connector>, StructureType {
 
     public void setFieldTypes(BType[] fieldTypes) {
         this.fieldTypes = fieldTypes;
+    }
+
+    public String getPolymorphicTypeValue() {
+        return polymorphicTypeValue;
+    }
+
+    public void setPolymorphicTypeValue(String polymorphicTypeValue) {
+        this.polymorphicTypeValue = polymorphicTypeValue;
+    }
+
+    public BConnector getFilterConnector() {
+        return filterConnector;
+    }
+
+    public void setFilterConnector(BConnector filterConnector) {
+        this.filterConnector = filterConnector;
     }
 
     @Override

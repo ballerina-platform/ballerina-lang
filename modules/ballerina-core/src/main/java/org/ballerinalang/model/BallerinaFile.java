@@ -188,11 +188,6 @@ public class BallerinaFile implements Node {
             this.packageBuilder.addConnector(connector);
         }
 
-        public void addFilterConnector(BallerinaConnectorDef connector) {
-            this.compilationUnitList.add(connector);
-            this.packageBuilder.addFilterConnector(connector);
-        }
-
         public void addImportPackage(ImportPackage importPkg) {
             this.importPkgList.add(importPkg);
             this.packageBuilder.addImportPackage(importPkg);
