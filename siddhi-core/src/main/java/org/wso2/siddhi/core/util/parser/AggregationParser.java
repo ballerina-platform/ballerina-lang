@@ -495,11 +495,10 @@ public class AggregationParser {
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
         // Create annotations for primary key
         Annotation primaryKeyAnnotation = new Annotation("PrimaryKey");
-        String annotationElementValue = "_TIMESTAMP";
+        primaryKeyAnnotation.element(null, "_TIMESTAMP");
         for (Variable groupByVariable : groupByVariableList) {
-            annotationElementValue = annotationElementValue.concat(", " + groupByVariable.getAttributeName());
+            primaryKeyAnnotation.element(null, groupByVariable.getAttributeName());
         }
-        primaryKeyAnnotation.element(null, annotationElementValue);
         annotations.add(primaryKeyAnnotation);
         for (TimePeriod.Duration duration : durations) {
             String tableId = aggregatorName + "_" + duration.toString();
