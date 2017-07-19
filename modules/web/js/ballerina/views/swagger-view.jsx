@@ -88,6 +88,10 @@ class SwaggerView extends React.Component {
         props.commandManager.registerHandler('try-it-url-received', (url) => {
             this.tryItUrl = url;
         }, this);
+
+        props.commandManager.registerHandler('save', () => {
+            this.updateService();
+        }, this);
     }
 
     /**
@@ -133,12 +137,41 @@ class SwaggerView extends React.Component {
         }
     }
 
+    /**
+     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
+     * All the commands registered app's command manager will be bound to source view upon render.
+     *
+     * @param {Object} command A command of the command manager.
+     * @param {string} command.id Id of the command to dispatch
+     * @param {Object} command.shortcuts Shortcuts
+     * @param {Object} command.shortcuts.mac Max Shortcuts
+     * @param {string} command.shortcuts.mac.key key combination for mac platform eg. 'Command+N'
+     * @param {Object} command.shortcuts.other Other os shortcuts
+     * @param {string} command.shortcuts.other.key key combination for other platforms eg. 'Ctrl+N'
+     */
+    bindCommand(command) {
+        const id = command.id;
+        const hasShortcut = _.has(command, 'shortcuts');
+        const self = this;
+        if (hasShortcut) {
+            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
+            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+            this.swaggerAce.commands.addCommand({
+                name: id,
+                bindKey: { win: winShortcut, mac: macShortcut },
+                exec() {
+                    self.props.commandManager.dispatch(id);
+                },
+            });
+        }
+    }
+
      /**
      * Merge the updated YAMLs to the service definition
      */
     updateService() {
         // we do not update the dom if swagger is not edited.
-        if (!this.swaggerAce.getSession().getUndoManager().isClean()) {
+        if (this.swaggerAce && !this.swaggerAce.getSession().getUndoManager().isClean()) {
             // Add swagger import
             const importToBeAdded = ASTFactory.createImportDeclaration({
                 packageName: 'ballerina.net.http.swagger',
@@ -235,6 +268,11 @@ class SwaggerView extends React.Component {
                 editorPanel.next().next().css('width', '100%');
                 $container.show();
             }
+
+            // bind app keyboard shortcuts to ace editor
+            this.props.commandManager.getCommands().forEach((command) => {
+                this.bindCommand(command);
+            });
         }
     }
 
