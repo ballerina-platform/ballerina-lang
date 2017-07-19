@@ -83,16 +83,28 @@ class SourceView extends React.Component {
 
         const errorListPopover = (
             <Popover
-                id="popover-basic"
-                title="found syntax errors"
-            >
-                {
-                    this.state.syntaxErrors.map((error) => {
-                        return (
-                            <div key={error.row + error.column}>{error.text}</div>
-                        );
-                    })
+                id="syntax-errors-list-popover"
+                title={
+                    <div>
+                        <i className="fw fw-alert fw-lg" />
+                        <span>Found Syntax Errors</span>
+                    </div>
                 }
+            >
+                <ul className="list-group">
+                    {
+                        this.state.syntaxErrors.map((error) => {
+                            return (
+                                <li
+                                    key={error.row + error.column + btoa(error.text)}
+                                    className="list-group-item syntax-error"
+                                >
+                                    <div >{error.text}</div>
+                                </li>
+                            );
+                        })
+                    }
+                </ul>
             </Popover>
         );
 

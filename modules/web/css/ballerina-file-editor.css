@@ -16,6 +16,42 @@
     height: 100%;
 }
 
+#syntax-errors-list-popover.popover.top .arrow:after {
+    border-top-color: #565656;
+}
+#syntax-errors-list-popover {
+    background-color: #565656;
+    color: #ccc;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    max-width: 350px;
+    min-width: 250px;
+}
+
+#syntax-errors-list-popover .popover-title i {
+    color: #ff0033;
+    margin-right: 10px;
+}
+
+#syntax-errors-list-popover .popover-content {
+    padding: 0;
+}
+
+#syntax-errors-list-popover .list-group-item {
+    background-color: #565656;
+    border-color: rgb(51, 51, 51);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+#syntax-errors-list-popover .popover-title {
+    border-bottom: none;
+    background-color: rgb(51, 51, 51);
+    color: #ccc;
+}
+
 .syntax-errors-counter-container {
     top: -15px;
     right: -10px;
