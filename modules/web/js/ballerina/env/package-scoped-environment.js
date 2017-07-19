@@ -24,13 +24,24 @@ class PackageScopedEnvironment {
     constructor(args) {
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', []);
+        this._annotationAttachmentTypes = _.get(args, 'annotationAttachmentTypes', []);
     }
 
     init() {
         this._packages = _.union(this._packages, Environment.getPackages());
         this._types = _.union(this._types, Environment.getTypes());
-        this._currentPackage = new Package({ name: 'Current Package' });
+        this._currentPackage = new Package({name: 'Current Package'});
         this._packages.push(this._currentPackage);
+        this._annotationAttachmentTypes = _.union(this._annotationAttachmentTypes,
+            Environment.getAnnotationAttachmentTypes());
+    }
+
+    /**
+     * get annotation attachment types.
+     * @return {string[]} attachment types.
+     * */
+    getAnnotationAttachmentTypes() {
+        return this._annotationAttachmentTypes;
     }
 
     /**
@@ -46,7 +57,7 @@ class PackageScopedEnvironment {
     }
 
     resetCurrentPackage() {
-        this._currentPackage = new Package({ name: 'Current Package' });
+        this._currentPackage = new Package({name: 'Current Package'});
     }
 
     setCurrentPackage(pkg) {
@@ -116,7 +127,7 @@ class PackageScopedEnvironment {
 
     /**
      * Create current package from the the given AST
-     * @param {BallerinaASTRoot} astRoot 
+     * @param {BallerinaASTRoot} astRoot
      */
     createCurrentPackageFromAST(astRoot) {
         // get the latest symbols from this file.
@@ -145,11 +156,11 @@ class PackageScopedEnvironment {
 
     /**
      * Merge package1 into package2 and returns merged package2
-     * @param {Package} package1 
-     * @param {Package} package2 
+     * @param {Package} package1
+     * @param {Package} package2
      * @returns {Package} merged package
      */
-    mergePackages(package1, package2){
+    mergePackages(package1, package2) {
         // merge function definitions
         let pkg1FunctionDefinitions = package1.getFunctionDefinitions();
         let pkg2FunctionDefinitions = package2.getFunctionDefinitions();
@@ -184,12 +195,12 @@ class PackageScopedEnvironment {
     }
 
     /**
-     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority 
-     * @param {Array} itemArray1 
-     * @param {Array} itemArray2 
+     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority
+     * @param {Array} itemArray1
+     * @param {Array} itemArray2
      */
-    mergePackageItems(itemArray1, itemArray2){
-        _.remove(itemArray1, function(item1){
+    mergePackageItems(itemArray1, itemArray2) {
+        _.remove(itemArray1, function (item1) {
             let duplicate = itemArray2.filter((item2) => item2.getName() == item1.getName());
             return duplicate.length > 0;
         });
