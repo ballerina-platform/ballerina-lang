@@ -20,9 +20,9 @@ import com.intellij.lang.ASTNode;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class ReturnTypeListNode extends ANTLRPsiNode {
+public class TypeListNode extends ANTLRPsiNode {
 
-    public ReturnTypeListNode(@NotNull ASTNode node) {
+    public TypeListNode(@NotNull ASTNode node) {
         super(node);
     }
 }

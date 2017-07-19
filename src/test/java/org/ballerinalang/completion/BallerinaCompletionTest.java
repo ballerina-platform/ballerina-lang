@@ -843,7 +843,7 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     public void testFunctionFromPackageInvocation23() {
         myFixture.addFileToProject(UTILS_PACKAGE_NAME, SAMPLE_UTIL_FUNCTIONS);
         doTest("import org.test; function main(string[] args){ string s = test:getA()+<caret> \"TEST\"; }",
-                "args", "main", "test", "s");
+                "args", "main", "test");
     }
 
     public void testFunctionFromPackageInvocation24() {

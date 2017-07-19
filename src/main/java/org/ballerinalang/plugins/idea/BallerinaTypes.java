@@ -106,7 +106,7 @@ public class BallerinaTypes {
     public static final RuleIElementType MAP_STRUCT_KEY_VALUE = ruleIElementTypes.get(RULE_mapStructKeyValue);
 
     public static final RuleIElementType EXPRESSION_LIST = ruleIElementTypes.get(RULE_expressionList);
-    public static final RuleIElementType RETURN_TYPE_LIST = ruleIElementTypes.get(RULE_returnTypeList);
+    public static final RuleIElementType TYPE_LIST = ruleIElementTypes.get(RULE_typeList);
     public static final RuleIElementType TYPE_NAME = ruleIElementTypes.get(RULE_typeName);
     public static final RuleIElementType EXPRESSION = ruleIElementTypes.get(RULE_expression);
     public static final RuleIElementType SIMPLE_EXPRESSION = ruleIElementTypes.get(RULE_simpleExpression);

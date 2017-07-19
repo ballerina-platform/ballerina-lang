@@ -31,6 +31,7 @@ import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeReference;
 import org.ballerinalang.plugins.idea.psi.references.AnnotationAttributeValueReference;
@@ -45,6 +46,7 @@ import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
 import org.ballerinalang.plugins.idea.psi.references.StructKeyReference;
 import org.ballerinalang.plugins.idea.psi.references.StructValueReference;
+import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -164,11 +166,18 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                             if (reference != null) {
                                 PsiElement resolvedElement = reference.resolve();
                                 if (resolvedElement != null) {
-                                    PsiElement connectorDefinition = resolvedElement.getParent();
-                                    if (connectorDefinition instanceof ConnectorDefinitionNode) {
+                                    PsiElement definitionNode = resolvedElement.getParent();
+                                    if (definitionNode instanceof ConnectorDefinitionNode) {
                                         return new ActionInvocationReference(this);
+                                    } else if (definitionNode instanceof VariableDefinitionNode) {
+                                        // Todo - might need to do this for assignment statements as well
+                                        return checkDefinitionAndSuggestReference(((VariableDefinitionNode)
+                                                definitionNode));
                                     }
                                 }
+                            } else {
+                                // Todo - might need to do this for assignment statements as well
+                                return new VariableReference(this);
                             }
                         }
                     }
@@ -210,6 +219,15 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         }
 
         return new NameReference(this);
+    }
+
+    private PsiReference checkDefinitionAndSuggestReference(@NotNull VariableDefinitionNode variableDefinitionNode) {
+        StructDefinitionNode structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
+                (variableDefinitionNode);
+        if (structDefinitionNode != null) {
+            return new FieldReference(this);
+        }
+        return new VariableReference(this);
     }
 
     @Override

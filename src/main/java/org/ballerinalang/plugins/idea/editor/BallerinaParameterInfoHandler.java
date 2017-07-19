@@ -24,6 +24,8 @@ import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport;
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
 import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -39,9 +41,11 @@ import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,6 +142,18 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 if (connectorReferenceNode != null) {
                     return connectorReferenceNode;
                 }
+                if (parent instanceof StatementNode) {
+                    PsiElement firstChild = parent.getFirstChild();
+                    PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(firstChild);
+                    if (prevVisibleLeaf == null || !"(".equals(prevVisibleLeaf.getText())) {
+                        if (firstChild instanceof PsiErrorElement) {
+                            return PsiTreeUtil.findChildOfType(firstChild, IdentifierPSINode.class);
+                        }
+                        return firstChild;
+                    } else {
+                        return prevVisibleLeaf.getParent().getFirstChild();
+                    }
+                }
             }
             // If a FunctionReferenceNode is not found, get the element at previous offset. This will most probably
             // contain "(".
@@ -230,6 +246,9 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         } else if (element instanceof ConnectorReferenceNode) {
             ConnectorReferenceNode connectorReferenceNode = (ConnectorReferenceNode) element;
             setItemsToShow(connectorReferenceNode, connectorReferenceNode, context);
+        } else if (element instanceof IdentifierPSINode) {
+            IdentifierPSINode identifier = (IdentifierPSINode) element;
+            setItemsToShow(identifier, identifier, context);
         }
     }
 
@@ -248,43 +267,50 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             namedIdentifierDefNode = parent;
         }
 
+        PsiElement nameIdentifier = null;
         if (namedIdentifierDefNode != null) {
-            // Sometimes we might not be able to resolve elements. In that case, we should not show "No parameters"
-            // message. To identify this situation, we use this variable.
-            boolean isResolved = false;
             // Get the identifier of this node.
-            PsiElement nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
-            if (nameIdentifier != null) {
+            nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
+        } else if (element instanceof IdentifierPSINode) {
+            nameIdentifier = element;
+        }
 
-                PsiReference reference = nameIdentifier.findReferenceAt(nameIdentifier.getTextLength());
+        if (nameIdentifier == null || !(nameIdentifier instanceof IdentifierPSINode)) {
+            return;
+        }
 
-                if (reference != null) {
-                    // Resolve the reference
-                    PsiElement resolvedElement = reference.resolve();
-                    if (resolvedElement != null) {
-                        isResolved = true;
-                        // Resolved element will be the identifier of the function node. So we get the parent
-                        // node (FunctionDefinitionNode).
-                        PsiElement functionNode = resolvedElement.getParent();
-                        // Since we need the ParameterListNode, search for ParameterListNode child node.
-                        ParameterListNode parameterListNode =
-                                PsiTreeUtil.findChildOfType(functionNode, ParameterListNode.class);
-                        // Add to the list if the result is not null.
-                        if (parameterListNode != null) {
-                            list.add(parameterListNode);
-                        }
-                    }
+        // Sometimes we might not be able to resolve elements. In that case, we should not show "No parameters"
+        // message. To identify this situation, we use this variable.
+        boolean isResolved = false;
+
+        PsiReference reference = nameIdentifier.findReferenceAt(nameIdentifier.getTextLength());
+
+        if (reference != null) {
+            // Resolve the reference
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement != null) {
+                isResolved = true;
+                // Resolved element will be the identifier of the function node. So we get the parent
+                // node (FunctionDefinitionNode).
+                PsiElement functionNode = resolvedElement.getParent();
+                // Since we need the ParameterListNode, search for ParameterListNode child node.
+                ParameterListNode parameterListNode =
+                        PsiTreeUtil.findChildOfType(functionNode, ParameterListNode.class);
+                // Add to the list if the result is not null.
+                if (parameterListNode != null) {
+                    list.add(parameterListNode);
                 }
             }
-            // If there are no items to show, set a custom object. Otherwise set the list as an array.
-            if (list.isEmpty() && isResolved) {
-                // Todo - change how to identify no parameter situation
-                context.setItemsToShow(new Object[]{"Empty"});
-            } else {
-                context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
-            }
-            context.showHint(element, element.getTextRange().getStartOffset(), this);
         }
+        // If there are no items to show, set a custom object. Otherwise set the list as an array.
+        if (list.isEmpty() && isResolved) {
+            // Todo - change how to identify no parameter situation
+            context.setItemsToShow(new Object[]{"Empty"});
+        } else {
+            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+        }
+        context.showHint(element, element.getTextRange().getStartOffset(), this);
+
     }
 
     @Nullable
@@ -322,6 +348,33 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             PsiElement[] children = expressionListNode.getChildren();
             int index = children.length / 2;
             context.setCurrentParameter(index);
+            return;
+        } else if (o instanceof IdentifierPSINode) {
+            StatementNode statementNode = PsiTreeUtil.getParentOfType((IdentifierPSINode) o, StatementNode.class);
+            if (statementNode == null) {
+                context.setCurrentParameter(0);
+                return;
+            }
+            PsiFile containingFile = statementNode.getContainingFile();
+            PsiElement elementAtOffset = containingFile.findElementAt(context.getOffset());
+            if (elementAtOffset == null) {
+                context.setCurrentParameter(0);
+                return;
+            }
+            int count = 0;
+            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
+            do {
+                if (prevVisibleLeaf != null) {
+                    if (prevVisibleLeaf.getText().matches(",")) {
+                        count++;
+                    } else if ("(".equals(prevVisibleLeaf.getText())) {
+                        break;
+                    }
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+                }
+            } while (prevVisibleLeaf != null);
+
+            context.setCurrentParameter(count);
             return;
         } else {
             context.setCurrentParameter(0);
