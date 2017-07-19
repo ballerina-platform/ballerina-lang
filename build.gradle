@@ -22,6 +22,7 @@ buildscript {
 
 plugins {
     id "org.jetbrains.intellij" version "0.2.5"
+    id "de.undercouch.download" version "3.2.0"
 }
 
 repositories {
@@ -51,7 +52,7 @@ dependencies {
     antlr "org.antlr:antlr4:4.6"
 }
 
-apply plugin: "jacoco"
+apply plugin: 'jacoco'
 jacocoTestReport {
     reports {
         xml.enabled false
@@ -59,3 +60,21 @@ jacocoTestReport {
         html.destination "${buildDir}/jacocoHtml"
     }
 }
+
+apply plugin: 'de.undercouch.download'
+task downloadPsiViewerPlugin() {
+    download {
+        src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
+        dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
+        onlyIfNewer true
+    }
+}
+
+task copyPsiViewerPluginToSandBox(type: Copy) {
+    from "${buildDir}/tmp/plugins/PsiViewer.jar"
+    into "${buildDir}/idea-sandbox/plugins/"
+}
+
+copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
+copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
+runIde.dependsOn copyPsiViewerPluginToSandBox
