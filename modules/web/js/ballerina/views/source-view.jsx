@@ -18,6 +18,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import { Overlay, Popover } from 'react-bootstrap/lib';
+import classNames from 'classnames';
 import commandManager from 'command';
 import File from './../../workspace/file';
 import { DESIGN_VIEW } from './constants';
@@ -38,7 +40,9 @@ class SourceView extends React.Component {
             displayErrorList: props.displayErrorList,
             syntaxErrors: [],
         };
+        this.errorListPopoverTarget = undefined;
         this.onSourceEditorLintErrors = this.onSourceEditorLintErrors.bind(this);
+        this.toggleErrorListPopover = this.toggleErrorListPopover.bind(this);
     }
 
     /**
@@ -62,13 +66,47 @@ class SourceView extends React.Component {
     }
 
     /**
+     * Toggle error list popover
+     */
+    toggleErrorListPopover() {
+        this.setState({
+            displayErrorList: !this.state.displayErrorList,
+        });
+    }
+
+    /**
      * Render the component
      * @returns {Component} return the component
      */
     render() {
         const hasSyntaxErrors = this.state.syntaxErrors.length > 0;
+
+        const errorListPopover = (
+            <Popover
+                id="popover-basic"
+                title="found syntax errors"
+            >
+                {
+                    this.state.syntaxErrors.map((error) => {
+                        return (
+                            <div key={error.row + error.column}>{error.text}</div>
+                        );
+                    })
+                }
+            </Popover>
+        );
+
         return (
-            <div className="source-view-container" >
+            <div
+                className="source-view-container"
+                onClick={
+                    () => {
+                        if (this.state.displayErrorList) {
+                            this.toggleErrorListPopover();
+                        }
+                    }
+                }
+            >
                 <div className="wrapperDiv">
                     <div className="outerSourceDiv">
                         <SourceEditor
@@ -78,31 +116,44 @@ class SourceView extends React.Component {
                             onLintErrors={this.onSourceEditorLintErrors}
                         />
                         <div
-                            className={'bottom-right-controls-container '
-                                + ((hasSyntaxErrors) ? 'disabled' : '')}
+                            className={classNames('bottom-right-controls-container',
+                                            { disabled: hasSyntaxErrors })}
                         >
-                            <div className="view-design-btn btn-icon">
+                            <div className={classNames('view-design-btn btn-icon',
+                                        { target: this.state.displayErrorList })}
+                            >
                                 <div className="bottom-label-icon-wrapper">
                                     <i className="fw fw-design-view fw-inverse" />
                                 </div>
                                 <div
                                     className="bottom-view-label"
+                                    ref={(ref) => {
+                                        this.errorListPopoverTarget = ref;
+                                    }}
                                     onClick={
                                     () => {
                                         if (!hasSyntaxErrors) {
                                             this.context.editor.setActiveView(DESIGN_VIEW);
                                         } else {
-                                            this.setState({
-                                                displayErrorList: true,
-                                            });
+                                            this.toggleErrorListPopover();
                                         }
                                     }
                                 }
                                 >
                                     Design View
                                 </div>
+                                {hasSyntaxErrors &&
+                                    <Overlay
+                                        show={this.state.displayErrorList}
+                                        container={this}
+                                        target={this.errorListPopoverTarget}
+                                        placement="top"
+                                    >
+                                        {errorListPopover}
+                                    </Overlay>
+                                }
                             </div>
-                            {hasSyntaxErrors &&
+                            {hasSyntaxErrors && !this.state.displayErrorList &&
                                 <CSSTransitionGroup
                                     transitionName="error-count-badge"
                                     transitionEnterTimeout={300}

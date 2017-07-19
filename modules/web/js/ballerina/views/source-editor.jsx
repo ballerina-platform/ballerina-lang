@@ -295,6 +295,7 @@ SourceView.propTypes = {
 
 SourceView.defaultProps = {
     debugHit: null,
+    onLintErrors: () => {},
 };
 
 SourceView.contextTypes = {
