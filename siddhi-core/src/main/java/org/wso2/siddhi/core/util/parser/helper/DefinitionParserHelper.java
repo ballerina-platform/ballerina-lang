@@ -586,14 +586,10 @@ public class DefinitionParserHelper {
         List<Annotation> attributeAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_ATTRIBUTES);
         DefinitionParserHelper.AttributesHolder attributesHolder = new DefinitionParserHelper.AttributesHolder();
         if (attributeAnnotations.size() > 0) {
-            Map<String, String> elementMap = new HashMap<>(
-            );
+            Map<String, String> elementMap = new HashMap<>();
             List<String> elementList = new ArrayList<>();
             Boolean attributesNameDefined = null;
-            for (Element element : attributeAnnotations
-                    .get(0)
-                    .getElements()
-                    ) {
+            for (Element element : attributeAnnotations.get(0).getElements()) {
                 if (element.getKey() == null) {
                     if (attributesNameDefined != null && attributesNameDefined) {
                         throw new SiddhiAppCreationException("Error at '" + mapType + "' defined atstream'" +
