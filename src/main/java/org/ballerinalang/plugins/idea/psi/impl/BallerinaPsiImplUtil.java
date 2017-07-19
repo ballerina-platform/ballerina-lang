@@ -18,6 +18,7 @@ package org.ballerinalang.plugins.idea.psi.impl;
 
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.lang.ASTNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
@@ -34,6 +35,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.impl.source.tree.LeafElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -67,6 +69,7 @@ import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -83,6 +86,7 @@ import org.ballerinalang.plugins.idea.psi.scopes.ParameterContainer;
 import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
 import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
+import org.ballerinalang.plugins.idea.util.BallerinaStringLiteralEscaper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -1387,5 +1391,25 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    @NotNull
+    public static QuotedLiteralString updateText(@NotNull QuotedLiteralString quotedLiteralString,
+                                                 @NotNull String text) {
+        if (text.length() > 2) {
+            if (quotedLiteralString.getText() != null) {
+                StringBuilder outChars = new StringBuilder();
+                BallerinaStringLiteralEscaper.escapeString(text.substring(1, text.length() - 1), outChars);
+                outChars.insert(0, '"');
+                outChars.append('"');
+                text = outChars.toString();
+            }
+        }
+
+        ASTNode valueNode = quotedLiteralString.getNode();
+        assert valueNode instanceof LeafElement;
+
+        ((LeafElement) valueNode).replaceWithText(text);
+        return quotedLiteralString;
     }
 }
