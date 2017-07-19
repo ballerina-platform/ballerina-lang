@@ -179,15 +179,24 @@ svg.plumbConnect path {
 .func-output {
     width: 150px;
     height: calc(100% - 33px);
-    border: 0.5px solid gray;
     border-top: none;
     border-right: none;
     border-bottom: none;
     background-color: transparent;
     color: #446191;
     position: relative;
-    right: 0;
-    float: right;
+}
+
+.func-input {
+    width: 150px;
+    height: calc(100% - 33px);
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    background-color: transparent;
+    color: #446191;
+    position: relative;
+    float: left;
 }
 
 .source-view {

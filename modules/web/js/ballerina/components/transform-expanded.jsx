@@ -59,7 +59,11 @@ class TransformExpanded extends React.Component {
 
     getFunctionDefinition(functionInvocationExpression) {
         const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
-        return funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+        let funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+         _.forEach(funcDef.getParameters(), (param) => {
+                param.innerType = _.find(this.predefinedStructs, { typeName: param.type });
+         });
+        return funcDef;
     }
 
     onConnectionCallback(connection) {
