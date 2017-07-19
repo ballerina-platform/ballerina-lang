@@ -64,7 +64,7 @@ native function removeHeader (message m, string key);
 
 @doc:Description { value:"Removes all transport headers from the message"}
 @doc:Param { value:"m: The message object" }
-native function removeHeaders (message m);
+native function removeAllHeaders (message m);
 
 @doc:Description { value:"Sets the message payload using an XML object"}
 @doc:Param { value:"m: The current message object" }

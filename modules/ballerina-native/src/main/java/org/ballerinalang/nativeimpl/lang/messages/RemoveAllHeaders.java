@@ -27,10 +27,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.wso2.carbon.messaging.Header;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Native function to remove all headers of carbon message.
@@ -38,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
-        functionName = "removeHeaders",
+        functionName = "removeAllHeaders",
         args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
@@ -46,16 +42,12 @@ import java.util.stream.Collectors;
         value = "Removes all transport headers from the message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object") })
-public class RemoveHeaders extends AbstractNativeFunction {
+public class RemoveAllHeaders extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         BMessage msg = (BMessage) getRefArgument(context, 0);
-        List<Header> headers = msg.value().getHeaders().getAll();
-        if (headers.size() > 0) {
-            List<String> keySet = headers.stream().map(header -> header.getName()).collect(Collectors.toList());
-            keySet.stream().forEach(key -> msg.value().removeHeader(key));
-        }
+        msg.value().getHeaders().clear();
         return VOID_RETURN;
     }
 }

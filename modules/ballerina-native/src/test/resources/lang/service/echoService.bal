@@ -32,7 +32,7 @@ service<http> echo {
 
     @http:GET {}
     resource removeHeaders (message m) {
-        messages:removeHeaders(m);
+        messages:removeAllHeaders(m);
         reply m;
     }
 }
