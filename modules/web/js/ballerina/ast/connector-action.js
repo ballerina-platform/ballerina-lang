@@ -392,7 +392,7 @@ class ConnectorAction extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Action',
+                defaultValue: 'action',
                 setter: this.setActionName,
                 getter: this.getActionName,
                 parents: [{

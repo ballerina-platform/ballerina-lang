@@ -158,7 +158,7 @@ class WorkerDeclaration extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Worker',
+                defaultValue: 'worker',
                 setter: this.setWorkerName,
                 getter: this.getWorkerName,
                 parents: [{

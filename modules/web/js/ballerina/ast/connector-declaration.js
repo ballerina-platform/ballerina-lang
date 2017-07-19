@@ -148,7 +148,7 @@ class ConnectorDeclaration extends ASTNode {
             node: this,
             attributes: [{
                 checkEvenIfDefined: true,
-                defaultValue: 'Endpoint',
+                defaultValue: 'endpoint',
                 setter: this.setConnectorVariable,
                 getter: this.getConnectorVariable,
                 parents: [{

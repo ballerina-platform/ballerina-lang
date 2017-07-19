@@ -235,7 +235,7 @@ class AnnotationDefinition extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Annotation',
+                defaultValue: 'annotation',
                 setter: this.setAnnotationName,
                 getter: this.getAnnotationName,
                 parents: [{

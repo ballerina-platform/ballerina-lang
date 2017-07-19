@@ -167,7 +167,7 @@ class StructDefinition extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'Struct',
+                defaultValue: 'struct',
                 setter: this.setStructName,
                 getter: this.getStructName,
                 parents: [{
