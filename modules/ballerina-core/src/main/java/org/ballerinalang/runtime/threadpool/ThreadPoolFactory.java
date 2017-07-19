@@ -54,16 +54,6 @@ public class ThreadPoolFactory {
         return executorService;
     }
 
-    public ExecutorService getSingleThreadExecutor(String serviceName) {
-        if (!singularThreads.containsKey(serviceName)) {
-            ExecutorService singleThreadExecutor =
-                    Executors.newFixedThreadPool(1, new BLangThreadFactory("BLangWorker"));
-            singularThreads.put(serviceName, singleThreadExecutor);
-            return singleThreadExecutor;
-        }
-        return singularThreads.get(serviceName);
-    }
-
     public ExecutorService getWorkerExecutor() {
         return workerExecutor;
     }
