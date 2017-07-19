@@ -262,14 +262,6 @@ filterInitExpressionList
     : filterInitExpression (',' filterInitExpression)*
     ;
 
-//compositeConnectorInitExpression
-//    :   'create' nameReference '(' compositeConnectorInitSection? (',' expressionList)? ')' ('with' filterInitExpressionList)?
-//    ;
-//
-//compositeConnectorInitSection
-//    : '[' connectorInitExpression (',' connectorInitExpression)* ']'
-//    ;
-
 assignmentStatement
     :   ('var')? variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;

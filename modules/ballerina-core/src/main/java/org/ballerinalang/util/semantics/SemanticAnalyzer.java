@@ -187,7 +187,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymbolScope currentScope;
     private SymbolScope currentPackageScope;
     private SymbolScope nativeScope;
-    private boolean isWithinFilterConnector = false;
 
     private BlockStmt.BlockStmtBuilder pkgInitFuncStmtBuilder;
 
@@ -262,7 +261,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Define package level constructs
         defineStructs(bLangPackage.getStructDefs());
         defineConnectors(bLangPackage.getConnectors());
-        //defineFilterConnectors(bLangPackage.getFilterConnectors());
         resolveStructFieldTypes(bLangPackage.getStructDefs());
         defineFunctions(bLangPackage.getFunctions());
         defineServices(bLangPackage.getServices());
@@ -362,7 +360,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaConnectorDef connectorDef) {
         // Open the connector namespace
         openScope(connectorDef);
-        //isFilterConnector = connectorDef.isFilterConnector();
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
@@ -378,7 +375,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             variableDefStmt.accept(this);
         }
 
-
         createConnectorInitFunction(connectorDef);
 
         for (BallerinaAction action : connectorDef.getActions()) {
@@ -391,7 +387,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Close the symbol scope
         connectorMemAddrOffset = -1;
         closeScope();
-        isWithinFilterConnector = false;
     }
 
     @Override

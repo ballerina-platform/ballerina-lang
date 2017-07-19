@@ -37,7 +37,6 @@ public class VariableDef implements BLangSymbol, Node {
     protected SimpleTypeName typeName;
     protected BType type;
     protected MemoryLocation memoryLocation;
-    protected String polymorphicType;
 
     // BLangSymbol related attributes
     protected Identifier identifier;
@@ -78,14 +77,6 @@ public class VariableDef implements BLangSymbol, Node {
 
     public void setType(BType type) {
         this.type = type;
-    }
-
-    public void setPolymorphicType(String polymorphicType) {
-        this.polymorphicType = polymorphicType;
-    }
-
-    public String getPolymorphicType() {
-        return polymorphicType;
     }
 
     public MemoryLocation getMemoryLocation() {

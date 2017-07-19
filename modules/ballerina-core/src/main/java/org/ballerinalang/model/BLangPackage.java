@@ -304,7 +304,6 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
-        private List<BallerinaConnectorDef> filterConnectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
         private List<GlobalVariableDef> globalVarList = new ArrayList<>();
         private List<ConstDef> constList = new ArrayList<>();

@@ -57,11 +57,6 @@ public abstract class BType implements BLangSymbol {
         this.valueClass = valueClass;
     }
 
-
-    public Map<String, Integer> getMethodTable() {
-        return methodTable;
-    }
-
     public void addMethod(String methodName, int ip) {
         methodTable.put(methodName, new Integer(ip));
     }

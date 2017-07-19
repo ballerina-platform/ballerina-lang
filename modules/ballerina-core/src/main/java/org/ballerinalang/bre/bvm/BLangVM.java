@@ -1223,15 +1223,6 @@ public class BLangVM {
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
                     invokeActionCallableUnit(actionInfo, funcCallCPEntry);
                     break;
-                case InstructionCodes.INVOKEVIRTUAL:
-                    cpIndex = operands[0];
-                    actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];
-                    actionInfo = actionRefCPEntry.getActionInfo();
-
-                    cpIndex = operands[1];
-                    funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
-                    break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
                     actionRefCPEntry = (ActionRefCPEntry) constPool[cpIndex];

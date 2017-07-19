@@ -58,10 +58,6 @@ public final class BConnector implements BRefType<Connector>, StructureType {
         return connectorType;
     }
 
-    public void setConnectorType(BType connectorType) {
-        this.connectorType = connectorType;
-    }
-
     public BValue getValue(int offset) {
         return connectorMemBlock[offset];
     }
