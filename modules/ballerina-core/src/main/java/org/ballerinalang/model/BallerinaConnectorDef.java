@@ -139,7 +139,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
         this.parentFilterConnector = parentFilterConnector;
     }
 
-
     // Methods in Node interface
 
     @Override

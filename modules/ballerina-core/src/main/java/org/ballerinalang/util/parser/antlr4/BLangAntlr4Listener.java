@@ -52,6 +52,8 @@ import org.ballerinalang.util.parser.BallerinaParser.MapStructKeyValueContext;
 import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.NameReferenceContext;
+import org.ballerinalang.util.parser.BallerinaParser.NamespaceDeclarationContext;
+import org.ballerinalang.util.parser.BallerinaParser.NamespaceDeclarationStatementContext;
 import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
@@ -1571,7 +1573,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitXmlAttribVariableReference(BallerinaParser.XmlAttribVariableReferenceContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+
+        boolean isSingleAttrRef = ctx.xmlAttrib().expression() != null;
+        modelBuilder.createXmlAttributesRefExpr(getCurrentLocation(ctx), whiteSpaceDescriptor, isSingleAttrRef);
     }
 
     @Override
@@ -1657,7 +1666,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitXmlAttrib(BallerinaParser.XmlAttribContext ctx) {
 
     }
-
+    
     @Override
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
         if (ctx.exception == null) {
@@ -1814,6 +1823,38 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 argsAvailable);
     }
 
+    @Override
+    public void enterNamespaceDeclarationStatement(NamespaceDeclarationStatementContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamespaceDeclarationStatement(NamespaceDeclarationStatementContext ctx) {
+
+    }
+
+    @Override
+    public void enterNamespaceDeclaration(NamespaceDeclarationContext ctx) {
+    }
+
+    @Override
+    public void exitNamespaceDeclaration(NamespaceDeclarationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String namespaceUri = ctx.QuotedStringLiteral().getText();
+        namespaceUri = namespaceUri.substring(1, namespaceUri.length() - 1);
+        namespaceUri = StringEscapeUtils.unescapeJava(namespaceUri);
+        String prefix = (ctx.Identifier() != null) ? ctx.Identifier().getText() : null;
+
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getNamespaceDeclarationWS(tokenStream, ctx);
+        }
+        modelBuilder.addNamespaceDeclaration(getCurrentLocation(ctx), whiteSpaceDescriptor, namespaceUri, prefix);
+    }
+    
     @Override
     public void enterBacktickString(BallerinaParser.BacktickStringContext ctx) {
     }
