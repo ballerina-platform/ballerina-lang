@@ -177,9 +177,9 @@ standard_stream
     ;
 
 join_stream
-    :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)? within_time?
-    |left_source=join_source join right_source=join_source (ON expression)? within_time?
-    |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)? within_time?
+    :left_source=join_source join right_source=join_source right_unidirectional=UNIDIRECTIONAL (ON expression)? (within_time_range per)?
+    |left_source=join_source join right_source=join_source (ON expression)? (within_time_range per)?
+    |left_source=join_source left_unidirectional=UNIDIRECTIONAL join right_source=join_source (ON expression)? (within_time_range per)?
     ;
 
 join_source
@@ -310,6 +310,13 @@ output_rate_type
 
 within_time
     :WITHIN time_value
+    ;
+
+within_time_range
+    :WITHIN start_pattern=expression (',' end_pattern=expression)?
+    ;
+
+per :PER expression
     ;
 
 output_attribute
@@ -699,6 +706,7 @@ BOOL:     B O O L;
 OBJECT:   O B J E C T;
 AGGREGATION: A G G R E G A T I O N;
 AGGREGATE: A G G R E G A T E;
+PER:      P E R;
 
 ID_QUOTES : '`'[a-zA-Z_] [a-zA-Z_0-9]*'`' {setText(getText().substring(1, getText().length()-1));};
 

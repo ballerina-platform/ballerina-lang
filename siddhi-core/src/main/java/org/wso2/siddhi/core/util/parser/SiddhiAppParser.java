@@ -223,11 +223,12 @@ public class SiddhiAppParser {
                             siddhiAppRuntimeBuilder.getStreamDefinitionMap(),
                             siddhiAppRuntimeBuilder.getTableDefinitionMap(),
                             siddhiAppRuntimeBuilder.getWindowDefinitionMap(),
+                            siddhiAppRuntimeBuilder.getAggregationDefinitionMap(),
                             siddhiAppRuntimeBuilder.getTableMap(),
+                            siddhiAppRuntimeBuilder.getAggregationMap(),
                             siddhiAppRuntimeBuilder.getWindowMap(),
-                            siddhiAppRuntimeBuilder.getSourceMap(),
-                            siddhiAppRuntimeBuilder.getSinkMap(),
-                            siddhiAppRuntimeBuilder.getLockSynchronizer(), String.valueOf(queryIndex));
+                            siddhiAppRuntimeBuilder.getLockSynchronizer(),
+                            String.valueOf(queryIndex));
                     siddhiAppRuntimeBuilder.addQuery(queryRuntime);
                     queryIndex++;
                 } else {

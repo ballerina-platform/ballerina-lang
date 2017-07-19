@@ -95,7 +95,7 @@ public class OutputParser {
         if (table != null) {
 
             tableMetaStreamEvent = new MetaStreamEvent();
-            tableMetaStreamEvent.setTableEvent(true);
+            tableMetaStreamEvent.setEventType(MetaStreamEvent.EventType.TABLE);
             TableDefinition matchingTableDefinition = TableDefinition.id("");
             for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                 tableMetaStreamEvent.addOutputData(attribute);

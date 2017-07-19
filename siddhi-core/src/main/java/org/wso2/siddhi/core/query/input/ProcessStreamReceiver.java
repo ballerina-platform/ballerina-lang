@@ -67,8 +67,8 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
     }
 
     public ProcessStreamReceiver clone(String key) {
-        ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(streamId + key, latencyTracker,
-                                                                                queryName);
+        ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(
+                streamId + key, latencyTracker, queryName);
         processStreamReceiver.batchProcessingAllowed = this.batchProcessingAllowed;
         return processStreamReceiver;
     }
@@ -188,8 +188,9 @@ public class ProcessStreamReceiver implements StreamJunction.Receiver {
         this.metaStreamEvent = metaStreamEvent;
     }
 
-    public boolean toTable() {
-        return metaStreamEvent.isTableEvent();
+    public boolean toStream() {
+        return metaStreamEvent.getEventType() == MetaStreamEvent.EventType.DEFAULT ||
+                metaStreamEvent.getEventType() == MetaStreamEvent.EventType.WINDOW;
     }
 
     public void setBatchProcessingAllowed(boolean batchProcessingAllowed) {

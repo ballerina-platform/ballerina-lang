@@ -407,6 +407,30 @@ public class AggregationTestCase {
         siddhiAppRuntime.shutdown();
     }
 
+    @Test
+    public void incrementalAggregationTest1() {
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String app = "" +
+                " define stream cseEventStream (arrival long, symbol string, price float, volume int); " +
+                " " +
+                " define aggregation cseEventAggregation " +
+                " from cseEventStream " +
+                " select symbol, sum(price) as total, avg(price) as avgPrice " +
+                " aggregate by arrival every sec ... min; " +
+                "" +
+                "define stream barStream (symbol string, value int); " +
+                "" +
+                "from barStream as b join cseEventAggregation as a " +
+                "on a.symbol == b.symbol " +
+                "within \"2014-02-15T00:00:00Z\", \"2014-03-16T00:00:00Z\" " +
+                "per \"day\" " +
+                "select a.symbol, a.total, a.avgPrice " +
+                "insert into fooBar;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(app);
+    }
+
     /*@Test
     public void tablePersistenceTest() throws InterruptedException {
         LOG.info("Incremental Processing: tablePersistenceTest");

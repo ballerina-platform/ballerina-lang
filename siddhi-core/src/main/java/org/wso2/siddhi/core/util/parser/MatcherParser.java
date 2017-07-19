@@ -42,7 +42,7 @@ public class MatcherParser {
         int storeEventIndex = 0;
 
         MetaStreamEvent tableStreamEvent = new MetaStreamEvent();
-        tableStreamEvent.setTableEvent(true);
+        tableStreamEvent.setEventType(MetaStreamEvent.EventType.TABLE);
         tableStreamEvent.addInputDefinition(candsidateDefinition);
         for (Attribute attribute : candsidateDefinition.getAttributeList()) {
             tableStreamEvent.addOutputData(attribute);

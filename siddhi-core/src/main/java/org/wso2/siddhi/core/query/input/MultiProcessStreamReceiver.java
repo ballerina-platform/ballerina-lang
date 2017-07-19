@@ -203,8 +203,9 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     @Override
-    public boolean toTable() {
-        return metaStreamEvents[0].isTableEvent();
+    public boolean toStream() {
+        return metaStreamEvents[0].getEventType() == MetaStreamEvent.EventType.DEFAULT ||
+                metaStreamEvents[0].getEventType() == MetaStreamEvent.EventType.WINDOW;
     }
 
     public void setStreamEventPool(StreamEventPool streamEventPool) {

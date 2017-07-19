@@ -17,4 +17,6 @@ public abstract class IncrementalAttributeAggregator {
     public abstract Expression[] getBaseAttributeInitialValues();
 
     public abstract Expression[] getBaseAggregators();
+
+    public abstract Attribute.Type getReturnType();
 }

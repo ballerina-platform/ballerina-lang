@@ -40,6 +40,7 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
 
     private Attribute[] baseAttributes;
     private Expression[] baseAttributesInitialValues;
+    private Attribute.Type returnType;
 
     @Override
     public void init(String attributeName, Attribute.Type attributeType) {
@@ -50,12 +51,12 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
             sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.DOUBLE);
             sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("double"));
-
+            returnType = Attribute.Type.DOUBLE;
         } else if (attributeType.equals(Attribute.Type.INT) || attributeType.equals(Attribute.Type.LONG)) {
             sum = new Attribute("_SUM_".concat(attributeName), Attribute.Type.LONG);
             sumInitialValue = Expression.function("convert", Expression.variable(attributeName),
                     Expression.value("long"));
-
+            returnType = Attribute.Type.LONG;
         } else {
             throw new SiddhiAppRuntimeException(
                     "Sum aggregation cannot be executed on " + "attribute type " + attributeType.toString());
@@ -96,5 +97,10 @@ public class SumIncrementalAttributeAggregator extends IncrementalAttributeAggre
         Expression sumAggregator = Expression.function("sum",
                 Expression.variable(getBaseAttributes()[0].getName()));
         return new Expression[]{sumAggregator};
+    }
+
+    @Override
+    public Attribute.Type getReturnType() {
+        return returnType;
     }
 }

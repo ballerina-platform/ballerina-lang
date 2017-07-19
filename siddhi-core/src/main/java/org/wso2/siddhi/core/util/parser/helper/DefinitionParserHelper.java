@@ -86,8 +86,8 @@ import java.util.regex.Pattern;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition>
-            streamDefinitionMap,
+    public static void validateDefinition(AbstractDefinition definition,
+                                          ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> tableDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> windowDefinitionMap,
                                           ConcurrentMap<String, AbstractDefinition> aggregationDefinitionMap) {
@@ -121,9 +121,9 @@ public class DefinitionParserHelper {
         }
     }
 
-
-    public static void addStreamJunction(StreamDefinition streamDefinition, ConcurrentMap<String, StreamJunction>
-            streamJunctionMap, SiddhiAppContext siddhiAppContext) {
+    public static void addStreamJunction(StreamDefinition streamDefinition,
+                                         ConcurrentMap<String, StreamJunction> streamJunctionMap,
+                                         SiddhiAppContext siddhiAppContext) {
         if (!streamJunctionMap.containsKey(streamDefinition.getId())) {
             StreamJunction streamJunction = new StreamJunction(streamDefinition,
                     siddhiAppContext.getExecutorService(),
@@ -186,8 +186,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addWindow(WindowDefinition windowDefinition, ConcurrentMap<String, Window>
-            eventWindowMap,
+    public static void addWindow(WindowDefinition windowDefinition,
+                                 ConcurrentMap<String, Window> eventWindowMap,
                                  SiddhiAppContext siddhiAppContext) {
         if (!eventWindowMap.containsKey(windowDefinition.getId())) {
             Window table = new Window(windowDefinition, siddhiAppContext);
@@ -195,8 +195,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    public static void addFunction(SiddhiAppContext siddhiAppContext, final FunctionDefinition
-            functionDefinition) {
+    public static void addFunction(SiddhiAppContext siddhiAppContext,
+                                   final FunctionDefinition functionDefinition) {
 
         Extension extension = new Extension() {
             @Override
@@ -586,14 +586,10 @@ public class DefinitionParserHelper {
         List<Annotation> attributeAnnotations = mapAnnotation.getAnnotations(SiddhiConstants.ANNOTATION_ATTRIBUTES);
         DefinitionParserHelper.AttributesHolder attributesHolder = new DefinitionParserHelper.AttributesHolder();
         if (attributeAnnotations.size() > 0) {
-            Map<String, String> elementMap = new HashMap<>(
-            );
+            Map<String, String> elementMap = new HashMap<>();
             List<String> elementList = new ArrayList<>();
             Boolean attributesNameDefined = null;
-            for (Element element : attributeAnnotations
-                    .get(0)
-                    .getElements()
-                    ) {
+            for (Element element : attributeAnnotations.get(0).getElements()) {
                 if (element.getKey() == null) {
                     if (attributesNameDefined != null && attributesNameDefined) {
                         throw new SiddhiAppCreationException("Error at '" + mapType + "' defined atstream'" +
@@ -677,7 +673,7 @@ public class DefinitionParserHelper {
         Map<String, String> options = new HashMap<String, String>();
         Map<String, String> dynamicOptions = new HashMap<String, String>();
         for (Element element : annotation.getElements()) {
-            if (Pattern.matches("\\{\\{.*?\\}\\}", element.getValue())) {
+            if (Pattern.matches("(.*?)\\{\\{.*?\\}\\}(.*?)", element.getValue())) {
                 if (supportedDynamicOptionList.contains(element.getKey())) {
                     dynamicOptions.put(element.getKey(), element.getValue());
                 } else {
