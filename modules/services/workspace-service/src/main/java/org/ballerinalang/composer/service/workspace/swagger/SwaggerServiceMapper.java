@@ -228,8 +228,8 @@ public class SwaggerServiceMapper {
             this.createLicenseModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("license"), info);
     
             this.createExternalDocsModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs()
-                    .get("externalDoc"), swagger);
-            this.createTagModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("tag"), swagger);
+                    .get("externalDocs"), swagger);
+            this.createTagModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("tags"), swagger);
             this.createOrganizationModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("organization"),
                     info);
             this.createDevelopersModel(swaggerInfoAnnotation.get().getAttributeNameValuePairs().get("developers"),

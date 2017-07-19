@@ -32,8 +32,6 @@ import io.swagger.models.properties.LongProperty;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -49,7 +47,6 @@ import java.util.Map;
  * Test classes for swagger services.
  */
 public class SwaggerServiceMapperTest {
-    private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapperTest.class);
     private JsonParser parser = new JsonParser();
     
     /**
@@ -69,7 +66,7 @@ public class SwaggerServiceMapperTest {
      * Execute tests converting ballerina source to swagger definitions.
      * @param usecaseName The name of the file.
      * @param serviceName The name of the service.
-     * @throws IOException
+     * @throws IOException When sample files cannot be read.
      */
     @Test(dataProvider = "SwaggerSamples")
     public void testBallerinaToSwaggerConversion(String usecaseName, String serviceName) throws IOException {
