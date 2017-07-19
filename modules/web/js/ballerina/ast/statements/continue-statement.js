@@ -58,8 +58,25 @@ class ContinueStatement extends Statement {
      * @return {boolean} true|false.
      * */
     canBeAChildOf(node) {
-        return this.getFactory().isWhileStatement(node) || this.getFactory().isIfElseStatement(node) ||
-            this.getFactory().isIfStatement(node);
+        return this.iterateOverParent(node);
+    }
+
+    /**
+     * Define what type of nodes that this node can be added as a child by iterating over its parents.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     * */
+    iterateOverParent(node) {
+        if (node === undefined) {
+            return false;
+        }
+        if (this.getFactory().isBallerinaAstRoot(node)) {
+            return false;
+        } else if (this.getFactory().isWhileStatement(node)) {
+            return true;
+        } else {
+            return this.iterateOverParent(node.getParent());
+        }
     }
 }
 
