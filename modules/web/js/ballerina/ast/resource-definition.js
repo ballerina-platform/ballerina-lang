@@ -66,6 +66,14 @@ class ResourceDefinition extends ASTNode {
         return variableDefinitionStatements;
     }
 
+    /**
+     * Get the namespace declaration statements.
+     * @return {ASTNode[]} namespace declaration statements
+     * */
+    getNamespaceDeclarationStatements() {
+        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+    }
+
     getArguments() {
         return this.getArgumentParameterDefinitionHolder().getChildren();
     }
@@ -86,7 +94,7 @@ class ResourceDefinition extends ASTNode {
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
-        if (index == -1) {
+        if (index === -1) {
             index = _.findLastIndex(this.getChildren(), (child) => {
                 return self.getFactory().isConnectorDeclaration(child);
             });

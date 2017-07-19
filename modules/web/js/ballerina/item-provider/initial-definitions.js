@@ -236,6 +236,13 @@ const createAbortStatementTool = {
     nodeFactoryMethod: DefaultBallerinaASTFactory.createAbortStatement,
 };
 
+const createNamespaceDeclarationStatementTool = {
+    id: 'Namespace',
+    name: 'Namespace',
+    title: 'Namespace',
+    nodeFactoryMethod: DefaultBallerinaASTFactory.createNamespaceDeclarationStatement,
+};
+
 const createTransactionAbortedStatementTool = {
     id: 'Transaction',
     name: 'Transaction',
@@ -249,7 +256,7 @@ const statementToolDefArray = [createIfStatementTool, createAssignmentExpression
     createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
     createThrowStatementTool, createWorkerInvocationStatementTool, createWorkerReplyStatementTool,
     createTransformStatementTool, createJoinStatementTool, createAbortStatementTool,
-    createTransactionAbortedStatementTool, createContinueStatementTool];
+    createTransactionAbortedStatementTool, createContinueStatementTool, createNamespaceDeclarationStatementTool];
 
 const seperator = {
     id: 'constructs_seperator',
