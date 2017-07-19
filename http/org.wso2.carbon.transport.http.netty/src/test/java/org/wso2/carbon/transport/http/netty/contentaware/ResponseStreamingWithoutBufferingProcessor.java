@@ -44,22 +44,27 @@ public class ResponseStreamingWithoutBufferingProcessor implements CarbonMessage
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null && carbonMessage
-                        .getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
-                        .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
+                try {
+                    if (carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION) != null &&
+                            carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION)
+                            .equals(org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE)) {
 
-                    callback.done(carbonMessage);
-                } else {
-                    CarbonMessage cMsg = new DefaultCarbonMessage(false);
-                    cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                    cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
-                    cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
-                    cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
-                    callback.done(cMsg);
-                    while (!(carbonMessage.isEmpty() && carbonMessage.isEndOfMsgAdded())) {
-                        cMsg.addMessageBody(carbonMessage.getMessageBody());
+                        callback.done(carbonMessage);
+                    } else {
+                        CarbonMessage cMsg = new DefaultCarbonMessage(false);
+                        cMsg.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                        cMsg.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+                        cMsg.setHeader(HttpHeaders.Names.CONTENT_TYPE, Constants.TEXT_PLAIN);
+                        cMsg.setProperty(Constants.HTTP_STATUS_CODE, 200);
+                        callback.done(cMsg);
+                        while (!(carbonMessage.isEmpty() && carbonMessage.isEndOfMsgAdded())) {
+                            cMsg.addMessageBody(carbonMessage.getMessageBody());
+                        }
+                        cMsg.setEndOfMsgAdded(true);
                     }
-                    cMsg.setEndOfMsgAdded(true);
+                } finally {
+                    // Calling the release method to make sure that there won't be any memory leaks from netty
+                    carbonMessage.release();
                 }
             }
         });
