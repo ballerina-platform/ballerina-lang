@@ -88,6 +88,17 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.extension.siddhi.store.rdbms</groupId>
+            <artifactId>siddhi-store-rdbms</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

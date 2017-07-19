@@ -39,6 +39,8 @@ public class AggregationTestCase {
 
     @Test
     public void incrementalStreamProcessorTest1() {
+        LOG.info("Incremental Processing: incrementalStreamProcessorTest1");
+        // Test Aggregation parsing: Without group by, external time based, time range (all time durations from sec to min)
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -56,6 +58,8 @@ public class AggregationTestCase {
 
     @Test
     public void incrementalStreamProcessorTest2() {
+        LOG.info("Incremental Processing: incrementalStreamProcessorTest2");
+        // Test Aggregation parsing: Without group by, event time based, time range (all time durations from sec to min)
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -73,6 +77,8 @@ public class AggregationTestCase {
 
     @Test
     public void incrementalStreamProcessorTest3() {
+        LOG.info("Incremental Processing: incrementalStreamProcessorTest3");
+        // Test Aggregation parsing: With group by (one attribute), event time based, comma separated durations
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -90,8 +96,29 @@ public class AggregationTestCase {
     }
 
     @Test
+    public void incrementalStreamProcessorTest4() {
+        LOG.info("Incremental Processing: incrementalStreamProcessorTest4");
+        // Test Aggregation parsing: With group by (two attributes), event time based, comma separated durations
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String cseEventStream = "" +
+                " define stream cseEventStream (arrival long, symbol string, price float, volume int); ";
+
+        String query = "" +
+                " @info(name = 'query3') " +
+                " define aggregation cseEventAggregation " +
+                " from cseEventStream " +
+                " select sum(price) as sumPrice " +
+                " group by price, volume " +
+                " aggregate every sec, min, hour, day";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+    }
+
+    @Test
     public void externalTimeTest1() throws InterruptedException {
         LOG.info("Incremental Processing: externalTimeTest1");
+        // Without group by. Buffer size = 0.
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "" +
@@ -379,4 +406,84 @@ public class AggregationTestCase {
         Thread.sleep(2000);
         siddhiAppRuntime.shutdown();
     }
+
+    /*@Test
+    public void tablePersistenceTest() throws InterruptedException {
+        LOG.info("Incremental Processing: tablePersistenceTest");
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        // NOTE: Create the DB 'test' before running this test
+        String url = "jdbc:mysql://localhost:3306/test";
+        String driverClassName = "com.mysql.jdbc.Driver";
+
+        String cseEventStream = "" +
+                "define stream cseEventStream (symbol string, price1 float, " +
+                "                              price2 float, volume long , quantity int, timestamp long);";
+        String query = "" +
+                "@info(name = 'query3') " +
+                "@Store(type=\"rdbms\", jdbc.url=\"" + url + "\", " +
+                "username=\"root\", password=\"root\", jdbc.driver.name=\"" + driverClassName + "\") " +
+                "define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice, sum(price1) as totprice1, (quantity * volume) as mult  " +
+                "group by symbol " +
+                "aggregate by timestamp every sec...year ;";
+
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(cseEventStream + query);
+
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler("cseEventStream");
+        siddhiAppRuntime.start();
+
+        // Thursday, June 1, 2017 4:05:50 AM
+        inputHandler.send(new Object[]{"WSO2", 50f, 60f, 90L, 6, 1496289950000L});
+        inputHandler.send(new Object[]{"WSO2", 70f, null, 40L, 10, 1496289950000L});
+
+        // Thursday, June 1, 2017 4:05:52 AM
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496289952000L});
+        inputHandler.send(new Object[]{"WSO2", 100f, null, 200L, 16, 1496289952000L});
+
+        // Thursday, June 1, 2017 4:05:54 AM
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 26, 1496289954000L});
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1496289954000L});
+
+        // Thursday, June 1, 2017 4:05:56 AM
+        inputHandler.send(new Object[]{"IBM", 900f, null, 200L, 60, 1496289956000L});
+        inputHandler.send(new Object[]{"IBM", 500f, null, 200L, 7, 1496289956000L});
+
+        // Thursday, June 1, 2017 4:06:56 AM
+        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1496290016000L});
+
+        // Thursday, June 1, 2017 4:07:56 AM
+        inputHandler.send(new Object[]{"IBM", 600f, null, 200L, 6, 1496290076000L});
+
+        // Thursday, June 1, 2017 5:07:56 AM
+        inputHandler.send(new Object[]{"CISCO", 700f, null, 200L, 20, 1496293676000L});
+
+        // Thursday, June 1, 2017 6:07:56 AM
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 56, 1496297276000L});
+
+        // Friday, June 2, 2017 6:07:56 AM
+        inputHandler.send(new Object[]{"CISCO", 800f, null, 100L, 10, 1496383676000L});
+
+        // Saturday, June 3, 2017 6:07:56 AM
+        inputHandler.send(new Object[]{"CISCO", 900f, null, 100L, 15, 1496470076000L});
+
+        // Monday, July 3, 2017 6:07:56 AM
+        inputHandler.send(new Object[]{"IBM", 100f, null, 200L, 96, 1499062076000L});
+
+        // Thursday, August 3, 2017 6:07:56 AM
+        inputHandler.send(new Object[]{"IBM", 400f, null, 200L, 9, 1501740476000L});
+
+        // Friday, August 3, 2018 6:07:56 AM
+        inputHandler.send(new Object[]{"WSO2", 60f, 44f, 200L, 6, 1533276476000L});
+
+        // Saturday, August 3, 2019 6:07:56 AM
+        inputHandler.send(new Object[]{"WSO2", 260f, 44f, 200L, 16, 1564812476000L});
+
+        // Monday, August 3, 2020 6:07:56 AM
+        inputHandler.send(new Object[]{"CISCO", 260f, 44f, 200L, 16, 1596434876000L});
+
+        Thread.sleep(2000);
+        siddhiAppRuntime.shutdown();
+    }*/
 }

@@ -88,7 +88,7 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public List<Annotation> getAnnotation() {
+    public List<Annotation> getAnnotations() {
         return this.annotations;
     }
 

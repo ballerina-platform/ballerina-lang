@@ -182,7 +182,7 @@ public class AggregationParser {
         List<TimePeriod.Duration> incrementalDurations = getSortedPeriods(aggregationDefinition.getTimePeriod());
         HashMap<TimePeriod.Duration, Table> aggregationTables = initDefaultTables(aggregatorName, incrementalDurations,
                 processedMetaStreamEvent.getOutputStreamDefinition(), siddhiAppRuntimeBuilder,
-                aggregationDefinition.getAnnotations());
+                aggregationDefinition.getAnnotations(), groupByVariableList);
 
         IncrementalExecutor rootIncrementalExecutor = buildIncrementalExecutorChain(
                 siddhiAppContext, aggregatorName, isProcessingOnExternalTime,
@@ -491,8 +491,16 @@ public class AggregationParser {
     private static HashMap<TimePeriod.Duration, Table> initDefaultTables(
             String aggregatorName, List<TimePeriod.Duration> durations,
             StreamDefinition streamDefinition, SiddhiAppRuntimeBuilder siddhiAppRuntimeBuilder,
-            List<Annotation> annotations) {
+            List<Annotation> annotations, List<Variable> groupByVariableList) {
         HashMap<TimePeriod.Duration, Table> aggregationTableMap = new HashMap<>();
+        // Create annotations for primary key
+        Annotation primaryKeyAnnotation = new Annotation("PrimaryKey");
+        String annotationElementValue = "_TIMESTAMP";
+        for (Variable groupByVariable : groupByVariableList) {
+            annotationElementValue = annotationElementValue.concat(", " + groupByVariable.getAttributeName());
+        }
+        primaryKeyAnnotation.element(null, annotationElementValue);
+        annotations.add(primaryKeyAnnotation);
         for (TimePeriod.Duration duration : durations) {
             String tableId = aggregatorName + "_" + duration.toString();
             TableDefinition tableDefinition = TableDefinition.id(tableId);
