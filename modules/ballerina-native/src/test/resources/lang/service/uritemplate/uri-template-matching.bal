@@ -229,4 +229,12 @@ service<http> echo55 {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:Path {value:"/*"}
+    resource echo2 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo55":"default"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }

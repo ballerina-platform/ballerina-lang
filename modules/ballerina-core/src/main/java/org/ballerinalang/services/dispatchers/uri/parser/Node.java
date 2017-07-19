@@ -145,28 +145,38 @@ public abstract class Node {
             isFirstTraverse = false;
         } else {
             for (ResourceInfo previousResource: this.resource) {
-                boolean prevResourceHasMethod = false;
-                boolean newResourceHasMethod = false;
-                for (String method : this.httpMethods) {
-                    if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                        prevResourceHasMethod = true;
-                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                            throw new BallerinaException("Seems two resources have the same addressable URI");
-                        }
-                    }
-                }
+                boolean prevResourceHasMethod = validateMethodsOfSameURIResources(previousResource, newResource);
                 if (!prevResourceHasMethod) {
-                    for (String method : this.httpMethods) {
-                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
-                            newResourceHasMethod = true;
-                        }
-                    }
-                    if (!newResourceHasMethod) {
-                        throw new BallerinaException("Seems two resources have the same addressable URI");
-                    }
+                    validateMethodOfNewResource(newResource);
                 }
             }
             this.resource.add(newResource);
+        }
+    }
+
+    private boolean validateMethodsOfSameURIResources(ResourceInfo previousResource, ResourceInfo newResource) {
+        boolean prevResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                prevResourceHasMethod = true;
+                if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                    throw new BallerinaException("Seems two resources have the same addressable URI");
+                }
+            }
+        }
+        return prevResourceHasMethod;
+    }
+
+    private void validateMethodOfNewResource(ResourceInfo newResource) {
+        boolean newResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                newResourceHasMethod = true;
+            }
+        }
+        if (!newResourceHasMethod) {
+            //if both resources do not have methods but same URI, then throw following error.
+            throw new BallerinaException("Seems two resources have the same addressable URI");
         }
     }
 
