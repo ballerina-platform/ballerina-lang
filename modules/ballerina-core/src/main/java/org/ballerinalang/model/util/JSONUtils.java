@@ -70,6 +70,18 @@ import java.util.Set;
 public class JSONUtils {
 
     private static final String NULL = "null";
+
+    /**
+     * Check whether JSON has particular field.
+     *
+     * @param json JSON to be considered.
+     * @param elementName String name json field to be considered.
+     * @return Boolean 'true' if JSON has given field.
+     */
+    public static boolean hasElement(BJSON json, String elementName) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.has(elementName);
+    }
     
     /**
      * Convert {@link BJSON} to {@link BInteger}.

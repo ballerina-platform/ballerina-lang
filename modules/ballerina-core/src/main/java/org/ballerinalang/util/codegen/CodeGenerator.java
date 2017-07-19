@@ -1733,7 +1733,9 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(JSONInitExpr jsonInitExpr) {
         int jsonVarRegIndex = ++regIndexes[REF_OFFSET];
         jsonInitExpr.setTempOffset(jsonVarRegIndex);
-        emit(InstructionCodes.NEWJSON, jsonVarRegIndex);
+        TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(jsonInitExpr.getType().getSig()));
+        int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+        emit(InstructionCodes.NEWJSON, jsonVarRegIndex, typeCPindex);
 
         Expression[] argExprs = jsonInitExpr.getArgExprs();
         for (Expression argExpr : argExprs) {
@@ -1969,9 +1971,9 @@ public class CodeGenerator implements NodeVisitor {
                 indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
-        } else if (varRefType == BTypes.typeJSON) {
+        } else if (varRefType == BTypes.typeJSON || varRefType.getTag() == TypeTags.C_JSON_TAG) {
             int jsonValueRegIndex;
-            if (indexExpr.getType() == BTypes.typeString) {
+            if (indexExpr.getType() == BTypes.typeString || varRefType.getTag() == TypeTags.C_JSON_TAG) {
                 if (variableStore) {
                     emit(InstructionCodes.JSONSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
                 } else {
@@ -2313,6 +2315,10 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.typeBlob;
             case TypeSignature.SIG_REFTYPE:
                 return BTypes.getTypeFromName(typeSig.getName());
+            case TypeSignature.SIG_CJSON:
+                packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
+                StructInfo structInf = packageInfo.getStructInfo(typeSig.getName());
+                return new BJSONConstraintType(structInf.getType());
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
             case TypeSignature.SIG_STRUCT:

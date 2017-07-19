@@ -2155,7 +2155,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (varRefType == BTypes.typeJSON) {
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
         } else if (varRefType instanceof BJSONConstraintType) {
-            StructDef structDefReference = ((BJSONConstraintType) varRefType).getConstraint();
+            StructDef structDefReference = (StructDef) ((BJSONConstraintType) varRefType).getConstraint();
             BLangSymbol fieldSymbol = structDefReference.resolveMembers(
                     new SymbolName(fieldName, structDefReference.getPackagePath()));
             if (fieldSymbol == null) {
@@ -2208,7 +2208,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BMapType mapType = (BMapType) varRefType;
             indexBasedVarRefExpr.setType(mapType.getElementType());
 
-        } else if (varRefType == BTypes.typeJSON) {
+        } else if (varRefType == BTypes.typeJSON || varRefType.getTag() == TypeTags.C_JSON_TAG) {
             if (indexExpr.getType() != BTypes.typeInt && indexExpr.getType() != BTypes.typeString) {
                 throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
                         SemanticErrors.INCOMPATIBLE_TYPES, "string or int", varRefExpr.getType());
@@ -2336,6 +2336,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 return;
             }
 
+        } else if ((sourceType.getTag() == TypeTags.C_JSON_TAG || sourceType.getTag() == TypeTags.C_JSON_TAG)
+            && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstraintType) targetType).getConstraint(),
+                    (StructDef) ((BJSONConstraintType) sourceType).getConstraint())) {
+            typeCastExpr.setOpcode(InstructionCodes.NOP);
+            if (!isMultiReturn) {
+                typeCastExpr.setTypes(new BType[]{targetType});
+                return;
+            }
         } else {
             boolean isUnsafeCastPossible = false;
             if (isMultiReturn) {
@@ -3446,7 +3454,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (inheritedType instanceof BJSONConstraintType) {
                 String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
-                StructDef constraintStructDef = ((BJSONConstraintType) inheritedType).getConstraint();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstraintType) inheritedType).getConstraint();
                 if (constraintStructDef != null) {
                     BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
                             new SymbolName(key, constraintStructDef.getPackagePath()));
@@ -3524,6 +3532,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             return isUnsafeArrayCastPossible(sourceType, targetType);
         }
 
+        if ((sourceType.getTag() == TypeTags.JSON_TAG || sourceType.getTag() == TypeTags.C_JSON_TAG)
+                && targetType.getTag() == TypeTags.C_JSON_TAG) {
+            return true;
+        }
+
         return false;
     }
 
@@ -3574,7 +3587,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if ((rhsType instanceof BJSONConstraintType) && (lhsType instanceof BJSONConstraintType)) {
-            if (rhsType.equals(lhsType)){
+            if (((BJSONConstraintType) lhsType).getConstraint() == ((BJSONConstraintType) rhsType).getConstraint()) {
                 assignabilityResult.assignable = true;
                 return assignabilityResult;
             }

@@ -29,6 +29,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -877,7 +878,15 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-
+                    if (jsonVal.getType().getTag() == TypeTags.C_JSON_TAG) {
+                        BStructType bStructType = (BStructType) ((BJSONConstraintType) jsonVal.getType())
+                                .getConstraint();
+                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
+                            throw BLangExceptionHelper.getRuntimeException(
+                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
+                                    ((BJSONConstraintType) jsonVal.getType()).getConstraint());
+                        }
+                    }
                     sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
                     break;
                 case InstructionCodes.JSONSTORE:
@@ -889,7 +898,15 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-
+                    if (jsonVal.getType().getTag() == TypeTags.C_JSON_TAG) {
+                        BStructType bStructType = (BStructType) ((BJSONConstraintType) jsonVal.getType())
+                                .getConstraint();
+                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
+                            throw BLangExceptionHelper.getRuntimeException(
+                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
+                                    ((BJSONConstraintType) jsonVal.getType()).getConstraint());
+                        }
+                    }
                     JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
                     break;
 
@@ -1365,7 +1382,11 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
-                    sf.refRegs[i] = new BJSON("{}");
+                    cpIndex = operands[1];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    BJSON newJSON = new BJSON("{}");
+                    newJSON.setType(typeCPEntry.getType());
+                    sf.refRegs[i] = newJSON;
                     break;
                 case InstructionCodes.NEWMESSAGE:
                     i = operands[0];
@@ -1656,6 +1677,9 @@ public class BLangVM {
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
+                } else if (checkConstraintJSONCast(typeCPEntry.getType(), sf.refRegs[i])) {
+                    ((BJSON) sf.refRegs[i]).setType(typeCPEntry.getType());
+                    sf.refRegs[j] = sf.refRegs[i];
                 } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
@@ -1670,6 +1694,27 @@ public class BLangVM {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private boolean checkConstraintJSONEquivalency(BJSON json, BStructType targetType) {
+        BStructType.StructField[] tFields = targetType.getStructFields();
+        for (int i = 0; i < tFields.length; i++) {
+            if (JSONUtils.hasElement(json, tFields[i].getFieldName())) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkConstraintJSONValidity(String field, BStructType targetType) {
+        BStructType.StructField[] tFields = targetType.getStructFields();
+        for (int i = 0; i < tFields.length; i++) {
+            if (tFields[i].getFieldName().equals(field)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
@@ -2643,6 +2688,16 @@ public class BLangVM {
                     callerSF.refRegs[callersRetRegIndex] = (BRefType) returnValues[i];
             }
         }
+    }
+
+    private boolean checkConstraintJSONCast(BType targetType, BRefType value) {
+        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
+                value.getType().getTag() == TypeTags.JSON_TAG &&
+                checkConstraintJSONEquivalency((BJSON) value,
+                        (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
+            return true;
+        }
+        return false;
     }
 
     private boolean checkCast(BType sourceType, BType targetType) {

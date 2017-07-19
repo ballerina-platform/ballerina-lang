@@ -27,7 +27,14 @@ import org.ballerinalang.model.SymbolScope;
  */
 public class BJSONConstraintType extends BJSONType {
 
-    protected StructDef constraint;
+    protected BType constraint;
+
+    public BJSONConstraintType(BType constraint) {
+        super("c-".concat(BTypes.typeJSON.getName()),
+                BTypes.typeJSON.getPackagePath(),
+                BTypes.typeJSON.getSymbolScope());
+        this.constraint = constraint;
+    }
 
     /**
      * Create a {@code BJSONConstraintType} which represents the boolean type.
@@ -38,11 +45,36 @@ public class BJSONConstraintType extends BJSONType {
         super(typeName, pkgPath, symbolScope);
     }
 
-    public StructDef getConstraint() {
+    public BType getConstraint() {
         return this.constraint;
     }
 
     public void setConstraint(StructDef constraint) {
         this.constraint = constraint;
     }
+
+    @Override
+    public String toString() {
+        return "json" + "<" + constraint.getName() + ">";
+    }
+
+    @Override
+    public TypeSignature getSig() {
+        return new TypeSignature(TypeSignature.SIG_CJSON, constraint.getPackagePath(), constraint.getName());
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.C_JSON_TAG;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BJSONConstraintType) {
+            boolean constraintEqual = constraint.equals(((BJSONConstraintType) obj).getConstraint());
+            return super.equals(obj) && constraintEqual;
+        } else {
+            return super.equals(obj);
+        }
+    }
+
 }

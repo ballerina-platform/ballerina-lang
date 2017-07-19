@@ -1,3 +1,5 @@
+import ballerina.lang.errors;
+
 struct Person {
     string name;
     int age;
@@ -7,15 +9,48 @@ struct Person {
 struct Student {
     string name;
     int age;
+    string address;
     string class;
 }
 
-function testJsonStructConstraint() (json, json, json, json) {
-    json j1 = getPlainJson(); // works
-    json<Person> j2 = getPersonJson(); // works
-    json<Person> j3 = getPlainJson(); //should work if fields match ==> runtime validation ==> unsafe casting
-    json<Person> j4 = getStudent(); // should work if fields match ==> unsafe casting
-    return j1, j2, j3, j4;
+function testGetPlainJson() (json) {
+    json j = getPlainJson();
+    return j;
+}
+
+function testGetConstraintJson() (json) {
+    json<Person> j = getPerson();
+    return j;
+}
+
+function testJSONToConstraintJsonUnsafeCast() (json, errors:TypeCastError) {
+    json<Person> j;
+    errors:TypeCastError err;
+    j,err = (json<Person>)getPlainJson();
+    return j,err;
+}
+
+function testJSONToConstraintJsonUnsafeCastPositive() (json) {
+    json<Person> j;
+    j,_ = (json<Person>)getPersonEquivalentPlainJson();
+    return j;
+}
+
+function testConstraintJSONToConstraintJsonAssignment() (json) {
+    json<Person> j = (json<Person>)getStudent();
+    return j;
+}
+
+function testConstraintJSONFieldAccess() (string) {
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    var str,_ = (string)j["name"];
+    return str;
+}
+
+function testConstraintJSONFieldAccessNegative() (string) {
+    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    var str,_ = (string)j["names"];
+    return str;
 }
 
 function getPersonJson() (json){
@@ -28,13 +63,17 @@ function getPlainJson() (json){
     return j;
 }
 
+function getPersonEquivalentPlainJson() (json){
+    json j = {name:"John Doe", age:30, address:"London"};
+    return j;
+}
+
 function getPerson() (json<Person>){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j;
 }
 
 function getStudent() (json<Student>){
-    json<Student> j = {name:"John Doe", age:30, class:"5"};
+    json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
     return j;
 }
-

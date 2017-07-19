@@ -33,6 +33,7 @@ public class TypeConstants {
     public static final String MAP_TNAME = "map";
     public static final String XML_TNAME = "xml";
     public static final String JSON_TNAME = "json";
+    public static final String C_JSON_TNAME = "c-json";
     public static final String MESSAGE_TNAME = "message";
     public static final String CONNECTOR_TNAME = "connector";
     public static final String STRUCT_TNAME = "struct";
