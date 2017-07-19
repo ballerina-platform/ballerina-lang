@@ -233,12 +233,16 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     generateUniqueIdentifiers() {
+        let defaultValueName = 'i';
+        if (this.getBType() === 'message') {
+            defaultValueName = 'm';
+        }
         if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
                     checkEvenIfDefined: true,
-                    defaultValue: 'i',
+                    defaultValue: defaultValueName,
                     setter: this.setIdentifier,
                     getter: this.getIdentifier,
                     parents: [{
@@ -255,6 +259,27 @@ class VariableDefinitionStatement extends Statement {
                         // ballerina-ast-root definition
                         node: this.parent.parent.parent,
                         getChildrenFunc: this.parent.parent.parent.getConstantDefinitions,
+                        getter: VariableDeclaration.prototype.getIdentifier,
+                    }],
+                }],
+            });
+        } else if (this.getFactory().isFunctionDefinition(this.parent)) {
+            CommonUtils.generateUniqueIdentifier({
+                node: this,
+                attributes: [{
+                    checkEvenIfDefined: true,
+                    defaultValue: defaultValueName,
+                    setter: this.setIdentifier,
+                    getter: this.getIdentifier,
+                    parents: [{
+                        // variable definitions
+                        node: this.parent,
+                        getChildrenFunc: this.parent.getVariableDefinitionStatements,
+                        getter: this.getIdentifier,
+                    }, {
+                        // ballerina-ast-root definition
+                        node: this.parent.parent,
+                        getChildrenFunc: this.parent.parent.getConstantDefinitions,
                         getter: VariableDeclaration.prototype.getIdentifier,
                     }],
                 }],
