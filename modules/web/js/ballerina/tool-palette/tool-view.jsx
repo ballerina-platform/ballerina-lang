@@ -229,7 +229,7 @@ class ToolView extends React.Component {
                 <div
                     className="tool-container-vertical-icon"
                     data-placement="bottom"
-                    data-toggle="popover"
+                    data-toggle="tooltip"
                     title={toolTip + '\n' + toolDef}
                 >
                     <i className={tool.get('cssClass')} />
@@ -237,7 +237,7 @@ class ToolView extends React.Component {
                 <div
                     className="tool-container-vertical-title"
                     data-placement="bottom"
-                    data-toggle="popover"
+                    data-toggle="tooltip"
                     title={toolTip + '\n' + toolDef}
                 >
                     {tool.get('title')}

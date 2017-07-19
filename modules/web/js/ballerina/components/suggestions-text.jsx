@@ -50,6 +50,7 @@ class SuggestionsText extends React.Component {
         this.onChange = this.onChange.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.renderSuggestion = this.renderSuggestion.bind(this);
+        this.onSelected = this.onSelected.bind(this);
         this.storeInputReference = (autosuggest) => {
             if (autosuggest !== null) {
                 this.input = autosuggest.input;
@@ -109,6 +110,17 @@ class SuggestionsText extends React.Component {
                 value: '',
             });
         }
+    }
+
+    /**
+     * Called after a value is selected from the select box
+     * @param {Object} event - the selected event
+     */
+    onSelected(event, { suggestionValue }) {
+        this.setState({
+            value: '',
+        });
+        this.props.onSuggestionSelected(event, { suggestionValue });
     }
 
     /**
@@ -228,7 +240,7 @@ class SuggestionsText extends React.Component {
                 getSuggestionValue={this.getSuggestionValue}
                 renderSuggestion={this.renderSuggestion}
                 renderSuggestionsContainer={this.renderSuggestionsContainer}
-                onSuggestionSelected={this.props.onSuggestionSelected}
+                onSuggestionSelected={this.onSelected}
                 inputProps={inputProps}
                 ref={this.storeInputReference}
                 shouldRenderSuggestions={() => true}
