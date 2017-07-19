@@ -159,7 +159,10 @@ class SourceView extends React.Component {
                                     transitionEnterTimeout={300}
                                     transitionLeaveTimeout={300}
                                 >
-                                    <div className="syntax-errors-counter-container">
+                                    <div
+                                        className="syntax-errors-counter-container"
+                                        onClick={this.toggleErrorListPopover}
+                                    >
                                         <span className="badge">{this.state.syntaxErrors.length}</span>
                                     </div>
                                 </CSSTransitionGroup>

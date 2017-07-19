@@ -20,6 +20,7 @@
     top: -15px;
     right: -10px;
     position: absolute;
+    cursor: pointer;
 }
 
 .syntax-errors-counter-container > .badge {
