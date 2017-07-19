@@ -21,17 +21,9 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.statements.BlockStmt;
-import org.ballerinalang.model.statements.StatementKind;
-import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.natives.NativePackageProxy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Callable Unit Body Context Resolver
@@ -47,33 +39,16 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
             completionItems.addAll(resolvers
                     .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
         } else {
-            if (this.isConditionalStatement(dataModel.getClosestScope())) {
-                Map<SymbolName, BLangSymbol> symbolMap = ((BlockStmt) (((BlockStmt) dataModel.getClosestScope())
-                        .getParent()).getParent()).getEnclosingScope().getSymbolMap();
-                ArrayList<SymbolInfo> symbolInfos = new ArrayList<>();
 
-                symbolMap.forEach((symbolName, bLangSymbol) -> {
-                    SymbolInfo symbolInfo = new SymbolInfo(symbolName.getName(), bLangSymbol);
-                    symbolInfos.add(symbolInfo);
-                });
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+            completionItems.add(workerItem);
 
-                symbolInfos.addAll(
-                        symbols.stream()
-                        .filter(symbolInfo -> (symbolInfo.getSymbol() instanceof NativePackageProxy))
-                        .collect(Collectors.toList())
-                );
-                populateCompletionItemList(symbolInfos, completionItems);
-            } else {
-                CompletionItem workerItem = new CompletionItem();
-                workerItem.setLabel(ItemResolverConstants.WORKER);
-                workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
-                workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-                workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
-                completionItems.add(workerItem);
-
-                completionItems
-                        .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
-            }
+            completionItems
+                    .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
         }
 
         HashMap<String, Integer> prioritiesMap = new HashMap<>();
@@ -82,11 +57,5 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
         this.assignItemPriorities(prioritiesMap, completionItems);
 
         return completionItems;
-    }
-
-    private boolean isConditionalStatement(SymbolScope closestScope) {
-        return closestScope instanceof BlockStmt && ((BlockStmt) closestScope).getKind() == StatementKind.IF_ELSE
-                || ((BlockStmt) closestScope).getKind() == StatementKind.ELSE_IF_BLOCK
-                || ((BlockStmt) closestScope).getKind() == StatementKind.WHILE_BLOCK;
     }
 }
