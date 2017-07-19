@@ -350,7 +350,7 @@ class ConnectorDefinition extends ASTNode {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
-                defaultValue: 'connector',
+                defaultValue: 'Connector',
                 setter: this.setConnectorName,
                 getter: this.getConnectorName,
                 parents: [{
