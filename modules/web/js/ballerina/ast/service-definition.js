@@ -154,24 +154,28 @@ class ServiceDefinition extends ASTNode {
             if (!_.isNil(assignedValue) && !_.isEmpty(assignedValue)) {
                 stmtString += ' = ' + assignedValue;
             }
-            newVariableDefinitionStatement.setStatementFromString(stmtString);
+            newVariableDefinitionStatement.setStatementFromString(stmtString, ({ isValid, response }) => {
+                if (!isValid) {
+                    return;
+                }
 
             // Get the index of the last variable definition statement.
             const index = _.findLastIndex(this.getChildren(), child =>
                                     this.getFactory().isVariableDefinitionStatement(child));
 
-            this.addChild(newVariableDefinitionStatement, index + 1);
+                this.addChild(newVariableDefinitionStatement, index + 1);
+            });
         }
     }
 
     addVariableDefinitionFromString(variableDefString) {
-        if(!variableDefString){
+        if (!variableDefString) {
             return;
         }
 
         const varDefStatement = this.getFactory().createVariableDefinitionStatement();
-        varDefStatement.setStatementFromString(variableDefString, ({isValid, response}) => {
-            if(!isValid) {
+        varDefStatement.setStatementFromString(variableDefString, ({ isValid, response }) => {
+            if (!isValid) {
                 return;
             }
 

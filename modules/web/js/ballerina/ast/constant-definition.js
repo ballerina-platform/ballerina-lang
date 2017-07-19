@@ -59,11 +59,12 @@ class ConstantDefinition extends VariableDeclaration {
     getConstantDefinitionAsString() {
         let sourceGen = 'const' + this.getWSRegion(0) + this._bType
             + this.getWSRegion(1) + this._identifier
-            + this.getWSRegion(2) + '=' + this.getWSRegion(3);
-        if (this._bType === 'string') {
-            sourceGen += '"' + this._value + '"';
+
+        const expression = this.children[0];
+        if (expression) {
+            sourceGen += this.getWSRegion(2) + '=' + this.getWSRegion(3) + expression.getExpressionString();
         } else {
-            sourceGen += this._value;
+            sourceGen += this.getWSRegion(4);
         }
         return sourceGen;
     }
@@ -82,7 +83,6 @@ class ConstantDefinition extends VariableDeclaration {
         }
         this.setBType(jsonNode.constant_definition_btype, { doSilently: true });
         this.setIdentifier(jsonNode.constant_definition_identifier, { doSilently: true });
-        this.setValue(jsonNode.constant_definition_value, { doSilently: true });
 
         for (const childNode of jsonNode.children) {
             const child = this.getFactory().createFromJson(childNode);

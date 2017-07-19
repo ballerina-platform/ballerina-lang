@@ -83,7 +83,8 @@ class Breakpoint extends React.Component {
                 x={this.props.x}
                 y={this.props.y}
                 onClick={this.props.onClick}
-            />
+            >
+                <title>Break point</title> </image>
         );
     }
 }
@@ -94,10 +95,6 @@ Breakpoint.propTypes = {
     size: PropTypes.number.isRequired,
     isBreakpoint: PropTypes.bool,
     onClick: PropTypes.func.isRequired,
-};
-
-Breakpoint.defaultProps = {
-    isBreakpoint: false,
 };
 
 Breakpoint.defaultProps = {

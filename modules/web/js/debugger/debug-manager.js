@@ -173,7 +173,7 @@ class DebugManager extends EventChannel {
         log.debug('debug point added', lineNumber, fileName);
         const point = new DebugPoint({ fileName, lineNumber });
         this.debugPoints.push(point);
-        this.trigger('breakpoint-added', fileName);
+        this.trigger('breakpoint-added', point);
     }
     /**
      * Remove breakpoint
@@ -186,7 +186,7 @@ class DebugManager extends EventChannel {
         log.debug('debug point removed', lineNumber, fileName);
         const point = new DebugPoint({ fileName, lineNumber });
         _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
-        this.trigger('breakpoint-removed', fileName);
+        this.trigger('breakpoint-removed', point);
     }
 
     /**

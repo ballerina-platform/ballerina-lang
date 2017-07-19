@@ -12,8 +12,8 @@ class DesignView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isTransformActive: false
-        }
+            isTransformActive: false,
+        };
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
         this.toolPaletteContainer = undefined;
@@ -24,7 +24,7 @@ class DesignView extends React.Component {
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.dragDropManager = new DragDropManager();
-        this.messageManager = new MessageManager();
+        this.messageManager = new MessageManager({ getDiagramContainer: this.getDiagramContainer });
     }
 
     setDiagramContainer(ref) {
@@ -88,29 +88,35 @@ class DesignView extends React.Component {
     }
 
     render() {
-        const { isTransformActive, activeTransformModel } = this.state
+        const { isTransformActive, activeTransformModel } = this.state;
 
         return (
             <div className="design-view-container">
-                <div className="canvas-container">
-                    <div className="canvas-top-controls-container"></div>
-                    <div className="html-overlay" ref={this.setOverlayContainer} />
-                    <div className="diagram root" ref={this.setDiagramContainer} >
-                        <BallerinaDiagram
-                            style={{ display: isTransformActive ? 'none' : 'block' }}
-                            model={this.props.model}
-                        />
-                        {isTransformActive &&
+                <div className="wrapperDiv">
+                <div className="outerCanvasDiv">
+                    <div className="canvas-container">
+                        <div className="canvas-top-controls-container" />
+                        <div className="html-overlay" ref={this.setOverlayContainer} />
+                        <div className="diagram root" ref={this.setDiagramContainer} >
+                            <BallerinaDiagram
+                                style={{ display: isTransformActive ? 'none' : 'block' }}
+                                model={this.props.model}
+                            />
+                            {isTransformActive &&
                             <TransformExpanded
                                 style={{ display: isTransformActive ? 'block' : 'none' }}
                                 model={activeTransformModel}
                             />
                         }
+                        </div>
                     </div>
                 </div>
+                </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
-                    <ToolPaletteView getContainer={this.getToolPaletteContainer}
-                        isTransformActive={isTransformActive} />
+                    <ToolPaletteView
+                        getContainer={this.getToolPaletteContainer}
+                        isTransformActive={isTransformActive}
+                    />
                 </div>
                 <div className="top-right-controls-container">
                     <div className={`top-right-controls-container-editor-pane
@@ -141,10 +147,12 @@ class DesignView extends React.Component {
                         <div className="bottom-label-icon-wrapper">
                             <i className="fw fw-code-view fw-inverse" />
                         </div>
-                        <div className="bottom-view-label"
-                                onClick={ () => {
-                                    this.context.editor.setActiveView('SOURCE_VIEW');
-                                } }>
+                        <div
+                            className="bottom-view-label"
+                            onClick={() => {
+                                this.context.editor.setActiveView('SOURCE_VIEW');
+                            }}
+                        >
                             Source View
                         </div>
                     </div>

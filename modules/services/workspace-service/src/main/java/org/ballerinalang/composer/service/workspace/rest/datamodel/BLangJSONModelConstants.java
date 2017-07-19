@@ -65,6 +65,10 @@ public class BLangJSONModelConstants {
 
     public static final String CONSTANT_DEFINITION = "constant_definition";
 
+    public static final String CONSTANT_DEFINITION_BTYPE = "constant_definition_btype";
+
+    public static final String CONSTANT_DEFINITION_IDENTIFIER = "constant_definition_identifier";
+
     public static final String GLOBAL_VARIABLE_DEFINITION = "global_variable_definition";
 
     public static final String GLOBAL_VARIABLE_DEFINITION_BTYPE = "global_variable_definition_btype";

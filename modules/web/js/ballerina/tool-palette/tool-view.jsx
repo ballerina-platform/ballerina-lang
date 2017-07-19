@@ -171,24 +171,29 @@ class ToolView extends React.Component {
     render() {
         const tool = this.props.tool;
         let toolTip = '';
+        let toolDef = '';
         if (this.props.toolOrder === 'horizontal') {
             toolTip = tool.get('name');
+            toolDef = tool.get('definition');
             return (
                 <div
                     className="tool-block tool-container"
-                    title={toolTip}
+                    title={toolTip + '\n' + toolDef}
                     data-placement="bottom"
                     data-toggle="tooltip"
                     id={toolTip}
                 >
+
                     <i className={tool.get('cssClass')} />
                     <span className="tool-title-wrap" />
                     <span className="tool-title-wrap">
                         <p className="tool-title">{toolTip}</p>
                     </span>
+
                 </div>
             );
         }
+
         toolTip = tool.get('title');
         if (tool.get('_parameters')) {
             toolTip += '(';
@@ -225,7 +230,7 @@ class ToolView extends React.Component {
                     className="tool-container-vertical-icon"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={toolTip}
+                    title={toolTip + '\n' + toolDef}
                 >
                     <i className={tool.get('cssClass')} />
                 </div>
@@ -233,7 +238,7 @@ class ToolView extends React.Component {
                     className="tool-container-vertical-title"
                     data-placement="bottom"
                     data-toggle="tooltip"
-                    title={toolTip}
+                    title={toolTip + '\n' + toolDef}
                 >
                     {tool.get('title')}
                 </div>

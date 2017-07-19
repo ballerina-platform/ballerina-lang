@@ -28,6 +28,7 @@ import './statement-decorator.css';
 import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import Breakpoint from './breakpoint';
 import ActiveArbiter from './active-arbiter';
+import breakpointHOC from './../../debugger/breakpoint-hoc';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -99,20 +100,6 @@ class StatementDecorator extends React.PureComponent {
     }
 
     /**
-     * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
-     *
-     */
-    onBreakpointClick() {
-        const { model } = this.props;
-        const { isBreakpoint = false } = model;
-        if (isBreakpoint) {
-            model.removeBreakpoint();
-        } else {
-            model.addBreakpoint();
-        }
-    }
-
-    /**
      * Removes self on delete button click.
      * @returns {void}
      */
@@ -136,7 +123,8 @@ class StatementDecorator extends React.PureComponent {
                     // IMPORTANT: override node's default validation logic
                     // This drop zone is for statements only.
                     // Statements should only be allowed here.
-                    model.getFactory().isStatement(nodeBeingDragged),
+                    model.getFactory().isStatement(nodeBeingDragged)
+                    || model.getFactory().isConnectorDeclaration(nodeBeingDragged),
                 () => dropTarget.getIndexOfChild(model));
             this.setState({
                 innerDropZoneActivated: true,
@@ -235,8 +223,8 @@ class StatementDecorator extends React.PureComponent {
                 x={pointX}
                 y={pointY}
                 size={breakpointSize}
-                isBreakpoint={this.props.model.isBreakpoint}
-                onClick={() => this.onBreakpointClick()}
+                isBreakpoint={this.props.isBreakpoint}
+                onClick={() => this.props.onBreakpointClick()}
             />
         );
     }
@@ -246,7 +234,7 @@ class StatementDecorator extends React.PureComponent {
      * @returns {XML} rendered component.
      */
     render() {
-        const { viewState, expression, model } = this.props;
+        const { viewState, expression, isBreakpoint, isDebugHit } = this.props;
         const bBox = viewState.bBox;
         const innerZoneHeight = viewState.components['drop-zone'].h;
 
@@ -267,7 +255,7 @@ class StatementDecorator extends React.PureComponent {
             actionBox.width,
             actionBox.height);
         let statementRectClass = 'statement-rect';
-        if (model.isDebugHit) {
+        if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
         }
         let tooltip = null;
@@ -313,12 +301,12 @@ class StatementDecorator extends React.PureComponent {
                 <ActionBox
                     bBox={actionBoxBbox}
                     show={this.state.active}
-                    isBreakpoint={model.isBreakpoint}
+                    isBreakpoint={isBreakpoint}
                     onDelete={() => this.onDelete()}
                     onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.onBreakpointClick()}
+                    onBreakpointClick={() => this.props.onBreakpointClick()}
                 />
-                {model.isBreakpoint && this.renderBreakpointIndicator()}
+                {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
             </g>);
     }
@@ -346,6 +334,9 @@ StatementDecorator.propTypes = {
         getterMethod: PropTypes.func,
         setterMethod: PropTypes.func,
     }),
+    onBreakpointClick: PropTypes.func.isRequired,
+    isBreakpoint: PropTypes.bool.isRequired,
+    isDebugHit: PropTypes.bool.isRequired,
 };
 
 StatementDecorator.contextTypes = {
@@ -358,4 +349,4 @@ StatementDecorator.contextTypes = {
 };
 
 
-export default StatementDecorator;
+export default breakpointHOC(StatementDecorator);

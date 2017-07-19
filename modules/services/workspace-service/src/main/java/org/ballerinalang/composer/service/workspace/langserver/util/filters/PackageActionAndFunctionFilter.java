@@ -18,6 +18,7 @@
 
 package org.ballerinalang.composer.service.workspace.langserver.util.filters;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
@@ -54,7 +55,13 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
 
         while (continueSearch) {
             if (tokenStream != null && searchTokenIndex < tokenStream.size()) {
-                String tokenStr = tokenStream.get(searchTokenIndex).getText();
+                Token token = tokenStream.get(searchTokenIndex);
+                String tokenStr = token.getText();
+
+                // exit the while-loop once we found the first token which is not in default channel
+                if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+                    break;
+                }
                 if (tokenStr.equals(":") || tokenStr.equals(".")) {
                     searchTokens.add(tokenStream.get(searchTokenIndex - 1).getText());
                     searchLevel++;

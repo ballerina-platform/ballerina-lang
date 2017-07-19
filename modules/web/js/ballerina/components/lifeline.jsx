@@ -27,6 +27,7 @@ import ReactDOM from 'react-dom';
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
+import _ from 'lodash';
 
 class LifeLine extends React.Component {
 
@@ -91,8 +92,13 @@ class LifeLine extends React.Component {
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
         const centerX = bBox.x + (bBox.w / 2);
-        const y2 = bBox.h + bBox.y;
+        const startSolidLineFrom = this.props.startSolidLineFrom;
         const titleBoxH = lifeLine.head.height;
+        const y2 = bBox.h + bBox.y;
+        const dashedY1 = !_.isNil(startSolidLineFrom) ? bBox.y + (titleBoxH / 2) : -1;
+        const dashedY2 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : -1;
+        const solidY1 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : bBox.y + (titleBoxH / 2);
+        const solidY2 = y2 - (titleBoxH / 2);
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w , titleBoxH);
 
         const actionBbox = new SimpleBBox();
@@ -106,8 +112,13 @@ class LifeLine extends React.Component {
             onMouseOut={this.setActionVisibility.bind(this, false)}
             onMouseOver={this.setActionVisibility.bind(this, true)}
         >
+            {!_.isNil(startSolidLineFrom) && <line
+                x1={centerX} y1={dashedY1} x2={centerX} y2={dashedY2}
+                className={lineClass}
+                strokeDasharray='5, 5'
+            />}
             <line
-                x1={centerX} y1={bBox.y + titleBoxH / 2} x2={centerX} y2={y2 - titleBoxH / 2}
+                x1={centerX} y1={solidY1} x2={centerX} y2={solidY2}
                 className={lineClass}
             />
             <rect

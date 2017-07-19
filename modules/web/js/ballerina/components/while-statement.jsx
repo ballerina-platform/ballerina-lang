@@ -46,7 +46,7 @@ class WhileStatement extends React.Component {
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-											+ ((innerDropZoneDropNotAllowed) ? ' block' : '');
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
         const children = getComponentForNodeArray(this.props.model.getChildren());
 
         this.editorOptions = {
@@ -59,6 +59,7 @@ class WhileStatement extends React.Component {
         return (<CompoundStatementDecorator model={model} bBox={bBox}>
             <BlockStatementDecorator
                 dropTarget={model} bBox={blockStatementBBox} title={'While'}
+                model={model}
                 expression={expression} editorOptions={this.editorOptions}
             >
                 {children}

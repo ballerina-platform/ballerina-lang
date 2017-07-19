@@ -31,6 +31,7 @@ export default class importDeclarationExpanded extends React.Component {
 
         this.handleAddImportClick = this.handleAddImportClick.bind(this);
         this.handleAddImportBlur = this.handleAddImportBlur.bind(this);
+        this.onImportSelect = this.onImportSelect.bind(this);
     }
 
     handleAddImportBlur() {
@@ -39,6 +40,10 @@ export default class importDeclarationExpanded extends React.Component {
 
     handleAddImportClick() {
         this.setState({ showSuggestions: true });
+    }
+
+    onImportSelect(e, { suggestionValue }) {
+        this.props.onAddImport(suggestionValue);
     }
 
     render() {
@@ -69,7 +74,9 @@ export default class importDeclarationExpanded extends React.Component {
 
             importElements.push(<ImportDeclarationItem
                 key={importDec.id}
-                bBox={itemBBox} importDec={importDec} onDeleteClick={this.props.onDeleteImport}
+                bBox={itemBBox}
+                importDec={importDec}
+                onDeleteClick={this.props.onDeleteImport}
             />);
             lastImportElementY += importDeclarationHeight;
         });
@@ -93,24 +100,37 @@ export default class importDeclarationExpanded extends React.Component {
                 <rect x={topBarBbox.x} y={topBarBbox.y} height={topBarHeight} className="import-definition-decorator" />
                 <text x={topBarBbox.x + leftPadding} y={topBarBbox.y + topBarHeight / 2} className="import-declaration-topbar-label">Imports</text>
                 <image
-                    width={iconSize} height={iconSize} className="property-pane-action-button-delete"
-                    onClick={this.props.onCollapse} xlinkHref={ImageUtil.getSVGIconString('hide')}
-                    x={bBox.x + importDeclarationWidth - iconSize - 6} y={topBarBbox.y + (topBarHeight - iconSize) / 2}
+                    width={iconSize}
+                    height={iconSize}
+                    className="property-pane-action-button-delete"
+                    onClick={this.props.onCollapse}
+                    xlinkHref={ImageUtil.getSVGIconString('hide')}
+                    x={bBox.x + importDeclarationWidth - iconSize - 6}
+                    y={topBarBbox.y + (topBarHeight - iconSize) / 2}
                 />
                 {importElements}
                 <rect x={bBox.x} y={lastImportElementY} height={importInputHeight} width={importDeclarationWidth} className="add-import-button-background" />
                 <g onClick={this.handleAddImportClick}>
                     <rect
-                        x={bBox.x + 7} y={lastImportElementY + 7} height={importInputHeight - 14} width={importDeclarationWidth - 14}
+                        x={bBox.x + 7}
+                        y={lastImportElementY + 7}
+                        height={importInputHeight - 14}
+                        width={importDeclarationWidth - 14}
                         className="add-import-button"
                     />
                     <text x={bBox.x + 14} y={lastImportElementY + importInputHeight / 2} className="add-import-button-text" >{'+ Add Import'}</text>
                 </g>
                 <rect x={bBox.x} y={lastImportElementY} height={importInputHeight} className="import-definition-decorator" />
                 <SuggestionsText
-                    x={bBox.x + 5} y={lastImportElementY + 5} height={importInputHeight - 10}
-                    width={importDeclarationWidth - 10} suggestionsPool={this.props.packageSuggestions} show={this.state.showSuggestions}
-                    onBlur={this.handleAddImportBlur} onEnter={this.props.onAddImport}
+                    x={bBox.x + 5}
+                    y={lastImportElementY + 5}
+                    height={importInputHeight - 10}
+                    width={importDeclarationWidth - 10}
+                    suggestionsPool={this.props.packageSuggestions}
+                    show={this.state.showSuggestions}
+                    onBlur={this.handleAddImportBlur}
+                    onEnter={this.props.onAddImport}
+                    onSuggestionSelected={this.onImportSelect}
                 />
             </g>
         );

@@ -166,44 +166,64 @@ class VariableDefinitionStatement extends Statement {
     setStatementFromString(stmtString, callback) {
         const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
         const parsedJson = FragmentUtils.parseFragment(fragment);
+        let state = true;
+        if (parsedJson.children) {
+            if (parsedJson.children.length !== 1) {
+                // Only checks for the simple literals
+                if (parsedJson.children[1].type === 'basic_literal_expression') {
+                    const variableType = parsedJson.children[0].children[0].variable_type;
+                    const defaultValueType = parsedJson.children[1].basic_literal_type;
 
-        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
-            let nodeToFireEvent = this;
-            if (_.isEqual(parsedJson.type, 'variable_definition_statement')) {
-                this.initFromJson(parsedJson);
-            } else if (_.has(parsedJson, 'type')) {
-                // user may want to change the statement type
-                const newNode = this.getFactory().createFromJson(parsedJson);
-                if (this.getFactory().isStatement(newNode)) {
-                    // somebody changed the type of statement to an assignment
-                    // to capture retun value of function Invocation
-                    const parent = this.getParent();
-                    const index = parent.getIndexOfChild(this);
-                    parent.removeChild(this, true);
-                    parent.addChild(newNode, index, true, true);
-                    newNode.initFromJson(parsedJson);
-                    nodeToFireEvent = newNode;
+                    if (variableType !== defaultValueType &&
+                        !(variableType === 'float' && defaultValueType === 'int')) {
+                        state = false;
+                        log.warn('Variable type and the default value type are not the same');
+                        if (_.isFunction(callback)) {
+                            callback({ isValid: false, response: parsedJson });
+                        }
+                    }
                 }
-            } else {
-                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
             }
+            if (state === true) {
+                if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+                    let nodeToFireEvent = this;
+                    if (_.isEqual(parsedJson.type, 'variable_definition_statement')) {
+                        this.initFromJson(parsedJson);
+                    } else if (_.has(parsedJson, 'type')) {
+                        // user may want to change the statement type
+                        const newNode = this.getFactory().createFromJson(parsedJson);
+                        if (this.getFactory().isStatement(newNode)) {
+                            // somebody changed the type of statement to an assignment
+                            // to capture retun value of function Invocation
+                            const parent = this.getParent();
+                            const index = parent.getIndexOfChild(this);
+                            parent.removeChild(this, true);
+                            parent.addChild(newNode, index, true, true);
+                            newNode.initFromJson(parsedJson);
+                            nodeToFireEvent = newNode;
+                        }
+                    } else {
+                        log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+                    }
 
-            if (_.isFunction(callback)) {
-                callback({ isValid: true });
-            }
-            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
-            // Manually firing the tree-modified event here.
-            // TODO: need a proper fix to avoid breaking the undo-redo
-            nodeToFireEvent.trigger('tree-modified', {
-                origin: nodeToFireEvent,
-                type: 'custom',
-                title: 'Modify Variable Definition',
-                context: nodeToFireEvent,
-            });
-        } else {
-            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
-            if (_.isFunction(callback)) {
-                callback({ isValid: false, response: parsedJson });
+                    if (_.isFunction(callback)) {
+                        callback({ isValid: true });
+                    }
+                    nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+                    // Manually firing the tree-modified event here.
+                    // TODO: need a proper fix to avoid breaking the undo-redo
+                    nodeToFireEvent.trigger('tree-modified', {
+                        origin: nodeToFireEvent,
+                        type: 'custom',
+                        title: 'Modify Variable Definition',
+                        context: nodeToFireEvent,
+                    });
+                } else {
+                    log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+                    if (_.isFunction(callback)) {
+                        callback({ isValid: false, response: parsedJson });
+                    }
+                }
             }
         }
     }
@@ -213,12 +233,16 @@ class VariableDefinitionStatement extends Statement {
      * @override
      */
     generateUniqueIdentifiers() {
+        let defaultValueName = 'i';
+        if (this.getBType() === 'message') {
+            defaultValueName = 'm';
+        }
         if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
                 attributes: [{
                     checkEvenIfDefined: true,
-                    defaultValue: 'i',
+                    defaultValue: defaultValueName,
                     setter: this.setIdentifier,
                     getter: this.getIdentifier,
                     parents: [{
@@ -239,10 +263,32 @@ class VariableDefinitionStatement extends Statement {
                     }],
                 }],
             });
+        } else if (this.getFactory().isFunctionDefinition(this.parent)) {
+            CommonUtils.generateUniqueIdentifier({
+                node: this,
+                attributes: [{
+                    checkEvenIfDefined: true,
+                    defaultValue: defaultValueName,
+                    setter: this.setIdentifier,
+                    getter: this.getIdentifier,
+                    parents: [{
+                        // variable definitions
+                        node: this.parent,
+                        getChildrenFunc: this.parent.getVariableDefinitionStatements,
+                        getter: this.getIdentifier,
+                    }, {
+                        // ballerina-ast-root definition
+                        node: this.parent.parent,
+                        getChildrenFunc: this.parent.parent.getConstantDefinitions,
+                        getter: VariableDeclaration.prototype.getIdentifier,
+                    }],
+                }],
+            });
         }
     }
 
-    /**
+
+      /**
      * initialize VariableDefinitionStatement from json object
      * @param {Object} jsonNode to initialize from
      * @returns {void}

@@ -160,7 +160,10 @@ function getArrayValue(environment, annotationAttributeKey, annotationDefinition
     } else {
         const annotationAttachmentInArray = ASTFactory.createAnnotationAttachment();
         annotationAttachmentInArray.setFullPackageName(annotationAttributeDef.getPackagePath());
-        annotationAttachmentInArray.setPackageName(annotationAttributeDef.getPackagePath().split('.').pop());
+        if (annotationAttributeDef.getPackagePath() !== undefined &&
+                                                        annotationAttributeDef.getPackagePath() !== 'Current Package') {
+            annotationAttachmentInArray.setPackageName(annotationAttributeDef.getPackagePath().split('.').pop());
+        }
         annotationAttachmentInArray.setName(annotationAttributeDef.getBType());
         arrayAnnotationAttributeValue.addChild(annotationAttachmentInArray);
     }

@@ -96,8 +96,14 @@ class ExpressionEditor {
 
         // bind auto complete to key press
         this._editor.commands.on('afterExec', (event) => {
-            if (event.command.name === 'insertstring' && /^[\w.]$/.test(event.args)) {
-                this._editor.execCommand('startAutocomplete');
+            if (event.command.name === 'insertstring' && /^[\w.@:]$/.test(event.args)) {
+                setTimeout(() => {
+                    try {
+                        this._editor.execCommand('startAutocomplete');
+                    } finally {
+                        // nothing
+                    }
+                }, 10);
             }
         });
 

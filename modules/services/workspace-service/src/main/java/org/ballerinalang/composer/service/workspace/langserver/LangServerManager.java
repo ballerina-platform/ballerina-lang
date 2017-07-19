@@ -427,13 +427,11 @@ public class LangServerManager {
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
 
-            if ("temp".equals(filePath) || "".equals(packageName)) {
-                // Load all the packages associated the runtime
-                packages = Utils.getAllPackages();
-
-            } else {
+            // Load all the packages associated the runtime
+            packages = Utils.getAllPackages();
+            if (!("temp".equals(filePath) || "".equals(packageName))) {
                 Path file = Paths.get(filePath + File.separator + fileName);
-                packages = resolveProgramPackages(Paths.get(filePath), packageName);
+                packages.putAll(resolveProgramPackages(Paths.get(filePath), packageName));
                 programPackagesMap.put(file, packages);
             }
             LangServerManager.this.setPackages(packages.entrySet());
@@ -467,8 +465,6 @@ public class LangServerManager {
                     TextDocumentPositionParams.class);
             String textContent = textDocumentPositionParams.getText();
             Position position = textDocumentPositionParams.getPosition();
-            String filePath = textDocumentPositionParams.getFilePath();
-            String packageName = textDocumentPositionParams.getPackageName();
             ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
             BFile bFile = new BFile();
@@ -482,22 +478,10 @@ public class LangServerManager {
             try {
                 ArrayList symbols = new ArrayList<>();
                 CompletionItemAccumulator completionItemAccumulator = new CompletionItemAccumulator(symbols, position);
-                if ("temp".equals(filePath) ||  "".equals(packageName)) {
-                    BallerinaFile ballerinaFile =
-                            autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
-                    capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
-                    ballerinaFile.accept(completionItemAccumulator);
-                } else {
-                    Path file = Paths.get(filePath);
-                    BLangProgram bLangProgram;
-                    if (programMap.containsKey(file)) {
-                        bLangProgram = programMap.get(file);
-                    } else {
-                        bLangProgram = getBLangProgram(Paths.get(filePath), packageName);
-                        programMap.put(file, bLangProgram);
-                    }
-                    bLangProgram.accept(completionItemAccumulator);
-                }
+                BallerinaFile ballerinaFile =
+                        autoCompleteSuggester.getBallerinaFile(bFile, position, capturePossibleTokenStrategy);
+                capturePossibleTokenStrategy.getSuggestionsFilterDataModel().setBallerinaFile(ballerinaFile);
+                ballerinaFile.accept(completionItemAccumulator);
 
                 SuggestionsFilter suggestionsFilter = new SuggestionsFilter();
                 SuggestionsFilterDataModel dm = capturePossibleTokenStrategy.getSuggestionsFilterDataModel();
@@ -527,22 +511,6 @@ public class LangServerManager {
      */
     private Set<Map.Entry<String, ModelPackage>> getPackages() {
         return this.packages;
-    }
-
-    /**
-     * Get BLangProgram
-     * @param filePath    - file path to parent directory of the .bal file
-     * @param packageName - package name
-     * @return
-     */
-    private BLangProgram getBLangProgram(java.nio.file.Path filePath, String packageName) {
-        java.nio.file.Path programDirPath = WorkspaceUtils.gerProgramDirectory(filePath, packageName);
-        int compare = filePath.compareTo(programDirPath);
-        String sourcePath = (String) filePath.toString().subSequence(filePath.toString().length() - compare + 1,
-                filePath.toString().length());
-        BLangProgram bLangProgram = new BLangProgramLoader().loadMain(programDirPath, Paths.get(sourcePath));
-
-        return bLangProgram;
     }
 
     /**

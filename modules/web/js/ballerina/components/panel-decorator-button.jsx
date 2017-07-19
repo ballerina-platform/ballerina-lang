@@ -54,7 +54,7 @@ class PanelDecoratorButton extends React.PureComponent {
                 className="control"
                 xlinkHref={this.props.icon}
                 onClick={this.props.onClick}
-            />
+            ><title>{this.props.tooltip}</title></image>
         </g>);
     }
 }

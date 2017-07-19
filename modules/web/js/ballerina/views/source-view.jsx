@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'log';
@@ -12,7 +29,8 @@ import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
 import { FORMAT } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
-import BallerinaASTDeserializer  from './../ast/ballerina-ast-deserializer';
+import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
+import debuggerHOC from '../../debugger/debugger-hoc';
 
 import 'brace';
 import 'brace/ext/language_tools';
@@ -36,9 +54,9 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // ace look & feel configurations FIXME: Make this overridable from settings
-let aceTheme = 'ace/theme/twilight';
-let fontSize = '14px';
-let scrollMargin = 20;
+const aceTheme = 'ace/theme/twilight';
+const fontSize = '14px';
+const scrollMargin = 20;
 
 // override default undo manager of ace editor
 class NotifyingUndoManager extends AceUndoManager {
@@ -49,9 +67,9 @@ class NotifyingUndoManager extends AceUndoManager {
     execute(args) {
         super.execute(args);
         if (!this.sourceView.skipFileUpdate) {
-            let changeEvent = {
+            const changeEvent = {
                 type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                title: 'Modify source'
+                title: 'Modify source',
             };
             this.sourceView.props.file
                 .setContent(this.sourceView.editor.session.getValue(), changeEvent);
@@ -62,8 +80,8 @@ class NotifyingUndoManager extends AceUndoManager {
 
 class SourceView extends React.Component {
 
-    constructor (props) {
-        super (props);
+    constructor(props) {
+        super(props);
         this.container = undefined;
         this.editor = undefined;
         this.inSilentMode = false;
@@ -90,6 +108,18 @@ class SourceView extends React.Component {
                 enableBasicAutocompletion: true,
             });
             editor.setBehavioursEnabled(true);
+            // bind auto complete to key press
+            editor.commands.on('afterExec', (e) => {
+                if (e.command.name === 'insertstring' && /^[\w.@:]$/.test(e.args)) {
+                    setTimeout(() => {
+                        try {
+                            editor.execCommand('startAutocomplete');
+                        } finally {
+                            // nothing
+                        }
+                    }, 10);
+                }
+            });
             editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
             this.editor = editor;
             // bind app keyboard shortcuts to ace editor
@@ -98,14 +128,34 @@ class SourceView extends React.Component {
             });
             // register handler for source format command
             this.props.commandManager.registerHandler(FORMAT, this.format, this);
-            // listen to changes done to file content 
-            // by other means (eg: design-view changes or redo/undo actions) 
+            // listen to changes done to file content
+            // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
             this.props.file.on(CONTENT_MODIFIED, (evt) => {
                 if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
                     // no need to update the file again, hence
                     // the second arg to skip update event
                     this.replaceContent(evt.newContent, true);
+                }
+            });
+
+            editor.on('guttermousedown', (e) => {
+                const target = e.domEvent.target;
+                if (target.className.indexOf('ace_gutter-cell') === -1) {
+                    return;
+                }
+                if (!editor.isFocused()) {
+                    return;
+                }
+
+                const row = e.getDocumentPosition().row;
+                const breakpoints = e.editor.session.getBreakpoints(row, 0);
+                if (!breakpoints[row]) {
+                    this.props.addBreakpoint(row + 1);
+                    e.editor.session.setBreakpoint(row);
+                } else {
+                    this.props.removeBreakpoint(row + 1);
+                    e.editor.session.clearBreakpoint(row);
                 }
             });
         }
@@ -132,20 +182,20 @@ class SourceView extends React.Component {
 
     /**
      * Replace content of the editor while maintaining history
-     * 
+     *
      * @param {*} newContent content to insert
      */
-    replaceContent (newContent, skipFileUpdate) {
-        if (skipFileUpdate) {  
+    replaceContent(newContent, skipFileUpdate) {
+        if (skipFileUpdate) {
             this.skipFileUpdate = true;
         }
         const session = this.editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(), 
+        const contentRange = new Range(0, 0, session.getLength(),
                         session.getRowLength(session.getLength()));
         session.replace(contentRange, newContent);
     }
 
-    shouldComponentUpdate () {
+    shouldComponentUpdate() {
         // update ace editor - https://github.com/ajaxorg/ace/issues/1245
         this.editor.resize(true);
         // keep this component unaffected from react re-render
@@ -165,18 +215,18 @@ class SourceView extends React.Component {
      * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
      */
     bindCommand(command) {
-        let id = command.id;
-        let hasShortcut = _.has(command, 'shortcuts');
-        let self = this;
+        const id = command.id;
+        const hasShortcut = _.has(command, 'shortcuts');
+        const self = this;
         if (hasShortcut) {
-            let macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
-            let winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
+            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
+            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.editor.commands.addCommand({
                 name: id,
                 bindKey: { win: winShortcut, mac: macShortcut },
                 exec() {
                     self.props.commandManager.dispatch(id);
-                }
+                },
             });
         }
     }
@@ -184,20 +234,25 @@ class SourceView extends React.Component {
     render() {
         return (
             <div className="source-view-container" >
-                <div className='text-editor' ref={ (ref) => { this.container = ref } }/>
-                <div className="bottom-right-controls-container">
-                    <div className="view-design-btn btn-icon">
-                        <div className="bottom-label-icon-wrapper">
-                            <i className="fw fw-design-view fw-inverse" />
-                        </div>
-                        <div className="bottom-view-label" 
-                                onClick={
+                <div className="wrapperDiv">
+                    <div className="outerSourceDiv">
+                        <div className='text-editor' ref={(ref) => { this.container = ref; }} />
+                        <div className="bottom-right-controls-container">
+                            <div className="view-design-btn btn-icon">
+                                <div className="bottom-label-icon-wrapper">
+                                    <i className="fw fw-design-view fw-inverse" />
+                                </div>
+                                <div
+                                    className="bottom-view-label"
+                                    onClick={
                                     () => {
                                         this.context.editor.setActiveView(DESIGN_VIEW);
                                     }
                                 }
-                        >
+                                >
                             Design View
+                        </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,28 +264,51 @@ class SourceView extends React.Component {
      * lifecycle hook for component will receive props
      */
     componentWillReceiveProps(nextProps) {
-        if(!nextProps.parseFailed) {
+        if (!nextProps.parseFailed) {
             getLangServerClientInstance()
                 .then((langserverClient) => {
                     // Set source view completer
                     const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    let fileData = {fileName: nextProps.file.getName(), filePath: nextProps.file.getPath() , 
-                        packageName: nextProps.file.getPackageName()}
+                    const fileData = { fileName: nextProps.file.getName(),
+                        filePath: nextProps.file.getPath(),
+                        packageName: nextProps.file.getPackageName() };
                     const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
                     langTools.setCompleters(completer);
                 })
                 .catch(error => log.error(error));
         }
+
+        const { debugHit, sourceViewBreakpoints } = nextProps;
+        if (debugHit > 0) {
+            if (this.debugPointMarker) {
+                this.editor.getSession().removeMarker(this.debugPointMarker);
+            }
+            this.debugPointMarker = this.editor.getSession().addMarker(
+                new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
+        }
+        if (!debugHit && this.debugPointMarker) {
+            this.editor.getSession().removeMarker(this.debugPointMarker);
+        }
+
+        this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
     }
 }
 
 SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
-    commandManager: PropTypes.instanceOf(commandManager).isRequired
+    commandManager: PropTypes.instanceOf(commandManager).isRequired,
+    sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
+    addBreakpoint: PropTypes.func.isRequired,
+    removeBreakpoint: PropTypes.func.isRequired,
+    debugHit: PropTypes.number,
+};
+
+SourceView.defaultProps = {
+    debugHit: null,
 };
 
 SourceView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default SourceView;
+export default debuggerHOC(SourceView);

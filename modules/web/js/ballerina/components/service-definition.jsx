@@ -134,6 +134,7 @@ class ServiceDefinition extends React.Component {
                 props: {
                     key: `${model.getID()}-swagger-button`,
                     icon: ImageUtil.getSVGIconString('swagger'),
+                    tooltip: 'Swagger Source',
                     onClick: () => this.onSwaggerButtonClicked(),
                 },
             });

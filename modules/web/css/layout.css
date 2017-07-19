@@ -238,7 +238,7 @@ div[class*="col-sm-"] {
 #service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default,
 #service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default > .tab-pane {
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .tab-pane  {
@@ -353,6 +353,7 @@ div[class*="col-sm-"] {
 
 #tab-content-wrapper {
     position: relative;
+    overflow: hidden;
 }
 
 .about-dialog-close {

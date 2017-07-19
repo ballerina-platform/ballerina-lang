@@ -148,6 +148,7 @@ class PanelDecorator extends React.Component {
                 width,
             },
             icon: ImageUtil.getSVGIconString('delete'),
+            tooltip: 'Delete',
             onClick: () => this.onDelete(),
             key: `${this.props.model.getID()}-delete-button`,
         };
@@ -265,7 +266,8 @@ class PanelDecorator extends React.Component {
                     x={bBox.x + iconSize + 24} y={bBox.y + 8 + annotationBodyHeight} width={iconSize} height={iconSize}
                     xlinkHref={ImageUtil.getSVGIconString('annotation-black')} onClick={this.onAnnotationEditButtonClick.bind(this)}
                     className="annotation-icon"
-                />
+                >
+                    <title>Add Annotation</title> </image>
                 {titleComponents}
                 {rightHeadingButtons}
             </g>

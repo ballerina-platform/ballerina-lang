@@ -51,6 +51,33 @@ class ContinueStatement extends Statement {
     getStatementString() {
         return 'continue';
     }
+
+    /**
+     * Define what type of nodes that this node can be added as a child.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     * */
+    canBeAChildOf(node) {
+        return this.iterateOverParent(node);
+    }
+
+    /**
+     * Define what type of nodes that this node can be added as a child by iterating over its parents.
+     * @param {ASTNode} node - Parent node that this node becoming a child of.
+     * @return {boolean} true|false.
+     * */
+    iterateOverParent(node) {
+        if (node === undefined) {
+            return false;
+        }
+        if (this.getFactory().isBallerinaAstRoot(node)) {
+            return false;
+        } else if (this.getFactory().isWhileStatement(node)) {
+            return true;
+        } else {
+            return this.iterateOverParent(node.getParent());
+        }
+    }
 }
 
 export default ContinueStatement;

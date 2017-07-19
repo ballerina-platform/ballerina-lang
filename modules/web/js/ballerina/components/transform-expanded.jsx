@@ -32,6 +32,8 @@ class TransformExpanded extends React.Component {
     constructor(props, context){
         super(props, context);
         this.state = {
+            typedSource: '',
+            typedTarget: '',
             selectedSource: '-1',
             selectedTarget: '-1',
         }
@@ -47,6 +49,12 @@ class TransformExpanded extends React.Component {
         this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.onTransformDropZoneActivate = this.onTransformDropZoneActivate.bind(this);
         this.onTransformDropZoneDeactivate = this.onTransformDropZoneDeactivate.bind(this);
+        this.onSourceInputChange = this.onSourceInputChange.bind(this);
+        this.onTargetInputChange = this.onTargetInputChange.bind(this);
+        this.onSourceInputEnter = this.onSourceInputEnter.bind(this);
+        this.onTargetInputEnter = this.onTargetInputEnter.bind(this);
+        this.addSource = this.addSource.bind(this);
+        this.addTarget = this.addTarget.bind(this);
     }
 
     getFunctionDefinition(functionInvocationExpression) {
@@ -518,12 +526,13 @@ class TransformExpanded extends React.Component {
         });
     }
 
-    createType(name, typeName, predefinedStruct) {
+    createType(name, typeName, predefinedStruct, isInner) {
         let struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
+        struct.isInner = isInner
 
         _.forEach(predefinedStruct.getFields(), (field) => {
             let property = {};
@@ -533,7 +542,7 @@ class TransformExpanded extends React.Component {
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
-                property.innerType = this.createType(property.name, typeName, innerStruct);
+                property.innerType = this.createType(property.name, typeName, innerStruct, true);
             }
 
             struct.properties.push(property);
@@ -704,6 +713,17 @@ class TransformExpanded extends React.Component {
         e.stopPropagation();
     }
 
+    onSourceInputChange(e, {newValue}) {
+        this.setState({
+            typedSource: newValue,
+        });
+    }
+
+    onTargetInputChange(e, {newValue}) {
+        this.setState({
+            typedTarget: newValue,
+        });
+    }
 
     onSourceSelect(e, {suggestionValue}) {
         this.setState({
@@ -717,27 +737,41 @@ class TransformExpanded extends React.Component {
         });
     }
 
+    onSourceInputEnter() {
+        this.addSource(this.state.typedSource);
+    }
+
+    onTargetInputEnter() {
+        this.addTarget(this.state.typedTarget);
+    }
 
     onSourceAdd() {
-        const {selectedSource} = this.state;
+        this.addSource(this.state.selectedSource);
+    }
+
+    onTargetAdd() {
+        this.addTarget(this.state.selectedTarget);
+    }
+
+    addSource(selectedSource) {
         let inputDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedSource });
         if (this.setSource(selectedSource, this.predefinedStructs, this.props.model, inputDef.id)) {
             let inputs = this.props.model.getInput();
             inputs.push(inputDef);
             this.props.model.setInput(inputs);
+            this.setState({typedSource: ''});
         }
     }
 
-    onTargetAdd() {
-        const {selectedTarget} = this.state;
-
+    addTarget(selectedTarget) {
         let outDef = BallerinaASTFactory
                                 .createSimpleVariableReferenceExpression({ variableName: selectedTarget });
         if (this.setTarget(selectedTarget, this.predefinedStructs, this.props.model, outDef.id)) {
             let outputs = this.props.model.getOutput();
             outputs.push(outDef);
             this.props.model.setOutput(outputs);
+            this.setState({typedTarget: ''});
         }
     }
 
@@ -770,39 +804,37 @@ class TransformExpanded extends React.Component {
     }
 
     getSourcesAndTargets() {
-        const packageObj = this.context.environment.getCurrentPackage();
-
-        let variables = this.props.model.filterChildrenInScope(
+        const variables = this.props.model.filterChildrenInScope(
                                      this.props.model.getFactory().isVariableDefinitionStatement)
-        let argHolders = this.props.model.filterChildrenInScope(
+        const argHolders = this.props.model.filterChildrenInScope(
                                      this.props.model.getFactory().isArgumentParameterDefinitionHolder)
-        let paramArgs = [];
-        _.forEach(argHolders, argHolder => {
-            _.forEach(argHolder.getChildren(), arg => {
+        const paramArgs = [];
+        _.forEach(argHolders, (argHolder) => {
+            _.forEach(argHolder.getChildren(), (arg) => {
                 paramArgs.push(arg);
             });
         });
 
-        let transformVars = this.getTransformVarJson(variables.concat(paramArgs));
+        const transformVars = this.getTransformVarJson(variables.concat(paramArgs));
         const items = [];
 
-        _.forEach(transformVars,(arg) => {
+        _.forEach(transformVars, (arg) => {
             let isStruct = false;
-            _.forEach(packageObj.getStructDefinitions(), (predefinedStruct) => {
-                if (arg.type === predefinedStruct.getName()) {
-                    let struct = this.createType(arg.name, arg.type, predefinedStruct);
-                    items.push({name: struct.name, type: struct.typeName});
-                    isStruct = true;
-                }
-            });
+            const structDef = this.getStructDefinition(arg.pkgName, arg.type);
+
+            if (structDef !== undefined) {
+                const struct = this.createType(arg.name, arg.type, structDef);
+                items.push({ name: struct.name, type: struct.typeName });
+                isStruct = true;
+            }
 
             if (!isStruct) {
-                let variableType = {};
+                const variableType = {};
                 variableType.id = arg.id;
                 variableType.name = arg.name;
                 variableType.type = arg.type;
                 this.predefinedStructs.push(variableType);
-                items.push({name: variableType.name, type: variableType.type});
+                items.push({ name: variableType.name, type: variableType.type });
             }
         });
 
@@ -810,7 +842,7 @@ class TransformExpanded extends React.Component {
     }
 
     setSource(currentSelection, predefinedStructs) {
-        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection});
+        var sourceSelection =  _.find(predefinedStructs, { name:currentSelection });
         if (_.isUndefined(sourceSelection)){
             alerts.error('Mapping source "' + currentSelection + '" cannot be found');
             return false;
@@ -891,7 +923,7 @@ class TransformExpanded extends React.Component {
     render() {
         const sourceId = 'sourceStructs' + this.props.model.id;
         const targetId = 'targetStructs' + this.props.model.id;
-        const sourcesAndTargets = this.predefinedStructs;
+        const sourcesAndTargets = this.predefinedStructs.filter(endpoint => (!endpoint.isInner));
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
@@ -909,6 +941,9 @@ class TransformExpanded extends React.Component {
                     <div id ="transformHeaderPadding" className="transform-header-padding"></div>
                     <div className="source-view">
                         <SuggestionsDropdown
+                            value={this.state.typedSource}
+                            onChange={this.onSourceInputChange}
+                            onEnter={this.onSourceInputEnter}
                             suggestionsPool={sourcesAndTargets}
                             placeholder='Select Source'
                             onSuggestionSelected={this.onSourceSelect}
@@ -925,6 +960,9 @@ class TransformExpanded extends React.Component {
                     <div className="middle-content"></div>
                     <div className="target-view">
                         <SuggestionsDropdown
+                            value={this.state.typedTarget}
+                            onChange={this.onTargetInputChange}
+                            onEnter={this.onTargetInputEnter}
                             suggestionsPool={sourcesAndTargets}
                             placeholder='Select Target'
                             onSuggestionSelected={this.onTargetSelect}

@@ -65,11 +65,22 @@ class ConnectorDeclarationDimensionCalculatorVisitor {
         const components = {};
 
         components.statementContainer = new SimpleBBox();
+        const statementViewState = {};
         const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
             DesignerDefaults.statementContainer.padding.right;
         const textWidth = util.getTextWidth(node.getConnectorVariable(),
             DesignerDefaults.lifeLine.width,
             DesignerDefaults.lifeLine.width);
+
+        // Set the dimensions for the statement box for connector declaration
+        statementViewState.components = {};
+        statementViewState.components['drop-zone'] = new SimpleBBox();
+        statementViewState.components['drop-zone'].h = DesignerDefaults.statement.gutter.v;
+        statementViewState.bBox = new SimpleBBox();
+        statementViewState.bBox.h = DesignerDefaults.statement.height + statementViewState.components['drop-zone'].h;
+        statementViewState.bBox.w = textWidth.w;
+        statementViewState.variableTextTrimmed = textWidth.text;
+
         viewState.variableTextWidth = textWidth.w;
         viewState.variableTextTrimmed = textWidth.text;
 
@@ -84,6 +95,7 @@ class ConnectorDeclarationDimensionCalculatorVisitor {
 
         components.statementContainer.h = statementContainerHeight;
         components.statementContainer.w = statementContainerWidth;
+        components.statementViewState = statementViewState;
 
         viewState.components = components;
     }

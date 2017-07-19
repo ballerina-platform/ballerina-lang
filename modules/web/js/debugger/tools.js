@@ -315,7 +315,6 @@ class Tools extends EventChannel {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
-            activeTab._fileEditor.publishBreakpoints();
             this.launchManager.debugApplication(file);
         } else {
             alerts.error('Save file before start debugging application');
@@ -330,7 +329,6 @@ class Tools extends EventChannel {
         const activeTab = this.application.tabController.getActiveTab();
         if (this.isReadyToRun(activeTab)) {
             const file = activeTab.getFile();
-            activeTab._fileEditor.publishBreakpoints();
             this.launchManager.debugService(file);
         } else {
             alerts.error('Save file before start debugging service');
