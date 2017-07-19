@@ -168,63 +168,34 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        if (context != null) {
-            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId =
-                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
-                myConnector.sendCommand(Command.STEP_OVER, threadId);
-                return;
-            }
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_OVER, threadId);
         }
-        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
-                ConsoleViewContentType.ERROR_OUTPUT);
-        getSession().stop();
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        if (context != null) {
-            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId =
-                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
-                myConnector.sendCommand(Command.STEP_IN, threadId);
-                return;
-            }
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_IN, threadId);
         }
-        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
-                ConsoleViewContentType.ERROR_OUTPUT);
-        getSession().stop();
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        if (context != null) {
-            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId =
-                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
-                myConnector.sendCommand(Command.STEP_OUT, threadId);
-                return;
-            }
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_OUT, threadId);
         }
-        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
-                ConsoleViewContentType.ERROR_OUTPUT);
-        getSession().stop();
     }
 
     @Override
     public void stop() {
         XSuspendContext suspendContext = getSession().getSuspendContext();
-        if (suspendContext != null) {
-            XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
-            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId =
-                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
-                myConnector.sendCommand(Command.STOP, threadId);
-                return;
-            }
+        String threadId = getThreadId(suspendContext);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STOP, threadId);
         }
         isDisconnected = true;
         myConnector.close();
@@ -232,18 +203,24 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.RESUME, threadId);
+        }
+    }
+
+    @Nullable
+    private String getThreadId(@Nullable XSuspendContext context) {
         if (context != null) {
             XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
             if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
-                String threadId =
-                        ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
-                myConnector.sendCommand(Command.RESUME, threadId);
-                return;
+                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
             }
         }
         getSession().getConsoleView().print("Error occurred while getting the thread ID.",
                 ConsoleViewContentType.ERROR_OUTPUT);
         getSession().stop();
+        return null;
     }
 
     @Nullable
