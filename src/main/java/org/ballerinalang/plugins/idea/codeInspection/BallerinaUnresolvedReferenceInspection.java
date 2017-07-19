@@ -31,6 +31,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +70,10 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(packageNameNode,
                     ImportDeclarationNode.class);
             if (importDeclarationNode != null) {
+                continue;
+            }
+            XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(packageNameNode, XmlAttribNode.class);
+            if (xmlAttribNode != null) {
                 continue;
             }
             PsiElement nameIdentifier = packageNameNode.getNameIdentifier();

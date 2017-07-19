@@ -220,7 +220,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
-    |   namespaceDeclaration
+    |   namespaceDeclarationStatement
     ;
 
 transformStatement
@@ -444,6 +444,10 @@ abortStatement
 
 actionInvocation
     :   connectorReference '.' Identifier '(' expressionList? ')'
+    ;
+
+namespaceDeclarationStatement
+    :   namespaceDeclaration
     ;
 
 namespaceDeclaration

@@ -48,6 +48,7 @@ import org.ballerinalang.plugins.idea.psi.SimpleLiteralNode;
 import org.ballerinalang.plugins.idea.psi.ValueTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
+import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -395,8 +396,7 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotatePackageNameNodes(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element,
-                ImportDeclarationNode.class);
+        ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(element, ImportDeclarationNode.class);
         if (importDeclarationNode != null) {
             return;
         }
@@ -408,6 +408,10 @@ public class BallerinaAnnotator implements Annotator {
         AnnotationAttachmentNode annotationAttachmentNode = PsiTreeUtil.getParentOfType(element,
                 AnnotationAttachmentNode.class);
         if (annotationAttachmentNode != null) {
+            return;
+        }
+        XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(element, XmlAttribNode.class);
+        if (xmlAttribNode != null) {
             return;
         }
         // Create the annotation.

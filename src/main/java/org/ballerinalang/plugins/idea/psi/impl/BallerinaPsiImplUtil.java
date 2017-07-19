@@ -67,6 +67,7 @@ import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
+import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.QuotedLiteralString;
@@ -886,7 +887,62 @@ public class BallerinaPsiImplUtil {
                 results.addAll(getVariablesFromVarAssignment(assignmentStatementNode));
             }
         }
+        return results;
+    }
 
+    @NotNull
+    public static List<PsiElement> getAllXmlNamespacesInResolvableScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<PsiElement> results = new LinkedList<>();
+        if (scope instanceof VariableContainer || scope instanceof CodeBlockScope || scope instanceof BallerinaFile) {
+            results.addAll(getAllXmlNamespacesInScope(scope, caretOffset));
+            ScopeNode context = scope.getContext();
+            if (context != null) {
+                results.addAll(getAllXmlNamespacesInResolvableScope(context, caretOffset));
+            }
+        } else if (scope instanceof ParameterContainer || scope instanceof TopLevelDefinition
+                || scope instanceof LowerLevelDefinition) {
+            ScopeNode context = scope.getContext();
+            if (context != null) {
+                results.addAll(getAllXmlNamespacesInResolvableScope(context, caretOffset));
+            }
+        }
+
+        if (scope instanceof BallerinaFile) {
+            PsiFile originalFile = ((BallerinaFile) scope).getOriginalFile();
+            PsiDirectory containingPackage = originalFile.getParent();
+            if (containingPackage == null) {
+                return results;
+            }
+            PsiFile[] files = containingPackage.getFiles();
+            for (PsiFile file : files) {
+                // Do't check the current file again.
+                if (file.equals(originalFile)) {
+                    continue;
+                }
+                Collection<NamespaceDeclarationNode> namespaceDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
+                        NamespaceDeclarationNode.class);
+                for (NamespaceDeclarationNode namespaceDeclarationNode : namespaceDeclarationNodes) {
+                    PsiElement identifier = namespaceDeclarationNode.getNameIdentifier();
+                    if (identifier != null) {
+                        results.add(identifier);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    @NotNull
+    public static List<PsiElement> getAllXmlNamespacesInScope(@NotNull ScopeNode scope, int caretOffset) {
+        List<PsiElement> results = new LinkedList<>();
+        Collection<NamespaceDeclarationNode> namespaceDeclarationNodes = PsiTreeUtil.findChildrenOfType(scope,
+                NamespaceDeclarationNode.class);
+        for (NamespaceDeclarationNode namespaceDeclarationNode : namespaceDeclarationNodes) {
+            PsiElement identifier = namespaceDeclarationNode.getNameIdentifier();
+            if (identifier != null && identifier.getTextOffset() < caretOffset) {
+                results.add(identifier);
+            }
+        }
         return results;
     }
 

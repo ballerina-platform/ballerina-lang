@@ -81,6 +81,7 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.NamespaceDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ReplyStatementNode;
 import org.ballerinalang.plugins.idea.psi.ReturnParametersNode;
@@ -114,6 +115,7 @@ import org.ballerinalang.plugins.idea.psi.WorkerBodyNode;
 import org.ballerinalang.plugins.idea.psi.WorkerDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.WorkerInterationStatementNode;
 import org.ballerinalang.plugins.idea.psi.WorkerReplyNode;
+import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ballerinalang.plugins.idea.grammar.BallerinaLexer.*;
@@ -364,6 +366,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new JoinClauseNode(node);
             case BallerinaParser.RULE_timeoutClause:
                 return new TimeoutClauseNode(node);
+            case BallerinaParser.RULE_xmlAttrib:
+                return new XmlAttribNode(node);
+            case BallerinaParser.RULE_namespaceDeclaration:
+                return new NamespaceDeclarationNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }
