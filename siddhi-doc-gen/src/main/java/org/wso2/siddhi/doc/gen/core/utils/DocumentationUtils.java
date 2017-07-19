@@ -31,6 +31,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.SystemParameter;
 import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.function.Script;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.core.query.processor.stream.function.StreamFunctionProcessor;
 import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
@@ -92,6 +93,7 @@ public class DocumentationUtils {
         superClassMap.put(ExtensionType.SOURCE_MAPPER, SourceMapper.class);
         superClassMap.put(ExtensionType.SINK_MAPPER, SinkMapper.class);
         superClassMap.put(ExtensionType.STORE, Table.class);
+        superClassMap.put(ExtensionType.SCRIPT, Script.class);
     }
 
     private DocumentationUtils() {   // To prevent instantiating utils class
