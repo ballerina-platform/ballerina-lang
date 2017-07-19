@@ -63,7 +63,7 @@ public class LauncherConstants {
     public static final String SERVER_CONNECTOR_STARTED_LOG = "ballerina: started server connector";
     public static final String TERMINATE_MESSAGE = "Program Terminated.";
     public static final String UNSUPPORTED_OPERATING_SYSTEM = "Unsupported operating system";
-    public static final String LOCAL_TRY_IT_URL = "%s:9090";
+    public static final String LOCAL_TRY_IT_URL = "http://%s:9090";
     
     /**
      * Types of programs that are executable.
