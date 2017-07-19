@@ -364,15 +364,10 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             int count = 0;
             PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(elementAtOffset);
             do {
-
-                //                if (prevVisibleLeaf == null) {
-                //                    context.setCurrentParameter(0);
-                //                    return;
-                //                }
                 if (prevVisibleLeaf != null) {
                     if (prevVisibleLeaf.getText().matches(",")) {
                         count++;
-                    } else if (prevVisibleLeaf.getText().equals("(")) {
+                    } else if ("(".equals(prevVisibleLeaf.getText())) {
                         break;
                     }
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
