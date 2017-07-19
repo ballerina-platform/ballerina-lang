@@ -381,6 +381,7 @@ class BallerinaFileEditor extends React.Component {
                 </div>
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
                     <SourceView
+                        syntaxErrors={this.state.syntaxErrors}
                         parseFailed={this.state.parseFailed}
                         file={this.props.file}
                         commandManager={this.props.commandManager}
