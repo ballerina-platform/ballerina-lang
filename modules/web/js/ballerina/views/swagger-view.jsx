@@ -84,6 +84,10 @@ class SwaggerView extends React.Component {
         this.swaggerAce = undefined;
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
+        this.tryItUrl = undefined;
+        props.commandManager.registerHandler('try-it-url-received', (url) => {
+            this.tryItUrl = url;
+        }, this);
     }
 
     /**
@@ -158,6 +162,12 @@ class SwaggerView extends React.Component {
             const formattedContent = sourceGenVisitor.getGeneratedSource();
             getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
                 .then((swaggerDefinition) => {
+                    // Update host url if try it url is available.
+                    if (this.tryItUrl) {
+                        const swaggerJson = JSON.parse(swaggerDefinition);
+                        swaggerJson.host = this.tryItUrl;
+                        swaggerDefinition = JSON.stringify(swaggerJson);
+                    }
                     this.swagger = swaggerDefinition;
                     this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
                     this.renderSwaggerEditor();
@@ -213,6 +223,12 @@ class SwaggerView extends React.Component {
             swaggerAce.setFontSize(fontSize);
             this.swaggerAce = swaggerAce;
             this.syncSpec();
+
+            if (this.props.hideSwaggerAceEditor) {
+                const editorPanel = $swaggerAceContainer.parent().parent();
+                editorPanel.hide();
+                editorPanel.next().next().css('width', '100%');
+            }
         }
     }
 
@@ -240,10 +256,13 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (!this.hasSwaggerErrors()) {
+                                        if (this.props.hideSwaggerAceEditor) {
+                                            this.context.editor.setActiveView(DESIGN_VIEW);
+                                        } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();
                                             this.context.editor.setActiveView(DESIGN_VIEW);
                                         }
+                                        this.props.resetSwaggerViewFun();
                                     }
                                 }
                         >
@@ -258,10 +277,13 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (!this.hasSwaggerErrors()) {
+                                        if (this.props.hideSwaggerAceEditor) {
+                                            this.context.editor.setActiveView(SOURCE_VIEW);
+                                        } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();
                                             this.context.editor.setActiveView(SOURCE_VIEW);
                                         }
+                                        this.props.resetSwaggerViewFun();
                                     }
                                 }
                         >
@@ -276,10 +298,14 @@ class SwaggerView extends React.Component {
 
 SwaggerView.propTypes = {
     targetService: PropTypes.instanceOf(ServiceDefinition),
+    commandManager: PropTypes.instanceOf(Object).isRequired,
+    hideSwaggerAceEditor: PropTypes.bool,
+    resetSwaggerViewFun: PropTypes.func.isRequired,
 };
 
 SwaggerView.defaultProps = {
     targetService: undefined,
+    hideSwaggerAceEditor: false,
 };
 
 SwaggerView.contextTypes = {

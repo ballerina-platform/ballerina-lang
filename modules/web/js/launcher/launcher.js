@@ -92,6 +92,13 @@ const Launcher = Backbone.View.extend({
                   <i class="fw fw-stop" />
                   Stop Application
                 </button>
+                <% if (tryItUrl) { %>
+                    <button type="button" class="btn btn-default btn-debug-activate"
+                    title="Try it" id="try_it_service">
+                        <i class="fw fw-dgm-try-catch" />
+                        Try it 
+                    </button>
+                <% } %>
               </div>
               <% } %>
             </div>`);
@@ -103,9 +110,11 @@ const Launcher = Backbone.View.extend({
         this._$parent_el.on('click', '#run_service', () => { this.runService(); });
         this._$parent_el.on('click', '#stop_program', () => { this.stopProgram(); });
         this._$parent_el.on('click', '#reploy-program', () => { this.reDeployProgram(); });
+        this._$parent_el.on('click', '#try_it_service', () => { this.showSwaggerView(); });
 
         LaunchManager.on('execution-started', () => { this.renderBody(); });
         LaunchManager.on('execution-ended', () => { this.renderBody(); });
+        LaunchManager.on('try-it-url-received', () => { this.renderBody(); });
 
         this._$parent_el.on('click', '.btn-config', (e) => {
             e.preventDefault();
@@ -204,6 +213,9 @@ const Launcher = Backbone.View.extend({
             this._verticalSeparator.css('left', width - _.get(this._options, 'separatorOffset'));
             this.application.reRender();// to update the diagrams
         }
+    },
+    showSwaggerView() {
+        this.application.commandManager.dispatch('show-try-it-view');
     },
     /** @inheritdoc */
     render() {

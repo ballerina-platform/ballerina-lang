@@ -30,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 
 /**
@@ -150,6 +151,15 @@ public class LaunchManager {
                 if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.equals(line)
                         && startedServiceURL != null) {
                     line = LauncherConstants.SERVER_CONNECTOR_STARTED_LOG + " " + startedServiceURL;
+                }
+                
+                if (startedServiceURL != null) {
+                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
+                            startedServiceURL);
+                } else if (LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_DEFAULT_PORT_LOG.equals(line)) {
+                    InetAddress localInetAddress = InetAddress.getLocalHost();
+                    pushMessageToClient(launchSession, LauncherConstants.TRY_IT_URL, LauncherConstants.DATA,
+                            String.format(LauncherConstants.LOCAL_TRY_IT_URL, localInetAddress.getHostAddress()));
                 }
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }

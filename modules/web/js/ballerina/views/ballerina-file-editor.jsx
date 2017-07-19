@@ -105,6 +105,16 @@ class BallerinaFileEditor extends React.Component {
         // not active while initial loading
         // listening to 'tab-activate' and calling re-render to avoid that
         this.props.tab.on(TAB_ACTIVATE, () => this.update());
+
+        this.hideSwaggerAceEditor = false;
+        // Show the swagger view when 'try it' is invoked.
+        props.commandManager.registerHandler('show-try-it-view', () => {
+            // Creating try it service for first service definition.
+            this.hideSwaggerAceEditor = true;
+            this.showSwaggerViewForService(this.state.model.getServiceDefinitions()[0]);
+        }, this);
+
+        this.resetSwaggerView = this.resetSwaggerView.bind(this);
     }
 
     /**
@@ -166,6 +176,10 @@ class BallerinaFileEditor extends React.Component {
      */
     getFile() {
         return this.props.file;
+    }
+
+    resetSwaggerView() {
+        this.hideSwaggerAceEditor = false;
     }
 
     /**
@@ -387,7 +401,12 @@ class BallerinaFileEditor extends React.Component {
                     />
                 </div>
                 <div style={{ display: showSwaggerView ? 'block' : 'none' }}>
-                    <SwaggerView targetService={this.state.swaggerViewTargetService} />
+                    <SwaggerView
+                        targetService={this.state.swaggerViewTargetService}
+                        commandManager={this.props.commandManager}
+                        hideSwaggerAceEditor={this.hideSwaggerAceEditor}
+                        resetSwaggerViewFun={this.resetSwaggerView}
+                    />
                 </div>
             </div>
         );
