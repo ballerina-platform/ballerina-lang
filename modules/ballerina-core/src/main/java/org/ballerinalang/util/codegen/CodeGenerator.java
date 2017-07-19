@@ -49,6 +49,7 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
@@ -71,6 +72,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -122,6 +124,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -749,7 +752,7 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
     }
 
     @Override
@@ -1288,6 +1291,27 @@ public class CodeGenerator implements NodeVisitor {
     }
 
     @Override
+    public void visit(LambdaExpression lambdaExpr) {
+        Function function = lambdaExpr.getFunction();
+        String pkgPath = function.getPackagePath();
+        int pkgCPIndex = addPackageCPEntry(pkgPath);
+        String funcName = function.getName();
+        UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(funcName);
+        int funcNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
+
+        // Find the package info entry of the function and from the package info entry find the function info entry
+        PackageInfo funcPackageInfo = programFile.getPackageInfo(pkgPath);
+        FunctionInfo functionInfo = funcPackageInfo.getFunctionInfo(funcName);
+
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, pkgPath, funcNameCPIndex, funcName);
+        funcRefCPEntry.setFunctionInfo(functionInfo);
+        int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
+        lambdaExpr.setTempOffset(nextIndex);
+        emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
         Expression rExpr = unaryExpr.getRExpr();
         rExpr.accept(this);
@@ -1499,6 +1523,23 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
+        int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
+        // First check whether this is a function pointer invocation.
+        if (funcIExpr.isFunctionPointerInvocation()
+                && funcIExpr.getFunctionPointerVariableDef() instanceof SimpleVariableDef) {
+            int refRegIndex = ++regIndexes[REF_OFFSET];
+            MemoryLocation memoryLocation = funcIExpr.getFunctionPointerVariableDef().getMemoryLocation();
+            if (memoryLocation instanceof StackVarLocation) {
+                StackVarLocation varLocation = (StackVarLocation) memoryLocation;
+                int stackFrameOffset = varLocation.getStackFrameOffset();
+                emit(InstructionCodes.RLOAD, stackFrameOffset, refRegIndex);
+            } else {
+                // TODO: Fix this.
+            }
+            emit(InstructionCodes.FPCALL, refRegIndex, funcCallIndex);
+            return;
+        }
+
         int pkgCPIndex = addPackageCPEntry(funcIExpr.getPackagePath());
 
         String funcName = funcIExpr.getName();
@@ -1514,7 +1555,6 @@ public class CodeGenerator implements NodeVisitor {
                 funcNameCPIndex, funcName);
         funcRefCPEntry.setFunctionInfo(functionInfo);
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
-        int funcCallIndex = getCallableUnitCallCPIndex(funcIExpr);
 
         if (functionInfo.isNative()) {
             // TODO Move this to the place where we create function info entry
@@ -1970,6 +2010,26 @@ public class CodeGenerator implements NodeVisitor {
                 emit(opcode, gvIndex, exprRegIndex);
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
+        }
+        if (!variableStore && simpleVarRefExpr.getVariableDef() instanceof Function) {
+
+            Function function = (Function) simpleVarRefExpr.getVariableDef();
+            String pkgPath = function.getPackagePath();
+            int pkgCPIndex = addPackageCPEntry(pkgPath);
+            String funcName = function.getName();
+            UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(funcName);
+            int funcNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
+
+            // Find the package info entry of the function and from the package info entry find the function info entry
+            PackageInfo funcPackageInfo = programFile.getPackageInfo(pkgPath);
+            FunctionInfo functionInfo = funcPackageInfo.getFunctionInfo(funcName);
+
+            FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgCPIndex, pkgPath, funcNameCPIndex, funcName);
+            funcRefCPEntry.setFunctionInfo(functionInfo);
+            int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
+            int nextIndex = getNextIndex(TypeTags.FUNCTION_POINTER_TAG, regIndexes);
+            simpleVarRefExpr.setTempOffset(nextIndex);
+            emit(InstructionCodes.FPLOAD, funcRefCPIndex, nextIndex);
         }
     }
 
@@ -2563,6 +2623,8 @@ public class CodeGenerator implements NodeVisitor {
                 TypeSignature elementTypeSig = typeSig.getElementTypeSig();
                 BType elementType = getVMTypeFromSig(elementTypeSig);
                 return new BArrayType(elementType);
+            case TypeSignature.SIG_FUNCTION:
+                return new BFunctionType();
             default:
                 throw new IllegalStateException("Unknown type signature");
         }

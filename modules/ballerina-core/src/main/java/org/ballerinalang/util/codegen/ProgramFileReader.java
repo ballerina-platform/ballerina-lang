@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -775,6 +776,9 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'U':
+                typeStack.push(new BFunctionType());
+                return index + 1;
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + chars[index]);
@@ -825,6 +829,8 @@ public class ProgramFileReader {
             case '[':
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
+            case 'U':
+                return new BFunctionType();
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + ch);
@@ -1262,6 +1268,8 @@ public class ProgramFileReader {
                 case InstructionCodes.NCALL:
                 case InstructionCodes.ACALL:
                 case InstructionCodes.NACALL:
+                case InstructionCodes.FPCALL:
+                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:

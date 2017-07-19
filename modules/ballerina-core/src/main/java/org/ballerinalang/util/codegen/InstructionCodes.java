@@ -161,6 +161,8 @@ public interface InstructionCodes {
     int NACALL = 123;
     int THROW = 124;
     int ERRSTORE = 125;
+    int FPCALL = 126;
+    int FPLOAD = 127;
 
     // Type Conversion related instructions
     int I2F = 130;

@@ -89,4 +89,10 @@ under the License.
             <class name="org.ballerinalang.model.identifierliteral.IdentifierLiteralTest" />
         </classes>
     </test>
+
+    <test name="ballerina-lambda-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.functions.FunctionPointersTest" />
+        </classes>
+    </test>
 </suite>
