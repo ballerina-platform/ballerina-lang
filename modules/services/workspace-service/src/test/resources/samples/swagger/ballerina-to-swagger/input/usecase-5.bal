@@ -15,11 +15,11 @@ import ballerina.net.http.swagger;
         name: "MIT",
         url: "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
     },
-    externalDoc: @swagger:ExternalDoc {
+    externalDocs: @swagger:ExternalDoc {
         description: "find more info here",
         url: "https://swagger.io/about"
     },
-    tag: [
+    tags: [
         @swagger:Tag {
             name: "tag-1",
             description: "first tag"
@@ -44,8 +44,6 @@ import ballerina.net.http.swagger;
         }
     ]
 }
-@http:Consumes {value: ["application/json", "application/xml"]}
-@http:Produces {value: ["application/json"]}
 @swagger:ServiceConfig {
     schemes:[
         "http", "https"

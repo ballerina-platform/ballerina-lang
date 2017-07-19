@@ -21,6 +21,7 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
+import ASTFactory from './../ast/ballerina-ast-factory';
 import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
 import SwaggerParser from './../../swagger-parser/swagger-parser';
 import { getSwaggerDefinition } from '../../api-client/api-client';
@@ -134,6 +135,14 @@ class SwaggerView extends React.Component {
     updateService() {
         // we do not update the dom if swagger is not edited.
         if (!this.swaggerAce.getSession().getUndoManager().isClean()) {
+            // Add swagger import
+            const importToBeAdded = ASTFactory.createImportDeclaration({
+                packageName: 'ballerina.net.http.swagger',
+            });
+            importToBeAdded.setParent(this.context.astRoot);
+            this.context.astRoot.addImport(importToBeAdded);
+
+            // Merge to service.
             const swaggerParser = new SwaggerParser(this.swagger, false);
             swaggerParser.mergeToService(this.props.targetService);
         }

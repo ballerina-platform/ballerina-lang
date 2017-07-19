@@ -67,9 +67,9 @@ class SwaggerParser {
             // Creating @http:config#basePath attribute.
             this.createHttpConfigBasePathAttribute(serviceDefinition);
             // Creating @http:Consumes annotation.
-            this.createConsumesAnnotation(serviceDefinition, this._swaggerJson.consumes);
+            // this.createConsumesAnnotation(serviceDefinition, this._swaggerJson.consumes);
             // Creating @http:Produces annotation.
-            this.createProducesAnnotation(serviceDefinition, this._swaggerJson.produces);
+            // this.createProducesAnnotation(serviceDefinition, this._swaggerJson.produces);
 
             // Updating/Creating resources using path annotation
             _.forEach(this._swaggerJson.paths, (httpMethodObjects, pathString) => {
@@ -242,7 +242,107 @@ class SwaggerParser {
             SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'license', licenseAnnotation);
         }
 
-        // TODO : Create externalDocs, tag, organization, developers.
+        if (!_.isNil(this._swaggerJson.externalDocs)) {
+            const externalDocsAnnotation = ASTFactory.createAnnotationAttachment({
+                fullPackageName: SWAGGER_FULL_PACKAGE,
+                packageName: SWAGGER_PACKAGE,
+                name: 'ExternalDoc',
+            });
+
+            if (!_.isNil(this._swaggerJson.externalDocs.description)) {
+                const descriptionBValue = ASTFactory.createBValue({
+                    stringValue: this._swaggerJson.externalDocs.description,
+                });
+                SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'description', descriptionBValue);
+            }
+
+            if (!_.isNil(this._swaggerJson.externalDocs.url)) {
+                const urlBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.externalDocs.url });
+                SwaggerParser.setAnnotationAttribute(externalDocsAnnotation, 'url', urlBValue);
+            }
+
+            SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'externalDocs', externalDocsAnnotation);
+        }
+
+        if (!_.isNil(this._swaggerJson.info['x-organization'])) {
+            const organizationAnnotation = ASTFactory.createAnnotationAttachment({
+                fullPackageName: SWAGGER_FULL_PACKAGE,
+                packageName: SWAGGER_PACKAGE,
+                name: 'Organization',
+            });
+
+            if (!_.isNil(this._swaggerJson.info['x-organization'].name)) {
+                const nameBValue = ASTFactory.createBValue({
+                    stringValue: this._swaggerJson.info['x-organization'].name,
+                });
+                SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'name', nameBValue);
+            }
+
+            if (!_.isNil(this._swaggerJson.info['x-organization'].url)) {
+                const urlBValue = ASTFactory.createBValue({
+                    stringValue: this._swaggerJson.info['x-organization'].url,
+                });
+                SwaggerParser.setAnnotationAttribute(organizationAnnotation, 'url', urlBValue);
+            }
+
+            SwaggerParser.setAnnotationAttribute(serviceInfoAnnotation, 'organization', organizationAnnotation);
+        }
+
+        if (!_.isNil(this._swaggerJson.info['x-developers']) && this._swaggerJson.info['x-developers'].length > 0) {
+            const developerBValues = [];
+            this._swaggerJson.info['x-developers'].forEach((developer) => {
+                const developerAnnotation = ASTFactory.createAnnotationAttachment({
+                    fullPackageName: SWAGGER_FULL_PACKAGE,
+                    packageName: SWAGGER_PACKAGE,
+                    name: 'Developer',
+                });
+
+                if (!_.isNil(developer.name)) {
+                    const nameBValue = ASTFactory.createBValue({
+                        stringValue: developer.name,
+                    });
+                    SwaggerParser.setAnnotationAttribute(developerAnnotation, 'name', nameBValue);
+                }
+
+                if (!_.isNil(developer.email)) {
+                    const emailBValue = ASTFactory.createBValue({
+                        stringValue: developer.email,
+                    });
+                    SwaggerParser.setAnnotationAttribute(developerAnnotation, 'email', emailBValue);
+                }
+                developerBValues.push(developerAnnotation);
+            });
+
+            SwaggerParser.addNodesAsArrayedAttribute(serviceInfoAnnotation, 'developers', developerBValues);
+        }
+
+        if (!_.isNil(this._swaggerJson.tags) && this._swaggerJson.tags.length > 0) {
+            const tagBValues = [];
+            this._swaggerJson.tags.forEach((tag) => {
+                const tagAnnotation = ASTFactory.createAnnotationAttachment({
+                    fullPackageName: SWAGGER_FULL_PACKAGE,
+                    packageName: SWAGGER_PACKAGE,
+                    name: 'Tag',
+                });
+
+                if (!_.isNil(tag.name)) {
+                    const nameBValue = ASTFactory.createBValue({
+                        stringValue: tag.name,
+                    });
+                    SwaggerParser.setAnnotationAttribute(tagAnnotation, 'name', nameBValue);
+                }
+
+                if (!_.isNil(tag.description)) {
+                    const descriptionBValue = ASTFactory.createBValue({
+                        stringValue: tag.description,
+                    });
+                    SwaggerParser.setAnnotationAttribute(tagAnnotation, 'description', descriptionBValue);
+                }
+                tagBValues.push(tagAnnotation);
+            });
+
+            SwaggerParser.addNodesAsArrayedAttribute(serviceInfoAnnotation, 'tags', tagBValues);
+        }
 
         const serviceDefinitionAnnotations = serviceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
         const serviceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(serviceDefinitionAnnotations,
@@ -320,12 +420,14 @@ class SwaggerParser {
         this.createConsumesAnnotation(resourceDefinition, httpMethodJsonObject.consumes);
         // Creating @Produces annotation.
         this.createProducesAnnotation(resourceDefinition, httpMethodJsonObject.produces);
+        // Creating @ResourceConfig annotation.
+        this.createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating parameter definitions for the resource definition.
         this.createParameterDefs(resourceDefinition, httpMethodJsonObject.parameters);
         // Creating @ParametersInfo annotation.
         this.createParametersInfoAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating @ResourceConfig annotation.
-        this.createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject);
+        this.createResourceInfoAnnotation(resourceDefinition, httpMethodJsonObject);
         // Creating @Responses annotation.
         this.createResponsesAnnotation(resourceDefinition, httpMethodJsonObject);
     }
@@ -374,6 +476,38 @@ class SwaggerParser {
             });
             resourceDefinition.addChild(httpMethodAnnotation);
         }
+    }
+
+    /**
+     * Creates the @ResourceConfig annotation for a given {@link ResourceDefinition} using the http method object of the
+     * swagger JSON.
+     *
+     * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
+     * @param {Object} httpMethodJsonObject The swagger operation object.
+     * @memberof SwaggerParser
+     */
+    createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
+        const resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
+            fullPackageName: SWAGGER_FULL_PACKAGE,
+            packageName: SWAGGER_PACKAGE,
+            name: 'ResourceConfig',
+        });
+
+        if (!_.isNil(httpMethodJsonObject.schemes) && httpMethodJsonObject.schemes.length > 0) {
+            const schemeBValues = [];
+            this._swaggerJson.schemes.forEach((schemeEntry) => {
+                schemeBValues.push(ASTFactory.createBValue({ stringValue: schemeEntry }));
+            });
+            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'schemes', schemeBValues);
+        }
+
+        // TODO : Implement authorization.
+
+        const resourceDefinitionAnnotations =
+            resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
+        const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+            SWAGGER_PACKAGE, 'ResourceConfig');
+        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex);
     }
 
     /**
@@ -502,35 +636,65 @@ class SwaggerParser {
     }
 
     /**
-     * Creates the @ResourceConfig annotation for a given {@link ResourceDefinition} using the http method object of the
+     * Creates the @ResourceInfo annotation for a given {@link ResourceDefinition} using the http method object of the
      * swagger JSON.
      *
      * @param {ResourceDefinition} resourceDefinition The resource definition to be updated.
      * @param {Object} httpMethodJsonObject The swagger operation object.
      * @memberof SwaggerParser
      */
-    createResourceConfigAnnotation(resourceDefinition, httpMethodJsonObject) {
-        const resourceConfigAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
+    createResourceInfoAnnotation(resourceDefinition, httpMethodJsonObject) {
+        const resourceInfoAnnotation = resourceDefinition.getFactory().createAnnotationAttachment({
             fullPackageName: SWAGGER_FULL_PACKAGE,
             packageName: SWAGGER_PACKAGE,
-            name: 'ResourceConfig',
+            name: 'ResourceInfo',
         });
 
-        if (!_.isNil(httpMethodJsonObject.schemes) && httpMethodJsonObject.schemes.length > 0) {
-            const schemeBValues = [];
-            this._swaggerJson.schemes.forEach((schemeEntry) => {
-                schemeBValues.push(ASTFactory.createBValue({ stringValue: schemeEntry }));
+        if (!_.isNil(httpMethodJsonObject.tags) && httpMethodJsonObject.tags.length > 0) {
+            const tagBValues = [];
+            httpMethodJsonObject.tags.forEach((tagEntry) => {
+                tagBValues.push(ASTFactory.createBValue({ stringValue: tagEntry }));
             });
-            SwaggerParser.addNodesAsArrayedAttribute(resourceConfigAnnotation, 'schemes', schemeBValues);
+            SwaggerParser.addNodesAsArrayedAttribute(resourceInfoAnnotation, 'tags', tagBValues);
         }
 
-        // TODO : Implement authorization.
+        if (!_.isNil(httpMethodJsonObject.summary)) {
+            const summaryBValue = ASTFactory.createBValue({ stringValue: httpMethodJsonObject.summary });
+            SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'summary', summaryBValue);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.description)) {
+            const descriptionBValue = ASTFactory.createBValue({ stringValue: httpMethodJsonObject.description });
+            SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'description', descriptionBValue);
+        }
+
+        if (!_.isNil(httpMethodJsonObject.externalDocs)) {
+            const externalDocAnnotation = ASTFactory.createAnnotationAttachment({
+                fullPackageName: SWAGGER_FULL_PACKAGE,
+                packageName: SWAGGER_PACKAGE,
+                name: 'ExternalDoc',
+            });
+
+            if (!_.isNil(httpMethodJsonObject.externalDocs.description)) {
+                const descriptionBValue = ASTFactory.createBValue({
+                    stringValue: httpMethodJsonObject.externalDocs.description,
+                });
+                SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'description', descriptionBValue);
+            }
+
+            if (!_.isNil(httpMethodJsonObject.externalDocs.url)) {
+                const urlBValue = ASTFactory.createBValue({ stringValue: httpMethodJsonObject.externalDocs.url });
+                SwaggerParser.setAnnotationAttribute(externalDocAnnotation, 'url', urlBValue);
+            }
+
+            SwaggerParser.setAnnotationAttribute(resourceInfoAnnotation, 'externalDocs', externalDocAnnotation);
+        }
 
         const resourceDefinitionAnnotations =
-                                        resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
-        const resourceConfigAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
-                                                                                    SWAGGER_PACKAGE, 'ResourceConfig');
-        resourceDefinition.addChild(resourceConfigAnnotation, resourceConfigAnnotationIndex);
+            resourceDefinition.getChildrenOfType(ASTFactory.isAnnotationAttachment);
+        const resourceInfoAnnotationIndex = SwaggerParser.removeExistingAnnotation(resourceDefinitionAnnotations,
+            SWAGGER_PACKAGE, 'ResourceInfo');
+        resourceDefinition.addChild(resourceInfoAnnotation, resourceInfoAnnotationIndex);
     }
 
     /**
