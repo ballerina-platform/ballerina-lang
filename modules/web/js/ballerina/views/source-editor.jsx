@@ -30,7 +30,7 @@ import SourceViewCompleterFactory from './../../ballerina/utils/source-view-comp
 import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
 import { CHANGE_EVT_TYPES } from './constants';
 import { CONTENT_MODIFIED } from './../../constants/events';
-import { FORMAT } from './../../constants/commands';
+import { FORMAT, GO_TO_POSITION } from './../../constants/commands';
 import { parseFile } from './../../api-client/api-client';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 import debuggerHOC from '../../debugger/debugger-hoc';
@@ -86,6 +86,7 @@ class SourceView extends React.Component {
         this.inSilentMode = false;
         this.format = this.format.bind(this);
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
+        this.goToCursorPosition = this.goToCursorPosition.bind(this);
     }
 
     /**
@@ -127,6 +128,8 @@ class SourceView extends React.Component {
             });
             // register handler for source format command
             this.props.commandManager.registerHandler(FORMAT, this.format, this);
+             // register handler for go to position command
+            this.props.commandManager.registerHandler(GO_TO_POSITION, this.handleGoToPosition, this);
             // listen to changes done to file content
             // by other means (eg: design-view changes or redo/undo actions)
             // and update ace content accordingly
@@ -173,6 +176,20 @@ class SourceView extends React.Component {
     }
 
     /**
+     * Go to given position command handler.
+     *
+     * @param {Object} args
+     * @param {File} args.file File
+     * @param {number} args.row Line number
+     * @param {number} args.column Offset
+     */
+    handleGoToPosition(args) {
+        if (this.props.file.id === args.file.id) {
+            this.goToCursorPosition(args.row, args.column);
+        }
+    }
+
+    /**
      * format handler
      */
     format() {
@@ -189,6 +206,18 @@ class SourceView extends React.Component {
                 this.replaceContent(formattedContent, false);
             })
             .catch(error => log.error(error));
+    }
+
+    /**
+     * Set cursor of the source editor to a
+     * specific position.
+     *
+     * @param {number} row Line Number
+     * @param {number} column Offset
+     */
+    goToCursorPosition(row, column) {
+        this.editor.focus();
+        this.editor.gotoLine(row + 1, column);
     }
 
     /**

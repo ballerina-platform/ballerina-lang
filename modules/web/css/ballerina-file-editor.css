@@ -29,6 +29,11 @@
     min-width: 250px;
 }
 
+#syntax-errors-list-popover .popover-title {
+    min-height: 20px;
+    vertical-align: middle;
+}
+
 #syntax-errors-list-popover .popover-title i {
     color: #ff0033;
     margin-right: 10px;
@@ -44,6 +49,12 @@
     border-bottom: none;
     border-left: none;
     border-right: none;
+}
+
+#syntax-errors-list-popover .list-group-item:hover {
+    background-color: rgb(51, 51, 51);
+    border-color: #565656;
+    cursor: pointer;
 }
 
 #syntax-errors-list-popover .popover-title {

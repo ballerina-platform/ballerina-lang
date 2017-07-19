@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import commandManager from 'command';
 import File from './../../workspace/file';
 import { DESIGN_VIEW } from './constants';
+import { GO_TO_POSITION } from './../../constants/commands';
 import SourceEditor from './source-editor';
 
 /**
@@ -98,8 +99,19 @@ class SourceView extends React.Component {
                                 <li
                                     key={error.row + error.column + btoa(error.text)}
                                     className="list-group-item syntax-error"
+                                    onClick={() => {
+                                        this.props.commandManager
+                                            .dispatch(GO_TO_POSITION, {
+                                                file: this.props.file,
+                                                row: error.row,
+                                                column: error.column,
+                                            });
+                                    }}
                                 >
-                                    <div >{error.text}</div>
+                                    <div>
+                                        <span className="link">line {error.row + 1 + ' '}</span>
+                                        :{' ' + error.text}
+                                    </div>
                                 </li>
                             );
                         })
