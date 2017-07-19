@@ -44,7 +44,7 @@ class BProgramRunner {
         ProgramFile programFile = new BLangProgramLoader().loadMainProgramFile(programDirPath, sourceFilePath);
 
         // Load Client Connectors
-        BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         // Check whether there is a main function
         new BLangProgramRunner().runMain(programFile, args.toArray(new String[0]));
