@@ -171,7 +171,7 @@ const SwaggerImportDialog = Backbone.View.extend(
 
                             // Creating the AST according to the swagger def.
                             let swaggerParser;
-                            if (fileName.split('.').pop().toLowerCase() === '.json') {
+                            if (fileName.split('.').pop().toLowerCase() === 'json') {
                                 swaggerParser = new SwaggerParser(JSON.parse(data.content));
                             } else {
                                 swaggerParser = new SwaggerParser(data.content, true);

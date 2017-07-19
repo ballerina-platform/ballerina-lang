@@ -523,31 +523,34 @@ class SwaggerParser {
             resourceDefinition.getArgumentParameterDefinitionHolder().getChildren().splice(1);
 
             swaggerParameters.forEach((swaggerParameter) => {
-                const newParameterDefinition = ASTFactory.createParameterDefinition();
-                if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
-                    newParameterDefinition.setTypeName('int');
-                } else {
-                    newParameterDefinition.setTypeName(swaggerParameter.type);
+                if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'param') &&
+                                                                                    !_.isNil(swaggerParameter.type)) {
+                    const newParameterDefinition = ASTFactory.createParameterDefinition();
+                    if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
+                        newParameterDefinition.setTypeName('int');
+                    } else {
+                        newParameterDefinition.setTypeName(swaggerParameter.type);
+                    }
+                    newParameterDefinition.setName(swaggerParameter.name);
+
+                    // Creating parameter annotation.
+                    const paramAnnotation = ASTFactory.createAnnotationAttachment({
+                        fullPackageName: HTTP_FULL_PACKAGE,
+                        packageName: HTTP_PACKAGE,
+                    });
+
+                    const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
+                    SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
+
+                    if (swaggerParameter.in === 'query') {
+                        paramAnnotation.setName('QueryParam');
+                    } else if (swaggerParameter.in === 'path') {
+                        paramAnnotation.setName('PathParam');
+                    }
+
+                    newParameterDefinition.addChild(paramAnnotation);
+                    resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
                 }
-                newParameterDefinition.setName(swaggerParameter.name);
-
-                // Creating parameter annotation.
-                const paramAnnotation = ASTFactory.createAnnotationAttachment({
-                    fullPackageName: HTTP_FULL_PACKAGE,
-                    packageName: HTTP_PACKAGE,
-                });
-
-                const nameBValue = ASTFactory.createBValue({ stringValue: swaggerParameter.name });
-                SwaggerParser.setAnnotationAttribute(paramAnnotation, 'value', nameBValue);
-
-                if (swaggerParameter.in === 'query') {
-                    paramAnnotation.setName('QueryParam');
-                } else if (swaggerParameter.in === 'path') {
-                    paramAnnotation.setName('PathParam');
-                }
-
-                newParameterDefinition.addChild(paramAnnotation);
-                resourceDefinition.getArgumentParameterDefinitionHolder().addChild(newParameterDefinition);
             });
         }
     }
