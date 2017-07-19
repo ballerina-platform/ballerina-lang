@@ -37,6 +37,7 @@ import java.util.ServiceLoader;
         immediate = true,
         service = AbstractNativeAction.class)
 public class Init extends AbstractHTTPAction {
+
     @Override
     public BValue execute(Context context) {
         if (BallerinaConnectorManager.getInstance().
@@ -50,5 +51,10 @@ public class Init extends AbstractHTTPAction {
             });
         }
         return null;
+    }
+
+    @Override
+    public boolean isNonBlockingAction() {
+        return false;
     }
 }
