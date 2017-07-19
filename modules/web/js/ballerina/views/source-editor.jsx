@@ -157,6 +157,18 @@ class SourceView extends React.Component {
                     e.editor.session.clearBreakpoint(row);
                 }
             });
+            // on editor annotation change
+            // check whether the new set of annoations contain
+            // lint errors from background worker
+            // this is to re-use ace's in-built worker validations
+            // to update design-view btn with #of syntax errors
+            editor.getSession().on('changeAnnotation', () => {
+                const annotations = editor.getSession().getAnnotations();
+                const errors = annotations.filter((annotation) => {
+                    return annotation.type === 'error';
+                });
+                this.props.onLintErrors(errors);
+            });
         }
     }
 
@@ -274,6 +286,7 @@ SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
     commandManager: PropTypes.instanceOf(commandManager).isRequired,
     parseFailed: PropTypes.bool.isRequired,
+    onLintErrors: PropTypes.func,
     sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
     addBreakpoint: PropTypes.func.isRequired,
     removeBreakpoint: PropTypes.func.isRequired,

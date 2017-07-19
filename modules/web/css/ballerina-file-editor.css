@@ -16,6 +16,34 @@
     height: 100%;
 }
 
+.syntax-errors-counter-container {
+    top: -15px;
+    right: -10px;
+    position: absolute;
+}
+
+.syntax-errors-counter-container > .badge {
+    background-color: #ff0033;
+}
+
+.error-count-badge-enter {
+  opacity: 0.01;
+}
+
+.error-count-badge-enter.error-count-badge-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.error-count-badge-leave {
+  opacity: 1;
+}
+
+.error-count-badge-leave.error-count-badge-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
 .canvas-container {
     float: left;
     height: auto;
