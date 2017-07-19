@@ -63,8 +63,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
 
-    private BallerinaConnectorDef parentFilterConnector;
-
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
 
@@ -129,14 +127,6 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public void setFilterConnector(boolean filterConnector) {
         isFilterConnector = filterConnector;
-    }
-
-    public BallerinaConnectorDef getParentFilterConnector() {
-        return parentFilterConnector;
-    }
-
-    public void setParentFilterConnector(BallerinaConnectorDef parentFilterConnector) {
-        this.parentFilterConnector = parentFilterConnector;
     }
 
     // Methods in Node interface

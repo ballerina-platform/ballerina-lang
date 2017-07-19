@@ -1791,12 +1791,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.INCORRECT_ACTION_INVOCATION);
             }
 
-            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) ((VariableDef) bLangSymbol).getType()).
-                    getParentFilterConnector();
-            if (filterConnectorDef != null) {
-                actionIExpr.setConnectorName(filterConnectorDef.getName());
-            }
-
             Expression[] exprs = new Expression[actionIExpr.getArgExprs().length + 1];
             SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(),
                     null, name, null, pkgPath);
@@ -1812,12 +1806,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (!(bLangSymbol instanceof BallerinaConnectorDef)) {
             throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                     SemanticErrors.INVALID_ACTION_INVOCATION);
-        } else {
-            BallerinaConnectorDef filterConnectorDef = ((BallerinaConnectorDef) bLangSymbol).
-                    getParentFilterConnector();
-            if (filterConnectorDef != null) {
-                actionIExpr.setConnectorName(filterConnectorDef.getName());
-            }
         }
 
         Expression[] exprs = actionIExpr.getArgExprs();
@@ -3589,15 +3577,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType rhsType = rhsExpr.getType();
         if (lhsType == rhsType) {
             assignabilityResult.assignable = true;
-            return assignabilityResult;
-        }
-
-        // Check for filter connector assignment
-        if (rhsType instanceof BallerinaConnectorDef &&
-                ((BallerinaConnectorDef) rhsType).getParentFilterConnector() != null) {
-                if (lhsType == ((BallerinaConnectorDef) rhsType).getParentFilterConnector()) {
-                    assignabilityResult.assignable = true;
-                }
             return assignabilityResult;
         }
 

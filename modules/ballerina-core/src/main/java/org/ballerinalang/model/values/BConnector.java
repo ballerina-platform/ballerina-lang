@@ -38,7 +38,6 @@ public final class BConnector implements BRefType<Connector>, StructureType {
     private int[] intFields;
     private byte[][] byteFields;
     private BRefType[] refFields;
-    private String polymorphicTypeValue;
     private BConnector filterConnector;
     private BType connectorType;
 
@@ -77,14 +76,6 @@ public final class BConnector implements BRefType<Connector>, StructureType {
 
     public void setFieldTypes(BType[] fieldTypes) {
         this.fieldTypes = fieldTypes;
-    }
-
-    public String getPolymorphicTypeValue() {
-        return polymorphicTypeValue;
-    }
-
-    public void setPolymorphicTypeValue(String polymorphicTypeValue) {
-        this.polymorphicTypeValue = polymorphicTypeValue;
     }
 
     public BConnector getFilterConnector() {
