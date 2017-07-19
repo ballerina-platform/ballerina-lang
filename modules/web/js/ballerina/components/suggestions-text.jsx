@@ -261,7 +261,9 @@ SuggestionsText.propTypes = {
     onEnter: PropTypes.func.isRequired,
     onSuggestionSelected: PropTypes.func,
     onBlur: PropTypes.func,
-    suggestionsPool: PropTypes.arrayOf(PropTypes.string).isRequired,
+    suggestionsPool: PropTypes.arrayOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+    })).isRequired,
 };
 
 SuggestionsText.defaultProps = {

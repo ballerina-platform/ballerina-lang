@@ -13,8 +13,6 @@ import ballerina.net.http.swagger;
         name: "MIT"
     }
 }
-@http:Consumes {value: ["application/json", "application/xml"]}
-@http:Produces {value: ["application/json"]}
 @swagger:ServiceConfig {
     schemes:[
         "http"

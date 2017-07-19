@@ -37,13 +37,6 @@
   "schemes": [
     "http", "https"
   ],
-  "consumes": [
-    "application/json",
-    "application/xml"
-  ],
-  "produces": [
-    "application/json"
-  ],
   "tags":[
     {"name":"tag-1","description":"first tag"},
     {"name":"tag-2","description":"second tag"}
