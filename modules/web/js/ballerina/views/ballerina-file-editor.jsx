@@ -114,6 +114,15 @@ class BallerinaFileEditor extends React.Component {
             this.showSwaggerViewForService(this.state.model.getServiceDefinitions()[0]);
         }, this);
 
+        // Show the swagger view when 'try it' is invoked.
+        props.commandManager.registerHandler('hide-try-it-view', () => {
+            if (this.state.activeView === SWAGGER_VIEW) {
+                this.setState({
+                    activeView: DESIGN_VIEW,
+                });
+            }
+        }, this);
+
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
     }
 

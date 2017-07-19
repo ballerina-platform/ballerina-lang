@@ -209,6 +209,11 @@ class SwaggerView extends React.Component {
             const $container = $(this.container);
             $container.empty();
             $container.attr('id', this.swaggerEditorID);
+
+            if (this.props.hideSwaggerAceEditor) {
+                $container.hide();
+            }
+
             this.swaggerEditor = SwaggerEditorBundle({
                 dom_id: `#${this.swaggerEditorID}`,
             });
@@ -228,6 +233,7 @@ class SwaggerView extends React.Component {
                 const editorPanel = $swaggerAceContainer.parent().parent();
                 editorPanel.hide();
                 editorPanel.next().next().css('width', '100%');
+                $container.show();
             }
         }
     }

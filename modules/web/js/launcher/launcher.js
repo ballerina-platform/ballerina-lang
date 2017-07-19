@@ -171,6 +171,9 @@ const Launcher = Backbone.View.extend({
      */
     stopProgram() {
         LaunchManager.stopProgram();
+        this.application.commandManager.dispatch('try-it-url-received', undefined);
+        this.application.commandManager.dispatch('hide-try-it-view');
+        
     },
     /**
      * Redeploy currently running application or service

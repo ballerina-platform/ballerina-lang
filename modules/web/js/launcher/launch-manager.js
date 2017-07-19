@@ -171,6 +171,7 @@ class LaunchManager extends EventChannel {
             this.trigger('session-ended');
             // close the current channel.
             this.channel.close();
+            this.tryItUrl = undefined;
         }
         if (message.code === 'PONG') {
             // if a pong message is received we will ignore.
