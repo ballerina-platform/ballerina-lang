@@ -57,9 +57,11 @@ import java.util.regex.Pattern;
 
 public class BallerinaAnnotator implements Annotator {
 
-    private static final String VALID_ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]";
+    private static final String VALID_ESCAPE_CHARACTERS = "\\\\[btnfr\"'\\\\]|\\\\u[0-f]{4}|\\\\[0-3][0-7]{2}" +
+            "|\\\\[0-7]{1,2}";
     private static final Pattern VALID_ESCAPE_CHAR_PATTERN = Pattern.compile(VALID_ESCAPE_CHARACTERS);
-    private static final String INVALID_ESCAPE_CHARACTERS = "((\\\\\\\\)+|(\\\\[^btnfr\"'\\\\]))|(\\\\(?!.))";
+    private static final String INVALID_ESCAPE_CHARACTERS = "((\\\\\\\\)+|(\\\\([^btnfru\"'\\\\0-7]" +
+            "|(u[0-f]{0,3}[^0-f]))))|(\\\\(?!.))";
     private static final Pattern INVALID_ESCAPE_CHAR_PATTERN = Pattern.compile(INVALID_ESCAPE_CHARACTERS);
 
     private static final String QUERY_PARAMETERS = "\\w+=(\\{([^&]+)})";

@@ -823,7 +823,7 @@ BooleanLiteral
 // §3.10.5 String Literals
 
 QuotedStringLiteral
-    :   '"' StringCharacters? ('"')?
+    :   '"' StringCharacters? '"'?
     ;
 
 BacktickStringLiteral
@@ -849,15 +849,15 @@ StringCharacters
 
 fragment
 StringCharacter
-    :   ~["]
-    |   EscapeSequence
+    :   ~["\n\r]
+    |   ~'\\' ('\\' '\\')* '\\' ["]
     ;
 
 // §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
 EscapeSequence
-    :   '\\' ["'\\]
+    :   '\\' [btnfr"'\\]
     |   OctalEscape
     |   UnicodeEscape
     ;
