@@ -7,8 +7,8 @@ annotation ServiceInfo attach service {
     string termsOfService;
     Contact contact;
     License license;
-    ExternalDoc externalDoc;
-    Tag[] tag;
+    ExternalDoc externalDocs;
+    Tag[] tags;
     Organization organization;
     Developer[] developers;
 }
@@ -44,7 +44,6 @@ annotation Developer {
     string email;
 }
 
-
 annotation Swagger attach service {
     string version;
     SwaggerExtension[] extension;
@@ -53,7 +52,6 @@ annotation Swagger attach service {
 annotation SwaggerExtension {
     string target;
 }
-
 
 annotation ServiceConfig attach service {
     string host;
@@ -113,7 +111,7 @@ annotation ResourceInfo attach resource {
     string[] tags;
     string summary;
     string description;
-    ExternalDoc[] externalDocs;
+    ExternalDoc externalDocs;
 }
 
 annotation Responses attach resource {
