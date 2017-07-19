@@ -44,13 +44,25 @@ public class ActionInvocationReference extends BallerinaElementReference {
         PsiElement parent = identifier.getParent();
         ConnectorReferenceNode connectorReferenceNode = PsiTreeUtil.getChildOfType(parent,
                 ConnectorReferenceNode.class);
-        if (connectorReferenceNode == null) {
-            return null;
+        PsiReference reference;
+        if (connectorReferenceNode != null) {
+            reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
+        } else {
+            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(identifier);
+            if (prevVisibleLeaf == null || !".".equals(prevVisibleLeaf.getText())) {
+                return null;
+            }
+
+            PsiElement connectorName = PsiTreeUtil.prevVisibleLeaf(prevVisibleLeaf);
+            if (connectorName == null || !(connectorName instanceof IdentifierPSINode)) {
+                return null;
+            }
+            reference = connectorName.findReferenceAt(connectorName.getTextLength());
         }
-        PsiReference reference = connectorReferenceNode.findReferenceAt(connectorReferenceNode.getTextLength());
         if (reference == null) {
             return null;
         }
+
         PsiElement connectorIdentifier = reference.resolve();
         if (connectorIdentifier == null) {
             return null;
