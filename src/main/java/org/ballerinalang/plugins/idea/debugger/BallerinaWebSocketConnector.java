@@ -56,6 +56,11 @@ public class BallerinaWebSocketConnector {
         return DEBUG_PROTOCOL + myAddress + DEBUG_WEB_SOCKET_PATH;
     }
 
+    @NotNull
+    public String getDebugServerAddress() {
+        return myAddress;
+    }
+
     void sendCommand(Command command) {
         if (isConnected()) {
             client.sendText(generateRequest(command));

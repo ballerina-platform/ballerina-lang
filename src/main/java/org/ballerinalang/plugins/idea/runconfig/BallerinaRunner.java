@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.runconfig;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.runners.DefaultProgramRunner;
+import org.ballerinalang.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaRunner extends DefaultProgramRunner {
@@ -33,6 +34,8 @@ public class BallerinaRunner extends DefaultProgramRunner {
 
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return DefaultRunExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof BallerinaRunConfigurationBase;
+        // We don't need to run Ballerina Remote configuration, we only debug using it.
+        return DefaultRunExecutor.EXECUTOR_ID.equals(executorId)
+                && profile instanceof BallerinaApplicationConfiguration;
     }
 }

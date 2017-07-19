@@ -75,17 +75,21 @@ public class BallerinaDebugProcess extends XDebugProcess {
     private final BallerinaBreakpointHandler myBreakPointHandler;
     private final BallerinaWebSocketConnector myConnector;
     private boolean isDisconnected = false;
+    private boolean isRemoteDebugMode = false;
 
     private final AtomicBoolean breakpointsInitiated = new AtomicBoolean();
 
     public BallerinaDebugProcess(@NotNull XDebugSession session, @NotNull BallerinaWebSocketConnector connector,
-                                 @NotNull ExecutionResult executionResult) {
+                                 @Nullable ExecutionResult executionResult) {
         super(session);
         myConnector = connector;
-        myProcessHandler = executionResult.getProcessHandler();
-        myExecutionConsole = executionResult.getExecutionConsole();
+        myProcessHandler = executionResult == null ? super.getProcessHandler() : executionResult.getProcessHandler();
+        myExecutionConsole = executionResult == null ? super.createConsole() : executionResult.getExecutionConsole();
         myEditorsProvider = new BallerinaDebuggerEditorsProvider();
         myBreakPointHandler = new BallerinaBreakpointHandler();
+        if (executionResult == null) {
+            isRemoteDebugMode = true;
+        }
     }
 
     @Nullable
@@ -126,6 +130,10 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     LOGGER.debug("Not connected. Retrying...");
                     myConnector.createConnection(this::debugHit);
                     if (myConnector.isConnected()) {
+                        if (isRemoteDebugMode) {
+                            getSession().getConsoleView().print("Connected to the remote server at " +
+                                    myConnector.getDebugServerAddress() + ".\n", ConsoleViewContentType.SYSTEM_OUTPUT);
+                        }
                         LOGGER.debug("Connection created.");
                         startDebugSession();
                         break;
@@ -135,9 +143,13 @@ public class BallerinaDebugProcess extends XDebugProcess {
                     startDebugSession();
                     break;
                 }
+                if (isRemoteDebugMode) {
+                    break;
+                }
             }
             if (!myConnector.isConnected()) {
-                getSession().getConsoleView().print("Connection to debug server could not be established.",
+                getSession().getConsoleView().print("Connection to debug server at " +
+                                myConnector.getDebugServerAddress() + " could not be established.",
                         ConsoleViewContentType.ERROR_OUTPUT);
                 getSession().stop();
             }

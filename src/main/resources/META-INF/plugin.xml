@@ -150,6 +150,10 @@
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.runconfig.BallerinaRunLineMarkerProvider"/>
         <console.folding implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaConsoleFolding"/>
 
+        <!--remote-->
+        <configurationType implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.runconfig.remote.BallerinaRemoteRunConfigurationProducer"/>
+
         <!-- debugger -->
         <programRunner id="ballerinaDebugger" implementation="org.ballerinalang.plugins.idea.runconfig.BallerinaDebugger"/>
         <xdebugger.breakpointType implementation="org.ballerinalang.plugins.idea.debugger.breakpoint.BallerinaBreakPointType"/>

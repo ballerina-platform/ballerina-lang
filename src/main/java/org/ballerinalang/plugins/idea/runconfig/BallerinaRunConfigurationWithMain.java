@@ -35,11 +35,17 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
 
     private static final String FILE_PATH_ATTRIBUTE_NAME = "filePath";
     private static final String KIND_ATTRIBUTE_NAME = "myRunKind";
+    private static final String REMOTE_DEBUGGING_HOST_ATTRIBUTE_NAME = "remoteDebuggingHost";
+    private static final String REMOTE_DEBUGGING_PORT_ATTRIBUTE_NAME = "remoteDebuggingPort";
 
     @NotNull
     private String myFilePath = "";
     @NotNull
     protected RunConfigurationKind myRunKind = RunConfigurationKind.MAIN;
+    @NotNull
+    private String remoteDebugHost = "";
+    @NotNull
+    private String remoteDebugPort = "";
 
     public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
                                              ConfigurationFactory factory) {
@@ -54,6 +60,10 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
                 FILE_PATH_ATTRIBUTE_NAME));
         myRunKind = RunConfigurationKind.valueOf(StringUtil.notNullize(
                 JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
+        remoteDebugHost = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+                REMOTE_DEBUGGING_HOST_ATTRIBUTE_NAME));
+        remoteDebugPort = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+                REMOTE_DEBUGGING_PORT_ATTRIBUTE_NAME));
     }
 
     @Override
@@ -61,6 +71,8 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
         super.writeExternal(element);
         addNonEmptyElement(element, FILE_PATH_ATTRIBUTE_NAME, myFilePath);
         addNonEmptyElement(element, KIND_ATTRIBUTE_NAME, myRunKind.toString());
+        addNonEmptyElement(element, REMOTE_DEBUGGING_HOST_ATTRIBUTE_NAME, remoteDebugHost);
+        addNonEmptyElement(element, REMOTE_DEBUGGING_PORT_ATTRIBUTE_NAME, remoteDebugPort);
     }
 
     protected void checkFileConfiguration() throws RuntimeConfigurationError {
@@ -103,5 +115,23 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
 
     public void setRunKind(RunConfigurationKind runKind) {
         this.myRunKind = runKind;
+    }
+
+    @NotNull
+    public String getRemoteDebugHost() {
+        return remoteDebugHost;
+    }
+
+    public void setRemoteDebugHost(@NotNull String remoteDebugHost) {
+        this.remoteDebugHost = remoteDebugHost;
+    }
+
+    @NotNull
+    public String getRemoteDebugPort() {
+        return remoteDebugPort;
+    }
+
+    public void setRemoteDebugPort(@NotNull String remoteDebugPort) {
+        this.remoteDebugPort = remoteDebugPort;
     }
 }
