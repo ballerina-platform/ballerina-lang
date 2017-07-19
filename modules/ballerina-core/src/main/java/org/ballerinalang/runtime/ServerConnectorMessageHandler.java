@@ -109,7 +109,7 @@ public class ServerConnectorMessageHandler {
      * @param resourceInfo resource that has been invoked
      * @param serviceInfo  service that has been invoked
      */
-    public static void invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
+    public static void  invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         // engage Service interceptors.
         CarbonCallback resourceCallback = callback;
@@ -155,8 +155,7 @@ public class ServerConnectorMessageHandler {
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame calleeSF =
-                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
+        StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();

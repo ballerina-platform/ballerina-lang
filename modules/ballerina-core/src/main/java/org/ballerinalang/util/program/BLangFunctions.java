@@ -22,8 +22,10 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
+import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -47,6 +49,8 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.Arrays;
+
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -109,12 +113,11 @@ public class BLangFunctions {
         }
 
         ControlStackNew controlStackNew = context.getControlStackNew();
-        invokeFunction(bLangProgram, packageInfo, packageInfo.getInitFunctionInfo(), context);
+        invokeFunction(bLangProgram, packageInfo.getInitFunctionInfo(), context);
 
         // First Create the caller's stack frame. This frame contains zero local variables, but it contains enough
         // registers to hold function arguments as well as return values from the callee.
-        org.ballerinalang.bre.bvm.StackFrame callerSF =
-                new org.ballerinalang.bre.bvm.StackFrame(packageInfo, -1, new int[0]);
+        StackFrame callerSF = new StackFrame(packageInfo, -1, new int[0]);
         controlStackNew.pushFrame(callerSF);
         // TODO Create registers to hold return values
 
@@ -266,26 +269,11 @@ public class BLangFunctions {
         }
 
         return returnValues;
-
     }
 
-    public static void invokePackageInitFunction(ProgramFile programFile, PackageInfo packageInfo, Context context) {
-        FunctionInfo initFuncInfo = packageInfo.getInitFunctionInfo();
+    public static void invokeFunction(ProgramFile programFile, FunctionInfo initFuncInfo, Context context) {
         WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
-                defaultWorker, -1, new int[0]);
-        context.getControlStackNew().pushFrame(stackFrame);
-
-        BLangVM bLangVM = new BLangVM(programFile);
-        context.setStartIP(defaultWorker.getCodeAttributeInfo().getCodeAddrs());
-        bLangVM.run(context);
-    }
-
-    public static void invokeFunction(ProgramFile programFile, PackageInfo packageInfo,
-                                                 FunctionInfo initFuncInfo, Context context) {
-        WorkerInfo defaultWorker = initFuncInfo.getDefaultWorkerInfo();
-        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(initFuncInfo,
-                defaultWorker, -1, new int[0]);
+        StackFrame stackFrame = new StackFrame(initFuncInfo, defaultWorker, -1, new int[0]);
         context.getControlStackNew().pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
@@ -301,7 +289,7 @@ public class BLangFunctions {
      * @return Function instance or null if function doesn't exist.
      */
     public static Function getFunction(BLangProgram bLangProgram, String functionName) {
-        return getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, null);
+        return getFunction(bLangProgram.getEntryPackage().getFunctions(), functionName, null);
     }
 
     private static Function getFunction(Function[] functions, String funcName, BValue[] args) {
@@ -387,5 +375,21 @@ public class BLangFunctions {
 
         return bType;
 
+    }
+
+    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
+        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo(MAIN_FUNCTION_NAME);
+        if (mainFuncInfo == null) {
+            return null;
+        }
+
+        BType[] paramTypes = mainFuncInfo.getParamTypes();
+        BType[] retParamTypes = mainFuncInfo.getRetParamTypes();
+        BArrayType argsType = new BArrayType(BTypes.typeString);
+        if (paramTypes.length != 1 || !paramTypes[0].equals(argsType) || retParamTypes.length != 0) {
+            return null;
+        }
+
+        return mainFuncInfo;
     }
 }

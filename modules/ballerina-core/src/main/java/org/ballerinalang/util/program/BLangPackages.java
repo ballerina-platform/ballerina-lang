@@ -23,10 +23,14 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
+import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
 
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,6 +49,30 @@ import java.util.stream.Collectors;
  * @since 0.8.0
  */
 public class BLangPackages {
+
+    public static BLangPackage loadEntryPackage(Path programDirPath,
+                                          Path sourcePath,
+                                          BLangProgram bLangProgram,
+                                          BuiltinPackageRepository[] builtinPackageRepositories) {
+
+        Path resolvedSourcePath = BLangPrograms.validateAndResolveSourcePath(programDirPath, sourcePath);
+
+        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath,
+                builtinPackageRepositories);
+        if (Files.isDirectory(resolvedSourcePath, LinkOption.NOFOLLOW_LINKS)) {
+            Path packagePath = programDirPath.relativize(resolvedSourcePath);
+            BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, packageRepository, bLangProgram);
+            bLangProgram.addEntryPoint(packagePath.toString());
+            return bLangPackage;
+
+        } else if (resolvedSourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            BLangPackage bLangPackage = BLangPackages.loadFile(resolvedSourcePath, packageRepository, bLangProgram);
+            bLangProgram.addEntryPoint(resolvedSourcePath.getFileName().toString());
+            return bLangPackage;
+        }
+
+        throw new IllegalArgumentException("invalid source file: " + sourcePath.toString());
+    }
 
     public static BLangPackage loadPackage(Path packagePath,
                                            PackageRepository packageRepo,
