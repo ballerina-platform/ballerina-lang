@@ -109,7 +109,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     protected String typeName;
     // private String schemaID;
 
-    protected boolean processingReturnParams = false;
+    protected int processingReturnParams = 0;
     protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
     protected Stack<BLangModelBuilder.NameReference> nameReferenceStack = new Stack<>();
 
@@ -929,7 +929,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             BallerinaParser.ReturnParametersContext returnCtx = ctx.returnParameters();
             if (returnCtx.parameterList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.parameterList().parameter().size()];
-            } else if (ctx.typeList() != null) {
+            } else if (returnCtx.typeList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
             }
         }
@@ -2300,12 +2300,12 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
 
     @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
-        processingReturnParams = true;
+        processingReturnParams++;
     }
 
     @Override
     public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
-        processingReturnParams = false;
+        processingReturnParams--;
     }
 
     @Override
@@ -2318,7 +2318,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             return;
         }
 
-        if (functionTypeStarted == 0 && processingReturnParams) {
+        if (functionTypeStarted == 0 && processingReturnParams == 1) {
             SimpleTypeName[] list = new SimpleTypeName[ctx.typeName().size()];
             for (int i = ctx.typeName().size() - 1; i >= 0; i--) {
                 list[i] = typeNameStack.pop();
@@ -2352,7 +2352,7 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         if (functionTypeStarted == 0) {
             modelBuilder.addParam(getCurrentLocation(ctx), whiteSpaceDescriptor, typeNameStack.pop(),
-                    ctx.Identifier().getText(), annotationCount, processingReturnParams);
+                    ctx.Identifier().getText(), annotationCount, processingReturnParams == 1);
         }
     }
 

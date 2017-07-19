@@ -3765,7 +3765,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return true;
         }
 
-        return lhsType == rhsType;
+        return lhsType == rhsType || lhsType.equals(rhsType);
     }
 
     private boolean checkUnsafeCastPossible(BType sourceType, BType targetType) {

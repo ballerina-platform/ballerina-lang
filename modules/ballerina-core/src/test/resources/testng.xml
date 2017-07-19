@@ -93,6 +93,7 @@ under the License.
     <test name="ballerina-lambda-test-suite">
         <classes>
             <class name="org.ballerinalang.model.functions.FunctionPointersTest" />
+            <class name="org.ballerinalang.model.functions.FunctionPointersNegativeTest" />
         </classes>
     </test>
 </suite>

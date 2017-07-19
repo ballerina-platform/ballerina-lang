@@ -68,4 +68,35 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
+
+    @Test
+    public void testLambdaAsReturnParameter() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test4", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "hello world.");
+    }
+
+    @Test
+    public void testFunctionPointerAsReturnParameter() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test5", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test5 string1.0");
+    }
+
+
+    @Test
+    public void testNestedFunctionPointersAsParameters() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test6", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test6 test6 1.0");
+    }
 }

@@ -21,6 +21,8 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Arrays;
+
 /**
  * {@code {@link BFunctionType }} represents a function pointer type in ballerina
  */
@@ -99,5 +101,32 @@ public class BFunctionType extends BType {
             }
         }
         return br.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BFunctionType)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        BFunctionType that = (BFunctionType) o;
+        if (!Arrays.equals(parameterType, that.parameterType)) {
+            return false;
+        }
+        return Arrays.equals(returnParameterType, that.returnParameterType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.hashCode(parameterType);
+        result = 31 * result + Arrays.hashCode(returnParameterType);
+        return result;
     }
 }
