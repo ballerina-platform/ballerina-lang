@@ -46,7 +46,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangModelBuilder;
@@ -329,7 +329,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (resource.getVariableDefs() != null) {
-            for (VariableDef variableDef : resource.getVariableDefs()) {
+            for (SimpleVariableDef variableDef : resource.getVariableDefs()) {
                 variableDef.accept(this);
             }
         }
@@ -367,7 +367,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (function.getVariableDefs() != null) {
-            for (VariableDef variableDef : function.getVariableDefs()) {
+            for (SimpleVariableDef variableDef : function.getVariableDefs()) {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
@@ -436,7 +436,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (typeMapper.getVariableDefs() != null) {
-            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
+            for (SimpleVariableDef variableDef : typeMapper.getVariableDefs()) {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
@@ -502,7 +502,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
 
         if (action.getVariableDefs() != null) {
-            for (VariableDef variableDef : action.getVariableDefs()) {
+            for (SimpleVariableDef variableDef : action.getVariableDefs()) {
                 variableDef.accept(this);
             }
         }
@@ -695,7 +695,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
         JsonObject variableDefObj = new JsonObject();
         this.addPosition(variableDefObj, variableDef.getNodeLocation());
         this.addWhitespaceDescriptor(variableDefObj, variableDef.getWhiteSpaceDescriptor());

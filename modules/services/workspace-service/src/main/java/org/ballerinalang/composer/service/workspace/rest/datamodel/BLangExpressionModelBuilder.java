@@ -37,7 +37,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
@@ -201,7 +201,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     //    }
     
     @Override
-    public void visit(VariableDef variableDef) {
+    public void visit(SimpleVariableDef variableDef) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append(variableDef.getType().toString()).append(SPACE_CHAR).append(variableDef.getName()).append(";");
