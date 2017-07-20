@@ -16,13 +16,13 @@
  * under the License.
  */
 
+import _ from 'lodash';
 import { statement } from './../configs/designer-defaults';
 import { blockStatement } from './../configs/designer-defaults';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SimpleBBox from './../ast/simple-bounding-box';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import ASTFactory from './../ast/ballerina-ast-factory';
-import _ from 'lodash';
 
 class SizingUtil {
     constructor() {
@@ -231,12 +231,16 @@ class SizingUtil {
 
         const workerChildren = node.filterChildren(child => BallerinaASTFactory.isWorkerDeclaration(child));
 
-        const connectorChildren = node.filterChildren(child => BallerinaASTFactory.isConnectorDeclaration(child));
+        const connectorChildren = node.filterChildren(
+            child => BallerinaASTFactory.isConnectorDeclaration(child)
+            || (BallerinaASTFactory.isAssignmentStatement(child)
+            && BallerinaASTFactory.isConnectorInitExpression(child.getChildren()[1])));
 
         const highestStatementContainerHeight = util.getHighestStatementContainer(workerChildren);
 
         /**
-         * If the current default worker's statement container height is less than the highest worker's statement container
+         * If the current default worker's statement container height is less than
+         * the highest worker's statement container
          * we set the default statement container height to the highest statement container's height
          */
         components.statementContainer.h = _.max([components.statementContainer.h, highestStatementContainerHeight]);
@@ -245,17 +249,25 @@ class SizingUtil {
 
         let lifeLineWidth = 0;
         _.forEach(workerChildren.concat(connectorChildren), (child) => {
-            lifeLineWidth += child.viewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
-            child.getViewState().bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
-                DesignerDefaults.lifeLine.head.height * 2;
-            child.getViewState().components.statementContainer.h = _.max([components.statementContainer.h,
+            let childViewState;
+            if (BallerinaASTFactory.isAssignmentStatement(child)
+                && BallerinaASTFactory.isConnectorInitExpression(child.getChildren()[1])) {
+                childViewState = child.getViewState().connectorDeclViewState;
+            } else {
+                childViewState = child.getViewState();
+            }
+            lifeLineWidth += childViewState.bBox.w + DesignerDefaults.lifeLine.gutter.h;
+            childViewState.bBox.h = _.max([components.statementContainer.h, highestStatementContainerHeight]) +
+                (DesignerDefaults.lifeLine.head.height * 2);
+            childViewState.components.statementContainer.h = _.max([components.statementContainer.h,
                 highestStatementContainerHeight]);
         });
 
         if (node.viewState.collapsed) {
             components.body.h = 0;
         } else {
-            components.body.h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ? defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
+            components.body.h = ((DesignerDefaults.panel.body.height < defaultWorkerLifeLineHeight) ?
+                    defaultWorkerLifeLineHeight : DesignerDefaults.panel.body.height)
                 + DesignerDefaults.panel.body.padding.top + DesignerDefaults.panel.body.padding.bottom;
         }
 
