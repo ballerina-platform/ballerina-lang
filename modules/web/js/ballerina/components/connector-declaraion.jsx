@@ -24,6 +24,7 @@ import { getComponentForNodeArray } from './utils';
 import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Get all components.
@@ -95,9 +96,16 @@ class ConnectorDeclaration extends React.Component {
         connectorBBox.y = statementContainerBBox.y - DesignerDefaults.lifeLine.head.height;
         connectorBBox.w = DesignerDefaults.lifeLine.width;
         connectorBBox.h = statementContainerBBox.h + (DesignerDefaults.lifeLine.head.height * 2);
-        const connectorInitializeStartY = model.viewState.components.statementViewState.bBox.y +
+        let connectorInitializeStartY;
+        let renderStatementBox = false;
+
+        if (!(BallerinaASTFactory.isConnectorDefinition(model.getParent())
+            || BallerinaASTFactory.isServiceDefinition(model.getParent()))) {
+            connectorInitializeStartY = model.viewState.components.statementViewState.bBox.y +
             ((model.getViewState().components.statementViewState.bBox.h
             + model.getViewState().components.statementViewState.components['drop-zone'].h) / 2);
+            renderStatementBox = true;
+        }
 
         const classes = {
             lineClass: 'connector-life-line',
@@ -106,11 +114,14 @@ class ConnectorDeclaration extends React.Component {
 
         return (
             <g>
-                <StatementDecorator
-                    model={model}
-                    viewState={model.viewState.components.statementViewState}
-                    expression={connectorName}
-                />
+                {renderStatementBox &&
+                    <StatementDecorator
+                        model={model}
+                        viewState={model.viewState.components.statementViewState}
+                        expression={connectorName}
+                        editorOptions={this.editorOptions}
+                    />
+                }
                 <ConnectorActivationContainer bBox={statementContainerBBox} activationTarget={model} />
                 <LifeLine
                     title={connectorName}

@@ -363,7 +363,8 @@ class FunctionDefinition extends CallableDefinition {
             let child;
             let childNodeTemp;
             // TODO : generalize this logic
-            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' &&
+                !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -403,9 +404,24 @@ class FunctionDefinition extends CallableDefinition {
      */
     getConnectorByName(connectorName) {
         const factory = this.getFactory();
-        return _.find(this.getChildren(), (child) => {
-            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+        const connectorReference = _.find(this.getChildren(), (child) => {
+            let connectorVariableName;
+            if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
+                const variableReferenceList = [];
+
+                _.forEach(child.getChildren()[0].getChildren(), (variableRef) => {
+                    variableReferenceList.push(variableRef.getExpressionString());
+                });
+
+                connectorVariableName = (_.join(variableReferenceList, ',')).trim();
+            } else if (factory.isConnectorDeclaration(child)) {
+                connectorVariableName = child.getConnectorVariable();
+            }
+
+            return connectorVariableName === connectorName;
         });
+
+        return connectorReference;
     }
 
     /**

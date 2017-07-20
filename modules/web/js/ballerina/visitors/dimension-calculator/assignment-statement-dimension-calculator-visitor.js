@@ -15,7 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import { util } from './../sizing-utils';
+import SimpleBBox from './../../ast/simple-bounding-box';
+import * as DesignerDefaults from './../../configs/designer-defaults';
 
 /**
  * Dimension visitor class for assignment statement.
@@ -60,6 +63,53 @@ class AssignmentStatementDimensionCalculatorVisitor {
      * */
     endVisit(node) {
         util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
+        if (node.getFactory().isConnectorInitExpression(node.getChildren()[1])) {
+            AssignmentStatementDimensionCalculatorVisitor.calculateConnectorDeclarationDimension(node);
+        }
+    }
+
+    /**
+     * Calculate the connector declaration dimension
+     * @param {AssignmentStatement} node - assignment statement node
+     */
+    static calculateConnectorDeclarationDimension(node) {
+        const viewState = node.getViewState();
+        const connectorDeclViewState = {
+            bBox: new SimpleBBox(),
+            components: {},
+        };
+        const components = {};
+
+        const variableReferenceList = [];
+
+        _.forEach(node.getChildren()[0].getChildren(), (child) => {
+            variableReferenceList.push(child.getExpressionString());
+        });
+
+        components.statementContainer = new SimpleBBox();
+        const statementContainerWidthPadding = DesignerDefaults.statementContainer.padding.left +
+            DesignerDefaults.statementContainer.padding.right;
+        const textWidth = util.getTextWidth(_.join(variableReferenceList, ', '),
+            DesignerDefaults.lifeLine.width,
+            DesignerDefaults.lifeLine.width);
+
+        connectorDeclViewState.variableTextWidth = textWidth.w;
+        connectorDeclViewState.variableTextTrimmed = textWidth.text;
+
+        const statementContainerWidth = (DesignerDefaults.statementContainer.width + statementContainerWidthPadding) >
+        connectorDeclViewState.variableTextWidth
+            ? (DesignerDefaults.statementContainer.width + statementContainerWidthPadding)
+            : connectorDeclViewState.variableTextWidth;
+        const statementContainerHeight = DesignerDefaults.statementContainer.height;
+
+        connectorDeclViewState.bBox.h = statementContainerHeight + (DesignerDefaults.lifeLine.head.height * 2);
+        connectorDeclViewState.bBox.w = statementContainerWidth;
+
+        components.statementContainer.h = statementContainerHeight;
+        components.statementContainer.w = statementContainerWidth;
+
+        connectorDeclViewState.components = components;
+        viewState.connectorDeclViewState = connectorDeclViewState;
     }
 }
 
