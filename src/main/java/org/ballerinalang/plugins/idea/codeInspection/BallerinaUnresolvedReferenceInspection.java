@@ -90,10 +90,10 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = nameIdentifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                LocalQuickFix[] availableFixes = createImportPackageFix(packageNameNode);
-                String description = "Unresolved reference " + "'" + packageNameNode.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        packageNameNode, availableFixes);
+                BallerinaImportPackageQuickFix quickFix = new BallerinaImportPackageQuickFix(packageNameNode);
+                LocalQuickFix[] availableFixes = new LocalQuickFix[]{quickFix};
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, packageNameNode,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -112,9 +112,8 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        identifier, availableFixes);
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -132,9 +131,8 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        identifier, availableFixes);
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -152,9 +150,8 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        identifier, availableFixes);
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -172,9 +169,8 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        identifier, availableFixes);
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -192,9 +188,8 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
-                        identifier, availableFixes);
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -203,8 +198,11 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
     }
 
     @NotNull
-    private static LocalQuickFix[] createImportPackageFix(@NotNull PackageNameNode packageNameNode) {
-        return new LocalQuickFix[]{new BallerinaImportPackageQuickFix(packageNameNode)};
+    private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, boolean isOnTheFly,
+                                                      @NotNull PsiElement element,
+                                                      @NotNull LocalQuickFix[] availableFixes) {
+        String description = "Unresolved reference <code>#ref</code> #loc";
+        return createProblemDescriptor(manager, isOnTheFly, description, element, availableFixes);
     }
 
     @NotNull
