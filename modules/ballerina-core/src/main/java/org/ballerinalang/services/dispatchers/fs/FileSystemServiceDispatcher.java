@@ -18,7 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.fs;
 
-import org.ballerinalang.model.Service;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
@@ -36,13 +35,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service dispatcher for File server connector.
+ * Service dispatcher for File System Server Connector.
  */
 public class FileSystemServiceDispatcher implements ServiceDispatcher {
 
-    Map<String, Service> servicesMap = new HashMap<>();
-
-    Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
+    private Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
     @Override
     public String getProtocol() {
@@ -113,8 +110,8 @@ public class FileSystemServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceUnregistered(ServiceInfo service) {
         String serviceName = service.getName();
-        if (servicesMap.get(serviceName) != null) {
-            servicesMap.remove(serviceName);
+        if (serviceInfoMap.get(serviceName) != null) {
+            serviceInfoMap.remove(serviceName);
             try {
                 BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
             } catch (ServerConnectorException e) {
