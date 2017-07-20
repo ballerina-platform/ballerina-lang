@@ -17,298 +17,197 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import log from 'log';
-import _ from 'lodash';
+import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
+import { Overlay, Popover } from 'react-bootstrap/lib';
+import classNames from 'classnames';
 import commandManager from 'command';
 import File from './../../workspace/file';
-import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
-import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
-import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
-import { getLangServerClientInstance } from './../../langserver/lang-server-client-controller';
-import { DESIGN_VIEW, CHANGE_EVT_TYPES } from './constants';
-import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from './../../constants/events';
-import { FORMAT } from './../../constants/commands';
-import { parseFile } from './../../api-client/api-client';
-import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
-import debuggerHOC from '../../debugger/debugger-hoc';
+import { DESIGN_VIEW } from './constants';
+import { GO_TO_POSITION } from './../../constants/commands';
+import SourceEditor from './source-editor';
 
-import 'brace';
-import 'brace/ext/language_tools';
-import 'brace/ext/searchbox';
-
-const ace = global.ace;
-const Range = ace.acequire('ace/range').Range;
-const AceUndoManager = ace.acequire('ace/undomanager').UndoManager;
-
-// require ballerina mode
-const langTools = ace.acequire('ace/ext/language_tools');
-
-const ballerinaMode = 'ace/mode/ballerina';
-// load ballerina mode
-ace.acequire(ballerinaMode);
-
-// require possible themes
-function requireAll(requireContext) {
-    return requireContext.keys().map(requireContext);
-}
-requireAll(require.context('ace', false, /theme-/));
-
-// ace look & feel configurations FIXME: Make this overridable from settings
-const aceTheme = 'ace/theme/twilight';
-const fontSize = '14px';
-const scrollMargin = 20;
-
-// override default undo manager of ace editor
-class NotifyingUndoManager extends AceUndoManager {
-    constructor(sourceView) {
-        super();
-        this.sourceView = sourceView;
-    }
-    execute(args) {
-        super.execute(args);
-        if (!this.sourceView.skipFileUpdate) {
-            const changeEvent = {
-                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                title: 'Modify source',
-            };
-            this.sourceView.props.file
-                .setContent(this.sourceView.editor.session.getValue(), changeEvent);
-        }
-        this.sourceView.skipFileUpdate = false;
-    }
-}
-
+/**
+ * Source View Component
+ */
 class SourceView extends React.Component {
 
+    /**
+     * Constructor
+     * @param {*} props React props
+     */
     constructor(props) {
         super(props);
-        this.container = undefined;
-        this.editor = undefined;
-        this.inSilentMode = false;
-        this.format = this.format.bind(this);
-        this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
+        this.state = {
+            displayErrorList: props.displayErrorList,
+            syntaxErrors: [],
+        };
+        this.errorListPopoverTarget = undefined;
+        this.onSourceEditorLintErrors = this.onSourceEditorLintErrors.bind(this);
+        this.toggleErrorListPopover = this.toggleErrorListPopover.bind(this);
     }
 
     /**
-     * lifecycle hook for component did mount
+     * Update state with new props
+     * @param {*} newProps The new props object.
      */
-    componentDidMount() {
-        if (!_.isNil(this.container)) {
-            // initialize ace editor
-            const editor = ace.edit(this.container);
-            editor.getSession().setMode(ballerinaMode);
-            editor.getSession().setUndoManager(new NotifyingUndoManager(this));
-            editor.getSession().setValue(this.props.file.getContent());
-            editor.setShowPrintMargin(false);
-            // Avoiding ace warning
-            editor.$blockScrolling = Infinity;
-            editor.setTheme(aceTheme);
-            editor.setFontSize(fontSize);
-            editor.setOptions({
-                enableBasicAutocompletion: true,
-            });
-            editor.setBehavioursEnabled(true);
-            // bind auto complete to key press
-            editor.commands.on('afterExec', (e) => {
-                if (e.command.name === 'insertstring' && /^[\w.@:]$/.test(e.args)) {
-                    setTimeout(() => {
-                        try {
-                            editor.execCommand('startAutocomplete');
-                        } finally {
-                            // nothing
-                        }
-                    }, 10);
-                }
-            });
-            editor.renderer.setScrollMargin(scrollMargin, scrollMargin);
-            this.editor = editor;
-            // bind app keyboard shortcuts to ace editor
-            this.props.commandManager.getCommands().forEach((command) => {
-                this.bindCommand(command);
-            });
-            // register handler for source format command
-            this.props.commandManager.registerHandler(FORMAT, this.format, this);
-            // listen to changes done to file content
-            // by other means (eg: design-view changes or redo/undo actions)
-            // and update ace content accordingly
-            this.props.file.on(CONTENT_MODIFIED, (evt) => {
-                if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                    // no need to update the file again, hence
-                    // the second arg to skip update event
-                    this.replaceContent(evt.newContent, true);
-                }
-            });
-
-            editor.on('guttermousedown', (e) => {
-                const target = e.domEvent.target;
-                if (target.className.indexOf('ace_gutter-cell') === -1) {
-                    return;
-                }
-                if (!editor.isFocused()) {
-                    return;
-                }
-
-                const row = e.getDocumentPosition().row;
-                const breakpoints = e.editor.session.getBreakpoints(row, 0);
-                if (!breakpoints[row]) {
-                    this.props.addBreakpoint(row + 1);
-                    e.editor.session.setBreakpoint(row);
-                } else {
-                    this.props.removeBreakpoint(row + 1);
-                    e.editor.session.clearBreakpoint(row);
-                }
-            });
-        }
+    componentWillReceiveProps(newProps) {
+        this.setState({
+            displayErrorList: newProps.displayErrorList,
+        });
     }
 
     /**
-     * format handler
+     * When source editor finds errors
+     * @param {array} lintErrors List of errors received by validations
      */
-    format() {
-        parseFile(this.props.file)
-            .then((parserRes) => {
-                const ast = BallerinaASTDeserializer.getASTModel(parserRes);
-                const enableDefaultWSVisitor = new EnableDefaultWSVisitor();
-                ast.accept(enableDefaultWSVisitor);
-                const sourceGenVisitor = new SourceGenVisitor();
-                ast.accept(sourceGenVisitor);
-                const formattedContent = sourceGenVisitor.getGeneratedSource();
-                // Note the second arg. We need to inform others about this change.
-                // Eg: undo manager should track this and the file should be updated.
-                this.replaceContent(formattedContent, false);
-            })
-            .catch(error => log.error(error));
+    onSourceEditorLintErrors(lintErrors) {
+        this.setState({
+            syntaxErrors: lintErrors,
+        });
     }
 
     /**
-     * Replace content of the editor while maintaining history
-     *
-     * @param {*} newContent content to insert
+     * Toggle error list popover
      */
-    replaceContent(newContent, skipFileUpdate) {
-        if (skipFileUpdate) {
-            this.skipFileUpdate = true;
-        }
-        const session = this.editor.getSession();
-        const contentRange = new Range(0, 0, session.getLength(),
-                        session.getRowLength(session.getLength()));
-        session.replace(contentRange, newContent);
-    }
-
-    shouldComponentUpdate() {
-        // update ace editor - https://github.com/ajaxorg/ace/issues/1245
-        this.editor.resize(true);
-        // keep this component unaffected from react re-render
-        return false;
+    toggleErrorListPopover() {
+        this.setState({
+            displayErrorList: !this.state.displayErrorList,
+        });
     }
 
     /**
-     * Binds a shortcut to ace editor so that it will trigger the command on source view upon key press.
-     * All the commands registered app's command manager will be bound to source view upon render.
-     *
-     * @param command {Object}
-     * @param command.id {String} Id of the command to dispatch
-     * @param command.shortcuts {Object}
-     * @param command.shortcuts.mac {Object}
-     * @param command.shortcuts.mac.key {String} key combination for mac platform eg. 'Command+N'
-     * @param command.shortcuts.other {Object}
-     * @param command.shortcuts.other.key {String} key combination for other platforms eg. 'Ctrl+N'
+     * Render the component
+     * @returns {Component} return the component
      */
-    bindCommand(command) {
-        const id = command.id;
-        const hasShortcut = _.has(command, 'shortcuts');
-        const self = this;
-        if (hasShortcut) {
-            const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
-            const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
-            this.editor.commands.addCommand({
-                name: id,
-                bindKey: { win: winShortcut, mac: macShortcut },
-                exec() {
-                    self.props.commandManager.dispatch(id);
-                },
-            });
-        }
-    }
-
     render() {
+        const hasSyntaxErrors = this.state.syntaxErrors.length > 0;
+
+        const errorListPopover = (
+            <Popover
+                id="syntax-errors-list-popover"
+                title={
+                    <div>
+                        <i className="fw fw-alert fw-lg" />
+                        <span>Found Syntax Errors</span>
+                    </div>
+                }
+            >
+                <ul className="list-group">
+                    {
+                        this.state.syntaxErrors.map((error) => {
+                            return (
+                                <li
+                                    key={error.row + error.column + btoa(error.text)}
+                                    className="list-group-item syntax-error"
+                                    onClick={() => {
+                                        this.props.commandManager
+                                            .dispatch(GO_TO_POSITION, {
+                                                file: this.props.file,
+                                                row: error.row,
+                                                column: error.column,
+                                            });
+                                    }}
+                                >
+                                    <div>
+                                        <span className="link">line {error.row + 1 + ' '}</span>
+                                        :{' ' + error.text}
+                                    </div>
+                                </li>
+                            );
+                        })
+                    }
+                </ul>
+            </Popover>
+        );
+
         return (
-            <div className="source-view-container" >
+            <div
+                className="source-view-container"
+                onClick={
+                    () => {
+                        if (this.state.displayErrorList) {
+                            this.toggleErrorListPopover();
+                        }
+                    }
+                }
+            >
                 <div className="wrapperDiv">
                     <div className="outerSourceDiv">
-                        <div className='text-editor' ref={(ref) => { this.container = ref; }} />
-                        <div className="bottom-right-controls-container">
-                            <div className="view-design-btn btn-icon">
+                        <SourceEditor
+                            commandManager={this.props.commandManager}
+                            file={this.props.file}
+                            parseFailed={this.props.parseFailed}
+                            onLintErrors={this.onSourceEditorLintErrors}
+                        />
+                        <div
+                            className={classNames('bottom-right-controls-container',
+                                            { disabled: hasSyntaxErrors })}
+                        >
+                            <div className={classNames('view-design-btn btn-icon',
+                                        { target: this.state.displayErrorList })}
+                            >
                                 <div className="bottom-label-icon-wrapper">
                                     <i className="fw fw-design-view fw-inverse" />
                                 </div>
                                 <div
                                     className="bottom-view-label"
+                                    ref={(ref) => {
+                                        this.errorListPopoverTarget = ref;
+                                    }}
                                     onClick={
                                     () => {
-                                        this.context.editor.setActiveView(DESIGN_VIEW);
+                                        if (!hasSyntaxErrors) {
+                                            this.context.editor.setActiveView(DESIGN_VIEW);
+                                        } else {
+                                            this.toggleErrorListPopover();
+                                        }
                                     }
                                 }
                                 >
-                            Design View
-                        </div>
+                                    Design View
+                                </div>
+                                {hasSyntaxErrors &&
+                                    <Overlay
+                                        show={this.state.displayErrorList}
+                                        container={this}
+                                        target={this.errorListPopoverTarget}
+                                        placement="top"
+                                    >
+                                        {errorListPopover}
+                                    </Overlay>
+                                }
                             </div>
+                            {hasSyntaxErrors && !this.state.displayErrorList &&
+                                <CSSTransitionGroup
+                                    transitionName="error-count-badge"
+                                    transitionEnterTimeout={300}
+                                    transitionLeaveTimeout={300}
+                                >
+                                    <div
+                                        className="syntax-errors-counter-container"
+                                        onClick={this.toggleErrorListPopover}
+                                    >
+                                        <span className="badge">{this.state.syntaxErrors.length}</span>
+                                    </div>
+                                </CSSTransitionGroup>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         );
     }
-
-    /**
-     * lifecycle hook for component will receive props
-     */
-    componentWillReceiveProps(nextProps) {
-        if (!nextProps.parseFailed) {
-            getLangServerClientInstance()
-                .then((langserverClient) => {
-                    // Set source view completer
-                    const sourceViewCompleterFactory = this.sourceViewCompleterFactory;
-                    const fileData = { fileName: nextProps.file.getName(),
-                        filePath: nextProps.file.getPath(),
-                        packageName: nextProps.file.getPackageName() };
-                    const completer = sourceViewCompleterFactory.getSourceViewCompleter(langserverClient, fileData);
-                    langTools.setCompleters(completer);
-                })
-                .catch(error => log.error(error));
-        }
-
-        const { debugHit, sourceViewBreakpoints } = nextProps;
-        if (debugHit > 0) {
-            if (this.debugPointMarker) {
-                this.editor.getSession().removeMarker(this.debugPointMarker);
-            }
-            this.debugPointMarker = this.editor.getSession().addMarker(
-                new Range(debugHit, 0, debugHit, 2000), 'debug-point-hit', 'line', true);
-        }
-        if (!debugHit && this.debugPointMarker) {
-            this.editor.getSession().removeMarker(this.debugPointMarker);
-        }
-
-        this.editor.getSession().setBreakpoints(sourceViewBreakpoints);
-    }
 }
 
 SourceView.propTypes = {
     file: PropTypes.instanceOf(File).isRequired,
     commandManager: PropTypes.instanceOf(commandManager).isRequired,
-    sourceViewBreakpoints: PropTypes.arrayOf(Number).isRequired,
-    addBreakpoint: PropTypes.func.isRequired,
-    removeBreakpoint: PropTypes.func.isRequired,
-    debugHit: PropTypes.number,
-};
-
-SourceView.defaultProps = {
-    debugHit: null,
+    parseFailed: PropTypes.bool.isRequired,
+    displayErrorList: PropTypes.bool.isRequired,
 };
 
 SourceView.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 
-export default debuggerHOC(SourceView);
+export default SourceView;

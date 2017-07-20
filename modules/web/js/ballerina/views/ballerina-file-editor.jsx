@@ -376,6 +376,11 @@ class BallerinaFileEditor extends React.Component {
                                     && !_.isNil(this.state.swaggerViewTargetService)
                                         && this.state.activeView === SWAGGER_VIEW;
         const showLoadingOverlay = this.state.parsePending && !this.state.undoRedoPending;
+
+        // if we are automatically switching to source view due to syntax errors in file,
+        // popup error list in source view so that the user is aware of the cause
+        const popupErrorListInSourceView = this.state.activeView === DESIGN_VIEW
+                    && !_.isEmpty(this.state.syntaxErrors);
         // depending on the selected view - change tab header style
         // FIXME: find a better solution
         if (showSourceView || showSwaggerView) {
@@ -404,6 +409,7 @@ class BallerinaFileEditor extends React.Component {
                 </div>
                 <div style={{ display: showSourceView ? 'block' : 'none' }}>
                     <SourceView
+                        displayErrorList={popupErrorListInSourceView}
                         parseFailed={this.state.parseFailed}
                         file={this.props.file}
                         commandManager={this.props.commandManager}
