@@ -24,6 +24,7 @@ import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
@@ -72,6 +73,8 @@ public abstract class AbstractItemResolver {
                 this.populateStructDefCompletionItem(completionItem, symbolInfo);
             } else if (symbolInfo.getSymbol() instanceof BType) {
                 this.populateBTypeCompletionItem(completionItem, symbolInfo);
+            } else if (symbolInfo.getSymbol() instanceof NamespaceDeclaration) {
+                this.populateNamespaceDeclarationCompletionItem(completionItem, symbolInfo);
             }
             completionItems.add(completionItem);
         });
@@ -152,6 +155,14 @@ public abstract class AbstractItemResolver {
         completionItem.setDetail(ItemResolverConstants.B_TYPE);
     }
 
+    /**
+     * Populate the Namespace declaration Completion Item
+     * @param completionItem - completion item
+     * @param symbolInfo - symbol information
+     */
+    void populateNamespaceDeclarationCompletionItem(CompletionItem completionItem, SymbolInfo symbolInfo) {
+        completionItem.setDetail(ItemResolverConstants.XMLNS);
+    }
 
     /**
      * Get the function signature for the native unit

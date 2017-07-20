@@ -41,7 +41,8 @@ public class TopLevelResolver extends AbstractItemResolver {
                     ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
                     ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
-
+            addStaticItem(completionItems, ItemResolverConstants.XMLNS,
+                    ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
         }
         if (errorContextResolver instanceof PackageNameContextResolver) {
             completionItems.addAll(errorContextResolver.resolveItems(dataModel, symbols, resolvers));
