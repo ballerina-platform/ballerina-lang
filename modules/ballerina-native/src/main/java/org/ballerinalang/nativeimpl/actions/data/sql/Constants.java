@@ -102,4 +102,6 @@ public final class Constants {
     public static final String CONNECTOR_NAME = "ClientConnector";
     public static final String DATASOURCE_KEY = "datasource_key";
     public static final String TIMEZONE_UTC = "UTC";
+    public static final String SQL = "sql";
+
 }
