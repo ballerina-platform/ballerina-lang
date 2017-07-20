@@ -787,7 +787,7 @@ addComplexParameter(parentId, struct) {
                 // Checks property types are equal or type is any
                 const sourceType = self.getPropertyType(params.sourceId).toLowerCase();
                 const targetType = self.getPropertyType(params.targetId).toLowerCase()
-                const isValidTypes = sourceType == targetType || sourceType == "any" || targetType == "any"
+                const isValidTypes = sourceType === targetType || sourceType === "any" || targetType === "any"
                 const connection = self.getConnectionObject(params.id, params.sourceId, params.targetId);
                 if (isValidTypes) {
                     self.midpoint += self.midpointVariance;
