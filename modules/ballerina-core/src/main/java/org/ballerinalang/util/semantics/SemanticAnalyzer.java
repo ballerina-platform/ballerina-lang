@@ -3532,8 +3532,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return isUnsafeArrayCastPossible(sourceType, targetType);
         }
 
-        if ((sourceType.getTag() == TypeTags.JSON_TAG || sourceType.getTag() == TypeTags.C_JSON_TAG)
-                && targetType.getTag() == TypeTags.C_JSON_TAG) {
+        if (sourceType.getTag() == TypeTags.JSON_TAG && targetType.getTag() == TypeTags.C_JSON_TAG) {
             return true;
         }
 
