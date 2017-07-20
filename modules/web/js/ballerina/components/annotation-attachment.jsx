@@ -46,7 +46,7 @@ class AnnotationAttachment extends React.Component {
                 isPackageNameInEdit: true,
                 hasError: true,
             };
-        } else if (props.model.getPackageName() === undefined || props.model.getPackageName() === '') {
+        } else if (props.model.getFullPackageName() !== '.' && (props.model.getPackageName() === undefined || props.model.getPackageName() === '')) {
             this.state = {
                 isPackageNameInEdit: true,
                 hasError: true,

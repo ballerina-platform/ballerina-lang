@@ -130,22 +130,29 @@ class AnnotationContainer extends React.Component {
 
         const packagePrefix = match && match[1];
 
+        let newAnnotationAttachment;
+        if (this.state.selectedPackageNameValue !== 'Current Package') {
+            // Add import if not imported to AST-Root.
+            const importToBeAdded = ASTFactory.createImportDeclaration({
+                packageName: this.state.selectedPackageNameValue,
+            });
 
-        // Add import if not imported to AST-Root.
-        const importToBeAdded = ASTFactory.createImportDeclaration({
-            packageName: this.state.selectedPackageNameValue,
-        });
+            importToBeAdded.setParent(this.context.astRoot);
 
-        importToBeAdded.setParent(this.context.astRoot);
+            this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
 
-        this.context.astRoot.addImport(importToBeAdded, { doSilently: true });
-
-
-        const newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
-            fullPackageName: this.state.selectedPackageNameValue,
-            packageName: packagePrefix,
-            name: suggestionValue,
-        });
+            newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
+                fullPackageName: this.state.selectedPackageNameValue,
+                packageName: packagePrefix,
+                name: suggestionValue,
+            });
+        } else {
+            newAnnotationAttachment = ASTFactory.createAnnotationAttachment({
+                fullPackageName: '.',
+                packageName: undefined,
+                name: suggestionValue,
+            });
+        }
 
         this.props.model.parentNode.addChild(newAnnotationAttachment);
 

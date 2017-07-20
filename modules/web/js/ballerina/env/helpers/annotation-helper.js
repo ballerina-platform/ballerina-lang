@@ -118,17 +118,31 @@ class AnnotationHelper {
         } else if (factory.isStructDefinition(astNode)) {
             attachmentType = 'struct';
         }
-        for (const packageDefintion of environment.getPackages()) {
-            if (packageDefintion.getName() === fullPackageName) {
-                for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
-                    if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
-                        annotationIdentifiers.push(annotationDefinition.getName());
-                    }
 
-                    if (allowAnnotationWithNoAttachmentType &&
+        if (fullPackageName !== 'Current Package') {
+            for (const packageDefintion of environment.getPackages()) {
+                if (packageDefintion.getName() === fullPackageName) {
+                    for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
+                        if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                            annotationIdentifiers.push(annotationDefinition.getName());
+                        }
+
+                        if (allowAnnotationWithNoAttachmentType &&
                                                             annotationDefinition.getAttachmentPoints().length === 0) {
-                        annotationIdentifiers.push(annotationDefinition.getName());
+                            annotationIdentifiers.push(annotationDefinition.getName());
+                        }
                     }
+                }
+            }
+        } else {
+            for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+                if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                    annotationIdentifiers.push(annotationDefinition.getName());
+                }
+
+                if (allowAnnotationWithNoAttachmentType &&
+                    annotationDefinition.getAttachmentPoints().length === 0) {
+                    annotationIdentifiers.push(annotationDefinition.getName());
                 }
             }
         }
@@ -174,6 +188,17 @@ class AnnotationHelper {
                 if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
                     packageNames.add(packageDefintion.getName());
                 }
+            }
+        }
+
+
+        for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
+            if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
+                packageNames.add(environment.getCurrentPackage().getName());
+            }
+
+            if (allowAnnotationWithNoAttachmentType && annotationDefinition.getAttachmentPoints().length === 0) {
+                packageNames.add(environment.getCurrentPackage().getName());
             }
         }
 
