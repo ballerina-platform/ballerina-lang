@@ -1089,7 +1089,7 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 }
 
 .popout-button-wrapper i {
-    padding-left: 9px;
+    padding-top: 4px;
     font-size: 9px;
     color: #a9a9a9;
     cursor: pointer;
@@ -1101,6 +1101,10 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
 
 .annotation-attribute-value-wrapper, .annotation-attachment-name {
     padding-left: 5px;
+}
+
+.annotations-attribute-close-square-bracket {
+    padding-left: 3px;
 }
 
 .bal-file-editor-loading-container {

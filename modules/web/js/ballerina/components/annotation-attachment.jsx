@@ -216,10 +216,25 @@ class AnnotationAttachment extends React.Component {
      * @returns {PopoutButton} The operations button.
      * @memberof AnnotationAttachment
      */
-    renderOperationsButton() {
+    renderDeleteButton() {
+        const buttons = [];
+        // Delete button.
+        const deleteButton = {
+            icon: 'fw-cancel',
+            text: 'Delete',
+            onClick: () => {
+                deleteNode(this.props.model);
+            },
+        };
+        buttons.push(deleteButton);
+
+        return <PopoutButton buttons={buttons} />;
+    }
+
+    renderAddButton() {
         const buttons = [];
         const annotationDefinition = AnnotationHelper.getAnnotationDefinition(
-                        this.context.environment, this.props.model.getFullPackageName(), this.props.model.getName());
+            this.context.environment, this.props.model.getFullPackageName(), this.props.model.getName());
         if (annotationDefinition && annotationDefinition.getAnnotationAttributeDefinitions().length > 0) {
             // Add attribute button
             const addAttributeButton = {
@@ -231,16 +246,6 @@ class AnnotationAttachment extends React.Component {
             };
             buttons.push(addAttributeButton);
         }
-
-        // Delete button.
-        const deleteButton = {
-            icon: 'fw-cancel',
-            text: 'Delete',
-            onClick: () => {
-                deleteNode(this.props.model);
-            },
-        };
-        buttons.push(deleteButton);
 
         return <PopoutButton buttons={buttons} />;
     }
@@ -293,7 +298,8 @@ class AnnotationAttachment extends React.Component {
     render() {
         const packageName = this.renderPackageName();
         const name = this.renderName();
-        const operationsButton = this.renderOperationsButton();
+        const addOperationButton = this.renderAddButton();
+        const deleteOperationButton = this.renderDeleteButton();
         let errorClass = '';
         if (this.state.hasError) {
             errorClass = 'annotation-attachment-error';
@@ -308,7 +314,8 @@ class AnnotationAttachment extends React.Component {
                         {packageName}
                         <span className='annotation-attachment-name'>{name}</span>
                         <span className="annotations-open-bracket">{'{'}</span>
-                        {operationsButton}
+                        {addOperationButton}
+                        {deleteOperationButton}
                     </li>
                     <li>
                         {attributes}
@@ -323,8 +330,9 @@ class AnnotationAttachment extends React.Component {
             <li className={`annotation-attachment-text-li ${errorClass}`}>
                 {packageName}{name}
                 <span className="annotations-open-bracket">{'{'}</span>
+                {addOperationButton}
                 <span className="annotations-close-bracket">{'}'}</span>
-                {operationsButton}
+                {deleteOperationButton}
             </li>
         </ul>);
     }
