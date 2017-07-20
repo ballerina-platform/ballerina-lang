@@ -31,12 +31,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.ClientConnector;
-
-import java.util.ServiceLoader;
 
 /**
  * {@code Init} is the Init action implementation of the SQL Connector.
@@ -64,16 +59,6 @@ public class Init extends AbstractSQLAction {
 
     @Override
     public BValue execute(Context context) {
-//        if (BallerinaConnectorManager.getInstance().
-//                getClientConnector(Constants.SQL) == null) {
-//            CarbonMessageProcessor carbonMessageProcessor = BallerinaConnectorManager.getInstance()
-//                    .getMessageProcessor();
-//            ServiceLoader<ClientConnector> clientConnectorLoader = ServiceLoader.load(ClientConnector.class);
-//            clientConnectorLoader.forEach((clientConnector) -> {
-//                clientConnector.setMessageProcessor(carbonMessageProcessor);
-//                BallerinaConnectorManager.getInstance().registerClientConnector(clientConnector);
-//            });
-//        }
         BConnector bConnector = (BConnector) getRefArgument(context, 0);
         BMap optionMap = (BMap) bConnector.getRefField(0);
         BMap sharedMap = (BMap) bConnector.getRefField(1);
@@ -85,8 +70,4 @@ public class Init extends AbstractSQLAction {
         return null;
     }
 
-    @Override
-    public boolean isNonBlockingAction() {
-        return false;
-    }
 }
