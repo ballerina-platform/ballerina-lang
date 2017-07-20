@@ -31,7 +31,8 @@ import './transform-statement.css';
 const jsPlumb = jsPlumbLib.jsPlumb;
 
 class TransformRender {
-    constructor(onConnectionCallback, onDisconnectCallback) {
+    constructor(onConnectionCallback, onDisconnectCallback, container) {
+        this.container = container;
         this.references = [];
         this.viewId = 'transformer';
         this.contextMenu = 'transformContextMenu';
@@ -52,7 +53,7 @@ class TransformRender {
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
-            Container: this.placeHolderName,
+            Container: this.container.get()[0],
             PaintStyle: {
                 strokeWidth: 1,
             // todo : load colors from css
@@ -87,9 +88,9 @@ class TransformRender {
             ],
         });
 
-        $('#' + self.contextMenu).hide();
+        this.container.find('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
-            const contextMenuDiv = $('#' + self.contextMenu);
+            const contextMenuDiv = this.container.find('#' + self.contextMenu);
             const anchorTag = $('<a>').attr('id', 'typeMapperConRemove').attr('class', 'type-mapper-con-remove');
             anchorTag.html($('<i>').addClass('fw fw-delete'));
             anchorTag.html(anchorTag.html() + ' Remove');
@@ -97,17 +98,17 @@ class TransformRender {
 
             document.addEventListener('click', (eClick) => {
                 if (eClick.explicitOriginalTarget == null || eClick.explicitOriginalTarget.nodeName != 'path') {
-                    $('#' + self.contextMenu).hide();
+                    this.container.find('#' + self.contextMenu).hide();
                 }
             }, false);
 
-            $('.leftType, .middle-content, .rightType').scroll(() => {
-                $('#' + self.contextMenu).hide();
+            this.container.find('.leftType, .middle-content, .rightType').scroll(() => {
+                this.container.find('#' + self.contextMenu).hide();
             });
 
-            $('#typeMapperConRemove').click(() => {
+            this.container.find('#typeMapperConRemove').click(() => {
                 self.disconnect(connection);
-                $('#' + self.contextMenu).hide();
+                this.container.find('#' + self.contextMenu).hide();
             });
 
             contextMenuDiv.css({
@@ -153,9 +154,9 @@ class TransformRender {
  */
     disconnectAll(connection) {
         this.jsPlumbInstance.detachEveryConnection();
-        $('.middle-content').empty(); // remove function views
-        $('.leftType').empty(); // remove function views
-        $('.rightType').empty(); // remove function views
+        this.container.find('.middle-content').empty(); // remove function views
+        this.container.find('.leftType').empty(); // remove function views
+        this.container.find('.rightType').empty(); // remove function views
     }
 
 /**
@@ -606,7 +607,7 @@ addComplexParameter(parentId, struct) {
         const jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
         .addClass('tree-container');
         newStruct.append(jsTreeContainer);
-        $('#' + this.placeHolderName).find('.' + subPlaceHolder).append(newStruct);
+        this.container.find('.' + subPlaceHolder).append(newStruct);
         this.onRemove(struct.id, struct, removeCallback, struct.name);
     }
 
@@ -639,11 +640,11 @@ addComplexParameter(parentId, struct) {
 
         if (type == 'source') {
             subPlaceHolder = 'leftType';
-            $('#' + this.placeHolderName).find('.leftType').append(newVar);
+            this.container.find('.leftType').append(newVar);
             this.addSource(property, this, false);
         } else {
             subPlaceHolder = 'rightType';
-            $('#' + this.placeHolderName).find('.rightType').append(newVar);
+            this.container.find('.rightType').append(newVar);
             this.addTarget(property, this);
         }
         this.onRemove(id, variable, removeCallback, variable.name);
@@ -688,7 +689,7 @@ addComplexParameter(parentId, struct) {
             newFunc.append(inputContent);
             newFunc.append(outputContent);
             newFunc.css({top: 0, left: 0});
-            $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
+            this.container.find('.middle-content').append(newFunc);
             this.onRemove(id, func, onFunctionRemove, removeReference);
             this.addComplexParameter(jsTreeIdIn, func);
             this.processJSTree(jsTreeIdIn, jsTreeIdIn, this.addTarget);
@@ -951,22 +952,23 @@ addComplexParameter(parentId, struct) {
  * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
  */
     reposition(self) {
-        const funcs = $('.middle-content  > .func');
-        const sourceStructs = $('.leftType > .struct, .leftType > .variable');
-        const targetStructs = $('.rightType > .struct, .rightType > .variable');
-        const xFunctionPointer = ($('.middle-content').width() - 300) / 2;
+        const funcs = this.container.find('.middle-content  > .func');
+        const sourceStructs = this.container.find('.leftType > .struct, .leftType > .variable');
+        const targetStructs = this.container.find('.rightType > .struct, .rightType > .variable');
+        const xFunctionPointer = (this.container.find('.middle-content').width() - 300) / 2;
         let yFunctionPointer = 120;
         const xSourcePointer = 0;
         let ySourcePointer = 0;
         const xTargetPointer = 0;
         let yTargetPointer = 0;
         const functionGap = 30;
-        const svgLines = $('#' + self.placeHolderName + '> svg');
+        const svgLines = this.container.find('#' + self.placeHolderName + '> svg');
 
         // Traverse through all the connection svg lines
         _.forEach(svgLines, (svgLine) => {
             // Get bottom and right values relative to the type mapper parent div
-            const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom - $('.middle-content').position().top;
+            const arrowBotton = svgLine.children[2].getBoundingClientRect().bottom -
+                this.container.find('.middle-content').position().top;
             const right = svgLine.getBoundingClientRect().right;
 
             // Calculate the yFunctionPointer value  based on the bottom value of the direct connections
@@ -1021,7 +1023,7 @@ addComplexParameter(parentId, struct) {
  * @param {int} Reference AST Node id
  */
     onRemove(id, container, removeFunction, reference) {
-        $('#' + id + '-button').on('click', () => {
+        this.container.find('#' + id + '-button').on('click', () => {
             const removedFunction = { name: container.name };
             removedFunction.incomingConnections = [];
             removedFunction.outgoingConnections = [];
