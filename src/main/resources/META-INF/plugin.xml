@@ -55,6 +55,9 @@
         <annotator language="Ballerina"
                    implementationClass="org.ballerinalang.plugins.idea.codeInsight.daemon.impl.BallerinaAnnotator"/>
 
+        <!--exit points highlighting-->
+        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
+
         <!--string manipulator-->
         <lang.elementManipulator forClass="org.ballerinalang.plugins.idea.psi.QuotedLiteralString"
                                  implementationClass="org.ballerinalang.plugins.idea.psi.manipulator.BallerinaStringManipulator"/>
@@ -184,8 +187,21 @@
                          groupName="General" enabledByDefault="true" level="ERROR"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.BallerinaUnresolvedReferenceInspection"/>
 
-        <highlightUsagesHandlerFactory implementation="org.ballerinalang.plugins.idea.codeInsight.highlighting.HighlightExitPointsHandlerFactory"/>
+        <localInspection language="Ballerina" displayName="Unused variable inspection" groupPath="Ballerina"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedVariableInspection"/>
 
+        <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedConstantInspection"/>
+
+        <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedGlobalVariableInspection"/>
+
+        <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedParameterInspection"/>
    </extensions>
 
     <actions>
