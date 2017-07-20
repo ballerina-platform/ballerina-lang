@@ -41,6 +41,7 @@ import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
+import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import com.intellij.xdebugger.frame.XValueMarkerProvider;
 import com.intellij.xdebugger.stepping.XSmartStepIntoHandler;
@@ -52,6 +53,7 @@ import org.ballerinalang.plugins.idea.debugger.dto.BreakPoint;
 import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.ballerinalang.plugins.idea.debugger.protocol.Response;
+import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
@@ -166,29 +168,65 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
     @Override
     public void startStepOver(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_OVER);
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_OVER, threadId);
+        }
     }
 
     @Override
     public void startStepInto(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_IN);
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_IN, threadId);
+        }
     }
 
     @Override
     public void startStepOut(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.STEP_OUT);
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.STEP_OUT, threadId);
+        }
     }
 
     @Override
     public void stop() {
+        XSuspendContext suspendContext = getSession().getSuspendContext();
+        if (suspendContext != null) {
+            XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
+                        .getThreadId();
+                if (threadId != null) {
+                    myConnector.sendCommand(Command.STOP, threadId);
+                }
+            }
+        }
         isDisconnected = true;
-        myConnector.sendCommand(Command.STOP);
         myConnector.close();
     }
 
     @Override
     public void resume(@Nullable XSuspendContext context) {
-        myConnector.sendCommand(Command.RESUME);
+        String threadId = getThreadId(context);
+        if (threadId != null) {
+            myConnector.sendCommand(Command.RESUME, threadId);
+        }
+    }
+
+    @Nullable
+    private String getThreadId(@Nullable XSuspendContext context) {
+        if (context != null) {
+            XExecutionStack activeExecutionStack = context.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                return ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack).getThreadId();
+            }
+        }
+        getSession().getConsoleView().print("Error occurred while getting the thread ID.",
+                ConsoleViewContentType.ERROR_OUTPUT);
+        getSession().stop();
+        return null;
     }
 
     @Nullable
@@ -231,7 +269,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
                 }
             });
         } else if (Response.EXIT.name().equals(code) || Response.COMPLETE.name().equals(code)) {
-            getSession().stop();
+            // If we don't call invoke later here, session will not be stopped correctly since this is called from
+            // netty. It seems like this is a blocking action and netty throws an exception.
+            ApplicationManager.getApplication().invokeLater(() -> {
+                XDebugSession session = getSession();
+                if (session != null) {
+                    session.stop();
+                }
+                getSession().getConsoleView().print("Remote debugging finished.\n",
+                        ConsoleViewContentType.SYSTEM_OUTPUT);
+            });
         }
     }
 
@@ -353,21 +400,24 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         int line = breakpointPosition.getLine();
                         Project project = getSession().getProject();
 
-                        String name = "";
+                        String name = file.getName();
+                        String packagePath = ".";
                         // Only get relative path if a package declaration is present in the file.
                         PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
                         PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
                                 PackageDeclarationNode.class);
                         if (packageDeclarationNode != null) {
-                            name = BallerinaUtil.suggestPackageNameForFile(project, file);
-                            // We don't need to use '\' instead of '/' here since the debug server will convert it to
-                            // proper separator character.
-                            name = name.replaceAll("\\.", "/") + "/";
+                            FullyQualifiedPackageNameNode packagePathNode =
+                                    PsiTreeUtil.getChildOfType(packageDeclarationNode,
+                                            FullyQualifiedPackageNameNode.class);
+                            if (packagePathNode != null && !packagePathNode.getText().isEmpty()) {
+                                packagePath = packagePathNode.getText();
+                            }
                         }
-                        name += file.getName();
 
-                        stringBuilder.append("{\"fileName\":\"").append(name).append("\"");
-                        stringBuilder.append(", \"lineNumber\":").append(line + 1).append("}");
+                        stringBuilder.append("{\"packagePath\":\"").append(packagePath).append("\", ");
+                        stringBuilder.append("\"fileName\":\"").append(name).append("\", ");
+                        stringBuilder.append("\"lineNumber\":").append(line + 1).append("}");
                         if (i < size - 1) {
                             stringBuilder.append(",");
                         }

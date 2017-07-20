@@ -33,7 +33,7 @@ public class BallerinaSuspendContext extends XSuspendContext {
     private final BallerinaExecutionStack myStack;
 
     public BallerinaSuspendContext(@NotNull BallerinaDebugProcess process, @NotNull Message message) {
-        myStack = new BallerinaExecutionStack(process, message.getFrames());
+        myStack = new BallerinaExecutionStack(process, message.getThreadId(), message.getFrames());
     }
 
     @Nullable
@@ -48,17 +48,19 @@ public class BallerinaSuspendContext extends XSuspendContext {
         return new XExecutionStack[]{myStack};
     }
 
-    private static class BallerinaExecutionStack extends XExecutionStack {
+    static class BallerinaExecutionStack extends XExecutionStack {
 
+        private final String threadId;
         @NotNull
         private final BallerinaDebugProcess myProcess;
         @NotNull
         private final List<BallerinaStackFrame> myStack;
 
-        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, List<Frame> frames) {
-            super("Thread #" + 1);
-            myProcess = process;
-            myStack = ContainerUtil.newArrayListWithCapacity(frames.size());
+        public BallerinaExecutionStack(@NotNull BallerinaDebugProcess process, String threadId, List<Frame> frames) {
+            super("Thread #" + threadId);
+            this.threadId = threadId;
+            this.myProcess = process;
+            this.myStack = ContainerUtil.newArrayListWithCapacity(frames.size());
             for (Frame frame : frames) {
                 myStack.add(new BallerinaStackFrame(myProcess, frame));
             }
@@ -73,6 +75,10 @@ public class BallerinaSuspendContext extends XSuspendContext {
         @Override
         public void computeStackFrames(int firstFrameIndex, @NotNull XStackFrameContainer container) {
             container.addStackFrames(myStack, true);
+        }
+
+        public String getThreadId() {
+            return threadId;
         }
     }
 }
