@@ -46,7 +46,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * Dump Ballerina program model to a file.
@@ -336,6 +335,12 @@ public class ProgramFileWriter {
         // TODO We need introduce 'public' keyword soon.
         dataOutStream.writeByte(actionInfo.isNative() ? 1 : 0);
 
+        WorkerDataChannelInfo[] workerDataChannelInfos = actionInfo.getWorkerDataChannelInfo();
+        dataOutStream.writeShort(workerDataChannelInfos.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
+            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
+        }
+
         WorkerInfo defaultWorker = actionInfo.getDefaultWorkerInfo();
         WorkerInfo[] workerInfoEntries = actionInfo.getWorkerInfoEntries();
         dataOutStream.writeShort(workerInfoEntries.length + 1);
@@ -356,6 +361,12 @@ public class ProgramFileWriter {
         dataOutStream.writeShort(paramNameCPIndexes.length);
         for (int paramNameCPIndex : paramNameCPIndexes) {
             dataOutStream.writeInt(paramNameCPIndex);
+        }
+
+        WorkerDataChannelInfo[] workerDataChannelInfos = resourceInfo.getWorkerDataChannelInfo();
+        dataOutStream.writeShort(workerDataChannelInfos.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
+            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
         }
 
         WorkerInfo defaultWorker = resourceInfo.getDefaultWorkerInfo();
@@ -387,7 +398,6 @@ public class ProgramFileWriter {
     private static void writeForkJoinInfo(DataOutputStream dataOutStream,
                                           ForkjoinInfo forkjoinInfo) throws IOException {
         dataOutStream.writeShort(forkjoinInfo.getIndexCPIndex());
-        dataOutStream.writeShort(forkjoinInfo.getCallableUnitNameCPIndex());
 
         int[] argRegs = forkjoinInfo.getArgRegs();
         dataOutStream.writeShort(argRegs.length);

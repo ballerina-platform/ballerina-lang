@@ -2493,7 +2493,7 @@ public class CodeGenerator implements NodeVisitor {
 
         int[] argRegs = lvIndexes;
 
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(currentCallableUnitInfo, argRegs, retRegs);
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs, retRegs);
         if (argExpr != null) {
             forkjoinInfo.setTimeoutAvailable(true);
         }

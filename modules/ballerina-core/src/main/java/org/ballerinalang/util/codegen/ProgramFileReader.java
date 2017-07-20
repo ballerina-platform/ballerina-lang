@@ -56,7 +56,6 @@ import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -447,6 +446,11 @@ public class ProgramFileReader {
                 boolean nativeAction = dataInStream.readByte() == 1;
                 actionInfo.setNative(nativeAction);
 
+                int workerDataChannelsLength = dataInStream.readShort();
+                for (int k = 0; k < workerDataChannelsLength; k++) {
+                    readWorkerDataChannelEntries(dataInStream, packageInfo, actionInfo);
+                }
+
                 // Read worker info entries
                 readWorkerInfoEntries(dataInStream, packageInfo, actionInfo);
 
@@ -527,6 +531,11 @@ public class ProgramFileReader {
                 }
                 resourceInfo.setParamNameCPIndexes(paramNameCPIndexes);
                 resourceInfo.setParamNames(paramNames);
+
+                int workerDataChannelsLength = dataInStream.readShort();
+                for (int k = 0; k < workerDataChannelsLength; k++) {
+                    readWorkerDataChannelEntries(dataInStream, packageInfo, resourceInfo);
+                }
 
                 // Read workers
                 readWorkerInfoEntries(dataInStream, packageInfo, resourceInfo);
@@ -642,7 +651,7 @@ public class ProgramFileReader {
     }
 
     public void readWorkerDataChannelEntries(DataInputStream dataInputStream, PackageInfo packageInfo,
-                                             FunctionInfo functioninfo) throws IOException {
+                                             CallableUnitInfo callableUnitInfo) throws IOException {
         int sourceCPIndex = dataInputStream.readInt();
         int targetCPIndex = dataInputStream.readInt();
 
@@ -656,7 +665,7 @@ public class ProgramFileReader {
         WorkerDataChannelRefCPEntry refCPEntry = (WorkerDataChannelRefCPEntry) packageInfo
                 .getCPEntry(dataChannelRefCPIndex);
         refCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
-        functioninfo.addWorkerDataChannelInfo(workerDataChannelInfo);
+        callableUnitInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo, String sig, PackageInfo packageInfo) {
@@ -869,7 +878,6 @@ public class ProgramFileReader {
 
     private ForkjoinInfo getForkJoinInfo(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
         int indexCPIndex = dataInStream.readShort();
-        int callableUnitCPIndex = dataInStream.readShort();
 
         int argRegLength = dataInStream.readShort();
         int [] argRegs = new int[argRegLength];
@@ -884,11 +892,8 @@ public class ProgramFileReader {
         }
 
         ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) packageInfo.getCPEntry(indexCPIndex);
-        UTF8CPEntry callableUnitCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(callableUnitCPIndex);
 
-        // TODO fix for all types of callable units
-        CallableUnitInfo callableUnitInfo = packageInfo.getFunctionInfo(callableUnitCPEntry.getValue());
-        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(callableUnitInfo, argRegs, retRegs);
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs, retRegs);
         forkjoinInfo.setIndex(forkJoinCPEntry.getForkJoinCPIndex());
         forkjoinInfo.setIndexCPIndex(indexCPIndex);
 

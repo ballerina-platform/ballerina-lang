@@ -391,7 +391,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap(){
+    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
         return null;
     }
 }

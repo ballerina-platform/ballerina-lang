@@ -90,11 +90,9 @@ import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
-import org.ballerinalang.util.codegen.cpentries.PackageRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
@@ -151,48 +149,6 @@ public class BLangVM {
             printStream.println(i + ": " + Mnemonics.getMnem(code[i].getOpcode()) + " " +
                     getOperandsLine(code[i].getOperands()));
         }
-        for (LineNumberInfo line : packageInfo.getLineNumberInfoList()) {
-            printStream.println(line.toString());
-        }
-        int index = 0;
-        for (ConstantPoolEntry entry : constPool) {
-            switch (entry.getEntryType()) {
-                case CP_ENTRY_UTF8:
-                    printStream.println("index - " + index + " type - CP_ENTRY_UTF8, value - "
-                            + ((UTF8CPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_INTEGER:
-                    printStream.println("index - " + index + " type - CP_ENTRY_INTEGER, value - "
-                            + ((IntegerCPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_FLOAT:
-                    printStream.println("index - " + index + " type - CP_ENTRY_FLOAT, value - "
-                            + ((FloatCPEntry) entry).getValue());
-                    break;
-                case CP_ENTRY_STRING:
-                    printStream.println("index - " + index + " type - CP_ENTRY_STRING, value - "
-                            + ((StringCPEntry) entry).getValue());
-                    break;
-//                case CP_ENTRY_NAME_AND_TYPE:
-//                    printStream.println("type - CP_ENTRY_UTF8, value - " + ((IntegerCPEntry) entry).getValue());
-//                    break;
-                case CP_ENTRY_PACKAGE:
-                    printStream.println("index - " + index + " type - CP_ENTRY_PACKAGE, value - "
-                            + ((PackageRefCPEntry) entry).getNameCPIndex());
-                    break;
-                case CP_ENTRY_FUNCTION_REF:
-                    printStream.println("index - " + index + " type - CP_ENTRY_FUNCTION_REF, value - "
-                            + ((FunctionRefCPEntry) entry).getNameCPIndex());
-                    break;
-                case CP_ENTRY_ACTION_REF:
-                case CP_ENTRY_FUNCTION_CALL_ARGS:
-                case CP_ENTRY_FORK_JOIN:
-            }
-            index++;
-        }
-//        for (ErrorTableEntry entry : packageInfo.getErrorTableEntriesList()) {
-//            System.out.println(entry.toString());
-//        }
     }
 
     public void run(Context context) {
@@ -223,7 +179,6 @@ public class BLangVM {
         }
 
         try {
-            traceCode(currentFrame.packageInfo);
             exec();
             if (context.isDebugEnabled()) {
                 VMDebugManager.getInstance().setDone(true);
@@ -2222,11 +2177,11 @@ public class BLangVM {
             StackFrame callerSF = controlStack.getCurrentFrame();
             int[] argRegs = forkjoinInfo.getArgRegs();
 
-            ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(forkjoinInfo.getParentCallableUnitInfo(),
+            ControlStackNew workerControlStack = workerContext.getControlStackNew();
+            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
-            controlStack.pushFrame(calleeSF);
-
+            workerControlStack.pushFrame(calleeSF);
+//
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
 
 

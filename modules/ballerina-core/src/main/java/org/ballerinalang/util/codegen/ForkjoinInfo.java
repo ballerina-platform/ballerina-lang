@@ -16,9 +16,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,10 +47,6 @@ public class ForkjoinInfo {
     private int[] joinWrkrNameIndexes;
     private String[] joinWorkerNames;
 
-    private int callableUnitNameCPIndex;
-    private CallableUnitInfo parentCallableUnitInfo;
-
-
     private int timeoutIp;
 
     private int timeoutMemOffset;
@@ -61,9 +55,7 @@ public class ForkjoinInfo {
 
     private int joinMemOffset;
 
-    public ForkjoinInfo(CallableUnitInfo parentCallableUnitInfo, int[] argRegs, int[] retRegs) {
-        this.parentCallableUnitInfo = parentCallableUnitInfo;
-        this.callableUnitNameCPIndex = parentCallableUnitInfo.getNameCPIndex();
+    public ForkjoinInfo(int[] argRegs, int[] retRegs) {
         this.argRegs = argRegs;
         this.retRegs = retRegs;
     }
@@ -154,14 +146,6 @@ public class ForkjoinInfo {
 
     public void setJoinWorkerNames(String[] joinWorkerNames) {
         this.joinWorkerNames = joinWorkerNames;
-    }
-
-    public int getCallableUnitNameCPIndex() {
-        return callableUnitNameCPIndex;
-    }
-
-    public CallableUnitInfo getParentCallableUnitInfo() {
-        return parentCallableUnitInfo;
     }
 
     public int getTimeoutIp() {

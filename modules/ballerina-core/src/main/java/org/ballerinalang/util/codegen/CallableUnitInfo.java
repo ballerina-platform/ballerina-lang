@@ -18,7 +18,6 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
