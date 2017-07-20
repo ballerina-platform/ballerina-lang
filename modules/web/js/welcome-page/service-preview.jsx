@@ -25,7 +25,7 @@ import PropTypes from 'prop-types';
  * @class ServicePreviewView
  * @extends {React.Component}
  */
-class ServicePreviewView extends React.PureComponent {
+class ServicePreviewView extends React.Component {
 
     constructor(props) {
         super(props);

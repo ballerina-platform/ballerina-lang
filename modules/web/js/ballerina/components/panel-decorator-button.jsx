@@ -23,9 +23,9 @@ import PropTypes from 'prop-types';
  * React component for a button displayed on the panel header.
  *
  * @class PanelDecoratorButton
- * @extends {React.PureComponent}
+ * @extends {React.Component}
  */
-class PanelDecoratorButton extends React.PureComponent {
+class PanelDecoratorButton extends React.Component {
 
     /**
      * Renders the view of a panel button.

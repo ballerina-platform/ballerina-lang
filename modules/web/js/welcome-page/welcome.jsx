@@ -22,7 +22,7 @@ import React from 'react';
  * React component for welcome page.
  *
  * @class WelcomeView
- * @extends {React.PureComponent}
+ * @extends {React.Component}
  */
 class WelcomeView extends React.Component {
     constructor() {
