@@ -29,19 +29,19 @@ public class BallerinaLiveTemplateTest extends BallerinaCodeInsightFixtureTestCa
     public void testFunctionInEmptyFile() {
         myFixture.configureByText("test.bal", "<caret>");
         myFixture.type("fun\t");
-        myFixture.checkResult("function  () () {\n    \n}");
+        myFixture.checkResult("function  ()  {\n    \n}");
     }
 
     public void testFunctionAfterFunction() {
         myFixture.configureByText("test.bal", "function test(){\n\n}\n<caret>");
         myFixture.type("fun\t");
-        myFixture.checkResult("function test(){\n\n}\nfunction  () () {\n    \n}");
+        myFixture.checkResult("function test(){\n\n}\nfunction  ()  {\n    \n}");
     }
 
     public void testFunctionBeforeFunction() {
         myFixture.configureByText("test.bal", "<caret>\nfunction test(){\n\n}\n");
         myFixture.type("fun\t");
-        myFixture.checkResult("function  () () {\n    \n}\nfunction test(){\n\n}\n");
+        myFixture.checkResult("function  ()  {\n    \n}\nfunction test(){\n\n}\n");
     }
 
     public void testServiceInEmptyFile() {
