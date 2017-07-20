@@ -33,7 +33,6 @@ public class BallerinaEverywhereContextType extends BallerinaCodeContextType {
     protected boolean isInContext(@NotNull PsiElement element) {
         return !(element instanceof PsiComment ||
                 element instanceof LeafPsiElement &&
-                        (((LeafPsiElement) element).getElementType() == BallerinaTypes.QUOTED_STRING
-                                || ((LeafPsiElement) element).getElementType() == BallerinaTypes.BACKTICKED_STRING));
+                        (((LeafPsiElement) element).getElementType() == BallerinaTypes.QUOTED_STRING));
     }
 }

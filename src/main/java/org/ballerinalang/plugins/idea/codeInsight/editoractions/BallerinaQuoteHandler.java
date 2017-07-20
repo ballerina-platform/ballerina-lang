@@ -31,7 +31,7 @@ public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler implements
 
     public BallerinaQuoteHandler() {
         super(BallerinaTypes.DOUBLE_QUOTE, BallerinaTypes.BACK_TICK, //Needed to identify start tokens
-                BallerinaTypes.QUOTED_STRING, BallerinaTypes.BACKTICKED_STRING);//Need to identify ending tokens
+                BallerinaTypes.QUOTED_STRING);//Need to identify ending tokens
     }
 
     @Override

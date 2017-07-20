@@ -139,20 +139,20 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet WHITESPACE = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE, WS);
 
     public static final TokenSet STRING_LITERALS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            QuotedStringLiteral, BacktickStringLiteral);
+            QuotedStringLiteral);
 
     public static final TokenSet NUMBER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             IntegerLiteral, FloatingPointLiteral);
 
     public static final TokenSet KEYWORDS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            ABORT, ABORTED, ACTION, ALL, ANNOTATION, ANY, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
+            ABORT, ABORTED, ACTION, ALL, ANNOTATION, TYPE_ANY, AS, ATTACH, BREAK, CATCH, COMMITTED, CONNECTOR, CONST,
             CONTINUE, CREATE, ELSE, FINALLY, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NATIVE, PACKAGE, PARAMETER,
             REPLY, RESOURCE, RETURN, RETURNS, SERVICE, SOME, STRUCT, THROW, TIMEOUT, TRANSACTION, TRANSFORM, TRY,
-            TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, BOOLEAN, INT, FLOAT, STRING, BLOB, MESSAGE, MAP, XML,
-            XML_DOCUMENT, JSON, DATATABLE, BooleanLiteral, NullLiteral);
+            TYPEMAPPER, VAR, WHILE, WORKER, XMLNS, TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BLOB,
+            TYPE_MESSAGE, TYPE_MAP, TYPE_XML, TYPE_JSON, TYPE_DATATABLE, BooleanLiteral, NullLiteral);
 
     public static final TokenSet BRACES_AND_OPERATORS = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
-            SEMI, COMMA, SENDARROW, RECEIVEARROW, TILDE, COLON);
+            SEMICOLON, COMMA, LARROW, RARROW, TILDE, COLON);
 
     public static final TokenSet BAD_CHARACTER = PSIElementTypeFactory.createTokenSet(BallerinaLanguage.INSTANCE,
             ERRCHAR);

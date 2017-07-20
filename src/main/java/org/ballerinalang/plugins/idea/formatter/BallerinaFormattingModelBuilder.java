@@ -130,7 +130,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(MAP, LT).spaces(0)
                 .between(JSON, LT).spaceIf(false)
                 .between(XML, LT).spaceIf(false)
-                .between(XML_DOCUMENT, LT).spaceIf(false)
                 .between(LT, LBRACE).spaceIf(false)
                 .between(RBRACE, GT).spaceIf(false)
                 .between(RBRACE, XML_LOCAL_NAME).spaceIf(true)
