@@ -483,7 +483,6 @@ class TransformRender {
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, (conPoolObj) => {
-
                 let targetUUID = "";
                 let sourceUUID = "";
 
@@ -685,9 +684,9 @@ addComplexParameter(parentId, struct) {
             const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
             const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
             const inputContent = $('<div>').attr('id', id + 'func-input').addClass('func-input');
-
             const del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
-
+            const jsTreeIdIn = id + 'func-input';
+            const jsTreeIdOut = id + 'func-output';
             funcName.append(funcIcon);
             funcName.append($('<span>').text(funcText));
             closeButton.append(del);
@@ -695,26 +694,14 @@ addComplexParameter(parentId, struct) {
             newFunc.append(funcName);
             newFunc.append(inputContent);
             newFunc.append(outputContent);
-
-            newFunc.css({
-                top: 0,
-                left: 0,
-            });
-
+            newFunc.css({top: 0, left: 0});
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
             this.onRemove(id, func, onFunctionRemove, removeReference);
-
-
-
-            const jsTreeIdIn = id + 'func-input';
-            const jsTreeIdOut = id + 'func-output';
             this.addComplexParameter(jsTreeIdIn, func);
             this.processJSTree(jsTreeIdIn, jsTreeIdIn, this.addTarget);
 
-
             _.forEach(func.getReturnParams(), (parameter) => {
                 const property =  self.makeProperty($('#' + jsTreeIdOut), parameter.name, parameter.type);
-               // self.addSource(property, self, true);
             });
             this.processJSTree(jsTreeIdOut, jsTreeIdOut, this.addSource);
 

@@ -542,7 +542,7 @@ BallerinaASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-BallerinaASTFactory. createStructType= function (args) {
+BallerinaASTFactory.createStructType= function (args) {
     return new structType(args);
 };
 
