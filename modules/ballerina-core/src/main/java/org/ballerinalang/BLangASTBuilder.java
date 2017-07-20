@@ -28,6 +28,7 @@ import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
+import org.ballerinalang.util.repository.ProgramDirRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
 import java.nio.file.Path;
@@ -53,14 +54,14 @@ public class BLangASTBuilder {
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
         NativeScope nativeScope = BLangPrograms.populateNativeScope();
 
-        BuiltinPackageRepository[] builtinPkgRepositories = BLangPrograms.populateBuiltinPackageRepositories();
+        ProgramDirRepository programDirRepo = BLangPrograms.initProgramDirRepository(sourceRootPath);
 
         // Creates program scope for this Ballerina program
         BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
         bLangProgram.setProgramFilePath(packagePath);
 
         BLangPackage bLangPackage = BLangPackages.loadEntryPackage(sourceRootPath,
-                packagePath, bLangProgram, builtinPkgRepositories);
+                packagePath, bLangProgram, programDirRepo);
         bLangProgram.setEntryPackage(bLangPackage);
         bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
 

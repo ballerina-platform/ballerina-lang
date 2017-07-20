@@ -91,10 +91,10 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
         // First try to load from the built-in repositories 
-        PackageSource pkgSource = loadPackageFromBuiltinRepositories(packageDirPath);
-        if (pkgSource != null) {
-            return pkgSource;
-        }
+//        PackageSource pkgSource = loadPackageFromSystemRepo(packageDirPath);
+//        if (pkgSource != null) {
+//            return pkgSource;
+//        }
 
         Path zipPkgPath = zipFS.getPath("/", packageDirPath.toString());
         List<Path> pathList = packageFilesMap.get(zipPkgPath.toString());
@@ -126,7 +126,7 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         zipFS = null;
     }
 
-    private InputStream getInputStream(Path path) {
+    public InputStream getInputStream(Path path) {
         try {
             return Files.newInputStream(path);
         } catch (IOException e) {
