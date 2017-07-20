@@ -193,9 +193,15 @@ public class BallerinaDebugProcess extends XDebugProcess {
     @Override
     public void stop() {
         XSuspendContext suspendContext = getSession().getSuspendContext();
-        String threadId = getThreadId(suspendContext);
-        if (threadId != null) {
-            myConnector.sendCommand(Command.STOP, threadId);
+        if (suspendContext != null) {
+            XExecutionStack activeExecutionStack = suspendContext.getActiveExecutionStack();
+            if (activeExecutionStack instanceof BallerinaSuspendContext.BallerinaExecutionStack) {
+                String threadId = ((BallerinaSuspendContext.BallerinaExecutionStack) activeExecutionStack)
+                        .getThreadId();
+                if (threadId != null) {
+                    myConnector.sendCommand(Command.STOP, threadId);
+                }
+            }
         }
         isDisconnected = true;
         myConnector.close();
