@@ -44,7 +44,7 @@ class AnnotationAttribute extends ASTNode {
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',      // space before key
             1: '',      // space between key and ':'
-            2: ' ',     // ignore
+            2: ' ',     // space between ':' and value
         };
     }
 

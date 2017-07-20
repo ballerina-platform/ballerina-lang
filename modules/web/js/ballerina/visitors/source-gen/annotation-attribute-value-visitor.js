@@ -48,6 +48,8 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      */
     beginVisitAnnotationAttributeValue(annotationAttributeValue) {
         this.node = annotationAttributeValue;
+        this.isParentAttribValArray = ASTFactory.isAnnotationAttributeValue(this.node.getParent())
+            && this.node.getParent().isArray();
         this.appendSource(annotationAttributeValue.isArray() ? '[' : '');
     }
 
@@ -89,6 +91,9 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     visitAnnotationAttachment(annotationAttachment) {
+        if (this.isParentAttribValArray) {
+            this.appendSource(this.node.whiteSpace.useDefault ? ' ' : this.node.getWSRegion(3));
+        }
         const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
         annotationAttachment.accept(annotationAttachmentVisitor);
     }
@@ -100,8 +105,14 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     visitBValue(bValue) {
+        if (this.isParentAttribValArray) {
+            this.appendSource(this.node.whiteSpace.useDefault ? ' ' : this.node.getWSRegion(3));
+        }
         const bValueVisitor = new BValueVisitor(this);
         bValue.accept(bValueVisitor);
+        if (this.isParentAttribValArray) {
+            this.appendSource(this.node.whiteSpace.useDefault ? '' : this.node.getWSRegion(4));
+        }
     }
 }
 

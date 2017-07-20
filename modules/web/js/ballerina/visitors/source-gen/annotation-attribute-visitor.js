@@ -26,6 +26,17 @@ import ASTFactory from '../../ast/ballerina-ast-factory';
  * @extends {AbstractSourceGenVisitor}
  */
 class AnnotationAttributeVisitor extends AbstractSourceGenVisitor {
+
+    /**
+     * Constructor
+     * @param {SourceGenVisitor} parent
+     * @param {boolean} isFirstAttribute Indicates whether this is the first in list
+     */
+    constructor(parent, isFirstAttribute = false) {
+        super(parent);
+        this.isFirstAttribute = isFirstAttribute;
+    }
+
     /**
      * Checks if the annotation attribute can be visited.
      *
@@ -50,7 +61,8 @@ class AnnotationAttributeVisitor extends AbstractSourceGenVisitor {
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
         let constructedSourceSegment = '';
-        constructedSourceSegment += (useDefaultWS ? '' : annotationAttribute.getWSRegion(0))
+        constructedSourceSegment += (useDefaultWS || this.isFirstAttribute
+                                        ? '' : annotationAttribute.getWSRegion(0))
                                     + annotationAttribute.getKey()
                                     + annotationAttribute.getWSRegion(1) + ':'
                                     + annotationAttribute.getWSRegion(2);

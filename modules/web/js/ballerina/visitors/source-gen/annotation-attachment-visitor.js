@@ -34,6 +34,8 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     constructor(parent, isFirstAnnotation = false) {
         super(parent);
+        // flag to indicate whether this is embedded in an annotation attribute value
+        this.isAttribValue = false;
         this._isFirstAnnotation = isFirstAnnotation;
     }
 
@@ -55,7 +57,9 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     beginVisitAnnotationAttachment(annotationAttachment) {
         const useDefaultWS = annotationAttachment.whiteSpace.useDefault;
-        if (useDefaultWS && !this._isFirstAnnotation) {
+        this.isAttribValue = annotationAttachment.getFactory()
+                                .isAnnotationAttributeValue(annotationAttachment.getParent());
+        if (useDefaultWS && !this._isFirstAnnotation && !this.isAttribValue) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
@@ -85,9 +89,17 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
             attributes.forEach((attribute, index) => {
                 if (index !== 0) {
                     this.appendSource(',');
+                    if (annotationAttachment.whiteSpace.useDefault) {
+                        this.appendSource('\n');
+                    }
                 }
-                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this);
+                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this, index === 0);
                 attribute.accept(annotationAttributeVisitor);
+                if (index === attributes.length - 1) {
+                    if (annotationAttachment.whiteSpace.useDefault) {
+                        this.appendSource('\n');
+                    }
+                }
             });
         }
     }
@@ -100,8 +112,10 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     endVisitAnnotationAttachment(annotationAttachment) {
         this.outdent();
-        this.appendSource('}' + annotationAttachment.getWSRegion(3));
-        this.appendSource((annotationAttachment.whiteSpace.useDefault && !this._isFirstAnnotation)
+        this.appendSource('}' + (this.isAttribValue && annotationAttachment.whiteSpace.useDefault
+                                    ? '' : annotationAttachment.getWSRegion(3)));
+        this.appendSource((annotationAttachment.whiteSpace.useDefault
+                            && !this._isFirstAnnotation && !this.isAttribValue)
                                 ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
     }
