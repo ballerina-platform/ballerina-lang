@@ -106,37 +106,69 @@ class LifeLine extends React.Component {
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + (bBox.w - actionBbox.w) / 2;
         actionBbox.y = bBox.y + titleBoxH + DesignerDefaults.actionBox.padding.top;
+        let tooltip = this.props.title;
+        if (this.props.tooltip) {
+            tooltip = this.props.tooltip;
+        }
 
         return (<g
             className="life-line-group"
             onMouseOut={this.setActionVisibility.bind(this, false)}
             onMouseOver={this.setActionVisibility.bind(this, true)}
         >
+
+            <title> {tooltip} </title>
+
             {!_.isNil(startSolidLineFrom) && <line
-                x1={centerX} y1={dashedY1} x2={centerX} y2={dashedY2}
+                x1={centerX}
+                y1={dashedY1}
+                x2={centerX}
+                y2={dashedY2}
                 className={lineClass}
                 strokeDasharray='5, 5'
             />}
             <line
-                x1={centerX} y1={solidY1} x2={centerX} y2={solidY2}
+                x1={centerX}
+                y1={solidY1}
+                x2={centerX}
+                y2={solidY2}
                 className={lineClass}
             />
             <rect
-                x={bBox.x} y={bBox.y} width={bBox.w} height={titleBoxH} rx="0" ry="0"
-                className={polygonClassTop} onClick={e => this.openExpressionEditor(e)}
+                x={bBox.x}
+                y={bBox.y}
+                width={bBox.w}
+                height={titleBoxH}
+                rx="0"
+                ry="0"
+                className={polygonClassTop}
+                onClick={e => this.openExpressionEditor(e)}
             />
             <rect
-                x={bBox.x} y={y2 - titleBoxH} width={bBox.w} height={titleBoxH} rx="0" ry="0"
+                x={bBox.x}
+                y={y2 - titleBoxH}
+                width={bBox.w}
+                height={titleBoxH}
+                rx="0"
+                ry="0"
                 className={polygonClassBottom}
             />
             <text
-                x={centerX} y={bBox.y + titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-                dominantBaseline="central" className="life-line-text genericT"
+                x={centerX}
+                y={bBox.y + titleBoxH / 2}
+                textAnchor="middle"
+                alignmentBaseline="central"
+                dominantBaseline="central"
+                className="life-line-text genericT"
                 onClick={e => this.openExpressionEditor(e)}
             >{this.props.title}</text>
             <text
-                x={centerX} y={y2 - titleBoxH / 2} textAnchor="middle" alignmentBaseline="central"
-                dominantBaseline="central" className="life-line-text genericT unhoverable"
+                x={centerX}
+                y={y2 - titleBoxH / 2}
+                textAnchor="middle"
+                alignmentBaseline="central"
+                dominantBaseline="central"
+                className="life-line-text genericT unhoverable"
             >{this.props.title}</text>
             {this.props.onDelete &&
                 <ActionBox
