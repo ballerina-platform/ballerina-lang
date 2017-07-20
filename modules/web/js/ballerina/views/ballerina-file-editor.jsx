@@ -148,7 +148,13 @@ class BallerinaFileEditor extends React.Component {
             .then((state) => {
                 this.setState(state);
             })
-            .catch(error => log.error(error));
+            .catch((error) => {
+                log.error(error);
+                // log the error & stop loading overlay
+                this.setState({
+                    parsePending: false,
+                });
+            });
     }
 
     /**
@@ -284,6 +290,15 @@ class BallerinaFileEditor extends React.Component {
                     // if not, continue parsing the file & building AST
                     parseFile(file)
                         .then((jsonTree) => {
+                            // something went wrong with the parser
+                            if (_.isNil(jsonTree.root)) {
+                                log.error('Error while parsing the file: ' + file.getName()
+                                    + ' Error:' + jsonTree.errorMessage || jsonTree);
+                                // cannot be in a view which depends on AST
+                                // hence forward to source view
+                                newState.activeView = SOURCE_VIEW;
+                                resolve(newState);
+                            }
                             // get ast from json
                             const ast = BallerinaASTDeserializer.getASTModel(jsonTree);
                             this.markBreakpointsOnAST(ast);

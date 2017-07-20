@@ -45,8 +45,6 @@ class TransformExpanded extends React.Component {
         this.onSourceAdd = this.onSourceAdd.bind(this);
         this.onTargetAdd = this.onTargetAdd.bind(this);
         this.onClose = this.onClose.bind(this);
-        this.onDropZoneActivate = this.onDropZoneActivate.bind(this);
-        this.onDropZoneDeactivate = this.onDropZoneDeactivate.bind(this);
         this.onTransformDropZoneActivate = this.onTransformDropZoneActivate.bind(this);
         this.onTransformDropZoneDeactivate = this.onTransformDropZoneDeactivate.bind(this);
         this.onSourceInputChange = this.onSourceInputChange.bind(this);
@@ -698,46 +696,6 @@ class TransformExpanded extends React.Component {
 
     onTransformDropZoneDeactivate(e) {
         this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                dragDropManager.clearActivatedDropTarget();
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneActivate(e) {
-        const dragDropManager = this.context.dragDropManager;
-        const dropTarget = this.props.model.getParent();
-        const model = this.props.model;
-        if (dragDropManager.isOnDrag()) {
-            if (_.isEqual(dragDropManager.getActivatedDropTarget(), dropTarget)) {
-                return;
-            }
-            dragDropManager.setActivatedDropTarget(dropTarget,
-                (nodeBeingDragged) => {
-                    // IMPORTANT: override node's default validation logic
-                    // This drop zone is for statements only.
-                    // Statements should only be allowed here.
-                    return model.getFactory().isStatement(nodeBeingDragged);
-                },
-                () => {
-                    return dropTarget.getIndexOfChild(model);
-                });
-            this.setState({ innerDropZoneActivated: true,
-                innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
-            });
-            dragDropManager.once('drop-target-changed', function () {
-                this.setState({ innerDropZoneActivated: false, innerDropZoneDropNotAllowed: false });
-            }, this);
-        }
-        e.stopPropagation();
-    }
-
-    onDropZoneDeactivate(e) {
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         if (dragDropManager.isOnDrag()) {

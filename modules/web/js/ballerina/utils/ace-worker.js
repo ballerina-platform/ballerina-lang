@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import backends from 'bal_configs/backends';
 // This import defines ace/worker/mirror so we can ace.require ace/worker/mirror later
 import './ace-mirror-worker';
+import { fetchConfigs } from './../../api-client/api-client';
 
 const ace = global.ace;
+
+let newConfig;
 
 ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) => {
     const oop = acequire('ace/lib/oop');
@@ -37,7 +40,7 @@ ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) =
     oop.inherits(WorkerModule, Mirror);
 
     (function () {
-        this.onUpdate = function () {
+        function callBackend() {
             const value = this.doc.getValue();
             if (value.trim()) {
                 let errors = [];
@@ -54,11 +57,22 @@ ace.define('ace/worker/ballerina', ['require', 'exports'], (acequire, exports) =
                     }
                 };
 
-                request.open('POST', backends.services.validator.endpoint, true);
+                request.open('POST', newConfig.services.validator.endpoint, true);
                 request.setRequestHeader('Content-type', 'application/json');
                 request.send(JSON.stringify(content));
             } else {
                 this.sender.emit('lint', []);
+            }
+        }
+        this.onUpdate = function () {
+            // fetch configs from backend if not fetched already
+            if (!newConfig) {
+                fetchConfigs().then((configs) => {
+                    newConfig = _.merge(backends, configs);
+                    callBackend.bind(this)();
+                });
+            } else {
+                callBackend.bind(this)();
             }
         };
     }).call(WorkerModule.prototype);
