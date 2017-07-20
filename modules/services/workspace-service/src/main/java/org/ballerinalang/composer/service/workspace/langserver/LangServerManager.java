@@ -136,8 +136,9 @@ public class LangServerManager {
     void processFrame(String json) {
         Gson gson = new Gson();
         RequestMessage message = gson.fromJson(json, RequestMessage.class);
-
-        if (message.getId() != null) {
+        if (LangServerConstants.PING.equals(message.getMethod())) {
+            sendPong();
+        } else if (message.getId() != null) {
             // Request Message Received
             processRequest(message);
         } else {
@@ -181,6 +182,16 @@ public class LangServerManager {
     }
 
     /**
+     * Send Ping Reply
+     *
+     */
+    private void sendPong() {
+        ResponseMessage responseMessage = new ResponseMessage();
+        responseMessage.setId(LangServerConstants.PONG);
+        this.pushMessageToClient(langServerSession, responseMessage);
+    }
+
+    /**
      * Process received notifications
      *
      * @param message Message
@@ -198,6 +209,9 @@ public class LangServerManager {
                     break;
                 case LangServerConstants.TEXT_DOCUMENT_DID_SAVE:
                     this.documentDidSave(message);
+                    break;
+                case LangServerConstants.PING:
+                    this.sendPong();
                     break;
                 default:
                     // Valid Method could not be found

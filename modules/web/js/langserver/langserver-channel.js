@@ -23,6 +23,7 @@ import log from 'log';
 // See http://tools.ietf.org/html/rfc6455#section-7.4.1
 const WS_NORMAL_CODE = 1000;
 const WS_SSL_CODE = 1015;
+const WS_PING_INTERVAL = 15000;
 
 class LangserverChannel extends EventChannel {
     constructor(args) {
@@ -71,17 +72,31 @@ class LangserverChannel extends EventChannel {
         log.debug(`Web socket closed, reason ${reason}`);
         // After the internal server errors, websocket is being closed immediately and we re initialize the connection
         this.connect();
+        clearInterval(this.ping);
     }
 
     onError(error) {
         this.clientController.active = false;
         this.clientController.trigger('session-error');
         this.trigger('error', error);
+        clearInterval(this.ping);
     }
 
     onOpen() {
         this.clientController.active = true;
         this.trigger('connected');
+        this.startPing();
+    }
+
+    /**
+     * start a ping for the websocket.
+     *
+     * @memberof LangserverChannel
+     */
+    startPing() {
+        this.ping = setInterval(() => {
+            this.sendMessage({ method: 'PING' });
+        }, WS_PING_INTERVAL);
     }
 }
 
