@@ -70,19 +70,19 @@ public class ItemResolverConstants {
     public static final String SERVICE_TEMPLATE = "service<${1}> ${2:serviceName}{\n\t@http:GET { }" +
             "\n\tresource ${3:resourceName} (message m) {\n\t}\n}";
     public static final String RESOURCE_TEMPLATE = "resource ${1:name} (message ${2:m}){\n    ${3}\n}";
-    public static final String STRUCT_TEMPLATE = "struct ${1:name}{\n    ${2}\n}";
-    public static final String CONNECTOR_DEFFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
+    public static final String CONNECTOR_DEFINITION_TEMPLATE = "connector ${1:name} (${2}) {\n\t${3}\n}";
     public static final String CONNECTOR_ACTION_TEMPLATE = "action ${1:name} (${2}) (${3}) {\n\t${4}\n}";
     public static final String WORKER_TEMPLATE = "worker ${1:name} {\n\t${2}\n}";
-    public static final String STRUCT_DEFFINITION_TEMPLATE = "struct ${1}{\n    ${2}\n}";
-    public static final String ANNOTATION_DEFFINITION_TEMPLATE = "annotation ${1}{\n    ${3}\n}";
+    public static final String STRUCT_DEFINITION_TEMPLATE = "struct ${1:name}{\n    ${2}\n}";
+    public static final String ANNOTATION_DEFINITION_TEMPLATE = "annotation ${1:name}{\n    ${2 }\n}";
     public static final String IF_TEMPLATE = "if (${1:true}) {\n\t${2}\n}";
     public static final String ITERATE_TEMPLATE = "iterate (${1}) {\n\t${2}\n}";
     public static final String WHILE_TEMPLATE = "while (${1:true}) {\n\t${2}\n}";
     public static final String CONTINUE_TEMPLATE = "continue;";
     public static final String BREAK_TEMPLATE = "break;";
     public static final String FORK_TEMPLATE = "fork {\n\t${1}\n}";
-    public static final String TRY_CATCH_TEMPLATE = "try {\n\t${1}\n} catch (${2}) {\n\t${3}\n}";
+    public static final String TRY_CATCH_TEMPLATE =
+            "try {\n\t${1}\n} catch (${2:errors}:${3:Error} ${4:err}) {\n\t${5}\n}";
     public static final String RETURN_TEMPLATE = "return;";
     public static final String REPLY_TEMPLATE = "reply ${1};";
     public static final String ABORT_TEMPLATE = "abort;";
