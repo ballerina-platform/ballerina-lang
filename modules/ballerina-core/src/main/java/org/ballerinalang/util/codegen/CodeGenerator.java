@@ -1527,18 +1527,16 @@ public class CodeGenerator implements NodeVisitor {
         // First check whether this is a function pointer invocation.
         if (funcIExpr.isFunctionPointerInvocation()
                 && funcIExpr.getFunctionPointerVariableDef() instanceof SimpleVariableDef) {
-            int refRegIndex = ++regIndexes[REF_OFFSET];
-            MemoryLocation memoryLocation = funcIExpr.getFunctionPointerVariableDef().getMemoryLocation();
-            if (memoryLocation instanceof StackVarLocation) {
-                StackVarLocation varLocation = (StackVarLocation) memoryLocation;
-                int stackFrameOffset = varLocation.getStackFrameOffset();
-                emit(InstructionCodes.RLOAD, stackFrameOffset, refRegIndex);
-            } else {
-                // TODO: Fix this.
-            }
-            emit(InstructionCodes.FPCALL, refRegIndex, funcCallIndex);
+            // Treat this as a SimpleVarRefExpr point to function pointer.
+            // visiting this expression to load function pointer in to the refReg.
+            SimpleVarRefExpr expr = new SimpleVarRefExpr(funcIExpr.getNodeLocation(), null, funcIExpr.getName());
+            expr.setVariableDef(funcIExpr.getFunctionPointerVariableDef());
+            expr.accept(this);
+            // invoke loaded function.
+            emit(InstructionCodes.FPCALL, regIndexes[REF_OFFSET], funcCallIndex);
             return;
         }
+        // Else is normal function invocation.
 
         int pkgCPIndex = addPackageCPEntry(funcIExpr.getPackagePath());
 
@@ -2011,6 +2009,8 @@ public class CodeGenerator implements NodeVisitor {
                 simpleVarRefExpr.setTempOffset(exprRegIndex);
             }
         }
+
+        // Check whether this is a function pointer pointing to ballerina/native function. Then load it to refReg.
         if (!variableStore && simpleVarRefExpr.getVariableDef() instanceof Function) {
 
             Function function = (Function) simpleVarRefExpr.getVariableDef();

@@ -154,6 +154,7 @@ public class BLangModelBuilder {
     protected BallerinaFile.BFileBuilder bFileBuilder;
 
     protected SymbolScope currentScope;
+    protected SymbolScope currentParentScope;
 
     // Builds connectors and services.
     protected CallableUnitGroupBuilder currentCUGroupBuilder;
@@ -952,13 +953,14 @@ public class BLangModelBuilder {
 
     public void startLambdaFunctionDef() {
         currentParentCUBuilder = currentCUBuilder;
+        currentParentScope = currentScope;
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
     }
 
     public void endLambdaFunctionDef() {
         currentCUBuilder = currentParentCUBuilder;
-        currentScope = currentCUBuilder.getCurrentScope();
+        currentScope = currentParentScope;
     }
 
     public void createLambdaExpression(NodeLocation location, WhiteSpaceDescriptor wd) {
@@ -981,9 +983,6 @@ public class BLangModelBuilder {
         function.setLambda(true);
         bFileBuilder.addFunction(function);
         lambdaFunctions.push(function);
-
-        currentScope = function.getEnclosingScope();
-        currentCUBuilder = null;
     }
 
     public void startWorkerUnit() {
