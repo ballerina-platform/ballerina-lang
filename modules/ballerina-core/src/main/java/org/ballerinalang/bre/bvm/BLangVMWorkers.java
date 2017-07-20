@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -99,9 +100,9 @@ public class BLangVMWorkers {
                 outStream.println("error in worker '" + workerInfo.getWorkerName() + "': " + stackTraceStr);
             }
 
-            if (workerInfo.getWorkerDataChannelForForkJoin() != null) {
-                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelForForkJoin().takeData();
-                BType[] types = workerInfo.getWorkerDataChannelForForkJoin().getTypes();
+            if (workerInfo.getWorkerDataChannelInfoForForkJoin() != null) {
+                BValue[] results = (BValue[]) workerInfo.getWorkerDataChannelInfoForForkJoin().takeData();
+                BType[] types = workerInfo.getWorkerDataChannelInfoForForkJoin().getTypes();
                 for (int i = 0; i < types.length; i++) {
                     BType paramType = types[i];
                     switch (paramType.getTag()) {
@@ -116,6 +117,9 @@ public class BLangVMWorkers {
                             break;
                         case TypeTags.BOOLEAN_TAG:
                             bRefValueArray.add(i, ((BBoolean) results[i]));
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            bRefValueArray.add(i, ((BBlob) results[i]));
                             break;
                         default:
                             bRefValueArray.add(i, ((BRefType) results[i]));

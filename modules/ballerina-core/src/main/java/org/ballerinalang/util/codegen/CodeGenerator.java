@@ -150,8 +150,7 @@ import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,6 +199,7 @@ public class CodeGenerator implements NodeVisitor {
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
     private CallableUnitInfo currentCallableUnitInfo;
+    private int workerChannelCount = 0;
 
     // Required variables to generate code for assignment statements
     private int rhsExprRegIndex = -1;
@@ -392,6 +392,8 @@ public class CodeGenerator implements NodeVisitor {
             resourceInfo.setParamTypes(getParamTypes(resource.getParameterDefs()));
             resourceInfo.setRetParamTypes(new BType[0]);
 
+            generateCallableUnitInfoDataChannelMap(resource, resourceInfo);
+
             setParameterNames(resource.getParameterDefs(), resourceInfo);
             resourceInfo.setPackageInfo(currentPkgInfo);
             addWorkerInfoEntries(resourceInfo, resource.getWorkers());
@@ -555,6 +557,8 @@ public class CodeGenerator implements NodeVisitor {
                 addWorkerInfoEntries(actionInfo, action.getWorkers());
             }
 
+            generateCallableUnitInfoDataChannelMap(action, actionInfo);
+
             setCallableUnitSignature(actionInfo);
             connectorInfo.addActionInfo(action.getName(), actionInfo);
         }
@@ -578,9 +582,32 @@ public class CodeGenerator implements NodeVisitor {
                 addWorkerInfoEntries(funcInfo, (function).getWorkers());
             }
 
+            generateCallableUnitInfoDataChannelMap(function, funcInfo);
+
             setCallableUnitSignature(funcInfo);
             currentPkgInfo.addFunctionInfo(function.getName(), funcInfo);
         }
+    }
+
+    private void generateCallableUnitInfoDataChannelMap(CallableUnit callableUnit, CallableUnitInfo callableUnitInfo) {
+        callableUnit.getWorkerDataChannelMap().forEach((k, v) -> {
+            UTF8CPEntry sourceCPEntry = new UTF8CPEntry(v.getSource());
+            int sourceCPIndex = currentPkgInfo.addCPEntry(sourceCPEntry);
+            UTF8CPEntry targetCPEntry = new UTF8CPEntry(v.getTarget());
+            int targetCPIndex = currentPkgInfo.addCPEntry(targetCPEntry);
+            WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
+                    v.getSource(), targetCPIndex, v.getTarget());
+            if (callableUnitInfo.getWorkerDataChannelInfo(workerDataChannelInfo.getChannelName()) == null) {
+                workerDataChannelInfo.setUniqueName(workerDataChannelInfo.getChannelName() + workerChannelCount);
+                callableUnitInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
+                String uniqueName = workerDataChannelInfo.getUniqueName();
+                UTF8CPEntry uniqueNameCPEntry = new UTF8CPEntry(uniqueName);
+                int uniqueNameCPIndex = currentPkgInfo.addCPEntry(uniqueNameCPEntry);
+                workerDataChannelInfo.setUniqueNameCPIndex(uniqueNameCPIndex);
+                workerChannelCount++;
+            }
+
+        });
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, Worker[] workers) {
@@ -1041,59 +1068,41 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-        int pkgCPIndex = addPackageCPEntry(workerInvocationStmt.getPackagePath());
         WorkerDataChannel workerDataChannel = workerInvocationStmt.getWorkerDataChannel();
-        BType[] types = workerInvocationStmt.getTypes();
-        StringBuilder sb = new StringBuilder();
-        for (BType type : types) {
-            sb.append(type.getSig().getName());
+
+        WorkerDataChannelInfo workerDataChannelInfo = currentCallableUnitInfo
+                .getWorkerDataChannelInfo(workerDataChannel.getChannelName());
+
+        WorkerDataChannelRefCPEntry wrkrInvRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
+                .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+
+        wrkrInvRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+
+        int wrkrInvRefCPIndex = currentPkgInfo.addCPEntry(wrkrInvRefCPEntry);
+        if (currentWorkerInfo != null) {
+            currentWorkerInfo.setWrkrDtChnlRefCPIndex(wrkrInvRefCPIndex);
+            currentWorkerInfo.setWorkerDataChannelInfoForForkJoin(workerDataChannelInfo);
         }
-        String workerInvocationName;
-        if (workerDataChannel != null) {
-            workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
-                    workerDataChannel.getChannelName() + "." + sb.toString();
-            if (currentWorkerInfo != null) {
-                currentWorkerInfo.setWorkerDataChannelForForkJoin(workerDataChannel);
-            }
-        } else {
-            workerInvocationName = workerInvocationStmt.getEnclosingCallableUnitName() + "." +
-                    "default -> fork" + "." + sb.toString();
-        }
-        UTF8CPEntry funcNameCPEntry = new UTF8CPEntry(workerInvocationName);
-        int workerInvocationNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
-        WorkerDataChannelRefCPEntry workerInvocationRefCPEntry =
-                new WorkerDataChannelRefCPEntry(pkgCPIndex, workerInvocationNameCPIndex);
-        workerInvocationRefCPEntry.setTypes(types);
-        if (workerDataChannel != null) {
-            workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
-        }
-        int workerInvocationRefCPIndex = currentPkgInfo.addCPEntry(workerInvocationRefCPEntry);
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrInvRefCPIndex);
         int workerInvocationIndex = getWorkerInvocationCPIndex(workerInvocationStmt);
-        emit(InstructionCodes.WRKINVOKE, workerInvocationRefCPIndex, workerInvocationIndex);
+        emit(InstructionCodes.WRKINVOKE, wrkrInvRefCPIndex, workerInvocationIndex);
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
-        int pkgCPIndex = addPackageCPEntry(workerReplyStmt.getPackagePath());
-        BType[] types = workerReplyStmt.getTypes();
-        StringBuilder sb = new StringBuilder();
-        for (BType type : types) {
-            sb.append(type.getSig().getName());
-        }
-        String workerReplyName = workerReplyStmt.getEnclosingCallableUnitName() + "." +
-                workerReplyStmt.getWorkerDataChannel().getChannelName() + "." + sb.toString();
-        UTF8CPEntry workerReplyNameCPEntry = new UTF8CPEntry(workerReplyName);
-        int workerReplyNameCPIndex = currentPkgInfo.addCPEntry(workerReplyNameCPEntry);
-
         WorkerDataChannel workerDataChannel = workerReplyStmt.getWorkerDataChannel();
+        WorkerDataChannelInfo workerDataChannelInfo = currentCallableUnitInfo
+                .getWorkerDataChannelInfo(workerDataChannel.getChannelName());
 
-        WorkerDataChannelRefCPEntry workerReplyRefCPEntry =
-                new WorkerDataChannelRefCPEntry(pkgCPIndex, workerReplyNameCPIndex);
-        workerReplyRefCPEntry.setTypes(types);
-        workerReplyRefCPEntry.setWorkerDataChannel(workerDataChannel);
-        int workerReplyRefCPIndex = currentPkgInfo.addCPEntry(workerReplyRefCPEntry);
+        WorkerDataChannelRefCPEntry wrkrChnlRefCPEntry = new WorkerDataChannelRefCPEntry(workerDataChannelInfo
+                .getUniqueNameCPIndex(), workerDataChannelInfo.getUniqueName());
+
+        wrkrChnlRefCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+        int wrkrRplyRefCPIndex = currentPkgInfo.addCPEntry(wrkrChnlRefCPEntry);
+        workerDataChannelInfo.setDataChannelRefIndex(wrkrRplyRefCPIndex);
+
         int workerReplyIndex = getWorkerReplyCPIndex(workerReplyStmt);
-        emit(InstructionCodes.WRKREPLY, workerReplyRefCPIndex, workerReplyIndex);
+        emit(InstructionCodes.WRKREPLY, wrkrRplyRefCPIndex, workerReplyIndex);
         // Generate store instructions to store the values.
         int[] rhsExprRegIndexes = workerReplyStmt.getOffsets();
         Expression[] lhsExprs = workerReplyStmt.getExpressionList();
@@ -2369,15 +2378,26 @@ public class CodeGenerator implements NodeVisitor {
             argRegs[i] = argExpr.getTempOffset();
         }
 
-        int[] retRegs = new int[0];
-        WorkerInvokeCPEntry workerInvokeCPEntry = new WorkerInvokeCPEntry
-                (argRegs, retRegs, workerInvocationStmt.getTypes());
+        BType[] bTypes = workerInvocationStmt.getTypes();
+        WrkrInteractionArgsCPEntry workerInvokeCPEntry = new WrkrInteractionArgsCPEntry(argRegs, bTypes);
+
+        StringBuilder strBuilder = new StringBuilder("");
+        for (BType paramType : bTypes) {
+            strBuilder.append(paramType.getSig());
+        }
+
+        String sig = strBuilder.toString();
+
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+
+        workerInvokeCPEntry.setTypesSignatureCPIndex(sigCPIndex);
+
         return currentPkgInfo.addCPEntry(workerInvokeCPEntry);
     }
 
     private int getWorkerReplyCPIndex(WorkerReplyStmt workerReplyStmt) {
 
-        int[] retRegs = new int[0];
         // Calculate registers to store return values
         BType[] retTypes = workerReplyStmt.getTypes();
         int[] argRegs = new int[retTypes.length];
@@ -2387,8 +2407,21 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         workerReplyStmt.setOffsets(argRegs);
-        WorkerReplyCPEntry workerReplyCPEntry = new WorkerReplyCPEntry(argRegs, retRegs, workerReplyStmt.getTypes());
-        return currentPkgInfo.addCPEntry(workerReplyCPEntry);
+        WrkrInteractionArgsCPEntry wrkrRplyCPEntry = new WrkrInteractionArgsCPEntry(argRegs,
+                workerReplyStmt.getTypes());
+        StringBuilder strBuilder = new StringBuilder("");
+        for (BType paramType : workerReplyStmt.getTypes()) {
+            strBuilder.append(paramType.getSig());
+        }
+
+        String sig = strBuilder.toString();
+
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+
+        wrkrRplyCPEntry.setTypesSignatureCPIndex(sigCPIndex);
+
+        return currentPkgInfo.addCPEntry(wrkrRplyCPEntry);
     }
 
     private int getCallableUnitCallCPIndex(CallableUnitInvocationExpr invocationExpr) {
@@ -2429,19 +2462,30 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         int[] argRegs = lvIndexes;
-        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
-        forkJoinCPEntry.setParentCallableUnitInfo(currentCallableUnitInfo);
+
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(argRegs, retRegs);
         if (argExpr != null) {
-            forkJoinCPEntry.setTimeoutAvailable(true);
+            forkjoinInfo.setTimeoutAvailable(true);
         }
         for (Worker worker : forkJoinStmt.getWorkers()) {
             UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.getName());
             int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName());
-            forkJoinCPEntry.addWorkerInfo(worker.getName(), workerInfo);
+            forkjoinInfo.addWorkerInfo(worker.getName(), workerInfo);
         }
-        int forkJoinIndex = currentPkgInfo.addCPEntry(forkJoinCPEntry);
-        emit(InstructionCodes.FORKJOIN, forkJoinIndex);
+
+        int forkJoinIndex;
+        if (currentWorkerInfo != null) {
+            forkJoinIndex = currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+        } else {
+            forkJoinIndex = currentCallableUnitInfo.getDefaultWorkerInfo().addForkJoinInfo(forkjoinInfo);
+        }
+        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinIndex);
+        forkJoinIndexCPEntry.setForkjoinInfo(forkjoinInfo);
+        int forkJoinIndexCPEntryIndex = currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
+        forkjoinInfo.setIndexCPIndex(forkJoinIndexCPEntryIndex);
+
+        emit(InstructionCodes.FORKJOIN, forkJoinIndexCPEntryIndex);
         // visit the workers within fork-join block
         // Now visit each Worker
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
@@ -2449,7 +2493,7 @@ public class CodeGenerator implements NodeVisitor {
         int[] lvIndexesCopy = lvIndexes.clone();
         int[] regIndexesCopy = regIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
-            WorkerInfo workerInfo = forkJoinCPEntry.getWorkerInfo(worker.getName());
+            WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
             currentWorkerInfo = workerInfo;
@@ -2463,12 +2507,33 @@ public class CodeGenerator implements NodeVisitor {
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
 
+        int i = 0;
+        int[] joinWrkrNameCPIndexes = new int[forkJoinStmt.getJoin().getJoinWorkers().length];
+        String[] joinWrkrNames = new String[forkJoinStmt.getJoin().getJoinWorkers().length];
+        for (String workerName : forkJoinStmt.getJoin().getJoinWorkers()) {
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
+            int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+            joinWrkrNameCPIndexes[i] = workerNameCPIndex;
+            joinWrkrNames[i] = workerName;
+            i++;
+        }
+        forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrNameCPIndexes);
+        forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
+
         // Generate code for Join block
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
-        join.setIp(nextIP());
+        UTF8CPEntry joinType = new UTF8CPEntry(join.getJoinType());
+        int joinTypeCPIndex = currentPkgInfo.addCPEntry(joinType);
+        forkjoinInfo.setJoinType(join.getJoinType());
+        forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
+        forkjoinInfo.setJoinIp(nextIP());
         if (join.getJoinResult() != null) {
             visitForkJoinParameterDefs(join.getJoinResult());
         }
+
+        int joinMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        forkjoinInfo.setJoinMemOffset(joinMemOffset);
+
         if (join.getJoinBlock() != null) {
             join.getJoinBlock().accept(this);
         }
@@ -2479,8 +2544,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
-        timeout.setIp(nextIP());
-        int timeoutIP = timeout.getIp();
+        forkjoinInfo.setTimeoutIp(nextIP());
         if (timeout.getTimeoutExpression() != null) {
             timeout.getTimeoutExpression().accept(this);
         }
@@ -2488,6 +2552,10 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutResult() != null) {
             visitForkJoinParameterDefs(timeout.getTimeoutResult());
         }
+
+        int timeoutMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
+
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }

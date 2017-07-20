@@ -17,13 +17,7 @@
  */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.model.statements.ForkJoinStmt;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.WorkerInfo;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import org.ballerinalang.util.codegen.ForkjoinInfo;
 
 /**
  * {@code ForkJoinCPEntry} represents a Ballerina fork join statement in the constant pool.
@@ -31,83 +25,50 @@ import java.util.Map;
  * @since 0.90
  */
 public class ForkJoinCPEntry implements ConstantPoolEntry {
-    // Registers which contains worker incoming arguments
-    private int[] argRegs;
+    private int forkJoinCPIndex;
 
-    // Registers to which return  values to be copied
-    private int[] retRegs;
+    private ForkjoinInfo forkjoinInfo;
 
-    protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
-
-    protected ForkJoinStmt forkJoinStmt;
-    private boolean isTimeoutAvailable;
-    private CallableUnitInfo parentCallableUnitInfo;
-
-    public ForkJoinCPEntry(int[] argRegs, int[] retRegs, ForkJoinStmt forkJoinStmt) {
-        this.argRegs = argRegs;
-        this.retRegs = retRegs;
-        this.forkJoinStmt = forkJoinStmt;
+    public ForkJoinCPEntry(int forkJoinCPIndex) {
+        this.forkJoinCPIndex = forkJoinCPIndex;
     }
 
-
-    public ForkJoinStmt getForkJoinStmt() {
-        return forkJoinStmt;
+    public int getForkJoinCPIndex() {
+        return forkJoinCPIndex;
     }
 
-
-    public boolean isTimeoutAvailable() {
-        return isTimeoutAvailable;
+    public ForkjoinInfo getForkjoinInfo() {
+        return forkjoinInfo;
     }
 
-    public void setTimeoutAvailable(boolean timeoutAvailable) {
-        isTimeoutAvailable = timeoutAvailable;
+    public void setForkjoinInfo(ForkjoinInfo forkjoinInfo) {
+        this.forkjoinInfo = forkjoinInfo;
     }
 
-    public int[] getArgRegs() {
-        return argRegs;
+    public void setForkJoinCPIndex(int forkJoinCPIndex) {
+        this.forkJoinCPIndex = forkJoinCPIndex;
     }
 
-    public int[] getRetRegs() {
-        return retRegs;
+    public EntryType getEntryType() {
+        return EntryType.CP_ENTRY_FORK_JOIN;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
-    public ConstantPoolEntry.EntryType getEntryType() {
-        return ConstantPoolEntry.EntryType.CP_ENTRY_FORK_JOIN;
-    }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-    public WorkerInfo getWorkerInfo(String workerName) {
-        return workerInfoMap.get(workerName);
-    }
-
-    public void addWorkerInfo(String attributeName, WorkerInfo workerInfo) {
-        workerInfoMap.put(attributeName, workerInfo);
-    }
-
-    public Map<String, WorkerInfo> getWorkerInfoMap() {
-        return workerInfoMap;
+        ForkJoinCPEntry that = (ForkJoinCPEntry) o;
+        return forkJoinCPIndex == that.forkJoinCPIndex;
     }
 
     @Override
     public int hashCode() {
-        int[] combined = new int[argRegs.length + retRegs.length];
-        System.arraycopy(argRegs, 0, combined, 0, argRegs.length);
-        System.arraycopy(retRegs, 0, combined, argRegs.length, retRegs.length);
-        return Arrays.hashCode(combined);
+        return (int) (forkJoinCPIndex ^ (forkJoinCPIndex >>> 32));
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof ForkJoinCPEntry && Arrays.equals(argRegs, ((ForkJoinCPEntry) obj).argRegs)
-                && Arrays.equals(retRegs, ((ForkJoinCPEntry) obj).retRegs);
-    }
-
-    public CallableUnitInfo getParentCallableUnitInfo() {
-        return parentCallableUnitInfo;
-    }
-
-    public void setParentCallableUnitInfo(CallableUnitInfo parentCallableUnitInfo) {
-        this.parentCallableUnitInfo = parentCallableUnitInfo;
-    }
-
 }
