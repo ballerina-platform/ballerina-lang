@@ -179,6 +179,18 @@ public class PackageActionAndFunctionFilter implements SymbolFilter {
         }
         signature.append(")");
         signatureInsertText.append(")");
+
+        SimpleTypeName[] returnParamTypeNames = nativeUnit.getReturnParamTypeNames();
+        StringBuilder returnParams = new StringBuilder("(");
+
+        for (int itr = 0; itr < returnParamTypeNames.length; itr++) {
+            returnParams.append(returnParamTypeNames[itr].getName());
+            if (itr != returnParamTypeNames.length - 1) {
+                returnParams.append(", ");
+            }
+        }
+        returnParams.append(")");
+        signature.append(returnParams.toString());
         return new FunctionSignature(signatureInsertText.toString(), signature.toString());
     }
 
