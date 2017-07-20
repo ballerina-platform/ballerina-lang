@@ -1704,6 +1704,7 @@ public class BLangVM {
                 } else if (checkConstraintJSONCast(typeCPEntry.getType(), sf.refRegs[i])) {
                     ((BJSON) sf.refRegs[i]).setType(typeCPEntry.getType());
                     sf.refRegs[j] = sf.refRegs[i];
+                    break;
                 } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
