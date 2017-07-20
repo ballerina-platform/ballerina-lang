@@ -168,6 +168,16 @@ class Package {
     }
 
     /**
+     * returns connector definition
+     * @param {string} annotationDefinitionName - name of the connector to be retrieved
+     */
+    getAnnotationDefinitionByName(annotationDefinitionName) {
+        return _.find(this.getAnnotationDefinitions(), (annotationDefinition) => {
+            return _.isEqual(annotationDefinition.getName(), annotationDefinitionName);
+        });
+    }
+
+    /**
      * Add annotation defs
      * @param annotationDefinitions - can be an array of annotationDefs or a single annotationDef
      */
