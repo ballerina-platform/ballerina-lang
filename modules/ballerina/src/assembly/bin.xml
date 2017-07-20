@@ -140,6 +140,7 @@
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.file</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.transport.file-system</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.jms</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
@@ -182,6 +183,8 @@
                 <include>javax.jms:javax.jms-api</include>
                 <include>javax.transaction:javax.transaction-api</include>
                 <include>org.atomikos.wso2:atomikos</include>
+                <include>org.wso2.orbit.org.quartz-scheduler:quartz</include>
+                <include>commons-net:commons-net</include>
             </includes>
         </dependencySet>
 
