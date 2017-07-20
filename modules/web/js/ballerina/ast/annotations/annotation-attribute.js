@@ -45,8 +45,6 @@ class AnnotationAttribute extends ASTNode {
             0: '',      // space before key
             1: '',      // space between key and ':'
             2: ' ',     // ignore
-            3: ' ',     // ignore
-            4: '\n',    // ignore
         };
     }
 

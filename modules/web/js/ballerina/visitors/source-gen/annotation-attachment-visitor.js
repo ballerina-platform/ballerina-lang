@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
 
@@ -75,7 +76,20 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      * Visits the body of the annotation attachment.
      * @memberof AnnotationAttachmentVisitor
      */
-    visitAnnotationAttachment() {
+    visitAnnotationAttachment(annotationAttachment) {
+        // override default visit mechanism to keep track of no of attributes
+        // this is needed for adding comma logic
+        const attributes = annotationAttachment.getChildrenOfType(annotationAttachment
+                                    .getFactory().isAnnotationAttribute);
+        if (_.isArray(attributes)) {
+            attributes.forEach((attribute, index) => {
+                if (index !== 0) {
+                    this.appendSource(',');
+                }
+                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this);
+                attribute.accept(annotationAttributeVisitor);
+            });
+        }
     }
 
     /**
@@ -90,15 +104,6 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
         this.appendSource((annotationAttachment.whiteSpace.useDefault && !this._isFirstAnnotation)
                                 ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-    }
-
-    /**
-    * Visits annotation attribute.
-    * @param {AnnotationAttribute} annotationAttribute The annotation attribute child.
-    */
-    visitAnnotationAttribute(annotationAttribute) {
-        const annotationAttributeVisitor = new AnnotationAttributeVisitor(this);
-        annotationAttribute.accept(annotationAttributeVisitor);
     }
 }
 export default AnnotationAttachmentVisitor;

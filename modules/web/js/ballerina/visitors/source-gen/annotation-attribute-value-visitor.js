@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttachmentVisitor from './annotation-attachment-visitor';
 import ASTFactory from '../../ast/ballerina-ast-factory';
@@ -33,8 +34,10 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @returns {boolean} true if can be visited, else false.
      * @memberof AnnotationAttributeValueVisitor
      */
-    canVisitAnnotationAttributeValue() {
-        return true;
+    canVisitAnnotationAttributeValue(annotationAttributeValue) {
+        // prevent visiting nested instances (when this is an array value)
+        // this is to have control while iterating those to insert commas, etc.
+        return _.isNil(this.node) || (this.node !== annotationAttributeValue.getParent());
     }
 
     /**
@@ -44,18 +47,28 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     beginVisitAnnotationAttributeValue(annotationAttributeValue) {
-        this.appendSource(annotationAttributeValue.getWSRegion(3));
-        if (ASTFactory.isAnnotationAttributeValue(annotationAttributeValue.getParent()) &&
-                                                                    annotationAttributeValue.getParent().isArray()) {
-            this.indent();
-        }
+        this.node = annotationAttributeValue;
+        this.appendSource(annotationAttributeValue.isArray() ? '[' : '');
     }
 
     /**
      * Visits body of the annotation attribute value.
      * @memberof AnnotationAttributeValueVisitor
      */
-    visitAnnotationAttributeValue() {
+    visitAnnotationAttributeValue(annotationAttributeValue) {
+        // override default visit mechanism to keep track of no of children
+        // this is needed for adding comma logic
+        const attributeValues = annotationAttributeValue.getChildrenOfType(annotationAttributeValue
+                                    .getFactory().isAnnotationAttributeValue);
+        if (_.isArray(attributeValues)) {
+            attributeValues.forEach((attributeVal, index) => {
+                if (index !== 0) {
+                    this.appendSource(',');
+                }
+                const annotationAttributeVisitor = new AnnotationAttributeValueVisitor(this);
+                attributeVal.accept(annotationAttributeVisitor);
+            });
+        }
     }
 
     /**
@@ -65,19 +78,8 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     endVisitAnnotationAttributeValue(annotationAttributeValue) {
-        // If parent is an array
-        if (ASTFactory.isAnnotationAttributeValue(annotationAttributeValue.getParent())) {
-            this.outdent();
-            if (annotationAttributeValue.getParent().getChildren().length - 1 !==
-                annotationAttributeValue.getParent().getIndexOfChild(annotationAttributeValue)) {
-                this.appendSource(',');
-            }
-        }
-
-        // If parent is not an array
-        if (!ASTFactory.isAnnotationAttributeValue(annotationAttributeValue.getParent())) {
-            this.getParent().appendSource(this.getGeneratedSource());
-        }
+        this.appendSource(annotationAttributeValue.isArray() ? ']' : '');
+        this.getParent().appendSource(this.getGeneratedSource());
     }
 
     /**
@@ -87,10 +89,6 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     visitAnnotationAttachment(annotationAttachment) {
-        if (ASTFactory.isAnnotationAttributeValue(annotationAttachment.getParent().getParent()) &&
-                                                            annotationAttachment.getParent().getParent().isArray()) {
-            this.appendSource('\n');
-        }
         const annotationAttachmentVisitor = new AnnotationAttachmentVisitor(this);
         annotationAttachment.accept(annotationAttachmentVisitor);
     }
@@ -102,10 +100,6 @@ class AnnotationAttributeValueVisitor extends AbstractSourceGenVisitor {
      * @memberof AnnotationAttributeValueVisitor
      */
     visitBValue(bValue) {
-        if (ASTFactory.isAnnotationAttributeValue(bValue.getParent().getParent())) {
-            this.appendSource('\n' + this.getIndentation());
-        }
-
         const bValueVisitor = new BValueVisitor(this);
         bValue.accept(bValueVisitor);
     }
