@@ -2336,9 +2336,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 return;
             }
 
-        } else if ((sourceType.getTag() == TypeTags.C_JSON_TAG || sourceType.getTag() == TypeTags.C_JSON_TAG)
-            && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstraintType) targetType).getConstraint(),
-                    (StructDef) ((BJSONConstraintType) sourceType).getConstraint())) {
+        } else if ((sourceType.getTag() == TypeTags.C_JSON_TAG && targetType.getTag() == TypeTags.C_JSON_TAG)
+                && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstraintType) targetType).getConstraint(),
+                (StructDef) ((BJSONConstraintType) sourceType).getConstraint())) {
             typeCastExpr.setOpcode(InstructionCodes.NOP);
             if (!isMultiReturn) {
                 typeCastExpr.setTypes(new BType[]{targetType});
