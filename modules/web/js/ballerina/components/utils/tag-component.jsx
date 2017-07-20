@@ -197,6 +197,9 @@ class TagController extends React.Component {
                         }}
                         show={this.state.editing}
                         suggestionsPool={this.props.suggestions}
+                        onSuggestionSelected={(event, { suggestionValue }) => {
+                            this.onEnter(suggestionValue);
+                        }}
                     />
                 </g>
                 <text
@@ -256,6 +259,9 @@ class TagController extends React.Component {
                     }}
                     show={this.state.editing}
                     suggestionsPool={this.props.suggestions}
+                    onSuggestionSelected={(event, { suggestionValue }) => {
+                        this.onEnter(suggestionValue);
+                    }}
                 />
             </g>
             <text
