@@ -60,12 +60,12 @@ public class ToJSON extends AbstractJSONFunction {
     public BValue[] execute(Context ctx) {
         BJSON json = null;
         try {
-            // Accessing Parameters../
+            // Accessing Parameters
             BXML xml = (BXML) getRefArgument(ctx, 0);
             BStruct optionsStruct = ((BStruct) getRefArgument(ctx, 1));
             String attributePrefix = optionsStruct.getStringField(0);
             Boolean preserveNamespaces = optionsStruct.getBooleanField(0) == 1;
-            //Converting to json.
+            //Converting to json
             json = XMLUtils.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Throwable e) {
             ErrorHandler.handleXMLException("convert xml to json", e);
