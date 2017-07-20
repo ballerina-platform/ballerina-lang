@@ -65,6 +65,7 @@ class AnnotationContainer extends React.Component {
         this.onAnnotationIdentifierSuggestionsClearRequested =
                                                         this.onAnnotationIdentifierSuggestionsClearRequested.bind(this);
         this.onAnnotationIdentifierSelected = this.onAnnotationIdentifierSelected.bind(this);
+        this.renderAnnotationPackageNameSuggestion = this.renderAnnotationPackageNameSuggestion.bind(this);
 
         this.storeCurrentInputReference = (autosuggest) => {
             if (autosuggest !== null) {
@@ -301,9 +302,9 @@ class AnnotationContainer extends React.Component {
      * @memberof AnnotationContainer
      */
     getAnnotationPackageNameSuggestions(value) {
+        const matches = [];
         const escapedValue = this.escapeRegexCharacters(value.trim());
-
-        const regex = new RegExp(`^${escapedValue}`, 'i');
+        const regex = new RegExp(escapedValue, 'i');
 
         let packageNameSuggestions = AnnotationHelper.getPackageNames(
                                                                 this.context.environment, this.props.model.parentNode);
@@ -314,7 +315,13 @@ class AnnotationContainer extends React.Component {
             };
         });
 
-        return packageNameSuggestions.filter(packageNameObject => regex.test(packageNameObject.name));
+        packageNameSuggestions.forEach((sug) => {
+            if (regex.test(sug.name)) {
+                matches.push(sug);
+            }
+        });
+
+        return matches;
     }
 
     /**
@@ -367,8 +374,22 @@ class AnnotationContainer extends React.Component {
      * @returns {ReactElement} The view.
      */
     renderAnnotationPackageNameSuggestion(suggestion) {
+        const value = this.state.selectedPackageNameValue;
+        const sugName = suggestion.name;
+        const parts = sugName.split(value);
+        const highlightedString = [];
+
+        parts.forEach((p, i) => {
+            highlightedString.push(<span key={i}>{p}</span>);
+            if (i < parts.length - 1) {
+                highlightedString.push(<span key={i + 100}><b>{value}</b></span>);
+            }
+        });
+
         return (
-            <span>{suggestion.name}</span>
+            <div>
+                {highlightedString}
+            </div>
         );
     }
 
