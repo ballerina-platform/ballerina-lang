@@ -340,7 +340,7 @@ class PackageDefinition extends React.Component {
                             onCollapse={this.handleGlobalsBadgeClick}
                             title={'Globals'}
                             addText={'+ Add Global'}
-                            onAddNewValue={this.handleAddGlobal18}
+                            onAddNewValue={this.handleAddGlobal}
                             newValuePlaceholder={''}
                             onDeleteClick={this.handleDeleteGlobal}
                             getValue={PackageDefinition.getDisplayValue}
