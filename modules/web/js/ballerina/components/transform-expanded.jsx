@@ -59,7 +59,11 @@ class TransformExpanded extends React.Component {
 
     getFunctionDefinition(functionInvocationExpression) {
         const funPackage = this.context.environment.getPackageByName(functionInvocationExpression.getFullPackageName());
-        return funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+        let funcDef = funPackage.getFunctionDefinitionByName(functionInvocationExpression.getFunctionName());
+         _.forEach(funcDef.getParameters(), (param) => {
+                param.innerType = _.find(this.predefinedStructs, { typeName: param.type });
+         });
+        return funcDef;
     }
 
     onConnectionCallback(connection) {
@@ -101,8 +105,24 @@ class TransformExpanded extends React.Component {
             }
             let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
                                                 (param) => { return param.name == connection.targetProperty[0]});
+            let refType = BallerinaASTFactory.createReferenceTypeInitExpression();
+            if (connection.targetProperty.length > 1 && BallerinaASTFactory.isReferenceTypeInitExpression(funcNode.children[index])) {
+                refType = funcNode.children[index];
+            }
             funcNode.removeChild(funcNode.children[index], true);
-            funcNode.addChild(sourceExpression, index);
+            //check function parameter is a struct and mapping is a complex mapping
+            if (connection.targetProperty.length > 1 && _.find(self.predefinedStructs, (struct) =>
+                        {return struct.typeName == self.getFunctionDefinition(funcNode).getParameters()[index].type})) {
+                let keyValEx = BallerinaASTFactory.createKeyValueExpression();
+                let nameVarRefExpression = BallerinaASTFactory.createSimpleVariableReferenceExpression();
+                nameVarRefExpression.setExpressionFromString(connection.targetProperty[1]);
+            	keyValEx.addChild(nameVarRefExpression);
+            	keyValEx.addChild(sourceExpression);
+                refType.addChild(keyValEx);
+            	funcNode.addChild(refType, index);
+            } else {
+                funcNode.addChild(sourceExpression, index);
+            }
             return assignmentStmtSource.id;
         }
 
@@ -348,10 +368,26 @@ class TransformExpanded extends React.Component {
                     this.drawInnerFunctionInvocationExpression(
                         functionInvocationExpression, expression, func, i, statement);
                 } else {
-                    const target = this.getConnectionProperties('target', func.getParameters()[i]);
-                    _.merge(target, funcTarget); // merge parameter props with function props
-                    const source = this.getConnectionProperties('source', expression);
-                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                    let target;
+                    let source;
+                    if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
+                    //if parameter is a key value expression, iterate each expression and draw connections
+                    _.forEach(expression.children, (propParam) => {
+                        source = this.getConnectionProperties('source', propParam.children[1]);
+                        target = this.getConnectionProperties('target', func.getParameters()[i]);
+                        _.merge(target, funcTarget); // merge parameter props with function props
+                        target.targetProperty.push(propParam.children[0].getVariableName());
+                        let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
+                        let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
+                        target.targetType.push(propType.type);
+                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                    });
+                    } else {
+                       target = this.getConnectionProperties('target', func.getParameters()[i]);
+                       _.merge(target, funcTarget); // merge parameter props with function props
+                       source = this.getConnectionProperties('source', expression);
+                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                    }
                 }
             });
         }
@@ -542,7 +578,7 @@ class TransformExpanded extends React.Component {
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
             if (innerStruct != null) {
-                property.innerType = this.createType(property.name, typeName, innerStruct, true);
+                property.innerType = this.createType(property.name, property.type, innerStruct, true);
             }
 
             struct.properties.push(property);

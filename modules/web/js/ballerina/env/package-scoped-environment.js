@@ -146,8 +146,8 @@ class PackageScopedEnvironment {
 
     /**
      * Merge package1 into package2 and returns merged package2
-     * @param {Package} package1
-     * @param {Package} package2
+     * @param {Package} package1 
+     * @param {Package} package2 
      * @returns {Package} merged package
      */
     mergePackages(package1, package2){
@@ -185,9 +185,9 @@ class PackageScopedEnvironment {
     }
 
     /**
-     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority
-     * @param {Array} itemArray1
-     * @param {Array} itemArray2
+     * merge given item arrays. If there are items with same name, items in itemArray2 gets the priority 
+     * @param {Array} itemArray1 
+     * @param {Array} itemArray2 
      */
     mergePackageItems(itemArray1, itemArray2){
         _.remove(itemArray1, function(item1){

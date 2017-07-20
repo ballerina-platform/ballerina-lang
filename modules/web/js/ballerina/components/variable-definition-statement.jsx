@@ -112,7 +112,8 @@ class VariableDefinitionStatement extends React.Component {
         const arrowStartPointY = this.statementBox.y + (this.statementBox.h / 2);
         const radius = 10;
         const actionInvocation = (!_.isNil(model.getRightExpression())
-            && ASTFactory.isActionInvocationExpression(model.getRightExpression())) ? model.getRightExpression() : undefined;
+        && ASTFactory.isActionInvocationExpression(model.getRightExpression())) ?
+            model.getRightExpression() : undefined;
         let connector;
         const arrowStart = { x: 0, y: 0 };
         const arrowEnd = { x: 0, y: 0 };
@@ -123,7 +124,8 @@ class VariableDefinitionStatement extends React.Component {
             connector = actionInvocation._connector;
 
             // TODO: need a proper way to do this
-            const isConnectorAvailable = !_.isEmpty(connector.getParent().filterChildren(child => child.id === connector.id));
+            const isConnectorAvailable = !_.isEmpty(connector.getParent()
+                .filterChildren(child => child.id === connector.id));
 
             arrowStart.x = this.statementBox.x + this.statementBox.w;
             arrowStart.y = this.statementBox.y + this.statementBox.h / 3;
@@ -132,7 +134,9 @@ class VariableDefinitionStatement extends React.Component {
                 connector = undefined;
                 actionInvocation._connector = undefined;
             } else {
-                arrowEnd.x = connector.getViewState().bBox.x + connector.getViewState().bBox.w / 2;
+                const connectorViewState = ASTFactory.isAssignmentStatement(connector) ?
+                    connector.getViewState().connectorDeclViewState : connector.getViewState();
+                arrowEnd.x = connectorViewState.bBox.x + (connectorViewState.bBox.w / 2);
             }
 
             arrowEnd.y = arrowStart.y;
@@ -142,25 +146,31 @@ class VariableDefinitionStatement extends React.Component {
             backArrowEnd.y = backArrowStart.y;
         }
 
-        return (<StatementDecorator model={model} viewState={model.viewState} expression={expression} editorOptions={this.editorOptions}>
-            {!_.isNil(actionInvocation) &&
-            <g>
-                <circle
-                    cx={arrowStartPointX}
-                    cy={arrowStartPointY}
-                    r={radius}
-                    fill="#444"
-                    fillOpacity={0}
-                    onMouseOver={e => this.onArrowStartPointMouseOver(e)}
-                    onMouseOut={e => this.onArrowStartPointMouseOut(e)}
-                    onMouseDown={e => this.onMouseDown(e)}
-                    onMouseUp={e => this.onMouseUp(e)}
-                />
-                {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
-                {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
-            </g>
+        return (
+            <StatementDecorator
+                model={model}
+                viewState={model.viewState}
+                expression={expression}
+                editorOptions={this.editorOptions}
+            >
+                {!_.isNil(actionInvocation) &&
+                <g>
+                    <circle
+                        cx={arrowStartPointX}
+                        cy={arrowStartPointY}
+                        r={radius}
+                        fill="#444"
+                        fillOpacity={0}
+                        onMouseOver={e => this.onArrowStartPointMouseOver(e)}
+                        onMouseOut={e => this.onArrowStartPointMouseOut(e)}
+                        onMouseDown={e => this.onMouseDown(e)}
+                        onMouseUp={e => this.onMouseUp(e)}
+                    />
+                    {connector && <ArrowDecorator start={arrowStart} end={arrowEnd} enable />}
+                    {connector && <BackwardArrowDecorator start={backArrowStart} end={backArrowEnd} enable />}
+                </g>
             }
-        </StatementDecorator>);
+            </StatementDecorator>);
     }
 }
 

@@ -428,6 +428,22 @@ class StatementVisitor extends ASTVisitor {
     endVisitCommentStatement(statement) {
     }
 
+    canVisitNamespaceDeclarationStatement(statement) {
+        return false;
+    }
+
+    beginVisitNamespaceDeclarationStatement(statement) {
+
+    }
+
+    visitNamespaceDeclarationStatement(statement) {
+
+    }
+
+    endVisitNamespaceDeclarationStatement(statement) {
+
+    }
+
     /**
      * @param node {ASTNode}
      */
@@ -490,6 +506,8 @@ class StatementVisitor extends ASTVisitor {
             return this.visitJoinStatement(node);
         } else if (ASTFactory.isCommittedStatement(node)) {
             return this.visitCommittedStatement(node);
+        } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
+            return this.visitNamespaceDeclarationStatement(node);
         }
     }
 
@@ -561,6 +579,8 @@ class StatementVisitor extends ASTVisitor {
             return this.canVisitAbortStatement(node);
         } else if (ASTFactory.isCommittedStatement(node)) {
             return this.canVisitCommittedStatement(node);
+        } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
+            return this.canVisitNamespaceDeclarationStatement(node);
         }
     }
 
@@ -632,6 +652,8 @@ class StatementVisitor extends ASTVisitor {
             return this.beginVisitJoinStatement(node);
         } else if (ASTFactory.isCommittedStatement(node)) {
             return this.beginVisitCommittedStatement(node);
+        } else if (ASTFactory.isNamespaceDeclarationStatement(node)) {
+            return this.beginVisitNamespaceDeclarationStatement(node);
         }
     }
 
@@ -703,6 +725,8 @@ class StatementVisitor extends ASTVisitor {
             return this.endVisitJoinStatement(node);
         } else if (ASTFactory.isCommittedStatement(node)) {
             return this.endVisitCommittedStatement(node);
+        } else if (ASTFactory.isNamespaceDeclarationStatement(node)){
+            return this.endVisitNamespaceDeclarationStatement(node);
         }
     }
 }

@@ -165,8 +165,8 @@ class TransformRender {
  * @returns connectionObject
  */
     getConnectionObject(id, sourceId, targetId) {
-        const sourceName = this.getStructId(sourceId);
-        const targetName = this.getStructId(targetId);
+        const sourceName = this.getStructId(sourceId).replace("func-input", "").replace("func-output", "");
+        const targetName = this.getStructId(targetId).replace("func-input", "").replace("func-output", "");
 
         let sourceRefObj;
         let targetRefObj;
@@ -341,7 +341,8 @@ class TransformRender {
                 lookupClass = 'variable-content';
                 typeConns = $('div[id^="' + typeId + '"]').find('.' + lookupClass);
             } else {
-                typeConns = $('div[id^="' + typeId + '"]');
+                lookupClass = 'jstree-anchor';
+                typeConns = $('div[id^="'+ typeId + '"]').find('.' + lookupClass);
             }
 
             const self = this;
@@ -361,34 +362,47 @@ class TransformRender {
  */
     addConnection(connection) {
         const anchorEnd = '_anchor';
-        let sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
-        + this.viewIdSeperator + this.viewId;
-        let targetId = this.jsTreePrefix + this.viewIdSeperator + connection.targetStruct
-        + this.viewIdSeperator + this.viewId;
         let isSourceExists;
         let isTargetExists;
+        let sourcePrefix = this.jsTreePrefix + this.viewIdSeperator;
+        let targetPrefix = this.jsTreePrefix + this.viewIdSeperator;
+        let targetUUID = "";
+        let sourceUUID = "";
+        let targetTail = "";
+        let sourceTail = ""
 
-        if (connection.sourceFunction) {
-            sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
-            isSourceExists = true;
-        } else if (connection.sourceStruct == connection.sourceProperty[0]) {
+        if(connection.sourceId != null) {
+            sourceUUID = connection.sourceId;
+            sourceTail = "func-output";
+            sourcePrefix = "";
+        }
+
+        if(connection.targetId != null) {
+            targetUUID = connection.targetId;
+            targetTail = "func-input";
+            targetPrefix = "";
+        }
+
+        let sourceId = sourcePrefix  + connection.sourceStruct + sourceUUID
+            + this.viewIdSeperator + this.viewId + sourceTail;
+        let targetId = targetPrefix + connection.targetStruct + targetUUID
+            + this.viewIdSeperator + this.viewId + targetTail;
+
+        if (connection.sourceStruct == connection.sourceProperty[0]) {
             // Construct Variable property id
             sourceId = connection.sourceStruct;
             isSourceExists = true;
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
-                connection.sourceStruct + this.viewIdSeperator + this.viewId);
+                connection.sourceStruct + sourceUUID + this.viewIdSeperator + this.viewId + sourceTail);
         }
-        if (connection.targetFunction) {
-            targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
-            isTargetExists = true;
-        } else if (connection.targetStruct == connection.targetProperty[0]) {
+        if (connection.targetStruct == connection.targetProperty[0]) {
             // Construct Variable property id
             targetId = connection.targetStruct;
             isTargetExists = true;
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
-                connection.targetStruct + this.viewIdSeperator + this.viewId);
+                connection.targetStruct + targetUUID + this.viewIdSeperator + this.viewId + targetTail);
         }
 
         if (isSourceExists && isTargetExists) {
@@ -396,7 +410,7 @@ class TransformRender {
                 sourceId += this.idNameSeperator
                 + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
             }
-            if (!connection.sourceFunction && connection.sourceStruct != connection.sourceProperty[0]) {
+            if (connection.sourceStruct != connection.sourceProperty[0]) {
                 sourceId += anchorEnd;
             }
 
@@ -405,7 +419,7 @@ class TransformRender {
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
             }
 
-            if (!connection.targetFunction && connection.targetStruct != connection.targetProperty[0]) {
+            if (connection.targetStruct != connection.targetProperty[0]) {
                 targetId += anchorEnd;
             }
 
@@ -462,11 +476,22 @@ class TransformRender {
             self.existingJsTrees.push(structId);
             self.reposition(self);
             _.forEach(self.connectionPool, (conPoolObj) => {
-                if (!conPoolObj.connected && structId ===
-                        conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
+                let targetUUID = "";
+                let sourceUUID = "";
+
+                if(conPoolObj.connection.sourceId != null) {
+                    sourceUUID = conPoolObj.connection.sourceId;
+                }
+
+                if(conPoolObj.connection.targetId != null) {
+                    targetUUID = conPoolObj.connection.targetId;
+                }
+
+                if (!conPoolObj.connected && structId.replace("func-input","").replace("func-output","") ===
+                        conPoolObj.connection.sourceStruct + sourceUUID + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
-                } else if (!conPoolObj.connected && structId ===
-                        conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
+                } else if (!conPoolObj.connected && structId.replace("func-input","").replace("func-output","") ===
+                        conPoolObj.connection.targetStruct + targetUUID + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
@@ -514,6 +539,25 @@ class TransformRender {
             }
         });
     }
+
+/**
+ * Handles the complex struct properties.
+ *
+ * @param parentId Id of the parentElement where the element needs to be added.
+ * @param struct  Object which specifies the id, name, and type of the struct.
+ */
+addComplexParameter(parentId, struct) {
+    const self = this;
+    _.forEach(struct.getParameters(), (property) => {
+        if (property.innerType != null && property.innerType.properties.length > 0) {
+        const complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type, true);
+        self.addComplexProperty(complexStructEl.attr('id'), property.innerType);
+    } else {
+        self.makeProperty($('#' + parentId), property.name, property.type, true);
+    }
+});
+}
+
 
 /**
  * Add a target struct in the mapper UI
@@ -632,33 +676,27 @@ class TransformRender {
             const funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
             const closeButton = $('<span>').attr('id', id + '-button').addClass('fw-stack fw-lg btn btn-remove');
             const outputContent = $('<div>').attr('id', id + 'func-output').addClass('func-output');
-
+            const inputContent = $('<div>').attr('id', id + 'func-input').addClass('func-input');
             const del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
-
+            const jsTreeIdIn = id + 'func-input';
+            const jsTreeIdOut = id + 'func-output';
             funcName.append(funcIcon);
             funcName.append($('<span>').text(funcText));
             closeButton.append(del);
             funcName.append(closeButton);
             newFunc.append(funcName);
+            newFunc.append(inputContent);
             newFunc.append(outputContent);
-
-            newFunc.css({
-                top: 0,
-                left: 0,
-            });
-
+            newFunc.css({top: 0, left: 0});
             $('#' + this.placeHolderName).find('.middle-content').append(newFunc);
             this.onRemove(id, func, onFunctionRemove, removeReference);
-
-            _.forEach(func.getParameters(), (parameter) => {
-                const property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
-                self.addTarget(property, self);
-            });
+            this.addComplexParameter(jsTreeIdIn, func);
+            this.processJSTree(jsTreeIdIn, jsTreeIdIn, this.addTarget);
 
             _.forEach(func.getReturnParams(), (parameter) => {
-                const property = self.makeFunctionAttribute($('#' + id + 'func-output'), parameter.name, parameter.type, false);
-                self.addSource(property, self, true);
+                const property =  self.makeProperty($('#' + jsTreeIdOut), parameter.name, parameter.type);
             });
+            this.processJSTree(jsTreeIdOut, jsTreeIdOut, this.addSource);
 
             self.reposition(this);
         }

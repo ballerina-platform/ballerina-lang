@@ -66,6 +66,14 @@ class ResourceDefinition extends ASTNode {
         return variableDefinitionStatements;
     }
 
+    /**
+     * Get the namespace declaration statements.
+     * @return {ASTNode[]} namespace declaration statements
+     * */
+    getNamespaceDeclarationStatements() {
+        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+    }
+
     getArguments() {
         return this.getArgumentParameterDefinitionHolder().getChildren();
     }
@@ -86,7 +94,7 @@ class ResourceDefinition extends ASTNode {
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
-        if (index == -1) {
+        if (index === -1) {
             index = _.findLastIndex(this.getChildren(), (child) => {
                 return self.getFactory().isConnectorDeclaration(child);
             });
@@ -304,12 +312,26 @@ class ResourceDefinition extends ASTNode {
 
     /**
      * Get the connector by name
-     * @param {string} connectorName
-     * @return {ConnectorDeclaration}
+     * @param {string} connectorName - name of the connector
+     * @return {ConnectorDeclaration} - Connector declaration with the given connector name
      */
     getConnectorByName(connectorName) {
+        const factory = this.getFactory();
         const connectorReference = _.find(this.getChildren(), (child) => {
-            return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+            let connectorVariableName;
+            if (factory.isAssignmentStatement(child) && factory.isConnectorInitExpression(child.getChildren()[1])) {
+                const variableReferenceList = [];
+
+                _.forEach(child.getChildren()[0].getChildren(), (variableRef) => {
+                    variableReferenceList.push(variableRef.getExpressionString());
+                });
+
+                connectorVariableName = (_.join(variableReferenceList, ',')).trim();
+            } else if (factory.isConnectorDeclaration(child)) {
+                connectorVariableName = child.getConnectorVariable();
+            }
+
+            return connectorVariableName === connectorName;
         });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent().getConnectorByName(connectorName);
@@ -330,7 +352,8 @@ class ResourceDefinition extends ASTNode {
 
     /**
      * Gets the @http:Path{value: '/abc'} annotation attachment AST.
-     * @return {AnnotationAttachment|undefined}
+     * @param {boolean} ifNotExist - whether the path annotation exist or not
+     * @return {AnnotationAttachment|undefined} - annotation attachment
      */
     getPathAnnotation(ifNotExist = false) {
         let pathAnnotation;
@@ -388,7 +411,7 @@ class ResourceDefinition extends ASTNode {
 
     /**
      * Gets the @http:GET{} annotation AST
-     * @return {Annotation|undefined}
+     * @return {Annotation|undefined} - Annotation AST model
      */
     getHttpMethodAnnotation() {
         let httpMethodAnnotation;

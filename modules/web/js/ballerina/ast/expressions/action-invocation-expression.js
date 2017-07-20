@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import Expression from './expression';
 import FragmentUtils from '../../utils/fragment-utils';
 
@@ -207,7 +206,17 @@ class ActionInvocationExpression extends Expression {
 
         // Get the Connector expression reference name
         if (!_.isNil(this.getConnector())) {
-            connectorRef = this.getConnector().getConnectorVariable();
+            const connector = this.getConnector();
+            if (this.getFactory().isAssignmentStatement(connector)) {
+                const variableReferenceList = [];
+
+                _.forEach(connector.getChildren()[0].getChildren(), (child) => {
+                    variableReferenceList.push(child.getExpressionString());
+                });
+                connectorRef = _.join(variableReferenceList, ', ');
+            } else {
+                connectorRef = this.getConnector().getConnectorVariable();
+            }
         } else if (!_.isNil(this._connectorExpr)) {
             connectorRef = this._connectorExpr.getExpressionString();
         }
@@ -264,7 +273,8 @@ class ActionInvocationExpression extends Expression {
     }
 
     messageDrawTargetAllowed(target) {
-        return this.getFactory().isConnectorDeclaration(target);
+        return this.getFactory().isConnectorDeclaration(target) || (this.getFactory().isAssignmentStatement(target) &&
+            this.getFactory().isConnectorInitExpression(target.getChildren()[1]));
     }
 }
 

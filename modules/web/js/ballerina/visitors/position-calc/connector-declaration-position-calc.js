@@ -52,7 +52,10 @@ class ConnectorDeclarationPositionCalcVisitor {
         const parent = node.getParent();
         const parentViewState = parent.getViewState();
         const workers = _.filter(parent.getChildren(), child => ASTFactory.isWorkerDeclaration(child));
-        const connectors = _.filter(parent.getChildren(), child => ASTFactory.isConnectorDeclaration(child));
+        const connectors = _.filter(parent.getChildren(),
+            child => ASTFactory.isConnectorDeclaration(child)
+            || (ASTFactory.isAssignmentStatement(child)
+            && ASTFactory.isConnectorInitExpression(child.getChildren()[1])));
         const connectorIndex = _.findIndex(connectors, node);
         let x;
 
@@ -194,7 +197,9 @@ class ConnectorDeclarationPositionCalcVisitor {
             }
         } else if (connectorIndex > 0) {
             const previousConnector = connectors[connectorIndex - 1];
-            const previousStatementContainer = previousConnector.getViewState().components.statementContainer;
+            const previousConViewState = ASTFactory.isAssignmentStatement(previousConnector)
+                ? previousConnector.getViewState().connectorDeclViewState : previousConnector.getViewState();
+            const previousStatementContainer = previousConViewState.components.statementContainer;
             xPosition = previousStatementContainer.getRight() + DesignerDefaults.innerPanel.body.padding.left;
         }
 

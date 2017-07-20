@@ -400,4 +400,16 @@ DefaultBallerinaASTFactory.createConnectorDeclaration = function (args) {
     return connectorDeclaration;
 };
 
+/**
+ * create namespace declaration statement.
+ * @param {object} args - argument for creating namespace declaration statement.
+ * @return {ASTNode} namespaceDeclarationStatement
+ * */
+DefaultBallerinaASTFactory.createNamespaceDeclarationStatement = function (args) {
+    const namespaceDeclarationStatement = BallerinaASTFactory.createNamespaceDeclarationStatement(args);
+    namespaceDeclarationStatement.setStatementFromString('xmlns "http://sample.org/test" as ns');
+    namespaceDeclarationStatement.accept(new EnableDefaultWSVisitor());
+    return namespaceDeclarationStatement;
+};
+
 export default DefaultBallerinaASTFactory;
