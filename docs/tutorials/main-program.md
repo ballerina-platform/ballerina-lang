@@ -6,16 +6,16 @@ Now that you have [written your first program](../first-program.md), you can wri
 
 This tutorial consists of the following main sections.
 
-- [Set up Ballerina for integration](#set-up-ballerina-for-integration)
+- [Create a new main program](#create-a-new-main-program)
+- [Add a connector](#add-a-connector)
+- [Call the connector](#call-the-connector)
+- [View the response](#view-the-response)
+- [Extract content from JSON](#extract-content-from-json)
 - [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). For more information on the weather forecast API, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
 
-## Set up Ballerina for integration
-
-Now it's time to set things up in Ballerina.
-
-### Create a new main program
+## Create a new main program
 
 There are main programs and services, but this tutorial focuses on main programs only. A service normally continues to run and can be invoked by a REST API when required. A main program, on the other hand, will just run once. Main programs can be executed just like a Java main program. 
 
@@ -27,7 +27,7 @@ It is time to create a main program to solve your integration problem.
 
 ![alt text](../images/AddMainProgram.gif)
 
-### Add a connector
+## Add a connector
 
 Now that you have added a main program, you need a connector to connect to the external weather API. The connector ideal for this is the **HTTP Client Connector** since you are invoking an HTTP endpoint.
 
@@ -44,7 +44,7 @@ Connectors may need to have usage specific parameters and hence must be instanti
 1. Add the endpoint URL (http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US) within quotation marks "" as the connector endpoint. You can also change the name of the endpoint to something suitable.
     ![alt text](../images/ConnectorEndpoint.gif)
 
-### Call the connector
+## Call the connector
 
 When you add a connector, you need to have a way of calling a connector and those are called actions.
 
@@ -67,7 +67,7 @@ In the case of the HTTP connector you are using in this tutorial, the actions ar
 1. The GET request action for the HTTP connector requires you to pass some parameters in the request. This includes the connector, the request path, and the message. In this tutorial, forecastAPI is the name of the connector that is passed. The request path is an additional string that can be passed in the request. You can set this up so that the request path includes the API key and country code. This will be portrayed in a different tutorial. In this instance, an empty string is passed **""**. Additionally, you can pass the message **m**.
     ![alt text](../images/GETRequestMessage.png)
 
-### View the response
+## View the response
 
 Prior to doing further changes, you can view the output to see if the call to the API works.
 
@@ -81,7 +81,7 @@ Prior to doing further changes, you can view the output to see if the call to th
 
 The output contains a JSON payload. This tutorial aims to access the JSON payload and extract the contents under **list**. This enables you to obtain the temperature forecast in Kelvin for the next five days. For more information, see [Call the API](#call-the-api)
 
-### Work with JSON
+## Extract content from JSON
 
 The next step is to obtain the JSON payload content.
 
@@ -95,6 +95,16 @@ The next step is to obtain the JSON payload content.
 1. Modify the variable so that you can get the data under list. In this example, **.list** is a JSON path.
     ![alt text](../images/forecastDataList.png)
     > JSON paths can be used to access the contents of an attribute. For example, if `json j = {a:"hello"}` you can access `hello` using `j.a`. When considering the example used in this tutorial, if `json j = {list:[1,2,3]}` you can access the list using `j.list`.
+
+## Call the API
+
+The URL with the API key and the contry code is something similar to the following: http://api.openweathermap.org/data/2.5/forecast?appid=f6f43202ba90c14ab13479aa2a2beefb&q=Washington,US.
+
+> Here the `appid` is the API key and the country code is `Washington,US`.
+
+Use a tool that can interact with HTTP APIs. In this instance we use Postman, which is a Google Chrome app. Paste the URL above in the **Enter request URL** text box and change the request type to **GET**. In the JSON response you can see the **list** part of the response contans the temperature (**temp**) in Kelvin.
+
+![alt text](../images/PostmanWeather.png)
 
 ## Get information from the weather forecast API
 
