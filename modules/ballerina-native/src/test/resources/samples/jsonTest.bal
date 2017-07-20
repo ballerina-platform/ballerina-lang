@@ -121,6 +121,18 @@ function testToXML(json msg) (xml){
     return jsons:toXML(msg, options);
 }
 
+function testToXMLStringValue() (xml){
+    jsons:Options options = {};
+    json j = "value";
+    return jsons:toXML(j, options);
+}
+
+function testToXMLBooleanValue() (xml){
+    jsons:Options options = {};
+    json j = true;
+    return jsons:toXML(j, options);
+}
+
 function testToXMLString(json msg) (string){
     jsons:Options options = {};
     xml xmlData = jsons:toXML(msg, options);

@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.functions;
 
 import org.apache.axiom.om.OMNode;
+import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -70,6 +71,11 @@ public class JSONTest {
             + "'address':{'street':'PalmGrove','@city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
     private static final String jsonToXML14 = "{'bookStore':{'#storeName':'foo','postalCode':94,'isOpen':true,"
             + "'address':{'street':'PalmGrove','#city':'Colombo','country':'SriLanka'},'codes':[4, 8, 9]}}";
+    private static final String jsonToXML15 = "{\"key\":\"value\"}";
+    private static final String jsonToXML16 = "{\"key1\": \"value1\",\"key2\": \"value2\"}";
+    private static final String jsonToXML17 = "[\"test\", 6, true]";
+    private static final String jsonToXML18 = "{\"foo\":{\"@key\": \"value\"}}";
+    private static final String jsonToXML19 = "{\"foo\":{\"@key\": \"value\",\"test\":\"hello\"}}";
 
     @BeforeClass
     public void setup() {
@@ -529,7 +535,7 @@ public class JSONTest {
                 + "</item></books>");
     }
 
-    @Test(description = "Convert a json object with value only")
+    @Test(description = "Convert a json object with number value only")
     public void testToXMLJsonWithValue() {
         BValue[] args = { new BJSON(jsonToXML5) };
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLString", args);
@@ -538,6 +544,81 @@ public class JSONTest {
 
         String returnElement = (returns[0]).stringValue();
         Assert.assertEquals(returnElement, "5");
+    }
+
+    @Test(description = "Convert a json object with string value only")
+    public void testToXMLJsonWithStringValue() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLStringValue");
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(((OMText) returnElement).getText(), "value");
+    }
+
+    @Test(description = "Convert a json object with boolean value only")
+    public void testToXMLBooleanValue() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLBooleanValue");
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(((OMText) returnElement).getText(), "true");
+    }
+
+    @Test(description = "Convert json object with key value")
+    public void testToXMLKeyValue() {
+        BValue[] args = { new BJSON(jsonToXML15) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<key>value</key>");
+    }
+
+    @Test(description = "Convert a json object")
+    public void testToXMLJsonObject() {
+        BValue[] args = { new BJSON(jsonToXML16) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<key1>value1</key1><key2>value2</key2>");
+    }
+
+    @Test(description = "Convert a json array with different types")
+    public void testToXMLJsonArrayWithDifferentTypes() {
+        BValue[] args = { new BJSON(jsonToXML17) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXMLWithXMLSequence", args);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+
+        String textValue = returns[0].stringValue();
+        Assert.assertEquals(textValue, "<item>test</item><item>6</item><item>true</item>");
+    }
+
+    @Test(description = "Convert json object with attribute")
+    public void testToXMLKeyWithAttribute() {
+        BValue[] args = { new BJSON(jsonToXML18) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"/>");
+    }
+
+    @Test(description = "Convert json object with attribute and value")
+    public void testToXMLKeyWithAttributeAndValue() {
+        BValue[] args = { new BJSON(jsonToXML19) };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testToXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMNode returnElement = ((BXMLItem) returns[0]).value();
+        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"><test>hello</test></foo>");
     }
 
     @Test(description = "Convert a json object with array")
