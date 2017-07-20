@@ -298,3 +298,96 @@ function testSeqCopy()(xml, xml) {
     
     return original, copy;
 }
+
+function testToJSON(xml msg) (json) {
+    xmls:Options options = {};
+    return xmls:toJSON(msg, options);
+}
+
+function testToJSONWithOptions(xml msg) (json) {
+    xmls:Options options = {attributePrefix : "#"};
+    return xmls:toJSON(msg, options);
+}
+
+function testToJSONWithoutNamespace(xml msg) (json) {
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(msg, options);
+}
+
+function testToJSONWithSequence1() (json) {
+    xml x1 = xmls:parse("<key1>value1</key1>");
+    xml x2 = xmls:parse("<key2>value2</key2>");
+    xml x3 = x1 + x2;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x3, options);
+}
+
+function testToJSONWithSequence2() (json) {
+    xml x1 = xmls:parse("<key>value1</key>");
+    xml x2 = xmls:parse("<key>value2</key>");
+    xml x3 = xmls:parse("<key>value3</key>");
+    xml x = x1 + x2 + x3;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequence3() (json) {
+    xml x1 = xmls:parse("a");
+    xml x2 = xmls:parse("b");
+    xml x3 = xmls:parse("c");
+    xml x = x1 + x2 + x3;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequence4() (json) {
+    xml x1 = xmls:parse("<person><name>Jack</name><age>40</age></person>");
+    xml x2 = xmls:parse("<metadata>5</metadata>");
+    xml x = x1 + x2;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequence5() (json) {
+    xml x1 = xmls:parse("a");
+    xml x2 = xmls:parse("b");
+    xml x3 = xmls:parse("<key>value3</key>");
+    xml x = x1 + x2 + x3;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequence6() (json) {
+    xml x1 = xmls:parse("a");
+    xml x2 = xmls:parse("b");
+    xml x3 = xmls:parse("<key>value3</key>");
+    xml x4 = xmls:parse("<key>value4</key>");
+    xml x5 = xmls:parse("<key>value4</key>");
+    xml x = x1 + x2 + x3 + x4 + x5;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequence7()(json) {
+    xml x1 = xmls:parse("a");
+    xml x2 = xmls:parse("b");
+    xml x3 = xmls:parse("<key>value3</key>");
+    xml x4 = xmls:parse("<key>value4</key>");
+    xml x5 = xmls:parse("<key>value4</key>");
+    xml x6 = xmls:parse("<!-- comment about the book-->");
+    xml x7 = xmls:parse("<bookName>Book1</bookName>");
+    xml x8 = xmls:parse("<bookId>001</bookId>");
+    xml x9 = xmls:parse("<bookAuthor>Author01</bookAuthor>");
+    xml x10 = xmls:parse("<?word document=\"book.doc\" ?>");
+
+    xml x = x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x8 + x10;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}

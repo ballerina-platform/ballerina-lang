@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.functions;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -1010,5 +1011,291 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
+    }
+
+    @Test
+    public void testToJson1() {
+        String xmlStr = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"persons\":{\"person\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}");
+    }
+
+    @Test
+    public void testToJson2() {
+        String xmlStr = "<person><name>Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJson3() {
+        String xmlStr = "<persons><person><test><name>Jack</name><address>wso2</address></test></person></persons>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"persons\":{\"person\":{\"test\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}}");
+    }
+
+    @Test
+    public void testToJson4() {
+        String xmlStr = "<name>Jack</name>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Jack\"}");
+    }
+
+    @Test
+    public void testToJson5() {
+        String xmlStr = "<codes><item>4</item><item>8</item><item>9</item></codes>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}");
+    }
+
+    @Test
+    public void testToJson6() {
+        String xmlStr = "<bookStore><storeName>foo</storeName><postalCode>94</postalCode><isOpen>true</isOpen><address>"
+                + "<street>foo</street><city>94</city><country>true</country></address><codes><item>4</item>"
+                + "<item>8</item><item>9</item></codes></bookStore>\n";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":"
+                        + "{\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"city\":\"94\","
+                        + "\"country\":\"true\"}}}");
+    }
+
+    @Test
+    public void testToJson7() {
+        String xmlStr = "<person><name>Jack</name><age>40</age><!-- some comment --></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJson8() {
+        String xmlStr = "<person id = \"5\"><name>Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"@id\":\"5\",\"name\":\"Jack\",\"age\":\"40\"}}");
+    }
+
+    @Test
+    public void testToJson9() {
+        String xmlStr = "<person id = \"5\"><name cat = \"A\">Jack</name><age>40</age></person>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"person\":{\"@id\":\"5\",\"age\":\"40\",\"name\":{\"@cat\":\"A\",\"#text\":\"Jack\"}}}");
+    }
+
+    @Test
+    public void testToJson10() {
+        String xmlStr = "<bookStore status = \"online\"><storeName>foo</storeName><postalCode>94</postalCode>"
+                + "<isOpen>true</isOpen><address><street>foo</street><city code = \"A\">94</city><country>true"
+                + "</country></address><codes quality=\"b\"><item>4</item><item>8</item><item>9</item></codes>"
+                + "</bookStore>\n";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\",\"postalCode\":\"94\","
+                        + "\"isOpen\":\"true\",\"codes\":{\"@quality\":\"b\",\"item\":[\"4\",\"8\",\"9\"]},"
+                        + "\"address\":{\"street\":\"foo\",\"country\":\"true\",\"city\":{\"@code\":\"A\","
+                        + "\"#text\":\"94\"}}}}");
+    }
+
+    @Test
+    public void testToJson11() {
+        String xmlStr = "<bookStore status = \"online\" id = \"5\"><storeName>foo</storeName><postalCode>94"
+                + "</postalCode><isOpen>true</isOpen><address><street>foo</street>"
+                + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
+                + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"5\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":{\"@quality\":\"b\","
+                + "\"@type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"country\":\"true\","
+                + "\"city\":{\"@code\":\"A\",\"@reg\":\"C\",\"#text\":\"94\"}}}}");
+    }
+
+    @Test
+    public void testToJson112() {
+        String xmlStr = "<bookStore status = \"online\" id = \"5\"><storeName>foo</storeName><postalCode>94"
+                + "</postalCode><isOpen>true</isOpen><address><street>foo</street>"
+                + "<city code = \"A\" reg = \"C\">94</city><country>true</country></address>"
+                + "<codes quality=\"b\" type = \"0\"><item>4</item><item>8</item><item>9</item></codes></bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithOptions", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\",\"#id\":\"5\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":{\"#quality\":\"b\","
+                + "\"#type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"country\":\"true\","
+                + "\"city\":{\"#code\":\"A\",\"#reg\":\"C\",\"#text\":\"94\"}}}}");
+    }
+
+    @Test
+    public void testToJson12() {
+        String xmlStr = "<books><item><bookName>book1</bookName><bookId>101</bookId></item><item>"
+                + "<bookName>book2</bookName><bookId>102</bookId></item><item><bookName>book3</bookName>"
+                + "<bookId>103</bookId></item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"books\":{\"item\":[{\"bookName\":\"book1\",\"bookId\":\"101\"},{\"bookName\":\"book2\","
+                        + "\"bookId\":\"102\"},{\"bookName\":\"book3\",\"bookId\":\"103\"}]}}");
+    }
+
+    @Test
+    public void testToJson13() {
+        String xmlStr = "<books><item><item><bookName>book1</bookName><bookId>101</bookId></item></item><item><item>"
+                + "<bookName>book2</bookName><bookId>102</bookId></item></item><item><item><bookName>book3</bookName>"
+                + "<bookId>103</bookId></item></item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"books\":{\"item\":[{\"item\":{\"bookName\":\"book1\",\"bookId\":\"101\"}},{\"item\":"
+                        + "{\"bookName\":\"book2\",\"bookId\":\"102\"}},{\"item\":{\"bookName\":\"book3\","
+                        + "\"bookId\":\"103\"}}]}}");
+    }
+
+    @Test
+    public void testToJson14() {
+        String xmlStr = "<books><item>book1</item><item>book2</item><item>book3</item></books>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"books\":{\"item\":[\"book1\",\"book2\",\"book3\"]}}");
+    }
+
+    @Test
+    public void testToJson15() {
+        String xmlStr = "<ns0:bookStore status=\"online\" xmlns:ns0=\"http://sample0.com/test\" "
+                + "xmlns:ns1=\"http://sample1.com/test\"><ns0:storeName>foo</ns0:storeName>"
+                + "<ns3:postalCode xmlns:ns3=\"http://sample3.com/test\">94</ns3:postalCode>"
+                + "<ns0:isOpen>true</ns0:isOpen><ns2:address xmlns:ns2=\"http://sample2.com/test\">"
+                + "<ns2:street>foo</ns2:street><ns2:city>111</ns2:city><ns2:country>true</ns2:country>"
+                + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
+                + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+                + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"ns0:storeName\":\"foo\","
+                + "\"ns0:isOpen\":\"true\",\"ns3:postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\","
+                + "\"#text\":\"94\"},\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
+                + "\"ns4:item\":[\"4\",\"8\",\"9\"]},\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"ns2:street\":\"foo\",\"ns2:city\":\"111\",\"ns2:country\":\"true\"}}}");
+    }
+
+    @Test
+    public void testToJson16() {
+        String xmlStr = "<ns0:bookStore status=\"online\" xmlns:ns0=\"http://sample0.com/test\" "
+                + "xmlns:ns1=\"http://sample1.com/test\"><ns0:storeName>foo</ns0:storeName>"
+                + "<ns3:postalCode xmlns:ns3=\"http://sample3.com/test\">94</ns3:postalCode>"
+                + "<ns0:isOpen>true</ns0:isOpen><ns2:address xmlns:ns2=\"http://sample2.com/test\">"
+                + "<ns2:street>foo</ns2:street><ns2:city>111</ns2:city><ns2:country>true</ns2:country>"
+                + "</ns2:address><ns4:codes xmlns:ns4=\"http://sample4.com/test\"><ns4:item>4</ns4:item><ns4:item>8"
+                + "</ns4:item><ns4:item>9</ns4:item></ns4:codes></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithoutNamespace", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+                + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"storeName\":\"foo\","
+                + "\"isOpen\":\"true\",\"codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
+                + "\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"street\":\"foo\",\"city\":\"111\",\"country\":\"true\"},"
+                + "\"postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\",\"#text\":\"94\"}}}");
+    }
+
+    @Test
+    public void testToJson17() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence1");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
+    }
+
+    @Test
+    public void testToJson18() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence2");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key\":[\"value1\",\"value2\",\"value3\"]}");
+    }
+
+    @Test
+    public void testToJson19() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence3");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\"]");
+    }
+
+    @Test
+    public void testToJson20() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence4");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"},"
+                + "\"metadata\":\"5\"}");
+    }
+
+    @Test
+    public void testToJson21() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence5");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":\"value3\"}]");
+    }
+
+    @Test
+    public void testToJson22() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence6");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"]}]");
+    }
+
+    @Test
+    public void testToJson23() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithSequence7");
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"],"
+                + "\"bookName\":\"Book1\",\"bookId\":[\"001\",\"001\"]}]");
     }
 }

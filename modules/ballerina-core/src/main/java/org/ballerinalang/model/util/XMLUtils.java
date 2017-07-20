@@ -305,10 +305,10 @@ public class XMLUtils {
     }
 
     /**
-     * Converts given json object to the corresponding xml.
+     * Converts given xml object to the corresponding json.
      *
      * @param xml XML object to get the corresponding json
-     * @return BJSON JSON representation of the given json object
+     * @return BJSON JSON representation of the given xml object
      */
     public static BJSON convertToJSON(BXML xml, String attributePrefix, boolean preserveNamespaces) {
         JsonNode jsonNode = null;
