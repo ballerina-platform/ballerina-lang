@@ -22,13 +22,16 @@ import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.XmlAttribNode;
@@ -59,6 +62,7 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
         List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
         Collection<PackageNameNode> packageNameNodes = PsiTreeUtil.findChildrenOfType(file, PackageNameNode.class);
         for (PackageNameNode packageNameNode : packageNameNodes) {
+            ProgressManager.checkCanceled();
             if (packageNameNode == null) {
                 continue;
             }
@@ -89,6 +93,28 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 problemDescriptors.add(problemDescriptor);
             }
         }
+
+        Collection<NameReferenceNode> nameReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
+                NameReferenceNode.class);
+        LocalQuickFix[] availableFixes = new LocalQuickFix[0];
+        for (NameReferenceNode nameReferenceNode : nameReferenceNodes) {
+            ProgressManager.checkCanceled();
+            if (nameReferenceNode == null) {
+                continue;
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(nameReferenceNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                continue;
+            }
+            PsiReference reference = identifier.getReference();
+            if (reference == null || reference.resolve() == null) {
+                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
+                        identifier, availableFixes);
+                problemDescriptors.add(problemDescriptor);
+            }
+        }
+
         return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
     }
 
@@ -99,9 +125,9 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
 
     @NotNull
     private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, boolean isOnTheFly,
-                                                      String description, PackageNameNode packageNameNode,
-                                                      LocalQuickFix[] availableFixes) {
-        return manager.createProblemDescriptor(packageNameNode, description, isOnTheFly, availableFixes,
+                                                      @NotNull String description, @NotNull PsiElement element,
+                                                      @NotNull LocalQuickFix[] availableFixes) {
+        return manager.createProblemDescriptor(element, description, isOnTheFly, availableFixes,
                 ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
     }
 }

@@ -86,12 +86,14 @@ public class NameReference extends BallerinaElementReference {
     private PsiElement resolveInCurrentPackage() {
         IdentifierPSINode identifier = getElement();
         PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(identifier);
+        boolean isFunction = true;
         // Don't match function invocations to variables
         if (nextVisibleLeaf == null || !"(".equals(nextVisibleLeaf.getText())) {
             PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
             if (elementInScope != null) {
                 return elementInScope;
             }
+            isFunction = false;
         }
         PsiFile containingFile = identifier.getContainingFile();
         if (containingFile == null) {
@@ -102,7 +104,8 @@ public class NameReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true, true);
+        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, isFunction, true, true, true,
+                true);
     }
 
     @Nullable
