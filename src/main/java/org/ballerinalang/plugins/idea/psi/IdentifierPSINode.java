@@ -173,6 +173,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                                         // Todo - might need to do this for assignment statements as well
                                         return checkDefinitionAndSuggestReference(((VariableDefinitionNode)
                                                 definitionNode));
+                                    } else if (definitionNode instanceof CodeBlockParameterNode) {
+                                        return new FieldReference(this);
                                     }
                                 }
                             } else {

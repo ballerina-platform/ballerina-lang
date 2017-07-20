@@ -696,8 +696,8 @@ public class BallerinaPsiImplUtil {
 
     // Todo - change return type
     @Nullable
-    public static StructDefinitionNode resolveStructFromDefinitionNode(VariableDefinitionNode variableDefinitionNode) {
-        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(variableDefinitionNode, TypeNameNode.class);
+    public static StructDefinitionNode resolveStructFromDefinitionNode(@NotNull PsiElement definitionNode) {
+        TypeNameNode typeNameNode = PsiTreeUtil.findChildOfType(definitionNode, TypeNameNode.class);
         if (typeNameNode == null) {
             return null;
         }
