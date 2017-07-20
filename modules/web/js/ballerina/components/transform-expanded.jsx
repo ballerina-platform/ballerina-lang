@@ -577,7 +577,7 @@ class TransformExpanded extends React.Component {
             property.packageName = field.getPackageName();
 
             let innerStruct = this.getStructDefinition(property.packageName, property.type);
-            if (innerStruct !== null && typeName !== property.type) {
+            if (!_.isUndefined(innerStruct) && typeName !== property.type) {
                 property.innerType = this.createType(property.name, property.type, innerStruct, true);
             }
 
