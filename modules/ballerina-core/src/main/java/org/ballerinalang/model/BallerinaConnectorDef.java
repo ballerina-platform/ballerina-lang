@@ -59,6 +59,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private VariableDefStmt[] variableDefStmts;
     private int sizeOfConnectorMem;
     private boolean isFilterConnector;
+    private String filterSupportedType;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
@@ -127,6 +128,14 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     public void setFilterConnector(boolean filterConnector) {
         isFilterConnector = filterConnector;
+    }
+
+    public String getFilterSupportedType() {
+        return filterSupportedType;
+    }
+
+    public void setFilterSupportedType(String filterSupportedType) {
+        this.filterSupportedType = filterSupportedType;
     }
 
     // Methods in Node interface
@@ -240,16 +249,26 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     public boolean equals(Object obj) {
         if (obj instanceof BallerinaConnectorDef) {
             BallerinaConnectorDef other = (BallerinaConnectorDef) obj;
-            if (this.actions.length == other.actions.length) {
-                for (int i = 0; i < this.actions.length; i++) {
-                    if (!this.actions[i].equals(other.actions[i])) {
-                        return false;
+//            if (other.getParameterDefs().length == this.getParameterDefs().length) {
+//                for (int i = 0; i < this.getParameterDefs().length; i++) {
+//                    if (!this.getParameterDefs()[i].typeName.getName().
+//                            equals(other.getParameterDefs()[i].typeName.getName())) {
+//                        return false;
+//                    }
+//                }
+
+                if (this.actions.length == other.actions.length) {
+                    for (int i = 0; i < this.actions.length; i++) {
+                        if (!this.actions[i].equals(other.actions[i])) {
+                            return false;
+                        }
                     }
+                    return true;
                 }
-                return true;
             }
+
             //return this.typeName.equals(other.typeName);
-        }
+//        }
 
         return false;
     }

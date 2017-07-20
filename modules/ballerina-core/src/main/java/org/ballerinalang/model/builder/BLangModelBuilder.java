@@ -1128,7 +1128,7 @@ public class BLangModelBuilder {
     }
 
     public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
-                                boolean isFilterConnector) {
+                                boolean isFilterConnector, String filterSupportedType) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
@@ -1137,6 +1137,7 @@ public class BLangModelBuilder {
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         connector.setFilterConnector(isFilterConnector);
+        connector.setFilterSupportedType(filterSupportedType);
 
         bFileBuilder.addConnector(connector);
 

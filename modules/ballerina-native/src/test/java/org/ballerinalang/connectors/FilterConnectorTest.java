@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -69,6 +71,32 @@ public class FilterConnectorTest {
         BInteger actionReturned = (BInteger) returns[0];
         int expected = 500;
         Assert.assertEquals(actionReturned.intValue(), expected);
+    }
+
+    @Test(description = "Test filter connectors negative syntax when filter base type is not compatible",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "filter-connector-negative-incompatible-filter.bal:18: connector " +
+                    "types 'FilterConnector' and 'TestConnector' are not equivalent")
+    public void testFilterConnectorNegativeIncompatibleFilterType() {
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-negative-incompatible-filter.bal");
+    }
+
+    @Test(description = "Test filter connectors negative syntax when filter base type is not defined",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "filter-connector-negative-base-type-undefined.bal:4: " +
+                    "undefined connector 'TestConnector2'")
+    public void testFilterConnectorNegativeFilterBaseTypeNotDefined() {
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-negative-base-type-undefined.bal");
+    }
+
+    @Test(description = "Test filter connectors negative syntax when filter connector input types are incompatible",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: connector input types are not equivalent in " +
+                    "connectors 'TestConnector2' and 'TestConnector'.*")
+    public void testFilterConnectorNegativeInputTypesIncompatible() {
+        programFile = BTestUtils.getProgramFile("samples/connectors/filter-connector-negative-test.bal");
+        BValue[] args = {new BString("WSO2")};
+        BLangFunctions.invokeNew(programFile, "testArgumentPassing", args);
     }
 
 }

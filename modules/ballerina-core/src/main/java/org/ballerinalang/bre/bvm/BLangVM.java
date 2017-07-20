@@ -2170,6 +2170,30 @@ public class BLangVM {
                         newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
                     }
                 }
+            } else {
+                ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
+                BType[] inputTypes = connectorInfo.getFieldTypes();
+                BType[] matchingTypes = connector.getFieldTypes();
+                if (inputTypes.length == matchingTypes.length) {
+                    for (int i = 0; i < inputTypes.length; i++) {
+                        if (!inputTypes[i].equals(matchingTypes[i])) {
+                            String errorMsg = BLangExceptionHelper.getErrorMessage(
+                                    RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                                    connectorInfo.getName(), connector.getConnectorType().getName());
+                            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                            handleError();
+                            return;
+                        }
+                    }
+                } else {
+                    String errorMsg = BLangExceptionHelper.getErrorMessage(
+                            RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                            connectorInfo.getName(), connector.getConnectorType().getName());
+                    context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                    handleError();
+                    return;
+                }
+
             }
 
         }

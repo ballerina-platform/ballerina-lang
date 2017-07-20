@@ -334,9 +334,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         if (ctx.parameter() != null) {
-            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, true);
+            modelBuilder.createConnector
+                    (getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, true,
+                            ctx.parameter().typeName().getText());
         } else {
-            modelBuilder.createConnector(getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, false);
+            modelBuilder.createConnector
+                    (getCurrentLocation(ctx), whiteSpaceDescriptor, connectorName, false,
+                            null);
         }
 
     }
