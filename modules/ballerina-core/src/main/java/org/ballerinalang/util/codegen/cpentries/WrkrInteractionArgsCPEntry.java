@@ -55,7 +55,7 @@ public class WrkrInteractionArgsCPEntry implements ConstantPoolEntry {
     }
 
     public EntryType getEntryType() {
-        return EntryType.CP_ENTRY_WORKER_INTERACTION;
+        return EntryType.CP_ENTRY_WRKR_INTERACTION;
     }
 
     @Override

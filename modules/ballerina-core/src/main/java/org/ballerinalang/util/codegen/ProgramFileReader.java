@@ -275,7 +275,7 @@ public class ProgramFileReader {
                 int forkJoinCPIndex = dataInStream.readInt();
                 ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinCPIndex);
                 return forkJoinCPEntry;
-            case CP_ENTRY_WORKER_INTERACTION:
+            case CP_ENTRY_WRKR_INTERACTION:
                 int typesSignatureCPIndex = dataInStream.readInt();
                 UTF8CPEntry typesSignatureCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
                 // When it comes to here, constantPool is always package info
@@ -288,7 +288,7 @@ public class ProgramFileReader {
                 WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
                         = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, bTypes);
                 return wrkrInvokeCPEntry;
-            case CP_ENTRY_WORKER_DATA_CHANNEL_REF:
+            case CP_ENTRY_WRKR_DATA_CHNL_REF:
                 int uniqueNameCPIndex = dataInStream.readInt();
                 UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool
                         .getCPEntry(uniqueNameCPIndex);
@@ -661,7 +661,7 @@ public class ProgramFileReader {
         WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
                 sourceCPEntry.getValue(), targetCPIndex, targetCPEntry.getValue());
 
-        int dataChannelRefCPIndex = dataInputStream.readShort();
+        int dataChannelRefCPIndex = dataInputStream.readInt();
         WorkerDataChannelRefCPEntry refCPEntry = (WorkerDataChannelRefCPEntry) packageInfo
                 .getCPEntry(dataChannelRefCPIndex);
         refCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
@@ -877,18 +877,18 @@ public class ProgramFileReader {
     }
 
     private ForkjoinInfo getForkJoinInfo(DataInputStream dataInStream, PackageInfo packageInfo) throws IOException {
-        int indexCPIndex = dataInStream.readShort();
+        int indexCPIndex = dataInStream.readInt();
 
         int argRegLength = dataInStream.readShort();
         int [] argRegs = new int[argRegLength];
         for (int i = 0; i < argRegLength; i++) {
-            argRegs[i] = dataInStream.readShort();
+            argRegs[i] = dataInStream.readInt();
         }
 
         int retRegLength = dataInStream.readShort();
         int [] retRegs = new int[retRegLength];
         for (int i = 0; i < retRegLength; i++) {
-            retRegs[i] = dataInStream.readShort();
+            retRegs[i] = dataInStream.readInt();
         }
 
         ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) packageInfo.getCPEntry(indexCPIndex);
@@ -906,7 +906,7 @@ public class ProgramFileReader {
         boolean isTimeoutAvailable = dataInStream.readBoolean();
         forkjoinInfo.setTimeoutAvailable(isTimeoutAvailable);
 
-        int joinTypeCPIndex = dataInStream.readShort();
+        int joinTypeCPIndex = dataInStream.readInt();
         UTF8CPEntry joinTypeCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(joinTypeCPIndex);
 
         forkjoinInfo.setJoinType(joinTypeCPEntry.getValue());
@@ -925,16 +925,16 @@ public class ProgramFileReader {
         forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrCPIndexes);
         forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
 
-        int timeoutIp = dataInStream.readShort();
+        int timeoutIp = dataInStream.readInt();
         forkjoinInfo.setTimeoutIp(timeoutIp);
 
-        int timeoutMemOffset = dataInStream.readShort();
+        int timeoutMemOffset = dataInStream.readInt();
         forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
 
-        int joinIp = dataInStream.readShort();
+        int joinIp = dataInStream.readInt();
         forkjoinInfo.setJoinIp(joinIp);
 
-        int joinMemOffset = dataInStream.readShort();
+        int joinMemOffset = dataInStream.readInt();
         forkjoinInfo.setJoinMemOffset(joinMemOffset);
 
         forkJoinCPEntry.setForkjoinInfo(forkjoinInfo);

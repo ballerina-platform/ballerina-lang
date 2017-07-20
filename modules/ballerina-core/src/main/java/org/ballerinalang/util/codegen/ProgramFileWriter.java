@@ -158,7 +158,7 @@ public class ProgramFileWriter {
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
                     dataOutStream.writeInt(forkJoinCPEntry.getForkJoinCPIndex());
                     break;
-                case CP_ENTRY_WORKER_INTERACTION:
+                case CP_ENTRY_WRKR_INTERACTION:
                     WrkrInteractionArgsCPEntry workerInvokeCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
                     dataOutStream.writeInt(workerInvokeCPEntry.getTypesSignatureCPIndex());
                     int[] workerInvokeArgRegs = workerInvokeCPEntry.getArgRegs();
@@ -167,7 +167,7 @@ public class ProgramFileWriter {
                         dataOutStream.writeInt(argReg);
                     }
                     break;
-                case CP_ENTRY_WORKER_DATA_CHANNEL_REF:
+                case CP_ENTRY_WRKR_DATA_CHNL_REF:
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
@@ -279,7 +279,7 @@ public class ProgramFileWriter {
                                                    WorkerDataChannelInfo dataChannelInfo) throws IOException {
         dataOutStream.writeInt(dataChannelInfo.getSourceCPIndex());
         dataOutStream.writeInt(dataChannelInfo.getTargetCPIndex());
-        dataOutStream.writeShort(dataChannelInfo.getDataChannelRefIndex());
+        dataOutStream.writeInt(dataChannelInfo.getDataChannelRefIndex());
     }
 
     private static void writeStructInfo(DataOutputStream dataOutStream,
@@ -397,17 +397,17 @@ public class ProgramFileWriter {
 
     private static void writeForkJoinInfo(DataOutputStream dataOutStream,
                                           ForkjoinInfo forkjoinInfo) throws IOException {
-        dataOutStream.writeShort(forkjoinInfo.getIndexCPIndex());
+        dataOutStream.writeInt(forkjoinInfo.getIndexCPIndex());
 
         int[] argRegs = forkjoinInfo.getArgRegs();
         dataOutStream.writeShort(argRegs.length);
         for (int argReg : argRegs) {
-            dataOutStream.writeShort(argReg);
+            dataOutStream.writeInt(argReg);
         }
         int[] retRegs = forkjoinInfo.getRetRegs();
         dataOutStream.writeShort(retRegs.length);
         for (int retReg : retRegs) {
-            dataOutStream.writeShort(retReg);
+            dataOutStream.writeInt(retReg);
         }
 
         WorkerInfo[] workerInfos = forkjoinInfo.getWorkerInfos();
@@ -418,7 +418,7 @@ public class ProgramFileWriter {
 
         dataOutStream.writeBoolean(forkjoinInfo.isTimeoutAvailable());
 
-        dataOutStream.writeShort(forkjoinInfo.getJoinTypeCPIndex());
+        dataOutStream.writeInt(forkjoinInfo.getJoinTypeCPIndex());
 
 //        dataOutStream.writeInt(forkjoinInfo.getWorkerCount()); //TODO
 
@@ -428,10 +428,10 @@ public class ProgramFileWriter {
             dataOutStream.writeInt(cpIndex);
         }
 
-        dataOutStream.writeShort(forkjoinInfo.getTimeoutIp());
-        dataOutStream.writeShort(forkjoinInfo.getTimeoutMemOffset());
-        dataOutStream.writeShort(forkjoinInfo.getJoinIp());
-        dataOutStream.writeShort(forkjoinInfo.getJoinMemOffset());
+        dataOutStream.writeInt(forkjoinInfo.getTimeoutIp());
+        dataOutStream.writeInt(forkjoinInfo.getTimeoutMemOffset());
+        dataOutStream.writeInt(forkjoinInfo.getJoinIp());
+        dataOutStream.writeInt(forkjoinInfo.getJoinMemOffset());
     }
 
     private static void writeAttributeInfoEntries(DataOutputStream dataOutStream,

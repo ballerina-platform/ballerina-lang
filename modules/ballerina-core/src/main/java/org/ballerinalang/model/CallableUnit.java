@@ -146,7 +146,17 @@ public interface CallableUnit extends BLangSymbol, Node {
      */
     Worker[] getWorkers();
 
+    /**
+     * Add worker data channel to the callable unit.
+     *
+     * @param workerDataChannel     To be added.
+     */
     void addWorkerDataChannel(WorkerDataChannel workerDataChannel);
 
+    /**
+     * Get worker data channel map.
+     *
+     * @return workerDataChannelMap instance.
+     */
     Map<String, WorkerDataChannel> getWorkerDataChannelMap();
 }

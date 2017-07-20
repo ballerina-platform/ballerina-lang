@@ -2181,7 +2181,7 @@ public class BLangVM {
             StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
                     workerInfo, -1, new int[1]);
             workerControlStack.pushFrame(calleeSF);
-//
+
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
 
 

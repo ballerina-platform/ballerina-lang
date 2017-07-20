@@ -124,9 +124,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        if (!workerDataChannelMap.containsKey(workerDataChannel.getChannelName())) {
-            workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
-        }
+        workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
     }
 
     @Override

@@ -247,7 +247,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     @Override
     public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-
+        //todo implement when there can be workers inside workers.
     }
 
     @Override

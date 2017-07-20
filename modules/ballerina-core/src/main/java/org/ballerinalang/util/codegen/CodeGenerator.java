@@ -392,24 +392,7 @@ public class CodeGenerator implements NodeVisitor {
             resourceInfo.setParamTypes(getParamTypes(resource.getParameterDefs()));
             resourceInfo.setRetParamTypes(new BType[0]);
 
-            resource.getWorkerDataChannelMap().forEach((k, v) -> {
-                UTF8CPEntry sourceCPEntry = new UTF8CPEntry(v.getSource());
-                int sourceCPIndex = currentPkgInfo.addCPEntry(sourceCPEntry);
-                UTF8CPEntry targetCPEntry = new UTF8CPEntry(v.getTarget());
-                int targetCPIndex = currentPkgInfo.addCPEntry(targetCPEntry);
-                WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
-                        v.getSource(), targetCPIndex, v.getTarget());
-                if (resourceInfo.getWorkerDataChannelInfo(workerDataChannelInfo.getChannelName()) == null) {
-                    workerDataChannelInfo.setUniqueName(workerDataChannelInfo.getChannelName() + workerChannelCount);
-                    resourceInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
-                    String uniqueName = workerDataChannelInfo.getUniqueName();
-                    UTF8CPEntry uniqueNameCPEntry = new UTF8CPEntry(uniqueName);
-                    int uniqueNameCPIndex = currentPkgInfo.addCPEntry(uniqueNameCPEntry);
-                    workerDataChannelInfo.setUniqueNameCPIndex(uniqueNameCPIndex);
-                    workerChannelCount++;
-                }
-
-            });
+            generateCallableUnitInfoDataChannelMap(resource, resourceInfo);
 
             setParameterNames(resource.getParameterDefs(), resourceInfo);
             resourceInfo.setPackageInfo(currentPkgInfo);
@@ -574,24 +557,7 @@ public class CodeGenerator implements NodeVisitor {
                 addWorkerInfoEntries(actionInfo, action.getWorkers());
             }
 
-            action.getWorkerDataChannelMap().forEach((k, v) -> {
-                UTF8CPEntry sourceCPEntry = new UTF8CPEntry(v.getSource());
-                int sourceCPIndex = currentPkgInfo.addCPEntry(sourceCPEntry);
-                UTF8CPEntry targetCPEntry = new UTF8CPEntry(v.getTarget());
-                int targetCPIndex = currentPkgInfo.addCPEntry(targetCPEntry);
-                WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
-                        v.getSource(), targetCPIndex, v.getTarget());
-                if (actionInfo.getWorkerDataChannelInfo(workerDataChannelInfo.getChannelName()) == null) {
-                    workerDataChannelInfo.setUniqueName(workerDataChannelInfo.getChannelName() + workerChannelCount);
-                    actionInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
-                    String uniqueName = workerDataChannelInfo.getUniqueName();
-                    UTF8CPEntry uniqueNameCPEntry = new UTF8CPEntry(uniqueName);
-                    int uniqueNameCPIndex = currentPkgInfo.addCPEntry(uniqueNameCPEntry);
-                    workerDataChannelInfo.setUniqueNameCPIndex(uniqueNameCPIndex);
-                    workerChannelCount++;
-                }
-
-            });
+            generateCallableUnitInfoDataChannelMap(action, actionInfo);
 
             setCallableUnitSignature(actionInfo);
             connectorInfo.addActionInfo(action.getName(), actionInfo);
@@ -616,28 +582,32 @@ public class CodeGenerator implements NodeVisitor {
                 addWorkerInfoEntries(funcInfo, (function).getWorkers());
             }
 
-            function.getWorkerDataChannelMap().forEach((k, v) -> {
-                UTF8CPEntry sourceCPEntry = new UTF8CPEntry(v.getSource());
-                int sourceCPIndex = currentPkgInfo.addCPEntry(sourceCPEntry);
-                UTF8CPEntry targetCPEntry = new UTF8CPEntry(v.getTarget());
-                int targetCPIndex = currentPkgInfo.addCPEntry(targetCPEntry);
-                WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
-                        v.getSource(), targetCPIndex, v.getTarget());
-                if (funcInfo.getWorkerDataChannelInfo(workerDataChannelInfo.getChannelName()) == null) {
-                    workerDataChannelInfo.setUniqueName(workerDataChannelInfo.getChannelName() + workerChannelCount);
-                    funcInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
-                    String uniqueName = workerDataChannelInfo.getUniqueName();
-                    UTF8CPEntry uniqueNameCPEntry = new UTF8CPEntry(uniqueName);
-                    int uniqueNameCPIndex = currentPkgInfo.addCPEntry(uniqueNameCPEntry);
-                    workerDataChannelInfo.setUniqueNameCPIndex(uniqueNameCPIndex);
-                    workerChannelCount++;
-                }
-
-            });
+            generateCallableUnitInfoDataChannelMap(function, funcInfo);
 
             setCallableUnitSignature(funcInfo);
             currentPkgInfo.addFunctionInfo(function.getName(), funcInfo);
         }
+    }
+
+    private void generateCallableUnitInfoDataChannelMap(CallableUnit callableUnit, CallableUnitInfo callableUnitInfo) {
+        callableUnit.getWorkerDataChannelMap().forEach((k, v) -> {
+            UTF8CPEntry sourceCPEntry = new UTF8CPEntry(v.getSource());
+            int sourceCPIndex = currentPkgInfo.addCPEntry(sourceCPEntry);
+            UTF8CPEntry targetCPEntry = new UTF8CPEntry(v.getTarget());
+            int targetCPIndex = currentPkgInfo.addCPEntry(targetCPEntry);
+            WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
+                    v.getSource(), targetCPIndex, v.getTarget());
+            if (callableUnitInfo.getWorkerDataChannelInfo(workerDataChannelInfo.getChannelName()) == null) {
+                workerDataChannelInfo.setUniqueName(workerDataChannelInfo.getChannelName() + workerChannelCount);
+                callableUnitInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
+                String uniqueName = workerDataChannelInfo.getUniqueName();
+                UTF8CPEntry uniqueNameCPEntry = new UTF8CPEntry(uniqueName);
+                int uniqueNameCPIndex = currentPkgInfo.addCPEntry(uniqueNameCPEntry);
+                workerDataChannelInfo.setUniqueNameCPIndex(uniqueNameCPIndex);
+                workerChannelCount++;
+            }
+
+        });
     }
 
     private void addWorkerInfoEntries(CallableUnitInfo callableUnitInfo, Worker[] workers) {
