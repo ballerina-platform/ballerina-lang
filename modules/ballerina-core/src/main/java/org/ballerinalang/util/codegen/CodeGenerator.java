@@ -1623,8 +1623,6 @@ public class CodeGenerator implements NodeVisitor {
         }
         baseType.addMethod(connectorDef.getName(), structureRefCPIndex);
 
-        //connectorInitExpr.setTempOffset(connectorRegIndex);
-
         if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
             connectorInitExpr.setTempOffset(connectorRegIndex);
         }
