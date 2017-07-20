@@ -95,7 +95,7 @@ export default class GlobalDefinitionItem extends React.Component {
         let globalItemValue = this.props.getValue(this.props.globalDec);
 
         if (globalItemValue.length > maxLengthText) {
-            globalItemValue = ((globalItemValue.substring(0, maxLengthText)) + '...');
+            globalItemValue = ((globalItemValue.substring(0, maxLengthText - 3)) + '...');
         }
 
         return (
