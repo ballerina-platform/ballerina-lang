@@ -75,13 +75,20 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (packageDeclarationNode != null) {
                 continue;
             }
+            XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(packageNameNode, XmlAttribNode.class);
+            if (xmlAttribNode != null) {
+                continue;
+            }
+
+            LocalQuickFix[] availableFixes;
+
             ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(packageNameNode,
                     ImportDeclarationNode.class);
-            if (importDeclarationNode == null) {
-                XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(packageNameNode, XmlAttribNode.class);
-                if (xmlAttribNode != null) {
-                    continue;
-                }
+            if (importDeclarationNode != null) {
+                availableFixes = new LocalQuickFix[0];
+            } else {
+                BallerinaImportPackageQuickFix quickFix = new BallerinaImportPackageQuickFix(packageNameNode);
+                availableFixes = new LocalQuickFix[]{quickFix};
             }
 
             PsiElement nameIdentifier = packageNameNode.getNameIdentifier();
@@ -90,8 +97,6 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = nameIdentifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                BallerinaImportPackageQuickFix quickFix = new BallerinaImportPackageQuickFix(packageNameNode);
-                LocalQuickFix[] availableFixes = new LocalQuickFix[]{quickFix};
                 problemDescriptors.add(createProblemDescriptor(manager, packageNameNode, isOnTheFly, availableFixes));
             }
         }
