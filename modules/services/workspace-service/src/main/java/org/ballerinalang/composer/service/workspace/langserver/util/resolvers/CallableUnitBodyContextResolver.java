@@ -35,18 +35,18 @@ public class CallableUnitBodyContextResolver extends AbstractItemResolver {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
+        // We can add workers to the callable unit body. so by default we add worker template
+        CompletionItem workerItem = new CompletionItem();
+        workerItem.setLabel(ItemResolverConstants.WORKER);
+        workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+        workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+        workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+        completionItems.add(workerItem);
+
         if (dataModel.getParserRuleContext() != null) {
             completionItems.addAll(resolvers
                     .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
         } else {
-
-            CompletionItem workerItem = new CompletionItem();
-            workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
-            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-            workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
-            completionItems.add(workerItem);
-
             completionItems
                     .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
         }

@@ -54,7 +54,7 @@ public class ItemResolverConstants {
     public static final String TRIGGER_WORKER = "->";
     public static final String WORKER_REPLY = "<-";
     private static final String[] constructsArr = {REPLY, RETURN, IF, ELSE, CREATE, FORK, JOIN, ALL, SOME, TIMEOUT,
-            WORKER, TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
+            TRANSFORM, TRANSACTION, ABORT, ABORTED, COMMITTED, TRY, CATCH, FINALLY, ITERATE, WHILE, CONTINUE,
             BREAK, THROW};
 
     public static final String FUNCTION = "function";
