@@ -91,6 +91,11 @@ public class WebSocketServicesRegistry {
         }
     }
 
+    /**
+     * Register a service as a client service.
+     *
+     * @param clientService {@link ServiceInfo} of the client service.
+     */
     public void registerClientService(ServiceInfo clientService) {
         if (!clientService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
             return;
@@ -98,19 +103,32 @@ public class WebSocketServicesRegistry {
 
         boolean isClientService = isWebSocketClientService(clientService);
         if (isClientService) {
-            ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService);
-            clientServices.put(clientService.getName(), clientServiceInfo);
+
+            if (clientServices.containsKey(clientService.getName())) {
+                clientServices.get(clientService.getName()).setClientService(clientService);
+            } else {
+                ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientService);
+                clientServices.put(clientService.getName(), clientServiceInfo);
+            }
         } else {
             throw new BallerinaException("Cannot register as a client service");
         }
     }
 
 
+    /**
+     * Set the parent service for a given client service.
+     *
+     * @param clientServiceName name of the client service.
+     * @param parentService parent service of the given client service.
+     */
     public void setParentServiceToClientService(String clientServiceName, ServiceInfo parentService) {
         if (clientServices.containsKey(clientServiceName)) {
             clientServices.get(clientServiceName).setParentService(parentService);
         } else {
-            throw new BallerinaException("Cannot find the client service: " + clientServiceName);
+            ClientServiceInfo clientServiceInfo = new ClientServiceInfo(clientServiceName);
+            clientServiceInfo.setParentService(parentService);
+            clientServices.put(clientServiceName, clientServiceInfo);
         }
     }
 
@@ -264,15 +282,25 @@ public class WebSocketServicesRegistry {
     }
 
     private class ClientServiceInfo {
-        private final ServiceInfo clientService;
+        private final String clientServiceName;
+        private ServiceInfo clientService;
         private ServiceInfo parentService;
+
+        private ClientServiceInfo(String clientServiceName) {
+            this.clientServiceName = clientServiceName;
+        }
 
         private ClientServiceInfo(ServiceInfo clientService) {
             this.clientService = clientService;
+            this.clientServiceName = clientService.getName();
         }
 
         public ServiceInfo getClientService() {
             return clientService;
+        }
+
+        public void setClientService(ServiceInfo clientService) {
+            this.clientService = clientService;
         }
 
         public void setParentService(ServiceInfo parentService) {
@@ -281,6 +309,10 @@ public class WebSocketServicesRegistry {
 
         public ServiceInfo getParentService() {
             return parentService;
+        }
+
+        public String getClientServiceName() {
+            return clientServiceName;
         }
     }
 
