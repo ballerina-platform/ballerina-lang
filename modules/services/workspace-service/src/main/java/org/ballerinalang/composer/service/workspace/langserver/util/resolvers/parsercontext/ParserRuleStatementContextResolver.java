@@ -66,6 +66,13 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             xmlns.setSortText(ItemResolverConstants.PRIORITY_7);
             completionItems.add(xmlns);
 
+            CompletionItem workerItem = new CompletionItem();
+            workerItem.setLabel(ItemResolverConstants.WORKER);
+            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
+            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
+            workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
+            completionItems.add(workerItem);
+
             CompletionItem xmlAttribute = new CompletionItem();
             xmlAttribute.setInsertText(ItemResolverConstants.XML_ATTRIBUTE_REFERENCE_TEMPLATE);
             xmlAttribute.setLabel("@");

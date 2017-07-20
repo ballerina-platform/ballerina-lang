@@ -1055,7 +1055,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
             parameter.accept(this);
             join.define(parameter.getSymbolName(), parameter);
 
-            if (!(parameter.getType() instanceof BMapType)) {
+            // TODO: Join statement's parameter type is null when the parameter name is map. For the moment, instead of
+            // type check we check the type name
+            if (!(parameter.getTypeName().getName().equals("map"))) {
                 throw new SemanticException("Incompatible types: expected map in " +
                         parameter.getNodeLocation().getFileName() + ":" + parameter.getNodeLocation().
                         getLineNumber());
