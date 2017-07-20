@@ -76,6 +76,7 @@
     fill: #f1f1f1;
     stroke: #f1f1f1;
     stroke-width: 0.5;
+    text-anchor: start;
 }
 
 .import-definition-decorator {
@@ -305,4 +306,7 @@
 }
 .panel-heading-decorator{
     fill: #607D8B !important;
+}
+.textBottomPolygon{
+    text-anchor: middle;
 }

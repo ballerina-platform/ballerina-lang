@@ -24,6 +24,7 @@ import ParameterView from './parameter-view';
 import ReturnTypeView from './return-type-view';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
+import ImageUtil from './image-util';
 
 class FunctionDefinition extends React.Component {
 
@@ -76,16 +77,25 @@ class FunctionDefinition extends React.Component {
         }];
 
         return (<PanelDecorator
-            icon={icons} title={name} bBox={bBox}
+            icon={icons}
+            title={name}
+            bBox={bBox}
             model={this.props.model}
             dropTarget={this.props.model}
             dropSourceValidateCB={node => this.canDropToPanelBody(node)}
             titleComponentData={titleComponentData}
         >
-            <LifeLine title="default" bBox={function_worker_bBox} classes={classes} />
+            <LifeLine
+                title="default"
+                bBox={function_worker_bBox}
+                classes={classes}
+                icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                iconColor='#025482'
+            />
             <StatementContainer
                 dropTarget={this.props.model}
-                title="StatementContainer" bBox={statementContainerBBox}
+                title="StatementContainer"
+                bBox={statementContainerBBox}
             >
                 {children}
             </StatementContainer>

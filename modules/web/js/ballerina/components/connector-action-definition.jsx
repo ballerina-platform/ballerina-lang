@@ -24,6 +24,7 @@ import LifeLineDecorator from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
 import ConnectorActionAST from './../ast/connector-action';
+import ImageUtil from './image-util';
 
 /**
  * React component for a connector action.
@@ -92,7 +93,13 @@ class ConnectorAction extends React.Component {
             titleComponentData={titleComponentData}
         >
             <g>
-                <LifeLineDecorator title="default" bBox={resourceWorkerBBox} classes={classes} />
+                <LifeLineDecorator
+                    title="default"
+                    bBox={resourceWorkerBBox}
+                    classes={classes}
+                    icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                    iconColor='#025482'
+                />
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                     {children}
                 </StatementContainer>

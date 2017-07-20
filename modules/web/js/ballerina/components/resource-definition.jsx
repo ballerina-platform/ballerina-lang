@@ -24,6 +24,7 @@ import ParameterDefinition from './parameter-definition';
 import ResourceTransportLink from './resource-transport-link';
 import { getComponentForNodeArray } from './utils';
 import { lifeLine } from './../configs/designer-defaults';
+import ImageUtil from './image-util';
 
 class ResourceDefinition extends React.Component {
 
@@ -73,14 +74,22 @@ class ResourceDefinition extends React.Component {
             <g>
                 <ResourceTransportLink bBox={tLinkBox} />
                 <PanelDecorator
-                    icon="tool-icons/resource" title={name} bBox={bBox}
+                    icon="tool-icons/resource"
+                    title={name}
+                    bBox={bBox}
                     model={this.props.model}
                     dropTarget={this.props.model}
                     dropSourceValidateCB={node => this.canDropToPanelBody(node)}
                     titleComponentData={titleComponentData}
                 >
                     <g>
-                        <LifeLineDecorator title="default" bBox={resource_worker_bBox} classes={classes} />
+                        <LifeLineDecorator
+                            title="default"
+                            bBox={resource_worker_bBox}
+                            classes={classes}
+                            icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                            iconColor='#025482'
+                        />
                         <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>
                             {children}
                         </StatementContainer>
