@@ -845,6 +845,13 @@ class TransformExpanded extends React.Component {
                     const constraintDef = this.getStructDefinition(arg.pkgName, arg.constraint);
                     if (constraintDef !== undefined) {
                         const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
+                        // For constraint types, the field types must be the same type as the variable and
+                        // not the struct field types. E.g. : struct.name type maybe string but if it is a json,
+                        // type has to be json and not string. Hence converting all field types to variable type.
+                        // TODO : revisit this conversion if ballerina language supports constrained field access to be
+                        // be treated as the field type (i.e. as string from the struct field and not json)
+                        this.convertFieldType(constraint.properties, arg.type);
+
                         // constraint properties (fields) become variable fields
                         variableType.properties = constraint.properties;
                         variableType.constraint = constraint;
@@ -858,6 +865,23 @@ class TransformExpanded extends React.Component {
         });
 
         return items;
+    }
+
+    /**
+     * Converts the property types to a given type
+     * @param {[Property]} properties properties
+     * @param {string} type type to convert to
+     * @memberof TransformExpanded
+     */
+    convertFieldType(properties, type) {
+        if (properties) {
+            properties.forEach((property) => {
+                if (property.innerType) {
+                    this.convertFieldType(property.innerType.properties, type);
+                }
+                property.type = type;
+            });
+        }
     }
 
     setSource(currentSelection, predefinedStructs) {
