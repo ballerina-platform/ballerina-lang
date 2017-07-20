@@ -1639,10 +1639,6 @@ span.fw-stack.fw-lg {
     height: 100% !important;
 }
 
-.try-out {
-    display: none;
-}
-
 .swagger-service-selector-wrapper {
     background-color: #131313;
     height: 22px;
