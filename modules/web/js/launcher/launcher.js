@@ -115,6 +115,7 @@ const Launcher = Backbone.View.extend({
         LaunchManager.on('execution-started', () => { this.renderBody(); });
         LaunchManager.on('execution-ended', () => { this.renderBody(); });
         LaunchManager.on('try-it-url-received', () => { this.renderBody(); });
+        LaunchManager.on('session-terminated', () => { this.renderBody(); });
 
         this._$parent_el.on('click', '.btn-config', (e) => {
             e.preventDefault();
