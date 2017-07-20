@@ -242,7 +242,7 @@ public final class BXMLItem extends BXML<OMNode> {
             OMNamespace existingNs = node.findNamespaceURI(prefix);
             
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
-            if (existingNs != null && namespaceUri.equals(existingNs.getNamespaceURI())) {
+            if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
                 return;
             }
 
