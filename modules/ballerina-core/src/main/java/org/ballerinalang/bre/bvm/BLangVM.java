@@ -878,15 +878,6 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-                    if (jsonVal.getType().getTag() == TypeTags.C_JSON_TAG) {
-                        BStructType bStructType = (BStructType) ((BJSONConstraintType) jsonVal.getType())
-                                .getConstraint();
-                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
-                            throw BLangExceptionHelper.getRuntimeException(
-                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
-                                    ((BJSONConstraintType) jsonVal.getType()).getConstraint());
-                        }
-                    }
                     sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
                     break;
                 case InstructionCodes.JSONSTORE:
@@ -898,13 +889,50 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-                    if (jsonVal.getType().getTag() == TypeTags.C_JSON_TAG) {
-                        BStructType bStructType = (BStructType) ((BJSONConstraintType) jsonVal.getType())
+                    JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
+                    break;
+                case InstructionCodes.JSONLOAD_DYNAMIC:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    cpIndex = operands[3];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    jsonVal = (BJSON) sf.refRegs[i];
+                    if (jsonVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    // Additional check if and only if specified type is constraint JSON.
+                    if (typeCPEntry.getType().getTag() == TypeTags.C_JSON_TAG) {
+                        BStructType bStructType = (BStructType) ((BJSONConstraintType) typeCPEntry.getType())
                                 .getConstraint();
                         if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
                             throw BLangExceptionHelper.getRuntimeException(
                                     RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
-                                    ((BJSONConstraintType) jsonVal.getType()).getConstraint());
+                                    ((BJSONConstraintType) typeCPEntry.getType()).getConstraint());
+                        }
+                    }
+                    sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                    break;
+                case InstructionCodes.JSONSTORE_DYNAMIC:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    cpIndex = operands[3];
+                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                    jsonVal = (BJSON) sf.refRegs[i];
+                    if (jsonVal == null) {
+                        handleNullRefError();
+                        break;
+                    }
+                    // Additional check if and only if specified type is constraint JSON.
+                    if (typeCPEntry.getType().getTag() == TypeTags.C_JSON_TAG) {
+                        BStructType bStructType = (BStructType) ((BJSONConstraintType) typeCPEntry.getType())
+                                .getConstraint();
+                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
+                            throw BLangExceptionHelper.getRuntimeException(
+                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
+                                    ((BJSONConstraintType) typeCPEntry.getType()).getConstraint());
                         }
                     }
                     JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
@@ -1382,10 +1410,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
-                    cpIndex = operands[1];
-                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
                     BJSON newJSON = new BJSON("{}");
-                    newJSON.setType(typeCPEntry.getType());
                     sf.refRegs[i] = newJSON;
                     break;
                 case InstructionCodes.NEWMESSAGE:

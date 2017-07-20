@@ -1733,9 +1733,7 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(JSONInitExpr jsonInitExpr) {
         int jsonVarRegIndex = ++regIndexes[REF_OFFSET];
         jsonInitExpr.setTempOffset(jsonVarRegIndex);
-        TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(jsonInitExpr.getType().getSig()));
-        int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
-        emit(InstructionCodes.NEWJSON, jsonVarRegIndex, typeCPindex);
+        emit(InstructionCodes.NEWJSON, jsonVarRegIndex);
 
         Expression[] argExprs = jsonInitExpr.getArgExprs();
         for (Expression argExpr : argExprs) {
@@ -1971,9 +1969,9 @@ public class CodeGenerator implements NodeVisitor {
                 indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
-        } else if (varRefType == BTypes.typeJSON || varRefType.getTag() == TypeTags.C_JSON_TAG) {
+        } else if (varRefType == BTypes.typeJSON) {
             int jsonValueRegIndex;
-            if (indexExpr.getType() == BTypes.typeString || varRefType.getTag() == TypeTags.C_JSON_TAG) {
+            if (indexExpr.getType() == BTypes.typeString) {
                 if (variableStore) {
                     emit(InstructionCodes.JSONSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
                 } else {
@@ -1983,6 +1981,31 @@ public class CodeGenerator implements NodeVisitor {
                 }
             } else if (indexExpr.getType() == BTypes.typeInt) {
                 // JSON array access
+                if (variableStore) {
+                    emit(InstructionCodes.JSONASTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+                } else {
+                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
+                    emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
+                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
+                }
+            }
+
+        } else if (varRefType.getTag() == TypeTags.C_JSON_TAG) {
+            int jsonValueRegIndex;
+            TypeCPEntry typeCPEntry = new TypeCPEntry(getVMTypeFromSig(varRefType.getSig()));
+            int typeCPindex = currentPkgInfo.addCPEntry(typeCPEntry);
+            if (indexExpr.getType() == BTypes.typeString) {
+                if (variableStore) {
+                    emit(InstructionCodes.JSONSTORE_DYNAMIC, varRefRegIndex, indexValueRegIndex,
+                            rhsExprRegIndex, typeCPindex);
+                } else {
+                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
+                    emit(InstructionCodes.JSONLOAD_DYNAMIC, varRefRegIndex, indexValueRegIndex,
+                            jsonValueRegIndex, typeCPindex);
+                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
+                }
+            } else if (indexExpr.getType() == BTypes.typeInt) {
+                // TODO: Remove duplication
                 if (variableStore) {
                     emit(InstructionCodes.JSONASTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
                 } else {
