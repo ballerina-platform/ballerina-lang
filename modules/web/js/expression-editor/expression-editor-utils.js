@@ -46,14 +46,18 @@ class ExpressionEditor {
         this.expressionEditor.width(bBox.w + 2);
         this.expressionEditor.height(bBox.h + 2);
         this.expressionEditor.offset({ top: bBox.y - 1, left: bBox.x - 1 });
-        this.expressionEditor.css('border', '2px solid #333333');
+        this.expressionEditor.css('border', '1px solid rgb(220, 220, 220)');
         this.expressionEditor.css('padding-top', '6px');
         this.expressionEditor.css('background', 'white');
         this.expressionEditor.css('position', 'absolute');
         this.expressionEditor.css('min-width', bBox.w + 2);
 
         const editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
-        $(editorContainer).css('height', '22px');
+        if(this.props.isCustomHeight) {
+            $(editorContainer).css('height', bBox.h + 2);
+        }else{
+            $(editorContainer).css('height', '22px');
+        }
         $(editorContainer).text(expression);
         this._editor = ace.edit(editorContainer[0]);
 
@@ -67,9 +71,17 @@ class ExpressionEditor {
 
         // set OS specific font size to prevent Mac fonts getting oversized.
         if (this.isRunningOnMacOS()) {
-            this._editor.setFontSize('10pt');
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
+                this._editor.setFontSize('10pt');
+            }
         } else {
-            this._editor.setFontSize('12pt');
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
+                this._editor.setFontSize('12pt');
+            }
         }
 
         const completers = completerFactory.getCompleters(props.key, packageScope);

@@ -58,26 +58,28 @@ class ReturnParameterDefinitionHolder extends React.Component {
      * @return {boolean} true||false
      * */
     addReturnParameter(input) {
-        const fragment = FragmentUtils.createReturnParameterFragment(input);
-        const parsedJson = FragmentUtils.parseFragment(fragment);
-        const model = this.props.model;
+        if(input !== '') {
+            const fragment = FragmentUtils.createReturnParameterFragment(input);
+            const parsedJson = FragmentUtils.parseFragment(fragment);
+            const model = this.props.model;
 
-        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
-            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
-                const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
-                parameterDefinition.initFromJson(parsedJson);
-                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
-                    this.props.model.addChild(parameterDefinition);
-                    return true;
+            if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+                if (_.isEqual(parsedJson.type, 'parameter_definition')) {
+                    const parameterDefinition = model.getFactory().createParameterDefinition(parsedJson);
+                    parameterDefinition.initFromJson(parsedJson);
+                    if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                        this.props.model.addChild(parameterDefinition);
+                        return true;
+                    }
+                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                    Alerts.error(errorString);
+                    return false;
                 }
-                const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
-                Alerts.error(errorString);
-                return false;
             }
+            const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
+            Alerts.error(errorString);
+            return false;
         }
-        const errorString = `Error while parsing parameter. Error response: ${JSON.stringify(parsedJson)}`;
-        Alerts.error(errorString);
-        return false;
     }
 
     /**
@@ -149,6 +151,15 @@ class ReturnParameterDefinitionHolder extends React.Component {
             defaultText: '+ Add Returns',
         };
         const children = getComponentForNodeArray(model.getChildren());
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'ParameterDefinition',
+            model: model,
+            getterMethod: ()=>{},
+            setterMethod: this.addReturnParameter,
+            fontSize: 12,
+            isCustomHeight: true,
+        };
         return (
             <TagController
                 key={model.getID()}
@@ -157,6 +168,7 @@ class ReturnParameterDefinitionHolder extends React.Component {
                 validateInput={this.validateInput}
                 modelComponents={children}
                 componentData={componentData}
+                editorOptions={this.editorOptions}
                 groupClass="return-parameter-group"
             />
         );
