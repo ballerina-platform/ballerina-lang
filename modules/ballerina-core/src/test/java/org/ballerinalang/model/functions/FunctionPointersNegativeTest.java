@@ -18,7 +18,11 @@
 package org.ballerinalang.model.functions;
 
 import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.SemanticException;
+import org.ballerinalang.util.program.BLangFunctions;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -39,6 +43,18 @@ public class FunctionPointersNegativeTest {
                     "(boolean\\)' cannot be assigned to 'function \\(string,int\\) returns \\(boolean\\)'")
     public void testLambdaAsVariable() {
         BTestUtils.getProgramFile("lang/functions/negative/fp-type-mismatch2.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class)
+    public void testAnyToFunctionPointer() {
+        // TODO : Fix this. This is not supported in 0.90 release. issue #2944
+        ProgramFile programFile = BTestUtils.getProgramFile("lang/functions/negative/fp2any.bal");
+        BValue[] args = new BValue[0];
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "test1", args);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "test1");
     }
 
 }

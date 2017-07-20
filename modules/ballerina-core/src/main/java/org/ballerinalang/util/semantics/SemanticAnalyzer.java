@@ -2337,6 +2337,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpr.setType(targetType);
         }
 
+        // casting to function pointer is not supported in this 0.9 release. issue #2944
+        if (sourceType instanceof BFunctionType || targetType instanceof BFunctionType) {
+            BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                    sourceType, targetType);
+        }
+
         // casting a null literal is not supported.
         if (rExpr instanceof NullLiteral) {
             BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,

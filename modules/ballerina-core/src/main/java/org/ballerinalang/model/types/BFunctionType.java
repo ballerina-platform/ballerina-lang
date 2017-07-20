@@ -64,13 +64,13 @@ public class BFunctionType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BFunctionPointer(-1);
+        return null;
     }
 
     @Override
     public TypeSignature getSig() {
         return new TypeSignature(TypeSignature.SIG_FUNCTION);
-        // TODO: Do we need Runtime function types.
+        // TODO: Fix this for Runtime function types. Without this Type Casting doesn't work.
 //        return new TypeSignature(TypeSignature.SIG_FUNCTION, getSigString());
     }
 

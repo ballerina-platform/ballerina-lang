@@ -2624,6 +2624,7 @@ public class CodeGenerator implements NodeVisitor {
                 BType elementType = getVMTypeFromSig(elementTypeSig);
                 return new BArrayType(elementType);
             case TypeSignature.SIG_FUNCTION:
+                // TODO : Fix this for type casting.
                 return new BFunctionType();
             default:
                 throw new IllegalStateException("Unknown type signature");

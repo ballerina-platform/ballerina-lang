@@ -777,6 +777,7 @@ public class ProgramFileReader {
                 typeStack.push(arrayType);
                 return index;
             case 'U':
+                // TODO : Fix this for type casting.
                 typeStack.push(new BFunctionType());
                 return index + 1;
             default:
@@ -830,6 +831,7 @@ public class ProgramFileReader {
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
             case 'U':
+                // TODO : Fix this for type casting.
                 return new BFunctionType();
             default:
                 // TODO Throw proper error;
