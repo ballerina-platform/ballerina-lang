@@ -27,6 +27,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.completion.AutoImportInsertHandler;
 import org.ballerinalang.plugins.idea.completion.PackageCompletionInsertHandler;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
@@ -37,6 +38,10 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.scopes.CodeBlockScope;
+import org.ballerinalang.plugins.idea.psi.scopes.LowerLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.TopLevelDefinition;
+import org.ballerinalang.plugins.idea.psi.scopes.VariableContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,7 +89,27 @@ public class PackageNameReference extends BallerinaElementReference implements P
     @Override
     public PsiElement resolve() {
         ResolveResult[] resolveResults = multiResolve(false);
-        return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
+        if (resolveResults.length == 0) {
+            IdentifierPSINode identifier = getElement();
+            ScopeNode scope = PsiTreeUtil.getParentOfType(identifier, CodeBlockScope.class, VariableContainer.class,
+                    TopLevelDefinition.class, LowerLevelDefinition.class);
+            if (scope != null) {
+                int caretOffset = identifier.getStartOffset();
+                List<PsiElement> namespaces = BallerinaPsiImplUtil.getAllXmlNamespacesInResolvableScope(scope,
+                        caretOffset);
+                for (PsiElement namespace : namespaces) {
+                    if (namespace == null || namespace.getText().isEmpty()) {
+                        continue;
+                    }
+                    if (namespace.getText().equals(identifier.getText())) {
+                        return namespace;
+                    }
+                }
+            }
+            return null;
+        } else {
+            return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
+        }
     }
 
     @NotNull
