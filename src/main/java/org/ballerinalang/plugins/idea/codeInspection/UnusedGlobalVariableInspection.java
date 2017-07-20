@@ -28,8 +28,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Query;
-import org.ballerinalang.plugins.idea.psi.ParameterNode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.GlobalVariableDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +37,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class UnusedVariableInspection extends LocalInspectionTool {
+public class UnusedGlobalVariableInspection extends LocalInspectionTool {
 
     @Override
     @Nullable
@@ -47,9 +46,9 @@ public class UnusedVariableInspection extends LocalInspectionTool {
         List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
         List<LocalQuickFix> availableFixes = new ArrayList<>();
 
-        Collection<VariableDefinitionNode> variables = PsiTreeUtil.findChildrenOfType(file,
-                VariableDefinitionNode.class);
-        for (VariableDefinitionNode variable : variables) {
+        Collection<GlobalVariableDefinitionNode> globalVariables = PsiTreeUtil.findChildrenOfType(file,
+                GlobalVariableDefinitionNode.class);
+        for (GlobalVariableDefinitionNode variable : globalVariables) {
             ProgressManager.checkCanceled();
             PsiElement identifier = variable.getNameIdentifier();
             if (identifier == null) {
@@ -59,24 +58,7 @@ public class UnusedVariableInspection extends LocalInspectionTool {
             PsiReference firstReference = psiReferences.findFirst();
             if (firstReference == null) {
                 ProblemDescriptor problemDescriptor = getProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes, "variable");
-                problemDescriptors.add(problemDescriptor);
-            }
-        }
-
-        Collection<ParameterNode> parameters = PsiTreeUtil.findChildrenOfType(file,
-                ParameterNode.class);
-        for (ParameterNode parameter : parameters) {
-            ProgressManager.checkCanceled();
-            PsiElement identifier = parameter.getNameIdentifier();
-            if (identifier == null) {
-                continue;
-            }
-            Query<PsiReference> psiReferences = ReferencesSearch.search(identifier);
-            PsiReference firstReference = psiReferences.findFirst();
-            if (firstReference == null) {
-                ProblemDescriptor problemDescriptor = getProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes, "parameter");
+                        availableFixes);
                 problemDescriptors.add(problemDescriptor);
             }
         }
@@ -87,10 +69,9 @@ public class UnusedVariableInspection extends LocalInspectionTool {
     @NotNull
     private ProblemDescriptor getProblemDescriptor(@NotNull InspectionManager manager, boolean isOnTheFly,
                                                    @NotNull PsiElement identifier,
-                                                   @NotNull List<LocalQuickFix> availableFixes,
-                                                   @NotNull String type) {
+                                                   @NotNull List<LocalQuickFix> availableFixes) {
         LocalQuickFix[] fixes = availableFixes.toArray(new LocalQuickFix[availableFixes.size()]);
-        return manager.createProblemDescriptor(identifier, "Unused " + type + " <code>#ref</code>" +
+        return manager.createProblemDescriptor(identifier, "Unused global variable <code>#ref</code>" +
                 " #loc", isOnTheFly, fixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
     }
 }

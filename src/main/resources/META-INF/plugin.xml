@@ -195,6 +195,9 @@
                          groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
                          implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedConstantInspection"/>
 
+        <localInspection language="Ballerina" displayName="Unused constant inspection" groupPath="Ballerina"
+                         groupName="Declaration redundancy" enabledByDefault="true" level="WARNING"
+                         implementationClass="org.ballerinalang.plugins.idea.codeInspection.UnusedGlobalVariableInspection"/>
    </extensions>
 
     <actions>
