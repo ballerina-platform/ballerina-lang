@@ -1410,8 +1410,7 @@ public class BLangVM {
                     break;
                 case InstructionCodes.NEWJSON:
                     i = operands[0];
-                    BJSON newJSON = new BJSON("{}");
-                    sf.refRegs[i] = newJSON;
+                    sf.refRegs[i] = new BJSON("{}");
                     break;
                 case InstructionCodes.NEWMESSAGE:
                     i = operands[0];
