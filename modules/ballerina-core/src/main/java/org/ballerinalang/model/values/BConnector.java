@@ -37,10 +37,14 @@ public final class BConnector implements BRefType, StructureType {
     private BRefType[] refFields;
 
     private BConnectorType connectorType;
+    private BConnector filterConnector;
+    //private BType connectorType;
+
+    // TODO Remove this when old executor is removed
+    private BType[] fieldTypes;
 
     public BConnector(BConnectorType connectorType) {
         this.connectorType = connectorType;
-
         int[] fieldIndexes = this.connectorType.getFieldTypeCount();
         longFields = new long[fieldIndexes[0]];
         doubleFields = new double[fieldIndexes[1]];
@@ -49,6 +53,26 @@ public final class BConnector implements BRefType, StructureType {
         intFields = new int[fieldIndexes[3]];
         byteFields = new byte[fieldIndexes[4]][];
         refFields = new BRefType[fieldIndexes[5]];
+    }
+
+    public BType getConnectorType() {
+        return connectorType;
+    }
+
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
+    }
+
+    public BConnector getFilterConnector() {
+        return filterConnector;
+    }
+
+    public void setFilterConnector(BConnector filterConnector) {
+        this.filterConnector = filterConnector;
     }
 
     @Override

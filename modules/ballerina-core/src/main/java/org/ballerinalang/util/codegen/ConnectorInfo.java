@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,11 +39,39 @@ public class ConnectorInfo extends StructureTypeInfo {
 
     private Map<String, ActionInfo> actionInfoMap = new HashMap<>();
 
+    // This variable holds the method table for this type.
+    protected Map<Integer, Integer> methodTableInteger = new HashMap<>();
+    protected Map<BConnectorType, StructureRefCPEntry> methodTableType = new HashMap<>();
+
     public ConnectorInfo(int pkgPathCPIndex, String packagePath, int nameCPIndex, String name,
                          int signatureCPIndex, String signature) {
         super(pkgPathCPIndex, packagePath, nameCPIndex, name);
         this.signatureCPIndex = signatureCPIndex;
         this.signature = signature;
+    }
+
+    public Map<Integer, Integer> getMethodTableInteger() {
+        return methodTableInteger;
+    }
+
+    public void setMethodTableInteger(Map<Integer, Integer> methodTable) {
+        this.methodTableInteger = methodTable;
+    }
+
+    public void addMethodInteger(int methodNameCPIndex, int ip) {
+        methodTableInteger.put(methodNameCPIndex, new Integer(ip));
+    }
+
+    public void setMethodTableType(Map<BConnectorType, StructureRefCPEntry> methodTable) {
+        this.methodTableType = methodTable;
+    }
+
+    public StructureRefCPEntry getMethodTypeStructure(BConnectorType connectorType) {
+        if (methodTableType.containsKey(connectorType)) {
+            return methodTableType.get(connectorType);
+        } else {
+            return null;
+        }
     }
 
     public int getSignatureCPIndex() {

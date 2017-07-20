@@ -580,6 +580,30 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFilterInitExpression(BallerinaParser.FilterInitExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFilterInitExpressionList(BallerinaParser.FilterInitExpressionListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}

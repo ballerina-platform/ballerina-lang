@@ -60,7 +60,7 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   'connector' Identifier '(' parameterList? ')' connectorBody
+    :   'connector' Identifier ('<' parameter '>')? '(' parameterList? ')' connectorBody
     ;
 
 connectorBody
@@ -251,7 +251,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   'create' nameReference '(' expressionList? ')'
+    :   'create' nameReference '(' expressionList? ')' ('with' filterInitExpressionList)?
+    ;
+
+filterInitExpression
+    : nameReference '(' expressionList? ')'
+    ;
+
+filterInitExpressionList
+    : filterInitExpression (',' filterInitExpression)*
     ;
 
 assignmentStatement

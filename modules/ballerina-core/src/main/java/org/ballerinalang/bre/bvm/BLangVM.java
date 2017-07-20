@@ -29,6 +29,7 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -1220,7 +1221,7 @@ public class BLangVM {
 
                     cpIndex = operands[1];
                     funcCallCPEntry = (FunctionCallCPEntry) constPool[cpIndex];
-                    invokeCallableUnit(actionInfo, funcCallCPEntry);
+                    invokeActionCallableUnit(actionInfo, funcCallCPEntry);
                     break;
                 case InstructionCodes.NACALL:
                     cpIndex = operands[0];
@@ -2125,6 +2126,113 @@ public class BLangVM {
             context.setBallerinaTransactionManager(ballerinaTransactionManager);
         }
         ballerinaTransactionManager.beginTransactionBlock();
+    }
+
+    public void invokeActionCallableUnit(ActionInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
+        int[] argRegs = funcCallCPEntry.getArgRegs();
+        BType[] paramTypes = callableUnitInfo.getParamTypes();
+        StackFrame callerSF = controlStack.getCurrentFrame();
+        //BType connectorType = paramTypes[0];
+        BConnector connector = (BConnector) callerSF.refRegs[argRegs[0]];
+        ActionInfo newActionInfo = null;
+
+        if (connector != null && connector.getConnectorType() != null) {
+            ConnectorInfo connectorInfoIncoming = callableUnitInfo.getConnectorInfo();
+            StructureRefCPEntry connectorStruct = connectorInfoIncoming.getMethodTypeStructure(
+                    (BConnectorType) connector.getConnectorType());
+            if (connectorStruct != null) {
+                if (connectorStruct.getStructureTypeInfo() instanceof ConnectorInfo) {
+                    ConnectorInfo connectorInfo = (ConnectorInfo) connectorStruct.getStructureTypeInfo();
+                    if (!connectorInfo.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
+                        newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
+                    }
+                }
+            } else {
+                ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
+                int[] inputTypes = connectorInfo.getType().getFieldTypeCount();
+                int[] matchingTypes = ((BConnectorType) connector.getConnectorType()).getFieldTypeCount();
+
+                for (int i = 0; i < inputTypes.length - 1; i++) {
+                    if (inputTypes[i] != matchingTypes[i]) {
+                        String errorMsg = BLangExceptionHelper.getErrorMessage(
+                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                                connectorInfo.getName(), connector.getConnectorType().getName());
+                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                        handleError();
+                        return;
+                    }
+
+                    // TODO: This is a temporary hack to get rid of FilterConnector runtime equivalence
+                    if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]) {
+                        if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length - 1]++) {
+                            String errorMsg = BLangExceptionHelper.getErrorMessage(
+                                    RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+                                    connectorInfo.getName(), connector.getConnectorType().getName());
+                            context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+                            handleError();
+                            return;
+                        }
+                    }
+                }
+            }
+
+        }
+
+//        if (connector != null && connector.getConnectorType() != null) {
+//            String connectorName = connector.getConnectorType().getName();
+//            int connectorIndex = connectorType.getMethodIP(connectorName);
+//            if (connectorIndex > -1) {
+//                StructureRefCPEntry connectorStruct = (StructureRefCPEntry) constPool[connectorIndex];
+//                if (connectorStruct.getStructureTypeInfo() instanceof ConnectorInfo) {
+//                    ConnectorInfo connectorInfo = (ConnectorInfo) connectorStruct.getStructureTypeInfo();
+//                    if (!connectorInfo.getName().equals(callableUnitInfo.getConnectorInfo().getName())) {
+//                        newActionInfo = connectorInfo.getActionInfo(callableUnitInfo.getName());
+//                    }
+//                }
+//            } else {
+//                ConnectorInfo connectorInfo = callableUnitInfo.getConnectorInfo();
+//                int[] inputTypes = connectorInfo.getType().getFieldTypeCount();
+//                int[] matchingTypes = ((BConnectorType) connector.getConnectorType()).getFieldTypeCount();
+//
+//                for (int i = 0; i < inputTypes.length - 1; i++) {
+//                    if (inputTypes[i] != matchingTypes[i]) {
+//                        String errorMsg = BLangExceptionHelper.getErrorMessage(
+//                                RuntimeErrors.CONNECTOR_INPUT_TYPES_NOT_EQUIVALENT,
+//                                connectorInfo.getName(), connector.getConnectorType().getName());
+//                        context.setError(BLangVMErrors.createError(context, ip, errorMsg));
+//                        handleError();
+//                        return;
+//                    }
+//
+//                    // TODO: This is a temporary hack to get rid of FilterConnector runtime equivalence
+//                    if (inputTypes[inputTypes.length - 1] != matchingTypes[matchingTypes.length -1]) {
+//
+//                    }
+//                }
+//            }
+//
+//        }
+
+        WorkerInfo defaultWorkerInfo;
+        if (newActionInfo != null) {
+            defaultWorkerInfo = newActionInfo.getDefaultWorkerInfo();
+        } else {
+            defaultWorkerInfo = callableUnitInfo.getDefaultWorkerInfo();
+        }
+        StackFrame calleeSF = new StackFrame(callableUnitInfo, defaultWorkerInfo, ip, funcCallCPEntry.getRetRegs());
+        controlStack.pushFrame(calleeSF);
+
+        // Copy arg values from the current StackFrame to the new StackFrame
+        copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
+
+        // TODO Improve following two lines
+        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
+        this.code = calleeSF.packageInfo.getInstructions();
+        ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
+
+        // Invoke other workers
+        BLangVMWorkers.invoke(programFile, callableUnitInfo, callerSF, argRegs);
+
     }
 
     public void invokeCallableUnit(CallableUnitInfo callableUnitInfo, FunctionCallCPEntry funcCallCPEntry) {
