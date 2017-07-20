@@ -2511,14 +2511,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Validate start tag
         if (startTagName instanceof XMLQNameExpr) {
-            validateXMLQname((XMLQNameExpr) startTagName, namespaces, false);
+            validateXMLQname((XMLQNameExpr) startTagName, namespaces);
         } else {
             startTagName.accept(this);
         }
 
         if (startTagName.getType() != BTypes.typeString) {
             // Implicit cast from right to left
-            startTagName = createImplicitConversionExpr(startTagName, startTagName.getType(), BTypes.typeString);
+            startTagName = createImplicitStringConversionExpr(startTagName, startTagName.getType());
             xmlElementLiteral.setStartTagName(startTagName);
         }
 
@@ -2540,7 +2540,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (contentExpr.getType() != BTypes.typeString) {
-            contentExpr = createImplicitConversionExpr(contentExpr, contentExpr.getType(), BTypes.typeString);
+            contentExpr = createImplicitStringConversionExpr(contentExpr, contentExpr.getType());
             xmlComment.setContent(contentExpr);
         }
     }
@@ -2564,11 +2564,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression currentItem = items[i];
             currentItem.accept(this);
 
-            if (addExpr == null) {
-                addExpr = currentItem;
-                continue;
-            }
-
             if (xmlSequence.isHasParent() && currentItem.getType() == BTypes.typeXML) {
                 if (addExpr != null) {
                     newItems.add(addExpr);
@@ -2579,7 +2574,23 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (currentItem.getType() != BTypes.typeString) {
-                currentItem = createImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
+                Expression castExpr = getImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
+
+                if (castExpr == null) {
+                    if (xmlSequence.isHasParent()) {
+                        BLangExceptionHelper.throwSemanticError(currentItem,
+                                SemanticErrors.INCOMPATIBLE_TYPES_IN_XML_TEMPLATE, currentItem.getType());
+                    }
+                    BLangExceptionHelper.throwSemanticError(currentItem, SemanticErrors.INCOMPATIBLE_TYPES,
+                            BTypes.typeString, currentItem.getType());
+                }
+
+                currentItem = castExpr;
+            }
+
+            if (addExpr == null) {
+                addExpr = currentItem;
+                continue;
             }
 
             if (addExpr.getType() == BTypes.typeString) {
@@ -2610,7 +2621,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         target.accept(this);
 
         if (target.getType() != BTypes.typeString) {
-            target = createImplicitConversionExpr(target, target.getType(), BTypes.typeString);
+            target = createImplicitStringConversionExpr(target, target.getType());
             xmlPI.setTarget(target);
         }
 
@@ -2620,7 +2631,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (data.getType() != BTypes.typeString) {
-            data = createImplicitConversionExpr(data, data.getType(), BTypes.typeString);
+            data = createImplicitStringConversionExpr(data, data.getType());
             xmlPI.setData(data);
         }
     }
@@ -3953,8 +3964,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         return concatExpr;
     }
 
-    private void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces,
-            boolean usedInXMLAttributes) {
+    private void validateXMLQname(XMLQNameExpr qname, Map<String, Expression> namespaces) {
         qname.setType(BTypes.typeString);
         String prefix = qname.getPrefix();
 
@@ -3970,13 +3980,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression namespaceUri = namespaces.get(qname.getPrefix());
             qname.setNamepsaceUri(namespaceUri);
         } else if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            if (!usedInXMLAttributes) {
-                BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
-            }
-            BasicLiteral namespaceUriLiteral = new BasicLiteral(qname.getNodeLocation(), null,
-                    new SimpleTypeName(TypeConstants.STRING_TNAME), new BString(XMLConstants.XMLNS_ATTRIBUTE_NS_URI));
-            namespaceUriLiteral.accept(this);
-            qname.setNamepsaceUri(namespaceUriLiteral);
+            BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.INVALID_NAMESPACE_PREFIX, prefix);
         } else {
             BLangExceptionHelper.throwSemanticError(qname, SemanticErrors.UNDEFINED_NAMESPACE, qname.getPrefix());
         }
@@ -3990,12 +3994,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (attrNameExpr instanceof XMLQNameExpr) {
                 XMLQNameExpr attrQNameRefExpr = (XMLQNameExpr) attrNameExpr;
                 attrQNameRefExpr.isUsedInXML();
-                validateXMLQname(attrQNameRefExpr, namespaces, true);
+                validateXMLQname(attrQNameRefExpr, namespaces);
             } else {
                 attrNameExpr.accept(this);
                 if (attrNameExpr.getType() != BTypes.typeString) {
                     attrNameExpr =
-                            createImplicitConversionExpr(attrNameExpr, attrNameExpr.getType(), BTypes.typeString);
+                            createImplicitStringConversionExpr(attrNameExpr, attrNameExpr.getType());
                     attribute.setKeyExpr(attrNameExpr);
                 }
             }
@@ -4003,7 +4007,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression attrValueExpr = attribute.getValueExpr();
             attrValueExpr.accept(this);
             if (attrValueExpr.getType() != BTypes.typeString) {
-                attrValueExpr = createImplicitConversionExpr(attrValueExpr, attrValueExpr.getType(), BTypes.typeString);
+                attrValueExpr = createImplicitStringConversionExpr(attrValueExpr, attrValueExpr.getType());
                 attribute.setValueExpr(attrValueExpr);
             }
         }
@@ -4030,23 +4034,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             if (endTagName instanceof XMLQNameExpr) {
-                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces(), false);
+                validateXMLQname((XMLQNameExpr) endTagName, xmlElementLiteral.getNamespaces());
             } else {
                 endTagName.accept(this);
             }
 
             if (endTagName.getType() != BTypes.typeString) {
-                endTagName = createImplicitConversionExpr(endTagName, endTagName.getType(), BTypes.typeString);
+                endTagName = createImplicitStringConversionExpr(endTagName, endTagName.getType());
                 xmlElementLiteral.setEndTagName(endTagName);
             }
         }
     }
 
-    private Expression createImplicitConversionExpr(Expression sExpr, BType sType, BType tType) {
-        Expression conversionExpr = getImplicitConversionExpr(sExpr, sType, tType);
+    private Expression createImplicitStringConversionExpr(Expression sExpr, BType sType) {
+        Expression conversionExpr = getImplicitConversionExpr(sExpr, sType, BTypes.typeString);
         if (conversionExpr == null) {
-            BLangExceptionHelper.throwSemanticError(sExpr, SemanticErrors.INCOMPATIBLE_TYPES, tType,
-                    sType);
+            BLangExceptionHelper.throwSemanticError(sExpr, SemanticErrors.INCOMPATIBLE_TYPES, BTypes.typeString, sType);
         }
         return conversionExpr;
     }

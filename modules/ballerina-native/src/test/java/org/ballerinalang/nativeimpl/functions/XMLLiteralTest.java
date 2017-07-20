@@ -280,4 +280,41 @@ public class XMLLiteralTest {
 
         Assert.assertEquals(returns[0].stringValue(), "hello 11 world. How 1.35 are you true?");
     }
+
+    @Test
+    public void testArithmaticExpreesionInXMLTemplate() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testArithmaticExpreesionInXMLTemplate", args);
+        Assert.assertTrue(returns[0] instanceof BXMLItem);
+
+        Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello 5\">hello</foo>");
+    }
+
+    @Test
+    public void testFunctionCallInXMLTemplate() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testFunctionCallInXMLTemplate", args);
+        Assert.assertTrue(returns[0] instanceof BXMLItem);
+
+        Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;-->returned from a function</foo>");
+    }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "xmlRestrictedElementPrefix.bal:3: invalid namespace prefix 'xmlns'")
+    public void xmlRestrictedElementPrefix() {
+        BTestUtils.getProgramFile("samples/xml/xmlRestrictedElementPrefix.bal");
+    }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "xmlUndeclaredElementPrefix.bal:3: undefined namespace 'ns1'")
+    public void xmlUndeclaredElementPrefix() {
+        BTestUtils.getProgramFile("samples/xml/xmlUndeclaredElementPrefix.bal");
+    }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "xmlTemplateWithNonXML.bal:3: incompatible types in xml template "
+                    + "literal. expected 'xml' or 'string', found 'map'")
+    public void testTextWithMultiTypeExpressions() {
+        BTestUtils.getProgramFile("samples/xml/xmlTemplateWithNonXML.bal");
+    }
 }

@@ -101,3 +101,20 @@ function testTextWithValidMultiTypeExpressions() (xml) {
     xml x = xml `hello {{v1}} {{v2}}. How {{v3}} are you {{v4}}?`;
     return x;
 }
+
+
+function testArithmaticExpreesionInXMLTemplate() (xml) {
+    xml x1 = xml `<foo id="hello {{ 3 + 6 / 3}}" >hello</foo>`;
+    
+    return x1;
+}
+
+function f1() (string) {
+  return "returned from a function";
+}
+
+function testFunctionCallInXMLTemplate() (xml) {
+    xml x1 = xml `<foo>{{ "<-->" + f1()}}</foo>`;
+    
+    return x1;
+}

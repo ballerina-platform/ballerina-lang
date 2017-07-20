@@ -1011,4 +1011,13 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
     }
+    
+    @Test
+    public void testSetChildrenToElemntInDefaultNameSpace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenToElemntInDefaultNameSpace");
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name xmlns=\"http://sample.com/test\"><newFname xmlns=\"\">supun-new</newFname></name>");
+    }
 }

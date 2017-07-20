@@ -2143,6 +2143,302 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     }
 
     @Override
+    public void enterXmlLiteral(XmlLiteralContext ctx) {
+    }
+
+    @Override
+    public void exitXmlLiteral(XmlLiteralContext ctx) {
+    }
+
+    @Override
+    public void enterElement(ElementContext ctx) {
+    }
+
+    @Override
+    public void exitElement(ElementContext ctx) {
+    }
+
+    @Override
+    public void enterAttribute(AttributeContext ctx) {
+    }
+
+    @Override
+    public void exitAttribute(AttributeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getXMLAttributeWS(tokenStream, ctx);
+        }
+        modelBuilder.addKeyValueExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
+    }
+
+    @Override
+    public void enterProcIns(ProcInsContext ctx) {
+    }
+
+    @Override
+    public void exitProcIns(ProcInsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String qname = ctx.XML_TAG_SPECIAL_OPEN().getText();
+        // removing the starting '<?' and the trailing whitespace
+        qname = qname.substring(2, qname.length() - 1);
+
+        TerminalNode[] nodes = ctx.XMLPITemplateText().toArray(new TerminalNode[0]);
+        String[] templateStrLiterals = new String[nodes.length];
+
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
+        }
+
+        String endingText = ctx.XMLPIText().getText();
+
+        endingText = endingText.substring(0, endingText.length() - 2);
+        modelBuilder.createXMLPILiteral(getCurrentLocation(ctx), null, qname, templateStrLiterals, endingText);
+    }
+
+    @Override
+    public void enterComment(CommentContext ctx) {
+    }
+
+    @Override
+    public void exitComment(CommentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        TerminalNode[] nodes = ctx.XMLCommentTemplateText().toArray(new TerminalNode[0]);
+        String[] templateStrLiterals = new String[nodes.length];
+
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
+        }
+
+        String endingText = ctx.XMLCommentText().getText();
+        endingText = endingText.substring(0, endingText.length() - 3);
+        modelBuilder.createXMLCommentLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
+    }
+
+    @Override
+    public void enterXmlLiteralExpression(XmlLiteralExpressionContext ctx) {
+    }
+
+    @Override
+    public void exitXmlLiteralExpression(XmlLiteralExpressionContext ctx) {
+    }
+
+    @Override
+    public void enterXmlItem(XmlItemContext ctx) {
+
+    }
+
+    @Override
+    public void exitXmlItem(XmlItemContext ctx) {
+    }
+
+    @Override
+    public void enterContent(ContentContext ctx) {
+    }
+
+    @Override
+    public void exitContent(ContentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.createXMLSequence(getCurrentLocation(ctx), null, ctx.getChildCount());
+        modelBuilder.addXMLElementContent();
+    }
+
+    @Override
+    public void enterText(TextContext ctx) {
+    }
+
+    @Override
+    public void exitText(TextContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        TerminalNode[] nodes = ctx.XMLTemplateText().toArray(new TerminalNode[0]);
+        TerminalNode endTextNode = ctx.XMLText();
+        String endingText = endTextNode == null ? null : endTextNode.getText();
+
+        if (nodes.length == 0) {
+            modelBuilder.createXMLTextLiteral(getCurrentLocation(ctx), null, endingText);
+            return;
+        }
+
+        String[] templateStrLiterals = new String[nodes.length];
+
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
+        }
+
+        modelBuilder.createXMLSequenceLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
+    }
+
+    @Override
+    public void enterXmlQualifiedName(XmlQualifiedNameContext ctx) {
+    }
+
+    @Override
+    public void exitXmlQualifiedName(XmlQualifiedNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.expression() != null) {
+            return;
+        }
+
+        List<TerminalNode> qnames = ctx.XMLQName();
+        String prefix = null;
+        String localname = null;
+
+        if (qnames.size() > 1) {
+            prefix = qnames.get(0).getText();
+            localname = qnames.get(1).getText();
+        } else {
+            localname = qnames.get(0).getText();
+        }
+
+        modelBuilder.createXMLQName(getCurrentLocation(ctx), null, localname, prefix);
+        xmlLiteralBuilder.append(ctx.getText());
+    }
+
+    @Override
+    public void enterXmlQuotedString(XmlQuotedStringContext ctx) {
+    }
+
+    @Override
+    public void exitXmlQuotedString(XmlQuotedStringContext ctx) {
+    }
+
+    @Override
+    public void enterXmlSingleQuotedString(XmlSingleQuotedStringContext ctx) {
+    }
+
+    @Override
+    public void exitXmlSingleQuotedString(XmlSingleQuotedStringContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        TerminalNode[] nodes = ctx.XMLSingleQuotedTemplateString().toArray(new TerminalNode[0]);
+        String[] templateStrLiterals = new String[nodes.length];
+
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
+        }
+
+        TerminalNode node = ctx.XMLSingleQuotedString();
+        String endingString = node == null ? null : node.getText();
+        modelBuilder.createXMLQuotedLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingString);
+    }
+
+    @Override
+    public void enterXmlDoubleQuotedString(XmlDoubleQuotedStringContext ctx) {
+    }
+
+    @Override
+    public void exitXmlDoubleQuotedString(XmlDoubleQuotedStringContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        TerminalNode[] nodes = ctx.XMLDoubleQuotedTemplateString().toArray(new TerminalNode[0]);
+        String[] templateStrLiterals = new String[nodes.length];
+
+        int i = 0;
+        for (TerminalNode node : nodes) {
+            if (node == null) {
+                templateStrLiterals[i++] = null;
+                continue;
+            }
+            String str = node.getText();
+            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
+        }
+
+        TerminalNode node = ctx.XMLDoubleQuotedString();
+        String endingString = node == null ? null : node.getText();
+        modelBuilder.createXMLQuotedLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingString);
+    }
+
+    @Override
+    public void enterStartTag(StartTagContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startXMLLiteral();
+    }
+
+    @Override
+    public void exitStartTag(StartTagContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        int attributesCount = ctx.attribute().size();
+        modelBuilder.startXMLElementLiteral(getCurrentLocation(ctx), null, attributesCount);
+    }
+
+    @Override
+    public void enterCloseTag(CloseTagContext ctx) {
+    }
+
+    @Override
+    public void exitCloseTag(CloseTagContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.endXMLElementLiteral();
+    }
+
+    @Override
+    public void enterEmptyTag(EmptyTagContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startXMLLiteral();
+    }
+
+    @Override
+    public void exitEmptyTag(EmptyTagContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        int attributesCount = ctx.attribute().size();
+        modelBuilder.startXMLElementLiteral(getCurrentLocation(ctx), null, attributesCount);
+    }
+
+    @Override
     public void visitTerminal(TerminalNode terminalNode) {
     }
 
@@ -2259,307 +2555,5 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         // Here childCount is always an odd number.
         // noOfArguments = childCount mod 2 + 1
         return childCountExprList / 2 + 1;
-    }
-
-    @Override
-    public void enterXmlLiteral(XmlLiteralContext ctx) {
-    }
-
-    @Override
-    public void exitXmlLiteral(XmlLiteralContext ctx) {
-
-    }
-
-    @Override
-    public void enterElement(ElementContext ctx) {
-
-    }
-
-    @Override
-    public void exitElement(ElementContext ctx) {
-
-    }
-
-    @Override
-    public void enterAttribute(AttributeContext ctx) {
-
-    }
-
-    @Override
-    public void exitAttribute(AttributeContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
-        if (isVerboseMode) {
-            whiteSpaceDescriptor = WhiteSpaceUtil.getXMLAttributeWS(tokenStream, ctx);
-        }
-        modelBuilder.addKeyValueExpr(getCurrentLocation(ctx), whiteSpaceDescriptor);
-    }
-
-    @Override
-    public void enterProcIns(ProcInsContext ctx) {
-
-    }
-
-    @Override
-    public void exitProcIns(ProcInsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        String qname = ctx.XML_TAG_SPECIAL_OPEN().getText();
-        // removing the starting '<?' and the trailing whitespace
-        qname = qname.substring(2, qname.length() - 1);
-
-        TerminalNode[] nodes = ctx.XMLPITemplateText().toArray(new TerminalNode[0]);
-        String[] templateStrLiterals = new String[nodes.length];
-        
-        int i = 0;
-        for (TerminalNode node: nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
-            }
-            String str = node.getText();
-            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
-        }
-        
-        String endingText = ctx.XMLPIText().getText();
-        
-        endingText = endingText.substring(0, endingText.length() - 2);
-        modelBuilder.createXMLPILiteral(getCurrentLocation(ctx), null, qname, templateStrLiterals, endingText);
-    }
-
-    @Override
-    public void enterComment(CommentContext ctx) {
-    }
-
-    @Override
-    public void exitComment(CommentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        TerminalNode[] nodes = ctx.XMLCommentTemplateText().toArray(new TerminalNode[0]);
-        String[] templateStrLiterals = new String[nodes.length];
-        
-        int i = 0;
-        for (TerminalNode node: nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
-            }
-            String str = node.getText();
-            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
-        }
-        
-        String endingText = ctx.XMLCommentText().getText();
-        endingText = endingText.substring(0, endingText.length() - 3);
-        modelBuilder.createXMLCommentLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
-    }
-
-    @Override
-    public void enterXmlLiteralExpression(XmlLiteralExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitXmlLiteralExpression(XmlLiteralExpressionContext ctx) {
-    }
-
-    @Override
-    public void enterXmlItem(XmlItemContext ctx) {
-
-    }
-
-    @Override
-    public void exitXmlItem(XmlItemContext ctx) {
-
-    }
-
-    @Override
-    public void enterContent(ContentContext ctx) {
-    }
-
-    @Override
-    public void exitContent(ContentContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        modelBuilder.createXMLSequence(getCurrentLocation(ctx), null, ctx.getChildCount());
-        modelBuilder.addXMLElementContent();
-    }
-
-    @Override
-    public void enterText(TextContext ctx) {
-    }
-
-    @Override
-    public void exitText(TextContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        TerminalNode[] nodes = ctx.XMLTemplateText().toArray(new TerminalNode[0]);
-        TerminalNode endTextNode = ctx.XMLText();
-        String endingText = endTextNode == null ? null : endTextNode.getText();
-        
-        if (nodes.length == 0) {
-            modelBuilder.createXMLTextLiteral(getCurrentLocation(ctx), null, endingText);
-            return;
-        }
-        
-        String[] templateStrLiterals = new String[nodes.length];
-        
-        int i = 0;
-        for (TerminalNode node: nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
-            }
-            String str = node.getText();
-            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
-        }
-        
-        modelBuilder.createXMLSequenceLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingText);
-    }
-
-    @Override
-    public void enterXmlQualifiedName(XmlQualifiedNameContext ctx) {
-    }
-
-    @Override
-    public void exitXmlQualifiedName(XmlQualifiedNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        if (ctx.expression() != null) {
-            return;
-        }
-
-        List<TerminalNode> qnames = ctx.XMLQName();
-        String prefix = null;
-        String localname = null;
-
-        if (qnames.size() > 1) {
-            prefix = qnames.get(0).getText();
-            localname = qnames.get(1).getText();
-        } else {
-            localname = qnames.get(0).getText();
-        }
-
-        modelBuilder.createXMLQName(getCurrentLocation(ctx), null, localname, prefix);
-        xmlLiteralBuilder.append(ctx.getText());
-    }
-
-    @Override
-    public void enterXmlQuotedString(XmlQuotedStringContext ctx) {
-    }
-
-    @Override
-    public void exitXmlQuotedString(XmlQuotedStringContext ctx) {
-    }
-
-    @Override
-    public void enterXmlSingleQuotedString(XmlSingleQuotedStringContext ctx) {
-    }
-
-    @Override
-    public void exitXmlSingleQuotedString(XmlSingleQuotedStringContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        TerminalNode[] nodes = ctx.XMLSingleQuotedTemplateString().toArray(new TerminalNode[0]);
-        String[] templateStrLiterals = new String[nodes.length];
-        
-        int i = 0;
-        for (TerminalNode node: nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
-            }
-            String str = node.getText();
-            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
-        }
-        
-        TerminalNode node = ctx.XMLSingleQuotedString();
-        String endingString = node == null ? null : node.getText();
-        modelBuilder.createXMLQuotedLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingString);
-    }
-
-    @Override
-    public void enterXmlDoubleQuotedString(XmlDoubleQuotedStringContext ctx) {
-    }
-
-    @Override
-    public void exitXmlDoubleQuotedString(XmlDoubleQuotedStringContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        TerminalNode[] nodes = ctx.XMLDoubleQuotedTemplateString().toArray(new TerminalNode[0]);
-        String[] templateStrLiterals = new String[nodes.length];
-        
-        int i = 0;
-        for (TerminalNode node: nodes) {
-            if (node == null) {
-                templateStrLiterals[i++] = null;
-                continue;
-            }
-            String str = node.getText();
-            templateStrLiterals[i++] = str.substring(0, str.length() - 2);
-        }
-        
-        TerminalNode node = ctx.XMLDoubleQuotedString();
-        String endingString = node == null ? null : node.getText();
-        modelBuilder.createXMLQuotedLiteral(getCurrentLocation(ctx), null, templateStrLiterals, endingString);
-    }
-
-    @Override
-    public void enterStartTag(StartTagContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        modelBuilder.startXMLLiteral();
-    }
-
-    @Override
-    public void exitStartTag(StartTagContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        int attributesCount = ctx.attribute().size();
-        modelBuilder.startXMLElementLiteral(getCurrentLocation(ctx), null, attributesCount);
-    }
-
-    @Override
-    public void enterCloseTag(CloseTagContext ctx) {
-    }
-
-    @Override
-    public void exitCloseTag(CloseTagContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        modelBuilder.endXMLElementLiteral();
-    }
-
-    @Override
-    public void enterEmptyTag(EmptyTagContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        modelBuilder.startXMLLiteral();
-    }
-
-    @Override
-    public void exitEmptyTag(EmptyTagContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        int attributesCount = ctx.attribute().size();
-        modelBuilder.startXMLElementLiteral(getCurrentLocation(ctx), null, attributesCount);
     }
 }
