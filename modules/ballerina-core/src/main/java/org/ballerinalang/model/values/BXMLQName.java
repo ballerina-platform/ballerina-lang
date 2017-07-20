@@ -46,7 +46,7 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public String stringValue() {
-        return uri == null ? localName : '{' + uri + '}' + localName;
+        return (uri == null | uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
     @Override
@@ -92,5 +92,10 @@ public final class BXMLQName implements BRefType {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    @Override
+    public String toString() {
+        return stringValue();
     }
 }

@@ -254,6 +254,11 @@ public interface InstructionCodes {
     int XMLATTRSTORE = 241;
     int S2QNAME = 242;
     int NEWQNAME = 243;
-    
-    int INSTRUCTION_CODE_COUNT = 244;
+    int NEWXMLELEMENT = 244;
+    int NEWXMLCOMMENT = 245;
+    int NEWXMLTEXT = 246;
+    int NEWXMLPI = 247;
+    int XMLSTORE = 248;
+
+    int INSTRUCTION_CODE_COUNT = 249;
 }

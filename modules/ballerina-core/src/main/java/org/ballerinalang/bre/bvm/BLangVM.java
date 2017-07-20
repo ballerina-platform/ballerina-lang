@@ -211,6 +211,7 @@ public class BLangVM {
         int i;
         int j;
         int k;
+        int l;
         int lvIndex; // Index of the local variable
         int cpIndex; // Index of the constant pool
         int fieldIndex;
@@ -227,7 +228,7 @@ public class BLangVM {
         StructureType structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
-        BXML xmlVal;
+        BXML<?> xmlVal;
         BXMLAttributes xmlAttrs;
         BXMLQName xmlQName;
         
@@ -1502,8 +1503,71 @@ public class BLangVM {
                     prefixIndex = operands[2];
                     i = operands[3];
 
-                    sf.refRegs[i] = new BXMLQName(sf.stringRegs[localNameIndex], sf.stringRegs[uriIndex],
-                            sf.stringRegs[prefixIndex]);
+                    String localname = sf.stringRegs[localNameIndex];
+                    localname = StringEscapeUtils.escapeXml11(localname);
+
+                    String prefix = sf.stringRegs[prefixIndex];
+                    prefix = StringEscapeUtils.escapeXml11(prefix);
+
+                    sf.refRegs[i] = new BXMLQName(localname, sf.stringRegs[uriIndex], prefix);
+                    break;
+                case InstructionCodes.NEWXMLELEMENT:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+                    l = operands[3];
+
+                    BXMLQName startTagName = (BXMLQName) sf.refRegs[j];
+                    BXMLQName endTagName = (BXMLQName) sf.refRegs[k];
+                    
+                    try {
+                        sf.refRegs[i] = XMLUtils.createXMLElement(startTagName, endTagName, sf.stringRegs[l]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
+                    break;
+                case InstructionCodes.NEWXMLCOMMENT:
+                    i = operands[0];
+                    j = operands[1];
+
+                    try {
+                        sf.refRegs[i] = XMLUtils.createXMLComment(sf.stringRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
+                    break;
+                case InstructionCodes.NEWXMLTEXT:
+                    i = operands[0];
+                    j = operands[1];
+
+                    try {
+                        sf.refRegs[i] = XMLUtils.createXMLText(sf.stringRegs[j]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
+                    break;
+                case InstructionCodes.NEWXMLPI:
+                    i = operands[0];
+                    j = operands[1];
+                    k = operands[2];
+
+                    try {
+                        sf.refRegs[i] = XMLUtils.createXMLProcessingInstruction(sf.stringRegs[j], sf.stringRegs[k]);
+                    } catch (Exception e) {
+                        context.setError(BLangVMErrors.createError(context, ip, e.getMessage()));
+                        handleError();
+                    }
+                    break;
+                case InstructionCodes.XMLSTORE:
+                    i = operands[0];
+                    j = operands[1];
+
+                    xmlVal = (BXML<?>) sf.refRegs[i];
+                    BXML<?> child = (BXML<?>) sf.refRegs[j];
+                    xmlVal.addChildren(child);
                     break;
                 default:
                     throw new UnsupportedOperationException();

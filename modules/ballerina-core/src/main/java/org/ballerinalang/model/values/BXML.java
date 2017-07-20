@@ -189,36 +189,43 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
      * @return striped xml
      */
     public abstract BXML<?> strip();
-    
+
     /**
      * Get the type of the XML.
      * 
      * @return Type of the XML
      */
     public abstract XMLNodeType getNodeType();
-    
+
     /**
      * Returns a deep copy of the XML.
      */
     public abstract BXML<?> copy();
-    
+
     /**
      * Slice and return a subsequence of the given XML sequence.
      * 
-     * @param startIndex    To slice
-     * @param endIndex      To slice
+     * @param startIndex To slice
+     * @param endIndex To slice
      * @return sliced sequence
      */
     public abstract BValue slice(long startIndex, long endIndex);
-    
+
+    /**
+     * Add children to this XML. New children will be added to the the end of the existing children.
+     * 
+     * @param seq child XML seq
+     */
+    public abstract void addChildren(BXML<?> seq);
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
         return stringValue();
-    } 
-    
+    }
+
     /**
      * {@inheritDoc}
      */

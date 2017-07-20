@@ -122,6 +122,8 @@ public enum SemanticErrors {
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
     UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102")
     ;
 
     private String errorMsgKey;

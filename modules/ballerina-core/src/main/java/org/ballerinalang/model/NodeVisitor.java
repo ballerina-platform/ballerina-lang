@@ -46,7 +46,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -234,4 +240,15 @@ public interface NodeVisitor {
 
     void visit(NullLiteral nullLiteral);
 
+    void visit(XMLLiteral xmlLiteral);
+
+    void visit(XMLElementLiteral xmlElement);
+
+    void visit(XMLCommentLiteral xmlComment);
+
+    void visit(XMLTextLiteral xmlText);
+
+    void visit(XMLPILiteral xmlPI);
+    
+    void visit(XMLSequenceLiteral xmlSequence);
 }

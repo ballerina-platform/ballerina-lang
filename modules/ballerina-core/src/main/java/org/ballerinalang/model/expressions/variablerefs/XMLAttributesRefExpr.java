@@ -32,7 +32,7 @@ import java.util.Map;
 public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
 
     // Namespaces visible to this attribute reference expression.
-    private Map<String, String> namespaces;
+    private Map<String, Expression> namespaces;
 
     /**
      * @param location
@@ -54,11 +54,11 @@ public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
         this.indexExpr = indexExpr;
     }
 
-    public Map<String, String> getNamespaces() {
+    public Map<String, Expression> getNamespaces() {
         return namespaces;
     }
 
-    public void setNamespaces(Map<String, String> namespaces) {
+    public void setNamespaces(Map<String, Expression> namespaces) {
         this.namespaces = namespaces;
     }
 }
