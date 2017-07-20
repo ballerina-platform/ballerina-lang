@@ -92,7 +92,17 @@ class AnnotationDefinition extends EventChannel {
     removeAnnotationAttributeDefinition(annotationAttributeDefinitionToBeRemoved) {
         _.remove(this._annotationAttributeDefinitions, (annotationAttributeDefinition) => {
             return annotationAttributeDefinition.getIdentifier() ===
-                                          annotationAttributeDefinitionToBeRemoved.getIdentifier();
+                                          annotationAttributeDefinitionToBeRemoved.getAttributeName();
+        });
+    }
+
+    /**
+     * returns the action by name
+     * @param {string} attibuteName - name of the action
+     */
+    getAttributeDefinitionByName(attibuteName) {
+        return _.find(this.getAnnotationAttributeDefinitions(), (attributeDefinition) => {
+            return attributeDefinition.getIdentifier() === attibuteName;
         });
     }
 
