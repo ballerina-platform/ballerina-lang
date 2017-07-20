@@ -50,7 +50,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepIn() {
-        const message = { command: 'STEP_IN' };
+        const message = { command: 'STEP_IN', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -60,7 +60,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     stepOut() {
-        const message = { command: 'STEP_OUT' };
+        const message = { command: 'STEP_OUT', threadId: this.currentThreadId };
         this.channel.sendMessage(message);
         this.trigger('resume-execution');
     }
@@ -119,6 +119,7 @@ class DebugManager extends EventChannel {
         if (message.code === 'DEBUG_HIT') {
             this.active = true;
             this.trigger('debug-hit', message);
+            this.currentThreadId = message.threadId;
         }
         if (message.code === 'EXIT') {
             this.active = false;
@@ -169,9 +170,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    addBreakPoint(lineNumber, fileName) {
-        log.debug('debug point added', lineNumber, fileName);
-        const point = new DebugPoint({ fileName, lineNumber });
+    addBreakPoint(lineNumber, fileName, packagePath) {
+        log.debug('debug point added', lineNumber, fileName, packagePath);
+        const point = new DebugPoint({ fileName, lineNumber, packagePath });
         this.debugPoints.push(point);
         this.trigger('breakpoint-added', point);
     }
@@ -182,9 +183,9 @@ class DebugManager extends EventChannel {
      *
      * @memberof DebugManager
      */
-    removeBreakPoint(lineNumber, fileName) {
+    removeBreakPoint(lineNumber, fileName, packagePath) {
         log.debug('debug point removed', lineNumber, fileName);
-        const point = new DebugPoint({ fileName, lineNumber });
+        const point = new DebugPoint({ fileName, lineNumber, packagePath });
         _.remove(this.debugPoints, item => item.fileName === point.fileName && item.lineNumber === point.lineNumber);
         this.trigger('breakpoint-removed', point);
     }
