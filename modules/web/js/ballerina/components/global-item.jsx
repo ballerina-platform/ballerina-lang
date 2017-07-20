@@ -91,8 +91,19 @@ export default class GlobalDefinitionItem extends React.Component {
             className = 'global-definition-item-hightlighted';
         }
 
+        const maxLengthText = 38;
+        let globalItemValue = this.props.getValue(this.props.globalDec);
+
+        if (globalItemValue.length > maxLengthText) {
+            globalItemValue = ((globalItemValue.substring(0, maxLengthText)) + '...');
+        }
+
         return (
+
+
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+
+                <title> {this.props.getValue(this.props.globalDec)} </title>
                 <rect
                     x={x}
                     y={y}
@@ -107,7 +118,7 @@ export default class GlobalDefinitionItem extends React.Component {
                     ry="0"
                     className="global-definition-text"
                 >
-                    {this.props.getValue(this.props.globalDec)}
+                    {globalItemValue}
                 </text>
                 <rect
                     x={x}
