@@ -2,6 +2,12 @@ package ballerina.lang.xmls;
 
 import ballerina.doc;
 
+@doc:Description { value: "Options struct for XML to JSON conversion "}
+struct Options {
+    string attributePrefix = "@";
+    boolean preserveNamespaces = true;
+}
+
 @doc:Description { value:"Sets the string value of an element that matches the given XPath. If the XPath matches an existing element, that element's value will be updated. If the XPath does not match an existing element, this operation will have no effect. Namespaces are supported."}
 @doc:Param { value:"x: An XML object" }
 @doc:Param { value:"xPath: An XPath" }
@@ -162,3 +168,8 @@ native function slice(xml x, int startIndex, int endIndex) (xml);
 @doc:Param { value:"x: An XML object" }
 @doc:Param { value:"attributes: Attributes map" }
 native function setAttributes(xml x, map attributes);
+
+@doc:Description { value:"Converts a XML object to a JSON representation"}
+@doc:Param { value:"x: A XML object" }
+@doc:Return { value:"json: JSON representation of the given XML" }
+native function toJSON (xml x, Options options) (json);
