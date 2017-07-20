@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi.references;
 
+import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -34,6 +35,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,12 +62,20 @@ public class PackageNameReference extends BallerinaElementReference implements P
             PsiFile containingFile = identifier.getContainingFile();
             PsiFile originalFile = containingFile.getOriginalFile();
 
-            // Todo - change insert handler for source annotations
-            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
-                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP, true,
-                    AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP);
-            results.addAll(packages);
+            // We don't need to add ':' at the end of the package name in SourceNotationNode.
+            InsertHandler<LookupElement> importedPackagesInsertHandler =
+                    PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            InsertHandler<LookupElement> unImportedPackagesInsertHandler =
+                    AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
+            SourceNotationNode sourceNotationNode = PsiTreeUtil.getParentOfType(identifier, SourceNotationNode.class);
+            if (sourceNotationNode != null) {
+                importedPackagesInsertHandler = null;
+                unImportedPackagesInsertHandler = AutoImportInsertHandler.INSTANCE;
+            }
 
+            List<LookupElement> packages = BallerinaPsiImplUtil.getPackagesAsLookups(originalFile, true,
+                    importedPackagesInsertHandler, true, unImportedPackagesInsertHandler);
+            results.addAll(packages);
         }
         return results.toArray(new LookupElement[results.size()]);
     }

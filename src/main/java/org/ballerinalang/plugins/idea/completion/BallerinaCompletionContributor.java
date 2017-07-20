@@ -16,7 +16,6 @@
 
 package org.ballerinalang.plugins.idea.completion;
 
-import com.intellij.codeInsight.completion.BasicInsertHandler;
 import com.intellij.codeInsight.completion.CompletionContributor;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -25,7 +24,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -77,7 +75,6 @@ public class BallerinaCompletionContributor extends CompletionContributor {
      */
     private void handlePackageNameNode(@NotNull CompletionParameters parameters,
                                        @NotNull CompletionResultSet resultSet) {
-        PsiFile originalFile = parameters.getOriginalFile();
         PsiElement element = parameters.getPosition();
         PsiElement parent = element.getParent();
         PsiElement superParent = parent.getParent();
@@ -90,11 +87,6 @@ public class BallerinaCompletionContributor extends CompletionContributor {
             // If the parent is not an AliasNode and is inside the ImportDeclarationNode, we need to suggest
             // packages.
             addImportSuggestions(resultSet, element);
-        } else {
-            BasicInsertHandler basicInsertHandler = new BasicInsertHandler();
-            InsertHandler[] insertHandlers = new InsertHandler[]{basicInsertHandler,
-                    AutoImportInsertHandler.INSTANCE};
-            addLookups(resultSet, originalFile, true, false, false, false, insertHandlers);
         }
     }
 
