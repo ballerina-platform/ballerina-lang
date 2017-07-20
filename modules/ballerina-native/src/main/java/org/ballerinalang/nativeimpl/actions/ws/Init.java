@@ -76,7 +76,8 @@ public class Init extends AbstractWebSocketAction {
         ClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
         CarbonMessage carbonMessage = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
-        carbonMessage.setProperty(Constants.TO, remoteUrl);
+        carbonMessage.setProperty(Constants.REMOTE_ADDRESS, remoteUrl);
+        carbonMessage.setProperty(Constants.TO, clientServiceName);
         Session clientSession;
         try {
             clientSession = (Session) clientConnector.init(carbonMessage, null, null);
@@ -84,11 +85,8 @@ public class Init extends AbstractWebSocketAction {
             throw new BallerinaException("Error occurred during initializing the connection to " + remoteUrl);
         }
 
-        // Adding client session to connection manager.
-        WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
-        connectionManager.addClientServiceNameToClientSession(clientSession, clientServiceName);
-
         // Setting parent service to client service if parent service is a WS service.
+        WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
         if (parentService != null && parentService.getProtocolPkgName().equals(Constants.PROTOCOL_WEBSOCKET)) {
             WebSocketServicesRegistry.getInstance().
                     setParentServiceToClientService(clientServiceName, parentService);

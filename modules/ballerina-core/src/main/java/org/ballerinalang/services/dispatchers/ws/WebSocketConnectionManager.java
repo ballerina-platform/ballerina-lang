@@ -50,8 +50,6 @@ public class WebSocketConnectionManager {
     // Map <parentServiceName, Connector>
     private final Map<String, List<BConnector>> parentServiceToClientConnectorsMap = new ConcurrentHashMap<>();
 
-    // Map <clientSessionID, associatedClientServiceName>
-    private final Map<String, String> clientSessionToClientServiceMap = new ConcurrentHashMap<>();
     // Map<Connector, Map<serverSessionID, ClientSession>>
     private final Map<BConnector, Map<String, Session>> clientConnectorSessionsMap = new ConcurrentHashMap<>();
     // Map<serverSessionID, clientSessionList>
@@ -225,8 +223,6 @@ public class WebSocketConnectionManager {
             for (BConnector bConnector : parentServiceToClientConnectorsMap.get(service.getName())) {
                 Session clientSession = initializeClientConnection(bConnector, carbonMessage);
                 Session serverSession = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                String clientServiceName = bConnector.getStringField(1);
-                addClientServiceNameToClientSession(clientSession, clientServiceName);
                 clientConnectorSessionsMap.get(bConnector).put(serverSession.getId(), clientSession);
                 addClinetSessionForServerSession(serverSession, clientSession);
             }
@@ -245,29 +241,6 @@ public class WebSocketConnectionManager {
             clientSessions.add(clientSession);
             serverSessionToClientSessionsMap.put(serverSessionID, clientSessions);
         }
-    }
-
-    /**
-     * Map session against the related service name.
-     *
-     * @param clientSession Session of the client.
-     * @param clientServiceName Name of the client service.
-     */
-    public void addClientServiceNameToClientSession(Session clientSession, String clientServiceName) {
-        clientSessionToClientServiceMap.put(clientSession.getId(), clientServiceName);
-    }
-
-    /**
-     * Retrieve the related client service name for a given client session.
-     *
-     * @param clientSession Session of the client.
-     * @return the name of the client service related to the given client session.
-     */
-    public String getClientServiceNameOfClientSession(Session clientSession) {
-        if (clientSessionToClientServiceMap.containsKey(clientSession.getId())) {
-            return clientSessionToClientServiceMap.get(clientSession.getId());
-        }
-        throw new BallerinaException("Cannot find the client service to dispatch the message");
     }
 
     /**
@@ -354,9 +327,6 @@ public class WebSocketConnectionManager {
                         throw new BallerinaException("Internal error occurred when closing client connection");
                     }
                 }
-
-                // Remove client session from all the maps
-                clientSessionToClientServiceMap.remove(clientSession.getId());
             }
         }
 
@@ -385,11 +355,13 @@ public class WebSocketConnectionManager {
 
     private Session initializeClientConnection(BConnector bConnector, CarbonMessage carbonMessage) {
         String remoteUrl = bConnector.getStringField(0);
+        String clientServiceName = bConnector.getStringField(1);
 
         // Initializing a client connection.
         ClientConnector clientConnector =
                 BallerinaConnectorManager.getInstance().getClientConnector(Constants.PROTOCOL_WEBSOCKET);
-        carbonMessage.setProperty(Constants.TO, remoteUrl);
+        carbonMessage.setProperty(Constants.REMOTE_ADDRESS, remoteUrl);
+        carbonMessage.setProperty(Constants.TO, clientServiceName);
         Session clientSession;
         try {
             clientSession = (Session) clientConnector.init(carbonMessage, null, null);
