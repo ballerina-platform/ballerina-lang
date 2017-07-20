@@ -299,6 +299,31 @@ function testSeqCopy()(xml, xml) {
     return original, copy;
 }
 
+function testToJsonForValue() (json) {
+    xmls:Options options = {};
+    xml x = xmls:parse("value");
+    return xmls:toJSON(x, options);
+}
+
+function testToJsonForEmptyValue() (json) {
+    xmls:Options options = {};
+    xml x = xmls:parse("");
+    return xmls:toJSON(x, options);
+}
+
+function testToJsonForComment() (json) {
+    xmls:Options options = {};
+    xml x = xmls:parse("<!-- value -->");
+    return xmls:toJSON(x, options);
+}
+
+function testToJsonForPI() (json) {
+    xmls:Options options = {};
+    xml x = xmls:parse("<?doc document=\"book.doc\"?>");
+    return xmls:toJSON(x, options);
+}
+
+
 function testToJSON(xml msg) (json) {
     xmls:Options options = {};
     return xmls:toJSON(msg, options);
@@ -314,7 +339,7 @@ function testToJSONWithoutNamespace(xml msg) (json) {
     return xmls:toJSON(msg, options);
 }
 
-function testToJSONWithSequence1() (json) {
+function testToJSONWithSequenceDistinctKeys() (json) {
     xml x1 = xmls:parse("<key1>value1</key1>");
     xml x2 = xmls:parse("<key2>value2</key2>");
     xml x3 = x1 + x2;
@@ -323,7 +348,7 @@ function testToJSONWithSequence1() (json) {
     return xmls:toJSON(x3, options);
 }
 
-function testToJSONWithSequence2() (json) {
+function testToJSONWithSequenceSimilarKeys() (json) {
     xml x1 = xmls:parse("<key>value1</key>");
     xml x2 = xmls:parse("<key>value2</key>");
     xml x3 = xmls:parse("<key>value3</key>");
@@ -333,7 +358,7 @@ function testToJSONWithSequence2() (json) {
     return xmls:toJSON(x, options);
 }
 
-function testToJSONWithSequence3() (json) {
+function testToJSONWithSequenceWithValueArray() (json) {
     xml x1 = xmls:parse("a");
     xml x2 = xmls:parse("b");
     xml x3 = xmls:parse("c");
@@ -343,7 +368,7 @@ function testToJSONWithSequence3() (json) {
     return xmls:toJSON(x, options);
 }
 
-function testToJSONWithSequence4() (json) {
+function testToJSONWithSequenceWithMultipleElements() (json) {
     xml x1 = xmls:parse("<person><name>Jack</name><age>40</age></person>");
     xml x2 = xmls:parse("<metadata>5</metadata>");
     xml x = x1 + x2;
@@ -352,7 +377,7 @@ function testToJSONWithSequence4() (json) {
     return xmls:toJSON(x, options);
 }
 
-function testToJSONWithSequence5() (json) {
+function testToJSONWithSequenceWithElementAndText() (json) {
     xml x1 = xmls:parse("a");
     xml x2 = xmls:parse("b");
     xml x3 = xmls:parse("<key>value3</key>");
@@ -362,7 +387,7 @@ function testToJSONWithSequence5() (json) {
     return xmls:toJSON(x, options);
 }
 
-function testToJSONWithSequence6() (json) {
+function testToJSONWithSequenceWithElementAndTextArray() (json) {
     xml x1 = xmls:parse("a");
     xml x2 = xmls:parse("b");
     xml x3 = xmls:parse("<key>value3</key>");
@@ -374,7 +399,7 @@ function testToJSONWithSequence6() (json) {
     return xmls:toJSON(x, options);
 }
 
-function testToJSONWithSequence7()(json) {
+function testToJSONWithSequenceWithDifferentElements()(json) {
     xml x1 = xmls:parse("a");
     xml x2 = xmls:parse("b");
     xml x3 = xmls:parse("<key>value3</key>");
@@ -387,6 +412,20 @@ function testToJSONWithSequence7()(json) {
     xml x10 = xmls:parse("<?word document=\"book.doc\" ?>");
 
     xml x = x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x8 + x10;
+
+    xmls:Options options = {preserveNamespaces : false};
+    return xmls:toJSON(x, options);
+}
+
+function testToJSONWithSequenceWithDifferentComplexElements()(json) {
+    xml x1 = xmls:parse("<bookStore status=\"online\"><storeName>foo</storeName><postalCode>94</postalCode>" +
+                        "<isOpen>true</isOpen><address><street>foo</street><city>94</city><country>true</country>" +
+                        "</address><codes><item>4</item><item>8</item><item>9</item></codes></bookStore>");
+    xml x2 = xmls:parse("<!-- some comment -->");
+    xml x3 = xmls:parse("<?doc document=\"book.doc\"?>");
+    xml x4 = xmls:parse("<metaInfo>some info</metaInfo>");
+
+    xml x = x1 + x2 + x3 + x4;
 
     xmls:Options options = {preserveNamespaces : false};
     return xmls:toJSON(x, options);
