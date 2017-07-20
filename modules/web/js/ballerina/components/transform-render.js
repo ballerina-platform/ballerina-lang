@@ -388,11 +388,7 @@ class TransformRender {
         let targetId = targetPrefix + connection.targetStruct + targetUUID
             + this.viewIdSeperator + this.viewId + targetTail;
 
-
-    if (false) {
-            sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
-            isSourceExists = true;
-        } else if (connection.sourceStruct == connection.sourceProperty[0]) {
+        if (connection.sourceStruct == connection.sourceProperty[0]) {
             // Construct Variable property id
             sourceId = connection.sourceStruct;
             isSourceExists = true;
@@ -400,10 +396,7 @@ class TransformRender {
             isSourceExists = _.includes(this.existingJsTrees,
                 connection.sourceStruct + sourceUUID + this.viewIdSeperator + this.viewId + sourceTail);
         }
-        if (false) {
-            targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
-            isTargetExists = true;
-        } else if (connection.targetStruct == connection.targetProperty[0]) {
+        if (connection.targetStruct == connection.targetProperty[0]) {
             // Construct Variable property id
             targetId = connection.targetStruct;
             isTargetExists = true;
