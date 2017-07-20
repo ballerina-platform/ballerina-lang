@@ -1073,8 +1073,8 @@ public class CodeGenerator implements NodeVisitor {
         int workerInvocationNameCPIndex = currentPkgInfo.addCPEntry(funcNameCPEntry);
         WorkerDataChannelRefCPEntry workerInvocationRefCPEntry =
                 new WorkerDataChannelRefCPEntry(pkgCPIndex, workerInvocationNameCPIndex);
-        workerInvocationRefCPEntry.setTypes(types);
         if (workerDataChannel != null) {
+            workerDataChannel.setTypes(types);
             workerInvocationRefCPEntry.setWorkerDataChannel(workerDataChannel);
         }
         int workerInvocationRefCPIndex = currentPkgInfo.addCPEntry(workerInvocationRefCPEntry);
@@ -1097,9 +1097,9 @@ public class CodeGenerator implements NodeVisitor {
 
         WorkerDataChannel workerDataChannel = workerReplyStmt.getWorkerDataChannel();
 
+        workerDataChannel.setTypes(types);
         WorkerDataChannelRefCPEntry workerReplyRefCPEntry =
                 new WorkerDataChannelRefCPEntry(pkgCPIndex, workerReplyNameCPIndex);
-        workerReplyRefCPEntry.setTypes(types);
         workerReplyRefCPEntry.setWorkerDataChannel(workerDataChannel);
         int workerReplyRefCPIndex = currentPkgInfo.addCPEntry(workerReplyRefCPEntry);
         int workerReplyIndex = getWorkerReplyCPIndex(workerReplyStmt);
@@ -2379,9 +2379,22 @@ public class CodeGenerator implements NodeVisitor {
             argRegs[i] = argExpr.getTempOffset();
         }
 
-        int[] retRegs = new int[0];
-        WorkerInvokeCPEntry workerInvokeCPEntry = new WorkerInvokeCPEntry
-                (argRegs, retRegs, workerInvocationStmt.getTypes());
+//        int[] retRegs = new int[0];
+        BType[] bTypes = workerInvocationStmt.getTypes();
+        WorkerInvokeCPEntry workerInvokeCPEntry = new WorkerInvokeCPEntry(argRegs, bTypes);
+
+        StringBuilder strBuilder = new StringBuilder("");
+        for (BType paramType : bTypes) {
+            strBuilder.append(paramType.getSig());
+        }
+
+        String sig = strBuilder.toString();
+
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+
+        workerInvokeCPEntry.setTypesSignatureCPIndex(sigCPIndex);
+
         return currentPkgInfo.addCPEntry(workerInvokeCPEntry);
     }
 
@@ -2439,19 +2452,35 @@ public class CodeGenerator implements NodeVisitor {
         }
 
         int[] argRegs = lvIndexes;
-        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
-        forkJoinCPEntry.setParentCallableUnitInfo(currentCallableUnitInfo);
+
+        ForkjoinInfo forkjoinInfo = new ForkjoinInfo(currentCallableUnitInfo, argRegs, retRegs);
+//        ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(argRegs, retRegs, forkJoinStmt);
+//        forkJoinCPEntry.setParentCallableUnitInfo(currentCallableUnitInfo);
         if (argExpr != null) {
-            forkJoinCPEntry.setTimeoutAvailable(true);
+//            forkJoinCPEntry.setTimeoutAvailable(true);
+            forkjoinInfo.setTimeoutAvailable(true);
         }
         for (Worker worker : forkJoinStmt.getWorkers()) {
             UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(worker.getName());
             int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
             WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, worker.getName());
-            forkJoinCPEntry.addWorkerInfo(worker.getName(), workerInfo);
+            forkjoinInfo.addWorkerInfo(worker.getName(), workerInfo);
         }
-        int forkJoinIndex = currentPkgInfo.addCPEntry(forkJoinCPEntry);
-        emit(InstructionCodes.FORKJOIN, forkJoinIndex);
+
+        int forkJoinIndex;
+        if (currentWorkerInfo != null) {
+            forkJoinIndex = currentWorkerInfo.addForkJoinInfo(forkjoinInfo);
+        } else {
+            forkJoinIndex = currentCallableUnitInfo.getDefaultWorkerInfo().addForkJoinInfo(forkjoinInfo);
+        }
+        ForkJoinCPEntry forkJoinIndexCPEntry = new ForkJoinCPEntry(forkJoinIndex);
+        forkJoinIndexCPEntry.setForkjoinInfo(forkjoinInfo);
+        int forkJoinIndexCPEntryIndex = currentPkgInfo.addCPEntry(forkJoinIndexCPEntry);
+        forkjoinInfo.setIndexCPIndex(forkJoinIndexCPEntryIndex);
+
+//        int forkJoinIndex = currentPkgInfo.addCPEntry(forkJoinCPEntry);
+//        emit(InstructionCodes.FORKJOIN, forkJoinIndex);
+        emit(InstructionCodes.FORKJOIN, forkJoinIndexCPEntryIndex);
         // visit the workers within fork-join block
         // Now visit each Worker
         UTF8CPEntry codeUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.CODE_ATTRIBUTE.toString());
@@ -2459,7 +2488,8 @@ public class CodeGenerator implements NodeVisitor {
         int[] lvIndexesCopy = lvIndexes.clone();
         int[] regIndexesCopy = regIndexes.clone();
         for (Worker worker : forkJoinStmt.getWorkers()) {
-            WorkerInfo workerInfo = forkJoinCPEntry.getWorkerInfo(worker.getName());
+//            WorkerInfo workerInfo = forkJoinCPEntry.getWorkerInfo(worker.getName());
+            WorkerInfo workerInfo = forkjoinInfo.getWorkerInfo(worker.getName());
             workerInfo.getCodeAttributeInfo().setAttributeNameIndex(codeAttribNameIndex);
             workerInfo.getCodeAttributeInfo().setCodeAddrs(nextIP());
             currentWorkerInfo = workerInfo;
@@ -2473,12 +2503,28 @@ public class CodeGenerator implements NodeVisitor {
         lvIndexes = lvIndexesCopy;
         regIndexes = regIndexesCopy;
 
+        for (String workerName : forkJoinStmt.getJoin().getJoinWorkers()) {
+            UTF8CPEntry workerNameCPEntry = new UTF8CPEntry(workerName);
+            int workerNameCPIndex = currentPkgInfo.addCPEntry(workerNameCPEntry);
+            WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, workerName);
+            forkjoinInfo.addJoinWorkerInfo(workerName, workerInfo);
+        }
+
         // Generate code for Join block
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
-        join.setIp(nextIP());
+        UTF8CPEntry joinType = new UTF8CPEntry(join.getJoinType());
+        int joinTypeCPIndex = currentPkgInfo.addCPEntry(joinType);
+        forkjoinInfo.setJoinType(join.getJoinType());
+        forkjoinInfo.setJoinTypeCPIndex(joinTypeCPIndex);
+        forkjoinInfo.setJoinIp(nextIP());
+//        join.setIp(nextIP());
         if (join.getJoinResult() != null) {
             visitForkJoinParameterDefs(join.getJoinResult());
         }
+
+        int joinMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        forkjoinInfo.setJoinMemOffset(joinMemOffset);
+
         if (join.getJoinBlock() != null) {
             join.getJoinBlock().accept(this);
         }
@@ -2489,8 +2535,9 @@ public class CodeGenerator implements NodeVisitor {
 
         // Generate code for timeout block
         ForkJoinStmt.Timeout timeout = forkJoinStmt.getTimeout();
-        timeout.setIp(nextIP());
-        int timeoutIP = timeout.getIp();
+        forkjoinInfo.setTimeoutIp(nextIP());
+//        timeout.setIp(timoutIp);
+//        int timeoutIP = timeout.getIp();
         if (timeout.getTimeoutExpression() != null) {
             timeout.getTimeoutExpression().accept(this);
         }
@@ -2498,6 +2545,10 @@ public class CodeGenerator implements NodeVisitor {
         if (timeout.getTimeoutResult() != null) {
             visitForkJoinParameterDefs(timeout.getTimeoutResult());
         }
+
+        int timeoutMemOffset = ((StackVarLocation) join.getJoinResult().getMemoryLocation()).getStackFrameOffset();
+        forkjoinInfo.setTimeoutMemOffset(timeoutMemOffset);
+
         if (timeout.getTimeoutBlock() != null) {
             timeout.getTimeoutBlock().accept(this);
         }

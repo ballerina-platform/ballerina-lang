@@ -27,6 +27,7 @@ import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
@@ -35,6 +36,7 @@ import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -150,6 +152,19 @@ public class ProgramFileWriter {
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
                     dataOutStream.writeInt(typeRefCPEntry.getTypeSigCPIndex());
+                    break;
+                case CP_ENTRY_FORK_JOIN:
+                    ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
+                    dataOutStream.writeInt(forkJoinCPEntry.getForkJoinCPIndex());
+                    break;
+                case CP_ENTRY_WORKER_INVOKE:
+                    WorkerInvokeCPEntry workerInvokeCPEntry = (WorkerInvokeCPEntry) cpEntry;
+                    dataOutStream.writeInt(workerInvokeCPEntry.getTypesSignatureCPIndex());
+                    int[] workerInvokeArgRegs = workerInvokeCPEntry.getArgRegs();
+                    dataOutStream.writeByte(workerInvokeArgRegs.length);
+                    for (int argReg : workerInvokeArgRegs) {
+                        dataOutStream.writeInt(argReg);
+                    }
                     break;
                 default:
                     throw new UnsupportedOperationException(cpEntry.getEntryType().getValue() +
@@ -336,7 +351,53 @@ public class ProgramFileWriter {
                                         WorkerInfo workerInfo) throws IOException {
         dataOutStream.writeInt(workerInfo.getWorkerNameCPIndex());
 
+        ForkjoinInfo[] forkjoinInfos = workerInfo.getForkjoinInfos();
+        dataOutStream.writeShort(forkjoinInfos.length);
+        for (ForkjoinInfo forkjoinInfo : forkjoinInfos) {
+            writeForkJoinInfo(dataOutStream, forkjoinInfo);
+        }
+
         writeAttributeInfoEntries(dataOutStream, workerInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeForkJoinInfo(DataOutputStream dataOutStream,
+                                          ForkjoinInfo forkjoinInfo) throws IOException {
+        dataOutStream.writeShort(forkjoinInfo.getIndexCPIndex());
+        dataOutStream.writeShort(forkjoinInfo.getCallableUnitNameCPIndex());
+
+        int[] argRegs = forkjoinInfo.getArgRegs();
+        dataOutStream.writeShort(argRegs.length);
+        for (int argReg : argRegs) {
+            dataOutStream.writeShort(argReg);
+        }
+        int[] retRegs = forkjoinInfo.getRetRegs();
+        dataOutStream.writeShort(retRegs.length);
+        for (int retReg : retRegs) {
+            dataOutStream.writeShort(retReg);
+        }
+
+        WorkerInfo[] workerInfos = forkjoinInfo.getWorkerInfos();
+        dataOutStream.writeShort(workerInfos.length);
+        for (WorkerInfo workerInfo : workerInfos) {
+            writeWorkerInfo(dataOutStream, workerInfo);
+        }
+
+        dataOutStream.writeBoolean(forkjoinInfo.isTimeoutAvailable());
+
+        dataOutStream.writeShort(forkjoinInfo.getJoinTypeCPIndex());
+
+//        dataOutStream.writeInt(forkjoinInfo.getWorkerCount()); //TODO
+
+        WorkerInfo[] joinWorkerInfos = forkjoinInfo.getJoinWorkerInfos();
+        dataOutStream.writeShort(joinWorkerInfos.length);
+        for (WorkerInfo workerInfo : joinWorkerInfos) {
+            writeWorkerInfo(dataOutStream, workerInfo);
+        }
+
+        dataOutStream.writeShort(forkjoinInfo.getTimeoutIp());
+        dataOutStream.writeShort(forkjoinInfo.getTimeoutMemOffset());
+        dataOutStream.writeShort(forkjoinInfo.getJoinIp());
+        dataOutStream.writeShort(forkjoinInfo.getJoinMemOffset());
     }
 
     private static void writeAttributeInfoEntries(DataOutputStream dataOutStream,

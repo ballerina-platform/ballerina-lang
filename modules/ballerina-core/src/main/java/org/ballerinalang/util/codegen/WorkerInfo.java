@@ -21,7 +21,9 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +39,9 @@ public class WorkerInfo implements AttributeInfoPool {
     private WorkerDataChannel workerDataChannelForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
+
+    private ForkjoinInfo[] forkjoinInfos;
+    private List<ForkjoinInfo> forkjoinInfoList = new ArrayList<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
@@ -83,5 +88,18 @@ public class WorkerInfo implements AttributeInfoPool {
 
     public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
         this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
+    }
+
+    public ForkjoinInfo[] getForkjoinInfos() {
+        return forkjoinInfoList.toArray(new ForkjoinInfo[0]);
+    }
+
+    public int addForkJoinInfo(ForkjoinInfo forkjoinInfo) {
+        forkjoinInfoList.add(forkjoinInfo);
+        return forkjoinInfoList.indexOf(forkjoinInfo);
+    }
+
+    public void setForkjoinInfos(ForkjoinInfo[] forkjoinInfos) {
+        this.forkjoinInfos = forkjoinInfos;
     }
 }

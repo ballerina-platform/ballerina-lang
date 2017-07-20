@@ -27,16 +27,13 @@ import java.util.Arrays;
  * @since 0.90
  */
 public class WorkerInvokeCPEntry implements ConstantPoolEntry {
-    BType[] bTypes;
+    private int typesSignatureCPIndex;
+    private BType[] bTypes;
     // Registers which contains worker incoming arguments
     private int[] argRegs;
 
-    // Registers to which return  values to be copied
-    private int[] retRegs;
-
-    public WorkerInvokeCPEntry(int[] argRegs, int[] retRegs, BType[] btypes) {
+    public WorkerInvokeCPEntry(int[] argRegs, BType[] btypes) {
         this.argRegs = argRegs;
-        this.retRegs = retRegs;
         this.bTypes = btypes;
     }
 
@@ -44,12 +41,16 @@ public class WorkerInvokeCPEntry implements ConstantPoolEntry {
         return argRegs;
     }
 
-    public int[] getRetRegs() {
-        return retRegs;
-    }
-
     public BType[] getbTypes() {
         return bTypes;
+    }
+
+    public int getTypesSignatureCPIndex() {
+        return typesSignatureCPIndex;
+    }
+
+    public void setTypesSignatureCPIndex(int typesSignatureCPIndex) {
+        this.typesSignatureCPIndex = typesSignatureCPIndex;
     }
 
     public ConstantPoolEntry.EntryType getEntryType() {
@@ -58,15 +59,11 @@ public class WorkerInvokeCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        int[] combined = new int[argRegs.length + retRegs.length];
-        System.arraycopy(argRegs, 0, combined, 0, argRegs.length);
-        System.arraycopy(retRegs, 0, combined, argRegs.length, retRegs.length);
-        return Arrays.hashCode(combined);
+        return Arrays.hashCode(argRegs);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof WorkerInvokeCPEntry && Arrays.equals(argRegs, ((WorkerInvokeCPEntry) obj).argRegs)
-                && Arrays.equals(retRegs, ((WorkerInvokeCPEntry) obj).retRegs);
+        return obj instanceof WorkerInvokeCPEntry && Arrays.equals(argRegs, ((WorkerInvokeCPEntry) obj).argRegs);
     }
 }

@@ -72,13 +72,14 @@ public class BTestUtils {
             }
 
             targetPath = programPath.resolve(targetPath);
-            ProgramFileWriter.writeProgram(programFile, targetPath);
-            ProgramFileReader reader = new ProgramFileReader(NativeScope.getInstance());
-            return reader.readProgram(targetPath);
+            return programFile;
+//            ProgramFileWriter.writeProgram(programFile, targetPath);
+//            ProgramFileReader reader = new ProgramFileReader(NativeScope.getInstance());
+//            return reader.readProgram(targetPath);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }
