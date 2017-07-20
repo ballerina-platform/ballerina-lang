@@ -368,10 +368,11 @@ class BallerinaFileEditor extends React.Component {
                     transitionEnterTimeout={300}
                     transitionLeaveTimeout={300}
                 >
+
                     {showLoadingOverlay &&
                         <div className='bal-file-editor-loading-container'>
                             <div id="parse-pending-loader">
-                                loading<br />
+                                Loading
                             </div>
                         </div>
                     }
