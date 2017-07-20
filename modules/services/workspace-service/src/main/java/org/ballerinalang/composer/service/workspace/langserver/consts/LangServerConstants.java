@@ -78,4 +78,7 @@ public class LangServerConstants {
      */
     public static final String BUILTIN_TYPES = "builtinTypes";
     public static final String PACKAGES = "packages";
+
+    public static final String PING = "PING";
+    public static final String PONG = "PONG";
 }
