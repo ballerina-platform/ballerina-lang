@@ -1036,6 +1036,24 @@ BallerinaASTFactory.isExpression = function (child) {
 };
 
 /**
+ * instanceof check for KeyValueExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isKeyValueExpression= function (child) {
+    return child instanceof keyValueExpression;
+};
+
+/**
+ * instanceof check for ReferenceTypeInitExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isReferenceTypeInitExpression = function (child) {
+    return child instanceof referenceTypeInitExpression;
+};
+
+/**
  * instanceof check for FieldBasedVarRefExpression
  * @param child - Object for instanceof check
  * @returns {boolean} - true if same type, else false

@@ -341,7 +341,8 @@ class TransformRender {
                 lookupClass = 'variable-content';
                 typeConns = $('div[id^="' + typeId + '"]').find('.' + lookupClass);
             } else {
-                typeConns = $('div[id^="' + typeId + '"]');
+                lookupClass = 'jstree-anchor';
+                typeConns = $('div[id^="'+ typeId + '"]').find('.' + lookupClass);
             }
 
             const self = this;
