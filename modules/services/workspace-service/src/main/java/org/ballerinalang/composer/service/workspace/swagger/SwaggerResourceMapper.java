@@ -314,12 +314,15 @@ public class SwaggerResourceMapper {
                 for (AnnotationAttributeValue parametersInfoValue : parametersInfoValues) {
                     AnnotationAttachment parameterInfoAnnotation = parametersInfoValue.getAnnotationValue();
                     if (null != parameterInfoAnnotation.getAttributeNameValuePairs().get("name")) {
-                        for (Parameter parameter : operation.getParameters()) {
-                            if (parameter.getName().equals(parameterInfoAnnotation.getAttributeNameValuePairs()
-                                    .get("name").getLiteralValue().stringValue())) {
-                                if (null != parameterInfoAnnotation.getAttributeNameValuePairs().get("description")) {
-                                    parameter.setDescription(parameterInfoAnnotation.getAttributeNameValuePairs()
-                                            .get("description").getLiteralValue().stringValue());
+                        if (null != operation.getParameters()) {
+                            for (Parameter parameter : operation.getParameters()) {
+                                if (parameter.getName().equals(parameterInfoAnnotation.getAttributeNameValuePairs()
+                                        .get("name").getLiteralValue().stringValue())) {
+                                    if (null != parameterInfoAnnotation.getAttributeNameValuePairs()
+                                            .get("description")) {
+                                        parameter.setDescription(parameterInfoAnnotation.getAttributeNameValuePairs()
+                                                .get("description").getLiteralValue().stringValue());
+                                    }
                                 }
                             }
                         }

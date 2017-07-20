@@ -300,7 +300,8 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (this.props.hideSwaggerAceEditor) {
+                                        if (this.props.hideSwaggerAceEditor ||
+                                                            this.swaggerAce.getSession().getUndoManager().isClean()) {
                                             this.context.editor.setActiveView(DESIGN_VIEW);
                                         } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();
@@ -321,7 +322,8 @@ class SwaggerView extends React.Component {
                             className="bottom-view-label"
                             onClick={
                                     () => {
-                                        if (this.props.hideSwaggerAceEditor) {
+                                        if (this.props.hideSwaggerAceEditor ||
+                                                            this.swaggerAce.getSession().getUndoManager().isClean()) {
                                             this.context.editor.setActiveView(SOURCE_VIEW);
                                         } else if (!this.hasSwaggerErrors()) {
                                             this.updateService();

@@ -64,8 +64,8 @@ class SwaggerParser {
             this.createSwaggerAnnotation(serviceDefinition);
             // Creating ServiceConfig annotation.
             this.createServiceConfigAnnotation(serviceDefinition);
-            // Creating @http:config#basePath attribute.
-            this.createHttpConfigBasePathAttribute(serviceDefinition);
+            // Creating @http:config annotation.
+            this.createHttpConfigAnnotation(serviceDefinition);
             // Creating @http:Consumes annotation.
             // this.createConsumesAnnotation(serviceDefinition, this._swaggerJson.consumes);
             // Creating @http:Produces annotation.
@@ -95,8 +95,8 @@ class SwaggerParser {
                                 _.isEqual(httpMethodAsString, httpMethodAnnotation.getName().toLowerCase());
                         });
                         // if operationId exists set it as resource name.
-                        if (existingResource && operation.operationId) {
-                            existingResource.setResourceName(operation.operationId);
+                        if (existingResource && operation.operationId && operation.operationId.trim() !== '') {
+                            existingResource.setResourceName(operation.operationId.replace(/\s/g, ''));
                         }
                     }
 
@@ -114,17 +114,27 @@ class SwaggerParser {
     }
 
     /**
-     * Creates the basePath attribute in @http:config annotation.
+     * Creates/Updates the @http:config annotation.
      *
      * @param {ServiceDefinition} serviceDefinition The service definition which has the annotation attachment.
      * @memberof SwaggerParser
      */
-    createHttpConfigBasePathAttribute(serviceDefinition) {
+    createHttpConfigAnnotation(serviceDefinition) {
+        const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
+            HTTP_PACKAGE, 'config');
         if (!_.isNil(this._swaggerJson.basePath)) {
-            const configAnnotation = SwaggerParser.getAnnotationAttachment(serviceDefinition, HTTP_FULL_PACKAGE,
-                HTTP_PACKAGE, 'config');
             const basePathBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.basePath });
             SwaggerParser.setAnnotationAttribute(configAnnotation, 'basePath', basePathBValue);
+        }
+
+        if (!_.isNil(this._swaggerJson.info.title)) {
+            const titleBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.title });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'title', titleBValue);
+        }
+
+        if (!_.isNil(this._swaggerJson.info.version)) {
+            const versionBValue = ASTFactory.createBValue({ stringValue: this._swaggerJson.info.version });
+            SwaggerParser.setAnnotationAttribute(configAnnotation, 'version', versionBValue);
         }
     }
 
@@ -758,8 +768,8 @@ class SwaggerParser {
         const newResourceDefinition = DefaultBallerinaASTFactory.createResourceDefinition();
 
         // if an operation id is defined set it as resource name.
-        if (httpMethodJsonObject.operationId) {
-            newResourceDefinition.setResourceName(httpMethodJsonObject.operationId);
+        if (httpMethodJsonObject.operationId && httpMethodJsonObject.operationId.trim() !== '') {
+            newResourceDefinition.setResourceName(httpMethodJsonObject.operationId.replace(/\s/g, ''));
         } else {
             newResourceDefinition.setResourceName(pathString.replace(/\W/g, '') + httpMethodAsString.toUpperCase());
         }
