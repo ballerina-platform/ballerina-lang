@@ -93,8 +93,13 @@ public class UnusedImportInspection extends LocalInspectionTool {
             usedPackages.add(nameIdentifier.getText());
         }
 
-        // This is used to keep track of imported packages. This will be used to identify redeclared import statements.
+        // This is used to keep track of fully qualified imported packages. This will be used to identify redeclared
+        // import statements.
+        List<String> fullyQualifiedImportedPackages = new LinkedList<>();
+        // This is used to keep track of last package in import declaration. This will be used to identify importing
+        // multiple packages which ends with same name.
         List<String> importedPackages = new LinkedList<>();
+
         Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
                 ImportDeclarationNode.class);
         for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
@@ -116,17 +121,25 @@ public class UnusedImportInspection extends LocalInspectionTool {
                         importDeclarationNode, availableFixes, ProblemHighlightType.LIKE_UNUSED_SYMBOL));
             }
 
+            // Check conflicting imports (which ends with same package name).
+            if (importedPackages.contains(lastPackageName)) {
+                problemDescriptors.add(createProblemDescriptor(manager, "Conflicting import", isOnTheFly,
+                        importDeclarationNode, availableFixes, ProblemHighlightType.GENERIC_ERROR));
+            }
+            importedPackages.add(lastPackageName);
+
             // Check redeclared imports.
             FullyQualifiedPackageNameNode fullyQualifiedPackageName = PsiTreeUtil.getChildOfType(importDeclarationNode,
                     FullyQualifiedPackageNameNode.class);
             if (fullyQualifiedPackageName == null) {
                 continue;
             }
-            if (importedPackages.contains(fullyQualifiedPackageName.getText())) {
+            if (fullyQualifiedImportedPackages.contains(fullyQualifiedPackageName.getText())) {
                 problemDescriptors.add(createProblemDescriptor(manager, "Redeclared import", isOnTheFly,
                         importDeclarationNode, availableFixes, ProblemHighlightType.GENERIC_ERROR));
             }
-            importedPackages.add(fullyQualifiedPackageName.getText());
+
+            fullyQualifiedImportedPackages.add(fullyQualifiedPackageName.getText());
         }
 
         return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
