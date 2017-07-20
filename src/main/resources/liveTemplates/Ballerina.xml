@@ -1,6 +1,6 @@
 <templateSet group="Ballerina">
 
-    <template name="fun" value="function $NAME$ ($ARGS$) ($RETURN$) {&#10;    $END$&#10;}"
+    <template name="fun" value="function $NAME$ ($ARGS$) $RETURN$ {&#10;    $END$&#10;}"
               description="Function template" toReformat="false" toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ARGS" expression="" defaultValue="" alwaysStopAt="true"/>
