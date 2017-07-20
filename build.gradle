@@ -52,6 +52,11 @@ dependencies {
     antlr "org.antlr:antlr4:4.6"
 }
 
+generateGrammarSource {
+    arguments << "-lib" << "src/main/antlr/org/ballerinalang/plugins/idea/grammar"
+    arguments << "-package" << "org.ballerinalang.plugins.idea.grammar"
+}
+
 apply plugin: 'jacoco'
 jacocoTestReport {
     reports {
