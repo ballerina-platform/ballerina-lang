@@ -21,6 +21,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.CodeBlockParameterNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -103,12 +104,12 @@ public class FieldReference extends BallerinaElementReference {
         PsiElement resolvedElementParent = resolvedElement.getParent();
         StructDefinitionNode structDefinitionNode = null;
         // Resolve the corresponding resolvedElementParent to get the struct definition.
-        if (resolvedElementParent instanceof VariableDefinitionNode) {
+        if (resolvedElementParent instanceof VariableDefinitionNode
+                || resolvedElementParent instanceof CodeBlockParameterNode) {
             // Resolve the Type of the VariableDefinitionNode to get the corresponding struct.
             // Eg: User user = {}
             //     In here, "User" is resolved and struct identifier is returned.
-            structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                    (((VariableDefinitionNode) resolvedElementParent));
+            structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode(resolvedElementParent);
         } else if (resolvedElementParent instanceof FieldDefinitionNode) {
             // If the resolvedElementParent is of type FieldDefinitionNode, that means we need to resolve the type of
             // the field to get the struct definition.
@@ -151,9 +152,9 @@ public class FieldReference extends BallerinaElementReference {
         PsiElement resolvedElementParent = resolvedElement.getParent();
         StructDefinitionNode structDefinitionNode = null;
         // Resolve the corresponding resolvedElementParent to get the struct definition.
-        if (resolvedElementParent instanceof VariableDefinitionNode) {
-            structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode
-                    (((VariableDefinitionNode) resolvedElementParent));
+        if (resolvedElementParent instanceof VariableDefinitionNode
+                || resolvedElementParent instanceof CodeBlockParameterNode) {
+            structDefinitionNode = BallerinaPsiImplUtil.resolveStructFromDefinitionNode(resolvedElementParent);
         } else if (resolvedElementParent instanceof FieldDefinitionNode) {
             structDefinitionNode =
                     BallerinaPsiImplUtil.resolveField(((FieldDefinitionNode) resolvedElementParent));
