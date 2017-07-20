@@ -54,7 +54,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -82,6 +81,10 @@ import javax.xml.transform.stax.StAXSource;
 public class XMLUtils {
     
     private static final String XML_ROOT = "root";
+
+    private static final String XML_NAMESPACE_PREFIX = "xmlns:";
+
+    private static final String XML_VALUE_TAG = "#text";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
@@ -313,95 +316,190 @@ public class XMLUtils {
     public static BJSON convertToJSON(BXML xml, String attributePrefix, boolean preserveNamespaces) {
         JsonNode jsonNode = null;
         if (xml instanceof BXMLItem) {
+            //Process xml item
             BXMLItem xmlItem = (BXMLItem) xml;
-            OMElement omElement = (OMElement) xmlItem.value();
-            jsonNode = iterateNode(omElement, attributePrefix, preserveNamespaces);
+            OMNode omNode = xmlItem.value();
+            if (OMNode.ELEMENT_NODE == omNode.getType()) {
+                jsonNode = traverseXMLElement((OMElement) omNode, attributePrefix, preserveNamespaces);
+            }
         } else {
+            //Process xml sequence
             BXMLSequence xmlSequence = (BXMLSequence) xml;
-            BRefValueArray sequence = xmlSequence.value();
-            long count = sequence.size();
-            ArrayList<OMElement> childArray = new ArrayList<>();
-            ArrayList<OMText> textArray = new ArrayList<>();
-            for (long i = 0; i < count; ++i) {
-                BXMLItem xmlItem = (BXMLItem) sequence.get(i);
-                OMNode omNode = xmlItem.value();
-                if (omNode instanceof OMElement) {
-                    childArray.add((OMElement) omNode);
-                } else if (omNode instanceof OMText) {
-                    textArray.add((OMText) omNode);
-                }
-            }
-            JsonNode textArrayNode = null;
-            if (textArray.size() > 0) {
-                textArrayNode = processTextArray(textArray);
-            }
-            if (childArray.size() > 0) {
-                jsonNode = OBJECT_MAPPER.createObjectNode();
-                processArray((ObjectNode) jsonNode, childArray, attributePrefix, preserveNamespaces);
-                if (textArrayNode != null) {
-                    ((ArrayNode) textArrayNode).add(jsonNode);
-                }
-            }
-            if (textArrayNode != null) {
-                jsonNode = textArrayNode;
-            }
+            jsonNode = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
+
         }
         return new BJSON(jsonNode);
     }
 
-    private static ObjectNode iterateNode(OMElement omElement, String attributePrefix, boolean preserveNamespaces) {
+    private static ObjectNode traverseXMLElement(OMElement omElement, String attributePrefix,
+            boolean preserveNamespaces) {
         ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();
-        ArrayList<OMAttribute> attributeArray = collectAttributes(omElement);
-        ArrayList<OMNamespace> namespaceArray = collectNamespaces(omElement);
+        LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
             ObjectNode currentRoot = OBJECT_MAPPER.createObjectNode();
             ArrayList<OMElement> childArray = new ArrayList<>();
-            HashMap<String, ArrayList<JsonNode>> rootMap = new HashMap<>();
-
+            LinkedHashMap<String, ArrayList<JsonNode>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
                 OMNode node = (OMNode) iterator.next();
-                OMElement omChildElement = (OMElement) node;
-                ArrayList<OMAttribute> attributeArrayChild = collectAttributes(omChildElement);
-                ArrayList<OMNamespace> namespaceArrayChild = collectNamespaces(omChildElement);
-                Iterator iteratorChild = omChildElement.getChildElements();
-                String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
-
-                if (iteratorChild.hasNext()) {
-                    ObjectNode nodeIntermediate = iterateNode(omChildElement, attributePrefix, preserveNamespaces);
-                    addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
-                } else {
-                    if (attributeArrayChild.size() > 0 || namespaceArrayChild.size() > 0) {
-                        ObjectNode attrObject = OBJECT_MAPPER.createObjectNode();
-                        processAttributes(attributeArrayChild, attrObject, attributePrefix);
-                        processNamespace(namespaceArrayChild, attrObject, attributePrefix);
-                        //Value object
-                        attrObject.put("#text", omChildElement.getText());
-                        addToRootMap(rootMap, childKeyValue, attrObject);
+                if (OMNode.ELEMENT_NODE == node.getType()) {
+                    OMElement omChildElement = (OMElement) node;
+                    LinkedHashMap<String, String> childAttributeMap = collectAttributesAndNamespaces(omChildElement);
+                    Iterator iteratorChild = omChildElement.getChildElements();
+                    String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
+                    if (iteratorChild.hasNext()) {
+                        ObjectNode nodeIntermediate = traverseXMLElement(omChildElement, attributePrefix,
+                                preserveNamespaces);
+                        addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
                     } else {
-                        childArray.add(omChildElement);
+                        if (childAttributeMap.size() > 0) {
+                            ObjectNode attrObject = processAttributeAndNamespaces(null, childAttributeMap,
+                                    attributePrefix, omChildElement.getText());
+                            addToRootMap(rootMap, childKeyValue, attrObject);
+                        } else {
+                            childArray.add(omChildElement);
+                        }
                     }
                 }
             }
-
-            if (namespaceArray.size() > 0) {
-                processNamespace(namespaceArray, currentRoot, attributePrefix);
-            }
-            if (attributeArray.size() > 0) {
-                processAttributes(attributeArray, currentRoot, attributePrefix);
-            }
-            if (childArray.size() > 0) {
-                processArray(currentRoot, childArray, attributePrefix, preserveNamespaces);
-            }
-            if (rootMap.size() > 0) {
-                processRootElements(currentRoot, rootMap);
-            }
+            processAttributeAndNamespaces(currentRoot, attributeMap, attributePrefix, null);
+            processArray(currentRoot, childArray, attributePrefix, preserveNamespaces);
+            processRootElements(currentRoot, rootMap);
             rootNode.set(keyValue, currentRoot);
         } else {
-            rootNode.put(keyValue, omElement.getText());
+            if (attributeMap.size() > 0) {
+                ObjectNode attrObject = processAttributeAndNamespaces(null, attributeMap, attributePrefix,
+                        omElement.getText());
+                rootNode.set(keyValue, attrObject);
+            } else {
+                rootNode.put(keyValue, omElement.getText());
+            }
         }
         return rootNode;
+    }
+
+    private static JsonNode traverseXMLSequence(BXMLSequence xmlSequence, String attributePrefix,
+            boolean preserveNamespaces) {
+        JsonNode jsonNode = null;
+        BRefValueArray sequence = xmlSequence.value();
+        long count = sequence.size();
+        ArrayList<OMElement> childArray = new ArrayList<>();
+        ArrayList<OMText> textArray = new ArrayList<>();
+        for (long i = 0; i < count; ++i) {
+            BXMLItem xmlItem = (BXMLItem) sequence.get(i);
+            OMNode omNode = xmlItem.value();
+            if (OMNode.ELEMENT_NODE ==  omNode.getType()) {
+                childArray.add((OMElement) omNode);
+            } else if (OMNode.TEXT_NODE ==  omNode.getType()) {
+                textArray.add((OMText) omNode);
+            }
+        }
+        JsonNode textArrayNode = null;
+        if (textArray.size() > 0) {
+            textArrayNode = processTextArray(textArray);
+        }
+        if (childArray.size() > 0) {
+            jsonNode = OBJECT_MAPPER.createObjectNode();
+            processArray((ObjectNode) jsonNode, childArray, attributePrefix, preserveNamespaces);
+            if (textArrayNode != null) {
+                ((ArrayNode) textArrayNode).add(jsonNode);
+            }
+        }
+        if (textArrayNode != null) {
+            jsonNode = textArrayNode;
+        }
+        return jsonNode;
+    }
+
+    private static void processArray(ObjectNode root, ArrayList<OMElement> childArray, String attributePrefix,
+            boolean preserveNamespaces) {
+        LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
+        for (OMElement element : childArray) {
+            String key = element.getLocalName();
+            rootMap.putIfAbsent(key, new ArrayList<>());
+            rootMap.get(key).add(element);
+        }
+        for (Map.Entry<String, ArrayList<OMElement>> entry : rootMap.entrySet()) {
+            ArrayList<OMElement> elementList = entry.getValue();
+            if (elementList.size() > 0) {
+                String nodeKey = getElementKey(elementList.get(0), preserveNamespaces);
+                if (elementList.size() == 1) {
+                    OMElement element = elementList.get(0);
+                    if (element.getChildElements().hasNext()) {
+                        JsonNode node = traverseXMLElement(element, attributePrefix, preserveNamespaces);
+                        root.set(nodeKey, node.get(nodeKey));
+                    } else {
+                        root.put(nodeKey, elementList.get(0).getText());
+                    }
+                } else {
+                    ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+                    for (OMElement element : elementList) {
+                        arrayNode.add(element.getText());
+                    }
+                    root.set(nodeKey, arrayNode);
+                }
+            }
+        }
+    }
+
+    private static void processRootElements(ObjectNode root, LinkedHashMap<String, ArrayList<JsonNode>> rootMap) {
+        for (Map.Entry<String, ArrayList<JsonNode>> entry : rootMap.entrySet()) {
+            String key = entry.getKey();
+            ArrayList<JsonNode> elementList = entry.getValue();
+            int elementCount = elementList.size();
+            if (elementCount == 1) {
+                root.set(key, elementList.get(0));
+            } else {
+                ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+                for (JsonNode node : elementList) {
+                    arrayNode.add(node);
+                }
+                root.set(key, arrayNode);
+            }
+
+        }
+    }
+
+    private static LinkedHashMap<String, String> collectAttributesAndNamespaces(OMElement element) {
+        LinkedHashMap<String, String> attributeMap = new LinkedHashMap<>();
+        Iterator namespaceIterator = element.getAllDeclaredNamespaces();
+        while (namespaceIterator.hasNext()) {
+            OMNamespace namespace = (OMNamespace) namespaceIterator.next();
+            attributeMap.put(XML_NAMESPACE_PREFIX + namespace.getPrefix(), namespace.getNamespaceURI());
+        }
+        Iterator attributeIterator = element.getAllAttributes();
+        while (attributeIterator.hasNext()) {
+            OMAttribute attribute = (OMAttribute) attributeIterator.next();
+            attributeMap.put(attribute.getLocalName(), attribute.getAttributeValue());
+        }
+        return attributeMap;
+    }
+
+    private static ObjectNode processAttributeAndNamespaces(ObjectNode rootNode,
+            LinkedHashMap<String, String> attributeMap, String attributePrefix, String singleElementValue) {
+        boolean singleElement = false;
+        if (rootNode == null) {
+            rootNode = OBJECT_MAPPER.createObjectNode();
+            singleElement = true;
+        }
+        for (Map.Entry<String, String> entry : attributeMap.entrySet()) {
+            String key = attributePrefix + entry.getKey();
+            String value = entry.getValue();
+            rootNode.put(key, value);
+        }
+        if (singleElement) {
+            rootNode.put(XML_VALUE_TAG, singleElementValue);
+        }
+        return rootNode;
+    }
+
+    private static ArrayNode processTextArray(ArrayList<OMText> childArray) {
+        ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
+        for (OMText element : childArray) {
+            arrayNode.add(element.getText());
+        }
+        return arrayNode;
     }
 
     private static String getElementKey(OMElement omElement, boolean preserveNamespaces) {
@@ -416,108 +514,8 @@ public class XMLUtils {
         return stringBuffer.toString();
     }
 
-    private static void addToRootMap(HashMap<String, ArrayList<JsonNode>> rootMap, String key, JsonNode node) {
+    private static void addToRootMap(LinkedHashMap<String, ArrayList<JsonNode>> rootMap, String key, JsonNode node) {
         rootMap.putIfAbsent(key, new ArrayList<>());
         rootMap.get(key).add(node);
-    }
-
-    private static void processAttributes(ArrayList<OMAttribute> attributeArray, ObjectNode rootNode,
-            String attributePrefix) {
-        int attrCount = attributeArray.size();
-        for (int i = 0; i < attrCount; ++i) {
-            OMAttribute attribute = attributeArray.get(i);
-            String key = attributePrefix + attribute.getLocalName();
-            rootNode.put(key, attribute.getAttributeValue());
-        }
-    }
-
-    private static ArrayList<OMAttribute> collectAttributes(OMElement element) {
-        ArrayList<OMAttribute> attributeArray = new ArrayList<>();
-        Iterator attributeIterator = element.getAllAttributes();
-        while (attributeIterator.hasNext()) {
-            OMAttribute attribute = (OMAttribute) attributeIterator.next();
-            attributeArray.add(attribute);
-        }
-        return attributeArray;
-    }
-
-    private static ArrayList<OMNamespace> collectNamespaces(OMElement element) {
-        ArrayList<OMNamespace> namespaceArray = new ArrayList<>();
-        Iterator namespaceIterator = element.getAllDeclaredNamespaces();
-        while (namespaceIterator.hasNext()) {
-            OMNamespace namespace = (OMNamespace) namespaceIterator.next();
-            namespaceArray.add(namespace);
-        }
-        return namespaceArray;
-    }
-
-    private static void processNamespace(ArrayList<OMNamespace> namespaceArray, ObjectNode rootNode,
-            String attributePrefix) {
-        int attrCount = namespaceArray.size();
-        for (int i = 0; i < attrCount; ++i) {
-            OMNamespace namespace = namespaceArray.get(i);
-            String key = attributePrefix + "xmlns:" + namespace.getPrefix();
-            rootNode.put(key, namespace.getNamespaceURI());
-        }
-    }
-
-    private static ArrayNode processTextArray(ArrayList<OMText> childArray) {
-        ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
-        int elementCount = childArray.size();
-        for (int i = 0; i < elementCount; ++i) {
-            arrayNode.add(childArray.get(i).getText());
-        }
-        return arrayNode;
-    }
-
-    private static void processArray(ObjectNode root, ArrayList<OMElement> childArray, String attributePrefix,
-            boolean preserveNamespaces) {
-        LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
-        for (OMElement element : childArray) {
-            String key = element.getLocalName();
-            rootMap.putIfAbsent(key, new ArrayList<>());
-            rootMap.get(key).add(element);
-        }
-        for (Map.Entry<String, ArrayList<OMElement>> entry : rootMap.entrySet()) {
-            ArrayList<OMElement> elementList = entry.getValue();
-
-            if (elementList.size() > 0) {
-                String nodeKey = getElementKey(elementList.get(0), preserveNamespaces);
-                if (elementList.size() == 1) {
-                    OMElement element = elementList.get(0);
-                    if (element.getChildElements().hasNext()) {
-                        JsonNode node = iterateNode(element, attributePrefix, preserveNamespaces);
-                        root.set(nodeKey, node.get(nodeKey));
-                    } else {
-                        root.put(nodeKey, elementList.get(0).getText());
-                    }
-                } else {
-                    ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
-                    int nodeCount = elementList.size();
-                    for (int i = 0; i < nodeCount; ++i) {
-                        arrayNode.add(elementList.get(i).getText());
-                    }
-                    root.set(nodeKey, arrayNode);
-                }
-            }
-        }
-    }
-
-    private static void processRootElements(ObjectNode root, HashMap<String, ArrayList<JsonNode>> rootMap) {
-        for (Map.Entry<String, ArrayList<JsonNode>> entry : rootMap.entrySet()) {
-            String key = entry.getKey();
-            ArrayList<JsonNode> elementList = entry.getValue();
-            int elementCount = elementList.size();
-            if (elementCount == 1) {
-                root.set(key, elementList.get(0));
-            } else {
-                ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
-                for (int i = 0; i < elementCount; ++i) {
-                    arrayNode.add((elementList.get(i)));
-                }
-                root.set(key, arrayNode);
-            }
-
-        }
     }
 }

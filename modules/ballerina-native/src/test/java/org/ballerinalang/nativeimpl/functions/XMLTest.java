@@ -1046,13 +1046,23 @@ public class XMLTest {
     }
 
     @Test
-    public void testToJson4() {
+    public void testToJsonXMLWithSingleElement() {
         String xmlStr = "<name>Jack</name>";
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Jack\"}");
+    }
+
+    @Test
+    public void testToJsonXMLWithSingleElementAndAttributes() {
+        String xmlStr = "<name test=\"5\">Jack</name>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"@test\":\"5\",\"#text\":\"Jack\"}}");
     }
 
     @Test
@@ -1074,10 +1084,9 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(),
-                "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":"
-                        + "{\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"city\":\"94\","
-                        + "\"country\":\"true\"}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\","
+                + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\",\"country\":\"true\"},"
+                + "\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1123,9 +1132,9 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
                 "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\",\"postalCode\":\"94\","
-                        + "\"isOpen\":\"true\",\"codes\":{\"@quality\":\"b\",\"item\":[\"4\",\"8\",\"9\"]},"
-                        + "\"address\":{\"street\":\"foo\",\"country\":\"true\",\"city\":{\"@code\":\"A\","
-                        + "\"#text\":\"94\"}}}}");
+                        + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"country\":\"true\","
+                        + "\"city\":{\"@code\":\"A\",\"#text\":\"94\"}},\"codes\":{\"@quality\":\"b\","
+                        + "\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1139,9 +1148,9 @@ public class XMLTest {
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"5\","
-                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":{\"@quality\":\"b\","
-                + "\"@type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"country\":\"true\","
-                + "\"city\":{\"@code\":\"A\",\"@reg\":\"C\",\"#text\":\"94\"}}}}");
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"country\":\"true\",\"city\":{\"@code\":\"A\",\"@reg\":\"C\",\"#text\":\"94\"}},"
+                + "\"codes\":{\"@quality\":\"b\",\"@type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1155,9 +1164,9 @@ public class XMLTest {
 
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\",\"#id\":\"5\","
-                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"codes\":{\"#quality\":\"b\","
-                + "\"#type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"street\":\"foo\",\"country\":\"true\","
-                + "\"city\":{\"#code\":\"A\",\"#reg\":\"C\",\"#text\":\"94\"}}}}");
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"country\":\"true\",\"city\":{\"#code\":\"A\",\"#reg\":\"C\",\"#text\":\"94\"}},"
+                + "\"codes\":{\"#quality\":\"b\",\"#type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1215,9 +1224,9 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
                 + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"ns0:storeName\":\"foo\","
                 + "\"ns0:isOpen\":\"true\",\"ns3:postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\","
-                + "\"#text\":\"94\"},\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
-                + "\"ns4:item\":[\"4\",\"8\",\"9\"]},\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
-                + "\"ns2:street\":\"foo\",\"ns2:city\":\"111\",\"ns2:country\":\"true\"}}}");
+                + "\"#text\":\"94\"},\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"ns2:street\":\"foo\",\"ns2:city\":\"111\",\"ns2:country\":\"true\"},"
+                + "\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\",\"ns4:item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1235,10 +1244,10 @@ public class XMLTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
                 + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"storeName\":\"foo\","
-                + "\"isOpen\":\"true\",\"codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
-                + "\"item\":[\"4\",\"8\",\"9\"]},\"address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
-                + "\"street\":\"foo\",\"city\":\"111\",\"country\":\"true\"},"
-                + "\"postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\",\"#text\":\"94\"}}}");
+                + "\"isOpen\":\"true\",\"postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\",\"#text\":\"94\"},"
+                + "\"address\":{\"@xmlns:ns2\":\"http://sample2.com/test\",\"street\":\"foo\",\"city\":\"111\","
+                + "\"country\":\"true\"},\"codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
+                + "\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
