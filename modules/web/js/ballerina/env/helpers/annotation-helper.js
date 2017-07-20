@@ -100,7 +100,7 @@ class AnnotationHelper {
      * @memberof AnnotationHelper
      */
     static getNames(environment, astNode, fullPackageName, allowAnnotationWithNoAttachmentType = true) {
-        const annotationIdentifiers = [];
+        const annotationIdentifiers = new Set();
         const factory = astNode.getFactory();
         let attachmentType = '';
         if (factory.isServiceDefinition(astNode)) {
@@ -124,12 +124,12 @@ class AnnotationHelper {
                 if (packageDefintion.getName() === fullPackageName) {
                     for (const annotationDefinition of packageDefintion.getAnnotationDefinitions()) {
                         if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
-                            annotationIdentifiers.push(annotationDefinition.getName());
+                            annotationIdentifiers.add(annotationDefinition.getName());
                         }
 
                         if (allowAnnotationWithNoAttachmentType &&
                                                             annotationDefinition.getAttachmentPoints().length === 0) {
-                            annotationIdentifiers.push(annotationDefinition.getName());
+                            annotationIdentifiers.add(annotationDefinition.getName());
                         }
                     }
                 }
@@ -137,17 +137,17 @@ class AnnotationHelper {
         } else {
             for (const annotationDefinition of environment.getCurrentPackage().getAnnotationDefinitions()) {
                 if (annotationDefinition.getAttachmentPoints().includes(attachmentType)) {
-                    annotationIdentifiers.push(annotationDefinition.getName());
+                    annotationIdentifiers.add(annotationDefinition.getName());
                 }
 
                 if (allowAnnotationWithNoAttachmentType &&
                     annotationDefinition.getAttachmentPoints().length === 0) {
-                    annotationIdentifiers.push(annotationDefinition.getName());
+                    annotationIdentifiers.add(annotationDefinition.getName());
                 }
             }
         }
 
-        return annotationIdentifiers;
+        return Array.from(annotationIdentifiers);
     }
 
     /**

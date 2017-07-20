@@ -63,6 +63,9 @@ class AnnotationAttributeKey extends React.Component {
         this.setState({
             isInEdit: false,
         });
+        if (this.props.attributeModel.getKey() === undefined) {
+            this.props.attributeModel.getParent().removeChild(this.props.attributeModel);
+        }
     }
 
     /**
