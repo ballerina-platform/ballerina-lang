@@ -84,6 +84,14 @@ class FunctionDefinition extends CallableDefinition {
     }
 
     /**
+     * Get the namespace declaration statements.
+     * @return {ASTNode[]} namespace declaration statements
+     * */
+    getNamespaceDeclarationStatements() {
+        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+    }
+
+    /**
      * Adds new variable declaration.
      */
     addVariableDeclaration(newVariableDeclaration) {
@@ -113,7 +121,7 @@ class FunctionDefinition extends CallableDefinition {
     getArgumentsAsString() {
         let argsString = '';
         this.getArguments().forEach((arg, index) => {
-            if (index !=0 ) {
+            if (index != 0) {
                 argsString += ',';
                 argsString += (arg.whiteSpace.useDefault ? ' ' : arg.getWSRegion(0));
             }
@@ -168,7 +176,7 @@ class FunctionDefinition extends CallableDefinition {
             if (index != 0) {
                 returnTypesString += ',';
                 returnTypesString += (returnType.whiteSpace.useDefault ? ' '
-                                : returnType.getWSRegion(0));
+                    : returnType.getWSRegion(0));
             }
             returnTypesString += returnType.getParameterDefinitionAsString();
         });
@@ -213,7 +221,7 @@ class FunctionDefinition extends CallableDefinition {
             }
         } else if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
             const errorStringWithIdentifiers = 'Return types with identifiers already exists. Remove them to add ' +
-                    'return types without identifiers.';
+                'return types without identifiers.';
             log.error(errorStringWithIdentifiers);
             throw errorStringWithIdentifiers;
         }
@@ -230,7 +238,7 @@ class FunctionDefinition extends CallableDefinition {
             // if there are no return types in the return type model
             return false;
         }
-            // check if any of the return types have identifiers
+        // check if any of the return types have identifiers
         const indexWithoutIdentifiers = _.findIndex(this.getReturnParameterDefinitionHolder().getChildren(), (child) => {
             return _.isUndefined(child.getName());
         });
@@ -296,7 +304,7 @@ class FunctionDefinition extends CallableDefinition {
     addChild(child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId) {
         if (BallerinaASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype)
-              .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
+                .addChild.call(this, child, undefined, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         } else {
             const firstWorkerIndex = _.findIndex(this.getChildren(), (child) => {
                 return BallerinaASTFactory.isWorkerDeclaration(child);
@@ -306,7 +314,7 @@ class FunctionDefinition extends CallableDefinition {
                 index = firstWorkerIndex;
             }
             Object.getPrototypeOf(this.constructor.prototype)
-              .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
+                .addChild.call(this, child, index, ignoreTreeModifiedEvent, ignoreChildAddedEvent, generateId);
         }
     }
 

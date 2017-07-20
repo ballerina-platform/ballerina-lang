@@ -106,6 +106,14 @@ class ConnectorAction extends ASTNode {
     }
 
     /**
+     * Get the namespace declaration statements.
+     * @return {ASTNode[]} namespace declaration statements
+     * */
+    getNamespaceDeclarationStatements() {
+        return this.filterChildren(this.getFactory().isNamespaceDeclarationStatement).slice(0);
+    }
+
+    /**
      * Remove variable declaration.
      * @param {string} variableDeclarationIdentifier - variable declaration's identofier
      */
