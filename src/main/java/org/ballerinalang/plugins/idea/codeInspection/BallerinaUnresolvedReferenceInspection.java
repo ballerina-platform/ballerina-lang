@@ -32,6 +32,7 @@ import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorReferenceNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReferenceNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
@@ -166,6 +167,26 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 continue;
             }
             IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(actionInvocationNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                continue;
+            }
+            PsiReference reference = identifier.getReference();
+            if (reference == null || reference.resolve() == null) {
+                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
+                        identifier, availableFixes);
+                problemDescriptors.add(problemDescriptor);
+            }
+        }
+
+        Collection<FunctionReferenceNode> functionReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
+                FunctionReferenceNode.class);
+        for (FunctionReferenceNode functionReferenceNode : functionReferenceNodes) {
+            ProgressManager.checkCanceled();
+            if (functionReferenceNode == null) {
+                continue;
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(functionReferenceNode, IdentifierPSINode.class);
             if (identifier == null) {
                 continue;
             }
