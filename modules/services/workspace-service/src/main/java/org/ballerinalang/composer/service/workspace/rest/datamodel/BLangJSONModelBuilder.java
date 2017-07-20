@@ -112,6 +112,8 @@ import org.ballerinalang.model.values.BValue;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -223,6 +225,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
 
         if (service.getAnnotations() != null) {
+            sortAnnotationList(service.getAnnotations());
             for (AnnotationAttachment annotation : service.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -256,6 +259,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
 
         if (connector.getAnnotations() != null) {
+            sortAnnotationList(connector.getAnnotations());
             for (AnnotationAttachment annotation : connector.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -348,6 +352,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
 
         if (function.getAnnotations() != null) {
+            sortAnnotationList(function.getAnnotations());
             for (AnnotationAttachment annotation : function.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -416,6 +421,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
 
         if (typeMapper.getAnnotations() != null) {
+            sortAnnotationList(typeMapper.getAnnotations());
             for (AnnotationAttachment annotation : typeMapper.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -442,6 +448,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
                 this.tempJsonArrayRef.push(new JsonArray());
                 if (parameterDef.getAnnotations() != null) {
+                    sortAnnotationList(typeMapper.getAnnotations());
                     for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                         annotation.accept(this);
                     }
@@ -467,6 +474,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
 
         if (action.getAnnotations() != null) {
+            sortAnnotationList(action.getAnnotations());
             for (AnnotationAttachment annotation : action.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -570,7 +578,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(jsonAnnotation, annotationAttachment.getWhiteSpaceDescriptor());
 
         tempJsonArrayRef.push(new JsonArray());
-        annotationAttachment.getAttributeNameValuePairs().entrySet().forEach(this::visitAnnotationAttribute);
+        // sort the attribute map according to source positions
+        Stream<Map.Entry<String, AnnotationAttributeValue>> sortedAttributes =
+                annotationAttachment.getAttributeNameValuePairs().entrySet()
+                        .stream()
+                        .sorted(Map.Entry.comparingByValue((o1, o2) ->
+                                    compareNodeLocations(o1.getNodeLocation(), o2.getNodeLocation())));
+        sortedAttributes.collect(Collectors.toList()).forEach(this::visitAnnotationAttribute);
         jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
 
@@ -662,6 +676,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(paramObj, parameterDef.getWhiteSpaceDescriptor());
         this.tempJsonArrayRef.push(new JsonArray());
         if (parameterDef.getAnnotations() != null) {
+            sortAnnotationList(parameterDef.getAnnotations());
             for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -1829,6 +1844,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
 
         if (ballerinaStruct.getAnnotations() != null) {
+            sortAnnotationList(ballerinaStruct.getAnnotations());
             for (AnnotationAttachment annotation : ballerinaStruct.getAnnotations()) {
                 annotation.accept(this);
             }
@@ -1882,6 +1898,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
         tempJsonArrayRef.push(new JsonArray());
         if (annotationDef.getAnnotations() != null) {
+            sortAnnotationList(annotationDef.getAnnotations());
             for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
                 annotationAttachment.accept(this);
             }
@@ -2004,6 +2021,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             wsDescriptor.add(BLangJSONModelConstants.CHILD_DESCRIPTORS, children);
         }
         return wsDescriptor;
+    }
+
+    private void sortAnnotationList(AnnotationAttachment[] annotations) {
+        Arrays.sort(annotations, (o1, o2) -> compareNodeLocations(o1.getNodeLocation(), o2.getNodeLocation()));
+    }
+
+    private int compareNodeLocations(NodeLocation l1, NodeLocation l2) {
+        if (l1.getLineNumber() == l2.getLineNumber()) {
+            return Integer.compare(l1.startColumn, l2.startColumn);
+        } else {
+            return Integer.compare(l1.getLineNumber(), l2.getLineNumber());
+        }
     }
 
     @Override
