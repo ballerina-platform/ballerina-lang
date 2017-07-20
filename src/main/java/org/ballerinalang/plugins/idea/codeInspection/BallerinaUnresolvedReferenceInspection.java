@@ -28,6 +28,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.FileTypeUtils;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttributeNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -103,6 +104,26 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 continue;
             }
             IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(nameReferenceNode, IdentifierPSINode.class);
+            if (identifier == null) {
+                continue;
+            }
+            PsiReference reference = identifier.getReference();
+            if (reference == null || reference.resolve() == null) {
+                String description = "Unresolved reference " + "'" + identifier.getText() + "'";
+                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, description,
+                        identifier, availableFixes);
+                problemDescriptors.add(problemDescriptor);
+            }
+        }
+
+        Collection<AnnotationAttributeNode> annotationAttributeNodes = PsiTreeUtil.findChildrenOfType(file,
+                AnnotationAttributeNode.class);
+        for (AnnotationAttributeNode annotationAttributeNode : annotationAttributeNodes) {
+            ProgressManager.checkCanceled();
+            if (annotationAttributeNode == null) {
+                continue;
+            }
+            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(annotationAttributeNode, IdentifierPSINode.class);
             if (identifier == null) {
                 continue;
             }
