@@ -91,6 +91,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.SourceNotationNode;
 import org.ballerinalang.plugins.idea.psi.TypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.StructBodyNode;
@@ -370,6 +371,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new XmlAttribNode(node);
             case BallerinaParser.RULE_namespaceDeclaration:
                 return new NamespaceDeclarationNode(node);
+            case BallerinaParser.RULE_sourceNotation:
+                return new SourceNotationNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

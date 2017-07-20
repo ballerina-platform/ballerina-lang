@@ -35,24 +35,17 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.documentation.BallerinaDocumentationProvider;
-import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class BallerinaCompletionUtils {
 
@@ -546,132 +539,6 @@ public class BallerinaCompletionUtils {
         return lookupElements;
     }
 
-    /**
-     * Helper method to add packages as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      file which will be used to get imported packages
-     */
-    private static void addAllImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file,
-                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
-        String typeText = "package";
-        Collection<ImportDeclarationNode> importDeclarationNodes = PsiTreeUtil.findChildrenOfType(file,
-                ImportDeclarationNode.class);
-        for (ImportDeclarationNode importDeclarationNode : importDeclarationNodes) {
-            PsiElement packageNameNode;
-            String packagePath;
-            FullyQualifiedPackageNameNode fullyQualifiedPackageNameNode = PsiTreeUtil.getChildOfType
-                    (importDeclarationNode, FullyQualifiedPackageNameNode.class);
-            if (fullyQualifiedPackageNameNode == null) {
-                continue;
-            }
-            packagePath = fullyQualifiedPackageNameNode.getText();
-
-            // We need to get all package name nodes from the package path node.
-            List<PackageNameNode> packageNameNodes = new ArrayList<>(
-                    PsiTreeUtil.findChildrenOfType(fullyQualifiedPackageNameNode, PackageNameNode.class)
-            );
-            if (packageNameNodes.isEmpty()) {
-                continue;
-            }
-            packageNameNode = packageNameNodes.get(packageNameNodes.size() - 1);
-
-            AliasNode aliasNode = PsiTreeUtil.findChildOfType(importDeclarationNode, AliasNode.class);
-            LookupElementBuilder builder;
-            if (aliasNode != null) {
-                builder = LookupElementBuilder.create(aliasNode.getText());
-                resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
-            } else {
-                builder = LookupElementBuilder.create(packageNameNode.getText());
-            }
-            builder = builder.withTailText("(" + packagePath + ")", true)
-                    .withTypeText(typeText).withIcon(BallerinaIcons.PACKAGE)
-                    .withInsertHandler(insertHandler);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY));
-
-        }
-    }
-
-    private static void addAllUnImportedPackagesAsLookups(@NotNull CompletionResultSet resultSet,
-                                                          @NotNull PsiFile file,
-                                                          @Nullable InsertHandler<LookupElement> insertHandler) {
-        // Get all imported packages in the current file.
-        Map<String, String> importsMap = BallerinaPsiImplUtil.getAllImportsInAFile(file);
-        // Get all packages in the resolvable scopes (project and libraries).
-        List<PsiDirectory> directories = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(file.getProject());
-        // Iterate through all available  packages.
-        for (PsiDirectory directory : directories) {
-            if (insertHandler == null) {
-                // Set the default insert handler to auto popup insert handler.
-                insertHandler = AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-            }
-            // Suggest a package name for the directory.
-            // Eg: ballerina/lang/system -> ballerina.lang.system
-            String suggestedImportPath = BallerinaUtil.suggestPackageNameForDirectory(directory);
-            // There are two possibilities.
-            //
-            // 1) The package is already imported.
-            //
-            //    import ballerina.lang.system;
-            //    In this case, map will contain "system -> ballerina.lang.system". So we need to check whether the
-            //    directory name (as an example "system") is a key in the map.
-            //
-            // 2) The package is already imported using an alias.
-            //
-            //    import ballerina.lang.system as builtin;
-            //    In this case, map will contain "builtin -> ballerina.lang.system". So we need to check whether the
-            //    suggested import path (as an example "ballerina.lang.system") is already in the map as a value.
-
-            // Check whether the package is already in the imports.
-            if (importsMap.containsKey(directory.getName())) {
-                // Even though the package name is in imports, the name might be an alias.
-                // Eg: import org.tools as system;
-                //     In this case, map will contain "system -> org.tools". So when we type "sys", matching package
-                //     will be "ballerina.lang.system". Directory name is "system" which matches the "system" in
-                //     imports, but the paths are different.
-                //
-                // If the paths are same, we will not add it as a lookup since the {@code
-                // addAllImportedPackagesAsLookups} will add it as a lookup.
-                String packagePath = importsMap.get(directory.getName());
-                if (packagePath.equals(suggestedImportPath) || importsMap.containsValue(suggestedImportPath)) {
-                    // Condition importsMap.containsValue(suggestedImportPath) can happen when both package and
-                    // alias is available.
-                    // Eg: import ballerina.lang.system;
-                    //     import org.system as mySystem;
-                    // Now when we type "system", both above imports will be lookups if we don't continue here.
-                    continue;
-                }
-                // If the paths does not match, that means the package is already imported as a alias, so we need to
-                // get an alias for the package which we are trying to import.
-                //
-                // Eg: import org.tools as system;
-                //     import ballerina.lang.system as builtin;
-                insertHandler = AutoImportInsertHandler.INSTANCE_WITH_ALIAS;
-            } else if (importsMap.containsValue(suggestedImportPath)) {
-                // This means we have already imported this package. This will be suggested by {@code
-                // addAllImportedPackagesAsLookups}. So no need to add it as a lookup element.
-                continue;
-            }
-            // Add the package as a lookup.
-            LookupElementBuilder builder = LookupElementBuilder.create(directory)
-                    .withTailText("(" + suggestedImportPath + ")", true)
-                    .withTypeText("Package").withIcon(BallerinaIcons.PACKAGE)
-                    .withInsertHandler(insertHandler);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, UNIMPORTED_PACKAGE_PRIORITY));
-        }
-    }
-
-    /**
-     * Helper method to add functions as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      file which is currently being edited
-     */
-    private static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> functions = BallerinaPsiImplUtil.getAllFunctionsFromPackage(file.getContainingDirectory());
-        addFunctionsAsLookups(resultSet, functions);
-    }
-
     @NotNull
     public static LookupElement createFunctionsLookupElement(@NotNull PsiElement element,
                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
@@ -726,48 +593,6 @@ public class BallerinaCompletionUtils {
         return PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY);
     }
 
-    /**
-     * Helper method to add functions as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param functions list of functions which needs to be added
-     */
-    static void addFunctionsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> functions) {
-        for (PsiElement function : functions) {
-            LookupElementBuilder builder = LookupElementBuilder.create(function.getText())
-                    .withTypeText("Function").withIcon(BallerinaIcons.FUNCTION).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(function.getParent()))
-                    .withInsertHandler(ParenthesisInsertHandler.INSTANCE);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, FUNCTION_PRIORITY));
-        }
-    }
-
-    /**
-     * Helper method to add connectors as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      original file which we are editing
-     */
-    private static void addConnectorsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> connectors = BallerinaPsiImplUtil.getAllConnectorsInCurrentPackage(file);
-        addConnectorsAsLookups(resultSet, connectors);
-    }
-
-    /**
-     * Helper method to add connections as lookup elements.
-     *
-     * @param resultSet  result list which is used to add lookups
-     * @param connectors list of connectors which needs to be added
-     */
-    static void addConnectorsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> connectors) {
-        for (PsiElement connector : connectors) {
-            LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                    .withTypeText("Connector").withIcon(BallerinaIcons.CONNECTOR).bold()
-                    .withTailText(BallerinaDocumentationProvider.getParameterString(connector.getParent(), true));
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
-        }
-    }
-
     @NotNull
     public static LookupElement createConnectorLookupElement(@NotNull PsiElement element,
                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
@@ -801,31 +626,6 @@ public class BallerinaCompletionUtils {
             lookupElements.add(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
         return lookupElements;
-    }
-
-    /**
-     * Helper method to add structs as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param file      file which will be used to get structs
-     */
-    private static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file) {
-        List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(file);
-        addStructsAsLookups(resultSet, structs);
-    }
-
-    /**
-     * Helper method to add structs as lookup elements.
-     *
-     * @param resultSet result list which is used to add lookups
-     * @param structs   list of structs which needs to be added
-     */
-    static void addStructsAsLookups(@NotNull CompletionResultSet resultSet, List<PsiElement> structs) {
-        for (PsiElement struct : structs) {
-            LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
-                    .withTypeText("Struct").withIcon(BallerinaIcons.STRUCT);
-            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
-        }
     }
 
     @NotNull
@@ -928,34 +728,6 @@ public class BallerinaCompletionUtils {
             lookupElements.add(lookupElement);
         }
         return lookupElements;
-    }
-
-    static void addLookups(@NotNull CompletionResultSet resultSet, @NotNull PsiFile file, boolean withPackages,
-                           boolean withFunctions, boolean withConnectors, boolean withStructs,
-                           InsertHandler... insertHandlers) {
-        if (withPackages) {
-            InsertHandler insertHandler = PackageCompletionInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-            if (insertHandlers.length >= 1) {
-                insertHandler = insertHandlers[0];
-            }
-            addAllImportedPackagesAsLookups(resultSet, file, insertHandler);
-
-            // We provide a way to change the default insert handler for auto insert as well.
-            insertHandler = AutoImportInsertHandler.INSTANCE_WITH_AUTO_POPUP;
-            if (insertHandlers.length >= 2) {
-                insertHandler = insertHandlers[1];
-            }
-            addAllUnImportedPackagesAsLookups(resultSet, file, insertHandler);
-        }
-        if (withFunctions) {
-            addFunctionsAsLookups(resultSet, file);
-        }
-        if (withConnectors) {
-            addConnectorsAsLookups(resultSet, file);
-        }
-        if (withStructs) {
-            addStructsAsLookups(resultSet, file);
-        }
     }
 
     @NotNull

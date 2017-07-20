@@ -28,8 +28,8 @@
 
     <template name="ser" value="$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ {&#10;    $END$&#10;}"
               description="Service Template" toReformat="false" toShortenFQNames="false">
-        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <context>
             <option name="BALLERINA_FILE" value="true"/>
