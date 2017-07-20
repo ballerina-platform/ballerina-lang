@@ -18,8 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.uri.parser;
 
-
-
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 
 import java.io.UnsupportedEncodingException;
@@ -28,6 +26,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Expression represents a expression path segment in uri.
+ */
 public abstract class Expression extends Node {
 
     protected List<Variable> variableList = new ArrayList<Variable>(4);

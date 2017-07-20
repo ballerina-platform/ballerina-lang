@@ -116,7 +116,12 @@ public enum SemanticErrors {
     INVALID_ACTION_INVOCATION("invalid.action.invocation", "SEMANTIC_0092"),
     INCORRECT_ACTION_INVOCATION("incorrect.action.invocation", "SEMANTIC_0093"),
     INVALID_VAR_ASSIGNMENT("invalid.var.assignment", "SEMANTIC_0094"),
-    INVALID_SERVICE_PROTOCOL("invalid.service.protocol", "SEMANTIC_0095")
+    CANNOT_CONVERT_WITH_SUGGESTION("cannot.convert.with.suggestion", "SEMANTIC_0095"),
+    CANNOT_CAST_WITH_SUGGESTION("cannot.cast.with.suggestion", "SEMANTIC_0096"),
+    NO_NEW_VARIABLES_VAR_ASSIGNMENT("no.new.variables.var.assignment", "SEMANTIC_0097"),
+    XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
+    XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
+    UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
     ;
 
     private String errorMsgKey;

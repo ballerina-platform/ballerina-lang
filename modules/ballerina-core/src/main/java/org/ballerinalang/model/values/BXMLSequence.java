@@ -115,45 +115,55 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public BString getAttribute(String namespace, String localName) {
+    public String getAttribute(String localName, String namespace) {
         if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).getAttribute(namespace, localName);
-        }
-        throw new BallerinaException("cannot get atribute from a xml " + XMLNodeType.SEQUENCE.value());
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BString getAttribute(String namespace, String prefix, String localName) {
-        if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).getAttribute(namespace, prefix, localName);
-        }
-        throw new BallerinaException("cannot get atribute from a xml " + XMLNodeType.SEQUENCE.value());
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAttribute(String namespace, String prefix, String localName, String value) {
-        if (sequence.size() == 1) {
-            ((BXMLItem) sequence.get(0)).setAttribute(namespace, prefix, localName, value);
+            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace);
         }
         
-        throw new BallerinaException("cannot set atribute to a xml " + XMLNodeType.SEQUENCE.value());
+        return ZERO_STRING_VALUE;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAttribute(String localName, String namespace, String prefix) {
+        if (sequence.size() == 1) {
+            return ((BXMLItem) sequence.get(0)).getAttribute(localName, namespace, prefix);
+        }
+        
+        return ZERO_STRING_VALUE;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAttribute(String localName, String namespace, String prefix, String value) {
+        if (sequence.size() == 1) {
+            ((BXMLItem) sequence.get(0)).setAttribute(localName, namespace, prefix, value);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BMap<?, ?> getAttributes() {
-        // TODO: need to figure out a way to maintain the reference
-        return null;
+    public BMap<?, ?> getAttributesMap() {
+        if (sequence.size() == 1) {
+            return ((BXMLItem) sequence.get(0)).getAttributesMap();
+        }
+        
+        return BTypes.typeMap.getEmptyValue();
     }
 
+    @Override
+    public void setAttributes(BMap<String, ?> attributes) {
+        if (sequence.size() == 1) {
+            ((BXMLItem) sequence.get(0)).setAttributes(attributes);
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -244,14 +254,6 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
         }
         
         ((BXMLItem) sequence.get(0)).setChildren(seq);
-    }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAttribute(BMap<BString, ?> attributes) {
     }
     
     /**

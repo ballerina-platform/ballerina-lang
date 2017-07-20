@@ -6,7 +6,7 @@ grammar Ballerina;
 // starting point for parsing a bal file
 compilationUnit
     :   packageDeclaration?
-        importDeclaration*
+        (importDeclaration | namespaceDeclaration)*
         (annotationAttachment* definition)*
         EOF
     ;
@@ -119,7 +119,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' valueTypeName Identifier '=' simpleLiteral ';'
+    :   'const' valueTypeName Identifier '=' expression ';'
     ;
 
 workerDeclaration
@@ -212,6 +212,7 @@ statement
     |   transformStatement
     |   transactionStatement
     |   abortStatement
+    |   namespaceDeclarationStatement
     ;
 
 transformStatement
@@ -380,7 +381,7 @@ index
     ;
 
 xmlAttrib
-    : '@[' expression ']'
+    : '@' ('[' expression ']')?
     ;
 
 expressionList
@@ -418,6 +419,14 @@ abortStatement
 
 actionInvocation
     :   nameReference '.' Identifier '(' expressionList? ')'
+    ;
+
+namespaceDeclarationStatement
+    :   namespaceDeclaration
+    ;
+
+namespaceDeclaration
+    :   'xmlns' QuotedStringLiteral ('as' Identifier)? ';'
     ;
 
 backtickString
