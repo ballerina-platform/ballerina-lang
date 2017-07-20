@@ -542,7 +542,7 @@ BallerinaASTFactory.createResourceParameter = function (args) {
  * @param args
  * @returns {StructType}
  */
-BallerinaASTFactory.createStructType = function (args) {
+BallerinaASTFactory.createStructType= function (args) {
     return new structType(args);
 };
 
@@ -1033,6 +1033,24 @@ BallerinaASTFactory.isConnectorDeclaration = function (child) {
  */
 BallerinaASTFactory.isExpression = function (child) {
     return child instanceof expression;
+};
+
+/**
+ * instanceof check for KeyValueExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isKeyValueExpression= function (child) {
+    return child instanceof keyValueExpression;
+};
+
+/**
+ * instanceof check for ReferenceTypeInitExpression
+ * @param child - Object for instanceof check
+ * @returns {boolean} - true if same type, else false
+ */
+BallerinaASTFactory.isReferenceTypeInitExpression = function (child) {
+    return child instanceof referenceTypeInitExpression;
 };
 
 /**
