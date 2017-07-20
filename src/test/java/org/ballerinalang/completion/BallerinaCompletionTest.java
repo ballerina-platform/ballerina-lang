@@ -1239,10 +1239,12 @@ public class BallerinaCompletionTest extends BallerinaCompletionTestBase {
     }
 
     public void testServiceSourceNotation() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doTest("import org.test; service<<caret>> S {}", "test");
     }
 
     public void testServiceSourceNotationAutoCompletion() {
+        myFixture.addFileToProject("org/test/file.bal", "string s = \"\";");
         doCheckResult("test.bal", "import org.test; service<t<caret>> S {}",
                 "import org.test; service<test> S {}", null);
     }
