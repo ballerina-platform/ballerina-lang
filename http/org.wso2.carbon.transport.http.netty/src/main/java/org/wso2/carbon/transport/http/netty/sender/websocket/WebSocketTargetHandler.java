@@ -66,16 +66,19 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
     private final String requestedUri;
     private final WebSocketSourceHandler sourceHandler;
     private final CarbonMessageProcessor carbonMessageProcessor;
+    private final String clientServiceName;
     private WebSocketSessionImpl clientSession;
     private ChannelPromise handshakeFuture;
     private CarbonMessage cMsg;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, WebSocketSourceHandler sourceHandler,
-                                  boolean isSecure, String requestedUri, CarbonMessageProcessor messageProcessor) {
+                                  boolean isSecure, String requestedUri, String clientServiceName,
+                                  CarbonMessageProcessor messageProcessor) {
         this.handshaker = handshaker;
         this.sourceHandler = sourceHandler;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
+        this.clientServiceName = clientServiceName;
         this.carbonMessageProcessor = messageProcessor;
         cMsg = null;
         handshakeFuture = null;
@@ -188,9 +191,10 @@ public class WebSocketTargetHandler extends SimpleChannelInboundHandler<Object> 
                          ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
+        cMsg.setProperty(Constants.REMOTE_ADDRESS, requestedUri);
         cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
+        cMsg.setProperty(Constants.TO, clientServiceName);
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
         cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, false);
         if (sourceHandler != null) {

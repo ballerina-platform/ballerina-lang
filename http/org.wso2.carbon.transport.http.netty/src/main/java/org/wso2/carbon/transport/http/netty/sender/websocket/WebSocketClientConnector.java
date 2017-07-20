@@ -75,7 +75,8 @@ public class WebSocketClientConnector implements ClientConnector {
     }
 
     private Session handleHandshake(CarbonMessage carbonMessage) throws ClientConnectorException {
-        String url = (String) carbonMessage.getProperty(Constants.TO);
+        String url = (String) carbonMessage.getProperty(Constants.REMOTE_ADDRESS);
+        String clientServiceName = (String) carbonMessage.getProperty(Constants.TO);
         WebSocketSourceHandler sourceHandler =
                 (WebSocketSourceHandler) carbonMessage.getProperty(Constants.SRC_HANDLER);
         String subprotocols = (String) carbonMessage.getProperty(Constants.WEBSOCKET_SUBPROTOCOLS);
@@ -84,7 +85,7 @@ public class WebSocketClientConnector implements ClientConnector {
             allowExtensions = true;
         }
         Headers headers = carbonMessage.getHeaders();
-        WebSocketClient webSocketClient = new WebSocketClient(url, subprotocols, allowExtensions,
+        WebSocketClient webSocketClient = new WebSocketClient(url, clientServiceName, subprotocols, allowExtensions,
                                                               headers, sourceHandler, messageProcessor);
         try {
             webSocketClient.handshake();

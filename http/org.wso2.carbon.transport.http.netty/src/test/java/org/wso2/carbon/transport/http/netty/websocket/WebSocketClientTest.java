@@ -134,7 +134,8 @@ public class WebSocketClientTest {
     private Session handshake() throws ClientConnectorException {
         ControlCarbonMessage controlCarbonMessage = new ControlCarbonMessage(
                 org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_OPEN);
-        controlCarbonMessage.setProperty(Constants.TO, url);
+        controlCarbonMessage.setProperty(Constants.REMOTE_ADDRESS, url);
+        controlCarbonMessage.setProperty(Constants.TO, "clientService");
         return (Session) clientConnector.init(controlCarbonMessage, null, null);
     }
 

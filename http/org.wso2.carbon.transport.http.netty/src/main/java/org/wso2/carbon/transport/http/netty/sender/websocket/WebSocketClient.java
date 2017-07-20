@@ -63,6 +63,7 @@ public class WebSocketClient {
 
     private final String url;
     private final String subprotocol;
+    private final String clientServiceName;
     private final boolean allowExtensions;
     private final Headers headers;
     private final WebSocketSourceHandler sourceHandler;
@@ -74,10 +75,11 @@ public class WebSocketClient {
      * @param allowExtensions true is extensions are allowed.
      * @param headers any specific headers which need to send to the server.
      */
-    public WebSocketClient(String url, String subprotocol, boolean allowExtensions,
+    public WebSocketClient(String url, String clientServiceName, String subprotocol, boolean allowExtensions,
                            Headers headers, WebSocketSourceHandler sourceHandler,
                            CarbonMessageProcessor messageProcessor) {
         this.url = url;
+        this.clientServiceName = clientServiceName;
         this.subprotocol = subprotocol;
         this.allowExtensions = allowExtensions;
         this.headers = headers;
@@ -133,7 +135,8 @@ public class WebSocketClient {
 
         WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                 uri, WebSocketVersion.V13, subprotocol, allowExtensions, httpHeaders);
-        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, messageProcessor);
+        handler = new WebSocketTargetHandler(websocketHandshaker, sourceHandler, ssl, url, clientServiceName,
+                                             messageProcessor);
 
         Bootstrap b = new Bootstrap();
         b.group(group)
