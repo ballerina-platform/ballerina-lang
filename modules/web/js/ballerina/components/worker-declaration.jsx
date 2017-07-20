@@ -21,6 +21,7 @@ import LifeLine from './lifeline.jsx';
 import { getComponentForNodeArray } from './utils';
 import StatementContainer from './statement-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
+import { util } from './../visitors/sizing-utils';
 
 class WorkerDeclaration extends React.Component {
 
@@ -57,9 +58,13 @@ class WorkerDeclaration extends React.Component {
         return (<g>
             <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox} />
             <LifeLine
-                title={this.props.model.getWorkerName()} bBox={workerBBox}
-                editorOptions={this.editorOptions} model={this.props.model}
-                onDelete={this.onDelete.bind(this)} classes={classes}
+                title={util.getTextWidth(this.props.model.getWorkerName(), 0, DesignerDefaults.lifeLine.width).text}
+                bBox={workerBBox}
+                editorOptions={this.editorOptions}
+                model={this.props.model}
+                onDelete={this.onDelete.bind(this)}
+                classes={classes}
+                tooltip={this.props.model.getWorkerName()}
             />
             {children}
         </g>
