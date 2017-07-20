@@ -70,6 +70,7 @@ class AnnotationAttribute extends React.Component {
         this.onBValueChange = this.onBValueChange.bind(this);
         this.onBValueEdit = this.onBValueEdit.bind(this);
         this.onBValueEditFinished = this.onBValueEditFinished.bind(this);
+        this.onBValueKeyPress = this.onBValueKeyPress.bind(this);
     }
 
     /**
@@ -124,6 +125,19 @@ class AnnotationAttribute extends React.Component {
         });
 
         this.props.model.getViewState().isInEdit = true;
+    }
+
+    onBValueKeyPress(event) {
+        if (event.keyCode === 13 || event.which === 13) {
+            this.setState({
+                isBValueEdit: false,
+                focusBValueInput: false,
+            });
+            this.props.model.getViewState().isInEdit = false;
+            const attributeValue = this.props.model.getValue();
+            const bValue = attributeValue.getChildren()[0];
+            bValue.setStringValue(event.target.value);
+        }
     }
 
     /**
@@ -251,6 +265,7 @@ class AnnotationAttribute extends React.Component {
                                     value={this.state.bValueText}
                                     onChange={this.onBValueChange}
                                     onBlur={this.onBValueEditFinished}
+                                    onKeyPress={this.onBValueKeyPress}
                                 />
                             </span>
                             <PopoutButton buttons={buttons} />
