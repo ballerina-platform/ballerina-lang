@@ -16,7 +16,6 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
@@ -36,7 +35,8 @@ public class WorkerInfo implements AttributeInfoPool {
     private String workerName;
     private int workerNameCPIndex;
 
-    private WorkerDataChannel workerDataChannelForForkJoin;
+    private int wrkrDtChnlRefCPIndex = -1;
+    private WorkerDataChannelInfo workerDataChannelInfoForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
 
@@ -82,12 +82,20 @@ public class WorkerInfo implements AttributeInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    public WorkerDataChannel getWorkerDataChannelForForkJoin() {
-        return workerDataChannelForForkJoin;
+    public int getWrkrDtChnlRefCPIndex() {
+        return wrkrDtChnlRefCPIndex;
     }
 
-    public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
-        this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
+    public void setWrkrDtChnlRefCPIndex(int wrkrDtChnlRefCPIndex) {
+        this.wrkrDtChnlRefCPIndex = wrkrDtChnlRefCPIndex;
+    }
+
+    public WorkerDataChannelInfo getWorkerDataChannelInfoForForkJoin() {
+        return workerDataChannelInfoForForkJoin;
+    }
+
+    public void setWorkerDataChannelInfoForForkJoin(WorkerDataChannelInfo workerDataChannelInfoForForkJoin) {
+        this.workerDataChannelInfoForForkJoin = workerDataChannelInfoForForkJoin;
     }
 
     public ForkjoinInfo[] getForkjoinInfos() {

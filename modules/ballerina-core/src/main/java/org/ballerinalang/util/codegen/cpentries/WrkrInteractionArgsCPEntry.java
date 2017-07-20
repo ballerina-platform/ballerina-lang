@@ -20,54 +20,53 @@ package org.ballerinalang.util.codegen.cpentries;
 import org.ballerinalang.model.types.BType;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * {@code WorkerReplyCPEntry} represents a Ballerina worker reply in the constant pool.
+ * {@code WrkrInteractionArgsCPEntry} represents a Ballerina worker interaction arguments CP entry.
  *
  * @since 0.90
  */
-public class WorkerReplyCPEntry implements ConstantPoolEntry {
-    BType[] bTypes;
+public class WrkrInteractionArgsCPEntry implements ConstantPoolEntry {
+    private int typesSignatureCPIndex;
+    private BType[] bTypes;
     // Registers which contains worker incoming arguments
     private int[] argRegs;
 
-    // Registers to which return  values to be copied
-    private int[] retRegs;
-
-    public WorkerReplyCPEntry(int[] argRegs, int[] retRegs, BType[] bTypes) {
+    public WrkrInteractionArgsCPEntry(int[] argRegs, BType[] btypes) {
         this.argRegs = argRegs;
-        this.retRegs = retRegs;
-        this.bTypes = bTypes;
+        this.bTypes = btypes;
     }
 
     public int[] getArgRegs() {
         return argRegs;
     }
 
-    public int[] getRetRegs() {
-        return retRegs;
-    }
-
-
-    public BType[] getTypes() {
+    public BType[] getbTypes() {
         return bTypes;
     }
 
-    public ConstantPoolEntry.EntryType getEntryType() {
-        return EntryType.CP_ENTRY_WORKER_REPLY;
+    public int getTypesSignatureCPIndex() {
+        return typesSignatureCPIndex;
+    }
+
+    public void setTypesSignatureCPIndex(int typesSignatureCPIndex) {
+        this.typesSignatureCPIndex = typesSignatureCPIndex;
+    }
+
+    public EntryType getEntryType() {
+        return EntryType.CP_ENTRY_WORKER_INTERACTION;
     }
 
     @Override
     public int hashCode() {
-        int[] combined = new int[argRegs.length + retRegs.length];
-        System.arraycopy(argRegs, 0, combined, 0, argRegs.length);
-        System.arraycopy(retRegs, 0, combined, argRegs.length, retRegs.length);
-        return Arrays.hashCode(combined);
+        return Objects.hash(bTypes, argRegs);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof WorkerReplyCPEntry && Arrays.equals(argRegs, ((WorkerReplyCPEntry) obj).argRegs)
-                && Arrays.equals(retRegs, ((WorkerReplyCPEntry) obj).retRegs);
+        return obj instanceof WrkrInteractionArgsCPEntry
+                && Arrays.equals(argRegs, ((WrkrInteractionArgsCPEntry) obj).argRegs)
+                && Arrays.equals(bTypes, ((WrkrInteractionArgsCPEntry) obj).bTypes);
     }
 }

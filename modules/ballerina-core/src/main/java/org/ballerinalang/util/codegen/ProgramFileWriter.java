@@ -36,7 +36,8 @@ import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,6 +46,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Dump Ballerina program model to a file.
@@ -157,14 +159,18 @@ public class ProgramFileWriter {
                     ForkJoinCPEntry forkJoinCPEntry = (ForkJoinCPEntry) cpEntry;
                     dataOutStream.writeInt(forkJoinCPEntry.getForkJoinCPIndex());
                     break;
-                case CP_ENTRY_WORKER_INVOKE:
-                    WorkerInvokeCPEntry workerInvokeCPEntry = (WorkerInvokeCPEntry) cpEntry;
+                case CP_ENTRY_WORKER_INTERACTION:
+                    WrkrInteractionArgsCPEntry workerInvokeCPEntry = (WrkrInteractionArgsCPEntry) cpEntry;
                     dataOutStream.writeInt(workerInvokeCPEntry.getTypesSignatureCPIndex());
                     int[] workerInvokeArgRegs = workerInvokeCPEntry.getArgRegs();
                     dataOutStream.writeByte(workerInvokeArgRegs.length);
                     for (int argReg : workerInvokeArgRegs) {
                         dataOutStream.writeInt(argReg);
                     }
+                    break;
+                case CP_ENTRY_WORKER_DATA_CHANNEL_REF:
+                    WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
+                    dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
                 default:
                     throw new UnsupportedOperationException(cpEntry.getEntryType().getValue() +
@@ -253,6 +259,12 @@ public class ProgramFileWriter {
         // TODO We need introduce 'public' keyword soon.
         dataOutStream.writeByte(functionInfo.isNative() ? 1 : 0);
 
+        WorkerDataChannelInfo[] workerDataChannelInfos = functionInfo.getWorkerDataChannelInfo();
+        dataOutStream.writeShort(workerDataChannelInfos.length);
+        for (WorkerDataChannelInfo dataChannelInfo : workerDataChannelInfos) {
+            writeWorkerDataChannelInfo(dataOutStream, dataChannelInfo);
+        }
+
         WorkerInfo defaultWorker = functionInfo.getDefaultWorkerInfo();
         WorkerInfo[] workerInfoEntries = functionInfo.getWorkerInfoEntries();
         dataOutStream.writeShort(workerInfoEntries.length + 1);
@@ -262,6 +274,13 @@ public class ProgramFileWriter {
         }
 
         writeAttributeInfoEntries(dataOutStream, functionInfo.getAttributeInfoEntries());
+    }
+
+    private static void writeWorkerDataChannelInfo(DataOutputStream dataOutStream,
+                                                   WorkerDataChannelInfo dataChannelInfo) throws IOException {
+        dataOutStream.writeInt(dataChannelInfo.getSourceCPIndex());
+        dataOutStream.writeInt(dataChannelInfo.getTargetCPIndex());
+        dataOutStream.writeShort(dataChannelInfo.getDataChannelRefIndex());
     }
 
     private static void writeStructInfo(DataOutputStream dataOutStream,
@@ -354,6 +373,8 @@ public class ProgramFileWriter {
                                         WorkerInfo workerInfo) throws IOException {
         dataOutStream.writeInt(workerInfo.getWorkerNameCPIndex());
 
+        dataOutStream.writeInt(workerInfo.getWrkrDtChnlRefCPIndex());
+
         ForkjoinInfo[] forkjoinInfos = workerInfo.getForkjoinInfos();
         dataOutStream.writeShort(forkjoinInfos.length);
         for (ForkjoinInfo forkjoinInfo : forkjoinInfos) {
@@ -391,10 +412,10 @@ public class ProgramFileWriter {
 
 //        dataOutStream.writeInt(forkjoinInfo.getWorkerCount()); //TODO
 
-        WorkerInfo[] joinWorkerInfos = forkjoinInfo.getJoinWorkerInfos();
-        dataOutStream.writeShort(joinWorkerInfos.length);
-        for (WorkerInfo workerInfo : joinWorkerInfos) {
-            writeWorkerInfo(dataOutStream, workerInfo);
+        int[] joinWrkrNameCPIndexes = forkjoinInfo.getJoinWrkrNameIndexes();
+        dataOutStream.writeShort(joinWrkrNameCPIndexes.length);
+        for (int cpIndex : joinWrkrNameCPIndexes) {
+            dataOutStream.writeInt(cpIndex);
         }
 
         dataOutStream.writeShort(forkjoinInfo.getTimeoutIp());

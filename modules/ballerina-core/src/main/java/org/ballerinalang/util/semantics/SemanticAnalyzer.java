@@ -479,6 +479,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerInvocationStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -534,6 +535,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                                         setWorkerDataChannel(workerDataChannel);
                                 ((WorkerInvocationStmt) worker.getWorkerInteractionStatements().peek()).
                                         setEnclosingCallableUnitName(callableUnit.getName());
+                                callableUnit.addWorkerDataChannel(workerDataChannel);
                                 ((WorkerReplyStmt) statement).setEnclosingCallableUnitName(callableUnit.getName());
                                 ((WorkerReplyStmt) statement).setPackagePath(callableUnit.getPackagePath());
                                 worker.getWorkerInteractionStatements().remove();
@@ -585,6 +587,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                             WorkerDataChannel workerDataChannel = new WorkerDataChannel
                                     (sourceWorkerName, targetWorkerName);
                             ((WorkerInvocationStmt) statement).setWorkerDataChannel(workerDataChannel);
+                            currentCallableUnit.addWorkerDataChannel(workerDataChannel);
                         }
                     }
                 }

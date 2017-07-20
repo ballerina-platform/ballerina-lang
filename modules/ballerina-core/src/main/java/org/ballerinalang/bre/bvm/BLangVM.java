@@ -33,7 +33,6 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -64,7 +63,6 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
@@ -81,6 +79,7 @@ import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -97,8 +96,7 @@ import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -188,8 +186,6 @@ public class BLangVM {
                     break;
                 case CP_ENTRY_ACTION_REF:
                 case CP_ENTRY_FUNCTION_CALL_ARGS:
-                case CP_ENTRY_WORKER_INVOKE:
-                case CP_ENTRY_WORKER_REPLY:
                 case CP_ENTRY_FORK_JOIN:
             }
             index++;
@@ -284,9 +280,8 @@ public class BLangVM {
         FunctionInfo functionInfo;
         ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
-        WorkerInvokeCPEntry workerInvokeCPEntry;
-        WorkerReplyCPEntry workerReplyCPEntry;
-        WorkerDataChannel workerDataChannel;
+        WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
+        WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
         boolean isDebugging = context.isDebugEnabled();
@@ -1227,25 +1222,23 @@ public class BLangVM {
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, workerInvokeCPEntry);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    invokeWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.WRKREPLY:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, workerReplyCPEntry);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    replyWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.FORKJOIN:
                     cpIndex = operands[0];
-//                    forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
-//                    invokeForkJoin(forkJoinCPEntry);
 
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
@@ -2195,15 +2188,17 @@ public class BLangVM {
 
     }
 
-    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry) {
+    public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
+                             WrkrInteractionArgsCPEntry wrkrIntRefCPEntry) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
-        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                workerDataChannel.getTypes(), arguments);
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
+                wrkrIntRefCPEntry.getbTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
         workerDataChannel.putData(arguments);
     }
 
@@ -2248,7 +2243,7 @@ public class BLangVM {
         }
 
         if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerMap().keySet().toArray(new String[0]);
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
                 resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
@@ -2262,7 +2257,7 @@ public class BLangVM {
                 //resultMsgs.add(res);
             }
         } else {
-            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerMap().keySet().toArray(new String[0]);
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for all of all the workers
                 resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
@@ -2338,12 +2333,13 @@ public class BLangVM {
         return result;
     }
 
-    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry) {
+    public void replyWorker(WorkerDataChannelInfo workerDataChannel,
+                            WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
-        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                workerDataChannel.getTypes(), passedInValues);
+        copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
+                wrkrIntCPEntry.getbTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,

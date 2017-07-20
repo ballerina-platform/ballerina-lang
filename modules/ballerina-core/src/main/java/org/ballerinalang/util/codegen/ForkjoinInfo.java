@@ -16,7 +16,9 @@
 */
 package org.ballerinalang.util.codegen;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,7 +46,8 @@ public class ForkjoinInfo {
 
     private int workerCount;
 
-    protected Map<String, WorkerInfo> joinWorkerMap = new HashMap<>();
+    private int[] joinWrkrNameIndexes;
+    private String[] joinWorkerNames;
 
     private int callableUnitNameCPIndex;
     private CallableUnitInfo parentCallableUnitInfo;
@@ -137,16 +140,20 @@ public class ForkjoinInfo {
         this.joinType = joinType;
     }
 
-    public Map<String, WorkerInfo> getJoinWorkerMap() {
-        return joinWorkerMap;
+    public int[] getJoinWrkrNameIndexes() {
+        return joinWrkrNameIndexes;
     }
 
-    public void addJoinWorkerInfo(String workerName, WorkerInfo workerInfo) {
-        joinWorkerMap.put(workerName, workerInfo);
+    public void setJoinWrkrNameIndexes(int[] joinWrkrNameIndexes) {
+        this.joinWrkrNameIndexes = joinWrkrNameIndexes;
     }
 
-    public WorkerInfo[] getJoinWorkerInfos() {
-        return joinWorkerMap.values().toArray(new WorkerInfo[0]);
+    public String[] getJoinWorkerNames() {
+        return joinWorkerNames;
+    }
+
+    public void setJoinWorkerNames(String[] joinWorkerNames) {
+        this.joinWorkerNames = joinWorkerNames;
     }
 
     public int getCallableUnitNameCPIndex() {

@@ -51,7 +51,8 @@ import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -274,9 +275,8 @@ public class ProgramFileReader {
             case CP_ENTRY_FORK_JOIN:
                 int forkJoinCPIndex = dataInStream.readInt();
                 ForkJoinCPEntry forkJoinCPEntry = new ForkJoinCPEntry(forkJoinCPIndex);
-//                unresolvedCPEntries.add(forkJoinCPEntry);
                 return forkJoinCPEntry;
-            case CP_ENTRY_WORKER_INVOKE:
+            case CP_ENTRY_WORKER_INTERACTION:
                 int typesSignatureCPIndex = dataInStream.readInt();
                 UTF8CPEntry typesSignatureCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typesSignatureCPIndex);
                 // When it comes to here, constantPool is always package info
@@ -286,8 +286,17 @@ public class ProgramFileReader {
                 for (int i = 0; i < workerInvokeArgLength; i++) {
                     workerInvokeArgRegs[i] = dataInStream.readInt();
                 }
-                WorkerInvokeCPEntry workerInvokeCPEntry = new WorkerInvokeCPEntry(workerInvokeArgRegs, bTypes);
-                return workerInvokeCPEntry;
+                WrkrInteractionArgsCPEntry wrkrInvokeCPEntry
+                        = new WrkrInteractionArgsCPEntry(workerInvokeArgRegs, bTypes);
+                return wrkrInvokeCPEntry;
+            case CP_ENTRY_WORKER_DATA_CHANNEL_REF:
+                int uniqueNameCPIndex = dataInStream.readInt();
+                UTF8CPEntry wrkrDtChnlTypesSigCPEntry = (UTF8CPEntry) constantPool
+                        .getCPEntry(uniqueNameCPIndex);
+
+                WorkerDataChannelRefCPEntry wrkrDtChnlRefCPEntry
+                        = new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
+                return wrkrDtChnlRefCPEntry;
             default:
                 throw new UnsupportedOperationException(cpEntryType.getValue() +
                         " Constant Pool entry is not yet supported.");
@@ -604,6 +613,11 @@ public class ProgramFileReader {
         boolean nativeFunc = dataInStream.readByte() == 1;
         functionInfo.setNative(nativeFunc);
 
+        int workerDataChannelsLength = dataInStream.readShort();
+        for (int i = 0; i < workerDataChannelsLength; i++) {
+            readWorkerDataChannelEntries(dataInStream, packageInfo, functionInfo);
+        }
+
         // Read worker info entries
         readWorkerInfoEntries(dataInStream, packageInfo, functionInfo);
 
@@ -621,8 +635,28 @@ public class ProgramFileReader {
             functionInfo.setNativeFunction((AbstractNativeFunction) nativeUnit);
         }
 
+
+
         // Read attributes
         readAttributeInfoEntries(dataInStream, packageInfo, functionInfo);
+    }
+
+    public void readWorkerDataChannelEntries(DataInputStream dataInputStream, PackageInfo packageInfo,
+                                             FunctionInfo functioninfo) throws IOException {
+        int sourceCPIndex = dataInputStream.readInt();
+        int targetCPIndex = dataInputStream.readInt();
+
+        UTF8CPEntry sourceCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sourceCPIndex);
+        UTF8CPEntry targetCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(targetCPIndex);
+
+        WorkerDataChannelInfo workerDataChannelInfo = new WorkerDataChannelInfo(sourceCPIndex,
+                sourceCPEntry.getValue(), targetCPIndex, targetCPEntry.getValue());
+
+        int dataChannelRefCPIndex = dataInputStream.readShort();
+        WorkerDataChannelRefCPEntry refCPEntry = (WorkerDataChannelRefCPEntry) packageInfo
+                .getCPEntry(dataChannelRefCPIndex);
+        refCPEntry.setWorkerDataChannelInfo(workerDataChannelInfo);
+        functioninfo.addWorkerDataChannelInfo(workerDataChannelInfo);
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo, String sig, PackageInfo packageInfo) {
@@ -803,6 +837,16 @@ public class ProgramFileReader {
         UTF8CPEntry workerNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(workerNameCPIndex);
         WorkerInfo workerInfo = new WorkerInfo(workerNameCPIndex, workerNameUTF8Entry.getValue());
 
+        int wrkrDtChnlRefCPIndex = dataInStream.readInt();
+        workerInfo.setWrkrDtChnlRefCPIndex(wrkrDtChnlRefCPIndex);
+
+        if (wrkrDtChnlRefCPIndex >= 0) {
+            WorkerDataChannelRefCPEntry refCPEntry = (WorkerDataChannelRefCPEntry) packageInfo
+                    .getCPEntry(wrkrDtChnlRefCPIndex);
+
+            workerInfo.setWorkerDataChannelInfoForForkJoin(refCPEntry.getWorkerDataChannelInfo());
+        }
+
         readForkJoinInfo(dataInStream, packageInfo, workerInfo);
         // Read attributes
         readAttributeInfoEntries(dataInStream, packageInfo, workerInfo);
@@ -865,10 +909,16 @@ public class ProgramFileReader {
 
 
         int joinWorkerCount = dataInStream.readShort();
+        int[] joinWrkrCPIndexes = new int[joinWorkerCount];
+        String[] joinWrkrNames = new String[joinWorkerCount];
         for (int i = 0; i < joinWorkerCount; i++) {
-            WorkerInfo workerInfo = getWorkerInfo(dataInStream, packageInfo);
-            forkjoinInfo.addJoinWorkerInfo(workerInfo.getWorkerName(), workerInfo);
+            int cpIndex = dataInStream.readInt();
+            UTF8CPEntry workerNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(cpIndex);
+            joinWrkrCPIndexes[i] = cpIndex;
+            joinWrkrNames[i] = workerNameCPEntry.getValue();
         }
+        forkjoinInfo.setJoinWrkrNameIndexes(joinWrkrCPIndexes);
+        forkjoinInfo.setJoinWorkerNames(joinWrkrNames);
 
         int timeoutIp = dataInStream.readShort();
         forkjoinInfo.setTimeoutIp(timeoutIp);

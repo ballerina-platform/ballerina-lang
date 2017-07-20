@@ -21,7 +21,9 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -143,4 +145,8 @@ public interface CallableUnit extends BLangSymbol, Node {
      * @return Array of workers
      */
     Worker[] getWorkers();
+
+    void addWorkerDataChannel(WorkerDataChannel workerDataChannel);
+
+    Map<String, WorkerDataChannel> getWorkerDataChannelMap();
 }

@@ -40,10 +40,9 @@ public interface ConstantPoolEntry {
         CP_ENTRY_FUNCTION_CALL_ARGS((byte) 8),
         CP_ENTRY_STRUCTURE_REF((byte) 9),
         CP_ENTRY_TYPE_REF((byte) 10),
-        CP_ENTRY_WORKER_INVOKE((byte) 11),
-        CP_ENTRY_WORKER_REPLY((byte) 12),
-        CP_ENTRY_FORK_JOIN((byte) 13),
-        CP_ENTRY_WORKER_DATA_CHANNEL_REF((byte) 14);
+        CP_ENTRY_WORKER_INTERACTION((byte) 11),
+        CP_ENTRY_FORK_JOIN((byte) 12),
+        CP_ENTRY_WORKER_DATA_CHANNEL_REF((byte) 13);
 
         byte value;
 

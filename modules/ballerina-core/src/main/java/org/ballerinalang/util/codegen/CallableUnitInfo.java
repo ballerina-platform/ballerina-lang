@@ -18,9 +18,11 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +32,7 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class CallableUnitInfo implements AttributeInfoPool {
+public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     protected String pkgPath;
     protected String name;
@@ -47,6 +49,9 @@ public class CallableUnitInfo implements AttributeInfoPool {
     protected String signature;
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+
+    // Key - data channel name
+    private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
     protected WorkerInfo defaultWorkerInfo;
@@ -191,5 +196,20 @@ public class CallableUnitInfo implements AttributeInfoPool {
             }
         }
         return null;
+    }
+
+    @Override
+    public void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo) {
+        dataChannelInfoMap.put(workerDataChannelInfo.getChannelName(), workerDataChannelInfo);
+    }
+
+    @Override
+    public WorkerDataChannelInfo getWorkerDataChannelInfo(String name) {
+        return dataChannelInfoMap.get(name);
+    }
+
+    @Override
+    public WorkerDataChannelInfo[] getWorkerDataChannelInfo() {
+        return dataChannelInfoMap.values().toArray(new WorkerDataChannelInfo[0]);
     }
 }

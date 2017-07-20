@@ -64,30 +64,6 @@ public class ForkJoinInFunctionTest {
 
     }
 
-//    @Test(description = "Test Fork Join Any")
-//    public void testForkJoinAllTemp() {
-//        bProgramFile = BTestUtils.getProgramFile("samples/fork-join-in-all-temp.bal");
-//        BValue[] args = {new BMessage()};
-//        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAll", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-//        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
-//        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
-//
-//    }
-//
-//    @Test(description = "Test Fork Join Any")
-//    public void testForkJoinAllTempff() {
-//        bProgramFile = BTestUtils.getProgramFile("samples/temp.bal");
-//        BValue[] args = {new BMessage()};
-//        BValue[] returns = BLangFunctions.invokeNew(bProgramFile, "testForkJoinAll", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertTrue(returns[0] instanceof BRefValueArray);
-//        Assert.assertEquals(((BRefValueArray) returns[0]).size(), 1);
-//        Assert.assertTrue(((BRefValueArray) returns[0]).get(0) instanceof BMessage);
-//
-//    }
-
     @Test(description = "Test Fork Join All of specific")
     public void testForkJoinAllOfSpecific() {
         bProgramFile = BTestUtils.getProgramFile("samples/fork-join-all-specific.bal");
