@@ -1062,6 +1062,7 @@ public class ProgramFileReader {
                 case InstructionCodes.BRET:
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
+                case InstructionCodes.XML2XMLATTRS:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1169,6 +1170,10 @@ public class ProgramFileReader {
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.XML2JSON:
                 case InstructionCodes.JSON2XML:
+                case InstructionCodes.XMLATTRS2MAP:
+                case InstructionCodes.XMLATTRLOAD:
+                case InstructionCodes.XMLATTRSTORE:
+                case InstructionCodes.S2QNAME:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1180,6 +1185,7 @@ public class ProgramFileReader {
                 case InstructionCodes.CHECKCAST:
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
+                case InstructionCodes.NEWQNAME:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
