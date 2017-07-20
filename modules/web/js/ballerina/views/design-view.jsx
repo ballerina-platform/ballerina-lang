@@ -47,6 +47,12 @@ class DesignView extends React.Component {
     * @memberof DesignView
     */
     setTransformActive(isTransformActive, activeTransformModel) {
+        if(this.state.isTransformActive === isTransformActive &&
+            this.state.activeTransformModel === activeTransformModel) {
+
+            return;
+        }
+
         this.setState({
             isTransformActive,
             activeTransformModel,

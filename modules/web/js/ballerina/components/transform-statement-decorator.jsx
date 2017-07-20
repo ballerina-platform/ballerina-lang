@@ -45,7 +45,6 @@ class TransformStatementDecorator extends React.Component {
 
     componentWillMount() {
         const { designView } = this.context;
-
         if (designView.getTransformActive()) {
             designView.setTransformActive(true, this.props.model);
         }
@@ -76,7 +75,6 @@ class TransformStatementDecorator extends React.Component {
      * @param {Object} e - The drag event
      */
     onDropZoneActivate(e) {
-        console.log(e);
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         const model = this.props.model;
