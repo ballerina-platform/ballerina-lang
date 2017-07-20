@@ -91,12 +91,9 @@ export default class GlobalDefinitionItem extends React.Component {
             className = 'global-definition-item-hightlighted';
         }
 
-        const maxLengthText = 38;
-        let globalItemValue = this.props.getValue(this.props.globalDec);
-
-        if (globalItemValue.length > maxLengthText) {
-            globalItemValue = ((globalItemValue.substring(0, maxLengthText - 3)) + '...');
-        }
+        const globalItemValue = _.truncate(this.props.getValue(this.props.globalDec), {
+            length: 38,
+        });
 
         return (
 

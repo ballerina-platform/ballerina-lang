@@ -304,7 +304,6 @@ class AnnotationContainer extends React.Component {
     getAnnotationPackageNameSuggestions(value) {
         const matches = [];
         const escapedValue = this.escapeRegexCharacters(value.trim());
-        const regex = new RegExp(escapedValue, 'i');
 
         let packageNameSuggestions = AnnotationHelper.getPackageNames(
                                                                 this.context.environment, this.props.model.parentNode);
@@ -316,7 +315,7 @@ class AnnotationContainer extends React.Component {
         });
 
         packageNameSuggestions.forEach((sug) => {
-            if (regex.test(sug.name)) {
+            if ((sug.name).includes(escapedValue)) {
                 matches.push(sug);
             }
         });
@@ -387,9 +386,9 @@ class AnnotationContainer extends React.Component {
         });
 
         return (
-            <div>
+            <span>
                 {highlightedString}
-            </div>
+            </span>
         );
     }
 
