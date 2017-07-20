@@ -130,12 +130,17 @@ class BallerinaEnvironment extends EventChannel {
         return new Promise((resolve, reject) => {
             getPackages()
                 .then((packagesJson) => {
-                    packagesJson.forEach((packageNode) => {
-                        const pckg = BallerinaEnvFactory.createPackage();
-                        pckg.initFromJson(packageNode);
-                        this._packages.push(pckg);
-                     });
-                     resolve();
+                    if (_.isArray(packagesJson)) {
+                        packagesJson.forEach((packageNode) => {
+                            const pckg = BallerinaEnvFactory.createPackage();
+                            pckg.initFromJson(packageNode);
+                            this._packages.push(pckg);
+                        });
+                        resolve();
+                    } else {
+                        log.error('Error while fetching packages');
+                        resolve();
+                    }
                 })
                 .catch(reject);
         });
