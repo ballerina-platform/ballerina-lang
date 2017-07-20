@@ -20,6 +20,7 @@ import _ from 'lodash';
 import EventChannel from 'event_channel';
 import Console from 'console';
 import LaunchChannel from './launch-channel';
+import Tools from './../debugger/tools';
 /**
  * Launch Manager
  * @class LaunchManager
@@ -225,7 +226,8 @@ class LaunchManager extends EventChannel {
      * @memberof LaunchManager
      */
     getApplicationConfigs(file) {
-        const args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
+        const fileUniqueId = Tools.getFileUniqueId(file);
+        const args = this.application.browserStorage.get(`launcher-app-configs-${fileUniqueId}`);
         return args || '';
     }
 }
