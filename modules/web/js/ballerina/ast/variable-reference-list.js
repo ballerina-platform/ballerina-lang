@@ -36,11 +36,15 @@ class VariableReferenceList extends ASTNode {
      * @return {string} expression string
      */
     getExpressionString() {
-        const exps = [];
-        _.forEach(this.getChildren(), (child) => {
-            exps.push(child.getExpressionString());
+        let exprString = '';
+        this.getChildren().forEach((child, index) => {
+            if (index !== 0) {
+                exprString += ',';
+                exprString += (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+            }
+            exprString += child.getExpressionString();
         });
-        return _.join(exps, ',');
+        return exprString;
     }
 
     /**
