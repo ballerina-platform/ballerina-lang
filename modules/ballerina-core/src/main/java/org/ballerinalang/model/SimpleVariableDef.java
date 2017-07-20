@@ -28,7 +28,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and arrays and record type constructors.
  *
- * @since 0.8.0
+ * @since 0.90
  */
 public class SimpleVariableDef implements VariableDef {
     protected NodeLocation location;

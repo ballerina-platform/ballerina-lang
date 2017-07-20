@@ -24,7 +24,9 @@ import org.ballerinalang.model.values.BValue;
 import java.util.Arrays;
 
 /**
- * {@code {@link BFunctionType }} represents a function pointer type in ballerina
+ * {@code {@link BFunctionType }} represents a function pointer type in ballerina.
+ *
+ * @since 0.90
  */
 public class BFunctionType extends BType {
 

@@ -18,7 +18,8 @@
 package org.ballerinalang.model.types;
 
 /**
- * {@code FunctionTypeName} represents a function pointer type name with the its constraints in Ballerina.
+ * {@code FunctionTypeName} represents a function pointer type name with its constraints at
+ * {@link org.ballerinalang.model.builder.BLangModelBuilder}.
  *
  * @since 0.90
  */

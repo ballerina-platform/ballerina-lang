@@ -25,6 +25,8 @@ import org.ballerinalang.model.types.BType;
 
 /**
  * Represents A lambda definition as an expression.
+ *
+ * @since 0.90
  */
 public class LambdaExpression extends AbstractExpression {
 
