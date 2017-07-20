@@ -273,6 +273,14 @@ export const timeout = {
     },
 };
 
+export const iconForTool = {
+    height: 30,
+    width: 30,
+    padding: {
+        left: 5,
+    },
+};
+
 export const variablesPane = {
     headerHeight: 35,
     topBarHeight: 25,
