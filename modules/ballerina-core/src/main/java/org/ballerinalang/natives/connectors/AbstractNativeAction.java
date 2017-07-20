@@ -115,6 +115,12 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         throw new ArgumentOutOfRangeException(index);
     }
 
+    public byte[] getBlobArgument(Context context, int index) {
+        if (index > -1 && index < argTypeNames.length) {
+            return context.getControlStackNew().getCurrentFrame().getByteLocalVars()[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
 
     public abstract BValue execute(Context context);
 

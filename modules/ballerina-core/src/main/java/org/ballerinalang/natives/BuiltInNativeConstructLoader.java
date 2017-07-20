@@ -43,11 +43,11 @@ public class BuiltInNativeConstructLoader {
     /**
      * Load the native constructs to the provided symbol scope.
      *
-     * @param nativeScope   Symbol scope to load native constructs
+     * @param nativeScope Symbol scope to load native constructs
      */
     public static void loadConstructs(NativeScope nativeScope) {
         Iterator<NativeConstructLoader> nativeConstructLoaders =
-            ServiceLoader.load(NativeConstructLoader.class).iterator();
+                ServiceLoader.load(NativeConstructLoader.class).iterator();
         while (nativeConstructLoaders.hasNext()) {
             NativeConstructLoader constructLoader = nativeConstructLoaders.next();
             constructLoader.load(nativeScope);
@@ -67,12 +67,13 @@ public class BuiltInNativeConstructLoader {
             for (BuiltinPackageRepository balRepo : pkgRepositories) {
                 if (balRepo instanceof SystemPackageRepository) {
                     internalRepo = balRepo;
+                    internalRepo.setSystemRepo(true);
                     break;
                 }
             }
             for (BuiltinPackageRepository balRepo : pkgRepositories) {
                 if (!(balRepo instanceof SystemPackageRepository)) {
-                    balRepo.setInternalPkgRepo(internalRepo);
+                    balRepo.setSystemRepository(internalRepo);
                 }
             }
         }

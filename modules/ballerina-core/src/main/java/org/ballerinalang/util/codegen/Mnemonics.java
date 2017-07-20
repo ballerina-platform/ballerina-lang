@@ -229,12 +229,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
         
-        mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2attrs";
+        mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2xmlattrs";
         mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
         mnemonics[InstructionCodes.XMLATTRS2MAP] = "xmlattr2map";
-        mnemonics[InstructionCodes.NEWQNAME] = "qnameload";
+        mnemonics[InstructionCodes.NEWQNAME] = "newqname";
     }
 
     public static String getMnem(int opcode) {

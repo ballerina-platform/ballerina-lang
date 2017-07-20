@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Utility class for JMS related common operations
+ * Utility class for JMS related common operations.
  */
 public class JMSUtils {
 

@@ -26,9 +26,10 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
-import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
+import org.ballerinalang.util.repository.ProgramDirRepository;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -51,22 +52,19 @@ import java.util.stream.Collectors;
 public class BLangPackages {
 
     public static BLangPackage loadEntryPackage(Path programDirPath,
-                                          Path sourcePath,
-                                          BLangProgram bLangProgram,
-                                          BuiltinPackageRepository[] builtinPackageRepositories) {
+                                                Path sourcePath,
+                                                BLangProgram bLangProgram,
+                                                ProgramDirRepository programDirRepository) {
 
         Path resolvedSourcePath = BLangPrograms.validateAndResolveSourcePath(programDirPath, sourcePath);
-
-        PackageRepository packageRepository = new FileSystemPackageRepository(programDirPath,
-                builtinPackageRepositories);
         if (Files.isDirectory(resolvedSourcePath, LinkOption.NOFOLLOW_LINKS)) {
             Path packagePath = programDirPath.relativize(resolvedSourcePath);
-            BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, packageRepository, bLangProgram);
+            BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, programDirRepository, bLangProgram);
             bLangProgram.addEntryPoint(packagePath.toString());
             return bLangPackage;
 
         } else if (resolvedSourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            BLangPackage bLangPackage = BLangPackages.loadFile(resolvedSourcePath, packageRepository, bLangProgram);
+            BLangPackage bLangPackage = BLangPackages.loadFile(resolvedSourcePath, programDirRepository, bLangProgram);
             bLangProgram.addEntryPoint(resolvedSourcePath.getFileName().toString());
             return bLangPackage;
         }
@@ -87,9 +85,13 @@ public class BLangPackages {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
+        if (pkgSource == null) {
+            throw new RuntimeException("package not found: " + packagePath.toString().replace(File.separator, "."));
+        }
 
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
-            throw new RuntimeException("no bal files in the package: " + packagePath.toString());
+            throw new RuntimeException("no bal files in package: " +
+                    packagePath.toString().replace(File.separator, "."));
         }
 
         String pkgPathStr = getPackagePathFromPath(packagePath);

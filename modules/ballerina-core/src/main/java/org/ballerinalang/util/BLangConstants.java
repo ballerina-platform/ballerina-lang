@@ -41,4 +41,15 @@ public class BLangConstants {
     public static final int BOOL_OFFSET = 3;
     public static final int BLOB_OFFSET = 4;
     public static final int REF_OFFSET = 5;
+
+    public static final String USER_REPO_ENV_KEY = "BALLERINA_REPOSITORY";
+    public static final String USER_REPO_DEFAULT_DIRNAME = ".ballerina";
+    public static final String USER_REPO_ARTIFACTS_DIRNAME = "artifacts";
+    public static final String USER_REPO_SRC_DIRNAME = "src";
+    public static final String USER_REPO_OBJ_DIRNAME = "obj";
+    public static final String USER_REPO_METADATA_DIRNAME = "metadata";
+
+    public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
+
+    public static final String USER_HOME = "user.home";
 }
