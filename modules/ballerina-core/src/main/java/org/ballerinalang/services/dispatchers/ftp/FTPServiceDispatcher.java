@@ -86,6 +86,10 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
             String serviceName = service.getName();
             ServerConnector fileServerConnector = BallerinaConnectorManager.getInstance().createServerConnector(
                     Constants.PROTOCOL_FILE_SYSTEM, serviceName, elementsMap);
+            fileServerConnector.setServerConnectorErrorHandler(
+                    BallerinaConnectorManager.getInstance()
+                                                .getServerConnectorErrorHandler(Constants.PROTOCOL_FTP)
+                                                .get());
             try {
                 fileServerConnector.start();
                 serviceInfoMap.put(serviceName, service);
