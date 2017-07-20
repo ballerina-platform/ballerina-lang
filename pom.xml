@@ -689,6 +689,11 @@
                 <version>${carbon.transport.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.file-system</artifactId>
+                <version>${carbon.transport.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.ftpserver</groupId>
                 <artifactId>ftpserver-core</artifactId>
                 <version>${ftp-server-core.version}</version>
@@ -853,6 +858,22 @@
                 <artifactId>atomikos</artifactId>
                 <version>${atomikos-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.quartz-scheduler</groupId>
+                <artifactId>quartz</artifactId>
+                <version>${quartz.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.zaxxer</groupId>
+                        <artifactId>HikariCP</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -953,8 +974,8 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <carbon.transport.version>4.4.11</carbon.transport.version>
-        <carbon.messaging.version>2.3.4</carbon.messaging.version>
+        <carbon.transport.version>4.4.17</carbon.transport.version>
+        <carbon.messaging.version>2.3.5</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.0.0</carbon.config.version>
         <carbon.securevault.version>5.0.4</carbon.securevault.version>
@@ -1005,6 +1026,8 @@
         <servlet-api-version>2.5</servlet-api-version>
         <javax-transaction-version>1.2</javax-transaction-version>
         <atomikos-version>3.8.0.wso2v1</atomikos-version>
+        <quartz.version>2.3.0.wso2v1</quartz.version>
+        <commons-net.version>3.6</commons-net.version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
         <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
