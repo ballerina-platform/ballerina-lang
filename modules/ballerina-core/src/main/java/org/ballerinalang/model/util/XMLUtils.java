@@ -304,6 +304,7 @@ public class XMLUtils {
      * 
      * @param startTagName Name of the start tag of the element
      * @param endTagName Name of the end tag of element
+     * @param defaultNsUri Default namespace URI
      * @return BXML Element type BXML
      */
     public static BXML<?> createXMLElement(BXMLQName startTagName, BXMLQName endTagName, String defaultNsUri) {

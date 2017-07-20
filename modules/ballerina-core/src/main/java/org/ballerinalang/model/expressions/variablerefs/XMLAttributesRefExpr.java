@@ -35,10 +35,10 @@ public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
     private Map<String, Expression> namespaces;
 
     /**
-     * @param location
-     * @param whiteSpaceDescriptor
-     * @param varRefExpr
-     * @param indexExpr
+     * @param location Source location of the ballerina file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param varRefExpr Reference to the XML variable 
+     * @param indexExpr Attribute expression
      */
     public XMLAttributesRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
             VariableReferenceExpr varRefExpr, Expression indexExpr) {

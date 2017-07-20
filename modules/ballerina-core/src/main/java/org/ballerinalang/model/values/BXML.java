@@ -212,13 +212,6 @@ public abstract class BXML<T> extends BallerinaMessageDataSource implements BRef
     public abstract BValue slice(long startIndex, long endIndex);
 
     /**
-     * Add children to this XML. New children will be added to the the end of the existing children.
-     * 
-     * @param seq child XML seq
-     */
-    public abstract void addChildren(BXML<?> seq);
-
-    /**
      * {@inheritDoc}
      */
     @Override

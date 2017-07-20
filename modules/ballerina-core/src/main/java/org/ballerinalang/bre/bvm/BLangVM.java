@@ -1567,7 +1567,7 @@ public class BLangVM {
 
                     xmlVal = (BXML<?>) sf.refRegs[i];
                     BXML<?> child = (BXML<?>) sf.refRegs[j];
-                    xmlVal.addChildren(child);
+                    xmlVal.setChildren(child);
                     break;
                 default:
                     throw new UnsupportedOperationException();

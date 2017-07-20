@@ -497,27 +497,6 @@ public final class BXMLItem extends BXML<OMNode> {
         return this;
     }
 
-    @Override
-    public void addChildren(BXML<?> seq) {
-        OMElement currentNode;
-        switch (nodeType) {
-            case ELEMENT:
-                currentNode = ((OMElement) omNode);
-                break;
-            default:
-                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
-        }
-
-        if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
-            BRefValueArray childSeq = ((BXMLSequence) seq).value();
-            for (int i = 0; i < childSeq.size(); i++) {
-                currentNode.addChild((OMNode) childSeq.get(i).value());
-            }
-        } else {
-            currentNode.addChild((OMNode) seq.value());
-        }
-    }
-
     // Methods from Datasource impl
 
     /**

@@ -32,11 +32,11 @@ public final class BXMLQName implements BRefType {
     private String prefix;
 
     /**
-     * Create attribute map with an XML
+     * Create attribute map with an XML.
      * 
-     * @param localName
-     * @param uri
-     * @param prefix
+     * @param localName Local part of the qualified name
+     * @param uri Namespace URI
+     * @param prefix Namespace prefix
      */
     public BXMLQName(String localName, String uri, String prefix) {
         this.localName = localName;

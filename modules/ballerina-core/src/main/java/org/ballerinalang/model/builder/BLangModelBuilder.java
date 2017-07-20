@@ -2264,11 +2264,11 @@ public class BLangModelBuilder {
     /**
      * Creates an XML processing instruction literal expression.
      * 
-     * @param location
-     * @param whiteSpaceDescriptor
-     * @param target
-     * @param templateStrLiterals
-     * @param endingText
+     * @param location Location of the value in the source file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param target PI target
+     * @param exprPrecedingTextFragments Array of string fragments that precede the expressions
+     * @param endingText Text fragment at the end of the interpolated text
      */
     public void createXMLPILiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
             String target, String[] exprPrecedingTextFragments, String endingText) {

@@ -3884,6 +3884,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     /**
      * Get the XML namespaces that are visible to to the current scope.
      * 
+     * @param location Source location of the ballerina file
      * @return XML namespaces that are visible to to the current scope, as a map
      */
     private Map<String, Expression> getNamespaceInScope(NodeLocation location) {
