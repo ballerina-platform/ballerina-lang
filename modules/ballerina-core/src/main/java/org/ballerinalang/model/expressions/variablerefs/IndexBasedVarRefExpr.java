@@ -38,7 +38,7 @@ public class IndexBasedVarRefExpr extends UnaryExpression implements VariableRef
     private VariableReferenceExpr parentVarRefExpr;
 
     // Array index expression
-    private Expression indexExpr;
+    protected Expression indexExpr;
     private boolean isLHSExpr;
 
     // Struct field access using a string index
