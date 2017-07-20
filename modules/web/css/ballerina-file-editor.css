@@ -1132,18 +1132,24 @@ table.annotation-table tr:hover > td > .annotation-openning-bracket > .annotatio
     position:absolute;
 	width:234px;
     height:28px;
-    font-size: 16px;
+    font-size: 30px;
     margin:auto;
+    color: #fff;
+    font-weight: 500;
 }
 
 #parse-pending-loader:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026";
-  width: 0px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+    animation: ellipsis steps(4,end) 900ms infinite;
+    content: "\2026";
+    width: 35px;
+    font-size: 50px;
+    display: block;
+    margin-top: -40px;
+    margin-left: 100px;
 }
 
 @keyframes ellipsis {
