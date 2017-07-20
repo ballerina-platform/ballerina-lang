@@ -221,27 +221,17 @@ public class CodeGenerator implements NodeVisitor {
             bLangPackage.setSymbolsDefined(false);
         }
 
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
+        BLangPackage entryPkg = bLangProgram.getEntryPackage();
+        entryPkg.accept(this);
 
-        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            mainPkg.accept(this);
-            UTF8CPEntry mainPkgPathCPEntry = new UTF8CPEntry(mainPkg.getName());
-            int pkgNameCPIndex = programFile.getCPEntryIndex(mainPkgPathCPEntry);
-            programFile.setMainPkgCPIndex(pkgNameCPIndex);
-            programFile.setMainPkgName(mainPkg.getName());
-
-        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
-            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for (BLangPackage servicePkg : servicePackages) {
-                servicePkg.accept(this);
-                programFile.addServicePackage(servicePkg.getName());
-            }
-        } else {
-            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
-            for (BLangPackage libraryPkg : libraryPackages) {
-                libraryPkg.accept(this);
-            }
-        }
+        String pkgName = entryPkg.getName();
+        UTF8CPEntry mainPkgPathCPEntry = new UTF8CPEntry(pkgName);
+        int pkgNameCPIndex = programFile.getCPEntryIndex(mainPkgPathCPEntry);
+        PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(pkgNameCPIndex, pkgName);
+        int pkgCPIndex = programFile.addCPEntry(packageRefCPEntry);
+        programFile.setEntryPkgCPIndex(pkgCPIndex);
+        programFile.setEntryPkgName(pkgName);
+        programFile.setEntryPackage(programFile.getPackageInfo(pkgName));
 
         // Add global variable indexes to the ProgramFile
         prepareIndexes(gvIndexes);
@@ -2670,7 +2660,8 @@ public class CodeGenerator implements NodeVisitor {
     private void visitCallableUnitParameterDefs(ParameterDef[] parameterDefs, CallableUnitInfo callableUnitInfo,
                                                 LocalVariableAttributeInfo localVarAttributeInfo) {
         boolean paramAnnotationFound = false;
-        UTF8CPEntry paramAnnAttribUTF8CPEntry = new UTF8CPEntry(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE.toString());
+        UTF8CPEntry paramAnnAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.PARAMETER_ANNOTATIONS_ATTRIBUTE.toString());
         int paramAnnAttribNameIndex = currentPkgInfo.addCPEntry(paramAnnAttribUTF8CPEntry);
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
                 paramAnnAttribNameIndex, parameterDefs.length);
@@ -2881,13 +2872,6 @@ public class CodeGenerator implements NodeVisitor {
         return errorTable;
     }
 
-    /**
-     * Create conditional statements to find the matching namespace URI. If an existing declaration id found,
-     * get the prefix of it as the prefix to be used.
-     *
-     * @param xmlAttributesRefExpr {@link XMLAttributesRefExpr}
-     * @param qnameRegIndex        Registry index of the qname
-     */
     private void generateUriLookupInstructions(Map<String, String> namespaces, int localNameRegIndex, int uriRegIndex,
                                                int targetQnameRegIndex, NodeLocation location) {
         if (namespaces.isEmpty()) {

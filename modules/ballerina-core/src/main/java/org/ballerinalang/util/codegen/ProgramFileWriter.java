@@ -175,8 +175,11 @@ public class ProgramFileWriter {
 
     private static void writeEntryPoint(DataOutputStream dataOutStream,
                                         ProgramFile programFile) throws IOException {
-        dataOutStream.writeInt(programFile.getMainPkgCPIndex());
-        // TODO Write entry point flags
+        dataOutStream.writeInt(programFile.getEntryPkgCPIndex());
+        int flags = 0;
+        flags = programFile.isMainEPAvailable() ? flags | ProgramFile.EP_MAIN_FLAG : flags;
+        flags = programFile.isServiceEPAvailable() ? flags | ProgramFile.EP_SERVICE_FLAG : flags;
+        dataOutStream.writeByte(flags);
     }
 
     private static void writePackageInfo(DataOutputStream dataOutStream,

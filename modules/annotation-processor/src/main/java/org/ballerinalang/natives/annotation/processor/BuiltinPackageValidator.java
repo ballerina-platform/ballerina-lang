@@ -67,7 +67,7 @@ public class BuiltinPackageValidator {
         BuiltinPackageRepository[] pkgRepos = loadPackageRepositories();
         FileSystemPackageRepository fileRepo = new FileSystemPackageRepository(Paths.get(targetDir), pkgRepos);
         // create program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
 
         // turn off skipping native function parsing
         System.setProperty("skipNatives", "false");

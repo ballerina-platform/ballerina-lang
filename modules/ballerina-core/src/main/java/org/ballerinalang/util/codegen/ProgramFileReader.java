@@ -80,8 +80,8 @@ public class ProgramFileReader {
     private NativeScope nativeScope;
     private ProgramFile programFile = new ProgramFile();
 
-    public ProgramFileReader(NativeScope nativeScope) {
-        this.nativeScope = nativeScope;
+    public ProgramFileReader() {
+        this.nativeScope = NativeScope.getInstance();
     }
 
     private List<ConstantPoolEntry> unresolvedCPEntries = new ArrayList<>();
@@ -118,6 +118,10 @@ public class ProgramFileReader {
         for (int i = 0; i < pkgInfoCount; i++) {
             readPackageInfo(dataInStream);
         }
+
+        PackageInfo entryPkg = programFile.getPackageInfo(programFile.getEntryPkgName());
+        programFile.setEntryPackage(entryPkg);
+        entryPkg.setProgramFile(programFile);
 
         // Read program level attributes
         readAttributeInfoEntries(dataInStream, programFile, programFile);
@@ -291,11 +295,19 @@ public class ProgramFileReader {
     }
 
     private void readEntryPoint(DataInputStream dataInStream) throws IOException {
-        // TODO Support for services.
         int pkdCPIndex = dataInStream.readInt();
-        UTF8CPEntry cpEntry = (UTF8CPEntry) programFile.getCPEntry(pkdCPIndex);
-        programFile.setMainPkgCPIndex(pkdCPIndex);
-        programFile.setMainPkgName(cpEntry.getValue());
+        PackageRefCPEntry packageRefCPEntry = (PackageRefCPEntry) programFile.getCPEntry(pkdCPIndex);
+        programFile.setEntryPkgCPIndex(pkdCPIndex);
+        programFile.setEntryPkgName(packageRefCPEntry.getPackageName());
+
+        int flags = dataInStream.readByte();
+        if ((flags & ProgramFile.EP_MAIN_FLAG) == ProgramFile.EP_MAIN_FLAG) {
+            programFile.setMainEPAvailable(true);
+        }
+
+        if ((flags & ProgramFile.EP_SERVICE_FLAG) == ProgramFile.EP_SERVICE_FLAG) {
+            programFile.setServiceEPAvailable(true);
+        }
     }
 
     private void readPackageInfo(DataInputStream dataInStream) throws IOException {
@@ -482,13 +494,16 @@ public class ProgramFileReader {
                 ResourceInfo resourceInfo = new ResourceInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                         resNameCPIndex, resName);
                 resourceInfo.setServiceInfo(serviceInfo);
+                resourceInfo.setPackageInfo(packageInfo);
                 serviceInfo.addResourceInfo(resName, resourceInfo);
 
                 // Read action signature
                 int resSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
                 resourceInfo.setSignatureCPIndex(resSigCPIndex);
-                resourceInfo.setSignature(resSigUTF8Entry.getValue());
+                UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
+                String resSig = resSigUTF8Entry.getValue();
+                resourceInfo.setSignature(resSig);
+                setCallableUnitSignature(resourceInfo, resSig, packageInfo);
 
                 // Read parameter names
                 // TODO Find a better alternative. Storing just param names is like a hack.
@@ -513,10 +528,6 @@ public class ProgramFileReader {
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, serviceInfo);
-
-            FunctionInfo iniFunctionInfo = packageInfo.getFunctionInfo(
-                    serviceInfo.getName() + INIT_FUNCTION_SUFFIX);
-            serviceInfo.setInitFunctionInfo(iniFunctionInfo);
         }
     }
 
@@ -563,9 +574,17 @@ public class ProgramFileReader {
             readFunctionInfo(dataInStream, packageInfo);
         }
 
-        FunctionInfo iniFunctionInfo = packageInfo.getFunctionInfo(
+        FunctionInfo pkgIniFunInfo = packageInfo.getFunctionInfo(
                 packageInfo.getPkgPath() + INIT_FUNCTION_SUFFIX);
-        packageInfo.setInitFunctionInfo(iniFunctionInfo);
+        packageInfo.setInitFunctionInfo(pkgIniFunInfo);
+
+        // TODO Improve this. We should be able to this in a single pass.
+        ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
+        for (ServiceInfo serviceInfo : serviceInfoEntries) {
+            FunctionInfo serviceIniFuncInfo = packageInfo.getFunctionInfo(
+                    serviceInfo.getName() + INIT_FUNCTION_SUFFIX);
+            serviceInfo.setInitFunctionInfo(serviceIniFuncInfo);
+        }
     }
 
     private void readFunctionInfo(DataInputStream dataInStream,
@@ -892,7 +911,7 @@ public class ProgramFileReader {
         AttributeInfo.Kind attribKind = AttributeInfo.Kind.fromString(attribNameCPEntry.getValue());
         if (attribKind == null) {
             // TODO Fix this.
-            throw new RuntimeException("Unknown attribute kind: " + attribNameCPEntry.getValue());
+            throw new RuntimeException("unknown attribute kind: " + attribNameCPEntry.getValue());
         }
 
         switch (attribKind) {
@@ -1328,6 +1347,7 @@ public class ProgramFileReader {
     }
 
     private void resolveUserDefinedTypes(PackageInfo packageInfo) {
+        // TODO Improve this. We should be able to this in a single pass.
         StructInfo[] structInfoEntries = packageInfo.getStructInfoEntries();
         for (StructInfo structInfo : structInfoEntries) {
             StructFieldInfo[] fieldInfoEntries = structInfo.getFieldInfoEntries();

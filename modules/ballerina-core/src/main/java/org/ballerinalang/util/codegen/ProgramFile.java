@@ -39,6 +39,10 @@ import java.util.Map;
  * @since 0.87
  */
 public class ProgramFile implements ConstantPool, AttributeInfoPool {
+    // Entry point flags
+    public static final int EP_MAIN_FLAG = 1;
+    public static final int EP_SERVICE_FLAG = 2;
+
     // TODO Finalize the magic value;
     private int magicValue = 0xBBBBBBBB;
     private short version = (short) 10;
@@ -46,9 +50,11 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
 
-    private int mainPkgCPIndex;
-    private String mainPkgName = "";
-    private List<String> servicePackageNameList = new ArrayList<>();
+    private int entryPkgCPIndex;
+    private String entryPkgName;
+    private PackageInfo entryPackage;
+    private boolean mainFucAvailable = false;
+    private boolean servicesAvailable = false;
 
     // Cached values.
     // This is the actual path given by the user and this is used primarily for error reporting
@@ -69,6 +75,46 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void setVersion(short version) {
         this.version = version;
+    }
+
+    public int getEntryPkgCPIndex() {
+        return entryPkgCPIndex;
+    }
+
+    public void setEntryPkgCPIndex(int entryPkgCPIndex) {
+        this.entryPkgCPIndex = entryPkgCPIndex;
+    }
+
+    public String getEntryPkgName() {
+        return entryPkgName;
+    }
+
+    public void setEntryPkgName(String entryPkgName) {
+        this.entryPkgName = entryPkgName;
+    }
+
+    public PackageInfo getEntryPackage() {
+        return entryPackage;
+    }
+
+    public void setEntryPackage(PackageInfo entryPackage) {
+        this.entryPackage = entryPackage;
+    }
+
+    public boolean isMainEPAvailable() {
+        return mainFucAvailable;
+    }
+
+    public void setMainEPAvailable(boolean mainFuncAvailable) {
+        this.mainFucAvailable = mainFuncAvailable;
+    }
+
+    public boolean isServiceEPAvailable() {
+        return servicesAvailable;
+    }
+
+    public void setServiceEPAvailable(boolean servicesAvailable) {
+        this.servicesAvailable = servicesAvailable;
     }
 
     // CP
@@ -115,34 +161,6 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         return globalMemoryBlock;
     }
 
-    // Main package.
-
-    public int getMainPkgCPIndex() {
-        return mainPkgCPIndex;
-    }
-
-    public void setMainPkgCPIndex(int mainPkgCPIndex) {
-        this.mainPkgCPIndex = mainPkgCPIndex;
-    }
-
-    public void setMainPkgName(String mainPackageName) {
-        this.mainPkgName = mainPackageName;
-    }
-
-    public String[] getServicePackageNameList() {
-        return servicePackageNameList.toArray(new String[0]);
-    }
-
-    // Service package.
-
-    public String getMainPackageName() {
-        return mainPkgName;
-    }
-
-    public void addServicePackage(String servicePackageName) {
-        this.servicePackageNameList.add(servicePackageName);
-    }
-
     // Information about ProgramFile, which are set from outside.
 
     public Path getProgramFilePath() {
@@ -166,7 +184,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
             // TODO ProgramFile is the static program data.
             VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
             int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
-            
+
             // Initialize global memory block
             BStructType dummyType = new BStructType("", "");
             dummyType.setFieldTypeCount(globalVarCount);

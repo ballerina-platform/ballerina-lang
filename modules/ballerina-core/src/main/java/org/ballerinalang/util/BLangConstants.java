@@ -24,7 +24,14 @@ package org.ballerinalang.util;
  */
 public class BLangConstants {
 
+    public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
+
+    public static final String BLANG_SRC_FILE_EXT = "bal";
+    public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
+
+    public static final String BLANG_EXEC_FILE_EXT = "balx";
+    public static final String BLANG_EXEC_FILE_SUFFIX = "." + BLANG_EXEC_FILE_EXT;
 
     // int, float, string, boolean, blob, reference type
     public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;

@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.nativeimpl.util;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangASTBuilder;
+import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.codegen.ProgramFileWriter;
@@ -49,7 +49,7 @@ public class BTestUtils {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            return new BLangProgramLoader().loadLibrary(programPath,
+            return new BLangASTBuilder().build(programPath,
                     Paths.get(sourceFilePath));
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
@@ -60,7 +60,7 @@ public class BTestUtils {
         Path programPath;
         try {
             programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            ProgramFile programFile = new BLangProgramLoader().loadProgramFile(programPath,
+            ProgramFile programFile = BLangCompiler.compile(programPath,
                     Paths.get(sourceFilePath));
             Path targetPath;
             Path sourcePath = programPath.resolve(sourceFilePath);
@@ -72,14 +72,13 @@ public class BTestUtils {
             }
 
             targetPath = programPath.resolve(targetPath);
-            return programFile;
-//            ProgramFileWriter.writeProgram(programFile, targetPath);
-//            ProgramFileReader reader = new ProgramFileReader(NativeScope.getInstance());
-//            return reader.readProgram(targetPath);
+            ProgramFileWriter.writeProgram(programFile, targetPath);
+            ProgramFileReader reader = new ProgramFileReader();
+            return reader.readProgram(targetPath);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
-//        } catch (IOException e) {
-//            throw new RuntimeException(e.getMessage(), e);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

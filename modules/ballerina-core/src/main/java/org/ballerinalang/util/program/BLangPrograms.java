@@ -22,6 +22,7 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NativeScope;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 
 import java.io.IOException;
@@ -36,7 +37,10 @@ import java.nio.file.Path;
  * @since 0.8.0
  */
 public class BLangPrograms {
-    public static final String BSOURCE_FILE_EXT = ".bal";
+
+    public static void loadBuiltinTypes() {
+        BTypes.createBuiltInTypes(null);
+    }
 
     public static GlobalScope populateGlobalScope() {
         // Get the global scope
@@ -103,14 +107,9 @@ public class BLangPrograms {
         }
     }
 
-    public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath,
-                                                    BLangProgram.Category programCategory) {
+    public static Path validateAndResolveSourcePath(Path programDirPath, Path sourcePath) {
         if (sourcePath == null) {
             throw new IllegalArgumentException("source package/file cannot be null");
-        }
-
-        if (sourcePath.toString().endsWith(programCategory.getExtension())) {
-            return validateAndResolveArchivePath(sourcePath, programCategory);
         }
 
         try {
@@ -120,7 +119,7 @@ public class BLangPrograms {
                 return realSourcePath;
             }
 
-            if (!realSourcePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+            if (!realSourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
                 throw new IllegalArgumentException("invalid file: " + sourcePath);
             }
 
