@@ -92,35 +92,46 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (reference == null || reference.resolve() == null) {
                 BallerinaImportPackageQuickFix quickFix = new BallerinaImportPackageQuickFix(packageNameNode);
                 LocalQuickFix[] availableFixes = new LocalQuickFix[]{quickFix};
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, packageNameNode,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
+                problemDescriptors.add(createProblemDescriptor(manager, packageNameNode, isOnTheFly, availableFixes));
             }
         }
+
+        // Todo - Add new quick fixes.
+        LocalQuickFix[] availableFixes = new LocalQuickFix[0];
 
         Collection<NameReferenceNode> nameReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
                 NameReferenceNode.class);
-        LocalQuickFix[] availableFixes = new LocalQuickFix[0];
-        for (NameReferenceNode nameReferenceNode : nameReferenceNodes) {
-            ProgressManager.checkCanceled();
-            if (nameReferenceNode == null) {
-                continue;
-            }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(nameReferenceNode, IdentifierPSINode.class);
-            if (identifier == null) {
-                continue;
-            }
-            PsiReference reference = identifier.getReference();
-            if (reference == null || reference.resolve() == null) {
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
-            }
-        }
+        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+                nameReferenceNodes));
 
         Collection<AnnotationAttributeNode> annotationAttributeNodes = PsiTreeUtil.findChildrenOfType(file,
                 AnnotationAttributeNode.class);
-        for (AnnotationAttributeNode annotationAttributeNode : annotationAttributeNodes) {
+        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+                annotationAttributeNodes));
+
+        Collection<ConnectorReferenceNode> connectorReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
+                ConnectorReferenceNode.class);
+        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+                connectorReferenceNodes));
+
+        Collection<ActionInvocationNode> actionInvocationNodes = PsiTreeUtil.findChildrenOfType(file,
+                ActionInvocationNode.class);
+        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+                actionInvocationNodes));
+
+        Collection<FunctionReferenceNode> functionReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
+                FunctionReferenceNode.class);
+        problemDescriptors.addAll(getUnresolvedReferenceDescriptors(manager, isOnTheFly, availableFixes,
+                functionReferenceNodes));
+
+        return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
+    }
+
+    private <T extends PsiElement> List<ProblemDescriptor> getUnresolvedReferenceDescriptors(
+            @NotNull InspectionManager manager, boolean isOnTheFly, @NotNull LocalQuickFix[] availableFixes,
+            @NotNull Collection<T> nodes) {
+        List<ProblemDescriptor> problemDescriptors = new LinkedList<>();
+        for (T annotationAttributeNode : nodes) {
             ProgressManager.checkCanceled();
             if (annotationAttributeNode == null) {
                 continue;
@@ -131,83 +142,22 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             PsiReference reference = identifier.getReference();
             if (reference == null || reference.resolve() == null) {
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
+                problemDescriptors.add(createProblemDescriptor(manager, identifier, isOnTheFly, availableFixes));
             }
         }
-
-        Collection<ConnectorReferenceNode> connectorReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
-                ConnectorReferenceNode.class);
-        for (ConnectorReferenceNode connectorReferenceNode : connectorReferenceNodes) {
-            ProgressManager.checkCanceled();
-            if (connectorReferenceNode == null) {
-                continue;
-            }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(connectorReferenceNode, IdentifierPSINode.class);
-            if (identifier == null) {
-                continue;
-            }
-            PsiReference reference = identifier.getReference();
-            if (reference == null || reference.resolve() == null) {
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
-            }
-        }
-
-        Collection<ActionInvocationNode> actionInvocationNodes = PsiTreeUtil.findChildrenOfType(file,
-                ActionInvocationNode.class);
-        for (ActionInvocationNode actionInvocationNode : actionInvocationNodes) {
-            ProgressManager.checkCanceled();
-            if (actionInvocationNode == null) {
-                continue;
-            }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(actionInvocationNode, IdentifierPSINode.class);
-            if (identifier == null) {
-                continue;
-            }
-            PsiReference reference = identifier.getReference();
-            if (reference == null || reference.resolve() == null) {
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
-            }
-        }
-
-        Collection<FunctionReferenceNode> functionReferenceNodes = PsiTreeUtil.findChildrenOfType(file,
-                FunctionReferenceNode.class);
-        for (FunctionReferenceNode functionReferenceNode : functionReferenceNodes) {
-            ProgressManager.checkCanceled();
-            if (functionReferenceNode == null) {
-                continue;
-            }
-            IdentifierPSINode identifier = PsiTreeUtil.getChildOfType(functionReferenceNode, IdentifierPSINode.class);
-            if (identifier == null) {
-                continue;
-            }
-            PsiReference reference = identifier.getReference();
-            if (reference == null || reference.resolve() == null) {
-                ProblemDescriptor problemDescriptor = createProblemDescriptor(manager, isOnTheFly, identifier,
-                        availableFixes);
-                problemDescriptors.add(problemDescriptor);
-            }
-        }
-
-        return problemDescriptors.toArray(new ProblemDescriptor[problemDescriptors.size()]);
+        return problemDescriptors;
     }
 
     @NotNull
-    private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, boolean isOnTheFly,
-                                                      @NotNull PsiElement element,
-                                                      @NotNull LocalQuickFix[] availableFixes) {
+    private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, @NotNull PsiElement element,
+                                                      boolean isOnTheFly, @NotNull LocalQuickFix[] availableFixes) {
         String description = "Unresolved reference <code>#ref</code> #loc";
-        return createProblemDescriptor(manager, isOnTheFly, description, element, availableFixes);
+        return createProblemDescriptor(manager, description, isOnTheFly, element, availableFixes);
     }
 
     @NotNull
-    private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, boolean isOnTheFly,
-                                                      @NotNull String description, @NotNull PsiElement element,
+    private ProblemDescriptor createProblemDescriptor(@NotNull InspectionManager manager, @NotNull String description,
+                                                      boolean isOnTheFly, @NotNull PsiElement element,
                                                       @NotNull LocalQuickFix[] availableFixes) {
         return manager.createProblemDescriptor(element, description, isOnTheFly, availableFixes,
                 ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
