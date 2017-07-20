@@ -47,18 +47,21 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - Variable definition expression string
      */
     getStatementString() {
-        let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
-            (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
+        let variableDefinitionStatementString = !_.isNil(this.getVariableDef().getPkgName()) ?
+            (this.getVariableDef().getPkgName() + ':') : '';
         variableDefinitionStatementString += this.getBType();
-        if (((this.getChildren()[0]).getChildren()[0]).isArray()) {
-            for (let itr = 0; itr < ((this.getChildren()[0]).getChildren()[0]).getDimensions(); itr++) {
+        if (this.getVariableDef().isArray()) {
+            for (let itr = 0; itr < this.getVariableDef().getDimensions(); itr++) {
                 variableDefinitionStatementString += '[]';
             }
         }
+        if (this.getVariableDef().getTypeConstraint()) {
+            variableDefinitionStatementString += ('<' + this.getVariableDef().getTypeConstraint() + '>');
+        }
         variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
-        if (!_.isNil(this.children[1])) {
+        if (!_.isNil(this.getRightExpression())) {
             variableDefinitionStatementString +=
-              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.children[1].getExpressionString();
+              this.getWSRegion(1) + '=' + this.getWSRegion(2) + this.getRightExpression().getExpressionString();
         } else {
             variableDefinitionStatementString += this.getWSRegion(3);
         }
@@ -70,7 +73,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The ballerina type.
      */
     getBType() {
-        return !_.isNil(this.children[0]) ? this.children[0].getVariableType() : undefined;
+        return !_.isNil(this.getLeftExpression()) ? this.getLeftExpression().getVariableType() : undefined;
     }
 
     /**
@@ -92,7 +95,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getIdentifier() {
-        return !_.isNil(this.children[0]) ? this.children[0].getVariableName() : undefined;
+        return !_.isNil(this.getLeftExpression()) ? this.getLeftExpression().getVariableName() : undefined;
     }
 
     /**
@@ -101,7 +104,16 @@ class VariableDefinitionStatement extends Statement {
      * @memberof VariableDefinitionStatement
      */
     getBTypePkgName() {
-        return this.getChildren()[0].getChildren()[0].getPkgName();
+        return this.getVariableDef().getPkgName();
+    }
+
+    /**
+     * Get variable definition
+     * @returns {VariableDefinition} variable definition
+     * @memberof VariableDefinitionStatement
+     */
+    getVariableDef() {
+        return this.getLeftExpression().getChildren()[0];
     }
 
     /**
@@ -109,7 +121,7 @@ class VariableDefinitionStatement extends Statement {
      * @return {string} - The identifier.
      */
     getValue() {
-        return !_.isNil(this.children[1]) ? this.children[1].getExpressionString()
+        return !_.isNil(this.getRightExpression()) ? this.getRightExpression().getExpressionString()
                   : undefined;
     }
 
@@ -119,7 +131,7 @@ class VariableDefinitionStatement extends Statement {
      * @returns {void}
      */
     setIdentifier(identifier, opts) {
-        this.children[0].setVariableName(identifier, opts);
+        this.getLeftExpression().setVariableName(identifier, opts);
     }
 
     /**
@@ -128,7 +140,7 @@ class VariableDefinitionStatement extends Statement {
      * @returns {void}
      */
     setBType(bType, opts) {
-        this.children[0].setVariableType(bType, opts);
+        this.getLeftExpression().setVariableType(bType, opts);
     }
 
     /**

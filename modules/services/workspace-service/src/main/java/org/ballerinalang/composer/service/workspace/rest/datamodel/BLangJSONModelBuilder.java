@@ -106,6 +106,7 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.ConstraintTypeName;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
@@ -667,9 +668,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.PARAMETER_DEFINITION);
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName());
 
-        String parameterName = ((parameterDef.getTypeName().getPackageName() != null) ?
-                (parameterDef.getTypeName().getPackageName() + ":") : "") + parameterDef.getTypeName().getSymbolName()
+        SimpleTypeName typeName = parameterDef.getTypeName();
+        String parameterName = ((typeName.getPackageName() != null) ?
+                (typeName.getPackageName() + ":") : "") + typeName.getSymbolName()
                 .getName();
+
+        if (typeName instanceof ConstraintTypeName) {
+            paramObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT,
+                                 ((ConstraintTypeName) typeName).getConstraint().getName());
+        }
 
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterName);
         this.addPosition(paramObj, parameterDef.getNodeLocation());
@@ -696,10 +703,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDef.getIdentifier().getName());
         variableDefObj.addProperty(BLangJSONModelConstants.IS_IDENTIFIER_LITERAL,
                 variableDef.getIdentifier().isLiteral());
-        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDef.getTypeName().getName());
-        variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, variableDef.getTypeName().getPackageName());
-        variableDefObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, variableDef.getTypeName().isArrayType());
-        variableDefObj.addProperty(BLangJSONModelConstants.DIMENSIONS, variableDef.getTypeName().getDimensions());
+        SimpleTypeName typeName = variableDef.getTypeName();
+        variableDefObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, typeName.getName());
+        variableDefObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, typeName.getPackageName());
+        variableDefObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, typeName.isArrayType());
+        variableDefObj.addProperty(BLangJSONModelConstants.DIMENSIONS, typeName.getDimensions());
+        if (typeName instanceof ConstraintTypeName) {
+            variableDefObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT,
+                                       ((ConstraintTypeName) typeName).getConstraint().getSymbolName().getName());
+        }
         tempJsonArrayRef.peek().add(variableDefObj);
     }
 

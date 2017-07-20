@@ -66,24 +66,26 @@ class TransformExpanded extends React.Component {
 
     onConnectionCallback(connection) {
         const self = this;
-        const sourceStruct = _.find(self.predefinedStructs, { name:connection.sourceStruct});
-        const targetStruct = _.find(self.predefinedStructs, { name:connection.targetStruct});
+        const sourceStruct = _.find(self.predefinedStructs, { name: connection.sourceStruct });
+        const targetStruct = _.find(self.predefinedStructs, { name: connection.targetStruct });
         let sourceExpression;
         let targetExpression;
 
         if (sourceStruct !== undefined) {
             sourceExpression = self.getStructAccessNode(
-                connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
+                connection.sourceStruct, connection.sourceProperty,
+                      ((sourceStruct.type === 'struct') || (sourceStruct.type.startsWith('json'))));
         }
         if (targetStruct !== undefined) {
             targetExpression = self.getStructAccessNode(
-                connection.targetStruct, connection.targetProperty, (targetStruct.type === 'struct'));
+                connection.targetStruct, connection.targetProperty,
+                      ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         }
 
         if (!_.isUndefined(sourceStruct) && !_.isUndefined(targetStruct)) {
-            //Connection is from source struct to target struct.
+            // Connection is from source struct to target struct.
             const assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-            let varRefList = BallerinaASTFactory.createVariableReferenceList();
+            const varRefList = BallerinaASTFactory.createVariableReferenceList();
             varRefList.addChild(targetExpression);
             assignmentStmt.addChild(varRefList, 0);
             assignmentStmt.addChild(sourceExpression, 1);
@@ -164,9 +166,10 @@ class TransformExpanded extends React.Component {
         let sourceExpression;
         let targetExpression;
 
-        if (targetStruct !== undefined){
+        if (targetStruct !== undefined) {
             sourceExpression = self.getStructAccessNode(
-                connection.targetStruct, connection.targetProperty, (targetStruct.type === 'struct'));
+                connection.targetStruct, connection.targetProperty,
+                        ((targetStruct.type === 'struct') || (targetStruct.type.startsWith('json'))));
         } else {
             sourceExpression = self.getStructAccessNode(
                 connection.targetStruct, connection.targetProperty, false);
@@ -174,7 +177,8 @@ class TransformExpanded extends React.Component {
 
         if (sourceStruct !== undefined) {
             targetExpression = self.getStructAccessNode(
-                connection.sourceStruct, connection.sourceProperty, (sourceStruct.type === 'struct'));
+                connection.sourceStruct, connection.sourceProperty,
+                        ((sourceStruct.type === 'struct') || (sourceStruct.type.startsWith('json'))));
         } else {
             targetExpression = self.getStructAccessNode(
                 connection.sourceStruct, connection.sourceProperty, false);
@@ -518,13 +522,13 @@ class TransformExpanded extends React.Component {
         }
     }
 
-    createComplexProp(structName, expression)    {
-        let prop = {};
+    createComplexProp(structName, expression) {
+        const prop = {};
         prop.names = [];
         prop.types = [];
 
         if (BallerinaASTFactory.isFieldBasedVarRefExpression(expression)) {
-            let fieldName = expression.getFieldName();
+            const fieldName = expression.getFieldName();
             const structDef = _.find(this.predefinedStructs, { name: structName });
             if (_.isUndefined(structDef)) {
                 alerts.error('Struct definition for variable "' + structName + '" cannot be found');
@@ -539,7 +543,7 @@ class TransformExpanded extends React.Component {
             prop.types.push(structFieldType);
             prop.names.push(fieldName);
 
-            let parentProp = this.createComplexProp(fieldName, expression.getParent());
+            const parentProp = this.createComplexProp(fieldName, expression.getParent());
             prop.names = [...prop.names, ...parentProp.names];
             prop.types = [...prop.types, ...parentProp.types];
         }
@@ -565,15 +569,21 @@ class TransformExpanded extends React.Component {
     }
 
     createType(name, typeName, predefinedStruct, isInner) {
-        let struct = {};
+        const struct = this.getStructType(name, typeName, predefinedStruct, isInner);
+        this.predefinedStructs.push(struct);
+        return struct;
+    }
+
+    getStructType(name, typeName, predefinedStruct, isInner) {
+        const struct = {};
         struct.name = name;
         struct.properties = [];
         struct.type = 'struct';
         struct.typeName = typeName;
-        struct.isInner = isInner
+        struct.isInner = isInner;
 
         _.forEach(predefinedStruct.getFields(), (field) => {
-            let property = {};
+            const property = {};
             property.name = field.getName();
             property.type = field.getType();
             property.packageName = field.getPackageName();
@@ -585,7 +595,6 @@ class TransformExpanded extends React.Component {
 
             struct.properties.push(property);
         });
-        this.predefinedStructs.push(struct);
         return struct;
     }
 
@@ -777,21 +786,23 @@ class TransformExpanded extends React.Component {
     }
 
     getTransformVarJson(args) {
-        let argArray = [];
-        _.forEach(args, argument => {
+        const argArray = [];
+        _.forEach(args, (argument) => {
             if (BallerinaASTFactory.isVariableDefinitionStatement(argument)) {
-                let arg = {
-                    id : argument.getID(),
-                    type : argument.children[0].getVariableType(),
-                    name : argument.children[0].getVariableName(),
-                    pkgName : argument.children[0].children[0].getPkgName()
+                const arg = {
+                    id: argument.getID(),
+                    type: argument.getLeftExpression().getVariableType(),
+                    name: argument.getLeftExpression().getVariableName(),
+                    pkgName: argument.getVariableDef().getPkgName(),
+                    constraint: argument.getVariableDef().getTypeConstraint(),
                 };
                 argArray.push(arg);
             } else if (BallerinaASTFactory.isParameterDefinition(argument)) {
-                let arg = {
-                    id : argument.getID(),
-                    type : argument.getTypeName(),
-                    name : argument.getName()
+                const arg = {
+                    id: argument.getID(),
+                    type: argument.getTypeName(),
+                    name: argument.getName(),
+                    constraint: argument.getTypeConstraint(),
                 };
                 argArray.push(arg);
             }
@@ -828,7 +839,19 @@ class TransformExpanded extends React.Component {
                 const variableType = {};
                 variableType.id = arg.id;
                 variableType.name = arg.name;
-                variableType.type = arg.type;
+                if (arg.constraint !== undefined) {
+                    variableType.type = arg.type + '<' + arg.constraint + '>';
+                    variableType.constraintType = arg.constraint;
+                    const constraintDef = this.getStructDefinition(arg.pkgName, arg.constraint);
+                    if (constraintDef !== undefined) {
+                        const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
+                        // constraint properties (fields) become variable fields
+                        variableType.properties = constraint.properties;
+                        variableType.constraint = constraint;
+                    }
+                } else {
+                    variableType.type = arg.type;
+                }
                 this.predefinedStructs.push(variableType);
                 items.push({ name: variableType.name, type: variableType.type });
             }
@@ -858,6 +881,8 @@ class TransformExpanded extends React.Component {
         if (!sourceSelection.added) {
             if (sourceSelection.type === 'struct') {
                 this.mapper.addSourceType(sourceSelection, removeFunc);
+            } else if (sourceSelection.constraint !== undefined) {
+                this.mapper.addSourceType(sourceSelection.constraint, removeFunc);
             } else {
                 this.mapper.addVariable(sourceSelection, 'source', removeFunc);
             }
@@ -889,6 +914,8 @@ class TransformExpanded extends React.Component {
         if (!targetSelection.added) {
             if (targetSelection.type === 'struct') {
                 this.mapper.addTargetType(targetSelection, removeFunc);
+            } else if (targetSelection.constraint !== undefined) {
+                this.mapper.addTargetType(targetSelection.constraint, removeFunc);
             } else {
                 this.mapper.addVariable(targetSelection, 'target', removeFunc);
             }
