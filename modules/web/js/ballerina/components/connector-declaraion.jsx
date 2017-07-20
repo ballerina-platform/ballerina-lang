@@ -25,6 +25,7 @@ import ConnectorActivationContainer from './connector-activation-container';
 import * as DesignerDefaults from './../configs/designer-defaults';
 import StatementDecorator from './statement-decorator';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import ImageUtil from './image-util';
 
 /**
  * Get all components.
@@ -130,6 +131,8 @@ class ConnectorDeclaration extends React.Component {
                     onDelete={this.onDelete}
                     classes={classes}
                     startSolidLineFrom={connectorInitializeStartY}
+                    icon={ImageUtil.getSVGIconString('tool-icons/connector-greyscale')}
+                    iconColor='#1a8278'
                 />
                 {children}
             </g>

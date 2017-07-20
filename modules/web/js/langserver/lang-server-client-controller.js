@@ -245,6 +245,10 @@ class LangServerClientController extends EventChannel {
      * @param {object} message - response message
      */
     processMessage(message) {
+        // ignore pong messages
+        if (message.id === 'PONG') {
+            return;
+        }
         const session = _.find(this.requestSessions, (requestSession) => {
             return requestSession.getId() === message.id;
         });

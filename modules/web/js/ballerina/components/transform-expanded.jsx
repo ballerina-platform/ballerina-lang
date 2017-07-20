@@ -596,8 +596,8 @@ class TransformExpanded extends React.Component {
         this.predefinedStructs = [];
         this.getSourcesAndTargets();
 
-        this.mapper = new TransformRender(
-            this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
+        this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
+            this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
         _.forEach(nextProps.model.getInput(), (input) => {
             //trim expression to remove any possible white spaces
@@ -629,8 +629,8 @@ class TransformExpanded extends React.Component {
     }
 
     componentDidMount() {
-        this.mapper = new TransformRender(
-            this.onConnectionCallback.bind(this), this.onDisconnectionCallback.bind(this));
+        this.mapper = new TransformRender(this.onConnectionCallback.bind(this),
+            this.onDisconnectionCallback.bind(this), $(this.transformOverlayContentDiv));
 
         _.forEach(this.props.model.getInput(), (input) => {
             //trim expression to remove any possible white spaces
@@ -650,7 +650,7 @@ class TransformExpanded extends React.Component {
             this.mapper.reposition(this.mapper);
         });
 
-        $('.leftType, .rightType, .middle-content').on('scroll', () => {
+        $(this.transformOverlayContentDiv).find('.leftType, .rightType, .middle-content').on('scroll', () => {
             this.mapper.reposition(this.mapper);
         });
 
@@ -670,7 +670,6 @@ class TransformExpanded extends React.Component {
     }
 
     onTransformDropZoneActivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model;
         const model = this.props.model;
@@ -695,7 +694,6 @@ class TransformExpanded extends React.Component {
     }
 
     onTransformDropZoneDeactivate(e) {
-        this.transformOverlayContentDiv = document.getElementById('transformOverlay-content');
         const dragDropManager = this.context.dragDropManager;
         const dropTarget = this.props.model.getParent();
         if (dragDropManager.isOnDrag()) {
@@ -921,7 +919,7 @@ class TransformExpanded extends React.Component {
 
         return (
             <div id='transformOverlay' className='transformOverlay'>
-                <div id = 'transformOverlay-content' className='transformOverlay-content'
+                <div id={'transformOverlay-content'} className='transformOverlay-content'
                     ref={div => this.transformOverlayContentDiv=div }
                     onMouseOver={this.onTransformDropZoneActivate}
                     onMouseOut={this.onTransformDropZoneDeactivate}>

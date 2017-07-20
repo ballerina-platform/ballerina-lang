@@ -28,6 +28,7 @@ import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import { SOURCE_VIEW } from './../views/ballerina-file-editor.jsx';
 import _ from 'lodash';
+import ImageUtil from './image-util';
 
 class LifeLine extends React.Component {
 
@@ -88,6 +89,7 @@ class LifeLine extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
+        const iconSize = 20;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
@@ -99,7 +101,7 @@ class LifeLine extends React.Component {
         const dashedY2 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : -1;
         const solidY1 = !_.isNil(startSolidLineFrom) ? startSolidLineFrom : bBox.y + (titleBoxH / 2);
         const solidY2 = y2 - (titleBoxH / 2);
-        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w , titleBoxH);
+        this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, titleBoxH);
 
         const actionBbox = new SimpleBBox();
         actionBbox.w = (3 * DesignerDefaults.actionBox.width - 14) / 4;
@@ -110,7 +112,12 @@ class LifeLine extends React.Component {
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;
         }
-
+        let modifiedCenterValueForTop = centerX;
+        const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 5);
+        const imageY = bBox.y + (DesignerDefaults.iconForTool.height / 5);
+        if (this.props.icon) {
+            modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width + DesignerDefaults.iconForTool.padding.left;
+        }
         return (<g
             className="life-line-group"
             onMouseOut={this.setActionVisibility.bind(this, false)}
@@ -144,6 +151,25 @@ class LifeLine extends React.Component {
                 className={polygonClassTop}
                 onClick={e => this.openExpressionEditor(e)}
             />
+
+            {this.props.icon &&
+            <g>
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={DesignerDefaults.iconForTool.width}
+                    height={DesignerDefaults.iconForTool.height}
+                    rx="0"
+                    ry="0"
+                    fill={this.props.iconColor}
+                />
+                <image
+                    x={imageX}
+                    y={imageY}
+                    width={iconSize}
+                    height={iconSize}
+                    xlinkHref={this.props.icon}
+                /> </g>}
             <rect
                 x={bBox.x}
                 y={y2 - titleBoxH}
@@ -154,9 +180,8 @@ class LifeLine extends React.Component {
                 className={polygonClassBottom}
             />
             <text
-                x={centerX}
+                x={modifiedCenterValueForTop}
                 y={bBox.y + titleBoxH / 2}
-                textAnchor="middle"
                 alignmentBaseline="central"
                 dominantBaseline="central"
                 className="life-line-text genericT"
@@ -168,7 +193,7 @@ class LifeLine extends React.Component {
                 textAnchor="middle"
                 alignmentBaseline="central"
                 dominantBaseline="central"
-                className="life-line-text genericT unhoverable"
+                className="life-line-text textBottomPolygon genericT unhoverable"
             >{this.props.title}</text>
             {this.props.onDelete &&
                 <ActionBox

@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import AnnotationAttributeVisitor from './annotation-attribute-visitor';
 
@@ -33,6 +34,8 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     constructor(parent, isFirstAnnotation = false) {
         super(parent);
+        // flag to indicate whether this is embedded in an annotation attribute value
+        this.isAttribValue = false;
         this._isFirstAnnotation = isFirstAnnotation;
     }
 
@@ -54,7 +57,9 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     beginVisitAnnotationAttachment(annotationAttachment) {
         const useDefaultWS = annotationAttachment.whiteSpace.useDefault;
-        if (useDefaultWS && !this._isFirstAnnotation) {
+        this.isAttribValue = annotationAttachment.getFactory()
+                                .isAnnotationAttributeValue(annotationAttachment.getParent());
+        if (useDefaultWS && !this._isFirstAnnotation && !this.isAttribValue) {
             this.currentPrecedingIndentation = this.getCurrentPrecedingIndentation();
             this.replaceCurrentPrecedingIndentation(this.getIndentation());
         }
@@ -75,7 +80,28 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      * Visits the body of the annotation attachment.
      * @memberof AnnotationAttachmentVisitor
      */
-    visitAnnotationAttachment() {
+    visitAnnotationAttachment(annotationAttachment) {
+        // override default visit mechanism to keep track of no of attributes
+        // this is needed for adding comma logic
+        const attributes = annotationAttachment.getChildrenOfType(annotationAttachment
+                                    .getFactory().isAnnotationAttribute);
+        if (_.isArray(attributes)) {
+            attributes.forEach((attribute, index) => {
+                if (index !== 0) {
+                    this.appendSource(',');
+                    if (annotationAttachment.whiteSpace.useDefault) {
+                        this.appendSource('\n');
+                    }
+                }
+                const annotationAttributeVisitor = new AnnotationAttributeVisitor(this, index === 0);
+                attribute.accept(annotationAttributeVisitor);
+                if (index === attributes.length - 1) {
+                    if (annotationAttachment.whiteSpace.useDefault) {
+                        this.appendSource('\n');
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -86,19 +112,12 @@ class AnnotationAttachmentVisitor extends AbstractSourceGenVisitor {
      */
     endVisitAnnotationAttachment(annotationAttachment) {
         this.outdent();
-        this.appendSource('}' + annotationAttachment.getWSRegion(3));
-        this.appendSource((annotationAttachment.whiteSpace.useDefault && !this._isFirstAnnotation)
+        this.appendSource('}' + (this.isAttribValue && annotationAttachment.whiteSpace.useDefault
+                                    ? '' : annotationAttachment.getWSRegion(3)));
+        this.appendSource((annotationAttachment.whiteSpace.useDefault
+                            && !this._isFirstAnnotation && !this.isAttribValue)
                                 ? this.currentPrecedingIndentation : '');
         this.getParent().appendSource(this.getGeneratedSource());
-    }
-
-    /**
-    * Visits annotation attribute.
-    * @param {AnnotationAttribute} annotationAttribute The annotation attribute child.
-    */
-    visitAnnotationAttribute(annotationAttribute) {
-        const annotationAttributeVisitor = new AnnotationAttributeVisitor(this);
-        annotationAttribute.accept(annotationAttributeVisitor);
     }
 }
 export default AnnotationAttachmentVisitor;

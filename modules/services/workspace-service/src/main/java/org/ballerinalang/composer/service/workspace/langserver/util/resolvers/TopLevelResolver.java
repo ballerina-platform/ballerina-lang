@@ -36,11 +36,11 @@ public class TopLevelResolver extends AbstractItemResolver {
             addStaticItem(completionItems, ItemResolverConstants.FUNCTION, ItemResolverConstants.FUNCTION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.SERVICE, ItemResolverConstants.SERVICE_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.CONNECTOR,
-                    ItemResolverConstants.CONNECTOR_DEFFINITION_TEMPLATE);
+                    ItemResolverConstants.CONNECTOR_DEFINITION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.STRUCT,
-                    ItemResolverConstants.STRUCT_DEFFINITION_TEMPLATE);
+                    ItemResolverConstants.STRUCT_DEFINITION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.ANNOTATION,
-                    ItemResolverConstants.ANNOTATION_DEFFINITION_TEMPLATE);
+                    ItemResolverConstants.ANNOTATION_DEFINITION_TEMPLATE);
             addStaticItem(completionItems, ItemResolverConstants.XMLNS,
                     ItemResolverConstants.NAMESPACE_DECLARATION_TEMPLATE);
         }

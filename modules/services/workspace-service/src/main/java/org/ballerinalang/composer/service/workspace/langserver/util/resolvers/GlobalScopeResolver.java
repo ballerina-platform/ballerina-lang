@@ -21,37 +21,35 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.parser.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Default resolver for the completion items
+ * Completion item resolver for the global scope
  */
-class DefaultResolver extends AbstractItemResolver {
+public class GlobalScopeResolver extends AbstractItemResolver {
+
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
+
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        CompletionItem workerItem = new CompletionItem();
-        workerItem.setLabel(ItemResolverConstants.WORKER);
-        workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
-        workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-        workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
-        completionItems.add(workerItem);
-
-        populateCompletionItemList(symbols, completionItems);
-
-        // Add the basic constructs
-        ItemResolverConstants.getBasicConstructs().forEach((bConstruct) -> {
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setLabel(bConstruct);
-            completionItem.setInsertText(bConstruct);
-            completionItem.setDetail("");
-            completionItem.setSortText(ItemResolverConstants.PRIORITY_3);
-            completionItems.add(completionItem);
-        });
+        if (dataModel.getParserRuleContext() == null) {
+            // If the parser rule context is null we don't have any errors. In this case we add the types
+            List<SymbolInfo> bTypeSymbolInfo = symbols.stream()
+                    .filter(symbolInfo -> symbolInfo.getSymbol() instanceof BType)
+                    .collect(Collectors.toList());
+            this.populateCompletionItemList(bTypeSymbolInfo, completionItems);
+        } else if (dataModel.getParserRuleContext() instanceof BallerinaParser.TypeNameContext) {
+            return resolvers.get(dataModel.getParserRuleContext().getClass())
+                    .resolveItems(dataModel, symbols, resolvers);
+        }
 
         return completionItems;
     }
