@@ -63,6 +63,7 @@ public class ItemResolverConstants {
     public static final String ACTION = "action";
     public static final String STRUCT = "struct";
     public static final String ANNOTATION = "annotation";
+    public static final String XMLNS = "xmlns";
 
 
     public static final String FUNCTION_TEMPLATE = "function ${1:name} (${2}) {\n    ${3}\n}";
@@ -88,7 +89,8 @@ public class ItemResolverConstants {
     public static final String TRIGGER_WORKER_TEMPLATE = "${1} -> ${2};";
     public static final String WORKER_REPLY_TEMPLATE = "${1} <- ${2};";
     public static final String TRANSFORM_TEMPLATE = "transform {\n\t${1}\n}";
-
+    public static final String NAMESPACE_DECLARATION_TEMPLATE = "xmlns \"${1}\" as ${2:ns};";
+    public static final String XML_ATTRIBUTE_REFERENCE_TEMPLATE = "\"${1}\"@[\"${2}\"]";
 
     // End of Basic Constructs
 

@@ -1130,12 +1130,16 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(NamespaceDeclarationStmt namespaceDeclarationStmt) {
+        checkAndSetClosestScope(namespaceDeclarationStmt);
 
+        NamespaceDeclaration namespaceDeclaration = namespaceDeclarationStmt.getNamespaceDclr();
+
+        SymbolName symbolName = new SymbolName(namespaceDeclaration.getName(), currentPkg);
+        currentScope.define(symbolName, namespaceDeclaration);
     }
 
     @Override
     public void visit(NamespaceDeclaration namespaceDclr) {
-
     }
 
     @Override
@@ -1440,7 +1444,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(XMLAttributesRefExpr xmlAttributesRefExpr) {
+        Expression indexExpr = xmlAttributesRefExpr.getIndexExpr();
+        indexExpr.accept(this);
 
+        VariableReferenceExpr variableReferenceExpr = xmlAttributesRefExpr.getVarRefExpr();
+        variableReferenceExpr.accept(this);
     }
 
     @Override
