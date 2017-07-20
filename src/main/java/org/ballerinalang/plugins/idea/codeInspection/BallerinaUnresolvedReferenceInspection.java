@@ -74,13 +74,13 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             }
             ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(packageNameNode,
                     ImportDeclarationNode.class);
-            if (importDeclarationNode != null) {
-                continue;
+            if (importDeclarationNode == null) {
+                XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(packageNameNode, XmlAttribNode.class);
+                if (xmlAttribNode != null) {
+                    continue;
+                }
             }
-            XmlAttribNode xmlAttribNode = PsiTreeUtil.getParentOfType(packageNameNode, XmlAttribNode.class);
-            if (xmlAttribNode != null) {
-                continue;
-            }
+
             PsiElement nameIdentifier = packageNameNode.getNameIdentifier();
             if (nameIdentifier == null) {
                 continue;
