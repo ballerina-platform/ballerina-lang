@@ -146,7 +146,10 @@ class TransformExpanded extends React.Component {
         const assignmentStmtTarget = self.getParentAssignmentStmt(connection.targetReference);
 
         const assignmentStmtSource = connection.sourceReference;
-        assignmentStmtTarget.getRightExpression().addChild(assignmentStmtSource.getRightExpression());
+        let funcNode = assignmentStmtTarget.getRightExpression();
+        let index = _.findIndex(self.getFunctionDefinition(funcNode).getParameters(),
+                                            (param) => { return param.name == connection.targetProperty[0]});
+        funcNode.children[index] = assignmentStmtSource.getRightExpression();
         //remove the source assignment statement since it is now included in the target assignment statement.
         const transformStmt = assignmentStmtSource.getParent();
         transformStmt.removeChild(assignmentStmtSource);
