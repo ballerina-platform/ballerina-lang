@@ -73,7 +73,7 @@ class WorkerDeclarationDimensionCalculatorVisitor {
         let statementHeight = 0;
 
         _.forEach(statementChildren, (child) => {
-            statementHeight += child.viewState.bBox.h + DesignerDefaults.statement.gutter.v;
+            statementHeight += child.viewState.bBox.h;
             if ((child.viewState.bBox.w + statementContainerWidthPadding) > statementWidth) {
                 statementWidth = child.viewState.bBox.w + statementContainerWidthPadding;
             }

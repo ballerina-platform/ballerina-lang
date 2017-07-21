@@ -17,6 +17,7 @@
 package org.ballerinalang.composer.service.workspace.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,12 @@ public class AnnotationDef {
         AnnotationDef tempAnnotation = new AnnotationDef();
         tempAnnotation.setPackagePath(annotationDef.getPkgPath());
         tempAnnotation.setName(annotationDef.getName());
-        tempAnnotation.setAttachmentPoints(Arrays.asList(annotationDef.getAttachmentPoints()));
+        ArrayList<String> attachmentPoints = new ArrayList<String>();
+        AnnotationAttachmentPoint[] attachmentPointsList = annotationDef.getAttachmentPoints();
+        for (AnnotationAttachmentPoint annotationAttachmentPoint : attachmentPointsList) {
+            attachmentPoints.add(annotationAttachmentPoint.getAttachmentPoint().getValue());
+        }
+        tempAnnotation.setAttachmentPoints(attachmentPoints);
     
         for (org.ballerinalang.model.AnnotationAttributeDef annotationAttributeDef : annotationDef.getAttributeDefs()) {
             AnnotationAttributeDef tempAnnotationAttributeDef = AnnotationAttributeDef.convertToPackageModel(
