@@ -674,8 +674,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 .getName();
 
         if (typeName instanceof ConstraintTypeName) {
-            paramObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT,
-                                 ((ConstraintTypeName) typeName).getConstraint().getName());
+            SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
+            JsonObject constraintObj = new JsonObject();
+            constraintObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT, constraint.getName());
+            if (constraint.getPackageName() != null) {
+                constraintObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, constraint.getPackageName());
+            }
+            paramObj.add(BLangJSONModelConstants.TYPE_CONSTRAINT, constraintObj);
         }
 
         paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterName);
@@ -709,8 +714,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         variableDefObj.addProperty(BLangJSONModelConstants.IS_ARRAY_TYPE, typeName.isArrayType());
         variableDefObj.addProperty(BLangJSONModelConstants.DIMENSIONS, typeName.getDimensions());
         if (typeName instanceof ConstraintTypeName) {
-            variableDefObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT,
-                                       ((ConstraintTypeName) typeName).getConstraint().getSymbolName().getName());
+            SimpleTypeName constraint = ((ConstraintTypeName) typeName).getConstraint();
+            JsonObject constraintObj = new JsonObject();
+            constraintObj.addProperty(BLangJSONModelConstants.TYPE_CONSTRAINT, constraint.getName());
+            if (constraint.getPackageName() != null) {
+                constraintObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME, constraint.getPackageName());
+            }
+            variableDefObj.add(BLangJSONModelConstants.TYPE_CONSTRAINT, constraintObj);
         }
         tempJsonArrayRef.peek().add(variableDefObj);
     }

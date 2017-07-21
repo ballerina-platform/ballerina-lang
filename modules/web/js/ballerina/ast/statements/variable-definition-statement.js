@@ -56,7 +56,10 @@ class VariableDefinitionStatement extends Statement {
             }
         }
         if (this.getVariableDef().getTypeConstraint()) {
-            variableDefinitionStatementString += ('<' + this.getVariableDef().getTypeConstraint() + '>');
+            const constraint = this.getVariableDef().getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            variableDefinitionStatementString += constraintStr;
         }
         variableDefinitionStatementString += this.getWSRegion(0) + this.getIdentifier();
         if (!_.isNil(this.getRightExpression())) {

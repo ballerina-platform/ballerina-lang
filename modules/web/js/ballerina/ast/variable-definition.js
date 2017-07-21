@@ -128,9 +128,15 @@ class VariableDefinition extends ASTNode {
         this.setName(jsonNode.variable_name, { doSilently: true });
         this.setTypeName(jsonNode.variable_type, { doSilently: true });
         this.setPkgName(jsonNode.package_name, { doSilently: true });
-        this.setIsArray(jsonNode.is_array_type);
-        this.setDimensions(jsonNode.dimensions);
-        this.setTypeConstraint(jsonNode.type_constraint);
+        this.setIsArray(jsonNode.is_array_type, { doSilently: true });
+        this.setDimensions(jsonNode.dimensions, { doSilently: true });
+
+        if (jsonNode.type_constraint) {
+            const typeConstraint = {};
+            typeConstraint.pkgName = jsonNode.type_constraint.package_name;
+            typeConstraint.type = jsonNode.type_constraint.type_constraint;
+            this.setTypeConstraint(typeConstraint, { doSilently: true });
+        }
 
         _.each(jsonNode.children, (childNode) => {
             const child = this.getFactory().createFromJson(childNode);

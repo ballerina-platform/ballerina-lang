@@ -840,9 +840,11 @@ class TransformExpanded extends React.Component {
                 variableType.id = arg.id;
                 variableType.name = arg.name;
                 if (arg.constraint !== undefined) {
-                    variableType.type = arg.type + '<' + arg.constraint + '>';
+                    variableType.type = arg.type + '<'
+                                  + ((arg.constraint.pkgName) ? arg.constraint.pkgName + ':' : '')
+                                  + arg.constraint.type + '>';
                     variableType.constraintType = arg.constraint;
-                    const constraintDef = this.getStructDefinition(arg.pkgName, arg.constraint);
+                    const constraintDef = this.getStructDefinition(arg.constraint.pkgName, arg.constraint.type);
                     if (constraintDef !== undefined) {
                         const constraint = this.getStructType(arg.name, variableType.type, constraintDef, true);
                         // For constraint types, the field types must be the same type as the variable and
