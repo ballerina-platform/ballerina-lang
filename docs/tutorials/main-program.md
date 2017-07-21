@@ -116,7 +116,7 @@ This is a variable that may hold any JSON document.
 
 Now that you have extracted the content from the JSON, Ballerina needs to do the calculations. This involves using a conditional statement like `while`.
 
-A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the **While** icon ![alt-text](../images/icons/while.png "While icon") from the tool palette to the canvas to add the statement to your program. 
+A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the **While** icon from the tool palette to the canvas to add the statement to your program. 
 
 A `while` statement is defined as follows:
 
@@ -141,8 +141,11 @@ while (BooleanExpression) {
 1. Specify the assignment value as `i = i + 1`. This increments `i` until it is equal to the `dataCount`. So if there are 5 data sets, `i` will be 5 when it comes out of the `while` loop.
 
     ![alt text](../images/AssignmentValue.png)
-1. Add a variable and declare it as a `float`. A `float` supports 64-bit IEEE754 arithmetic. The temperature can be assigned to this value type.
+1. Add a `variable` and declare it as a `float`. A `float` supports 64-bit IEEE754 arithmetic. The sum of all the temperatures can be assigned to this value type.
+
     ![alt text](../images/AddFloat.png)
+1. Add another `variable` and declare it as a `float`. This must be inside the `while` condition. This is used to calculate the temperature for each data set.
+    ![alt text](../images/AssignFloatTemp.png)
 
 ## Get information from the weather forecast API
 
