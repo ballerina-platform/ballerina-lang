@@ -18,6 +18,8 @@
 
 import React from 'react';
 import './import-declaration-item.css';
+import * as DesignerDefaults from './../configs/designer-defaults';
+import { util } from './../visitors/sizing-utils';
 
 export default class importDeclarationItem extends React.Component {
     constructor() {
@@ -60,9 +62,10 @@ export default class importDeclarationItem extends React.Component {
 
         return (
             <g className={className} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+                <title> {this.props.importDec.getPackageName()}</title>
                 <rect x={x} y={y} height={h} width={w} className="background" />
                 <text x={x + leftPadding} y={y + h / 2} rx="0" ry="0" className="import-definition-text">
-                    {this.props.importDec.getPackageName()}
+                    {util.getTextWidth(this.props.importDec.getPackageName(), 0, DesignerDefaults.globalDeclarationWidth).text}
                 </text>
                 <rect x={x} y={y} height={h} className="import-definition-decorator" />
                 <rect x={x + w - 30} y={y} height={h} width={30} className="delete-background" onClick={this.handleDeleteClick} />
