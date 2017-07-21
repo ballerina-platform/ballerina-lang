@@ -97,7 +97,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
     protected static final String B_KEYWORD_NATIVE = "native";
     protected static final String ATTACHMENT_POINTS = "attachmentPoints";
     protected static final String B_KEYWORD_ACTION = "action";
-    public static final String NAME_REF = "nameRef";
     public static final String TYPE_NAME = "typeName";
 
     protected String fileName;
@@ -1822,7 +1821,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationExprWS(tokenStream, ctx);
-            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
         }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
@@ -1927,9 +1925,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getFunctionInvocationStmtWS(tokenStream, ctx);
-            if (!nameReferenceStack.empty()) {
-                whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReferenceStack.peek().getWhiteSpaceDescriptor());
-            }
         }
 
         NodeLocation currentLocation = getCurrentLocation(ctx);
@@ -2045,7 +2040,6 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         WhiteSpaceDescriptor whiteSpaceDescriptor = null;
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getActionInvocationExprWS(tokenStream, ctx);
-            whiteSpaceDescriptor.addChildDescriptor(NAME_REF, nameReference.getWhiteSpaceDescriptor());
         }
         modelBuilder.addActionInvocationExpr(nodeLocation, whiteSpaceDescriptor, nameReference, actionName,
                 argsAvailable);
