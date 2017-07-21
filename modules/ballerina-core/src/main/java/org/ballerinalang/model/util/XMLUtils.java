@@ -352,7 +352,7 @@ public class XMLUtils {
     private static ObjectNode traverseXMLElement(OMElement omElement, String attributePrefix,
             boolean preserveNamespaces) {
         ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();
-        LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement);
+        LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
@@ -364,7 +364,8 @@ public class XMLUtils {
                 OMNode node = (OMNode) iterator.next();
                 if (OMNode.ELEMENT_NODE == node.getType()) {
                     OMElement omChildElement = (OMElement) node;
-                    LinkedHashMap<String, String> childAttributeMap = collectAttributesAndNamespaces(omChildElement);
+                    LinkedHashMap<String, String> childAttributeMap = collectAttributesAndNamespaces(omChildElement,
+                            preserveNamespaces);
                     Iterator iteratorChild = omChildElement.getChildElements();
                     String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
                     if (iteratorChild.hasNext()) {
@@ -520,19 +521,30 @@ public class XMLUtils {
      *
      * @param element XML element to extract attributes and namespaces
      */
-    private static LinkedHashMap<String, String> collectAttributesAndNamespaces(OMElement element) {
+    private static LinkedHashMap<String, String> collectAttributesAndNamespaces(OMElement element,
+            boolean preserveNamespaces) {
         //Extract namespaces from the element
         LinkedHashMap<String, String> attributeMap = new LinkedHashMap<>();
-        Iterator namespaceIterator = element.getAllDeclaredNamespaces();
-        while (namespaceIterator.hasNext()) {
-            OMNamespace namespace = (OMNamespace) namespaceIterator.next();
-            attributeMap.put(XML_NAMESPACE_PREFIX + namespace.getPrefix(), namespace.getNamespaceURI());
+        if (preserveNamespaces) {
+            Iterator namespaceIterator = element.getAllDeclaredNamespaces();
+            while (namespaceIterator.hasNext()) {
+                OMNamespace namespace = (OMNamespace) namespaceIterator.next();
+                attributeMap.put(XML_NAMESPACE_PREFIX + namespace.getPrefix(), namespace.getNamespaceURI());
+            }
         }
         //Extract attributes from the element
         Iterator attributeIterator = element.getAllAttributes();
         while (attributeIterator.hasNext()) {
             OMAttribute attribute = (OMAttribute) attributeIterator.next();
-            attributeMap.put(attribute.getLocalName(), attribute.getAttributeValue());
+            StringBuffer key = new StringBuffer();
+            if (preserveNamespaces) {
+                String prefix = attribute.getPrefix();
+                if (prefix != null) {
+                    key.append(prefix).append(":");
+                }
+            }
+            key.append(attribute.getLocalName());
+            attributeMap.put(key.toString(), attribute.getAttributeValue());
         }
         return attributeMap;
     }

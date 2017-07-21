@@ -1257,12 +1257,9 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithoutNamespace", args);
 
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
-                + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"storeName\":\"foo\","
-                + "\"isOpen\":\"true\",\"postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\",\"#text\":\"94\"},"
-                + "\"address\":{\"@xmlns:ns2\":\"http://sample2.com/test\",\"street\":\"foo\",\"city\":\"111\","
-                + "\"country\":\"true\"},\"codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\","
-                + "\"item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\","
+                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
+                + "\"city\":\"111\",\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
     }
 
     @Test
@@ -1370,5 +1367,36 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\","
                 + "\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\","
                 + "\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}},\"metaInfo\":\"some info\"}");
+    }
+
+    @Test
+    public void testToJSONWithAttributeNamespacesAndPreserveNamespace() {
+        String xmlStr = "<ns0:bookStore xmlns:ns0=\"http://sample0.com/test\" status=\"online\" ns0:id = \"10\">"
+                + "<ns0:storeName>foo</ns0:storeName><ns0:isOpen>true</ns0:isOpen>"
+                + "<ns2:address xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" "
+                + "ns2:code= \"test\">srilanka</ns2:address></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSON", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":"
+                + "\"http://sample0.com/test\",\"@status\":\"online\",\"@ns0:id\":\"10\",\"ns0:storeName\":\"foo\","
+                + "\"ns0:isOpen\":\"true\",\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
+                + "\"@status\":\"online\",\"@ns0:id\":\"10\",\"@ns2:code\":\"test\",\"#text\":\"srilanka\"}}}");
+    }
+
+    @Test
+    public void testToJSONWithAttributeNamespacesAndNoPreserveNamespace() {
+        String xmlStr = "<ns0:bookStore xmlns:ns0=\"http://sample0.com/test\" status=\"online\" "
+                + "ns0:id = \"10\"><ns0:storeName>foo</ns0:storeName><ns0:isOpen>true</ns0:isOpen><ns2:address "
+                + "xmlns:ns2=\"http://sample2.com/test\" status=\"online\" ns0:id = \"10\" ns2:code= \"test\">"
+                + "srilanka</ns2:address></ns0:bookStore>";
+        BValue[] args = { new BXMLItem(xmlStr) };
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testToJSONWithoutNamespace", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"10\","
+                + "\"storeName\":\"foo\",\"isOpen\":\"true\",\"address\":{\"@status\":\"online\",\"@id\":\"10\","
+                + "\"@code\":\"test\",\"#text\":\"srilanka\"}}}");
     }
 }
