@@ -27,7 +27,7 @@ service<ws> serverConnector {
 }
 
 
-@doc:Description {value:"This is the client service for WebSocket client connector con mentioned above."}
+@doc:Description {value:"This is the client service for WebSocket client connector mentioned above."}
 @ws:ClientService {}
 service<ws> clientService {
 
