@@ -136,6 +136,7 @@ class DebugManager extends EventChannel {
      * @memberof DebugManager
      */
     connect(url) {
+        this.trigger('connecting');
         if (url !== undefined || url !== '') {
             this.channel = new Channel({ endpoint: url, debugger: this });
             this.channel.connect();
@@ -160,6 +161,15 @@ class DebugManager extends EventChannel {
         this.launchManager = options.launchManager;
         this.launchManager.on('debug-active', (url) => {
             this.startDebugger(url);
+        });
+        this.launchManager.on('execution-ended', () => {
+            this.trigger('session-ended');
+        });
+        this.launchManager.on('session-ended', () => {
+            this.trigger('session-ended');
+        });
+        this.launchManager.on('session-terminated', () => {
+            this.trigger('session-ended');
         });
     }
     /**
