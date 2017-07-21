@@ -415,7 +415,8 @@ svg.plumbConnect path {
 .function-header-label{
     margin-top: -2px;
 }
-.jstree-default > .jstree-container-ul > .jstree-node {
+
+#transformOverlay  .jstree-default > .jstree-container-ul > .jstree-node {
     margin-left: 0;
     margin-right: 0;
     height: 30px;
