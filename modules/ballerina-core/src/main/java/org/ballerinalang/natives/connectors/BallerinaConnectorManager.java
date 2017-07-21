@@ -95,6 +95,7 @@ public class BallerinaConnectorManager {
         ServerConnector serverConnector;
         try {
             serverConnector = connectorManager.createServerConnector(protocol, id, parameters);
+            //TODO: Look at the possibility of moving the error handler assignment code from dispatcher to here
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
