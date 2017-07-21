@@ -77,9 +77,6 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder PARAMETER;
     private static final LookupElementBuilder XMLNS;
 
-    // Any type
-    private static final LookupElementBuilder ANY;
-
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
     private static final LookupElementBuilder INT;
@@ -91,9 +88,12 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder MESSAGE;
     private static final LookupElementBuilder MAP;
     private static final LookupElementBuilder XML;
-    private static final LookupElementBuilder XML_DOCUMENT;
     private static final LookupElementBuilder JSON;
     private static final LookupElementBuilder DATATABLE;
+
+    // Other types
+    private static final LookupElementBuilder ANY;
+    private static final LookupElementBuilder TYPE;
 
     // Other keywords
     private static final LookupElementBuilder REPLY;
@@ -142,8 +142,6 @@ public class BallerinaCompletionUtils {
         PARAMETER = createKeywordLookupElement("parameter");
         XMLNS = createKeywordLookupElement("xmlns");
 
-        ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
-
         BOOLEAN = createTypeLookupElement("boolean", AddSpaceInsertHandler.INSTANCE);
         INT = createTypeLookupElement("int", AddSpaceInsertHandler.INSTANCE);
         FLOAT = createTypeLookupElement("float", AddSpaceInsertHandler.INSTANCE);
@@ -153,9 +151,11 @@ public class BallerinaCompletionUtils {
         MESSAGE = createTypeLookupElement("message", AddSpaceInsertHandler.INSTANCE);
         MAP = createTypeLookupElement("map", AddSpaceInsertHandler.INSTANCE);
         XML = createTypeLookupElement("xml", AddSpaceInsertHandler.INSTANCE);
-        XML_DOCUMENT = createTypeLookupElement("xmlDocument", AddSpaceInsertHandler.INSTANCE);
         JSON = createTypeLookupElement("json", AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createTypeLookupElement("datatable", AddSpaceInsertHandler.INSTANCE);
+
+        ANY = createTypeLookupElement("any", AddSpaceInsertHandler.INSTANCE);
+        TYPE = createTypeLookupElement("type", AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply");
         RETURN = createKeywordLookupElement("return");
@@ -255,7 +255,7 @@ public class BallerinaCompletionUtils {
      * @param resultSet result list which is used to add lookups
      */
     static void addTypeNamesAsLookups(@NotNull CompletionResultSet resultSet) {
-        addAnyTypeAsLookup(resultSet);
+        addOtherTypeAsLookup(resultSet);
         addXmlnsAsLookup(resultSet);
         addValueTypesAsLookups(resultSet);
         addReferenceTypesAsLookups(resultSet);
@@ -266,8 +266,9 @@ public class BallerinaCompletionUtils {
      *
      * @param resultSet result list which is used to add lookups
      */
-    static void addAnyTypeAsLookup(@NotNull CompletionResultSet resultSet) {
+    static void addOtherTypeAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANY, VALUE_TYPES_PRIORITY));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, VALUE_TYPES_PRIORITY));
     }
 
     static void addXmlnsAsLookup(@NotNull CompletionResultSet resultSet) {
@@ -296,7 +297,6 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(MESSAGE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(MAP, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(XML, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(XML_DOCUMENT, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(JSON, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(DATATABLE, REFERENCE_TYPES_PRIORITY));
     }

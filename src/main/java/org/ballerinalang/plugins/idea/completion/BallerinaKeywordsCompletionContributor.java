@@ -68,7 +68,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                 AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(typeNameNode,
                         AnnotationDefinitionNode.class);
                 if (annotationDefinitionNode == null) {
-                    addAnyTypeAsLookup(result);
+                    addOtherTypeAsLookup(result);
                     addXmlnsAsLookup(result);
                     addValueTypesAsLookups(result);
                     addReferenceTypesAsLookups(result);
@@ -98,7 +98,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
 
                 if (prevVisibleSibling != null && prevVisibleSibling.getText().matches("[;{}]")) {
                     // Todo - change method
-                    addAnyTypeAsLookup(result);
+                    addOtherTypeAsLookup(result);
                     addXmlnsAsLookup(result);
                     addValueTypesAsLookups(result);
                     addReferenceTypesAsLookups(result);
@@ -138,7 +138,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
                     if (functionDefinitionNode != null) {
 
                         // Todo - change method
-                        addAnyTypeAsLookup(result);
+                        addOtherTypeAsLookup(result);
                         addXmlnsAsLookup(result);
                         addValueTypesAsLookups(result);
                         addReferenceTypesAsLookups(result);

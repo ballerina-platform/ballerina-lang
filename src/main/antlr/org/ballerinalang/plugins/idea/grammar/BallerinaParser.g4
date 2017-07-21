@@ -106,16 +106,16 @@ globalVariableDefinition
     ;
 
 attachmentPoint
-     : SERVICE
-     | RESOURCE
-     | CONNECTOR
-     | ACTION
-     | FUNCTION
-     | TYPEMAPPER
-     | STRUCT
-     | CONST
-     | PARAMETER
-     | ANNOTATION
+     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
+     | RESOURCE                             # resourceAttachPoint
+     | CONNECTOR                            # connectorAttachPoint
+     | ACTION                               # actionAttachPoint
+     | FUNCTION                             # functionAttachPoint
+     | TYPEMAPPER                           # typemapperAttachPoint
+     | STRUCT                               # structAttachPoint
+     | CONST                                # constAttachPoint
+     | PARAMETER                            # parameterAttachPoint
+     | ANNOTATION                           # annotationAttachPoint
      ;
 
 annotationBody
@@ -145,6 +145,7 @@ workerBody
 
 typeName
     :   TYPE_ANY
+    |   TYPE_TYPE
     |   valueTypeName
     |   referenceTypeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -311,7 +312,7 @@ codeBlockParameter
     :   typeName Identifier
     ;
 
-//todo replace with FOREACH
+//todo replace with 'foreach'
 iterateStatement
     :   ITERATE LEFT_PARENTHESIS codeBlockParameter COLON expression RIGHT_PARENTHESIS LEFT_BRACE codeBlockBody RIGHT_BRACE
     ;
@@ -399,11 +400,11 @@ commentStatement
     ;
 
 variableReference
-    :   nameReference                               # simpleVariableReference
-    |   variableReference index                     # mapArrayVariableReference
-    |   variableReference field                     # fieldVariableReference
-    |   variableReference xmlAttrib                 # xmlAttribVariableReference
-    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS   # functionInvocationReference
+    :   nameReference                                                           # simpleVariableReference
+    |   variableReference index                                                 # mapArrayVariableReference
+    |   variableReference field                                                 # fieldVariableReference
+    |   variableReference xmlAttrib                                             # xmlAttribVariableReference
+    |   variableReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationReference
     ;
 
 field
@@ -453,7 +454,7 @@ abortStatement
     ;
 
 actionInvocation
-    :   connectorReference '.' Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   connectorReference DOT Identifier LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
     ;
 
 namespaceDeclarationStatement
@@ -475,7 +476,7 @@ expression
     |   lambdaFunction                                                      # lambdaFunctionExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS simpleExpression        # typeCastingExpression
     |   LT typeName GT simpleExpression                                     # typeConversionExpression
-    |   (ADD | SUB | NOT) simpleExpression                                  # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) simpleExpression              # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression

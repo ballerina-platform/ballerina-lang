@@ -138,6 +138,7 @@ public class BallerinaTypes {
     public static final TokenIElementType ITERATE = tokenIElementTypes.get(BallerinaLexer.ITERATE);
     public static final TokenIElementType JOIN = tokenIElementTypes.get(BallerinaLexer.JOIN);
     public static final TokenIElementType JSON = tokenIElementTypes.get(BallerinaLexer.TYPE_JSON);
+    public static final TokenIElementType LENGTHOF = tokenIElementTypes.get(BallerinaLexer.LENGTHOF);
     public static final TokenIElementType MAP = tokenIElementTypes.get(BallerinaLexer.TYPE_MAP);
     public static final TokenIElementType MESSAGE = tokenIElementTypes.get(BallerinaLexer.TYPE_MESSAGE);
     public static final TokenIElementType NATIVE = tokenIElementTypes.get(BallerinaLexer.NATIVE);
@@ -151,6 +152,8 @@ public class BallerinaTypes {
     public static final TokenIElementType TIMEOUT = tokenIElementTypes.get(BallerinaLexer.TIMEOUT);
     public static final TokenIElementType TRANSACTION = tokenIElementTypes.get(BallerinaLexer.TRANSACTION);
     public static final TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
+    public static final TokenIElementType TYPE = tokenIElementTypes.get(BallerinaLexer.TYPE_TYPE);
+    public static final TokenIElementType TYPEOF = tokenIElementTypes.get(BallerinaLexer.TYPEOF);
     public static final TokenIElementType TYPEMAPPER = tokenIElementTypes.get(BallerinaLexer.TYPEMAPPER);
     public static final TokenIElementType VAR = tokenIElementTypes.get(BallerinaLexer.VAR);
     public static final TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);

@@ -1439,7 +1439,9 @@ public class BallerinaPsiImplUtil {
                     continue;
                 }
                 for (AttachmentPointNode attachmentPointNode : attachmentPointNodes) {
-                    if (type.equals(attachmentPointNode.getText())) {
+                    // Replace the '<identifier?>' in the attachment point node. Otherwise, annotations for services
+                    // will not be available.
+                    if (type.equals(attachmentPointNode.getText().replaceAll("<\\w*>", ""))) {
                         results.add(annotationDefinition);
                         break;
                     }
