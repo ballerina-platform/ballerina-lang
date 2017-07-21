@@ -19,15 +19,19 @@
 package org.ballerinalang.services.dispatchers.uri.parser;
 
 import org.ballerinalang.services.dispatchers.http.Constants;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttributeValue;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Node represents different types of path segments in the uri-template.
@@ -59,7 +63,7 @@ public abstract class Node {
     }
 
     public ResourceInfo matchAll(String uriFragment, Map<String, String> variables, CarbonMessage carbonMessage,
-            int start) {
+                                 int start) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return null;
@@ -110,13 +114,23 @@ public abstract class Node {
         if (this.resource == null) {
             return null;
         }
+        ResourceInfo resource = validateHTTPMethod(this.resource, carbonMessage);
+        validateConsumes(resource, carbonMessage);
+        validateProduces(resource, carbonMessage);
+        return resource;
+    }
+
+    private ResourceInfo validateHTTPMethod(List<ResourceInfo> resources, CarbonMessage carbonMessage) {
+        ResourceInfo resource = null;
         String httpMethod = (String) carbonMessage.getProperty(Constants.HTTP_METHOD);
-        for (ResourceInfo resourceInfo : this.resource) {
+        for (ResourceInfo resourceInfo : resources) {
             if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                return resourceInfo;
+                resource =  resourceInfo;
             }
         }
-        ResourceInfo resource = tryMatchingToDefaultVerb(httpMethod);
+        if (resource == null) {
+            resource = tryMatchingToDefaultVerb(httpMethod);
+        }
         if (resource == null) {
             carbonMessage.setProperty(Constants.HTTP_STATUS_CODE, 405);
             throw new BallerinaException();
@@ -131,25 +145,51 @@ public abstract class Node {
             isFirstTraverse = false;
         } else {
             for (ResourceInfo previousResource: this.resource) {
-                for (String methods : this.httpMethods) {
-                    if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                        if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, methods) != null) {
-                            throw new BallerinaException("Seems two resources have the same addressable URI");
-                        }
-                    }
+                boolean prevResourceHasMethod = validateMethodsOfSameURIResources(previousResource, newResource);
+                if (!prevResourceHasMethod) {
+                    validateMethodOfNewResource(newResource);
                 }
             }
             this.resource.add(newResource);
         }
     }
 
+    private boolean validateMethodsOfSameURIResources(ResourceInfo previousResource, ResourceInfo newResource) {
+        boolean prevResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (previousResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                prevResourceHasMethod = true;
+                if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                    throw new BallerinaException("Seems two resources have the same addressable URI");
+                }
+            }
+        }
+        return prevResourceHasMethod;
+    }
+
+    private void validateMethodOfNewResource(ResourceInfo newResource) {
+        boolean newResourceHasMethod = false;
+        for (String method : this.httpMethods) {
+            if (newResource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, method) != null) {
+                newResourceHasMethod = true;
+            }
+        }
+        if (!newResourceHasMethod) {
+            //if both resources do not have methods but same URI, then throw following error.
+            throw new BallerinaException("Seems two resources have the same addressable URI");
+        }
+    }
+
     abstract String expand(Map<String, String> variables);
+
     abstract int match(String uriFragment, Map<String, String> variables);
+
     abstract String getToken();
+
     abstract char getFirstCharacter();
 
     private Node isAlreadyExist(String token, List<Node> childList) {
-        for (Node node: childList) {
+        for (Node node : childList) {
             if (node.getToken().equals(token)) {
                 return node;
             }
@@ -202,20 +242,126 @@ public abstract class Node {
     }
 
     private ResourceInfo tryMatchingToDefaultVerb(String method) {
-        if ("GET".equalsIgnoreCase(method)) {
-            for (ResourceInfo resourceInfo : this.resource) {
-                boolean isMethodAnnotationFound = false;
-                for (String httpMethod : this.httpMethods) {
-                    if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
-                        isMethodAnnotationFound = true;
-                        break;
-                    }
+        for (ResourceInfo resourceInfo : this.resource) {
+            boolean isMethodAnnotationFound = false;
+            for (String httpMethod : this.httpMethods) {
+                if (resourceInfo.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH, httpMethod) != null) {
+                    isMethodAnnotationFound = true;
+                    break;
                 }
-                if (!isMethodAnnotationFound) {
-                    return resourceInfo;
-                }
+            }
+            if (!isMethodAnnotationFound) {
+                return resourceInfo;
             }
         }
         return null;
+    }
+
+    public ResourceInfo validateConsumes(ResourceInfo resource, CarbonMessage cMsg) {
+        boolean isConsumeMatched = false;
+        String contentMediaType = extractContentMediaType(cMsg.getHeader(Constants.CONTENT_TYPE_HEADER));
+        AnnAttachmentInfo consumeInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_CONSUMES);
+
+        if (consumeInfo != null) {
+            //when Content-Type header is not set, treat it as "application/octet-stream"
+            contentMediaType = (contentMediaType != null ? contentMediaType : Constants.VALUE_ATTRIBUTE);
+            for (AnnAttributeValue attributeValue : consumeInfo.getAttributeValue(
+                    Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                if (contentMediaType.equals(attributeValue.getStringValue().trim())) {
+                    isConsumeMatched = true;
+                    break;
+                }
+            }
+            if (!isConsumeMatched) {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 415);
+                throw new BallerinaException();
+            }
+        }
+        return resource;
+    }
+
+    private String extractContentMediaType(String header) {
+        if (header == null) {
+            return null;
+        } else {
+            if (header.contains(";")) {
+                header = header.substring(0, header.indexOf(";")).trim();
+            }
+        }
+        return header;
+    }
+
+    public ResourceInfo validateProduces(ResourceInfo resource, CarbonMessage cMsg) {
+        boolean isProduceMatched = false;
+        List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(Constants.ACCEPT_HEADER));
+        AnnAttachmentInfo produceInfo = resource.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+                Constants.ANNOTATION_NAME_PRODUCES);
+
+        //If Accept header field is not present, then it is assumed that the client accepts all media types.
+        if (produceInfo != null && acceptMediaTypes != null) {
+            if (acceptMediaTypes.contains("*/*")) {
+                isProduceMatched = true;
+            } else {
+                if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
+                    List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
+                            .filter(mediaType -> mediaType.contains("/*"))
+                            .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
+                            .collect(Collectors.toList());
+                    List<String> subAttributeValues = Arrays.stream(produceInfo
+                            .getAttributeValue(Constants.VALUE_ATTRIBUTE).getAttributeValueArray())
+                            .map(mediaType -> mediaType.getStringValue().trim()
+                                    .substring(0, mediaType.getStringValue().indexOf("/")))
+                            .distinct().collect(Collectors.toList());
+                    for (String token : subAttributeValues) {
+                        for (String mediaType : subTypeWildCardMediaTypes) {
+                            if (mediaType.equals(token)) {
+                                isProduceMatched = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (!isProduceMatched) {
+                    List<String> noWildCardMediaTypes = acceptMediaTypes.stream()
+                            .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
+                    for (AnnAttributeValue attributeValue : produceInfo.getAttributeValue(
+                            Constants.VALUE_ATTRIBUTE).getAttributeValueArray()) {
+                        for (String mediaType : noWildCardMediaTypes) {
+                            if (mediaType.equals(attributeValue.getStringValue())) {
+                                isProduceMatched = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!isProduceMatched) {
+                cMsg.setProperty(Constants.HTTP_STATUS_CODE, 406);
+                throw new BallerinaException();
+            }
+        }
+        return resource;
+    }
+
+    private List<String> extractAcceptMediaTypes(String header) {
+        List<String> acceptMediaTypes = new ArrayList();
+        if (header == null) {
+            return null;
+        } else {
+            if (header.contains(",")) {
+                //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
+                acceptMediaTypes = Arrays.stream(header.split(","))
+                        .map(mediaRange -> mediaRange.contains(";") ? mediaRange
+                                .substring(0, mediaRange.indexOf(";")) : mediaRange)
+                        .map(String::trim).distinct().collect(Collectors.toList());
+            } else if (header.contains(";")) {
+                //process headers like this: text/*;q=0.3
+                acceptMediaTypes.add(header.substring(0, header.indexOf(";")).trim());
+            } else {
+                acceptMediaTypes.add(header.trim());
+            }
+        }
+        return acceptMediaTypes;
     }
 }

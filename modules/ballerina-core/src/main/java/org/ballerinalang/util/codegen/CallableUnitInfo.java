@@ -18,6 +18,10 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.cpentries.WorkerInfoPool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +31,7 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class CallableUnitInfo {
+public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     protected String pkgPath;
     protected String name;
@@ -40,14 +44,15 @@ public class CallableUnitInfo {
     protected BType[] paramTypes;
     protected BType[] retParamTypes;
 
-    protected CodeAttributeInfo codeAttributeInfo;
+    protected int signatureCPIndex;
+    protected String signature;
 
-    protected Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
+    protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-   // protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
+    // Key - data channel name
+    private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;
-
     protected WorkerInfo defaultWorkerInfo;
     protected Map<String, WorkerInfo> workerInfoMap = new HashMap<>();
 
@@ -107,6 +112,38 @@ public class CallableUnitInfo {
         this.retParamTypes = retParamType;
     }
 
+    public String getSignature() {
+        if (signature != null) {
+            return signature;
+        }
+
+        StringBuilder strBuilder = new StringBuilder("(");
+        for (BType paramType : paramTypes) {
+            strBuilder.append(paramType.getSig());
+        }
+        strBuilder.append(")(");
+
+        for (BType retType : retParamTypes) {
+            strBuilder.append(retType.getSig());
+        }
+        strBuilder.append(")");
+
+        signature = strBuilder.toString();
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public int getSignatureCPIndex() {
+        return signatureCPIndex;
+    }
+
+    public void setSignatureCPIndex(int signatureCPIndex) {
+        this.signatureCPIndex = signatureCPIndex;
+    }
+
     public WorkerInfo getDefaultWorkerInfo() {
         return defaultWorkerInfo;
     }
@@ -119,45 +156,59 @@ public class CallableUnitInfo {
         return workerInfoMap.get(workerName);
     }
 
-    public void addWorkerInfo(String attributeName, WorkerInfo workerInfo) {
-        workerInfoMap.put(attributeName, workerInfo);
+    public void addWorkerInfo(String workerName, WorkerInfo workerInfo) {
+        workerInfoMap.put(workerName, workerInfo);
     }
 
     public Map<String, WorkerInfo> getWorkerInfoMap() {
         return workerInfoMap;
     }
 
-    public CodeAttributeInfo getCodeAttributeInfo() {
-        return codeAttributeInfo;
+    public WorkerInfo[] getWorkerInfoEntries() {
+        return workerInfoMap.values().toArray(new WorkerInfo[0]);
     }
 
-    public AttributeInfo getAttributeInfo(String attributeName) {
-        return attributeInfoMap.get(attributeName);
+    @Override
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
     }
 
-    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeName, attributeInfo);
+    @Override
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
     }
 
-//    public WorkerInfo getWorkerInfo(String workerName) {
-//        return workerInfoMap.get(workerName);
-//    }
-//
-//    public void addWorkerInfo(String attributeName, WorkerInfo workerInfo) {
-//        workerInfoMap.put(attributeName, workerInfo);
-//    }
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
+    }
 
-    public AnnotationAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
+    public AnnAttachmentInfo getAnnotationAttachmentInfo(String packageName, String annotationName) {
         AnnotationAttributeInfo attributeInfo = (AnnotationAttributeInfo) getAttributeInfo(
-                AttributeInfo.ANNOTATIONS_ATTRIBUTE);
+                AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
         if (attributeInfo == null || packageName == null || annotationName == null) {
             return null;
         }
-        for (AnnotationAttachmentInfo annotationInfo : attributeInfo.getAnnotationAttachmentInfo()) {
+        for (AnnAttachmentInfo annotationInfo : attributeInfo.getAttachmentInfoEntries()) {
             if (packageName.equals(annotationInfo.getPkgPath()) && annotationName.equals(annotationInfo.getName())) {
                 return annotationInfo;
             }
         }
         return null;
+    }
+
+    @Override
+    public void addWorkerDataChannelInfo(WorkerDataChannelInfo workerDataChannelInfo) {
+        dataChannelInfoMap.put(workerDataChannelInfo.getChannelName(), workerDataChannelInfo);
+    }
+
+    @Override
+    public WorkerDataChannelInfo getWorkerDataChannelInfo(String name) {
+        return dataChannelInfoMap.get(name);
+    }
+
+    @Override
+    public WorkerDataChannelInfo[] getWorkerDataChannelInfo() {
+        return dataChannelInfoMap.values().toArray(new WorkerDataChannelInfo[0]);
     }
 }

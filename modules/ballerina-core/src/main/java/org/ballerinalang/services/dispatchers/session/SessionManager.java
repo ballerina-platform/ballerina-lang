@@ -101,7 +101,7 @@ public class SessionManager {
     }
 
     /**
-     * Stop ScheduledExecutorService
+     * Stop ScheduledExecutorService.
      *
      */
     public void stop() {

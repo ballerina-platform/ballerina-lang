@@ -52,13 +52,13 @@ under the License.
     </test>
 
 
-    <!-- Debugger TestCases TODO: Enable this. -->
+    <!-- Debugger TestCases -->
 
-    <!--<test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.core.interpreter.DebuggerTest"/>-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.core.interpreter.VMDebuggerTest"/>
+        </classes>
+    </test>
 
 
     <test name="ballerina-any-type-test-suite">

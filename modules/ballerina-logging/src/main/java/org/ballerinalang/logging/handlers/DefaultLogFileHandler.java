@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 
 /**
- * A file handler for handling any other log file other than ballerina.log, error.log and bre.log
+ * A file handler for handling any other log file other than ballerina.log, error.log and bre.log.
  *
  * @since 0.89
  */

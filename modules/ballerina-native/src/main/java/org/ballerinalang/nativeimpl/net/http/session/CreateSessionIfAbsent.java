@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.net.http.session;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BStruct;
@@ -133,9 +134,8 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
         StructInfo sessionStructInfo = sessionPackageInfo.getStructInfo(STRUCT_SESSION);
 
         //create session struct
-        BStruct bStruct = new BStruct(sessionStructInfo.getType());
-        bStruct.setFieldTypes(sessionStructInfo.getFieldTypes());
-        bStruct.init(sessionStructInfo.getFieldCount());
+        BStructType structType = sessionStructInfo.getType();
+        BStruct bStruct = new BStruct(structType);
 
         //Add session Id to the struct as a string
         bStruct.setStringField(0, session.getId());
