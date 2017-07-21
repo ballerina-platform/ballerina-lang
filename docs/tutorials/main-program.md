@@ -138,7 +138,7 @@ while (BooleanExpression) {
 1. Add another `variable` called `int i = 0` by dragging a variable from the tool palette to the canvas. You can use this integer to get the exact number of instances of the data you need to do the calculation.
 1. Drag and drop a `while` statement from the tool palette to the canvas.
     ![alt text](../images/WhileCondition.gif)
-1. Set the `while` condition to `i > dataCount`.
+1. Set the `while` condition to `i < dataCount` to make this condition loop until it reaches the `dataCount` value.
 
     ![alt text](../images/WhileCondition2.png)
 1. Add an `assignment` to the `while` loop by dragging it from the tool palette to the canvas.
