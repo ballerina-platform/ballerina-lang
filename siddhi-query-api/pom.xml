@@ -20,7 +20,7 @@
     <parent>
         <artifactId>siddhi</artifactId>
         <groupId>org.wso2.siddhi</groupId>
-        <version>4.0.0-M23-SNAPSHOT</version>
+        <version>4.0.0-M23</version>
         <relativePath>../../pom.xml</relativePath>
 
     </parent>
