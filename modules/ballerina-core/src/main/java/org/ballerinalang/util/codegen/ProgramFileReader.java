@@ -33,14 +33,7 @@ import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.util.codegen.attributes.AnnotationAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
-import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.*;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -1053,7 +1046,13 @@ public class ProgramFileReader {
                 return annAttributeInfo;
 
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:
-                return null;
+                int prmAttchmentCnt = dataInStream.readShort();
+                ParamAnnotationAttributeInfo attributeInfo = new ParamAnnotationAttributeInfo(attribNameCPIndex);
+                for (int i = 0; i < prmAttchmentCnt; i++) {
+                    ParamAnnAttachmentInfo prmAnnAtchmentInfo = getParamAttachmentInfo(dataInStream, constantPool);
+                    attributeInfo.addParamAttachmentInfo(prmAnnAtchmentInfo);
+                }
+                return attributeInfo;
             case LOCAL_VARIABLES_ATTRIBUTE:
                 LocalVariableAttributeInfo localVarAttrInfo = new LocalVariableAttributeInfo(attribNameCPIndex);
                 int localVarInfoCount = dataInStream.readShort();
@@ -1095,6 +1094,20 @@ public class ProgramFileReader {
         }
 
         return attachmentInfo;
+    }
+
+    private ParamAnnAttachmentInfo getParamAttachmentInfo(DataInputStream dataInStream,
+                                                ConstantPool constantPool) throws IOException {
+        int paramIndex = dataInStream.readInt();
+        ParamAnnAttachmentInfo prmAnnAttchmntInfo = new ParamAnnAttachmentInfo(paramIndex);
+
+        int annAttchmntCount = dataInStream.readShort();
+        for (int i = 0; i < annAttchmntCount; i++) {
+            AnnAttachmentInfo annAttachmentInfo = getAttachmentInfo(dataInStream, constantPool);
+            prmAnnAttchmntInfo.addAnnotationAttachmentInfo(annAttachmentInfo);
+        }
+
+        return prmAnnAttchmntInfo;
     }
 
     private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,

@@ -3041,7 +3041,7 @@ public class CodeGenerator implements NodeVisitor {
                 AttributeInfo.Kind.PARAMETER_ANNOTATIONS_ATTRIBUTE.toString());
         int paramAnnAttribNameIndex = currentPkgInfo.addCPEntry(paramAnnAttribUTF8CPEntry);
         ParamAnnotationAttributeInfo paramAttributeInfo = new ParamAnnotationAttributeInfo(
-                paramAnnAttribNameIndex, parameterDefs.length);
+                paramAnnAttribNameIndex);
 
         for (int i = 0; i < parameterDefs.length; i++) {
             ParameterDef parameterDef = parameterDefs[i];
@@ -3067,7 +3067,7 @@ public class CodeGenerator implements NodeVisitor {
             }
             localVarInfo.setAttachmentIndexes(attachmentIndexes);
 
-            paramAttributeInfo.addParamAttachmentInfo(i, paramAttachmentInfo);
+            paramAttributeInfo.addParamAttachmentInfo(paramAttachmentInfo);
         }
 
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE, localVarAttributeInfo);
