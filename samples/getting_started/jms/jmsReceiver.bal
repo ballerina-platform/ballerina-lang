@@ -2,7 +2,7 @@ import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.jms;
 
-@jms:config {
+@jms:configuration {
     initialContextFactory:"org.apache.activemq.jndi.ActiveMQInitialContextFactory",
     providerUrl:"tcp://localhost:61616",
     connectionFactoryType:"queue",
