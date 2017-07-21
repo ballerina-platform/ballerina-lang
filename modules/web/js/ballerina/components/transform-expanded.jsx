@@ -363,36 +363,35 @@ class TransformExpanded extends React.Component {
         }
         if (func.getParameters().length !== functionInvocationExpression.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
-        } else {
-            const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
-            _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
-                if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
-                    this.drawInnerFunctionInvocationExpression(
-                        functionInvocationExpression, expression, func, i, statement);
-                } else {
-                    let target;
-                    let source;
-                    if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
-                    //if parameter is a key value expression, iterate each expression and draw connections
-                    _.forEach(expression.children, (propParam) => {
-                        source = this.getConnectionProperties('source', propParam.children[1]);
-                        target = this.getConnectionProperties('target', func.getParameters()[i]);
-                        _.merge(target, funcTarget); // merge parameter props with function props
-                        target.targetProperty.push(propParam.children[0].getVariableName());
-                        let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
-                        let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
-                        target.targetType.push(propType.type);
-                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                    });
-                    } else {
-                       target = this.getConnectionProperties('target', func.getParameters()[i]);
-                       _.merge(target, funcTarget); // merge parameter props with function props
-                       source = this.getConnectionProperties('source', expression);
-                        this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
-                    }
-                }
-            });
         }
+        const funcTarget = this.getConnectionProperties('target', functionInvocationExpression);
+        _.forEach(functionInvocationExpression.getChildren(), (expression, i) => {
+            if (BallerinaASTFactory.isFunctionInvocationExpression(expression)) {
+                this.drawInnerFunctionInvocationExpression(
+                    functionInvocationExpression, expression, func, i, statement);
+            } else {
+                let target;
+                let source;
+                if (BallerinaASTFactory.isKeyValueExpression(expression.children[0])) {
+                //if parameter is a key value expression, iterate each expression and draw connections
+                _.forEach(expression.children, (propParam) => {
+                    source = this.getConnectionProperties('source', propParam.children[1]);
+                    target = this.getConnectionProperties('target', func.getParameters()[i]);
+                    _.merge(target, funcTarget); // merge parameter props with function props
+                    target.targetProperty.push(propParam.children[0].getVariableName());
+                    let typeDef = _.find(this.predefinedStructs, { typeName: func.getParameters()[i].type});
+                    let propType = _.find(typeDef.properties, { name: propParam.children[0].getVariableName()});
+                    target.targetType.push(propType.type);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                });
+                } else {
+                   target = this.getConnectionProperties('target', func.getParameters()[i]);
+                   _.merge(target, funcTarget); // merge parameter props with function props
+                   source = this.getConnectionProperties('source', expression);
+                    this.drawConnection(statement.getID() + functionInvocationExpression.getID(), source, target);
+                }
+            }
+        });
 
         if (func.getReturnParams().length !== argumentExpressions.getChildren().length) {
             alerts.warn('Function inputs and mapping count does not match in "' + func.getName() + '"');
