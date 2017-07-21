@@ -74,6 +74,10 @@ native function toString (json j) (string);
 @doc:Param { value:"newKey: The new key value to use" }
 native function rename (json j, string jsonPath, string oldKey, string newKey);
 
+@doc:Description { value:"Parses the string argument as a JSON value."}
+@doc:Param { value:"jsonStr: String representation of JSON" }
+native function parse(string jsonStr) (json);
+
 @doc:Description { value:"Converts a JSON object to a XML representation"}
 @doc:Param { value:"j: A JSON object" }
 @doc:Return { value:"xml: XML value of the converted JSON" }

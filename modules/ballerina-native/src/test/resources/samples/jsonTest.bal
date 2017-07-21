@@ -116,6 +116,10 @@ function toString(json msg) (string){
     return jsons:toString(msg);
 }
 
+function testParse(string jsonStr) (json){
+    return jsons:parse(jsonStr);
+}
+
 function testToXML(json msg) (xml){
     jsons:Options options = {};
     return jsons:toXML(msg, options);
