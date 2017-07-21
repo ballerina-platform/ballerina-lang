@@ -174,7 +174,7 @@ public class AnnotationReference extends BallerinaElementReference {
             return results;
         }
         PsiElement resolvedElement = reference.resolve();
-        if (resolvedElement == null) {
+        if (resolvedElement == null|| !(resolvedElement instanceof PsiDirectory)) {
             return results;
         }
         PsiDirectory resolvedPackage = (PsiDirectory) resolvedElement;

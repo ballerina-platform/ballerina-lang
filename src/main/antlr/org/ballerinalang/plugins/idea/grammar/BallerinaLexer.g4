@@ -22,6 +22,7 @@ CONST           : 'const';
 TYPEMAPPER      : 'typemapper';
 WORKER          : 'worker';
 XMLNS           : 'xmlns';
+RETURNS         : 'returns';
 
 TYPE_INT        : 'int';
 TYPE_FLOAT      : 'float';
@@ -34,6 +35,7 @@ TYPE_XML        : 'xml';
 TYPE_MESSAGE    : 'message';
 TYPE_DATATABLE  : 'datatable';
 TYPE_ANY        : 'any';
+TYPE_TYPE       : 'type' ;
 
 VAR             : 'var';
 CREATE          : 'create';
@@ -55,12 +57,14 @@ CATCH           : 'catch';
 FINALLY         : 'finally';
 THROW           : 'throw';
 RETURN          : 'return';
-RETURNS         : 'returns';
-TRANSACTION     : 'transaction';
 REPLY           : 'reply';
+TRANSACTION     : 'transaction';
 ABORT           : 'abort';
 ABORTED         : 'aborted';
 COMMITTED       : 'committed';
+LENGTHOF        : 'lengthof' ;
+TYPEOF          : 'typeof' ;
+WITH            : 'with' ;
 
 // Separators
 

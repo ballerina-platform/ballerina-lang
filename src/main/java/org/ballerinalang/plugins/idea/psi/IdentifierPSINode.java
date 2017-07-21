@@ -132,6 +132,11 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(parent);
                     if (prevVisibleLeaf != null) {
                         if (".".equals(prevVisibleLeaf.getText())) {
+                            // Todo - update logic
+                            PsiReference reference = checkAndSuggestReferenceAfterDot();
+                            if (reference != null) {
+                                return reference;
+                            }
                             return new FieldReference(this);
                         }
                         // Todo - remove ","
@@ -157,36 +162,15 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_attachmentPoint:
                     return new AttachmentPointReference(this);
                 case RULE_statement:
-                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
-
-                    if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
-                        PsiElement prevSibling = prevVisibleLeaf.getPrevSibling();
-                        if (prevSibling != null) {
-                            PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
-                            if (reference != null) {
-                                PsiElement resolvedElement = reference.resolve();
-                                if (resolvedElement != null) {
-                                    PsiElement definitionNode = resolvedElement.getParent();
-                                    if (definitionNode instanceof ConnectorDefinitionNode) {
-                                        return new ActionInvocationReference(this);
-                                    } else if (definitionNode instanceof VariableDefinitionNode) {
-                                        // Todo - might need to do this for assignment statements as well
-                                        return checkDefinitionAndSuggestReference(((VariableDefinitionNode)
-                                                definitionNode));
-                                    } else if (definitionNode instanceof CodeBlockParameterNode) {
-                                        return new FieldReference(this);
-                                    }
-                                }
-                            } else {
-                                // Todo - might need to do this for assignment statements as well
-                                return new VariableReference(this);
-                            }
-                        }
+                    // Todo - update logic
+                    PsiReference reference = checkAndSuggestReferenceAfterDot();
+                    if (reference != null) {
+                        return reference;
                     }
+                    prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
                     if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
                         return new FieldReference(this);
                     }
-
                     PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(getPsi());
                     if (nextVisibleLeaf != null && ":".equals(nextVisibleLeaf.getText())) {
                         return new PackageNameReference(this);
@@ -198,6 +182,42 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         }
         if (parent instanceof PsiErrorElement) {
             return suggestReferenceType(parent);
+        }
+        return null;
+    }
+
+    private PsiReference checkAndSuggestReferenceAfterDot() {
+        // Todo - update logic
+        PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(getParent());
+        if (prevVisibleLeaf != null && ".".equals(prevVisibleLeaf.getText())) {
+            PsiElement prevSibling = prevVisibleLeaf.getPrevSibling();
+            if (prevSibling != null) {
+                PsiReference reference = prevSibling.findReferenceAt(prevSibling.getTextLength());
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        PsiElement definitionNode = resolvedElement.getParent();
+                        if (definitionNode instanceof ConnectorDefinitionNode) {
+                            return new ActionInvocationReference(this);
+                        } else if (definitionNode instanceof VariableDefinitionNode) {
+                            // Todo - might need to do this for assignment statements as well
+                            return checkDefinitionAndSuggestReference(((VariableDefinitionNode)
+                                    definitionNode));
+                        } else if (definitionNode instanceof CodeBlockParameterNode) {
+                            ConnectorDefinitionNode connectorNode =
+                                    BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode
+                                            (definitionNode);
+                            if (connectorNode != null) {
+                                return new ActionInvocationReference(this);
+                            }
+                            return new FieldReference(this);
+                        }
+                    }
+                } else {
+                    // Todo - might need to do this for assignment statements as well
+                    return new VariableReference(this);
+                }
+            }
         }
         return null;
     }
@@ -229,6 +249,13 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
         if (structDefinitionNode != null) {
             return new FieldReference(this);
         }
+
+        ConnectorDefinitionNode connectorNode =
+                BallerinaPsiImplUtil.resolveConnectorFromVariableDefinitionNode(variableDefinitionNode);
+        if (connectorNode != null) {
+            return new ActionInvocationReference(this);
+        }
+
         return new VariableReference(this);
     }
 

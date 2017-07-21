@@ -81,7 +81,12 @@ public class ConnectorReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true, false, false, false);
+        PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, false, true,
+                false, false, false);
+        if (element != null) {
+            return element;
+        }
+        return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
     }
 
     @Nullable
