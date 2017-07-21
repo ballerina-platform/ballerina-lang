@@ -25,13 +25,13 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
-            <!--TODO fix jms test cases-->
+            <!--&lt;!&ndash;TODO fix jms test cases&ndash;&gt;-->
             <!--<package name="org.ballerinalang.test.service.jms.sample" />-->
-            <!--<package name="org.ballerinalang.test.service.websocket.sample"/>-->
-        <!--</packages>-->
+        </packages>
+    </test>
+
+    <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.ballerinalang.test.service.http.sample.HelloWorldSampleTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>-->
             <class name="org.ballerinalang.test.service.websocket.sample.EchoServerSampleTestCase"/>
             <class name="org.ballerinalang.test.service.websocket.sample.ConnectionGroupSampleTest"/>
             <class name="org.ballerinalang.test.service.websocket.sample.ConnectionStoreSampleTest"/>
