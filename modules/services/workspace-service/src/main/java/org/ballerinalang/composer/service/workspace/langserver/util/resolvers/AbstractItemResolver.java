@@ -245,7 +245,9 @@ public abstract class AbstractItemResolver {
                 String tokenStr = token.getText();
 
                 // return 'false' once we found the first token which is not in default channel
-                if (token.getChannel() != Token.DEFAULT_CHANNEL) {
+                if (token.getChannel() != Token.DEFAULT_CHANNEL ||
+                        (tokenStr.equals(":") && tokenStream.get(searchIndex - 2) != null &&
+                                tokenStream.get(searchIndex - 2).getText().equals("@"))) {
                     return false;
                 }
                 if (tokenStr.equals(":") || tokenStr.equals(".")) {
