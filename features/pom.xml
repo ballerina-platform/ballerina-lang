@@ -18,7 +18,7 @@
     <parent>
         <artifactId>org.wso2.carbon.transport.parent</artifactId>
         <groupId>org.wso2.carbon.transport</groupId>
-        <version>4.4.21</version>
+        <version>4.4.22-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
