@@ -20,6 +20,7 @@ package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleConstantDefinitionContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleStatementContextResolver;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
@@ -74,6 +75,8 @@ public class ResolveCommandExecutor {
         ParserRuleTriggerWorkerContext parserRuleTriggerWorkerContext = new ParserRuleTriggerWorkerContext();
         ParserRuleWorkerReplyContext parserRuleWorkerReplyContext = new ParserRuleWorkerReplyContext();
         ParserRuleTypeNameContextResolver parserRuleTypeNameContextResolver = new ParserRuleTypeNameContextResolver();
+        ParserRuleConstantDefinitionContextResolver parserRuleConstantDefinitionContextResolver
+                = new ParserRuleConstantDefinitionContextResolver();
         GlobalScopeResolver globalScopeResolver = new GlobalScopeResolver();
 
         // Here we use the resolver class as the key for statement context resolver. This is in order to simplify and
@@ -102,6 +105,7 @@ public class ResolveCommandExecutor {
         resolvers.put(BallerinaParser.TriggerWorkerContext.class, parserRuleTriggerWorkerContext);
         resolvers.put(BallerinaParser.WorkerReplyContext.class, parserRuleWorkerReplyContext);
         resolvers.put(BallerinaParser.TypeNameContext.class, parserRuleTypeNameContextResolver);
+        resolvers.put(BallerinaParser.ConstantDefinitionContext.class, parserRuleConstantDefinitionContextResolver);
     }
 
     /**

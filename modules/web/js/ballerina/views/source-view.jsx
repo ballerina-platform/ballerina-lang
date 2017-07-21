@@ -16,6 +16,7 @@
  * under the License.
  */
 import React from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
 import PropTypes from 'prop-types';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import { Overlay, Popover } from 'react-bootstrap/lib';
@@ -92,31 +93,40 @@ class SourceView extends React.Component {
                     </div>
                 }
             >
-                <ul className="list-group">
-                    {
-                        this.state.syntaxErrors.map((error) => {
-                            return (
-                                <li
-                                    key={error.row + error.column + btoa(error.text)}
-                                    className="list-group-item syntax-error"
-                                    onClick={() => {
-                                        this.props.commandManager
-                                            .dispatch(GO_TO_POSITION, {
-                                                file: this.props.file,
-                                                row: error.row,
-                                                column: error.column,
-                                            });
-                                    }}
-                                >
-                                    <div>
-                                        <span className="link">line {error.row + 1 + ' '}</span>
-                                        :{' ' + error.text}
-                                    </div>
-                                </li>
-                            );
-                        })
-                    }
-                </ul>
+                <Scrollbars
+                    autoHeight
+                    autoHeightMin={20}
+                    autoHeightMax={350}
+                    autoHide // Hide delay in ms
+                    autoHideTimeout={1000}
+                    universal
+                >
+                    <ul className="list-group">
+                        {
+                            this.state.syntaxErrors.map((error, index) => {
+                                return (
+                                    <li
+                                        key={error.row + error.column + btoa(error.text) + index}
+                                        className="list-group-item syntax-error"
+                                        onClick={() => {
+                                            this.props.commandManager
+                                                .dispatch(GO_TO_POSITION, {
+                                                    file: this.props.file,
+                                                    row: error.row,
+                                                    column: error.column,
+                                                });
+                                        }}
+                                    >
+                                        <div>
+                                            <span className="line">line {error.row + 1 + ' '}</span>
+                                            :{' ' + error.text}
+                                        </div>
+                                    </li>
+                                );
+                            })
+                        }
+                    </ul>
+                </Scrollbars>
             </Popover>
         );
 
@@ -166,7 +176,7 @@ class SourceView extends React.Component {
                                 >
                                     Design View
                                 </div>
-                                {hasSyntaxErrors &&
+                                {hasSyntaxErrors && this.context.isTabActive &&
                                     <Overlay
                                         show={this.state.displayErrorList}
                                         container={this}
@@ -207,6 +217,7 @@ SourceView.propTypes = {
 };
 
 SourceView.contextTypes = {
+    isTabActive: PropTypes.bool.isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
 };
 

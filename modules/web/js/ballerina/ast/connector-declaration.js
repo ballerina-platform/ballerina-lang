@@ -79,6 +79,13 @@ class ConnectorDeclaration extends ASTNode {
     }
 
     /**
+     * return underline var def statement
+     */
+    getDeclarationStatement() {
+        return this._declarationStatement;
+    }
+
+    /**
      * Get the connector name variable
      * @return {string} - connector name variable
      */

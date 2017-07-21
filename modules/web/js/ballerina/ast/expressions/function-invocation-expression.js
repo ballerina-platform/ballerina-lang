@@ -87,10 +87,9 @@ class FunctionInvocationExpression extends Expression {
         this.children.forEach((child, index) => {
             if (index !== 0) {
                 text += ',';
-                text += child.getExpressionString({ includePrecedingWS: true });
-            } else {
-                text += child.getExpressionString();
+                text += (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
             }
+            text += child.getExpressionString();
         });
         text += ')' + this.getWSRegion(3);
         return text;

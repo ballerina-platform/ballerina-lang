@@ -120,6 +120,7 @@ class BallerinaFileEditor extends React.Component {
                 this.setState({
                     activeView: DESIGN_VIEW,
                 });
+                this.resetSwaggerView();
             }
         }, this);
         // Resize the canvas
@@ -136,6 +137,7 @@ class BallerinaFileEditor extends React.Component {
      */
     getChildContext() {
         return {
+            isTabActive: this.props.tab.isActive(),
             editor: this,
             astRoot: this.state.model,
             environment: this.environment,
@@ -453,6 +455,7 @@ BallerinaFileEditor.propTypes = {
 };
 
 BallerinaFileEditor.childContextTypes = {
+    isTabActive: PropTypes.bool.isRequired,
     astRoot: PropTypes.instanceOf(BallerinaASTRoot).isRequired,
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,

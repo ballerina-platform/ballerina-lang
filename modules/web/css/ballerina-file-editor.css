@@ -19,6 +19,7 @@
 #syntax-errors-list-popover.popover.top .arrow:after {
     border-top-color: #565656;
 }
+
 #syntax-errors-list-popover {
     background-color: #565656;
     color: #ccc;
@@ -35,12 +36,16 @@
 }
 
 #syntax-errors-list-popover .popover-title i {
-    color: #ff0033;
+    color: #fff;
     margin-right: 10px;
 }
 
 #syntax-errors-list-popover .popover-content {
     padding: 0;
+}
+
+#syntax-errors-list-popover .list-group-item:first-child {
+    border-top: none;
 }
 
 #syntax-errors-list-popover .list-group-item {
@@ -51,6 +56,12 @@
     border-right: none;
 }
 
+
+#syntax-errors-list-popover .list-group-item .line{
+    color: #e74e52;
+    font-weight: bolder;
+}
+
 #syntax-errors-list-popover .list-group-item:hover {
     background-color: rgb(51, 51, 51);
     border-color: #565656;
@@ -59,8 +70,8 @@
 
 #syntax-errors-list-popover .popover-title {
     border-bottom: none;
-    background-color: rgb(51, 51, 51);
-    color: #ccc;
+    background-color: #e74e52;
+    color: #fff;
 }
 
 .syntax-errors-counter-container {

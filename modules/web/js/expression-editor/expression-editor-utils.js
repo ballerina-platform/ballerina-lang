@@ -15,12 +15,12 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
+import log from 'log';
 import 'brace';
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
 import '../ballerina/utils/ace-mode';
 import { completerFactory } from './completer-factory.js';
-
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
 
@@ -29,7 +29,6 @@ const Range = ace.acequire('ace/range');
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
 }
-
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
@@ -56,9 +55,9 @@ class ExpressionEditor {
         this.expressionEditor.css('min-width', bBox.w + 2);
 
         const editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
-        if (this.props.isCustomHeight) {
+        if(this.props.isCustomHeight) {
             $(editorContainer).css('height', bBox.h + 2);
-        } else {
+        }else{
             $(editorContainer).css('height', '22px');
         }
         $(editorContainer).text(expression);
@@ -74,15 +73,15 @@ class ExpressionEditor {
 
         // set OS specific font size to prevent Mac fonts getting oversized.
         if (this.isRunningOnMacOS()) {
-            if (this.props.fontSize) {
-                this._editor.setFontSize(this.props.fontSize + 'pt');
-            } else {
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
                 this._editor.setFontSize('10pt');
             }
         } else {
-            if (this.props.fontSize) {
-                this._editor.setFontSize(this.props.fontSize + 'pt');
-            } else {
+            if(this.props.fontSize){
+                this._editor.setFontSize(this.props.fontSize+'pt');
+            }else {
                 this._editor.setFontSize('12pt');
             }
         }
@@ -148,15 +147,20 @@ class ExpressionEditor {
         });
 
         this._editor.on('blur', (event) => {
+            try {
             const text = this._editor.getSession().getValue();
             props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text, props.key);
+                if (_.isFunction(callback)) {
+                    callback(text);
+                }
+            } catch (e) {
+                log.error('Error while updating the model from the input.', e);
+            } finally {
             props.model.trigger('focus-out');
             if (!this.removed) {
                 this.destroy();
             }
-            if (_.isFunction(callback)) {
-                callback(text);
             }
         });
 
@@ -197,7 +201,7 @@ class ExpressionEditor {
             //destroy the editor
             if (this.expressionEditor) {
                 this._editor.destroy();
-                this.expressionEditor.remove();
+            this.expressionEditor.remove();
             } else {
                 $('.expression_editor_container').remove();
             }

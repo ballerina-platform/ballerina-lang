@@ -153,7 +153,7 @@ class SwaggerView extends React.Component {
         const id = command.id;
         const hasShortcut = _.has(command, 'shortcuts');
         const self = this;
-        if (hasShortcut) {
+        if (hasShortcut && (id !== 'undo' || id !== 'redo' || id !== 'format')) {
             const macShortcut = _.replace(command.shortcuts.mac.key, '+', '-');
             const winShortcut = _.replace(command.shortcuts.other.key, '+', '-');
             this.swaggerAce.commands.addCommand({
@@ -196,8 +196,9 @@ class SwaggerView extends React.Component {
             getSwaggerDefinition(formattedContent, this.props.targetService.getServiceName())
                 .then((swaggerDefinition) => {
                     // Update host url if try it url is available.
-                    if (this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
-                        const swaggerJson = JSON.parse(swaggerDefinition);
+                    const swaggerJson = JSON.parse(swaggerDefinition);
+                    if (_.isNil(swaggerJson.host) && this.tryItUrl && _.split(this.tryItUrl, '//', 2).length === 2) {
+                        
                         swaggerJson.host = _.split(this.tryItUrl, '//', 2)[1];
                         swaggerDefinition = JSON.stringify(swaggerJson);
                     }

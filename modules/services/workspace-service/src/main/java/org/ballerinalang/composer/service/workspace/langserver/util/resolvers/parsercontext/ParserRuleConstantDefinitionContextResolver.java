@@ -16,44 +16,42 @@
 *  under the License.
 */
 
-package org.ballerinalang.composer.service.workspace.langserver.util.resolvers;
+package org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext;
 
 import org.ballerinalang.composer.service.workspace.langserver.SymbolInfo;
 import org.ballerinalang.composer.service.workspace.langserver.dto.CompletionItem;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.AbstractItemResolver;
+import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.ItemResolverConstants;
+import org.ballerinalang.composer.service.workspace.suggetions.PossibleToken;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
- * Callable Unit Body Context Resolver
+ * constant definition context resolver for the completion items
  */
-public class CallableUnitBodyContextResolver extends AbstractItemResolver {
+public class ParserRuleConstantDefinitionContextResolver extends AbstractItemResolver {
     @Override
     public ArrayList<CompletionItem> resolveItems(SuggestionsFilterDataModel dataModel, ArrayList<SymbolInfo> symbols,
                                                   HashMap<Class, AbstractItemResolver> resolvers) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (dataModel.getParserRuleContext() != null) {
-            completionItems.addAll(resolvers
-                    .get((dataModel.getParserRuleContext().getClass())).resolveItems(dataModel, symbols, resolvers));
-        } else {
-            CompletionItem workerItem = new CompletionItem();
-            workerItem.setLabel(ItemResolverConstants.WORKER);
-            workerItem.setInsertText(ItemResolverConstants.WORKER_TEMPLATE);
-            workerItem.setDetail(ItemResolverConstants.WORKER_TYPE);
-            workerItem.setSortText(ItemResolverConstants.PRIORITY_6);
-            completionItems.add(workerItem);
+        List<PossibleToken> possibleTokenList = dataModel.getPossibleTokens();
 
-            completionItems
-                    .addAll(resolvers.get(StatementContextResolver.class).resolveItems(dataModel, symbols, null));
-        }
-
-        HashMap<String, Integer> prioritiesMap = new HashMap<>();
-        prioritiesMap.put(ItemResolverConstants.PACKAGE_TYPE, ItemResolverConstants.PRIORITY_7);
-        prioritiesMap.put(ItemResolverConstants.B_TYPE, ItemResolverConstants.PRIORITY_6);
-        this.assignItemPriorities(prioritiesMap, completionItems);
+        possibleTokenList.forEach(possibleToken -> {
+            if (possibleToken.getTokenName().matches(".*[a-z].*")) {
+                String tokenStr = possibleToken.getTokenName().replace("'", "");
+                CompletionItem completionItem = new CompletionItem();
+                completionItem.setLabel(tokenStr);
+                completionItem.setInsertText(tokenStr);
+                completionItem.setDetail(ItemResolverConstants.B_TYPE);
+                completionItem.setSortText(ItemResolverConstants.PRIORITY_7);
+                completionItems.add(completionItem);
+            }
+        });
 
         return completionItems;
     }

@@ -18,6 +18,8 @@
 import _ from 'lodash';
 import log from 'log';
 import Statement from './statement';
+import FragmentUtils from './../../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../../visitors/source-gen/enable-default-ws-visitor';
 
 /**
  * Class for return statement in ballerina.
@@ -28,9 +30,8 @@ class ReturnStatement extends Statement {
      * @param {object} args zero or many expressions for a return statement.
      * @constructor
      */
-    constructor(args) {
+    constructor() {
         super();
-        this._expression = _.get(args, 'expression', '');
         this.type = 'ReturnStatement';
         this.whiteSpace.defaultDescriptor.regions = {
             0: '',
@@ -40,17 +41,52 @@ class ReturnStatement extends Statement {
         };
     }
 
-    /**
-     * Set expression
-     * @param {string} expression expression string to be set
-     * @param {object} options set attribute options
+   /**
+     * Set the statement from the statement string
+     * @param {string} stmtString statement string
+     * @param {function} callback function
      * @returns {void}
      */
-    setExpression(expression, options) {
-        if (!_.isNil(expression)) {
-            this.setAttribute('_expression', expression, options);
+    setStatementFromString(stmtString, callback) {
+        const fragment = FragmentUtils.createStatementFragment(stmtString + ';');
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'return_statement')) {
+                this.initFromJson(parsedJson);
+            } else if (_.has(parsedJson, 'type')) {
+                // user may want to change the statement type
+                const newNode = this.getFactory().createFromJson(parsedJson);
+                if (this.getFactory().isStatement(newNode)) {
+                    // somebody changed the type of statement
+                    const parent = this.getParent();
+                    const index = parent.getIndexOfChild(this);
+                    parent.removeChild(this, true);
+                    parent.addChild(newNode, index, true, true);
+                    newNode.initFromJson(parsedJson);
+                    nodeToFireEvent = newNode;
+                }
+            } else {
+                log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({ isValid: true });
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Modify Assignment Statement',
+                context: nodeToFireEvent,
+            });
         } else {
-            log.error('Cannot set undefined to the return statement.');
+            log.error('Error while parsing statement. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({ isValid: false, response: parsedJson });
+            }
         }
     }
 
@@ -66,19 +102,19 @@ class ReturnStatement extends Statement {
     }
 
     /**
-     * Get return expression as a string
-     * @return {string} return expression as string
+     * Get the return statement string
+     * @return {string} return statement string
      */
-    getReturnExpression() {
-        return 'return' + this.getWSRegion(1) + this.getExpression();
-    }
-
-    /**
-     * Get Expression
-     * @return {Expression} expression to return
-     */
-    getExpression() {
-        return this._expression;
+    getStatementString() {
+        let expressionString = '';
+        this.children.forEach((child, index) => {
+            if (index !== 0) {
+                expressionString += ',';
+                expressionString += (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+            }
+            expressionString += child.getExpressionString();
+        });
+        return 'return' + this.getWSRegion(1) + expressionString;
     }
 
     /**
@@ -87,20 +123,12 @@ class ReturnStatement extends Statement {
      * @returns {void}
      */
     initFromJson(jsonNode) {
-        const self = this;
-        let expression = '';
-
-        for (let itr = 0; itr < jsonNode.children.length; itr++) {
-            const childJsonNode = jsonNode.children[itr];
-            const child = self.getFactory().createFromJson(childJsonNode);
+        this.children.length = 0;
+        jsonNode.children.forEach((childJsonNode) => {
+            const child = this.getFactory().createFromJson(childJsonNode);
             child.initFromJson(childJsonNode);
-            expression += child.getExpressionString();
-
-            if (itr !== jsonNode.children.length - 1) {
-                expression += ',';
-            }
-        }
-        this.setExpression(expression, { doSilently: true });
+            this.addChild(child, undefined, true, true);
+        });
     }
 }
 
