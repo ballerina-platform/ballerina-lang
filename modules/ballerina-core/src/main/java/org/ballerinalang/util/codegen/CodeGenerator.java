@@ -2202,35 +2202,6 @@ public class CodeGenerator implements NodeVisitor {
                 }
             }
 
-        } else if (varRefType.getTag() == TypeTags.C_JSON_TAG) {
-            int jsonValueRegIndex;
-            TypeSignature typeSig = varRefType.getSig();
-            UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
-            int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
-            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
-            typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
-            int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
-            if (indexExpr.getType() == BTypes.typeString) {
-                if (variableStore) {
-                    emit(InstructionCodes.JSONSTORE_DYNAMIC, varRefRegIndex, indexValueRegIndex,
-                            rhsExprRegIndex, typeCPindex);
-                } else {
-                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
-                    emit(InstructionCodes.JSONLOAD_DYNAMIC, varRefRegIndex, indexValueRegIndex,
-                            jsonValueRegIndex, typeCPindex);
-                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
-                }
-            } else if (indexExpr.getType() == BTypes.typeInt) {
-                // TODO: Remove duplication
-                if (variableStore) {
-                    emit(InstructionCodes.JSONASTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-                } else {
-                    jsonValueRegIndex = ++regIndexes[REF_OFFSET];
-                    emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
-                    indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
-                }
-            }
-
         } else if (varRefType instanceof BArrayType) {
             BArrayType arrayType = (BArrayType) varRefType;
             if (variableStore) {

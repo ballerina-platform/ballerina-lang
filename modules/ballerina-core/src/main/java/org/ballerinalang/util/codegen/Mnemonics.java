@@ -228,9 +228,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.NEWMESSAGE] = "newmessage";
         mnemonics[InstructionCodes.NEWDATATABLE] = "newdatatable";
 
-        mnemonics[InstructionCodes.JSONLOAD_DYNAMIC] = "jsonload-dynamic";
-        mnemonics[InstructionCodes.JSONSTORE_DYNAMIC] = "jsonstore-dynamic";
-
 
         mnemonics[InstructionCodes.REP] = "rep";
         mnemonics[InstructionCodes.IRET] = "iret";

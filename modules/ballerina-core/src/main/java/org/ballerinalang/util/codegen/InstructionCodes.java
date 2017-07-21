@@ -243,9 +243,6 @@ public interface InstructionCodes {
     int NEWMESSAGE = 214;
     int NEWDATATABLE = 215;
 
-    int JSONLOAD_DYNAMIC = 216;
-    int JSONSTORE_DYNAMIC = 217;
-
     int REP = 230;
     int IRET = 231;
     int FRET = 232;

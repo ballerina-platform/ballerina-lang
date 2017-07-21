@@ -2324,7 +2324,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             BMapType mapType = (BMapType) varRefType;
             indexBasedVarRefExpr.setType(mapType.getElementType());
 
-        } else if (varRefType == BTypes.typeJSON || varRefType.getTag() == TypeTags.C_JSON_TAG) {
+        } else if (varRefType.getTag() == TypeTags.C_JSON_TAG) {
+            throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefExpr.getType().toString());
+        } else if (varRefType == BTypes.typeJSON) {
             if (indexExpr.getType() != BTypes.typeInt && indexExpr.getType() != BTypes.typeString) {
                 throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
                         SemanticErrors.INCOMPATIBLE_TYPES, "string or int", varRefExpr.getType());

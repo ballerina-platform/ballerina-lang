@@ -1460,8 +1460,6 @@ public class ProgramFileReader {
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
                 case InstructionCodes.NEWXMLELEMENT:
-                case InstructionCodes.JSONLOAD_DYNAMIC:
-                case InstructionCodes.JSONSTORE_DYNAMIC:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

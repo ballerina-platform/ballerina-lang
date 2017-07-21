@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -171,22 +170,15 @@ public class JSONStructConstraintTest {
         Assert.assertNotNull(returns[0]);
     }
 
-    @Test(description = "Test Constaint JSON field access.")
-    public void testConstraintJSONFieldAccess() {
-        BValue[] returns = BLangFunctions.invokeNew(BTestUtils
-                        .getProgramFile("lang/jsontype/json-struct-constraint-function-returns.bal"),
-                "testConstraintJSONFieldAccess");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BString) returns[0]).value(), "John Doe");
+    @Test(description = "Test Constaint JSON indexing.",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*invalid operation: type 'json<Student>' does not support indexing")
+    public void testConstraintJSONIndexing() {
+       BTestUtils.getProgramFile("lang/jsontype/json-struct-contraint-indexing-negative.bal");
+
     }
 
-    @Test(description = "Test Constaint JSON field access.", expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*unknown field 'names' in json with struct constraint 'Person'.*")
-    public void testConstraintJSONFieldAccessNegative() {
-        BValue[] returns = BLangFunctions.invokeNew(BTestUtils
-                        .getProgramFile("lang/jsontype/json-struct-constraint-function-returns.bal"),
-                "testConstraintJSONFieldAccessNegative");
-        Assert.assertNull(returns[0]);
-    }
+
 
 }

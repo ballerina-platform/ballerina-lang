@@ -900,52 +900,6 @@ public class BLangVM {
                     }
                     JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
                     break;
-                case InstructionCodes.JSONLOAD_DYNAMIC:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    cpIndex = operands[3];
-                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    // Additional check if and only if specified type is constraint JSON.
-                    if (typeRefCPEntry.getType().getTag() == TypeTags.C_JSON_TAG) {
-                        BStructType bStructType = (BStructType) ((BJSONConstraintType) typeRefCPEntry.getType())
-                                .getConstraint();
-                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
-                            throw BLangExceptionHelper.getRuntimeException(
-                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
-                                    ((BJSONConstraintType) typeRefCPEntry.getType()).getConstraint());
-                        }
-                    }
-                    sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
-                    break;
-                case InstructionCodes.JSONSTORE_DYNAMIC:
-                    i = operands[0];
-                    j = operands[1];
-                    k = operands[2];
-                    cpIndex = operands[3];
-                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
-                    jsonVal = (BJSON) sf.refRegs[i];
-                    if (jsonVal == null) {
-                        handleNullRefError();
-                        break;
-                    }
-                    // Additional check if and only if specified type is constraint JSON.
-                    if (typeRefCPEntry.getType().getTag() == TypeTags.C_JSON_TAG) {
-                        BStructType bStructType = (BStructType) ((BJSONConstraintType) typeRefCPEntry.getType())
-                                .getConstraint();
-                        if (!checkConstraintJSONValidity(sf.stringRegs[j], bStructType)) {
-                            throw BLangExceptionHelper.getRuntimeException(
-                                    RuntimeErrors.UNKNOWN_FIELD_JSON_STURCT, sf.stringRegs[j],
-                                    ((BJSONConstraintType) typeRefCPEntry.getType()).getConstraint());
-                        }
-                    }
-                    JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
-                    break;
 
                 case InstructionCodes.IADD:
                     i = operands[0];
