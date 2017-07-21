@@ -16,12 +16,13 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,9 +35,13 @@ public class WorkerInfo implements AttributeInfoPool {
     private String workerName;
     private int workerNameCPIndex;
 
-    private WorkerDataChannel workerDataChannelForForkJoin;
+    private int wrkrDtChnlRefCPIndex = -1;
+    private WorkerDataChannelInfo workerDataChannelInfoForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
+
+    private ForkjoinInfo[] forkjoinInfos;
+    private List<ForkjoinInfo> forkjoinInfoList = new ArrayList<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
@@ -77,11 +82,32 @@ public class WorkerInfo implements AttributeInfoPool {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    public WorkerDataChannel getWorkerDataChannelForForkJoin() {
-        return workerDataChannelForForkJoin;
+    public int getWrkrDtChnlRefCPIndex() {
+        return wrkrDtChnlRefCPIndex;
     }
 
-    public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
-        this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
+    public void setWrkrDtChnlRefCPIndex(int wrkrDtChnlRefCPIndex) {
+        this.wrkrDtChnlRefCPIndex = wrkrDtChnlRefCPIndex;
+    }
+
+    public WorkerDataChannelInfo getWorkerDataChannelInfoForForkJoin() {
+        return workerDataChannelInfoForForkJoin;
+    }
+
+    public void setWorkerDataChannelInfoForForkJoin(WorkerDataChannelInfo workerDataChannelInfoForForkJoin) {
+        this.workerDataChannelInfoForForkJoin = workerDataChannelInfoForForkJoin;
+    }
+
+    public ForkjoinInfo[] getForkjoinInfos() {
+        return forkjoinInfoList.toArray(new ForkjoinInfo[0]);
+    }
+
+    public int addForkJoinInfo(ForkjoinInfo forkjoinInfo) {
+        forkjoinInfoList.add(forkjoinInfo);
+        return forkjoinInfoList.indexOf(forkjoinInfo);
+    }
+
+    public void setForkjoinInfos(ForkjoinInfo[] forkjoinInfos) {
+        this.forkjoinInfos = forkjoinInfos;
     }
 }

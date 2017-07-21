@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.runtime.model;
 
-import org.ballerinalang.BLangCompiler;
+import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.runtime.config.InterceptorConfig;
@@ -141,8 +141,7 @@ public class ServerConnector {
 //                        bLangProgramLoader.disableSemanticAnalyzer();
                         Path ballerinaArchive = Paths.get(serverConnector.interceptorDeploymentPath.toString(),
                                 config.getArchiveName());
-                        programFile = BLangCompiler.compile(serverConnector
-                                .interceptorDeploymentPath, ballerinaArchive);
+                        programFile = BLangProgramLoader.read(ballerinaArchive);
                         serverConnector.interceptorProgramFileMap.put(config.getArchiveName(), programFile);
                     }
                     ServiceInterceptor serviceInterceptor = new ServiceInterceptor.ServiceInterceptorBuilder
