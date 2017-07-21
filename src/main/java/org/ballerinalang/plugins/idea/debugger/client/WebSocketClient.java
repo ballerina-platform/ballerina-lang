@@ -157,9 +157,6 @@ public class WebSocketClient {
      * Shutdown the WebSocket Client.
      */
     public void shutDown() throws InterruptedException {
-        if (channel != null) {
-            channel.closeFuture().sync();
-        }
         group.shutdownGracefully();
     }
 }
