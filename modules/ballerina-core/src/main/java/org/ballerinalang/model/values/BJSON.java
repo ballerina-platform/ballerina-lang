@@ -43,6 +43,7 @@ import java.io.OutputStream;
 public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private BType type = BTypes.typeJSON;
 
     static {
         OBJECT_MAPPER.configure(Feature.ALLOW_SINGLE_QUOTES, true);
@@ -234,7 +235,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     @Override
     public BType getType() {
-        return BTypes.typeJSON;
+        return this.type;
+    }
+
+    public void setType(BType type) {
+        this.type = type;
     }
 
     @Override

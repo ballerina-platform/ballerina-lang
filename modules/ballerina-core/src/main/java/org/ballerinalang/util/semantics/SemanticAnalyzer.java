@@ -138,6 +138,7 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BFunctionType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -2270,7 +2271,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (varRefType == BTypes.typeJSON) {
             fieldBasedVarRefExpr.setType(BTypes.typeJSON);
-
+        } else if (varRefType instanceof BJSONConstraintType) {
+            StructDef structDefReference = (StructDef) ((BJSONConstraintType) varRefType).getConstraint();
+            BLangSymbol fieldSymbol = structDefReference.resolveMembers(
+                    new SymbolName(fieldName, structDefReference.getPackagePath()));
+            if (fieldSymbol == null) {
+                throw BLangExceptionHelper
+                        .getSemanticError(varRefExpr.getNodeLocation(), SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT,
+                                fieldName, structDefReference.getName());
+            }
+            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            fieldBasedVarRefExpr.setFieldDef(fieldDef);
+            fieldBasedVarRefExpr.setType(BTypes.typeJSON);
         } else if (varRefType instanceof BArrayType && fieldName.equals("length")) {
             if (fieldBasedVarRefExpr.isLHSExpr()) {
                 //cannot assign a value to array length
@@ -2313,6 +2325,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             BMapType mapType = (BMapType) varRefType;
             indexBasedVarRefExpr.setType(mapType.getElementType());
 
+        } else if (varRefType.getTag() == TypeTags.C_JSON_TAG) {
+            throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
+                    SemanticErrors.INVALID_OPERATION_NOT_SUPPORT_INDEXING, varRefExpr.getType().toString());
         } else if (varRefType == BTypes.typeJSON) {
             if (indexExpr.getType() != BTypes.typeInt && indexExpr.getType() != BTypes.typeString) {
                 throw BLangExceptionHelper.getSemanticError(indexExpr.getNodeLocation(),
@@ -2462,6 +2477,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 return;
             }
 
+        } else if ((sourceType.getTag() == TypeTags.C_JSON_TAG && targetType.getTag() == TypeTags.C_JSON_TAG)
+                && TypeLattice.isAssignCompatible((StructDef) ((BJSONConstraintType) targetType).getConstraint(),
+                (StructDef) ((BJSONConstraintType) sourceType).getConstraint())) {
+            typeCastExpr.setOpcode(InstructionCodes.NOP);
+            if (!isMultiReturn) {
+                typeCastExpr.setTypes(new BType[]{targetType});
+                return;
+            }
         } else {
             boolean isUnsafeCastPossible = false;
             if (isMultiReturn) {
@@ -3754,7 +3777,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (fieldType == BTypes.typeMap) {
                 refTypeInitExpr = new MapInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
-            } else if (fieldType == BTypes.typeJSON) {
+            } else if (fieldType == BTypes.typeJSON || fieldType instanceof BJSONConstraintType) {
                 refTypeInitExpr = new JSONInitExpr(refTypeInitExpr.getNodeLocation(),
                         refTypeInitExpr.getWhiteSpaceDescriptor(), refTypeInitExpr.getArgExprs());
             } else if (fieldType instanceof StructDef) {
@@ -3824,10 +3847,30 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(keyExpr);
 
             Expression valueExpr = keyValueExpr.getValueExpr();
-            if (valueExpr instanceof RefTypeInitExpr) {
-                valueExpr = getNestedInitExpr(valueExpr, inheritedType);
-                keyValueExpr.setValueExpr(valueExpr);
+            if (inheritedType instanceof BJSONConstraintType) {
+                String key = ((BasicLiteral) keyExpr).getBValue().stringValue();
+                StructDef constraintStructDef = (StructDef) ((BJSONConstraintType) inheritedType).getConstraint();
+                if (constraintStructDef != null) {
+                    BLangSymbol varDefSymbol = constraintStructDef.resolveMembers(
+                            new SymbolName(key, constraintStructDef.getPackagePath()));
+                    if (varDefSymbol == null) {
+                        throw BLangExceptionHelper.getSemanticError(keyExpr.getNodeLocation(),
+                                SemanticErrors.UNKNOWN_FIELD_IN_JSON_STRUCT, key, constraintStructDef.getName());
+                    }
+                    VariableDef varDef = (VariableDef) varDefSymbol;
+                    BType cJSONFieldType = new BJSONConstraintType(varDef.getType());
+                    if (valueExpr instanceof RefTypeInitExpr) {
+                        valueExpr = getNestedInitExpr(valueExpr, cJSONFieldType);
+                        keyValueExpr.setValueExpr(valueExpr);
+                    }
+                }
+            } else {
+                if (valueExpr instanceof RefTypeInitExpr) {
+                    valueExpr = getNestedInitExpr(valueExpr, inheritedType);
+                    keyValueExpr.setValueExpr(valueExpr);
+                }
             }
+
             valueExpr.accept(this);
             BType valueExprType = valueExpr.getType();
 
@@ -3893,6 +3936,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             return true;
         }
 
+        if (lhsType == BTypes.typeJSON && rhsType.getTag() == TypeTags.C_JSON_TAG) {
+            return true;
+        }
+
         return lhsType == rhsType || lhsType.equals(rhsType);
     }
 
@@ -3911,6 +3958,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // 3) If both types are not array types, unsafe cast is not possible now.
         if (targetType.getTag() == TypeTags.ARRAY_TAG || sourceType.getTag() == TypeTags.ARRAY_TAG) {
             return isUnsafeArrayCastPossible(sourceType, targetType);
+        }
+
+        if (sourceType.getTag() == TypeTags.JSON_TAG && targetType.getTag() == TypeTags.C_JSON_TAG) {
+            return true;
         }
 
         return false;
@@ -3965,6 +4016,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (rhsType == BTypes.typeNull && !BTypes.isValueType(lhsType)) {
             assignabilityResult.assignable = true;
             return assignabilityResult;
+        }
+
+        if ((rhsType instanceof BJSONConstraintType) && (lhsType == BTypes.typeJSON)) {
+            assignabilityResult.assignable = true;
+            return assignabilityResult;
+        }
+
+        if ((rhsType instanceof BJSONConstraintType) && (lhsType instanceof BJSONConstraintType)) {
+            if (((BJSONConstraintType) lhsType).getConstraint() == ((BJSONConstraintType) rhsType).getConstraint()) {
+                assignabilityResult.assignable = true;
+                return assignabilityResult;
+            }
         }
 
         // Now check whether an implicit cast is available;

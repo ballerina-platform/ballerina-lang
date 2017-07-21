@@ -82,6 +82,18 @@ public class JSONUtils {
     private static final String NIL = "nil";
 
     /**
+     * Check whether JSON has particular field.
+     *
+     * @param json JSON to be considered.
+     * @param elementName String name json field to be considered.
+     * @return Boolean 'true' if JSON has given field.
+     */
+    public static boolean hasElement(BJSON json, String elementName) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.has(elementName);
+    }
+
+    /**
      * Convert {@link BMap} to {@link BJSON}.
      *
      * @param map {@link BMap} to be converted to {@link BJSON}
@@ -384,7 +396,7 @@ public class JSONUtils {
         JsonNode jsonNode = json.value();
         return jsonNode.size();
     }
-    
+
     /**
      * Get an element from a JSON array.
      * 

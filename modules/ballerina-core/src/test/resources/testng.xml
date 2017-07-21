@@ -96,4 +96,10 @@ under the License.
             <class name="org.ballerinalang.model.functions.FunctionPointersNegativeTest" />
         </classes>
     </test>
+
+    <test name="ballerina-constraint-json-test">
+        <classes>
+            <class name="org.ballerinalang.model.json.JSONStructConstraintTest"/>
+        </classes>
+    </test>
 </suite>

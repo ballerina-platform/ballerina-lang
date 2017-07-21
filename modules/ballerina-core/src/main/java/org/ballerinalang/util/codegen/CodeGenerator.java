@@ -126,6 +126,7 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
 import org.ballerinalang.model.types.BFunctionType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -2160,7 +2161,7 @@ public class CodeGenerator implements NodeVisitor {
                 fieldBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
-        } else if (varRefType == BTypes.typeJSON) {
+        } else if (varRefType == BTypes.typeJSON || varRefType instanceof BJSONConstraintType) {
             BasicLiteral indexLiteral = new BasicLiteral(fieldBasedVarRefExpr.getNodeLocation(), null,
                     new BString(fieldName));
             indexLiteral.setType(BTypes.typeString);
@@ -2194,8 +2195,8 @@ public class CodeGenerator implements NodeVisitor {
 
         // Type of the varRefExpr can be either Array, Map, JSON.
         BType varRefType = varRefExpr.getType();
-        
-        // We check for JSON first, because a JSON array is also a JSON, and is accessed different to 
+
+        // We check for JSON first, because a JSON array is also a JSON, and is accessed different to
         // the other array types.
         if (getElementType(varRefType) == BTypes.typeJSON) {
             int jsonValueRegIndex;
@@ -2694,6 +2695,10 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.typeBlob;
             case TypeSignature.SIG_REFTYPE:
                 return BTypes.getTypeFromName(typeSig.getName());
+            case TypeSignature.SIG_CJSON:
+                packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
+                StructInfo structInf = packageInfo.getStructInfo(typeSig.getName());
+                return new BJSONConstraintType(structInf.getType());
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
             case TypeSignature.SIG_TYPE:
@@ -3240,7 +3245,7 @@ public class CodeGenerator implements NodeVisitor {
         if (type.getTag() != TypeTags.ARRAY_TAG) {
             return type;
         }
-        
+
         return getElementType(((BArrayType) type).getElementType());
     }
 

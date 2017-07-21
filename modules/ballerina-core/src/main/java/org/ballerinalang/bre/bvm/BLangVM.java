@@ -27,6 +27,7 @@ import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BJSONConstraintType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -897,7 +898,6 @@ public class BLangVM {
                         handleNullRefError();
                         break;
                     }
-
                     JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
                     break;
 
@@ -1758,7 +1758,7 @@ public class BLangVM {
                 typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
-                
+
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
                 } else if (checkCast(bRefType, typeRefCPEntry.getType())) {
@@ -1776,6 +1776,24 @@ public class BLangVM {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private boolean checkConstraintJSONEquivalency(BJSON json, BStructType targetType) {
+        BStructType.StructField[] tFields = targetType.getStructFields();
+        for (int i = 0; i < tFields.length; i++) {
+            if (JSONUtils.hasElement(json, tFields[i].getFieldName())) {
+                if (tFields[i].getFieldType() instanceof BStructType) {
+                    if (checkConstraintJSONEquivalency(JSONUtils.getElement(json, tFields[i].getFieldName()),
+                            (BStructType) tFields[i].getFieldType())) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
@@ -2889,6 +2907,14 @@ public class BLangVM {
         }
     }
 
+    private boolean checkConstraintJSONCast(BType targetType, BRefType value) {
+        if (checkConstraintJSONEquivalency((BJSON) value,
+                (BStructType) ((BJSONConstraintType) targetType).getConstraint())) {
+            return true;
+        }
+        return false;
+    }
+
     private boolean checkCast(BValue sourceValue, BType targetType) {
         BType sourceType = sourceValue.getType();
 
@@ -2903,6 +2929,11 @@ public class BLangVM {
 
         if (targetType.getTag() == TypeTags.ANY_TAG) {
             return true;
+        }
+
+        if (targetType.getTag() == TypeTags.C_JSON_TAG &&
+                sourceValue.getType().getTag() == TypeTags.JSON_TAG) {
+            return checkConstraintJSONCast(targetType, (BRefType) sourceValue);
         }
 
         // Check JSON casting
