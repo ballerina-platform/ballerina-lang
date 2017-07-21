@@ -63,6 +63,10 @@ public class ConnectorInfo extends StructureTypeInfo {
         methodTableIndex.put(methodNameCPIndex, new Integer(ip));
     }
 
+    public void addMethodType(BConnectorType connectorType, ConnectorInfo connectorInfo) {
+        methodTableType.put(connectorType, connectorInfo);
+    }
+
     public void setMethodTableType(Map<BConnectorType, ConnectorInfo> methodTable) {
         this.methodTableType = methodTable;
     }
