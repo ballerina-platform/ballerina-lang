@@ -974,6 +974,7 @@ public class ProgramFileReader {
         switch (attribKind) {
             case CODE_ATTRIBUTE:
                 CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
+                codeAttributeInfo.setAttributeNameIndex(attribNameCPIndex);
                 codeAttributeInfo.setCodeAddrs(dataInStream.readInt());
 
                 codeAttributeInfo.setMaxLongLocalVars(dataInStream.readUnsignedShort());
