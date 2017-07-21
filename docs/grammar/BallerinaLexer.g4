@@ -34,6 +34,7 @@ TYPE_XML        : 'xml' ;
 TYPE_MESSAGE    : 'message' ;
 TYPE_DATATABLE  : 'datatable' ;
 TYPE_ANY        : 'any' ;
+TYPE_TYPE       : 'any' ;
 
 VAR         : 'var' ;
 CREATE      : 'create' ;
@@ -60,6 +61,8 @@ TRANSACTION : 'transaction' ;
 ABORT       : 'abort' ;
 ABORTED     : 'aborted' ;
 COMMITTED   : 'committed' ;
+LENGTHOF    : 'lengthof' ;
+TYPEOF      : 'typeof' ;
 
 // Separators
 

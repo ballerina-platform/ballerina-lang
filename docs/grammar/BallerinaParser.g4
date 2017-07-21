@@ -137,6 +137,7 @@ workerDefinition
 
 typeName
     :   TYPE_ANY
+    |   TYPE_TYPE
     |   valueTypeName
     |   referenceTypeName
     |   typeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -444,7 +445,7 @@ expression
     |   nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS    # functionInvocationExpression
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS expression              # typeCastingExpression
     |   LT typeName GT expression                                           # typeConversionExpression
-    |   (ADD | SUB | NOT) expression                                        # unaryExpression
+    |   (ADD | SUB | NOT | LENGTHOF | TYPEOF) expression                    # unaryExpression
     |   LEFT_PARENTHESIS expression RIGHT_PARENTHESIS                       # bracedExpression
     |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
