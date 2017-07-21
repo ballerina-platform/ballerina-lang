@@ -21,13 +21,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.bre.BallerinaTransactionManager;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.FrameInfo;
 import org.ballerinalang.bre.nonblocking.debugger.VariableInfo;
 import org.ballerinalang.model.NodeLocation;
-import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
@@ -36,7 +33,6 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
@@ -67,24 +63,26 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.DefaultBalCallback;
 import org.ballerinalang.runtime.worker.WorkerCallback;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.session.Session;
 import org.ballerinalang.util.codegen.ActionInfo;
-import org.ballerinalang.util.codegen.AttributeInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.util.codegen.ConnectorInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
+import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -94,10 +92,9 @@ import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.TypeCPEntry;
+import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerInvokeCPEntry;
-import org.ballerinalang.util.codegen.cpentries.WorkerReplyCPEntry;
+import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -146,7 +143,6 @@ public class BLangVM {
         this.globalMemBlock = programFile.getGlobalMemoryBlock();
     }
 
-    // TODO Remove
     private void traceCode(PackageInfo packageInfo) {
         PrintStream printStream = System.out;
         for (int i = 0; i < code.length; i++) {
@@ -157,7 +153,7 @@ public class BLangVM {
 
     public void run(Context context) {
         StackFrame currentFrame = context.getControlStackNew().getCurrentFrame();
-        this.constPool = currentFrame.packageInfo.getConstPool();
+        this.constPool = currentFrame.packageInfo.getConstPoolEntries();
         this.code = currentFrame.packageInfo.getInstructions();
 
         this.context = context;
@@ -170,7 +166,7 @@ public class BLangVM {
             // // TODO : Temporary to solution make non-blocking working.
             BType[] retTypes = context.actionInfo.getRetParamTypes();
             StackFrame calleeSF = controlStack.popFrame();
-            this.constPool = controlStack.currentFrame.packageInfo.getConstPool();
+            this.constPool = controlStack.currentFrame.packageInfo.getConstPoolEntries();
             this.code = controlStack.currentFrame.packageInfo.getInstructions();
             handleReturnFromNativeCallableUnit(controlStack.currentFrame, context.funcCallCPEntry.getRetRegs(),
                     calleeSF.returnValues, retTypes);
@@ -199,7 +195,7 @@ public class BLangVM {
         }
     }
 
-    public void execWorker(Context context, int startIP, int endIP) {
+    public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
         run(context);
     }
@@ -233,15 +229,14 @@ public class BLangVM {
         
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
         ActionRefCPEntry actionRefCPEntry;
 
         FunctionInfo functionInfo;
         ActionInfo actionInfo;
         WorkerDataChannelRefCPEntry workerRefCPEntry;
-        WorkerInvokeCPEntry workerInvokeCPEntry;
-        WorkerReplyCPEntry workerReplyCPEntry;
-        WorkerDataChannel workerDataChannel;
+        WrkrInteractionArgsCPEntry wrkrIntRefCPEntry;
+        WorkerDataChannelInfo workerDataChannel;
         ForkJoinCPEntry forkJoinCPEntry;
 
         boolean isDebugging = context.isDebugEnabled();
@@ -1182,25 +1177,24 @@ public class BLangVM {
                 case InstructionCodes.WRKINVOKE:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
-                    BType[] types = workerRefCPEntry.getTypes();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerInvokeCPEntry = (WorkerInvokeCPEntry) constPool[cpIndex];
-                    invokeWorker(workerDataChannel, workerInvokeCPEntry, types);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    invokeWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.WRKREPLY:
                     cpIndex = operands[0];
                     workerRefCPEntry = (WorkerDataChannelRefCPEntry) constPool[cpIndex];
-                    workerDataChannel = workerRefCPEntry.getWorkerDataChannel();
-                    types = workerRefCPEntry.getTypes();
+                    workerDataChannel = workerRefCPEntry.getWorkerDataChannelInfo();
 
                     cpIndex = operands[1];
-                    workerReplyCPEntry = (WorkerReplyCPEntry) constPool[cpIndex];
-                    replyWorker(workerDataChannel, workerReplyCPEntry, types);
+                    wrkrIntRefCPEntry = (WrkrInteractionArgsCPEntry) constPool[cpIndex];
+                    replyWorker(workerDataChannel, wrkrIntRefCPEntry);
                     break;
                 case InstructionCodes.FORKJOIN:
                     cpIndex = operands[0];
+
                     forkJoinCPEntry = (ForkJoinCPEntry) constPool[cpIndex];
                     invokeForkJoin(forkJoinCPEntry);
                     break;
@@ -1332,15 +1326,15 @@ public class BLangVM {
                     i = operands[0];
                     sf.refRegs[i] = new BBooleanArray();
                     break;
-                case InstructionCodes.RNEWARRAY:
-                    i = operands[0];
-                    cpIndex = operands[1];
-                    typeCPEntry = (TypeCPEntry) constPool[cpIndex];
-                    sf.refRegs[i] = new BRefValueArray(typeCPEntry.getType());
-                    break;
                 case InstructionCodes.LNEWARRAY:
                     i = operands[0];
                     sf.refRegs[i] = new BBlobArray();
+                    break;
+                case InstructionCodes.RNEWARRAY:
+                    i = operands[0];
+                    cpIndex = operands[1];
+                    typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
+                    sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
                     break;
                 case InstructionCodes.JSONNEWARRAY:
                     i = operands[0];
@@ -1521,7 +1515,7 @@ public class BLangVM {
         int cpIndex; // Index of the constant pool
 
         BRefType bRefType;
-        TypeCPEntry typeCPEntry;
+        TypeRefCPEntry typeRefCPEntry;
 
         switch (opcode) {
             case InstructionCodes.I2ANY:
@@ -1651,16 +1645,16 @@ public class BLangVM {
                 cpIndex = operands[1];
                 j = operands[2];
                 k = operands[3];
-                typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+                typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
 
                 bRefType = sf.refRegs[i];
                 if (bRefType == null) {
                     sf.refRegs[j] = null;
-                } else if (checkCast(bRefType.getType(), typeCPEntry.getType())) {
+                } else if (checkCast(bRefType.getType(), typeRefCPEntry.getType())) {
                     sf.refRegs[j] = sf.refRegs[i];
                 } else {
                     sf.refRegs[j] = null;
-                    handleTypeCastError(sf, k, bRefType.getType(), typeCPEntry.getType());
+                    handleTypeCastError(sf, k, bRefType.getType(), typeRefCPEntry.getType());
                 }
                 break;
             case InstructionCodes.NULL2JSON:
@@ -1990,7 +1984,7 @@ public class BLangVM {
         //todo below line number is a dummy line number - remove later
         FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
         LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
-                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.LOCAL_VARIABLES_ATTRIBUTE);
+                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
         if (localVarAttrInfo != null) {
             for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
@@ -2083,36 +2077,20 @@ public class BLangVM {
     }
 
     private void createNewConnector(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BConnector bConnector = new BConnector(structureTypeInfo.getType());
-        bConnector.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bConnector.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+        BConnector bConnector = new BConnector(connectorInfo.getType());
         sf.refRegs[i] = bConnector;
     }
 
     private void createNewStruct(int[] operands, StackFrame sf) {
-        int cpIndex;
-        int i;
-        StructureRefCPEntry structureRefCPEntry;
-        StructureTypeInfo structureTypeInfo;
-        int[] fieldCount;
-        cpIndex = operands[0];
-        i = operands[1];
-        structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
-        structureTypeInfo = structureRefCPEntry.getStructureTypeInfo();
-        fieldCount = structureTypeInfo.getFieldCount();
-        BStruct bStruct = new BStruct(structureTypeInfo.getType());
-        bStruct.setFieldTypes(structureTypeInfo.getFieldTypes());
-        bStruct.init(fieldCount);
+        int cpIndex = operands[0];
+        int i = operands[1];
+        StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) constPool[cpIndex];
+        StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
+        BStruct bStruct = new BStruct(structInfo.getType());
         sf.refRegs[i] = bStruct;
     }
 
@@ -2156,7 +2134,7 @@ public class BLangVM {
         copyArgValues(callerSF, calleeSF, argRegs, paramTypes);
 
         // TODO Improve following two lines
-        this.constPool = calleeSF.packageInfo.getConstPool();
+        this.constPool = calleeSF.packageInfo.getConstPoolEntries();
         this.code = calleeSF.packageInfo.getInstructions();
         ip = defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs();
 
@@ -2165,54 +2143,44 @@ public class BLangVM {
 
     }
 
-    public void invokeWorker(WorkerDataChannel workerDataChannel, WorkerInvokeCPEntry workerInvokeCPEntry,
-                             BType[] types) {
+    public void invokeWorker(WorkerDataChannelInfo workerDataChannel,
+                             WrkrInteractionArgsCPEntry wrkrIntRefCPEntry) {
         StackFrame currentFrame = controlStack.getCurrentFrame();
 
         // Extract the outgoing expressions
-        BValue[] arguments = new BValue[workerInvokeCPEntry.getbTypes().length];
-        copyArgValuesForWorkerInvoke(currentFrame, workerInvokeCPEntry.getArgRegs(),
-                types, arguments);
+        BValue[] arguments = new BValue[wrkrIntRefCPEntry.getbTypes().length];
+        copyArgValuesForWorkerInvoke(currentFrame, wrkrIntRefCPEntry.getArgRegs(),
+                wrkrIntRefCPEntry.getbTypes(), arguments);
 
         //populateArgumentValuesForWorker(expressions, arguments);
-        if (workerDataChannel != null) {
-            workerDataChannel.setTypes(types);
-            workerDataChannel.putData(arguments);
-        } else {
-            BArray<BValue> bArray = new BArray<>(BValue.class);
-            for (int j = 0; j < arguments.length; j++) {
-                BValue returnVal = arguments[j];
-                bArray.add(j, returnVal);
-            }
-            controlStack.getCurrentFrame().returnValues[0] = bArray;
-        }
+        workerDataChannel.setTypes(wrkrIntRefCPEntry.getbTypes());
+        workerDataChannel.putData(arguments);
     }
 
     public void invokeForkJoin(ForkJoinCPEntry forkJoinCPEntry) {
-        ForkJoinStmt forkJoinStmt = forkJoinCPEntry.getForkJoinStmt();
+        ForkjoinInfo forkjoinInfo = forkJoinCPEntry.getForkjoinInfo();
         List<BLangVMWorkers.WorkerExecutor> workerRunnerList = new ArrayList<>();
         List<WorkerResult> resultMsgs = new ArrayList<>();
         //Map<String, BRefValueArray> resultInvokeAll = new HashMap<>();
         //BRefValueArray resultInvokeAny = null;
         long timeout = 60; // Default timeout value is 60 seconds
-        if (forkJoinCPEntry.isTimeoutAvailable()) {
+        if (forkjoinInfo.isTimeoutAvailable()) {
             timeout = controlStack.getCurrentFrame().getLongRegs()[0];
         }
 
-        Worker[] workers = forkJoinStmt.getWorkers();
         Map<String, BLangVMWorkers.WorkerExecutor> triggeredWorkers = new HashMap<>();
-        for (Worker worker : workers) {
-            Context workerContext = new Context();
+        for (WorkerInfo workerInfo : forkjoinInfo.getWorkerInfoMap().values()) {
+            Context workerContext = new Context(programFile);
             WorkerCallback workerCallback = new WorkerCallback(workerContext);
             workerContext.setBalCallback(workerCallback);
 
             StackFrame callerSF = controlStack.getCurrentFrame();
-            int[] argRegs = forkJoinCPEntry.getArgRegs();
+            int[] argRegs = forkjoinInfo.getArgRegs();
 
-            ControlStackNew controlStack = workerContext.getControlStackNew();
-            StackFrame calleeSF = new StackFrame(forkJoinCPEntry.getParentCallableUnitInfo(),
-                    forkJoinCPEntry.getWorkerInfo(worker.getName()), -1, new int[1]);
-            controlStack.pushFrame(calleeSF);
+            ControlStackNew workerControlStack = workerContext.getControlStackNew();
+            StackFrame calleeSF = new StackFrame(controlStack.getCurrentFrame().getCallableUnitInfo(),
+                    workerInfo, -1, new int[1]);
+            workerControlStack.pushFrame(calleeSF);
 
             BLangVM.copyValuesForForkJoin(callerSF, calleeSF, argRegs);
 
@@ -2224,13 +2192,13 @@ public class BLangVM {
             BLangVM bLangVM = new BLangVM(programFile);
             //ExecutorService executor = ThreadPoolFactory.getInstance().getWorkerExecutor();
             BLangVMWorkers.WorkerExecutor workerRunner = new BLangVMWorkers.WorkerExecutor(bLangVM,
-                    workerContext, forkJoinCPEntry.getWorkerInfo(worker.getName()));
+                    workerContext, workerInfo);
             workerRunnerList.add(workerRunner);
-            triggeredWorkers.put(worker.getName(), workerRunner);
+            triggeredWorkers.put(workerInfo.getWorkerName(), workerRunner);
         }
 
-        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
-            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+        if (forkjoinInfo.getJoinType().equalsIgnoreCase("some")) {
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
                 resultMsgs.add(invokeAnyWorker(workerRunnerList, timeout));
@@ -2244,7 +2212,7 @@ public class BLangVM {
                 //resultMsgs.add(res);
             }
         } else {
-            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            String[] joinWorkerNames = forkjoinInfo.getJoinWorkerNames();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for all of all the workers
                 resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
@@ -2258,11 +2226,9 @@ public class BLangVM {
         }
 
         if (isForkJoinTimedOut) {
-            ip = forkJoinStmt.getTimeout().getIp();
+            ip = forkjoinInfo.getTimeoutIp();
             // Execute the timeout block
-
-            int offsetTimeout = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
-                    getStackFrameOffset();
+            int offsetTimeout = forkjoinInfo.getTimeoutMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
@@ -2272,10 +2238,9 @@ public class BLangVM {
             isForkJoinTimedOut = false;
 
         } else {
-            ip = forkJoinStmt.getJoin().getIp();
+            ip = forkjoinInfo.getJoinIp();
             // Assign values to join block message arrays
-            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
-                    getStackFrameOffset();
+            int offsetJoin = forkjoinInfo.getJoinMemOffset();
             BMap<String, BRefValueArray> mbMap = new BMap<>();
             for (WorkerResult workerResult : resultMsgs) {
                 mbMap.put(workerResult.getWorkerName(), workerResult.getResult());
@@ -2323,12 +2288,13 @@ public class BLangVM {
         return result;
     }
 
-    public void replyWorker(WorkerDataChannel workerDataChannel, WorkerReplyCPEntry workerReplyCPEntry, BType[] types) {
+    public void replyWorker(WorkerDataChannelInfo workerDataChannel,
+                            WrkrInteractionArgsCPEntry wrkrIntCPEntry) {
 
         BValue[] passedInValues = (BValue[]) workerDataChannel.takeData();
         StackFrame currentFrame = controlStack.getCurrentFrame();
-        copyArgValuesForWorkerReply(currentFrame, workerReplyCPEntry.getArgRegs(),
-                types, passedInValues);
+        copyArgValuesForWorkerReply(currentFrame, wrkrIntCPEntry.getArgRegs(),
+                wrkrIntCPEntry.getbTypes(), passedInValues);
     }
 
     public static void copyArgValuesForWorkerInvoke(StackFrame callerSF, int[] argRegs, BType[] paramTypes,
@@ -2501,7 +2467,7 @@ public class BLangVM {
         if (controlStack.fp >= 0) {
             StackFrame callersSF = controlStack.currentFrame;
             // TODO Improve
-            this.constPool = callersSF.packageInfo.getConstPool();
+            this.constPool = callersSF.packageInfo.getConstPoolEntries();
             this.code = callersSF.packageInfo.getInstructions();
         }
         ip = currentSF.retAddrs;
@@ -2893,7 +2859,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BMap<String, BValue> bMap = (BMap<String, BValue>) sf.refRegs[i];
         if (bMap == null) {
             sf.refRegs[j] = null;
@@ -2906,9 +2872,8 @@ public class BLangVM {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        BStructType structType = (BStructType) typeCPEntry.getType();
+        BStructType structType = (BStructType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
-        bStruct.init(structType.getFieldCount());
 
         Set<String> keys = bMap.keySet();
         for (BStructType.StructField structField : structType.getStructFields()) {
@@ -2980,7 +2945,7 @@ public class BLangVM {
         int j = operands[2];
         int k = operands[3];
 
-        TypeCPEntry typeCPEntry = (TypeCPEntry) constPool[cpIndex];
+        TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) constPool[cpIndex];
         BJSON bjson = (BJSON) sf.refRegs[i];
         if (bjson == null) {
             sf.refRegs[j] = null;
@@ -2988,12 +2953,12 @@ public class BLangVM {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
         } catch (Exception e) {
             sf.refRegs[j] = null;
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
-                    typeCPEntry.getType() + "': " + e.getMessage();
-            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeCPEntry.getType().toString());
+                    typeRefCPEntry.getType() + "': " + e.getMessage();
+            handleTypeConversionError(sf, k, errorMsg, TypeConstants.JSON_TNAME, typeRefCPEntry.getType().toString());
         }
     }
 
@@ -3047,7 +3012,7 @@ public class BLangVM {
         // match should be not null at this point.
         if (match != null) {
             PackageInfo packageInfo = currentFrame.packageInfo;
-            this.constPool = packageInfo.getConstPool();
+            this.constPool = packageInfo.getConstPoolEntries();
             this.code = packageInfo.getInstructions();
             ip = match.getIpTarget();
             return;
