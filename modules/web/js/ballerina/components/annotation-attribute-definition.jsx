@@ -22,8 +22,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Alerts from 'alerts';
 import './annotation-definition.css';
-import EditableText from './editable-text';
-import {util} from './../visitors/sizing-utils';
+import { util } from './../visitors/sizing-utils';
 import ExpressionEditor from '../../expression-editor/expression-editor-utils';
 import SimpleBBox from "../ast/simple-bounding-box";
 
@@ -86,7 +85,7 @@ class AnnotationAttributeDefinition extends React.Component {
     }
 
     onUpdate(text) {
-
+        // TODO: Implement the on update.
     }
 
     onInputBlur(e) {
@@ -102,7 +101,7 @@ class AnnotationAttributeDefinition extends React.Component {
                 }
             }
         }
-        this.setState({editing: true, editValue: variableDeclaration});
+        this.setState({ editing: true, editValue: variableDeclaration });
     }
 
     onKeyDown(e) {
@@ -129,7 +128,7 @@ class AnnotationAttributeDefinition extends React.Component {
         // Adding items to the type dropdown.
         const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
-            dropdownData.push({id: bType, text: bType});
+            dropdownData.push({ id: bType, text: bType });
         });
 
         return dropdownData;

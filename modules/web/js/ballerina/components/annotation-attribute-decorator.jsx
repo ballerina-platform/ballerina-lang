@@ -89,7 +89,7 @@ class AnnotationAttributeDecorator extends React.Component {
     }
 
     onUpdate(text) {
-
+        // TODO: Implement the on update method.
     }
 
     onInputBlur(e) {
