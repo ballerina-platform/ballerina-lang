@@ -169,7 +169,11 @@ public class BTypes {
                     returnParamTypes[i++] = resolveType(simpleTypeName, symbolScope, location);
                 }
             }
-            return new BFunctionType(symbolScope, paramTypes, returnParamTypes);
+            BFunctionType functionType = new BFunctionType(symbolScope, paramTypes, returnParamTypes);
+            functionType.setParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnsParametersFieldsNames(functionTypeName.getParamFieldNames());
+            functionType.setReturnWordAvailable(functionTypeName.isReturnWordAvailable());
+            return functionType;
         }
 
         // If bType is not null, then element type of this arrays type is available.

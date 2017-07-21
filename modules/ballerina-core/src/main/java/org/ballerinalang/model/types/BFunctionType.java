@@ -33,6 +33,10 @@ public class BFunctionType extends BType {
     private BType[] parameterType;
     private BType[] returnParameterType;
 
+    private boolean isReturnWordAvailable;
+    private String[] parametersFieldsNames = new String[0];
+    private String[] returnsParametersFieldsNames = new String[0];
+
     public BFunctionType(SymbolScope symbolScope, BType[] parameterType, BType[] returnParameterType) {
         super(getTypeName(parameterType, returnParameterType), null, symbolScope, BFunctionPointer.class);
         this.parameterType = parameterType != null ? parameterType : new BType[0];
@@ -130,5 +134,31 @@ public class BFunctionType extends BType {
         result = 31 * result + Arrays.hashCode(parameterType);
         result = 31 * result + Arrays.hashCode(returnParameterType);
         return result;
+    }
+
+    /* Utility methods for Composer. */
+
+    public boolean isReturnWordAvailable() {
+        return isReturnWordAvailable;
+    }
+
+    public void setReturnWordAvailable(boolean returnWordAvailable) {
+        isReturnWordAvailable = returnWordAvailable;
+    }
+
+    public String[] getParametersFieldsNames() {
+        return parametersFieldsNames;
+    }
+
+    public void setParametersFieldsNames(String[] parametersFieldsNames) {
+        this.parametersFieldsNames = parametersFieldsNames;
+    }
+
+    public String[] getReturnsParametersFieldsNames() {
+        return returnsParametersFieldsNames;
+    }
+
+    public void setReturnsParametersFieldsNames(String[] returnsParametersFieldsNames) {
+        this.returnsParametersFieldsNames = returnsParametersFieldsNames;
     }
 }

@@ -919,8 +919,16 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         SimpleTypeName[] paramTypes = new SimpleTypeName[0];
         SimpleTypeName[] returnParamTypes = new SimpleTypeName[0];
+        String[] paramArgNames = new String[0];
+        String[] returnParamArgNames = new String[0];
+        boolean isReturnWordAvailable = false;
         if (ctx.parameterList() != null) {
             paramTypes = new SimpleTypeName[ctx.parameterList().parameter().size()];
+            paramArgNames = new String[ctx.parameterList().parameter().size()];
+            int i = 0;
+            for (BallerinaParser.ParameterContext paramCtx : ctx.parameterList().parameter()) {
+                paramArgNames[i++] = paramCtx.Identifier().getText();
+            }
         } else if (ctx.typeList() != null) {
             paramTypes = new SimpleTypeName[ctx.typeList().typeName().size()];
         }
@@ -929,9 +937,15 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
             BallerinaParser.ReturnParametersContext returnCtx = ctx.returnParameters();
             if (returnCtx.parameterList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.parameterList().parameter().size()];
+                returnParamArgNames = new String[returnCtx.parameterList().parameter().size()];
+                int i = 0;
+                for (BallerinaParser.ParameterContext paramCtx : returnCtx.parameterList().parameter()) {
+                    returnParamArgNames[i++] = paramCtx.Identifier().getText();
+                }
             } else if (returnCtx.typeList() != null) {
                 returnParamTypes = new SimpleTypeName[returnCtx.typeList().typeName().size()];
             }
+            isReturnWordAvailable = "returns".equals(returnCtx.getChild(0).getText());
         }
 
         for (int i = returnParamTypes.length - 1; i >= 0; i--) {
@@ -942,6 +956,9 @@ public class BLangAntlr4Listener implements BallerinaParserListener {
         }
         FunctionTypeName functionTypeName = new FunctionTypeName(paramTypes, returnParamTypes);
         functionTypeName.setNodeLocation(getCurrentLocation(ctx));
+        functionTypeName.setParamFieldNames(paramArgNames);
+        functionTypeName.setReturnParamFieldNames(returnParamArgNames);
+        functionTypeName.setReturnWordAvailable(isReturnWordAvailable);
         // TODO : Fix WhiteSpaces.
 //        if (isVerboseMode) {
 //            WhiteSpaceDescriptor ws = WhiteSpaceUtil.getBuiltInRefTypeNameWS(tokenStream, ctx);
