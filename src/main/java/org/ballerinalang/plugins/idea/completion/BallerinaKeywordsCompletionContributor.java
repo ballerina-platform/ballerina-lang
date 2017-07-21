@@ -64,7 +64,7 @@ public class BallerinaKeywordsCompletionContributor extends CompletionContributo
             }
 
             TypeNameNode typeNameNode = PsiTreeUtil.getParentOfType(parent, TypeNameNode.class);
-            if (typeNameNode != null && prevVisibleSibling != null && !prevVisibleSibling.getText().matches("[:=]")) {
+            if (typeNameNode != null && prevVisibleSibling != null && !prevVisibleSibling.getText().matches("[:.=]")) {
                 AnnotationDefinitionNode annotationDefinitionNode = PsiTreeUtil.getParentOfType(typeNameNode,
                         AnnotationDefinitionNode.class);
                 if (annotationDefinitionNode == null) {

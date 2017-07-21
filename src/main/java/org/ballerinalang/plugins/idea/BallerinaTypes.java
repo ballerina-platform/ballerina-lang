@@ -146,6 +146,7 @@ public class BallerinaTypes {
     public static final TokenIElementType REPLY = tokenIElementTypes.get(BallerinaLexer.REPLY);
     public static final TokenIElementType RESOURCE = tokenIElementTypes.get(BallerinaLexer.RESOURCE);
     public static final TokenIElementType RETURN = tokenIElementTypes.get(BallerinaLexer.RETURN);
+    public static final TokenIElementType RETURNS = tokenIElementTypes.get(BallerinaLexer.RETURNS);
     public static final TokenIElementType SERVICE = tokenIElementTypes.get(BallerinaLexer.SERVICE);
     public static final TokenIElementType STRUCT = tokenIElementTypes.get(BallerinaLexer.STRUCT);
     public static final TokenIElementType THROW = tokenIElementTypes.get(BallerinaLexer.THROW);
