@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
@@ -819,4 +820,25 @@ public class JSONTest {
         return bValue.stringValue().replace("\\r|\\n|\\t| ", "");
     }
 
+    @Test(description = "Get keys from a JSON")
+    public void testGetKeys() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testGetKeys", args);
+
+        Assert.assertTrue(returns[0] instanceof BStringArray);
+        BStringArray keys = (BStringArray) returns[0];
+        Assert.assertEquals(keys.size(), 3);
+        Assert.assertEquals(keys.get(0), "fname");
+        Assert.assertEquals(keys.get(1), "lname");
+        Assert.assertEquals(keys.get(2), "age");
+
+        Assert.assertTrue(returns[1] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[1]).size(), 0);
+
+        Assert.assertTrue(returns[2] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[2]).size(), 0);
+
+        Assert.assertTrue(returns[3] instanceof BStringArray);
+        Assert.assertEquals(((BStringArray) returns[3]).size(), 0);
+    }
 }

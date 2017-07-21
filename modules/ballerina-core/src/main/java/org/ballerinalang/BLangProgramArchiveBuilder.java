@@ -116,7 +116,7 @@ public class BLangProgramArchiveBuilder {
                 continue;
             }
 
-            Path packagePath = BLangPackages.getPathFromPackagePath(bLangPackage.getPackagePath());
+            Path packagePath = BLangPackages.convertToPackagePath(bLangPackage.getPackagePath());
             PackageRepository.PackageSource packageSource =
                     bLangPackage.getPackageRepository().loadPackage(packagePath);
             addPackageSourceToArchive(packageSource, packagePath, zipFS);

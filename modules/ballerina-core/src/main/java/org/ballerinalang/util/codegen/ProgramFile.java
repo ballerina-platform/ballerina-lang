@@ -44,8 +44,8 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     public static final int EP_SERVICE_FLAG = 2;
 
     // TODO Finalize the magic value;
-    private int magicValue = 0xBBBBBBBB;
-    private short version = (short) 10;
+    private int magicValue = 0xBA1DA4CE;
+    private short version = (short) 11;
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();

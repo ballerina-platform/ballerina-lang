@@ -36,3 +36,8 @@ struct TypeConversionError {
     string sourceType;
     string targetType;
 }
+
+struct NullReferenceError {
+    string msg;
+    Error cause;
+}

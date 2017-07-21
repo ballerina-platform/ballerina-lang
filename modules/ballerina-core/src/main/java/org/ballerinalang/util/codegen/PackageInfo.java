@@ -19,6 +19,7 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 
@@ -60,9 +61,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
-    // TODO : Move this into CallableUnitInfo
-    private List<LineNumberInfo> lineNumberInfoList = new ArrayList<>();
 
     // cache values.
     ProgramFile programFile;
@@ -197,27 +195,23 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return instructionList.size();
     }
 
-    // LineNumberInfo
-
-    public List<LineNumberInfo> getLineNumberInfoList() {
-        return lineNumberInfoList;
-    }
-
-    public void addLineNumberInfo(LineNumberInfo lineNumberInfo) {
-        lineNumberInfoList.add(lineNumberInfo);
-    }
-
     public LineNumberInfo getLineNumberInfo(LineNumberInfo lineNumberInfo) {
-        int index = lineNumberInfoList.indexOf(lineNumberInfo);
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
+                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        int index = lineNumberInfos.indexOf(lineNumberInfo);
         if (index >= 0) {
-            return lineNumberInfoList.get(index);
+            return lineNumberInfos.get(index);
         }
         return null;
     }
 
     public LineNumberInfo getLineNumberInfo(int currentIP) {
         LineNumberInfo old = null;
-        for (LineNumberInfo lineNumberInfo : lineNumberInfoList) {
+        LineNumberTableAttributeInfo lineNumberTableAttributeInfo = (LineNumberTableAttributeInfo) attributeInfoMap
+                .get(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE);
+        List<LineNumberInfo> lineNumberInfos = lineNumberTableAttributeInfo.getLineNumberInfoList();
+        for (LineNumberInfo lineNumberInfo : lineNumberInfos) {
             if (currentIP == lineNumberInfo.getIp()) {
                 // best case.
                 return lineNumberInfo;

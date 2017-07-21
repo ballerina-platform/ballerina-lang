@@ -781,7 +781,7 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testAddAttributeWithQName");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns3=\"http://sample.com/wso2/f\" " +
-                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\" ns3:foo2=\"bar2\"/>");
+                "xmlns:ns0=\"http://sample.com/wso2/a1\" ns0:foo1=\"bar1\"/>");
     }
     
     @Test
@@ -1010,5 +1010,21 @@ public class XMLTest {
         BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromSingletonSeq");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "bar");
+    }
+    
+    @Test
+    public void testSetChildrenToElemntInDefaultNameSpace() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testSetChildrenToElemntInDefaultNameSpace");
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        Assert.assertEquals(returns[0].stringValue(),
+                "<name xmlns=\"http://sample.com/test\"><newFname xmlns=\"\">supun-new</newFname></name>");
+    }
+
+    @Test(expectedExceptions = { SemanticException.class },
+            expectedExceptionsMessageRegExp = "defineEmptyNamespace.bal:2: cannot bind a prefix \\('ns0'\\) to the "
+                    + "empty namespace name")
+    public void testDefineEmptyNamespace() {
+        BTestUtils.getProgramFile("samples/xml/defineEmptyNamespace.bal");
     }
 }

@@ -60,7 +60,15 @@ public class LauncherUtils {
             programFile = BLangCompiler.compile(sourceRootPath, sourcePath);
         }
 
+        // If there is no main or service entry point, throw an error
+        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
+        }
+
         if (runServices || !programFile.isMainEPAvailable()) {
+            if (args.length > 0) {
+                throw LauncherUtils.createUsageException("too many arguments");
+            }
             runServices(programFile);
         } else {
             runMain(programFile, args);
@@ -69,7 +77,7 @@ public class LauncherUtils {
 
     private static void runMain(ProgramFile programFile, String[] args) {
         // Load Client Connectors
-        BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         BLangProgramRunner.runMain(programFile, args);
         Runtime.getRuntime().exit(0);

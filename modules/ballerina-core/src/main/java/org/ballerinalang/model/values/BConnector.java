@@ -37,10 +37,12 @@ public final class BConnector implements BRefType, StructureType {
     private BRefType[] refFields;
 
     private BConnectorType connectorType;
+    private boolean isFilterConnector;
+    //private BType connectorType;
+
 
     public BConnector(BConnectorType connectorType) {
         this.connectorType = connectorType;
-
         int[] fieldIndexes = this.connectorType.getFieldTypeCount();
         longFields = new long[fieldIndexes[0]];
         doubleFields = new double[fieldIndexes[1]];
@@ -49,6 +51,18 @@ public final class BConnector implements BRefType, StructureType {
         intFields = new int[fieldIndexes[3]];
         byteFields = new byte[fieldIndexes[4]][];
         refFields = new BRefType[fieldIndexes[5]];
+    }
+
+    public BType getConnectorType() {
+        return connectorType;
+    }
+
+    public boolean isFilterConnector() {
+        return isFilterConnector;
+    }
+
+    public void setFilterConnector(boolean filterConnector) {
+        isFilterConnector = filterConnector;
     }
 
     @Override
