@@ -139,6 +139,7 @@ class Channel extends EventChannel {
      */
     close() {
         clearInterval(this.ping);
+        this.websocket.close();
     }
 }
 

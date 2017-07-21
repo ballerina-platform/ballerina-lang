@@ -78,6 +78,8 @@ class DebugManager extends EventChannel {
         } else {
             this.channel.sendMessage(message);
             this.trigger('resume-execution');
+            this.trigger('session-ended');
+            this.channel.close();
         }
     }
     /**
