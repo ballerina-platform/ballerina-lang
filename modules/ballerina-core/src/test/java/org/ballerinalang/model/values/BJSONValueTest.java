@@ -434,4 +434,18 @@ public class BJSONValueTest {
         String errorMsg = ((BStruct) returns[1]).getStringField(0);
         Assert.assertEquals(errorMsg, "'json' cannot be cast to 'json[][][]'");
     }
+
+    @Test
+    public void testJsonLength() {
+        BValue[] returns = BLangFunctions.invokeNew(programFile, "testJsonLength");
+
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
+
+        Assert.assertTrue(returns[2] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 3);
+    }
 }

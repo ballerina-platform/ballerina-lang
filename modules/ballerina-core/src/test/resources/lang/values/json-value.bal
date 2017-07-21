@@ -316,3 +316,11 @@ function testJsonToJsonArrayInvalidCasting() (json[][][], errors:TypeCastError){
     
     return j2, e;
 }
+
+function testJsonLength() (int, int, int){
+    json[] j1 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
+    
+    json j2 = [[1, 2, 3, 4], [3, 4, 5, 6], [7, 8, 9, 10]];
+    
+    return lengthof j1, lengthof j2, j1.length;
+}

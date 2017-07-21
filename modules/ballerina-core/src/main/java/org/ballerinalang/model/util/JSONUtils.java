@@ -348,6 +348,28 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
+
+    /**
+     * Check whether provided JSON object is a JSON Array.
+     *
+     * @param json JSON to execute array condition.
+     * @return returns true if provided JSON is a JSON Array.
+     */
+    public static boolean isJSONArray(BJSON json) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.isArray();
+    }
+
+    /**
+     * Returns the size of JSON Array.
+     *
+     * @param json JSON to calculate array size.
+     * @return returns integer that represents size of JSON Array.
+     */
+    public static int getJSONArrayLength(BJSON json) {
+        JsonNode jsonNode = json.value();
+        return jsonNode.size();
+    }
     
     /**
      * Get an element from a JSON array.

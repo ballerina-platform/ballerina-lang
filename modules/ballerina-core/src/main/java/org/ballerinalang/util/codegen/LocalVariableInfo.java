@@ -19,9 +19,6 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * {@code LocalVariableAttributeInfo} contains common metadata of a given local variable.
  *
@@ -33,23 +30,26 @@ public class LocalVariableInfo {
     private int varIndex;
 
     private String varName;
+
+    private int varTypeSigCPIndex;
     private BType varType;
 
-    List<Integer> attachmentsIndex = new ArrayList<>();
+    int[] attachmentIndexes = new int[0];
 
-    public LocalVariableInfo(String varName, int varNameCPIndex, int varIndex, BType varType) {
+    public LocalVariableInfo(String varName, int varNameCPIndex, int varIndex, int varTypeSigCPIndex, BType varType) {
         this.varName = varName;
         this.varNameCPIndex = varNameCPIndex;
         this.varIndex = varIndex;
+        this.varTypeSigCPIndex = varTypeSigCPIndex;
         this.varType = varType;
     }
 
-    public void addAttachmentIndex(int index) {
-        attachmentsIndex.add(index);
+    public int[] getAttachmentIndexes() {
+        return attachmentIndexes;
     }
 
-    public int getAttachmentIndex(int index) {
-        return attachmentsIndex.get(index);
+    public void setAttachmentIndexes(int[] attachmentIndexes) {
+        this.attachmentIndexes = attachmentIndexes;
     }
 
     public int getVariableNameCPIndex() {
@@ -62,6 +62,10 @@ public class LocalVariableInfo {
 
     public String getVarName() {
         return varName;
+    }
+
+    public int getVarTypeSigCPIndex() {
+        return varTypeSigCPIndex;
     }
 
     public BType getVariableType() {

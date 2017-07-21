@@ -4,7 +4,7 @@ import ballerina.net.http;
 import ballerina.lang.jsons;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/cbr"}
+@http:configuration {basePath:"/cbr"}
 service<http> contentBasedRouting {
     
     @http:POST{}

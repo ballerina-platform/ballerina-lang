@@ -110,7 +110,7 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                     session = session.setAccessed();
                     return new BValue[]{createSessionStruct(context, session)};
                 }
-                //create session since  request doesn't have a cookie
+                //create session since request doesn't have a cookie
                 session = context.getSessionManager().createHTTPSession(path);
             }
             context.setCurrentSession(session);

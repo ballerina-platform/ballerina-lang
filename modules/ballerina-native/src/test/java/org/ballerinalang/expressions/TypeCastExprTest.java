@@ -46,9 +46,9 @@ public class TypeCastExprTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.getProgramFile("lang/expressions/type/cast/type-casting.bal");
+        bLangProgram = BTestUtils.getProgramFile("lang/expressions/btype/cast/type-casting.bal");
     }
-    
+
 //    @Test
 //    public void testXMLToJSON() {
 //        BValue[] args = {new BXML("<name>chanaka</name>")};
@@ -316,7 +316,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "incompatible-struct-cast.bal:24: incompatible types: 'Student' " +
                     "cannot be assigned to 'Person'")
     public void testIncompatibleStructToStructCast() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/incompatible-struct-cast.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/incompatible-struct-cast.bal");
     }
 
     @Test(description = "Test casting a JSON integer to a string")
@@ -482,7 +482,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "struct-to-map.bal:22: incompatible types: 'Person' cannot be cast " +
                     "to 'map', try conversion")
     public void testStructToMap() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/struct-to-map.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/struct-to-map.bal");
     }
 
     @Test(description = "Test casting a map to struct",
@@ -490,14 +490,14 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-struct.bal:36: incompatible types: 'map' cannot be cast to " +
                     "'Person', try conversion")
     public void testMapToStruct() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/map-to-struct.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/map-to-struct.bal");
     }
 
     @Test(description = "Test casting a json to map",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "json-to-map.bal:9: incompatible types: 'json' cannot be cast to 'map'")
     public void testJsonToMap() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/json-to-map.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/json-to-map.bal");
     }
 
     @Test(description = "Test casting a json to struct",
@@ -505,7 +505,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "json-to-struct.bal:34: incompatible types: 'json' cannot be cast to" +
                     " 'Person', try conversion")
     public void testJsonToStruct() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/json-to-struct.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/json-to-struct.bal");
     }
 
     @Test(description = "Test casting a map to json",
@@ -513,7 +513,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "map-to-json-error.bal:7: incompatible types: 'map' cannot " +
                     "be cast to 'json'")
     public void testMapToJsonCastingError() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/map-to-json-error.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/map-to-json-error.bal");
     }
 
     @Test(description = "Test casting struct stored as any to struct")
@@ -605,9 +605,9 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a struct to another struct in a different package")
     public void testCastToStructInDifferentPkg() {
-        ProgramFile bLangProgram = BTestUtils.getProgramFile("lang/expressions/type/cast/foo");
+        ProgramFile bLangProgram = BTestUtils.getProgramFile("lang/expressions/btype/cast/foo");
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram,
-                "lang.expressions.type.cast.foo", "testCastToStructInDifferentPkg");
+                "lang.expressions.btype.cast.foo", "testCastToStructInDifferentPkg");
     }
 
     // Casting with errors returned
@@ -651,7 +651,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "mismatch-error-in-multi-return-casting.bal:18: incompatible types: " +
                     "expected 'ballerina.lang.errors:TypeCastError', found 'Error'")
     public void testMistmatchErrorInMultiReturnCasting() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/mismatch-error-in-multi-return-casting.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/mismatch-error-in-multi-return-casting.bal");
     }
 
     @Test(description = "Test casting with too many returns",
@@ -659,7 +659,7 @@ public class TypeCastExprTest {
             expectedExceptionsMessageRegExp = "casting-with-too-many-returns.bal:17: assignment count mismatch: " +
                     "3 != 2")
     public void testCastingWithTooManyReturns() {
-        BTestUtils.getProgramFile("lang/expressions/type/cast/casting-with-too-many-returns.bal");
+        BTestUtils.getProgramFile("lang/expressions/btype/cast/casting-with-too-many-returns.bal");
     }
 
 

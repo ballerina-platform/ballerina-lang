@@ -134,6 +134,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ParamAnnotationAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
@@ -198,6 +199,7 @@ public class CodeGenerator implements NodeVisitor {
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
     private LocalVariableAttributeInfo currentlLocalVarAttribInfo;
+    private LineNumberTableAttributeInfo lineNumberTableAttributeInfo;
     private CallableUnitInfo currentCallableUnitInfo;
     private int workerChannelCount = 0;
 
@@ -269,6 +271,12 @@ public class CodeGenerator implements NodeVisitor {
         packageRefCPEntry.setPackageInfo(currentPkgInfo);
         currentPkgCPIndex = currentPkgInfo.addCPEntry(packageRefCPEntry);
 
+        // Create lineNumberTableAttributeInfo object to collect line number details.
+        UTF8CPEntry lineNumberAttribUTF8CPEntry = new UTF8CPEntry(
+                AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE.toString());
+        int lineNumberAttribNameIndex = currentPkgInfo.addCPEntry(lineNumberAttribUTF8CPEntry);
+        lineNumberTableAttributeInfo = new LineNumberTableAttributeInfo(lineNumberAttribNameIndex);
+
         visitConstants(bLangPackage.getConsts());
         visitGlobalVariables(bLangPackage.getGlobalVariables());
         createStructInfoEntries(bLangPackage.getStructDefs());
@@ -288,6 +296,7 @@ public class CodeGenerator implements NodeVisitor {
         pkgInitFunction.accept(this);
         currentPkgInfo.setInitFunctionInfo(currentPkgInfo.getFunctionInfo(pkgInitFunction.getName()));
 
+        currentPkgInfo.addAttributeInfo(AttributeInfo.Kind.LINE_NUMBER_TABLE_ATTRIBUTE, lineNumberTableAttributeInfo);
         currentPkgInfo.complete();
         currentPkgCPIndex = -1;
         currentPkgPath = null;
@@ -840,7 +849,9 @@ public class CodeGenerator implements NodeVisitor {
                 continue;
             }
 
-            addLineNumberInfo(stmt.getNodeLocation());
+            if (!(stmt instanceof TryCatchStmt)) {
+                addLineNumberInfo(stmt.getNodeLocation());
+            }
             stmt.accept(this);
 
             for (int i = 0; i < maxRegIndexes.length; i++) {
@@ -880,6 +891,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // Process else-if parts
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
+            addLineNumberInfo(elseIfBlock.getNodeLocation());
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
             ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
@@ -998,6 +1010,7 @@ public class CodeGenerator implements NodeVisitor {
         // Handle catch blocks.
         int order = 0;
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            addLineNumberInfo(catchBlock.getCatchBlockStmt().getNodeLocation());
             int targetIP = nextIP();
 
             // Define local variable index for Error.
@@ -1280,6 +1293,36 @@ public class CodeGenerator implements NodeVisitor {
             exprIndex = opcodeAndIndex.index;
             emit(opcode, rExpr.getTempOffset(), exprIndex);
 
+        } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
+            BType rType = unaryExpr.getRExpr().getType();
+            if (rType == BTypes.typeJSON || getElementType(rType) == BTypes.typeJSON) {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOFJSON, regIndexes);
+            } else {
+                opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
+                        InstructionCodes.LENGTHOF, regIndexes);
+
+            }
+            opcode = opcodeAndIndex.opcode;
+            exprIndex = opcodeAndIndex.index;
+            emit(opcode, rExpr.getTempOffset(), exprIndex);
+
+        } else if (Operator.TYPEOF.equals(unaryExpr.getOperator())) {
+
+            if (rExpr.getType() == BTypes.typeAny) {
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPEOF, rExpr.getTempOffset(), exprIndex);
+            } else {
+                TypeSignature typeSig = rExpr.getType().getSig();
+                UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+                int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+                TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+                typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+                int typeCPindex = currentPkgInfo.addCPEntry(typeRefCPEntry);
+                exprIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.TYPELOAD, typeCPindex, exprIndex);
+            }
+
         } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
             opcode = InstructionCodes.BNOT;
             exprIndex = ++regIndexes[BOOL_OFFSET];
@@ -1401,15 +1444,25 @@ public class CodeGenerator implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.IEQ);
+        // Handle type equality as a special case.
+        if ((equalExpr.getRExpr().getType() == equalExpr.getLExpr().getType())
+                && equalExpr.getRExpr().getType() == BTypes.typeType) {
+            emitBinaryTypeEqualityExpr(equalExpr, InstructionCodes.TEQ);
+        } else {
+            emitBinaryCompareAndEqualityExpr(equalExpr, InstructionCodes.IEQ);
+        }
     }
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.INE);
+        // Handle type not equality as a special case.
+        if ((notEqualExpr.getRExpr().getType() == notEqualExpr.getLExpr().getType())
+                && notEqualExpr.getRExpr().getType() == BTypes.typeType) {
+            emitBinaryTypeEqualityExpr(notEqualExpr, InstructionCodes.TNE);
+        } else {
+            emitBinaryCompareAndEqualityExpr(notEqualExpr, InstructionCodes.INE);
+        }
     }
-
-
     // Binary comparison expressions
 
     @Override
@@ -2318,6 +2371,18 @@ public class CodeGenerator implements NodeVisitor {
         emit(opcode, lExpr.getTempOffset(), rExpr.getTempOffset(), exprIndex);
     }
 
+    private void emitBinaryTypeEqualityExpr(BinaryExpression binaryExpr, int baseOpcode) {
+        Expression lExpr = binaryExpr.getLExpr();
+        lExpr.accept(this);
+
+        Expression rExpr = binaryExpr.getRExpr();
+        rExpr.accept(this);
+
+        int exprIndex = ++regIndexes[BOOL_OFFSET];
+        binaryExpr.setTempOffset(exprIndex);
+        emit(baseOpcode, lExpr.getTempOffset(), rExpr.getTempOffset(), exprIndex);
+    }
+
     private int emit(int opcode, int... operands) {
         return currentPkgInfo.addInstruction(InstructionFactory.get(opcode, operands));
     }
@@ -2344,6 +2409,8 @@ public class CodeGenerator implements NodeVisitor {
                 return BTypes.getTypeFromName(typeSig.getName());
             case TypeSignature.SIG_ANY:
                 return BTypes.typeAny;
+            case TypeSignature.SIG_TYPE:
+                return BTypes.typeType;
             case TypeSignature.SIG_STRUCT:
                 packageInfo = programFile.getPackageInfo(typeSig.getPkgPath());
                 StructInfo structInfo = packageInfo.getStructInfo(typeSig.getName());
@@ -2701,11 +2768,14 @@ public class CodeGenerator implements NodeVisitor {
 
             paramAnnotationFound = true;
             ParamAnnAttachmentInfo paramAttachmentInfo = new ParamAnnAttachmentInfo(i);
+            int j = 0;
+            int[] attachmentIndexes = new int[paramAnnotationAttachments.length];
             for (AnnotationAttachment annotationAttachment : paramAnnotationAttachments) {
                 AnnAttachmentInfo attachmentInfo = getAnnotationAttachmentInfo(annotationAttachment);
                 paramAttachmentInfo.addAnnotationAttachmentInfo(attachmentInfo);
-                localVarInfo.addAttachmentIndex(attachmentInfo.nameCPIndex);
+                attachmentIndexes[j] = attachmentInfo.nameCPIndex;
             }
+            localVarInfo.setAttachmentIndexes(attachmentIndexes);
 
             paramAttributeInfo.addParamAttachmentInfo(i, paramAttachmentInfo);
         }
@@ -2805,9 +2875,23 @@ public class CodeGenerator implements NodeVisitor {
         if (nodeLocation == null) {
             return;
         }
-        LineNumberInfo lineNumberInfo = LineNumberInfo.Factory.create(nodeLocation, currentPkgInfo,
+        LineNumberInfo lineNumberInfo = createLineNumberInfo(nodeLocation, currentPkgInfo,
                 currentPkgInfo.getInstructionCount());
-        currentPkgInfo.addLineNumberInfo(lineNumberInfo);
+        lineNumberTableAttributeInfo.addLineNumberInfo(lineNumberInfo);
+    }
+
+    private LineNumberInfo createLineNumberInfo(NodeLocation nodeLocation, PackageInfo packageInfo, int ip) {
+        if (nodeLocation == null) {
+            return null;
+        }
+        UTF8CPEntry fileNameUTF8CPEntry = new UTF8CPEntry(nodeLocation.getFileName());
+        int fileNameCPEntryIndex = packageInfo.addCPEntry(fileNameUTF8CPEntry);
+
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(nodeLocation.getLineNumber(),
+                fileNameCPEntryIndex, nodeLocation.getFileName(), ip);
+        lineNumberInfo.setPackageInfo(packageInfo);
+        lineNumberInfo.setIp(ip);
+        return lineNumberInfo;
     }
 
     private LocalVariableInfo getLocalVarAttributeInfo(VariableDef variableDef) {
@@ -2827,7 +2911,12 @@ public class CodeGenerator implements NodeVisitor {
             memLocationOffset = ((StackVarLocation) variableDef.getMemoryLocation()).getStackFrameOffset();
         }
 
-        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, variableDef.getType());
+        BType varType = variableDef.getType();
+        String sig = varType.getSig().toString();
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(sig);
+        int sigCPIndex = currentPkgInfo.addCPEntry(sigCPEntry);
+
+        return new LocalVariableInfo(variableDef.getName(), varNameCPIndex, memLocationOffset, sigCPIndex, varType);
     }
 
     private void assignVariableDefMemoryLocation(VariableDef variableDef) {

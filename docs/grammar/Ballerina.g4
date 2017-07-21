@@ -89,16 +89,16 @@ globalVariableDefinition
     ;
 
 attachmentPoint
-     : 'service'
-     | 'resource'
-     | 'connector'
-     | 'action'
-     | 'function'
-     | 'typemapper'
-     | 'struct'
-     | 'const'
-     | 'parameter'
-     | 'annotation'
+     : 'service' ('<' Identifier? '>')?             # serviceAttachPoint
+     | 'resource'                                   # resourceAttachPoint
+     | 'connector'                                  # connectorAttachPoint
+     | 'action'                                     # actionAttachPoint
+     | 'function'                                   # functionAttachPoint
+     | 'typemapper'                                 # typemapperAttachPoint
+     | 'struct'                                     # structAttachPoint
+     | 'const'                                      # constAttachPoint
+     | 'parameter'                                  # parameterAttachPoint
+     | 'annotation'                                 # annotationAttachPoint
      ;
 
 annotationBody
@@ -131,7 +131,8 @@ workerDefinition
     ;
 
 typeName
-    :   'any'
+    :   'type'
+    |   'any'
     |   valueTypeName
     |   referenceTypeName
     |   typeName ('[' ']')+
@@ -444,7 +445,7 @@ expression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
     |   '<' typeName '>' expression                     # typeConversionExpression
-    |   ('+' | '-' | '!') expression                    # unaryExpression
+    |   ('+' | '-' | '!' | 'lengthof' | 'typeof') expression  # unaryExpression
     |   '(' expression ')'                              # bracedExpression
     |   expression '^' expression                       # binaryPowExpression
     |   expression ('/' | '*' | '%') expression         # binaryDivMulModExpression

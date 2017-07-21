@@ -27,6 +27,7 @@ import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
@@ -286,7 +287,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         variableDefStmt.accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONSTANT, null));
             annotationAttachment.accept(this);
         }
 
@@ -320,7 +321,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(service);
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.SERVICE,
+                    service.getProtocolPkgPath()));
             annotationAttachment.accept(this);
         }
 
@@ -351,7 +353,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(connectorDef);
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONNECTOR, null));
             annotationAttachment.accept(this);
         }
 
@@ -389,7 +391,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.RESOURCE, null));
             annotationAttachment.accept(this);
         }
 
@@ -608,7 +610,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -668,7 +670,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentCallableUnit = typeMapper;
 
         for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
             annotationAttachment.accept(this);
         }
 
@@ -726,7 +728,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentCallableUnit = action;
 
         for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ACTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -860,14 +862,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(StructDef structDef) {
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
     }
 
     @Override
     public void visit(AnnotationAttachment annotation) {
-        AttachmentPoint attachedPoint = annotation.getAttachedPoint();
+        AnnotationAttachmentPoint attachedPoint = annotation.getAttachedPoint();
         SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
         BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
 
@@ -879,12 +881,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
         if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
-            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+            Optional<AnnotationAttachmentPoint> matchingAttachmentPoint = Arrays
+                    .stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint))
                     .findAny();
             if (!matchingAttachmentPoint.isPresent()) {
-                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED,
-                        annotationSymName, attachedPoint);
+                String msg = attachedPoint.getAttachmentPoint().getValue();
+                if (attachedPoint.getPkgPath() != null) {
+                    msg = attachedPoint.getAttachmentPoint().getValue() + "<" + attachedPoint.getPkgPath() + ">";
+                }
+                throw BLangExceptionHelper.getSemanticError(annotation.getNodeLocation(),
+                        SemanticErrors.ANNOTATION_NOT_ALLOWED, annotationSymName, msg);
             }
         }
 
@@ -1071,7 +1078,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ANNOTATION, null));
             annotationAttachment.accept(this);
         }
     }
@@ -1086,7 +1093,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.PARAMETER, null));
             annotationAttachment.accept(this);
         }
     }
@@ -1839,6 +1846,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                 throwInvalidUnaryOpError(unaryExpr);
             }
 
+        } else if (Operator.TYPEOF.equals(unaryExpr.getOperator())) {
+            unaryExpr.setType(BTypes.typeType);
+        } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
+            BType rType = unaryExpr.getRExpr().getType();
+            if (!((rType instanceof BArrayType) || (rType == BTypes.typeJSON))) {
+                throwInvalidUnaryOpError(unaryExpr);
+            }
+            unaryExpr.setType(BTypes.typeInt);
         } else {
             BLangExceptionHelper.throwSemanticError(unaryExpr, SemanticErrors.UNKNOWN_OPERATOR_IN_UNARY,
                     unaryExpr.getOperator());
@@ -2508,11 +2523,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         binaryExpr.setType(BTypes.typeBoolean);
+
         if (type != BTypes.typeInt &&
                 type != BTypes.typeFloat &&
                 type != BTypes.typeBoolean &&
                 type != BTypes.typeString &&
-                type != BTypes.typeNull) {
+                type != BTypes.typeNull &&
+                type != BTypes.typeType) {
             throwInvalidBinaryOpError(binaryExpr);
         }
     }
@@ -3634,33 +3651,71 @@ public class SemanticAnalyzer implements NodeVisitor {
         return lhsType.getTag() == BTypes.typeAny.getTag() && !BTypes.isValueType(rhsType);
     }
 
+    /**
+     * Helper method to add return statement if required.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to which to add the return statement.
+     */
     private void checkAndAddReturnStmt(int returnParamCount, BlockStmt blockStmt) {
-        if (returnParamCount != 0) {
-            return;
-        }
-
-        Statement[] statements = blockStmt.getStatements();
-        int length = statements.length;
-        if (length > 0) {
-            Statement lastStatement = statements[length - 1];
-            if (!(lastStatement instanceof ReturnStmt)) {
-                NodeLocation location = lastStatement.getNodeLocation();
-                ReturnStmt returnStmt = new ReturnStmt(
-                        new NodeLocation(location.getFileName(),
-                                location.getLineNumber() + 1), null, new Expression[0]);
-                statements = Arrays.copyOf(statements, length + 1);
-                statements[length] = returnStmt;
-                blockStmt.setStatements(statements);
-            }
-        } else {
-            NodeLocation location = blockStmt.getNodeLocation();
-            ReturnStmt returnStmt = new ReturnStmt(
-                    new NodeLocation(location.getFileName(),
-                            location.getLineNumber() + 1), null, new Expression[0]);
+        ReturnStmt returnStmt = buildReturnStatement(returnParamCount, blockStmt);
+        if (returnStmt != null) {
+            Statement[] statements = blockStmt.getStatements();
+            int length = statements.length;
             statements = Arrays.copyOf(statements, length + 1);
             statements[length] = returnStmt;
             blockStmt.setStatements(statements);
         }
+    }
+
+    /**
+     * Helper method to build the correct return statement.
+     *
+     * @param returnParamCount  No of return parameters.
+     * @param blockStmt         Block statement to help generate return.
+     * @return                  Generated returnStmt.
+     */
+    private ReturnStmt buildReturnStatement(int returnParamCount, BlockStmt blockStmt) {
+        if (returnParamCount != 0) {
+            return null;
+        }
+
+        Statement[] statements = blockStmt.getStatements();
+        int length = statements.length;
+        NodeLocation location = null;
+        if (length > 0) {
+            Statement lastStatement = statements[length - 1];
+            if (lastStatement instanceof IfElseStmt) {
+                IfElseStmt ifElseStmt = (IfElseStmt) lastStatement;
+                if (ifElseStmt.getElseBody() != null) {
+                    return buildReturnStatement(returnParamCount, (BlockStmt) ifElseStmt.getElseBody());
+                } else if (ifElseStmt.getElseIfBlocks().length > 0) {
+                    int lastElseIf = ifElseStmt.getElseIfBlocks().length - 1;
+                    location = ifElseStmt.getElseIfBlocks()[lastElseIf].getNodeLocation();
+                }
+            } else if (lastStatement instanceof TryCatchStmt) {
+                TryCatchStmt tryCatchStmt = (TryCatchStmt) lastStatement;
+                if (tryCatchStmt.getFinallyBlock() != null) {
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getFinallyBlock().getFinallyBlockStmt());
+                } else if (tryCatchStmt.getCatchBlocks().length > 0) {
+                    int lastCatch = tryCatchStmt.getCatchBlocks().length - 1;
+                    return buildReturnStatement(returnParamCount,
+                            tryCatchStmt.getCatchBlocks()[lastCatch].getCatchBlockStmt());
+                }
+            } else if (!(lastStatement instanceof ReturnStmt)) {
+                location = lastStatement.getNodeLocation();
+            }
+        } else {
+            location = blockStmt.getNodeLocation();
+        }
+        if (location != null) {
+            ReturnStmt returnStmt = new ReturnStmt(
+                    new NodeLocation(location.getFileName(),
+                            location.getLineNumber() + 1), null, new Expression[0]);
+            return returnStmt;
+        }
+        return null;
     }
 
     private void checkAndAddReplyStmt(BlockStmt blockStmt) {

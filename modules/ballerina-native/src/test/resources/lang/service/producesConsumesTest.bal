@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:config {basePath:"/echo66"}
+@http:configuration {basePath:"/echo66"}
 service<http> echo66 {
     @http:POST{}
     @http:Path{value:"/test1"}
@@ -35,7 +35,7 @@ service<http> echo66 {
     }
 }
 
-@http:config {basePath:"/echo67"}
+@http:configuration {basePath:"/echo67"}
 service<http> echo67 {
     resource echo1 (message m, string foo) {
         message response = {};
