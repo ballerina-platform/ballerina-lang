@@ -40,12 +40,14 @@ public class BDataTable implements BRefType<Object> {
     private List<ColumnDefinition> columnDefs;
     private int columnCount;
     private BStruct bStruct;
+    private boolean lastRecordProcessed;
 
     public BDataTable(DataIterator dataIterator, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.columnDefs = columnDefs;
         this.columnCount = columnDefs.size();
         generateStruct();
+        lastRecordProcessed = false;
     }
 
     @Override
@@ -63,7 +65,10 @@ public class BDataTable implements BRefType<Object> {
         return BTypes.typeDatatable;
     }
 
-    public boolean next() {
+    public boolean hasNext() {
+        if (lastRecordProcessed) {
+            return false;
+        }
         return iterator.next();
     }
 
@@ -71,7 +76,7 @@ public class BDataTable implements BRefType<Object> {
         iterator.close(isInTransaction);
     }
 
-    public BStruct getNext() {
+    public BStruct getNext(boolean isInTransaction) {
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
@@ -137,6 +142,11 @@ public class BDataTable implements BRefType<Object> {
                 throw new BallerinaException("unsupported sql type " + sqlType + " found for the column " + columnName);
             }
         }
+        boolean isLast = iterator.isLast();
+        if (isLast) {
+            close(isInTransaction);
+            lastRecordProcessed = true;
+        }
         return bStruct;
     }
 
@@ -166,9 +176,6 @@ public class BDataTable implements BRefType<Object> {
     }
 
     private void generateStruct() {
-        BStructType structType = new BStructType("RS", null);
-        BStruct bStruct = new BStruct(structType);
-
         BType[] structTypes = new BType[columnDefs.size()];
         BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
         int typeIndex  = 0;
@@ -224,11 +231,13 @@ public class BDataTable implements BRefType<Object> {
             structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
             ++typeIndex;
         }
+
         int[] fieldCount = populateMaxSizes(structTypes);
-        bStruct.init(fieldCount);
-        bStruct.setFieldTypes(structTypes);
-        ((BStructType) bStruct.getType()).setStructFields(structFields);
-        this.bStruct = bStruct;
+        BStructType structType = new BStructType("RS", null);
+        structType.setStructFields(structFields);
+        structType.setFieldTypeCount(fieldCount);
+
+        this.bStruct = new BStruct(structType);
     }
 
     private static int[] populateMaxSizes(BType[] paramTypes) {

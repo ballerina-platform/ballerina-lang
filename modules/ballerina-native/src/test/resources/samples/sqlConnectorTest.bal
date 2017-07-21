@@ -111,7 +111,6 @@ function testSelectData () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -134,7 +133,6 @@ function testSelectIntFloatData () (int int_type, int long_type, float float_typ
         float_type = rs.FLOAT_TYPE;
         double_type = rs.DOUBLE_TYPE;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -155,7 +153,6 @@ function testCallProcedure () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -174,7 +171,6 @@ function testCallProcedureWithResultSet () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -195,7 +191,6 @@ function testConnectorWithDataSource () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -222,7 +217,6 @@ function testConnectionPoolProperties () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -243,7 +237,6 @@ function testQueryParameters () (string firstName) {
         rs, err = (ResultCustomers) dataStruct;
         firstName = rs.FIRSTNAME;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -473,7 +466,6 @@ function testCloseConnectionPool () (int count) {
         rs, err = (ResultCount) dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -510,7 +502,6 @@ function testArrayInParameters () (int insertCount, map int_arr, map long_arr, m
         string_arr = rs.STRING_ARRAY;
         float_arr = rs.FLOAT_ARRAY;
     }
-    datatables:close(dt);
     sql:ClientConnector.close (testDB);
     return;
 }
@@ -608,7 +599,6 @@ function testLocalTransacton () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -641,7 +631,6 @@ function testTransactonRollback () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -677,7 +666,6 @@ function testTransactonAbort () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -713,7 +701,6 @@ function testTransactonErrorThrow () (int returnVal, int catchValue, int count) 
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -750,7 +737,6 @@ function testTransactionErrorThrowAndCatch () (int returnVal, int catchValue, in
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -779,7 +765,6 @@ function testTransactonCommitted () (int returnVal, int count) {
         rs, err = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -825,7 +810,6 @@ function testTransactonHandlerOrder () (int returnVal1, int returnVal2, int coun
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return returnVal1, returnVal2, count;
 }
@@ -852,7 +836,6 @@ function testTransactonWithoutHandlers () (int count) {
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }
@@ -917,7 +900,6 @@ function testDateTimeOutParams (int time, int date, int timestamp) (int count) {
         rs, _ = (ResultCount)dataStruct;
         count = rs.COUNTVAL;
     }
-    datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return;
 }

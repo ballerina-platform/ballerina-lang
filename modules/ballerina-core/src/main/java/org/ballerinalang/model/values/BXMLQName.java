@@ -1,0 +1,96 @@
+/*
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+package org.ballerinalang.model.values;
+
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
+/**
+ * Represents a XML qualified name in ballerina.
+ * 
+ * @since 0.89
+ */
+public final class BXMLQName implements BRefType {
+
+    private String localName;
+    private String uri;
+    private String prefix;
+
+    /**
+     * Create attribute map with an XML
+     * 
+     * @param localName
+     * @param uri
+     * @param prefix
+     */
+    public BXMLQName(String localName, String uri, String prefix) {
+        this.localName = localName;
+        this.uri = uri;
+        this.prefix = prefix;
+    }
+
+    @Override
+    public String stringValue() {
+        return uri == null ? localName : '{' + uri + '}' + localName;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeXMLAttributes;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BXMLQName) obj).stringValue().equals(localName);
+    }
+
+    @Override
+    public String value() {
+        return null;
+    }
+
+    @Override
+    public BValue copy() {
+        return new BXMLQName(localName, uri, prefix);
+    }
+    
+
+    public String getLocalName() {
+        return localName;
+    }
+
+    public void setLocalName(String localName) {
+        this.localName = localName;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+}

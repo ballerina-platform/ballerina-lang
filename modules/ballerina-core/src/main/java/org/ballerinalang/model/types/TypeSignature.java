@@ -31,7 +31,6 @@ public class TypeSignature {
     public static final String SIG_STRUCT = "T";
     public static final String SIG_ARRAY = "[";
     public static final String SIG_ANY = "A";
-    public static final String SIG_VOID = "V";
     public static final String SIG_ANNOTATION = "@";
 
     private String sigChar;
@@ -75,9 +74,16 @@ public class TypeSignature {
         return elementTypeSig;
     }
 
-    public static String getTypeSignature(String signature) {
-        return null;
+    @Override
+    public String toString() {
+        if (elementTypeSig != null) {
+            return sigChar + elementTypeSig.toString();
+        } else if (pkgPath != null) {
+            return sigChar + pkgPath + ":" + name + ";";
+        } else if (name != null) {
+            return sigChar + name + ";";
+        }
+
+        return sigChar;
     }
-
-
 }

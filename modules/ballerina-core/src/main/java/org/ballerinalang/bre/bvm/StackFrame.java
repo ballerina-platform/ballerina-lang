@@ -21,9 +21,9 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
-import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
+import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
 import java.util.Arrays;
 
@@ -101,12 +101,6 @@ public class StackFrame {
 
         this.retAddrs = retAddrs;
         this.retRegIndexes = retRegIndexes;
-    }
-
-    public StackFrame(CallableUnitInfo callableUnitInfo, BValue[] argValues, BValue[] returnValues) {
-        this.callableUnitInfo = callableUnitInfo;
-        this.argValues = argValues;
-        this.returnValues = returnValues;
     }
 
     public CallableUnitInfo getCallableUnitInfo() {

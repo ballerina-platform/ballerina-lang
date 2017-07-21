@@ -108,3 +108,20 @@ function testMethodCallInFinally ()(string) {
     }
     return s;
 }
+
+function scopeIssueTest () (int) {
+    int i = 0;
+    while (i < 10) {
+        try {
+        } catch (errors:Error e) {
+        }
+        i = i + 1;
+    }
+    int j6 = 5;
+    while (i < 20) {
+        int val = j6;
+        i = i + 1;
+    }
+    j6 = i + j6;
+    return j6;
+}

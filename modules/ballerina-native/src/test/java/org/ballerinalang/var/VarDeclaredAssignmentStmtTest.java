@@ -135,6 +135,14 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(((BString) returns[3]).stringValue(), "name_4");
     }
 
+    @Test(description = "Test var with at least non declared ref in LHS expr.")
+    public void testVarDeclarationWithAtLeaseOneNonDeclaredSymbol() {
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testVarDeclarationWithAtLeaseOneNonDeclaredSymbol",
+                new BValue[]{});
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertNull(returns[1]);
+    }
+
     @Test(description = "Test boolean to var assignment.")
     public void testBooleanToVarAssignment() {
         BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testBooleanToVarAssignment",
@@ -178,6 +186,20 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarDeclarationWithArrayInit() {
         //var declarations cannot have array init, json init over RHS expr
         BTestUtils.getProgramFile("lang/var/var-declaration-with-array-init.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class },
+          expectedExceptionsMessageRegExp = "var-declared-symbols.bal:7: no new variables on left side")
+    public void testVarDeclarationWithAllDeclaredSymbols() {
+        //var declarations should at least one non declared var ref symbol
+        BTestUtils.getProgramFile("lang/var/var-declared-symbols.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "var-all-ignored-symbols.bal:3: no new variables on left side")
+    public void testVarDeclarationWithAllIgnoredSymbols() {
+        //var declarations should at least one non declared var ref symbol
+        BTestUtils.getProgramFile("lang/var/var-all-ignored-symbols.bal");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
