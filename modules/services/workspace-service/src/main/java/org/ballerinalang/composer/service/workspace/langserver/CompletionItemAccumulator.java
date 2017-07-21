@@ -41,6 +41,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
+import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
@@ -256,6 +257,8 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
+        BLangPackage bLangPackage = new BLangPackage((GlobalScope) this.globalScope);
+        currentScope = bLangPackage;
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
