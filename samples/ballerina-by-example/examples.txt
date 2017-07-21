@@ -37,6 +37,8 @@ Fork/Join Condition Some
 Datatables
 SQL Connector
 Transactions
+Transform Structs
+Transform JSON
 Strings
 Blob Type
 Date Time
