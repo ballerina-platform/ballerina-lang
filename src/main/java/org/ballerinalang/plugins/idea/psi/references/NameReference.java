@@ -85,10 +85,6 @@ public class NameReference extends BallerinaElementReference {
     @Nullable
     private PsiElement resolveInCurrentPackage() {
         IdentifierPSINode identifier = getElement();
-        PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
-        if (elementInScope != null) {
-            return elementInScope;
-        }
         PsiFile containingFile = identifier.getContainingFile();
         if (containingFile == null) {
             return null;
@@ -98,8 +94,25 @@ public class NameReference extends BallerinaElementReference {
         if (psiDirectory == null) {
             return null;
         }
-        return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true,
-                true);
+        // If the next element is '(', that means we are at a function invocation node. So match any matching
+        // function first. If no matching function found, match with variables since this can be a lambda function.
+        // If the next element is not '(', we match variables first.
+        PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(identifier);
+        if (nextVisibleLeaf != null && "(".equals(nextVisibleLeaf.getText())) {
+            PsiElement element = BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true,
+                    true, true, true);
+            if (element != null) {
+                return element;
+            }
+            return BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+        } else {
+            PsiElement elementInScope = BallerinaPsiImplUtil.resolveElementInScope(identifier, true, true, true, true);
+            if (elementInScope != null) {
+                return elementInScope;
+            }
+            return BallerinaPsiImplUtil.resolveElementInPackage(psiDirectory, identifier, true, true, true, true,
+                    true);
+        }
     }
 
     @Nullable
