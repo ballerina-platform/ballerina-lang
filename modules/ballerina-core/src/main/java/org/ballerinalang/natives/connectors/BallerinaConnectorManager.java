@@ -23,6 +23,7 @@ import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.connector.framework.ConnectorManager;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.ClientConnector;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
@@ -49,6 +50,8 @@ public class BallerinaConnectorManager {
     
     /* ServerConnectors which startup is delayed at the service deployment time */
     private List<ServerConnector> startupDelayedServerConnectors = new ArrayList<>();
+
+    CarbonMessageProcessor messageProcessor;
 
     private BallerinaConnectorManager() {
     }
@@ -92,6 +95,7 @@ public class BallerinaConnectorManager {
         ServerConnector serverConnector;
         try {
             serverConnector = connectorManager.createServerConnector(protocol, id, parameters);
+            //TODO: Look at the possibility of moving the error handler assignment code from dispatcher to here
         } catch (ServerConnectorException e) {
             throw new BallerinaException("Error occurred while creating a server connector for protocol : '" +
                     protocol + "' with the given id : '" + id + "'", e);
@@ -194,4 +198,15 @@ public class BallerinaConnectorManager {
                 DispatcherRegistry.getInstance().registerServiceDispatcher(serviceDispatcher));
     }
 
+    public void setMessageProcessor(CarbonMessageProcessor messageProcessor) {
+        this.messageProcessor = messageProcessor;
+    }
+
+    public CarbonMessageProcessor getMessageProcessor() {
+        return this.messageProcessor;
+    }
+
+    public void registerClientConnector(ClientConnector clientConnector) {
+        this.connectorManager.registerClientConnector(clientConnector);
+    }
 }
