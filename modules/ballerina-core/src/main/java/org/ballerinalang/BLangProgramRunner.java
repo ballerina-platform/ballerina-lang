@@ -104,13 +104,13 @@ public class BLangProgramRunner {
 
     public static void runMain(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {
-            throw new BallerinaException("cannot find main function in '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
         // Get the main entry package
         PackageInfo mainPkgInfo = programFile.getEntryPackage();
         if (mainPkgInfo == null) {
-            throw new BallerinaException("cannot find main function in '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
         // Non blocking is not supported in the main program flow..
@@ -163,7 +163,7 @@ public class BLangProgramRunner {
     }
 
     private static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
-        String errorMsg = "cannot find main function in '" +
+        String errorMsg = "main function not found in  '" +
                 mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
         FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
