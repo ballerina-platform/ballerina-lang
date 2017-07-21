@@ -19,6 +19,7 @@ package org.wso2.siddhi.core.stream.event;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.wso2.siddhi.core.aggregation.AggregationRuntime;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.config.SiddhiContext;
 import org.wso2.siddhi.core.event.Event;
@@ -49,7 +50,6 @@ import org.wso2.siddhi.core.table.Table;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
-import org.wso2.siddhi.core.util.parser.AggregationRuntime;
 import org.wso2.siddhi.core.util.parser.QueryParser;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;

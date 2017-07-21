@@ -22,6 +22,7 @@ import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
@@ -77,7 +78,7 @@ public class DefineAggregationTestCase {
                                                 )
                                         ).window("lengthBatch", Expression.value(50)),
                                 JoinInputStream.Type.JOIN,
-                                InputStream.stream("s2", "StockAggregation"),
+                                InputStore.store("s2", "StockAggregation"),
                                 Expression.compare(
                                         Expression.variable("price").ofStream("s1"),
                                         Compare.Operator.EQUAL,

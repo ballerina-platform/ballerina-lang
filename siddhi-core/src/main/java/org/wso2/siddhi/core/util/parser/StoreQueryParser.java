@@ -24,7 +24,9 @@ import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.state.populater.StateEventPopulatorFactory;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent.EventType;
+import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
+import org.wso2.siddhi.core.exception.StoreQueryCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.query.input.stream.StreamRuntime;
@@ -41,14 +43,20 @@ import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.helper.QueryParserHelper;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.Window;
+import org.wso2.siddhi.query.api.aggregation.Within;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
-import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
+import org.wso2.siddhi.query.api.execution.query.input.store.AggregationInputStore;
+import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
+import org.wso2.siddhi.query.api.execution.query.input.store.Store;
 import org.wso2.siddhi.query.api.execution.query.input.stream.JoinInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.SingleInputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
+import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
+import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.ArrayList;
@@ -60,7 +68,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Class to parse {@link QueryRuntime}
  */
-public class QueryParser {
+public class StoreQueryParser {
 
     /**
      * Parse a query and return corresponding QueryRuntime.
@@ -78,38 +86,24 @@ public class QueryParser {
      * @param queryIndex               query index to identify unknown query by number
      * @return queryRuntime
      */
-    public static QueryRuntime parse(Query query, SiddhiAppContext siddhiAppContext,
-                                     Map<String, AbstractDefinition> streamDefinitionMap,
+    public static QueryRuntime parse(StoreQuery storeQuery, SiddhiAppContext siddhiAppContext,
                                      Map<String, AbstractDefinition> tableDefinitionMap,
                                      Map<String, AbstractDefinition> windowDefinitionMap,
                                      Map<String, AbstractDefinition> aggregationDefinitionMap,
                                      Map<String, Table> tableMap,
                                      Map<String, AggregationRuntime> aggregationMap, Map<String, Window> windowMap,
-                                     LockSynchronizer lockSynchronizer,
-                                     String queryIndex) {
+                                     LockSynchronizer lockSynchronizer) {
         List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
-        QueryRuntime queryRuntime;
-        Element nameElement = null;
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
         try {
-            nameElement = AnnotationHelper.getAnnotationElement("info", "name",
-                    query.getAnnotations());
-            String queryName = null;
-            if (nameElement != null) {
-                queryName = nameElement.getValue();
-            } else {
-                queryName = "query_" + queryIndex + "_" + UUID.randomUUID().toString();
-            }
+            String queryName = "store_query_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString();
             latencyTracker = QueryParserHelper.getLatencyTracker(siddhiAppContext, queryName,
                     SiddhiConstants.METRIC_INFIX_QUERIES);
-            OutputStream.OutputEventType outputEventType = query.getOutputStream().getOutputEventType();
             boolean outputExpectsExpiredEvents = false;
-            if (outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS) {
-                outputExpectsExpiredEvents = true;
-            }
-            StreamRuntime streamRuntime = InputStreamParser.parse(query.getInputStream(),
-                    siddhiAppContext, streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+            storeQuery.getInputStore();
+            StreamRuntime streamRuntime = parse(storeQuery.getInputStore(),
+                    siddhiAppContext, tableDefinitionMap, windowDefinitionMap,
                     aggregationDefinitionMap, tableMap, windowMap, aggregationMap, executors, latencyTracker,
                     outputExpectsExpiredEvents, queryName);
             QuerySelector selector = SelectorParser.parse(query.getSelector(), query.getOutputStream(),
@@ -230,5 +224,103 @@ public class QueryParser {
         return queryRuntime;
     }
 
+    private static StreamRuntime parse(InputStore inputStore, SiddhiAppContext siddhiAppContext,
+                                       Map<String, AbstractDefinition> tableDefinitionMap,
+                                       Map<String, AbstractDefinition> windowDefinitionMap,
+                                       Map<String, AbstractDefinition> aggregationDefinitionMap,
+                                       Map<String, Table> tableMap,
+                                       Map<String, Window> windowMap,
+                                       Map<String, AggregationRuntime> aggregationMap,
+                                       List<VariableExpressionExecutor> executors,
+                                       LatencyTracker latencyTracker, boolean outputExpectsExpiredEvents,
+                                       String queryName) {
+        MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+        metaStreamEvent.setInputReferenceId(inputStore.getStoreReferenceId());
+
+        Within within = null;
+        Expression per = null;
+
+        if (inputStore instanceof AggregationInputStore) {
+            AggregationInputStore aggregationInputStore = (AggregationInputStore) inputStore;
+            if (aggregationInputStore.getPer() != null && aggregationInputStore.getWithin() != null) {
+                if (metaStreamEvent.getEventType() != EventType.AGGREGATE) {
+                    throw new StoreQueryCreationException(inputStore.getStoreId() +
+                            " is not an aggregation hence it cannot be processed with 'within' and 'per'.");
+                }
+                within = aggregationInputStore.getWithin();
+                per = aggregationInputStore.getPer();
+            } else if (aggregationInputStore.getPer() != null || aggregationInputStore.getWithin() != null) {
+                throw new StoreQueryCreationException(inputStore.getStoreId() +
+                        " should either have both 'within' and 'per' defined or none.");
+            }
+            ((AggregationInputStore) inputStore).getPer()
+        }
+
+        AbstractDefinition inputDefinition = tableDefinitionMap.get(inputStore.getStoreId());
+        if (inputDefinition != null) {
+            metaStreamEvent.setEventType(EventType.TABLE);
+            initMetaStreamEvent(metaStreamEvent, inputDefinition);
+
+          Table table=  tableMap.get(inputStore.getStoreId());
+          table.compileCondition()
+        } else {
+            inputDefinition = aggregationDefinitionMap.get(inputStore.getStoreId());
+            if (inputDefinition != null) {
+                metaStreamEvent.setEventType(EventType.AGGREGATE);
+                initMetaStreamEvent(metaStreamEvent, inputDefinition);
+
+            } else {
+                inputDefinition = windowDefinitionMap.get(inputStore.getStoreId());
+                if (inputDefinition != null) {
+                    metaStreamEvent.setEventType(EventType.WINDOW);
+                    initMetaStreamEvent(metaStreamEvent, inputDefinition);
+
+                } else {
+                    throw new StoreQueryCreationException(inputStore.getStoreId() +
+                            " is neither a table, aggregation or window");
+                }
+            }
+        }
+
+
+
+        if (inputStore instanceof Store) {
+            Store store = (Store) inputStore;
+//            ProcessStreamReceiver processStreamReceiver = new ProcessStreamReceiver(store.getStoreId(),
+//                    latencyTracker, queryName);
+//            processStreamReceiver.setBatchProcessingAllowed(batchProcessingAllowed);
+            store.getStoreId()
+            tableDefinitionMap.containsKey(store.getStoreId())
+            MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
+            metaStreamEvent.setEventType();
+            return SingleInputStreamParser.parseInputStream((SingleInputStream) inputStream,
+                    siddhiAppContext, executors, streamDefinitionMap,
+                    null, windowDefinitionMap, aggregationDefinitionMap, tableMap,
+                    new MetaStreamEvent(), processStreamReceiver,
+                    true, outputExpectsExpiredEvents, queryName);
+        } else if (inputStream instanceof JoinInputStream) {
+            return JoinInputStreamParser.parseInputStream(((JoinInputStream) inputStream), siddhiAppContext,
+                    streamDefinitionMap, tableDefinitionMap, windowDefinitionMap,
+                    aggregationDefinitionMap, tableMap, windowMap, aggregationMap,
+                    executors, latencyTracker, outputExpectsExpiredEvents,
+                    queryName);
+        } else if (inputStream instanceof StateInputStream) {
+            MetaStateEvent metaStateEvent = new MetaStateEvent(inputStream.getAllStreamIds().size());
+            return StateInputStreamParser.parseInputStream(((StateInputStream) inputStream), siddhiAppContext,
+                    metaStateEvent, streamDefinitionMap, null,
+                    null, aggregationDefinitionMap, tableMap, executors, latencyTracker,
+                    queryName);
+        } else {
+            throw new OperationNotSupportedException();
+        }
+    }
+
+    private static void initMetaStreamEvent(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition) {
+        metaStreamEvent.addInputDefinition(inputDefinition);
+        metaStreamEvent.initializeAfterWindowData();
+        for (Attribute attribute : inputDefinition.getAttributeList()) {
+            metaStreamEvent.addData(attribute);
+        }
+    }
 
 }

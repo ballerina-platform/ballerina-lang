@@ -37,6 +37,7 @@ import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
 import org.wso2.siddhi.query.api.execution.partition.ValuePartitionType;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.execution.query.StoreQuery;
 import org.wso2.siddhi.query.api.execution.query.input.handler.Filter;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamFunction;
 import org.wso2.siddhi.query.api.execution.query.input.handler.StreamHandler;
@@ -47,6 +48,7 @@ import org.wso2.siddhi.query.api.execution.query.input.state.NextStateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.State;
 import org.wso2.siddhi.query.api.execution.query.input.state.StateElement;
 import org.wso2.siddhi.query.api.execution.query.input.state.StreamStateElement;
+import org.wso2.siddhi.query.api.execution.query.input.store.InputStore;
 import org.wso2.siddhi.query.api.execution.query.input.stream.AnonymousInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.BasicSingleInputStream;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -675,14 +677,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Object visitJoin_source(@NotNull SiddhiQLParser.Join_sourceContext ctx) {
 
 //        join_source
-//        :io (basic_source_stream_handler)* window? (AS stream_alias)?
+//        :io (basic_source_stream_handler)* window? (AS alias)?
 //        ;
 
         Source source = (Source) visit(ctx.source());
 
         String streamAlias = null;
-        if (ctx.stream_alias() != null) {
-            streamAlias = (String) visit(ctx.stream_alias());
+        if (ctx.alias() != null) {
+            streamAlias = (String) visit(ctx.alias());
             activeStreams.remove(ctx.source().getText());
             activeStreams.add(streamAlias);
         }
@@ -2301,14 +2303,38 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
     }
 
-    private static class Source {
+    @Override
+    public Object visitStore_query_final(SiddhiQLParser.Store_query_finalContext ctx) {
+        return visit(ctx.store_query());
+    }
 
+    @Override
+    public Object visitStore_query(SiddhiQLParser.Store_queryContext ctx) {
+        return StoreQuery.query().from((InputStore) visit(ctx.store_input())).
+                select((Selector) visit(ctx.query_section()));
+    }
+
+    @Override
+    public Object visitStore_input(SiddhiQLParser.Store_inputContext ctx) {
+        String sourceId = (String) visit(ctx.source_id());
+        String alias = null;
+        if (ctx.alias() != null) {
+            alias = (String) visit(ctx.source_id());
+        }
+        if (ctx.per() != null) {
+            return InputStore.store(alias, sourceId,
+                    (Within) visit(ctx.within_time_range()), (Expression) visit(ctx.per()));
+        } else {
+            return InputStore.store(alias, sourceId);
+        }
+    }
+
+    private static class Source {
         private String streamId;
         private boolean isInnerStream;
     }
 
     private static class StreamReference {
-
         private String streamId;
         private boolean isInnerStream;
         private Integer streamIndex;
