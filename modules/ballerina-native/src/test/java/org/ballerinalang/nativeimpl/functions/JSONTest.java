@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.nativeimpl.functions;
 
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -441,7 +443,6 @@ public class JSONTest {
         BLangFunctions.invokeNew(bLangProgram, "remove", args);
     }
 
-
     /*
      * Test toString-Function.
      */
@@ -454,6 +455,88 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(description = "Get JSON string from a string")
+    public void testParseString() {
+        BValue[] args = { new BString("\"hello\"") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.STRING);
+        Assert.assertEquals(returns[0].stringValue(), "hello");
+    }
+    
+    @Test(description = "Get JSON boolean from a string")
+    public void testParseBoolean() {
+        BValue[] args = { new BString("true") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.BOOLEAN);
+        Assert.assertEquals(returns[0].stringValue(), "true");
+    }
+    
+    @Test(description = "Get JSON number from a string")
+    public void testParseNumber() {
+        BValue[] args = { new BString("45678") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.NUMBER);
+        Assert.assertEquals(returns[0].stringValue(), "45678");
+    }
+    
+    @Test(description = "Get JSON null from a string")
+    public void testParseNull() {
+        BValue[] args = { new BString("null") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.NULL);
+        Assert.assertEquals(returns[0].stringValue(), "null");
+    }
+    
+    @Test(description = "Get JSON object from a string")
+    public void testParseObject() {
+        BValue[] args = { new BString("{\"name\":\"supun\"}") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.OBJECT);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
+    }
+    
+    @Test(description = "Get JSON array from a string")
+    public void testParseArray() {
+        BValue[] args = { new BString("[\"supun\", 45, true, null]") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.ARRAY);
+        Assert.assertEquals(returns[0].stringValue(), "[\"supun\",45,true,null]");
+    }
+    
+    @Test(description = "Get JSON array from a string")
+    public void testParseComplexObject() {
+        BValue[] args = { new BString("{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}, " +
+                "\"marks\":[78, 45, 87]}") };
+        BValue[] returns = BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+
+        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertEquals(((BJSON) returns[0]).value().getNodeType(), JsonNodeType.OBJECT);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}," +
+                "\"marks\":[78,45,87]}");
+    }
+    
+    @Test(description = "Get JSON from a malformed string",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: ballerina.lang.errors:Error, message: failed to parse json: " +
+            "Unrecognized token 'some': was expecting \\('true', 'false' or 'null'\\)\n at \\[Source: some words " +
+            "without quotes; line: 1, column: 5\\].*")
+    public void testParseMalformedString() {
+        BValue[] args = { new BString("some words without quotes") };
+        BLangFunctions.invokeNew(bLangProgram, "testParse", args);
+    }
+    
     private String getJsonAsString(BValue bValue) {
         return bValue.stringValue().replace("\\r|\\n|\\t| ", "");
     }

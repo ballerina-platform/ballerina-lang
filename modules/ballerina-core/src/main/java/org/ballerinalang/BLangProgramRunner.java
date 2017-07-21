@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
-import org.ballerinalang.bre.bvm.DebuggerExecutor;
 import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.types.BArrayType;
@@ -36,7 +35,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -100,7 +98,7 @@ public class BLangProgramRunner {
             VMDebugManager debugManager = VMDebugManager.getInstance();
             // This will start the websocket server.
             debugManager.serviceInit();
-            debugManager.setDebugEnagled(true);
+            debugManager.setDebugEnabled(true);
         }
     }
 
@@ -150,13 +148,9 @@ public class BLangProgramRunner {
         BLangVM bLangVM = new BLangVM(programFile);
         bContext.setStartIP(defaultWorkerInfo.getCodeAttributeInfo().getCodeAddrs());
         if (ModeResolver.getInstance().isDebugEnabled()) {
-            bContext.setDebugInfoHolder(new DebugInfoHolder());
-            DebuggerExecutor debuggerExecutor = new DebuggerExecutor(programFile, bContext);
-            bContext.setDebugEnabled(true);
             VMDebugManager debugManager = VMDebugManager.getInstance();
             // This will start the websocket server.
-            debugManager.mainInit(debuggerExecutor, bContext);
-            debugManager.waitTillClientConnect();
+            debugManager.mainInit(programFile, bContext);
             debugManager.holdON();
         } else {
             bLangVM.run(bContext);

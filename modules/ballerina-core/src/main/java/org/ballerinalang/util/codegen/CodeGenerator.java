@@ -840,7 +840,9 @@ public class CodeGenerator implements NodeVisitor {
                 continue;
             }
 
-            addLineNumberInfo(stmt.getNodeLocation());
+            if (!(stmt instanceof TryCatchStmt)) {
+                addLineNumberInfo(stmt.getNodeLocation());
+            }
             stmt.accept(this);
 
             for (int i = 0; i < maxRegIndexes.length; i++) {
@@ -880,6 +882,7 @@ public class CodeGenerator implements NodeVisitor {
 
         // Process else-if parts
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
+            addLineNumberInfo(elseIfBlock.getNodeLocation());
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
             ifInstruction = InstructionFactory.get(InstructionCodes.BR_FALSE,
@@ -998,6 +1001,7 @@ public class CodeGenerator implements NodeVisitor {
         // Handle catch blocks.
         int order = 0;
         for (TryCatchStmt.CatchBlock catchBlock : tryCatchStmt.getCatchBlocks()) {
+            addLineNumberInfo(catchBlock.getCatchBlockStmt().getNodeLocation());
             int targetIP = nextIP();
 
             // Define local variable index for Error.
