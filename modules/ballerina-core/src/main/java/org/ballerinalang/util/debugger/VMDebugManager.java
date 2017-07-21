@@ -151,11 +151,9 @@ public class VMDebugManager {
                 getHolder(command.getThreadId()).stepOut();
                 break;
             case DebugConstants.CMD_STOP:
-                //TODO check and fix
-                DebugInfoHolder holder = getHolder(command.getThreadId());
-                holder.clearDebugLocations();
+                // When stopping the debug session, it will clear all debug points and resume all threads.
+                debugSession.stopDebug();
                 debugSession.clearSession();
-                holder.resume();
                 break;
             case DebugConstants.CMD_SET_POINTS:
                 // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
@@ -174,7 +172,6 @@ public class VMDebugManager {
     }
 
     private DebugInfoHolder getHolder(String threadId) {
-//        threadId = "main"; //TODO fix later
         if (debugSession.getContext(threadId) == null) {
             throw new DebugException(DebugConstants.MSG_INVALID_THREAD_ID);
         }

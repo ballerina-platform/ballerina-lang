@@ -220,16 +220,17 @@ public class Main {
                 return;
             }
 
+            Path sourcePath = Paths.get(argList.get(0));
             // Filter out the list of arguments given to the ballerina program.
             String[] programArgs;
-            if (argList.size() > 1) {
+            if (argList.size() >= 2) {
                 argList.remove(0);
                 programArgs = argList.toArray(new String[0]);
             } else {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, Paths.get(argList.get(0)), false, programArgs);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, programArgs);
         }
 
         @Override

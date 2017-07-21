@@ -161,6 +161,8 @@ public interface InstructionCodes {
     int NACALL = 123;
     int THROW = 124;
     int ERRSTORE = 125;
+    int FPCALL = 126;
+    int FPLOAD = 127;
 
     // Type Conversion related instructions
     int I2F = 130;
@@ -256,12 +258,17 @@ public interface InstructionCodes {
     int XMLATTRSTORE = 241;
     int S2QNAME = 242;
     int NEWQNAME = 243;
+    int NEWXMLELEMENT = 244;
+    int NEWXMLCOMMENT = 245;
+    int NEWXMLTEXT = 246;
+    int NEWXMLPI = 247;
+    int XMLSTORE = 248;
 
-    int TYPEOF = 244;
-    int TYPELOAD = 245;
+    int TYPEOF = 249;
+    int TYPELOAD = 250;
 
-    int TEQ = 246;
-    int TNE = 247;
+    int TEQ = 251;
+    int TNE = 252;
 
-    int INSTRUCTION_CODE_COUNT = 248;
+    int INSTRUCTION_CODE_COUNT = 253;
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BConnectorType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -67,7 +68,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
@@ -355,6 +358,8 @@ public class ProgramFileReader {
         // Resolve unresolved CP entries.
         resolveCPEntries();
 
+        resolveConnectorMethodTables(packageInfo);
+
         // Read attribute info entries
         readAttributeInfoEntries(dataInStream, packageInfo, packageInfo);
 
@@ -425,6 +430,21 @@ public class ProgramFileReader {
             BConnectorType bConnectorType = new BConnectorType(connectorName, packageInfo.getPkgPath());
             connectorInfo.setType(bConnectorType);
 
+            Map<Integer, Integer> methodTableInteger = new HashMap<>();
+            int count = dataInStream.readInt();
+
+            for (int k = 0; k < count; k++) {
+                int key = dataInStream.readInt();
+                int value = dataInStream.readInt();
+                methodTableInteger.put(new Integer(key), new Integer(value));
+
+            }
+
+            connectorInfo.setMethodTableIndex(methodTableInteger);
+
+            boolean isFilterConnector = dataInStream.readBoolean();
+            connectorInfo.setFilterConnector(isFilterConnector);
+
             // Read action info entries
             int actionCount = dataInStream.readShort();
             for (int j = 0; j < actionCount; j++) {
@@ -478,6 +498,17 @@ public class ProgramFileReader {
 
             // Read attributes of the struct info
             readAttributeInfoEntries(dataInStream, packageInfo, connectorInfo);
+        }
+
+        for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
+            switch (cpEntry.getEntryType()) {
+                case CP_ENTRY_TYPE_REF:
+                    TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
+                    String typeSig = typeRefCPEntry.getTypeSig();
+                    BType bType = getBTypeFromDescriptor(typeSig);
+                    typeRefCPEntry.setType(bType);
+                    break;
+            }
         }
     }
 
@@ -775,6 +806,10 @@ public class ProgramFileReader {
                 BArrayType arrayType = new BArrayType(elemType);
                 typeStack.push(arrayType);
                 return index;
+            case 'U':
+                // TODO : Fix this for type casting.
+                typeStack.push(new BFunctionType());
+                return index + 1;
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + chars[index]);
@@ -825,6 +860,9 @@ public class ProgramFileReader {
             case '[':
                 BType elemType = getBTypeFromDescriptor(desc.substring(1));
                 return new BArrayType(elemType);
+            case 'U':
+                // TODO : Fix this for type casting.
+                return new BFunctionType();
             default:
                 // TODO Throw proper error;
                 throw new UnsupportedOperationException("unsupported base char: " + ch);
@@ -1262,6 +1300,8 @@ public class ProgramFileReader {
                 case InstructionCodes.NCALL:
                 case InstructionCodes.ACALL:
                 case InstructionCodes.NACALL:
+                case InstructionCodes.FPCALL:
+                case InstructionCodes.FPLOAD:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
                 case InstructionCodes.FNEWARRAY:
@@ -1279,6 +1319,9 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.XMLSTORE:
                 case InstructionCodes.LENGTHOF:
                 case InstructionCodes.LENGTHOFJSON:
                 case InstructionCodes.TYPEOF:
@@ -1394,6 +1437,7 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWXMLPI:
                 case InstructionCodes.TEQ:
                 case InstructionCodes.TNE:
                     i = codeStream.readInt();
@@ -1408,6 +1452,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1501,13 +1546,28 @@ public class ProgramFileReader {
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
             structType.setStructFields(structFields);
         }
+    }
 
+    private void resolveConnectorMethodTables(PackageInfo packageInfo) {
         ConnectorInfo[] connectorInfoEntries = packageInfo.getConnectorInfoEntries();
         for (ConnectorInfo connectorInfo : connectorInfoEntries) {
             BConnectorType connectorType = connectorInfo.getType();
+
             VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)
                     connectorInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             connectorType.setFieldTypeCount(attributeInfo.getVarTypeCount());
+
+            Map<Integer, Integer> methodTableInteger = connectorInfo.getMethodTableIndex();
+            Map<BConnectorType, ConnectorInfo> methodTableType = new HashMap<>();
+            for (Integer key : methodTableInteger.keySet()) {
+                int keyType = methodTableInteger.get(key);
+                TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) packageInfo.getCPEntry(key);
+                StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) packageInfo.getCPEntry(keyType);
+                ConnectorInfo connectorInfoType = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
+                methodTableType.put((BConnectorType) typeRefCPEntry.getType(), connectorInfoType);
+            }
+
+            connectorInfo.setMethodTableType(methodTableType);
 
             for (ActionInfo actionInfo : connectorInfo.getActionInfoEntries()) {
                 setCallableUnitSignature(actionInfo, actionInfo.getSignature(), packageInfo);

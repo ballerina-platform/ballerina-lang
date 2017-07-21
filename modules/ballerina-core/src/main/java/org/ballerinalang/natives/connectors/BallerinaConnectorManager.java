@@ -30,6 +30,7 @@ import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,8 +49,7 @@ public class BallerinaConnectorManager {
 
     private boolean connectorsInitialized = false;
     
-    /* ServerConnectors which startup is delayed at the service deployment time */
-    private List<ServerConnector> startupDelayedServerConnectors = new ArrayList<>();
+    private Map<String, ServerConnector> startupDelayedServerConnectors = new HashMap<>();
 
     CarbonMessageProcessor messageProcessor;
 
@@ -168,7 +168,7 @@ public class BallerinaConnectorManager {
      * @param serverConnector ServerConnector
      */
     public void addStartupDelayedServerConnector(ServerConnector serverConnector) {
-        startupDelayedServerConnectors.add(serverConnector);
+        startupDelayedServerConnectors.put(serverConnector.getId(), serverConnector);
     }
 
     /**
@@ -179,7 +179,8 @@ public class BallerinaConnectorManager {
      */
     public List<ServerConnector> startPendingConnectors() throws ServerConnectorException {
         List<ServerConnector> startedConnectors = new ArrayList<>();
-        for (ServerConnector serverConnector: startupDelayedServerConnectors) {
+        for (Map.Entry<String, ServerConnector> serverConnectorEntry: startupDelayedServerConnectors.entrySet()) {
+            ServerConnector serverConnector = serverConnectorEntry.getValue();
             serverConnector.start();
             startedConnectors.add(serverConnector);
         }
