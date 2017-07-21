@@ -32,20 +32,20 @@ ballerina.config:
         # Service interceptor List. Interceptors are engaged in the way they are defined.
         serviceInterceptors:
           -
-            packageName: ballerina.test.intercept.simpleAuth
-            archiveName: simpleAuth.bmz
+            packageName: bal.test.intercept.simpleAuth
+            archiveName: simpleAuth.balx
           -
-            packageName: ballerina.test.intercept.req1
-            archiveName: req1.bmz
+            packageName: bal.test.intercept.req1
+            archiveName: req1.balx
           -
-            packageName: ballerina.test.intercept.res1
-            archiveName: res1.bmz
+            packageName: bal.test.intercept.res1
+            archiveName: res1.balx
           -
-            packageName: ballerina.test.intercept.res2
-            archiveName: res2.bmz
+            packageName: bal.test.intercept.res2
+            archiveName: res2.balx
           -
-            packageName: ballerina.test.intercept.res1
-            archiveName: res1.bmz
+            packageName: bal.test.intercept.res1
+            archiveName: res1.balx
 
 wso2.securevault:
   secretRepository:
