@@ -46,6 +46,7 @@ public class WebSocketErrorHandler implements ServerConnectorErrorHandler {
     @Override
     public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback carbonCallback) {
         if (e.getMessage().startsWith("no Service found to handle the service request")) {
+            carbonCallback.done(carbonMessage);
             ErrorHandlerUtils.printError(e);
             Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
             String uri = (String) carbonMessage.getProperty(Constants.TO);
