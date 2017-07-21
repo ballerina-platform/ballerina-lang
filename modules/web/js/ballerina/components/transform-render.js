@@ -733,7 +733,12 @@ addComplexParameter(parentId, struct) {
     makeProperty(parentId, name, type) {
         const id = parentId.selector.replace('#', '') + this.idNameSeperator + name + this.nameTypeSeperator + type;
         const ul = $('<ul class="property">');
-        const li = $('<li class="property">').attr('id', id).text(name + ' : ' + type);
+        let li = $('<li class="property">').attr('id', id);
+        if(!_.isUndefined(name)) {
+           li.text(name + ' : ' + type);
+        } else {
+            li.text(type);
+        }
         ul.append(li);
         $(parentId).append(ul);
         return li;
