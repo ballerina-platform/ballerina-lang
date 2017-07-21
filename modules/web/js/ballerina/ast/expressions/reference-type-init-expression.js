@@ -54,14 +54,17 @@ class ReferenceTypeInitExpression extends Expression {
      * @override
      */
     getExpressionString() {
-        let generatedExpression = '';
-        this.children.forEach((child) => {
-            generatedExpression += child.getExpressionString() + ',';
+        let childExprs = '';
+        this.children.forEach((child, index) => {
+            if (index !== 0) {
+                childExprs += ',';
+                childExprs += (child.whiteSpace.useDefault ? ' ' : child.getWSRegion(0));
+            }
+            childExprs += child.getExpressionString();
         });
-        generatedExpression = '{' + this.getWSRegion(1) + (generatedExpression.substring(0, generatedExpression.length - 1))
-            + '}' + this.getWSRegion(2);
-
-        return generatedExpression;
+        return '{' + this.getWSRegion(1)
+                    + childExprs
+                    + '}' + this.getWSRegion(2);
     }
 
     /**

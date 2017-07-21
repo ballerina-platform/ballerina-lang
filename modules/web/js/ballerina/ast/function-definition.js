@@ -173,7 +173,7 @@ class FunctionDefinition extends CallableDefinition {
     getReturnTypesAsString() {
         let returnTypesString = '';
         this.getReturnTypes().forEach((returnType, index) => {
-            if (index != 0) {
+            if (index !== 0) {
                 returnTypesString += ',';
                 returnTypesString += (returnType.whiteSpace.useDefault ? ' '
                     : returnType.getWSRegion(0));

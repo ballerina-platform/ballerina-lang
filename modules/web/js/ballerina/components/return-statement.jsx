@@ -30,8 +30,8 @@ class ReturnStatement extends React.Component {
             propertyType: 'text',
             key: 'Expression',
             model: this.props.model,
-            getterMethod: this.props.model.getExpression,
-            setterMethod: this.props.model.setExpression,
+            getterMethod: this.props.model.getStatementString,
+            setterMethod: this.props.model.setStatementFromString,
         };
     }
 

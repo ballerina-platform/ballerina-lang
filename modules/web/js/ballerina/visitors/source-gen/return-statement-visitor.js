@@ -18,7 +18,6 @@
 
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import ReturnStatement from '../../ast/statements/return-statement';
-import ExpressionVisitorFactory from './expression-visitor-factory';
 
 /**
  * Source generation for return statement
@@ -52,7 +51,7 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
         // Calculate the line number
         const lineNumber = this.getTotalNumberOfLinesInSource() + 1;
         returnStatement.setLineNumber(lineNumber, { doSilently: true });
-        const constructedSourceSegment = returnStatement.getReturnExpression();
+        const constructedSourceSegment = returnStatement.getStatementString();
         const numberOfNewLinesAdded = this.getEndLinesInSegment(constructedSourceSegment);
         // Increase the total number of lines
         this.increaseTotalSourceLineCountBy(numberOfNewLinesAdded);
@@ -73,16 +72,6 @@ class ReturnStatementVisitor extends AbstractStatementSourceGenVisitor {
 
         this.appendSource(constructedSourceSegment);
         this.getParent().appendSource(this.getGeneratedSource());
-    }
-
-    /**
-     * Visit expression
-     * @param {Expression} expression - Expression ASTNode
-     */
-    visitExpression(expression) {
-        const expressionVisitorFactory = new ExpressionVisitorFactory();
-        const expressionVisitor = expressionVisitorFactory.getExpressionView({ model: expression, parent: this });
-        expression.accept(expressionVisitor);
     }
 }
 

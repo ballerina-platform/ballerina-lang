@@ -59,7 +59,7 @@ class ReturnStatementDimensionCalculatorVisitor {
      * @memberOf ReturnStatementDimensionCalculatorVisitor
      * */
     endVisit(node) {
-        util.populateSimpleStatementBBox(node.getReturnExpression(), node.getViewState());
+        util.populateSimpleStatementBBox(node.getStatementString(), node.getViewState());
     }
 }
 
