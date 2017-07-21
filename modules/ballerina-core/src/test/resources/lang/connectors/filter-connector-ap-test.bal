@@ -27,7 +27,7 @@ connector FilterConnector<TestConnector t>(int param1) {
           x = TestConnector.action1(t, msg);
           string y;
           y = TestConnector.action2(t, msg);
-          return 500;
+          return x;
     }
 
     action action2(FilterConnector testConnector, int msg) (string) {

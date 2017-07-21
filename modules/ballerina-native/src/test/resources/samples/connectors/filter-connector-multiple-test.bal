@@ -35,7 +35,7 @@ connector FilterConnector1 <TestConnector t>(int param1) {
         string y;
         y = TestConnector.action2(t, msg);
         system:println(y);
-        return 500;
+        return x;
     }
 
     action action2(FilterConnector1 testConnector, message msg) (string) {
@@ -53,7 +53,7 @@ connector FilterConnector2 <TestConnector t>(float param1) {
         string y;
         y = TestConnector.action2( t, msg);
         system:println(y);
-        return 500;
+        return x;
     }
 
     action action2(FilterConnector2 testConnector, message msg) (string) {
