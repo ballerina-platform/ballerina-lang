@@ -92,7 +92,8 @@ class TransformStatementDecorator extends React.Component {
                 () => {
                     return dropTarget.getIndexOfChild(model);
                 });
-            this.setState({ innerDropZoneActivated: true,
+            this.setState({
+                innerDropZoneActivated: true,
                 innerDropZoneDropNotAllowed: !dragDropManager.isAtValidDropTarget(),
             });
             dragDropManager.once('drop-target-changed', function () {
@@ -152,6 +153,7 @@ class TransformStatementDecorator extends React.Component {
             />
         );
     }
+
     /**
      * Handles click event of breakpoint, adds/remove breakpoint from the node when click event fired
      *
@@ -191,7 +193,7 @@ class TransformStatementDecorator extends React.Component {
         const innerDropZoneActivated = this.state.innerDropZoneActivated;
         const innerDropZoneDropNotAllowed = this.state.innerDropZoneDropNotAllowed;
         const dropZoneClassName = ((!innerDropZoneActivated) ? 'inner-drop-zone' : 'inner-drop-zone active')
-                                            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
+            + ((innerDropZoneDropNotAllowed) ? ' block' : '');
 
         const actionBbox = new SimpleBBox();
         const fill = this.state.innerDropZoneExist ? {} : { fill: 'none' };
@@ -230,10 +232,21 @@ class TransformStatementDecorator extends React.Component {
                     onClick={e => this.onExpand()}
                 />
                 <g className="statement-body">
-                    <text x={text_x - 10 } y={text_y} className="transform-action" onClick={e => this.onExpand()}>{expression}</text>
-                    <g className="transform-button">
-                        <rect x={ expand_button_x - 8 } y={ expand_button_y - 8 } width={iconSize} height={iconSize} className="transform-action-button" onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
-                        <image className="transform-action-icon" x={expand_button_x} y={expand_button_y} width={iconSize} height={iconSize} onClick={e => this.onExpand()} xlinkHref={ImageUtil.getSVGIconString('expand')} />
+                    <text x={text_x - 10} y={text_y} className="transform-action"
+                          onClick={e => this.onExpand()}>{expression}</text>
+                    <g className="transform-button" onClick={e => this.onExpand()}>
+                        <rect x={expand_button_x - 8}
+                              y={expand_button_y - 8}
+                              width={iconSize}
+                              height={iconSize}
+                              className="transform-action-button"/>
+                        <image className="transform-action-icon"
+                               x={expand_button_x} y={expand_button_y}
+                               width={iconSize}
+                               height={iconSize}
+                               xlinkHref={ImageUtil.getSVGIconString('expand')}>
+                            <title>Expand</title>
+                        </image>
                     </g>
                 </g>
                 <ActionBox

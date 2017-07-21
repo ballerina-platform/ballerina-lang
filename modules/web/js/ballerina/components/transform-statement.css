@@ -344,17 +344,27 @@ svg.plumbConnect path {
     max-width: 250px;
 }
 
-.transform-action-button{
-    width:28px;
-    height:30px;
+.transform-action-button {
+    width: 28px;
+    height: 30px;
     fill: #666769;
 }
 
 .transform-action-icon {
     cursor: pointer;
+    opacity: 0.5;
 }
 
-.property-pane-action-button-delete:hover{
+.transform-button:hover .transform-action-icon {
+    opacity: 1;
+}
+
+.transform-button:hover .transform-action-button {
+    fill: #292a2b;
+    cursor: pointer;
+}
+
+.property-pane-action-button-delete:hover {
     opacity: 0.5;
 }
 

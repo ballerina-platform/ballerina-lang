@@ -16,7 +16,12 @@
  * under the License.
  */
 import _ from 'lodash';
+import log from 'log';
+import Alerts from 'alerts';
 import VariableDefinition from './variable-definition';
+import FragmentUtils from './../utils/fragment-utils';
+import EnableDefaultWSVisitor from './../visitors/source-gen/enable-default-ws-visitor';
+import ArgumentParameterDefinitionHolder from './argument-parameter-definition-holder';
 
 class ParameterDefinition extends VariableDefinition {
     /**
@@ -86,6 +91,54 @@ class ParameterDefinition extends VariableDefinition {
         this.addChild(annotation);
     }
 
+    setParameterFromString(stmtString, callback) {
+        let fragment = "";
+        if (this.getParent() instanceof ArgumentParameterDefinitionHolder) {
+            fragment = FragmentUtils.createArgumentParameterFragment(stmtString);
+        } else {
+            fragment = FragmentUtils.createReturnParameterFragment(stmtString);
+        }
+        const parsedJson = FragmentUtils.parseFragment(fragment);
+        if ((!_.has(parsedJson, 'error') && !_.has(parsedJson, 'syntax_errors'))) {
+            let nodeToFireEvent = this;
+            if (_.isEqual(parsedJson.type, 'parameter_definition')) {
+                const newNode = this.getFactory().createFromJson(parsedJson);
+                const parent = this.getParent();
+                const index = parent.getIndexOfChild(this);
+                if (!this.checkWhetherIdentifierAlreadyExist(parsedJson.parameter_name)) {
+                    parent.removeChild(this, true);
+                    newNode.initFromJson(parsedJson);
+                    parent.addChild(newNode, index, true, true);
+                    nodeToFireEvent = newNode;
+                } else {
+                    const errorString = `Variable Already exists: ${parsedJson.parameter_name}`;
+                    Alerts.error(errorString);
+                    return false;
+                }
+            } else {
+                log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+            }
+
+            if (_.isFunction(callback)) {
+                callback({isValid: true});
+            }
+            nodeToFireEvent.accept(new EnableDefaultWSVisitor());
+            // Manually firing the tree-modified event here.
+            // TODO: need a proper fix to avoid breaking the undo-redo
+            nodeToFireEvent.trigger('tree-modified', {
+                origin: nodeToFireEvent,
+                type: 'custom',
+                title: 'Modify Parameter Definition',
+                context: nodeToFireEvent,
+            });
+        } else {
+            log.error('Error while parsing parameter. Error response' + JSON.stringify(parsedJson));
+            if (_.isFunction(callback)) {
+                callback({isValid: false, response: parsedJson});
+            }
+        }
+    }
+
     initFromJson(jsonNode) {
         this.setTypeName(jsonNode.parameter_type, { doSilently: true });
         this.setName(jsonNode.parameter_name, { doSilently: true });
@@ -97,6 +150,20 @@ class ParameterDefinition extends VariableDefinition {
             this.addChild(child);
             child.initFromJson(annotationJson);
         }
+    }
+
+    checkWhetherIdentifierAlreadyExist(identifier) {
+        let isExist = false;
+        if (this.getParent().getChildren().length > 0) {
+            for (let i = 0; i < this.getParent().getChildren().length; i++) {
+                if (this.getParent().getChildren()[i].getName() === identifier
+                    && !_.isMatch(this.getParent().getChildren()[i], this)) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
     }
 }
 
