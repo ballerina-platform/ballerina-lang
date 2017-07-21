@@ -94,16 +94,16 @@ globalVariableDefinition
     ;
 
 attachmentPoint
-     : SERVICE
-     | RESOURCE
-     | CONNECTOR
-     | ACTION
-     | FUNCTION
-     | TYPEMAPPER
-     | STRUCT
-     | CONST
-     | PARAMETER
-     | ANNOTATION
+     : SERVICE (LT Identifier? GT)?         # serviceAttachPoint
+     | RESOURCE                             # resourceAttachPoint
+     | CONNECTOR                            # connectorAttachPoint
+     | ACTION                               # actionAttachPoint
+     | FUNCTION                             # functionAttachPoint
+     | TYPEMAPPER                           # typemapperAttachPoint
+     | STRUCT                               # structAttachPoint
+     | CONST                                # constAttachPoint
+     | PARAMETER                            # parameterAttachPoint
+     | ANNOTATION                           # annotationAttachPoint
      ;
 
 annotationBody

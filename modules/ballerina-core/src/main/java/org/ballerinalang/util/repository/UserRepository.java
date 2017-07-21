@@ -17,9 +17,10 @@
 */
 package org.ballerinalang.util.repository;
 
+import org.ballerinalang.util.program.BLangPackages;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static org.ballerinalang.util.BLangConstants.USER_REPO_ARTIFACTS_DIRNAME;
 import static org.ballerinalang.util.BLangConstants.USER_REPO_SRC_DIRNAME;
@@ -52,7 +53,7 @@ public class UserRepository extends PackageRepository {
         }
 
         // Replace file separator with dots.
-        Path packageNamePath = Paths.get(getPackageName(packageDirPath));
+        Path packageNamePath = BLangPackages.convertToPackageName(packageDirPath);
         Path absPath = srcRepoPath.resolve(packageNamePath);
         if (!Files.exists(absPath)) {
             return null;
@@ -64,16 +65,5 @@ public class UserRepository extends PackageRepository {
     @Override
     public PackageSource loadFile(Path filePath) {
         return null;
-    }
-
-    private String getPackageName(Path packageDirPath) {
-        int nameCount = packageDirPath.getNameCount();
-        StringBuilder sb = new StringBuilder(nameCount);
-        sb.append(packageDirPath.getName(0));
-        for (int i = 1; i < nameCount; i++) {
-            sb.append(".").append(packageDirPath.getName(i));
-        }
-
-        return sb.toString();
     }
 }

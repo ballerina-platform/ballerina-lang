@@ -3,7 +3,7 @@ import ballerina.lang.system;
 import ballerina.lang.jsons;
 import ballerina.net.http;
 
-@http:config {basePath:"/ecommerceservice"}
+@http:configuration {basePath:"/ecommerceservice"}
 service<http> Ecommerce {
     @http:GET{}
     @http:Path {value:"/products/{productId}/{regId}"}
@@ -83,6 +83,14 @@ service<http> Ecommerce {
         system:println("Reg ID " + rID);
         responseJson = {"Template":"T5", "ProductID":prdID, "RegID":rID};
         system:println(jsons:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
+
+    @http:Path {value:""}
+    resource echo1 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo11":"echo11"};
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
