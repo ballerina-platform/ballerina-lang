@@ -168,14 +168,17 @@ The next aspect of this tutorial is to convert the average temperature from Kelv
 1. Add a `return` statement by dragging it from the tool palette to the canvas. The `return` statement evaluates the expression, stops the current function, and returns the result of the expression to the caller.
     ![alt text](../images/AddReturn.gif)
 1. In the `return` statement, do the calculation to convert Kelvin to Celcius by subtracting 273.15 from the Kelvin temperature.
+
     ![alt text](../images/KelvinToCelcius.png)
 
 ## Call the function and print the result
 
 Once the function is added, it is available on the tool palette and can be dragged onto the canvas when you need to call it.
+
 ![alt text](../images/FunctionPackage.png)
 
 1. Drag the function you created onto the canvas, assign a float value, and apply the function on the average Celcius temperature.
+
     ![alt text](../images/ConvertFunction.png)
 1. Drag two `println` functions to the canvas and assign `avgTemp` to one to display the average temperature in Kelvin and assign `celciusTemp` to the other to display the average temperature in Celcius.
     ![alt text](../images/PrintLn.png)
