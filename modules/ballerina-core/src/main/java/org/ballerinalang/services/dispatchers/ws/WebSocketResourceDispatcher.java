@@ -71,15 +71,10 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     WebSocketConnectionManager.getInstance().removeConnectionFromAll(serverSession);
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
-                    String connection = (String) cMsg.getProperty(Constants.CONNECTION);
-                    String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
-                    /* If the connection is WebSocket upgrade, this block will be executed */
-                    if (connection != null && upgrade != null &&
-                            Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
-                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
-                        WebSocketConnectionManager.getInstance().addServerSession(service, session, cMsg);
-                        return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
-                    }
+                    Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SERVER_SESSION);
+                    WebSocketConnectionManager.getInstance().addServerSession(service, session, cMsg);
+                    callback.done(cMsg);
+                    return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                 }
             }
         } catch (Throwable e) {
