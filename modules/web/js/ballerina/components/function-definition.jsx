@@ -89,7 +89,7 @@ class FunctionDefinition extends React.Component {
                 title="default"
                 bBox={function_worker_bBox}
                 classes={classes}
-                icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                 iconColor='#025482'
             />
             <StatementContainer

@@ -89,7 +89,7 @@ class LifeLine extends React.Component {
 
     render() {
         const bBox = this.props.bBox;
-        const iconSize = 20;
+        const iconSize = 15;
         const lineClass = `${this.props.classes.lineClass} unhoverable`;
         const polygonClassTop = this.props.classes.polygonClass;
         const polygonClassBottom = `${this.props.classes.polygonClass} unhoverable`;
@@ -113,8 +113,9 @@ class LifeLine extends React.Component {
             tooltip = this.props.tooltip;
         }
         let modifiedCenterValueForTop = centerX;
-        const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 5);
-        const imageY = bBox.y + (DesignerDefaults.iconForTool.height / 5);
+        const imageX = bBox.x + (DesignerDefaults.iconForTool.width / 4);
+        const imageYTop = bBox.y + (DesignerDefaults.iconForTool.height / 4);
+        const imageYBottom = y2 - titleBoxH + (DesignerDefaults.iconForTool.height / 4);
         if (this.props.icon) {
             modifiedCenterValueForTop = bBox.x + DesignerDefaults.iconForTool.width + DesignerDefaults.iconForTool.padding.left;
         }
@@ -165,11 +166,13 @@ class LifeLine extends React.Component {
                 />
                 <image
                     x={imageX}
-                    y={imageY}
+                    y={imageYTop}
                     width={iconSize}
                     height={iconSize}
                     xlinkHref={this.props.icon}
-                /> </g>}
+                />
+            </g>
+            }
             <rect
                 x={bBox.x}
                 y={y2 - titleBoxH}
@@ -179,6 +182,26 @@ class LifeLine extends React.Component {
                 ry="0"
                 className={polygonClassBottom}
             />
+            {this.props.icon &&
+            <g>
+                <rect
+                    x={bBox.x}
+                    y={y2 - titleBoxH}
+                    width={DesignerDefaults.iconForTool.width}
+                    height={DesignerDefaults.iconForTool.height}
+                    rx="0"
+                    ry="0"
+                    fill={this.props.iconColor}
+                />
+                <image
+                    x={imageX}
+                    y={imageYBottom}
+                    width={iconSize}
+                    height={iconSize}
+                    xlinkHref={this.props.icon}
+                />
+            </g>
+            }
             <text
                 x={modifiedCenterValueForTop}
                 y={bBox.y + titleBoxH / 2}
@@ -188,12 +211,12 @@ class LifeLine extends React.Component {
                 onClick={e => this.openExpressionEditor(e)}
             >{this.props.title}</text>
             <text
-                x={centerX}
+                x={modifiedCenterValueForTop}
                 y={y2 - titleBoxH / 2}
                 textAnchor="middle"
                 alignmentBaseline="central"
                 dominantBaseline="central"
-                className="life-line-text textBottomPolygon genericT unhoverable"
+                className="life-line-text genericT unhoverable"
             >{this.props.title}</text>
             {this.props.onDelete &&
                 <ActionBox
