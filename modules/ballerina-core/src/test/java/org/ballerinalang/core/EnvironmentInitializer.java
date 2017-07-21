@@ -18,7 +18,7 @@
 
 package org.ballerinalang.core;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -45,12 +45,11 @@ public class EnvironmentInitializer {
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
         try {
-            Path programPath = Paths.get(EnvironmentInitializer.class.getProtectionDomain().getCodeSource()
-                    .getLocation().toURI());
+            Path programPath = Paths.get(
+                    EnvironmentInitializer.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-            ProgramFile programFile = new BLangProgramLoader().loadServiceProgramFile(programPath, Paths.get
-                    (sourcePath));
-            new BLangProgramRunner().startServices(programFile);
+            ProgramFile programFile = BLangCompiler.compile(programPath, Paths.get(sourcePath));
+            BLangProgramRunner.runService(programFile);
             return programFile;
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("error while running test: " + e.getMessage());
@@ -58,14 +57,11 @@ public class EnvironmentInitializer {
     }
 
     public static void cleanup(ProgramFile programFile) {
-
-        for (String servicePackageName : programFile.getServicePackageNameList()) {
-            PackageInfo packageInfo = programFile.getPackageInfo(servicePackageName);
-            for (ServiceInfo service : packageInfo.getServiceInfoList()) {
-                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
-                    dispatcher.serviceUnregistered(service);
-                });
-            }
+        PackageInfo packageInfo = programFile.getEntryPackage();
+        for (ServiceInfo service : packageInfo.getServiceInfoEntries()) {
+            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                dispatcher.serviceUnregistered(service);
+            });
         }
     }
 
