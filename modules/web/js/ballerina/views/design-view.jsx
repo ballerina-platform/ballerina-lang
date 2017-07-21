@@ -97,8 +97,7 @@ class DesignView extends React.Component {
         const { isTransformActive, activeTransformModel } = this.state;
 
         return (
-            <div className="design-view-container">
-                <div className="wrapperDiv">
+            <div className="design-view-container" style={{ display: this.props.show ? 'block' : 'none'}}>
                 <div className="outerCanvasDiv">
                     <div className="canvas-container">
                         <div className="canvas-top-controls-container" />
@@ -116,7 +115,6 @@ class DesignView extends React.Component {
                         }
                         </div>
                     </div>
-                </div>
                 </div>
                 <div className="tool-palette-container" ref={this.setToolPaletteContainer}>
                     <ToolPaletteView
