@@ -454,4 +454,10 @@ public class WhiteSpaceRegions {
     public static final int FIELD_VAR_REF_EXPR_VAR_REF_TO_DOT_OPERATOR = 1;
     public static final int FIELD_VAR_REF_EXPR_DOT_OPERATOR_TO_FIELD_NAME_START = 2;
     public static final int FIELD_VAR_REF_EXPR_END_TO_NEXT_TOKEN = 3;
+
+    // whitespace regions in xml attributes
+    public static final int XML_ATTRIBUTE_PRECEDING_WHITESPACE = 0;
+    public static final int XML_ATTRIBUTE_KEY_EXP_TO_COLON = 1;
+    public static final int XML_ATTRIBUTE_EQUAL_OPERATOR_TO_VAL_EXP = 2;
+    public static final int XML_ATTRIBUTE_FOLLOWING_WHITESPACE = 3;
 }

@@ -122,8 +122,12 @@ public enum SemanticErrors {
     XML_ATTRIBUTE_MAP_UPDATE_NOT_ALLOWED("xml.attribute.map.update.not.allowed", "SEMANTIC_0098"),
     XML_QNAME_UPDATE_NOT_ALLOWED("xml.qname.update.not.allowed", "SEMANTIC_0099"),
     UNDEFINED_NAMESPACE("undefined.namespace", "SEMANTIC_0100"),
-    CONNECTOR_TYPES_NOT_EQUIVALENT("connector.types.not.equivalent", "SEMANTIC_0101"),
-    FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0102"),
+    INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix", "SEMANTIC_0101"),
+    XML_TAGS_MISMATCH("mismatching.xml.start.end.tags", "SEMANTIC_0102"),
+    INCOMPATIBLE_TYPES_IN_XML_TEMPLATE("incompatible.types.in.xml.template", "SEMANTIC_0103"),
+    INVALID_NAMESPACE_DECLARATION("invalid.namespace.declaration", "SEMANTIC_0104"),
+    CONNECTOR_TYPES_NOT_EQUIVALENT("connector.types.not.equivalent", "SEMANTIC_0105"),
+    FILTER_CONNECTOR_MUST_BE_A_CONNECTOR("filter.connector.must.be.a.connector", "SEMANTIC_0106")
     ;
 
     private String errorMsgKey;

@@ -23,6 +23,8 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
@@ -512,6 +514,20 @@ public class ProgramFileWriter {
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:
                 break;
             case LOCAL_VARIABLES_ATTRIBUTE:
+                LocalVariableAttributeInfo localVariableAttributeInfo = (LocalVariableAttributeInfo) attributeInfo;
+                LocalVariableInfo[] localVariableInfos = localVariableAttributeInfo.getLocalVariableInfoEntries();
+                dataOutStream.writeShort(localVariableInfos.length);
+                for (LocalVariableInfo localVariableInfo : localVariableInfos) {
+                    writeLocalVariableInfo(dataOutStream, localVariableInfo);
+                }
+                break;
+            case LINE_NUMBER_TABLE_ATTRIBUTE:
+                LineNumberTableAttributeInfo lnNoTblAttrInfo = (LineNumberTableAttributeInfo) attributeInfo;
+                LineNumberInfo[] lineNumberInfoEntries = lnNoTblAttrInfo.getLineNumberInfoEntries();
+                dataOutStream.writeShort(lineNumberInfoEntries.length);
+                for (LineNumberInfo lineNumberInfo : lineNumberInfoEntries) {
+                    writeLineNumberInfo(dataOutStream, lineNumberInfo);
+                }
                 break;
         }
 
@@ -551,6 +567,26 @@ public class ProgramFileWriter {
             dataOutStream.writeInt(keyValuePair.getAttributeNameCPIndex());
             writeAnnAttributeValue(dataOutStream, keyValuePair.getAttributeValue());
         }
+    }
+
+    private static void writeLocalVariableInfo(DataOutputStream dataOutStream,
+                                               LocalVariableInfo localVariableInfo) throws IOException {
+        dataOutStream.writeInt(localVariableInfo.getVariableNameCPIndex());
+        dataOutStream.writeInt(localVariableInfo.getVariableIndex());
+        dataOutStream.writeInt(localVariableInfo.getVarTypeSigCPIndex());
+
+        int[] attachemntsIndexes = localVariableInfo.getAttachmentIndexes();
+        dataOutStream.writeShort(attachemntsIndexes.length);
+        for (int attachmentIndex : attachemntsIndexes) {
+            dataOutStream.writeInt(attachmentIndex);
+        }
+    }
+
+    private static void writeLineNumberInfo(DataOutputStream dataOutStream,
+                                               LineNumberInfo lineNumberInfo) throws IOException {
+        dataOutStream.writeInt(lineNumberInfo.getLineNumber());
+        dataOutStream.writeInt(lineNumberInfo.getFileNameCPIndex());
+        dataOutStream.writeInt(lineNumberInfo.getIp());
     }
 
     private static void writeAnnAttributeValue(DataOutputStream dataOutStream,

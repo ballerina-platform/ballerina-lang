@@ -2,7 +2,7 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.net.ws;
 
-@http:config {basePath:"/data"}
+@http:configuration {basePath:"/data"}
 service<http> dataService {
 
     @http:POST {}

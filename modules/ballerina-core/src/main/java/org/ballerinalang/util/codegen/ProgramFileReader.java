@@ -37,6 +37,8 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
+import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
@@ -746,6 +748,9 @@ public class ProgramFileReader {
             case 'L':
                 typeStack.push(BTypes.typeBlob);
                 return index + 1;
+            case 'Y':
+                typeStack.push(BTypes.typeType);
+                return index + 1;
             case 'A':
                 typeStack.push(BTypes.typeAny);
                 return index + 1;
@@ -817,6 +822,8 @@ public class ProgramFileReader {
                 return BTypes.typeString;
             case 'B':
                 return BTypes.typeBoolean;
+            case 'Y':
+                return BTypes.typeType;
             case 'L':
                 return BTypes.typeBlob;
             case 'A':
@@ -1002,6 +1009,7 @@ public class ProgramFileReader {
         switch (attribKind) {
             case CODE_ATTRIBUTE:
                 CodeAttributeInfo codeAttributeInfo = new CodeAttributeInfo();
+                codeAttributeInfo.setAttributeNameIndex(attribNameCPIndex);
                 codeAttributeInfo.setCodeAddrs(dataInStream.readInt());
 
                 codeAttributeInfo.setMaxLongLocalVars(dataInStream.readUnsignedShort());
@@ -1063,7 +1071,21 @@ public class ProgramFileReader {
             case PARAMETER_ANNOTATIONS_ATTRIBUTE:
                 return null;
             case LOCAL_VARIABLES_ATTRIBUTE:
-                return null;
+                LocalVariableAttributeInfo localVarAttrInfo = new LocalVariableAttributeInfo(attribNameCPIndex);
+                int localVarInfoCount = dataInStream.readShort();
+                for (int i = 0; i < localVarInfoCount; i++) {
+                    LocalVariableInfo localVariableInfo = getLocalVariableInfo(dataInStream, constantPool);
+                    localVarAttrInfo.addLocalVarInfo(localVariableInfo);
+                }
+                return localVarAttrInfo;
+            case LINE_NUMBER_TABLE_ATTRIBUTE:
+                LineNumberTableAttributeInfo lnNoTblAttrInfo = new LineNumberTableAttributeInfo(attribNameCPIndex);
+                int lineNoInfoCount = dataInStream.readShort();
+                for (int i = 0; i < lineNoInfoCount; i++) {
+                    LineNumberInfo lineNumberInfo = getLineNumberInfo(dataInStream, constantPool);
+                    lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
+                }
+                return lnNoTblAttrInfo;
         }
 
         // TODO Support other attributes
@@ -1091,6 +1113,47 @@ public class ProgramFileReader {
 
         return attachmentInfo;
     }
+
+    private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
+                                                ConstantPool constantPool) throws IOException {
+        int varNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry varNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(varNameCPIndex);
+        int variableIndex = dataInStream.readInt();
+
+        int typeSigCPIndex = dataInStream.readInt();
+
+        UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
+
+        BType type = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+        LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
+                variableIndex, typeSigCPIndex, type);
+        int attchmntIndexesLength = dataInStream.readShort();
+        int[] attachmentIndexes = new int[attchmntIndexesLength];
+        for (int i = 0; i < attchmntIndexesLength; i++) {
+            attachmentIndexes[i] = dataInStream.readInt();
+        }
+        localVariableInfo.setAttachmentIndexes(attachmentIndexes);
+
+        return localVariableInfo;
+    }
+
+    private LineNumberInfo getLineNumberInfo(DataInputStream dataInStream,
+                                                   ConstantPool constantPool) throws IOException {
+        int lineNumber = dataInStream.readInt();
+        int fileNameCPIndex = dataInStream.readInt();
+        int ip = dataInStream.readInt();
+
+        UTF8CPEntry fileNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(fileNameCPIndex);
+
+        LineNumberInfo lineNumberInfo = new LineNumberInfo(lineNumber, fileNameCPIndex,
+                fileNameCPEntry.getValue(), ip);
+
+        //In here constant pool is always a packageInfo since only package info has lineNumberTableAttribute
+        lineNumberInfo.setPackageInfo((PackageInfo) constantPool);
+
+        return lineNumberInfo;
+    }
+
 
     private AnnAttributeValue getAnnAttributeValue(DataInputStream dataInStream,
                                                    ConstantPool constantPool) throws IOException {
@@ -1246,6 +1309,13 @@ public class ProgramFileReader {
                 case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
+                case InstructionCodes.NEWXMLCOMMENT:
+                case InstructionCodes.NEWXMLTEXT:
+                case InstructionCodes.XMLSTORE:
+                case InstructionCodes.LENGTHOF:
+                case InstructionCodes.LENGTHOFJSON:
+                case InstructionCodes.TYPEOF:
+                case InstructionCodes.TYPELOAD:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j));
@@ -1357,6 +1427,9 @@ public class ProgramFileReader {
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
+                case InstructionCodes.NEWXMLPI:
+                case InstructionCodes.TEQ:
+                case InstructionCodes.TNE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1369,6 +1442,7 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2T:
                 case InstructionCodes.JSON2T:
                 case InstructionCodes.NEWQNAME:
+                case InstructionCodes.NEWXMLELEMENT:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

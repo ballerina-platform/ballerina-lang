@@ -164,15 +164,37 @@ public class BLangPrograms {
         Path userRepoPath;
         String userRepoDir = System.getenv(USER_REPO_ENV_KEY);
         if (userRepoDir == null || userRepoDir.isEmpty()) {
+            // User has not specified the user repo path.
+            // We try to initialize if there exits a directory called ".ballerina" in user home.
             String userHomeDir = System.getProperty(USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
-                throw new RuntimeException("error creating Ballerina user repository");
+                // Error creating Ballerina user repository;
+                // But we ignore it assuming that user has never used the user repository.
+                return null;
             }
-            userRepoPath = Paths.get(userHomeDir, USER_REPO_DEFAULT_DIRNAME);
+
+            userRepoPath = Paths.get(userHomeDir, USER_REPO_DEFAULT_DIRNAME).toAbsolutePath();
+            if (Files.exists(userRepoPath) && !Files.isDirectory(userRepoPath, LinkOption.NOFOLLOW_LINKS)) {
+                // User repository exists, but it is not a directory
+                // Error creating Ballerina user repository
+                // But we ignore it assuming that user has never used the user repository
+                return null;
+            } else if (!Files.exists(userRepoPath)) {
+                // User repository directory does not exists
+                // But we ignore it assuming that user has never used the user repository
+                return null;
+            }
+
         } else {
+            // User has specified the user repo path with env variable.
             userRepoPath = Paths.get(userRepoDir);
         }
 
+        userRepoPath = createUserRepoDirStructure(userRepoPath);
+        return new UserRepository(userRepoPath, systemRepo, extRepos);
+    }
+
+    public static Path createUserRepoDirStructure(Path userRepoPath) {
         // create directory structure, if not already done.
         userRepoPath = userRepoPath.toAbsolutePath();
         if (Files.exists(userRepoPath) && !Files.isDirectory(userRepoPath, LinkOption.NOFOLLOW_LINKS)) {
@@ -187,16 +209,15 @@ public class BLangPrograms {
         createDirectory(artifactsDirPath);
         createDirectory(srcDirPath);
         createDirectory(objDirPath);
-
-        return new UserRepository(userRepoPath, systemRepo, extRepos);
+        return userRepoPath;
     }
 
-    private static void createDirectory(Path dirPath) {
+    public static void createDirectory(Path dirPath) {
         try {
             if (Files.exists(dirPath) && Files.isDirectory(dirPath, LinkOption.NOFOLLOW_LINKS)) {
                 return;
             } else if (Files.exists(dirPath) && !Files.isDirectory(dirPath, LinkOption.NOFOLLOW_LINKS)) {
-                throw new RuntimeException("error creating Ballerina user repository: a file with same name as " +
+                throw new RuntimeException("error creating user repository: a file with same name as " +
                         "the directory exists: '" + dirPath.toString() + "'");
             }
 

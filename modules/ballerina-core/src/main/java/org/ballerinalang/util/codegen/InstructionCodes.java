@@ -191,6 +191,8 @@ public interface InstructionCodes {
     int JSON2T = 155;
     int XML2JSON = 156;
     int JSON2XML = 157;
+    int LENGTHOF = 158;
+    int LENGTHOFJSON = 159;
 
     // Type cast
     int I2ANY = 160;
@@ -254,6 +256,17 @@ public interface InstructionCodes {
     int XMLATTRSTORE = 241;
     int S2QNAME = 242;
     int NEWQNAME = 243;
+    int NEWXMLELEMENT = 244;
+    int NEWXMLCOMMENT = 245;
+    int NEWXMLTEXT = 246;
+    int NEWXMLPI = 247;
+    int XMLSTORE = 248;
 
-    int INSTRUCTION_CODE_COUNT = 244;
+    int TYPEOF = 249;
+    int TYPELOAD = 250;
+
+    int TEQ = 251;
+    int TNE = 252;
+
+    int INSTRUCTION_CODE_COUNT = 253;
 }

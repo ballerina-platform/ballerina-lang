@@ -32,13 +32,13 @@ import java.util.Map;
 public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
 
     // Namespaces visible to this attribute reference expression.
-    private Map<String, String> namespaces;
+    private Map<String, Expression> namespaces;
 
     /**
-     * @param location
-     * @param whiteSpaceDescriptor
-     * @param varRefExpr
-     * @param indexExpr
+     * @param location Source location of the ballerina file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param varRefExpr Reference to the XML variable 
+     * @param indexExpr Attribute expression
      */
     public XMLAttributesRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
             VariableReferenceExpr varRefExpr, Expression indexExpr) {
@@ -54,11 +54,11 @@ public class XMLAttributesRefExpr extends IndexBasedVarRefExpr {
         this.indexExpr = indexExpr;
     }
 
-    public Map<String, String> getNamespaces() {
+    public Map<String, Expression> getNamespaces() {
         return namespaces;
     }
 
-    public void setNamespaces(Map<String, String> namespaces) {
+    public void setNamespaces(Map<String, Expression> namespaces) {
         this.namespaces = namespaces;
     }
 }

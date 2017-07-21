@@ -69,7 +69,7 @@ public class LauncherUtils {
 
     private static void runMain(ProgramFile programFile, String[] args) {
         // Load Client Connectors
-        BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
+        BallerinaConnectorManager.getInstance().setMessageProcessor(new MessageProcessor());
 
         BLangProgramRunner.runMain(programFile, args);
         Runtime.getRuntime().exit(0);

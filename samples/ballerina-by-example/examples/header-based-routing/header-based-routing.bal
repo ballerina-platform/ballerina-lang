@@ -3,7 +3,7 @@ import ballerina.lang.messages;
 import ballerina.doc;
 
 @doc:Description {value:"Service is invoke using BasePath value (/hbr)."}
-@http:config {basePath:"/hbr"}
+@http:configuration {basePath:"/hbr"}
 service<http> headerBasedRouting {
     @doc:Description {value:"http:GET{} annotation declares the HTTP method."}
     @http:GET {}
