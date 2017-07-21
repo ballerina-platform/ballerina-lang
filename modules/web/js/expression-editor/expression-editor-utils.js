@@ -38,6 +38,7 @@ const langTools = ace.acequire('ace/ext/language_tools');
 class ExpressionEditor {
 
     constructor(bBox, callback, props, packageScope) {
+        this.destroy();
         this.props = props;
         const expression = _.isNil(props.getterMethod.call(props.model)) ? '' : props.getterMethod.call(props.model);
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
@@ -85,6 +86,7 @@ class ExpressionEditor {
             }
         }
 
+        langTools.setCompleters([]);
         const completers = completerFactory.getCompleters(props.key, packageScope);
         if (completers) {
             langTools.setCompleters(completers);
@@ -131,7 +133,7 @@ class ExpressionEditor {
             // props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text, props.key);
             props.model.trigger('focus-out');
-            this.distroy();
+            this.destroy();
             if (_.isFunction(callback)) {
                 callback(text);
             }
@@ -146,19 +148,19 @@ class ExpressionEditor {
 
         this._editor.on('blur', (event) => {
             try {
-                const text = this._editor.getSession().getValue();
-                props.setterMethod.call(props.model, text);
-                props.model.trigger('update-property-text', text, props.key);
+            const text = this._editor.getSession().getValue();
+            props.setterMethod.call(props.model, text);
+            props.model.trigger('update-property-text', text, props.key);
                 if (_.isFunction(callback)) {
                     callback(text);
                 }
             } catch (e) {
                 log.error('Error while updating the model from the input.', e);
             } finally {
-                props.model.trigger('focus-out');
-                if (!this.removed) {
-                    this.distroy();
-                }
+            props.model.trigger('focus-out');
+            if (!this.removed) {
+                this.destroy();
+            }
             }
         });
 
@@ -174,7 +176,7 @@ class ExpressionEditor {
                 if (this.end_check.exec(textWithSemicolon)) {
                     props.model.trigger('update-property-text', text, props.key);
                     props.model.trigger('focus-out');
-                    this.distroy();
+                    this.destroy();
                     if (_.isFunction(callback)) {
                         callback(text);
                     }
@@ -190,15 +192,19 @@ class ExpressionEditor {
         $(container).append(this.expressionEditor);
     }
 
-    distroy() {
+    destroy() {
         if (!this.removed) {
             this.removed = true;
             // commit if there are any changes
             // let text = this._editor.getSession().getValue();
             // this.props.model.trigger('update-property-text', text , this.props.key);
-            // distroy the editor
-            // this._editor.distroy();
+            //destroy the editor
+            if (this.expressionEditor) {
+                this._editor.destroy();
             this.expressionEditor.remove();
+            } else {
+                $('.expression_editor_container').remove();
+            }
         }
     }
 
