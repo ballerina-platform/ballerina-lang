@@ -20,6 +20,7 @@ import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
 import '../ballerina/utils/ace-mode';
 import { completerFactory } from './completer-factory.js';
+
 const ace = global.ace;
 const Range = ace.acequire('ace/range');
 
@@ -28,6 +29,7 @@ const Range = ace.acequire('ace/range');
 function requireAll(requireContext) {
     return requireContext.keys().map(requireContext);
 }
+
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
@@ -37,6 +39,7 @@ const langTools = ace.acequire('ace/ext/language_tools');
 class ExpressionEditor {
 
     constructor(bBox, callback, props, packageScope) {
+        this.destroy();
         this.props = props;
         const expression = _.isNil(props.getterMethod.call(props.model)) ? '' : props.getterMethod.call(props.model);
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
@@ -53,9 +56,9 @@ class ExpressionEditor {
         this.expressionEditor.css('min-width', bBox.w + 2);
 
         const editorContainer = $("<div class='expression_editor_container'>").appendTo(this.expressionEditor);
-        if(this.props.isCustomHeight) {
+        if (this.props.isCustomHeight) {
             $(editorContainer).css('height', bBox.h + 2);
-        }else{
+        } else {
             $(editorContainer).css('height', '22px');
         }
         $(editorContainer).text(expression);
@@ -71,19 +74,20 @@ class ExpressionEditor {
 
         // set OS specific font size to prevent Mac fonts getting oversized.
         if (this.isRunningOnMacOS()) {
-            if(this.props.fontSize){
-                this._editor.setFontSize(this.props.fontSize+'pt');
-            }else {
+            if (this.props.fontSize) {
+                this._editor.setFontSize(this.props.fontSize + 'pt');
+            } else {
                 this._editor.setFontSize('10pt');
             }
         } else {
-            if(this.props.fontSize){
-                this._editor.setFontSize(this.props.fontSize+'pt');
-            }else {
+            if (this.props.fontSize) {
+                this._editor.setFontSize(this.props.fontSize + 'pt');
+            } else {
                 this._editor.setFontSize('12pt');
             }
         }
 
+        langTools.setCompleters([]);
         const completers = completerFactory.getCompleters(props.key, packageScope);
         if (completers) {
             langTools.setCompleters(completers);
@@ -130,7 +134,7 @@ class ExpressionEditor {
             // props.setterMethod.call(props.model, text);
             props.model.trigger('update-property-text', text, props.key);
             props.model.trigger('focus-out');
-            this.distroy();
+            this.destroy();
             if (_.isFunction(callback)) {
                 callback(text);
             }
@@ -149,7 +153,7 @@ class ExpressionEditor {
             props.model.trigger('update-property-text', text, props.key);
             props.model.trigger('focus-out');
             if (!this.removed) {
-                this.distroy();
+                this.destroy();
             }
             if (_.isFunction(callback)) {
                 callback(text);
@@ -168,7 +172,7 @@ class ExpressionEditor {
                 if (this.end_check.exec(textWithSemicolon)) {
                     props.model.trigger('update-property-text', text, props.key);
                     props.model.trigger('focus-out');
-                    this.distroy();
+                    this.destroy();
                     if (_.isFunction(callback)) {
                         callback(text);
                     }
@@ -184,15 +188,19 @@ class ExpressionEditor {
         $(container).append(this.expressionEditor);
     }
 
-    distroy() {
+    destroy() {
         if (!this.removed) {
             this.removed = true;
             // commit if there are any changes
             // let text = this._editor.getSession().getValue();
             // this.props.model.trigger('update-property-text', text , this.props.key);
-            // distroy the editor
-            // this._editor.distroy();
-            this.expressionEditor.remove();
+            //destroy the editor
+            if (this.expressionEditor) {
+                this._editor.destroy();
+                this.expressionEditor.remove();
+            } else {
+                $('.expression_editor_container').remove();
+            }
         }
     }
 

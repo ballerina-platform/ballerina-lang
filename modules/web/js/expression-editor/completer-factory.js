@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 import _ from 'lodash';
-import $ from 'jquery';
 import BallerinaEnvironment from './../ballerina/env/environment';
 
+/**
+ * Class for expression editor completers.
+ *
+ * @class CompleterFactory
+ * */
 class CompleterFactory {
+    /**
+     * constructor for CompleterFactory.
+     * */
     constructor() {
-        this.variable_dec = /([a-z])+ .*/i;
-        this.package_dec = /([a-z0-9])+:.*/i;
-        this.param_dec = /([a-z])+@{}: .*/i;
+        this.variableDec = /([a-z])+ .*/i;
+        this.packageDec = /([a-z0-9])+:.*/i;
+        this.paramDec = /([a-z])+@{}: .*/i;
+        this.defaultDec = /([a-z])+@{}:= .*/i;
     }
 
+    /**
+     * Get completer as to the key.
+     *
+     * @param {string} key - completer key.
+     * @param {object} packageScope - packageScope.
+     * @return {object[]} completers.
+     * */
     getCompleters(key, packageScope) {
         switch (key) {
             case 'VariableDefinition':
@@ -33,28 +48,39 @@ class CompleterFactory {
             case 'ParameterDefinition':
                 return this.getParameterCompleters();
             default:
-                return false;
+                return this.getDefaultCompleters();
         }
     }
 
+    /**
+     * Get the completer for variable definition.
+     *
+     * @return {object[]} variable definition completers.
+     * */
     getVariableDefinitionCompleters() {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                if (this.variable_dec.exec(editor.getSession().getValue())) {
+                if (this.variableDec.exec(editor.getSession().getValue())) {
                     return [];
                 }
                 const types = BallerinaEnvironment.getTypes();
-                const completions = types.map(item => ({name: item, value: `${item} `, meta: 'type'}));
+                const completions = types.map(item => ({ name: item, value: `${item} `, meta: 'type' }));
                 callback(null, completions);
             },
         }];
     }
 
+    /**
+     * Get the completers for function.
+     *
+     * @param {object} packageScope - package scope.
+     * @return {object[]} function completers.
+     * */
     getFunctionCompleters(packageScope) {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
                 let completions = [];
-                if (!this.package_dec.exec(editor.getSession().getValue())) {
+                if (!this.packageDec.exec(editor.getSession().getValue())) {
                     const packages = BallerinaEnvironment
                         .searchPackage(editor.getSession().getValue().trim(), null);
                     completions = packages.map(item => ({
@@ -95,29 +121,34 @@ class CompleterFactory {
         }];
     }
 
+    /**
+     * Get the completers for parameters.
+     *
+     * @return {object[]} parameter completers.
+     * */
     getParameterCompleters() {
         return [{
             getCompletions: (editor, session, pos, prefix, callback) => {
-                if (this.param_dec.exec(editor.getSession().getValue())) {
+                if (this.paramDec.exec(editor.getSession().getValue())) {
                     return [];
                 }
                 //TODO: Remove these conditions as the language server support scoped filtering.
-                let isPackageSearch = editor.getSession().getValue().trim().includes('@')
+                const isPackageSearch = editor.getSession().getValue().trim().includes('@')
                     && !editor.getSession().getValue().trim().includes(':')
                     && !editor.getSession().getValue().trim().includes('{')
                     && !editor.getSession().getValue().trim().includes('}')
                     && !editor.getSession().getValue().trim().includes('"');
-                let isAnnotationSupport = editor.getSession().getValue().trim().includes('@')
+                const isAnnotationSupport = editor.getSession().getValue().trim().includes('@')
                     && editor.getSession().getValue().trim().includes(':')
                     && !editor.getSession().getValue().trim().includes('{')
                     && !editor.getSession().getValue().trim().includes('}')
                     && !editor.getSession().getValue().trim().includes('"');
-                let isAnnotationDefinitionSupport = editor.getSession().getValue().trim().includes('@')
+                const isAnnotationDefinitionSupport = editor.getSession().getValue().trim().includes('@')
                     && editor.getSession().getValue().trim().includes(':')
                     && editor.getSession().getValue().trim().includes('{')
                     && !editor.getSession().getValue().trim().includes('}')
                     && !editor.getSession().getValue().trim().includes('"');
-                let isVariableSupport = (editor.getSession().getValue().trim().includes('@')
+                const isVariableSupport = (editor.getSession().getValue().trim().includes('@')
                     && editor.getSession().getValue().trim().includes('}')
                     && editor.getSession().getValue().trim().includes('}')
                     && editor.getSession().getValue().trim().includes('"'))
@@ -126,46 +157,46 @@ class CompleterFactory {
                 let completions = [];
 
                 if (isAnnotationSupport) {
-                    let atSignIndex = editor.getSession().getValue().trim().indexOf('@');
-                    let colonSignIndex = editor.getSession().getValue().trim().indexOf(':');
-                    let packageName = editor.getSession().getValue().trim().slice(atSignIndex + 1, colonSignIndex);
+                    const atSignIndex = editor.getSession().getValue().trim().indexOf('@');
+                    const colonSignIndex = editor.getSession().getValue().trim().indexOf(':');
+                    const packageName = editor.getSession().getValue().trim().slice(atSignIndex + 1, colonSignIndex);
                     const packages = BallerinaEnvironment
                         .searchPackage(packageName, null);
-                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, "parameter");
-                    const annotations = this.filterAnnotationsByAttachementPoint(filteredPackages, "parameter");
+                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, 'parameter');
+                    const annotations = this.filterAnnotationsByAttachementPoint(filteredPackages, 'parameter');
 
                     for (let i = 0; i < annotations.length; i++) {
                         let annotation = annotations[i];
-                        completions.push({name: annotation._name, value: `${annotation._name}{`, meta: 'annotation'});
+                        completions.push({ name: annotation._name, value: `${annotation._name}{`, meta: 'annotation' });
                     }
                 } else if (isPackageSearch) {
                     let packageName = editor.getSession().getValue().trim().split('@')[1];
                     const packages = BallerinaEnvironment
                         .searchPackage(packageName, null);
-                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, "parameter");
+                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, 'parameter');
                     completions = filteredPackages.map(item => ({
                         name: this.getShortNameForPackage(item._name),
                         value: `${this.getShortNameForPackage(item._name)}:`,
-                        meta: 'package'
+                        meta: 'package',
                     }));
                 } else if (isAnnotationDefinitionSupport) {
-                    let atSignIndex = editor.getSession().getValue().trim().indexOf('@');
-                    let openBracketSignIndex = editor.getSession().getValue().trim().indexOf('{');
-                    let colonSignIndex = editor.getSession().getValue().trim().indexOf(':');
-                    let packageName = editor.getSession().getValue().trim().slice(atSignIndex + 1, colonSignIndex);
+                    const atSignIndex = editor.getSession().getValue().trim().indexOf('@');
+                    const openBracketSignIndex = editor.getSession().getValue().trim().indexOf('{');
+                    const colonSignIndex = editor.getSession().getValue().trim().indexOf(':');
+                    const packageName = editor.getSession().getValue().trim().slice(atSignIndex + 1, colonSignIndex);
                     let annotationName = editor.getSession().getValue().trim().slice(colonSignIndex + 1, openBracketSignIndex);
                     const packages = BallerinaEnvironment
                         .searchPackage(packageName, null);
-                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, "parameter");
-                    const annotations = this.filterAnnotationsByAttachementPoint(filteredPackages, "parameter");
+                    const filteredPackages = this.filterPackageByAnnotationAttachmentPoint(packages, 'parameter');
+                    const annotations = this.filterAnnotationsByAttachementPoint(filteredPackages, 'parameter');
                     const annotation = this.getAnnotationByName(annotations, annotationName);
-                    if(annotation.length > -1) {
+                    if (annotation.length > -1) {
                         const definitions = this.getAnnotationDefinitions(annotation[0]);
-                        completions = definitions.map(item => ({name: item, value: `${item}:""`, meta: 'attributes'}));
+                        completions = definitions.map(item => ({ name: item, value: `${item}:""`, meta: 'attributes' }));
                     }
                 } else if (isVariableSupport) {
                     const types = BallerinaEnvironment.getTypes();
-                    completions = types.map(item => ({name: item, value: `${item} `, meta: 'type'}));
+                    completions = types.map(item => ({ name: item, value: `${item} `, meta: 'type' }));
                 }
 
                 callback(null, completions);
@@ -173,11 +204,57 @@ class CompleterFactory {
         }];
     }
 
+    /**
+     * Get the default completers
+     *
+     * @return {object[]} default completers
+     * */
+    getDefaultCompleters() {
+        return [{
+            getCompletions: (editor, session, pos, prefix, callback) => {
+                if (this.defaultDec.exec(editor.getSession().getValue())) {
+                    return [];
+                }
+                const types = BallerinaEnvironment.getTypes();
+                let completions = types.map(item => ({ name: item, value: `${item} `, meta: 'type' }));
+                completions.push({ name: 'const', value: `const `, meta: 'type' });
+                const isAssignment = editor.getSession().getValue().trim().includes('=');
+                let packageName = editor.getSession().getValue().trim();
+                if (isAssignment) {
+                    packageName = editor.getSession().getValue().trim().split('=')[1];
+                }
+
+                const packages = BallerinaEnvironment
+                    .searchPackage(packageName.trim(), null);
+
+                completions = completions.concat(packages.map(item => ({
+                    name: item._name,
+                    value: `${item._name}:`,
+                    meta: 'package',
+                })));
+
+                callback(null, completions);
+            },
+        }];
+    }
+
+    /**
+     * Get the package prefix.
+     * @param {string} name - package name.
+     * @return {string} spliced name.
+     * */
     getPackagePrefix(name) {
         const array = name.split('.');
         return array[array.length - 1];
     }
 
+    /**
+     * Filter package by annotation attachment point.
+     *
+     * @param {object[]} packages - package list.
+     * @param {string} attachmentPoint - attachment point.
+     * @return {object[]} filtered packages
+     * */
     filterPackageByAnnotationAttachmentPoint(packages, attachmentPoint) {
         let filteredPackages = [];
         for (let i = 0; i < packages.length; i++) {
@@ -196,6 +273,13 @@ class CompleterFactory {
         return filteredPackages;
     }
 
+    /**
+     * Filter annotations by annotation attachment point.
+     *
+     * @param {object[]} packages - package list.
+     * @param {string} attachmentPoint - attachment point.
+     * @return {object[]} filtered annotations
+     * */
     filterAnnotationsByAttachementPoint(packages, attachmentPoint) {
         let annotations = [];
         for (let i = 0; i < packages.length; i++) {
@@ -209,20 +293,37 @@ class CompleterFactory {
         return annotations;
     }
 
+    /**
+     * get annotation definitions.
+     *
+     * @param {object} annotation - annotation object.
+     * @return {object[]} filtered annotation definitions.
+     * */
     getAnnotationDefinitions(annotation) {
-        let definitions = []
+        let definitions = [];
         for (let i = 0; i < annotation._annotationAttributeDefinitions.length; i++) {
             definitions.push(annotation._annotationAttributeDefinitions[i]._identifier);
         }
         return definitions;
     }
 
+    /**
+     * Get annotation by name.
+     * @param {object[]} annotations - annotation list.
+     * @param {string} annotationName - annotation name.
+     * @return {object[]} annotation names.
+     * */
     getAnnotationByName(annotations, annotationName) {
         return annotations.filter((annotation) => {
             return annotation._name === annotationName;
         })
     }
 
+    /**
+     * Shorten the package name.
+     * @param {string} packageName - package name.
+     * @return {string} shortened name.
+     * */
     getShortNameForPackage(packageName) {
         let tokens = packageName.split('.');
         return tokens[tokens.length - 1];
