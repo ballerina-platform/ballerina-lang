@@ -19,6 +19,9 @@ package org.ballerinalang.util.codegen.attributes;
 
 import org.ballerinalang.util.codegen.ParamAnnAttachmentInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code ParamAnnotationAttributeInfo} contains metadata of Ballerina annotations attached to
  * function/resource/action/connector nodes.
@@ -30,15 +33,18 @@ public class ParamAnnotationAttributeInfo implements AttributeInfo {
     // Index to a UTF8CPEntry
     private int attributeNameIndex;
 
-    private ParamAnnAttachmentInfo[] attachmentInfoArray;
+    private List<ParamAnnAttachmentInfo> attachmentInfoArray = new ArrayList<>();
 
-    public ParamAnnotationAttributeInfo(int attributeNameIndex, int paramCount) {
+    public ParamAnnotationAttributeInfo(int attributeNameIndex) {
         this.attributeNameIndex = attributeNameIndex;
-        this.attachmentInfoArray = new ParamAnnAttachmentInfo[paramCount];
     }
 
-    public void addParamAttachmentInfo(int paramIndex, ParamAnnAttachmentInfo attachmentInfo) {
-        attachmentInfoArray[paramIndex] = attachmentInfo;
+    public void addParamAttachmentInfo(ParamAnnAttachmentInfo attachmentInfo) {
+        attachmentInfoArray.add(attachmentInfo);
+    }
+
+    public ParamAnnAttachmentInfo[] getAttachmentInfoArray() {
+        return attachmentInfoArray.toArray(new ParamAnnAttachmentInfo[0]);
     }
 
     @Override
