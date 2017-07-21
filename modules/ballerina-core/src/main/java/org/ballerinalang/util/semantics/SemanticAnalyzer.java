@@ -58,6 +58,7 @@ import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
@@ -84,6 +85,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -135,6 +137,7 @@ import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -1133,7 +1136,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef varDef) {
+    public void visit(SimpleVariableDef varDef) {
     }
 
 
@@ -1798,8 +1801,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         linkFunction(funcIExpr);
 
         //Find the return types of this function invocation expression.
-        BType[] returnParamTypes = funcIExpr.getCallableUnit().getReturnParamTypes();
-        funcIExpr.setTypes(returnParamTypes);
+        if (funcIExpr.isFunctionPointerInvocation()) {
+            BFunctionType type = (BFunctionType) funcIExpr.getFunctionPointerVariableDef().getType();
+            funcIExpr.setTypes(type.getReturnParameterType());
+        } else {
+            BType[] returnParamTypes = funcIExpr.getCallableUnit().getReturnParamTypes();
+            funcIExpr.setTypes(returnParamTypes);
+        }
     }
 
     // TODO Duplicate code. fix me
@@ -1813,8 +1821,47 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = new SymbolName(name, pkgPath);
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
 
-        if (bLangSymbol instanceof VariableDef) {
-            if (!(((VariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
+        if (bLangSymbol instanceof SimpleVariableDef) {
+            if (((SimpleVariableDef) bLangSymbol).getType() instanceof StructDef) {
+                // This is not a action invocation, but possible function pointer invocation inside a struct.
+                // TODO : Fix this logic and remove action invocation.
+                StructDef structDef = (StructDef) ((SimpleVariableDef) bLangSymbol).getType();
+                VariableDef matchingVariableDef = null;
+                for (VariableDefStmt variableDefStmt : structDef.getFieldDefStmts()) {
+                    VariableDef variableDef = variableDefStmt.getVariableDef();
+                    if (variableDef.getType() instanceof BFunctionType &&
+                            variableDef.getIdentifier().getName().equals(actionIExpr.getName())) {
+                        matchingVariableDef = variableDef;
+                        break;
+                    }
+                }
+                if (matchingVariableDef == null) {
+                    throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                            SemanticErrors.UNDEFINED_FUNCTION, actionIExpr.getName());
+                }
+                BFunctionType functionType = (BFunctionType) matchingVariableDef.getType();
+                Expression[] exprs = actionIExpr.getArgExprs();
+                if (exprs == null || functionType.getParameterType().length != exprs.length) {
+                    throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                            SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS, actionIExpr.getName());
+                }
+                for (Expression expr : exprs) {
+                    visitSingleValueExpr(expr);
+                }
+                for (int i = 0; i < exprs.length; i++) {
+                    if (!isAssignableTo(exprs[i].getType(), functionType.getParameterType()[i])) {
+                        throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                                SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS, actionIExpr.getName());
+                    }
+                }
+                actionIExpr.setTypes(functionType.getReturnParameterType());
+                actionIExpr.setFunctionInvocation(true);
+                actionIExpr.setVariableDef((SimpleVariableDef) bLangSymbol);
+                actionIExpr.setFieldDef(matchingVariableDef);
+                return;
+            }
+            // Process as Action invocation.
+            if (!(((SimpleVariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
                 throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                         SemanticErrors.INCORRECT_ACTION_INVOCATION);
             }
@@ -1827,7 +1874,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 exprs[i + 1] = actionIExpr.getArgExprs()[i];
             }
             actionIExpr.setArgExprs(exprs);
-            VariableDef varDef = (VariableDef) bLangSymbol;
+            SimpleVariableDef varDef = (SimpleVariableDef) bLangSymbol;
             actionIExpr.setConnectorName(varDef.getTypeName().getName());
             actionIExpr.setPackageName(varDef.getTypeName().getPackageName());
             actionIExpr.setPackagePath(varDef.getTypeName().getPackagePath());
@@ -2132,12 +2179,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                         SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, varRefExpr.getVarName(), structDef.getName());
             }
 
-            if (!(varDefSymbol instanceof VariableDef)) {
+            if (!(varDefSymbol instanceof SimpleVariableDef)) {
                 throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
                         SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, varDefSymbol.getSymbolName());
             }
 
-            VariableDef varDef = (VariableDef) varDefSymbol;
+            SimpleVariableDef varDef = (SimpleVariableDef) varDefSymbol;
             varRefExpr.setVariableDef(varDef);
 
             BType structFieldType = varDef.getType();
@@ -2206,7 +2253,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
                         SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
             }
-            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            SimpleVariableDef fieldDef = (SimpleVariableDef) fieldSymbol;
             fieldBasedVarRefExpr.setFieldDef(fieldDef);
             fieldBasedVarRefExpr.setType(fieldDef.getType());
 
@@ -2283,7 +2330,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 throw BLangExceptionHelper.getSemanticError(varRefExpr.getNodeLocation(),
                         SemanticErrors.UNKNOWN_FIELD_IN_STRUCT, fieldName, structDef.getName());
             }
-            VariableDef fieldDef = (VariableDef) fieldSymbol;
+            SimpleVariableDef fieldDef = (SimpleVariableDef) fieldSymbol;
             indexBasedVarRefExpr.setFieldDef(fieldDef);
             indexBasedVarRefExpr.setType(fieldDef.getType());
 
@@ -2371,6 +2418,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (targetType == null) {
             targetType = BTypes.resolveType(typeCastExpr.getTypeName(), currentScope, typeCastExpr.getNodeLocation());
             typeCastExpr.setType(targetType);
+        }
+
+        // casting to function pointer is not supported in this 0.9 release. issue #2944
+        if (sourceType instanceof BFunctionType || targetType instanceof BFunctionType) {
+            BLangExceptionHelper.throwSemanticError(typeCastExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CAST,
+                    sourceType, targetType);
         }
 
         // casting a null literal is not supported.
@@ -2494,6 +2547,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(NullLiteral nullLiteral) {
         nullLiteral.setType(BTypes.typeNull);
+    }
+
+    @Override
+    public void visit(LambdaExpression lambdaExpr) {
     }
 
     @Override
@@ -2960,7 +3017,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 Identifier identifier = new Identifier(varName);
                 SymbolName symbolName = new SymbolName(identifier.getName());
-                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
 
@@ -3014,6 +3071,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
                 pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+
+        if (functionSymbol instanceof SimpleVariableDef
+                && ((SimpleVariableDef) functionSymbol).getType() instanceof BFunctionType) {
+            SimpleVariableDef variableDef = (SimpleVariableDef) functionSymbol;
+            matchAndUpdateFunctionPointsArgs(funcIExpr, symbolName, (BFunctionType) (variableDef).getType());
+            // Link at runtime.
+            funcIExpr.setFunctionPointerInvocation(true);
+            funcIExpr.setFunctionPointerVariableDef(variableDef);
+            return;
+        }
 
         functionSymbol = matchAndUpdateArguments(funcIExpr, symbolName, functionSymbol);
 
@@ -3200,6 +3267,32 @@ public class SemanticAnalyzer implements NodeVisitor {
             ((CallableUnitInvocationExpr) callableIExpr).getArgExprs()[i] = updatedArgExprs[i];
         }
         return callableSymbol;
+    }
+
+    private void matchAndUpdateFunctionPointsArgs(FunctionInvocationExpr funcIExpr,
+                                                  CallableUnitSymbolName symbolName, BFunctionType bFunctionType) {
+        if (symbolName.getNoOfParameters() != bFunctionType.getParameterType().length) {
+            BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS,
+                    funcIExpr.getName());
+        }
+        Expression[] argExprs = funcIExpr.getArgExprs();
+        Expression[] updatedArgExprs = new Expression[argExprs.length];
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression argExpr = argExprs[i];
+            updatedArgExprs[i] = argExpr;
+            BType lhsType = bFunctionType.getParameterType()[i];
+
+            AssignabilityResult result = performAssignabilityCheck(lhsType, argExpr);
+            if (result.expression != null) {
+                updatedArgExprs[i] = result.expression;
+            } else if (!result.assignable) {
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS,
+                        funcIExpr.getName());
+            }
+        }
+        for (int i = 0; i < updatedArgExprs.length; i++) {
+            funcIExpr.getArgExprs()[i] = updatedArgExprs[i];
+        }
     }
 
     private void linkWorker(WorkerInvocationStmt workerInvocationStmt) {
@@ -3784,7 +3877,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             return true;
         }
 
-        return lhsType == rhsType;
+        return lhsType == rhsType || lhsType.equals(rhsType);
     }
 
     private boolean checkUnsafeCastPossible(BType sourceType, BType targetType) {
@@ -3874,10 +3967,29 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(newExpr);
             assignabilityResult.assignable = true;
             assignabilityResult.expression = newExpr;
+            return assignabilityResult;
         }
 
         // Further check whether types are assignable recursively, specially array types
-
+        if (rhsType instanceof BFunctionType && lhsType instanceof BFunctionType) {
+            BFunctionType rhs = (BFunctionType) rhsType;
+            BFunctionType lhs = (BFunctionType) lhsType;
+            if (rhs.getParameterType().length == lhs.getParameterType().length &&
+                    rhs.getReturnParameterType().length == lhs.getReturnParameterType().length) {
+                for (int i = 0; i < rhs.getParameterType().length; i++) {
+                    if (!isAssignableTo(rhs.getParameterType()[i], lhs.getParameterType()[i])) {
+                        return assignabilityResult;
+                    }
+                }
+                for (int i = 0; i < rhs.getReturnParameterType().length; i++) {
+                    if (!isAssignableTo(rhs.getReturnParameterType()[i], lhs.getReturnParameterType()[i])) {
+                        return assignabilityResult;
+                    }
+                }
+                assignabilityResult.assignable = true;
+                return assignabilityResult;
+            }
+        }
         return assignabilityResult;
     }
 

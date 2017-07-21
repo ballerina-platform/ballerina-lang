@@ -32,6 +32,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -116,7 +117,7 @@ public interface NodeVisitor {
 
     void visit(ParameterDef parameterDef);
 
-    void visit(VariableDef variableDef);
+    void visit(SimpleVariableDef variableDef);
 
     void visit(StructDef structDef);
     
@@ -251,4 +252,7 @@ public interface NodeVisitor {
     void visit(XMLPILiteral xmlPI);
     
     void visit(XMLSequenceLiteral xmlSequence);
+
+    void visit(LambdaExpression lambdaExpr);
+
 }
