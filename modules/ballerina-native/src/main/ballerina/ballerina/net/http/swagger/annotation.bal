@@ -7,7 +7,7 @@ annotation ServiceInfo attach service {
     string termsOfService;
     Contact contact;
     License license;
-    ExternalDoc externalDocs;
+    ExternalDoc externalDoc;
     Tag[] tags;
     Organization organization;
     Developer[] developers;
@@ -111,7 +111,7 @@ annotation ResourceInfo attach resource {
     string[] tags;
     string summary;
     string description;
-    ExternalDoc externalDocs;
+    ExternalDoc externalDoc;
 }
 
 annotation Responses attach resource {
