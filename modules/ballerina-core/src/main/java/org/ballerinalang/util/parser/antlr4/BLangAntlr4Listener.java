@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.builder.BLangModelBuilder;
@@ -40,7 +41,6 @@ import org.ballerinalang.util.parser.BallerinaParser.AnnotationBodyContext;
 import org.ballerinalang.util.parser.BallerinaParser.AnnotationDefinitionContext;
 import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralContext;
 import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralExpressionContext;
-import org.ballerinalang.util.parser.BallerinaParser.AttachmentPointContext;
 import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeNameContext;
 import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeTypeExpressionContext;
 import org.ballerinalang.util.parser.BallerinaParser.CallableUnitBodyContext;
@@ -449,12 +449,36 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterAttachmentPoint(AttachmentPointContext ctx) {
+    public void enterServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
 
     }
 
     @Override
-    public void exitAttachmentPoint(AttachmentPointContext ctx) {
+    public void exitServiceAttachPoint(BallerinaParser.ServiceAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String attachPkg = null;
+        if (ctx.getChildCount() > 3) {
+            attachPkg = ctx.getChild(2).getText();
+        } else if (ctx.getChildCount() > 1) {
+            attachPkg = "";
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.SERVICE, attachPkg);
+    }
+
+    @Override
+    public void enterResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitResourceAttachPoint(BallerinaParser.ResourceAttachPointContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -462,7 +486,152 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isVerboseMode) {
             whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
         }
-        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor, ctx.getText());
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.RESOURCE, null);
+    }
+
+    @Override
+    public void enterConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitConnectorAttachPoint(BallerinaParser.ConnectorAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.CONNECTOR, null);
+    }
+
+    @Override
+    public void enterActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitActionAttachPoint(BallerinaParser.ActionAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.ACTION, null);
+    }
+
+    @Override
+    public void enterFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitFunctionAttachPoint(BallerinaParser.FunctionAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.FUNCTION, null);
+    }
+
+    @Override
+    public void enterTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitTypemapperAttachPoint(BallerinaParser.TypemapperAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.TYPEMAPPER, null);
+    }
+
+    @Override
+    public void enterStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitStructAttachPoint(BallerinaParser.StructAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.STRUCT, null);
+    }
+
+    @Override
+    public void enterConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitConstAttachPoint(BallerinaParser.ConstAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.CONSTANT, null);
+    }
+
+    @Override
+    public void enterParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitParameterAttachPoint(BallerinaParser.ParameterAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.PARAMETER, null);
+    }
+
+    @Override
+    public void enterAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
+
+    }
+
+    @Override
+    public void exitAnnotationAttachPoint(BallerinaParser.AnnotationAttachPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        WhiteSpaceDescriptor whiteSpaceDescriptor = null;
+        if (isVerboseMode) {
+            whiteSpaceDescriptor = WhiteSpaceUtil.getAttachmentPointWS(tokenStream, ctx);
+        }
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), whiteSpaceDescriptor,
+                AttachmentPoint.ANNOTATION, null);
     }
 
     @Override

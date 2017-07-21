@@ -1,7 +1,7 @@
 import ballerina.lang.messages;
 import ballerina.net.http;
 
-@http:config {basePath:"/hello"}
+@http:configuration {basePath:"/hello"}
 service<http> helloWorld {
 
     @http:GET{}
