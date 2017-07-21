@@ -16,6 +16,7 @@
 
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BStructType.StructField;
 import org.ballerinalang.model.types.BType;
@@ -31,8 +32,10 @@ import java.util.StringJoiner;
  *
  * @since 1.0.0
  */
-public final class BStruct implements BRefType, StructureType {
+public final class BStruct implements BRefType<StructDef>, StructureType {
 
+    private StructDef structDef;
+    private BValue[] structMemBlock;
     private BStruct stackTrace;
     private HashMap<String, Object> nativeData = new HashMap<>();
 
@@ -43,30 +46,76 @@ public final class BStruct implements BRefType, StructureType {
     private byte[][] byteFields;
     private BRefType[] refFields;
 
-    private BStructType structType;
+    private BType structType;
+
+    // TODO Remove this when old executor is removed
+    private BType[] fieldTypes;
 
     /**
      * Creates a struct with a single memory block.
      */
-    public BStruct(BStructType structType) {
+    public BStruct(BType structType) {
+        this(null, new BValue[0]);
         this.structType = structType;
+    }
 
-        int[] fieldCount = this.structType.getFieldTypeCount();
-        longFields = new long[fieldCount[0]];
-        doubleFields = new double[fieldCount[1]];
-        stringFields = new String[fieldCount[2]];
-        Arrays.fill(stringFields, "");
-        intFields = new int[fieldCount[3]];
-        byteFields = new byte[fieldCount[4]][];
-        refFields = new BRefType[fieldCount[5]];
+    /**
+     * Creates a struct with the given size of memory block.
+     *
+     * @param structDef      {@link StructDef} who's values will be stored by this {@code BStruct}
+     * @param structMemBlock Array of memory blocks to store values.
+     */
+    public BStruct(StructDef structDef, BValue[] structMemBlock) {
+        this.structDef = structDef;
+        this.structMemBlock = structMemBlock;
+    }
+
+    /**
+     * Get a value from a memory location, stored inside this struct.
+     *
+     * @param offset Offset of the memory location
+     * @return Value stored in the given memory location of this struct.
+     */
+    public BValue getValue(int offset) {
+        return structMemBlock[offset];
+    }
+
+    /**
+     * Set a value to a memory location of this struct.
+     *
+     * @param offset Offset of the memory location
+     * @param bValue Value to be stored in the given memory location of this struct.
+     */
+    public void setValue(int offset, BValue bValue) {
+        this.structMemBlock[offset] = bValue;
+    }
+
+    @Override
+    public BType[] getFieldTypes() {
+        return fieldTypes;
+    }
+
+    @Override
+    public void setFieldTypes(BType[] fieldTypes) {
+        this.fieldTypes = fieldTypes;
+    }
+
+    @Override
+    public BValue[] getMemoryBlock() {
+        return structMemBlock;
+    }
+
+    @Override
+    public void setMemoryBlock(BValue[] memoryBlock) {
+        this.structMemBlock = memoryBlock;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BStruct value() {
-        return this;
+    public StructDef value() {
+        return structDef;
     }
 
     /**
@@ -80,9 +129,9 @@ public final class BStruct implements BRefType, StructureType {
                 doubleIndex = 0,
                 byteIndex = 0,
                 refValIndex = 0;
-
+        
         StringJoiner sj = new StringJoiner(",", "{", "}");
-        for (StructField field : structType.getStructFields()) {
+        for (StructField field : ((BStructType) structType).getStructFields()) {
             String fieldName = field.getFieldName();
             Object fieldVal;
             BType fieldType = field.getFieldType();
@@ -92,7 +141,7 @@ public final class BStruct implements BRefType, StructureType {
                 fieldVal = longFields[longIndex++];
             } else if (fieldType == BTypes.typeFloat) {
                 fieldVal = doubleFields[doubleIndex++];
-            } else if (fieldType == BTypes.typeBoolean) {
+            }  else if (fieldType == BTypes.typeBoolean) {
                 fieldVal = intFields[intIndex++];
             } else if (fieldType == BTypes.typeBlob) {
                 fieldVal = byteFields[byteIndex++].toString();
@@ -106,8 +155,9 @@ public final class BStruct implements BRefType, StructureType {
     }
 
     @Override
-    public BStructType getType() {
-        return structType;
+    public BType getType() {
+        // TODO Temporary solution until the blocking executor is removed.
+        return structDef == null ? structType : structDef;
     }
 
     public BStruct getStackTrace() {
@@ -116,6 +166,17 @@ public final class BStruct implements BRefType, StructureType {
 
     public void setStackTrace(BStruct stackTrace) {
         this.stackTrace = stackTrace;
+    }
+
+    @Override
+    public void init(int[] fieldIndexes) {
+        longFields = new long[fieldIndexes[0]];
+        doubleFields = new double[fieldIndexes[1]];
+        stringFields = new String[fieldIndexes[2]];
+        Arrays.fill(stringFields, "");
+        intFields = new int[fieldIndexes[3]];
+        byteFields = new byte[fieldIndexes[4]][];
+        refFields = new BRefType[fieldIndexes[5]];
     }
 
     @Override
@@ -180,20 +241,30 @@ public final class BStruct implements BRefType, StructureType {
 
     @Override
     public BValue copy() {
-        BStruct bStruct = new BStruct(structType);
-        bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
-        bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
-        bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
-        bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
-        bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
-        bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
-        return bStruct;
+        if (structDef != null) {
+            // TODO Remove this when the old interpreter is removed
+            BValue[] newStructMemBlock = new BValue[structMemBlock.length];
+            for (int i = 0; i < structMemBlock.length; i++) {
+                BValue value = structMemBlock[i];
+                newStructMemBlock[i] = value == null ? null : value.copy();
+            }
+            return new BStruct(structDef, newStructMemBlock);
+        } else {
+            BStruct bStruct = new BStruct(structType);
+            bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
+            bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
+            bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
+            bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
+            bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
+            bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
+            return bStruct;
+        }
     }
 
     /**
      * Add natively accessible data to a struct.
      *
-     * @param key  key to store data with
+     * @param key key to store data with
      * @param data data to be stored
      */
     public void addNativeData(String key, Object data) {

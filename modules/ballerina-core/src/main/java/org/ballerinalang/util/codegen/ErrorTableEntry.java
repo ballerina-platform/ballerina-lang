@@ -20,8 +20,6 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.ErrorTableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 
 import java.util.ArrayList;
@@ -38,54 +36,32 @@ public class ErrorTableEntry {
     protected int ipTarget;
     // Defined order in try catch.
     protected int priority;
-    protected int errorStructCPIndex = -100;
+    protected int errorStructCPEntryIndex = -100;
 
     // Cache values.
     private StructInfo error;
     private PackageInfo packageInfo;
 
-    public ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, int priority, int errorStructCPIndex) {
+    public ErrorTableEntry(int ipFrom, int ipTo, int ipTarget, int priority, int errorStructCPEntryIndex) {
         this.ipFrom = ipFrom;
         this.ipTo = ipTo;
         this.ipTarget = ipTarget;
         this.priority = priority;
-        this.errorStructCPIndex = errorStructCPIndex;
+        this.errorStructCPEntryIndex = errorStructCPEntryIndex;
     }
 
-    public int getIpFrom() {
-        return ipFrom;
-    }
-
-    public int getIpTo() {
-        return ipTo;
-    }
-
-    public int getIpTarget() {
-        return ipTarget;
-    }
-
-
-    public int getPriority() {
-        return priority;
-    }
-
-    /**
-     * returns ErrorStructCPEntryIndex.
-     *
-     * @return ErrorStructCPEntryIndex, if unhandled error returns -1.
-     */
-    public int getErrorStructCPIndex() {
-        return errorStructCPIndex;
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
     }
 
     public void setPackageInfo(PackageInfo packageInfo) {
         this.packageInfo = packageInfo;
         // Load Cache values.
-        if (errorStructCPIndex < 0) {
+        if (errorStructCPEntryIndex < 0) {
             return;
         }
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
-                packageInfo.getCPEntry(errorStructCPIndex);
+                packageInfo.getCPEntry(errorStructCPEntryIndex);
         this.error = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
     }
 
@@ -93,8 +69,17 @@ public class ErrorTableEntry {
         return error;
     }
 
-    public void setError(StructInfo error) {
-        this.error = error;
+    public int getIpTarget() {
+        return ipTarget;
+    }
+
+    /**
+     * returns ErrorStructCPEntryIndex.
+     *
+     * @return ErrorStructCPEntryIndex, if unhandled error returns -1.
+     */
+    public int getErrorStructCPEntryIndex() {
+        return errorStructCPEntryIndex;
     }
 
     public boolean matchRange(int currentIP) {
@@ -118,17 +103,14 @@ public class ErrorTableEntry {
     }
 
     public static ErrorTableEntry getMatch(PackageInfo packageInfo, int currentIP, final BStruct error) {
-        ErrorTableAttributeInfo errorTable =
-                (ErrorTableAttributeInfo) packageInfo.getAttributeInfo(AttributeInfo.Kind.ERROR_TABLE);
-        List<ErrorTableEntry> errorTableEntries = errorTable != null ?
-                errorTable.getErrorTableEntriesList() : new ArrayList<>();
+        List<ErrorTableEntry> errorTableEntries = packageInfo.getErrorTableEntriesList();
         List<MatchedEntry> rangeMatched = new ArrayList<>();
         errorTableEntries.stream().filter(errorTableEntry -> errorTableEntry.matchRange(currentIP)).forEach
                 (errorTableEntry -> {
                     MatchedEntry entry = new MatchedEntry();
                     entry.errorTableEntry = errorTableEntry;
                     entry.ipSize = errorTableEntry.ipTo - errorTableEntry.ipFrom;
-                    if (errorTableEntry.getErrorStructCPIndex() == -1) {
+                    if (errorTableEntry.getErrorStructCPEntryIndex() == -1) {
                         // match any.
                         entry.status = 2;
                         rangeMatched.add(entry);

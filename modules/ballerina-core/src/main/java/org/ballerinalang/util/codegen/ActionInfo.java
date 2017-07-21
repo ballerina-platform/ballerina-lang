@@ -31,13 +31,14 @@ public class ActionInfo extends CallableUnitInfo {
     private AbstractNativeAction nativeAction;
     private ConnectorInfo connectorInfo;
 
-    public ActionInfo(int pkgCPIndex, String pkgPath, int actionNameCPIndex, String actionName,
-                      ConnectorInfo connectorInfo) {
+    public ActionInfo(String pkgPath, int pkgCPIndex, String actionName, int actionNameCPIndex) {
         this.pkgPath = pkgPath;
         this.pkgCPIndex = pkgCPIndex;
         this.name = actionName;
         this.nameCPIndex = actionNameCPIndex;
-        this.connectorInfo = connectorInfo;
+
+        codeAttributeInfo = new CodeAttributeInfo();
+        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     public AbstractNativeAction getNativeAction() {
@@ -51,7 +52,11 @@ public class ActionInfo extends CallableUnitInfo {
     public ConnectorInfo getConnectorInfo() {
         return connectorInfo;
     }
-    
+
+    public void setConnectorInfo(ConnectorInfo connectorInfo) {
+        this.connectorInfo = connectorInfo;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(pkgCPIndex, nameCPIndex);

@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVM;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMessage;
@@ -37,12 +36,12 @@ import org.ballerinalang.services.DefaultServerConnectorErrorHandler;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.util.codegen.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
-import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.debugger.DebugInfoHolder;
 import org.ballerinalang.util.debugger.VMDebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -109,7 +108,7 @@ public class ServerConnectorMessageHandler {
      * @param resourceInfo resource that has been invoked
      * @param serviceInfo  service that has been invoked
      */
-    public static void  invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
+    public static void invokeResource(CarbonMessage cMsg, CarbonCallback callback, String protocol,
                                       ResourceInfo resourceInfo, ServiceInfo serviceInfo) {
         // engage Service interceptors.
         CarbonCallback resourceCallback = callback;
@@ -155,7 +154,8 @@ public class ServerConnectorMessageHandler {
 
         // Now create callee's stack-frame
         WorkerInfo defaultWorkerInfo = resourceInfo.getDefaultWorkerInfo();
-        StackFrame calleeSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
+        org.ballerinalang.bre.bvm.StackFrame calleeSF =
+                new org.ballerinalang.bre.bvm.StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
         controlStackNew.pushFrame(calleeSF);
 
         CodeAttributeInfo codeAttribInfo = defaultWorkerInfo.getCodeAttributeInfo();
@@ -221,8 +221,8 @@ public class ServerConnectorMessageHandler {
         // Execute workers
         // Pass the incoming message variable into the worker invocations
         // Fix #2623
-        StackFrame callerSF = new StackFrame(resourceInfo, defaultWorkerInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
+        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(resourceInfo,
+                defaultWorkerInfo, -1, new int[0]);
         callerSF.getRefRegs()[0] = refLocalVars[0];
         int[] retRegs = {0};
         BLangVMWorkers.invoke(packageInfo.getProgramFile(), resourceInfo, callerSF, retRegs);

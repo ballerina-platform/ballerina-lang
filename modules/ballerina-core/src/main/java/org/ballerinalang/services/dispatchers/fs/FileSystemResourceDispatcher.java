@@ -49,7 +49,7 @@ public class FileSystemResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the file service " + service.getName() + " to " +
                       "deliver the message");
         }
-        ResourceInfo[] resourceInfoList = service.getResourceInfoEntries();
+        ResourceInfo[] resourceInfoList = service.getResourceInfoList();
         if (resourceInfoList.length != 1) {
             throw new BallerinaException("A service bound to the '" + Constants.PROTOCOL_FILE_SYSTEM +
                                                  "' protocol has to have only one resource associated to itself. " +

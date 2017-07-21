@@ -35,13 +35,11 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -357,15 +355,5 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     @Override
     public Worker[] getWorkers() {
         return new Worker[0];
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return null;
     }
 }

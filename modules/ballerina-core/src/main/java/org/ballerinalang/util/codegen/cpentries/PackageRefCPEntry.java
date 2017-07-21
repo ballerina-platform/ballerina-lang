@@ -28,24 +28,18 @@ public class PackageRefCPEntry implements ConstantPoolEntry {
 
     // Index of UTF8 CP entry contains the package path
     private int nameCPIndex;
-    private String packageName;
 
     // Index of CP entry which contains package version
     private int versionCPIndex;
 
     private PackageInfo packageInfo;
 
-    public PackageRefCPEntry(int nameCPIndex, String packageName) {
+    public PackageRefCPEntry(int nameCPIndex) {
         this.nameCPIndex = nameCPIndex;
-        this.packageName = packageName;
     }
 
     public int getNameCPIndex() {
         return nameCPIndex;
-    }
-
-    public String getPackageName() {
-        return packageName;
     }
 
     public PackageInfo getPackageInfo() {

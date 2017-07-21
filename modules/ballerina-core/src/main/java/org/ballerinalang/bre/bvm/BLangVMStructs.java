@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -40,8 +39,9 @@ public class BLangVMStructs {
      * @return BStruct instance.
      */
     public static BStruct createBStruct(StructInfo structInfo, Object... values) {
-        BStructType structType = structInfo.getType();
-        BStruct bStruct = new BStruct(structType);
+        BStruct bStruct = new BStruct(structInfo.getType());
+        bStruct.setFieldTypes(structInfo.getFieldTypes());
+        bStruct.init(structInfo.getFieldCount());
 
         int longRegIndex = -1;
         int doubleRegIndex = -1;
@@ -49,9 +49,8 @@ public class BLangVMStructs {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        BStructType.StructField[] structFields = structType.getStructFields();
-        for (int i = 0; i < structFields.length; i++) {
-            BType paramType = structFields[i].getFieldType();
+        for (int i = 0; i < structInfo.getFieldTypes().length; i++) {
+            BType paramType = structInfo.getFieldTypes()[i];
             if (values.length < i + 1) {
                 break;
             }

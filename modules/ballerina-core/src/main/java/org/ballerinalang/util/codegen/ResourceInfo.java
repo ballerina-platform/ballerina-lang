@@ -26,29 +26,22 @@ import java.util.Objects;
  */
 public class ResourceInfo extends CallableUnitInfo {
 
-    private int[] paramNameCPIndexes;
-    private String[] paramNames;
-
+    protected String[] paramNames;
     private ServiceInfo serviceInfo;
 
-    public ResourceInfo(int pkgCPIndex, String pkgPath, int resNameCPIndex, String actionName) {
+    public ResourceInfo(String pkgPath, int pkgCPIndex, String actionName, int resNameCPIndex) {
         this.pkgPath = pkgPath;
         this.pkgCPIndex = pkgCPIndex;
         this.name = actionName;
         this.nameCPIndex = resNameCPIndex;
+
+        codeAttributeInfo = new CodeAttributeInfo();
+        attributeInfoMap.put(AttributeInfo.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(pkgCPIndex, nameCPIndex);
-    }
-
-    public int[] getParamNameCPIndexes() {
-        return paramNameCPIndexes;
-    }
-
-    public void setParamNameCPIndexes(int[] paramNameCPIndexes) {
-        this.paramNameCPIndexes = paramNameCPIndexes;
     }
 
     public ServiceInfo getServiceInfo() {

@@ -24,7 +24,6 @@ import org.ballerinalang.model.statements.Statement;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.runtime.worker.WorkerDataChannel;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
@@ -68,9 +67,6 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     private BallerinaConnectorDef connectorDef;
     private int stackFrameSize;
     private Queue<Statement> workerInteractionStatements;
-
-    // Key -  workerDataChannelName
-    private Map<String, WorkerDataChannel> workerDataChannelMap = new HashMap<>();
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -149,16 +145,6 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     public Worker[] getWorkers() {
         return workers;
-    }
-
-    @Override
-    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
-        workerDataChannelMap.put(workerDataChannel.getChannelName(), workerDataChannel);
-    }
-
-    @Override
-    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
-        return workerDataChannelMap;
     }
 
     public Queue<Statement> getWorkerInteractionStatements() {

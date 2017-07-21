@@ -20,8 +20,8 @@ package org.ballerinalang.services.dispatchers.ftp;
 
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
-import org.ballerinalang.util.codegen.AnnAttachmentInfo;
-import org.ballerinalang.util.codegen.AnnAttributeValue;
+import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnotationAttributeValue;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -67,7 +67,7 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(ServiceInfo service) {
-        AnnAttachmentInfo configInfo =
+        AnnotationAttachmentInfo configInfo =
                 service.getAnnotationAttachmentInfo(Constants.FTP_PACKAGE_NAME, Constants.ANNOTATION_CONFIG);
 
         if (configInfo != null) {
@@ -111,89 +111,89 @@ public class FTPServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-    private Map<String, String> getServerConnectorParamMap(AnnAttachmentInfo info) {
+    private Map<String, String> getServerConnectorParamMap(AnnotationAttachmentInfo info) {
         Map<String, String> convertedMap = new HashMap<>();
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_DIR_URI))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_URI))) {
             convertedMap.put(Constants.ANNOTATION_DIR_URI,
-                    info.getAttributeValue(Constants.ANNOTATION_DIR_URI).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_DIR_URI).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_FILE_PATTERN))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_PATTERN))) {
             convertedMap.put(Constants.ANNOTATION_FILE_PATTERN,
-                    info.getAttributeValue(Constants.ANNOTATION_FILE_PATTERN).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_PATTERN).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_POLLING_INTERVAL))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_POLLING_INTERVAL))) {
             convertedMap.put(Constants.ANNOTATION_POLLING_INTERVAL,
-                    info.getAttributeValue(Constants.ANNOTATION_POLLING_INTERVAL).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_POLLING_INTERVAL).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_CRON_EXPRESSION))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_CRON_EXPRESSION))) {
             convertedMap.put(Constants.ANNOTATION_CRON_EXPRESSION,
-                    info.getAttributeValue(Constants.ANNOTATION_CRON_EXPRESSION).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_CRON_EXPRESSION).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_ACK_TIMEOUT))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_ACK_TIMEOUT))) {
             convertedMap.put(Constants.ANNOTATION_ACK_TIMEOUT,
-                    info.getAttributeValue(Constants.ANNOTATION_ACK_TIMEOUT).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_ACK_TIMEOUT).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_FILE_COUNT))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_COUNT))) {
             convertedMap.put(Constants.ANNOTATION_FILE_COUNT,
-                    info.getAttributeValue(Constants.ANNOTATION_FILE_COUNT).getStringValue());
+                    info.getAnnotationAttributeValue(Constants.ANNOTATION_FILE_COUNT).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE))) {
             convertedMap.put(Constants.ANNOTATION_SORT_ATTRIBUTE,
-                         info.getAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ATTRIBUTE).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_SORT_ASCENDING))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ASCENDING))) {
             convertedMap.put(Constants.ANNOTATION_SORT_ASCENDING,
-                         info.getAttributeValue(Constants.ANNOTATION_SORT_ASCENDING).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SORT_ASCENDING).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS))) {
             convertedMap.put(Constants.ANNOTATION_ACTION_AFTER_PROCESS,
-                         info.getAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_PROCESS).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE))) {
             convertedMap.put(Constants.ANNOTATION_ACTION_AFTER_FAILURE,
-                         info.getAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_ACTION_AFTER_FAILURE).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS))) {
             convertedMap.put(Constants.ANNOTATION_MOVE_AFTER_PROCESS,
-                         info.getAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_PROCESS).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE))) {
             convertedMap.put(Constants.ANNOTATION_MOVE_AFTER_FAILURE,
-                         info.getAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_AFTER_FAILURE).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT))) {
             convertedMap.put(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT,
-                         info.getAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_MOVE_TIMESTAMP_FORMAT).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_CREATE_DIR))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_CREATE_DIR))) {
             convertedMap.put(Constants.ANNOTATION_CREATE_DIR,
-                         info.getAttributeValue(Constants.ANNOTATION_CREATE_DIR).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_CREATE_DIR).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_PARALLEL))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_PARALLEL))) {
             convertedMap.put(Constants.ANNOTATION_PARALLEL,
-                         info.getAttributeValue(Constants.ANNOTATION_PARALLEL).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_PARALLEL).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE))) {
             convertedMap.put(Constants.ANNOTATION_THREAD_POOL_SIZE,
-                         info.getAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_THREAD_POOL_SIZE).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES))) {
             convertedMap.put(Constants.ANNOTATION_SFTP_IDENTITIES,
-                         info.getAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITIES).getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE))) {
             convertedMap.put(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE,
-                         info.getAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE)
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_IDENTITY_PASS_PHRASE)
                                  .getStringValue());
         }
-        if (validateAttribute(info.getAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT))) {
+        if (validateAttribute(info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT))) {
             convertedMap.put(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT,
-                         info.getAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT).getStringValue());
+                         info.getAnnotationAttributeValue(Constants.ANNOTATION_SFTP_USER_DIR_IS_ROOT).getStringValue());
         }
         return convertedMap;
     }
 
-    private boolean validateAttribute(AnnAttributeValue annotationAttributeValue) {
+    private boolean validateAttribute(AnnotationAttributeValue annotationAttributeValue) {
         return annotationAttributeValue != null && annotationAttributeValue.getStringValue() != null &&
                 !annotationAttributeValue.getStringValue().trim().isEmpty();
     }

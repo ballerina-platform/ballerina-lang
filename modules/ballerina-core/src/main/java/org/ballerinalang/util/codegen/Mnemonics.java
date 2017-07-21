@@ -145,7 +145,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BR_FALSE] = "br_false";
 
         mnemonics[InstructionCodes.GOTO] = "goto";
-        mnemonics[InstructionCodes.HALT] = "halt";
         mnemonics[InstructionCodes.CALL] = "call";
         mnemonics[InstructionCodes.NCALL] = "ncall";
         mnemonics[InstructionCodes.ACALL] = "acall";
@@ -187,7 +186,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2L] = "any2l";
         mnemonics[InstructionCodes.ANY2JSON] = "any2json";
         mnemonics[InstructionCodes.ANY2XML] = "any2xml";
-        mnemonics[InstructionCodes.ANY2MSG] = "any2msg";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
         mnemonics[InstructionCodes.NULL2JSON] = "null2json";
@@ -201,7 +199,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.WRKINVOKE] = "wrkinvoke";
         mnemonics[InstructionCodes.WRKREPLY] = "wrkreply";
-        mnemonics[InstructionCodes.FORKJOIN] = "forkjoin";
 
         mnemonics[InstructionCodes.INEWARRAY] = "inewarray";
         mnemonics[InstructionCodes.FNEWARRAY] = "fnewarray";
@@ -229,12 +226,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.RRET] = "rret";
         mnemonics[InstructionCodes.RET] = "ret";
         
-        mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2xmlattrs";
+        mnemonics[InstructionCodes.XML2XMLATTRS] = "xml2attrs";
         mnemonics[InstructionCodes.XMLATTRLOAD] = "xmlattrload";
         mnemonics[InstructionCodes.XMLATTRSTORE] = "xmlattrstore";
         mnemonics[InstructionCodes.S2QNAME] = "s2qname";
         mnemonics[InstructionCodes.XMLATTRS2MAP] = "xmlattr2map";
-        mnemonics[InstructionCodes.NEWQNAME] = "newqname";
+        mnemonics[InstructionCodes.NEWQNAME] = "qnameload";
     }
 
     public static String getMnem(int opcode) {

@@ -23,15 +23,10 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.ballerinalang.util.repository.ProgramDirRepository;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -51,27 +46,6 @@ import java.util.stream.Collectors;
  */
 public class BLangPackages {
 
-    public static BLangPackage loadEntryPackage(Path programDirPath,
-                                                Path sourcePath,
-                                                BLangProgram bLangProgram,
-                                                ProgramDirRepository programDirRepository) {
-
-        Path resolvedSourcePath = BLangPrograms.validateAndResolveSourcePath(programDirPath, sourcePath);
-        if (Files.isDirectory(resolvedSourcePath, LinkOption.NOFOLLOW_LINKS)) {
-            Path packagePath = programDirPath.relativize(resolvedSourcePath);
-            BLangPackage bLangPackage = BLangPackages.loadPackage(packagePath, programDirRepository, bLangProgram);
-            bLangProgram.addEntryPoint(packagePath.toString());
-            return bLangPackage;
-
-        } else if (resolvedSourcePath.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            BLangPackage bLangPackage = BLangPackages.loadFile(resolvedSourcePath, programDirRepository, bLangProgram);
-            bLangProgram.addEntryPoint(resolvedSourcePath.getFileName().toString());
-            return bLangPackage;
-        }
-
-        throw new IllegalArgumentException("invalid source file: " + sourcePath.toString());
-    }
-
     public static BLangPackage loadPackage(Path packagePath,
                                            PackageRepository packageRepo,
                                            BLangProgram bLangProgram) {
@@ -85,13 +59,9 @@ public class BLangPackages {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
-        if (pkgSource == null) {
-            throw new RuntimeException("package not found: " + packagePath.toString().replace(File.separator, "."));
-        }
 
         if (pkgSource.getSourceFileStreamMap().isEmpty()) {
-            throw new RuntimeException("no bal files in package: " +
-                    packagePath.toString().replace(File.separator, "."));
+            throw new RuntimeException("no bal files in the package: " + packagePath.toString());
         }
 
         String pkgPathStr = getPackagePathFromPath(packagePath);

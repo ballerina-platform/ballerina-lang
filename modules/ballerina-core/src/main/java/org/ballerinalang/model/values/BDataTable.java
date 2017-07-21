@@ -176,6 +176,9 @@ public class BDataTable implements BRefType<Object> {
     }
 
     private void generateStruct() {
+        BStructType structType = new BStructType("RS", null);
+        BStruct bStruct = new BStruct(structType);
+
         BType[] structTypes = new BType[columnDefs.size()];
         BStructType.StructField[] structFields = new BStructType.StructField[columnDefs.size()];
         int typeIndex  = 0;
@@ -231,13 +234,11 @@ public class BDataTable implements BRefType<Object> {
             structFields[typeIndex] = new BStructType.StructField(type, columnDef.getName());
             ++typeIndex;
         }
-
         int[] fieldCount = populateMaxSizes(structTypes);
-        BStructType structType = new BStructType("RS", null);
-        structType.setStructFields(structFields);
-        structType.setFieldTypeCount(fieldCount);
-
-        this.bStruct = new BStruct(structType);
+        bStruct.init(fieldCount);
+        bStruct.setFieldTypes(structTypes);
+        ((BStructType) bStruct.getType()).setStructFields(structFields);
+        this.bStruct = bStruct;
     }
 
     private static int[] populateMaxSizes(BType[] paramTypes) {

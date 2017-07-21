@@ -16,13 +16,9 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.util.codegen.attributes.AttributeInfo;
-import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
-import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,35 +26,28 @@ import java.util.Map;
  *
  * @since 0.87
  */
-public class WorkerInfo implements AttributeInfoPool {
+public class WorkerInfo {
 
     private String workerName;
     private int workerNameCPIndex;
+    private int workerEndIP;
 
-    private int wrkrDtChnlRefCPIndex = -1;
-    private WorkerDataChannelInfo workerDataChannelInfoForForkJoin;
+    private CallableUnitInfo callableUnitInfo;
+
+    private WorkerDataChannel workerDataChannelForForkJoin;
 
     private CodeAttributeInfo codeAttributeInfo;
 
-    private ForkjoinInfo[] forkjoinInfos;
-    private List<ForkjoinInfo> forkjoinInfoList = new ArrayList<>();
+    private Map<String, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
-    public WorkerInfo(int workerNameCPIndex, String workerName) {
+    public WorkerInfo(String workerName, int workerNameCPIndex) {
         this.workerName = workerName;
         this.workerNameCPIndex = workerNameCPIndex;
         this.codeAttributeInfo = new CodeAttributeInfo();
-
-        this.attributeInfoMap.put(AttributeInfo.Kind.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
     public String getWorkerName() {
         return workerName;
-    }
-
-    public int getWorkerNameCPIndex() {
-        return workerNameCPIndex;
     }
 
     public CodeAttributeInfo getCodeAttributeInfo() {
@@ -67,47 +56,29 @@ public class WorkerInfo implements AttributeInfoPool {
 
     public void setCodeAttributeInfo(CodeAttributeInfo codeAttributeInfo) {
         this.codeAttributeInfo = codeAttributeInfo;
-        this.attributeInfoMap.put(AttributeInfo.Kind.CODE_ATTRIBUTE, codeAttributeInfo);
     }
 
-    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
-        return attributeInfoMap.get(attributeKind);
+    public AttributeInfo getAttributeInfo(String attributeName) {
+        return attributeInfoMap.get(attributeName);
     }
 
-    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
-        attributeInfoMap.put(attributeKind, attributeInfo);
+    public void addAttributeInfo(String attributeName, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeName, attributeInfo);
     }
 
-    public AttributeInfo[] getAttributeInfoEntries() {
-        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
+    public WorkerDataChannel getWorkerDataChannelForForkJoin() {
+        return workerDataChannelForForkJoin;
     }
 
-    public int getWrkrDtChnlRefCPIndex() {
-        return wrkrDtChnlRefCPIndex;
+    public void setWorkerDataChannelForForkJoin(WorkerDataChannel workerDataChannelForForkJoin) {
+        this.workerDataChannelForForkJoin = workerDataChannelForForkJoin;
     }
 
-    public void setWrkrDtChnlRefCPIndex(int wrkrDtChnlRefCPIndex) {
-        this.wrkrDtChnlRefCPIndex = wrkrDtChnlRefCPIndex;
+    public int getWorkerEndIP() {
+        return workerEndIP;
     }
 
-    public WorkerDataChannelInfo getWorkerDataChannelInfoForForkJoin() {
-        return workerDataChannelInfoForForkJoin;
-    }
-
-    public void setWorkerDataChannelInfoForForkJoin(WorkerDataChannelInfo workerDataChannelInfoForForkJoin) {
-        this.workerDataChannelInfoForForkJoin = workerDataChannelInfoForForkJoin;
-    }
-
-    public ForkjoinInfo[] getForkjoinInfos() {
-        return forkjoinInfoList.toArray(new ForkjoinInfo[0]);
-    }
-
-    public int addForkJoinInfo(ForkjoinInfo forkjoinInfo) {
-        forkjoinInfoList.add(forkjoinInfo);
-        return forkjoinInfoList.indexOf(forkjoinInfo);
-    }
-
-    public void setForkjoinInfos(ForkjoinInfo[] forkjoinInfos) {
-        this.forkjoinInfos = forkjoinInfos;
+    public void setWorkerEndIP(int workerEndIP) {
+        this.workerEndIP = workerEndIP;
     }
 }

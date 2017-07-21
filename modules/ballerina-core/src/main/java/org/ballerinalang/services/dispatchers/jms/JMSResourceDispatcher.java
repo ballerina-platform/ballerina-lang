@@ -63,7 +63,7 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the jms service " + service.getName() + " to "
                     + "deliver the message");
         }
-        ResourceInfo[] resources = service.getResourceInfoEntries();
+        ResourceInfo[] resources = service.getResourceInfoList();
         if (resources.length == 0) {
             throw new BallerinaException("No resources found to handle the JMS message in " + service.getName());
         }

@@ -23,12 +23,10 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMWorkers;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
-import org.ballerinalang.bre.bvm.StackFrame;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -45,55 +43,55 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
- * This class contains utilities to execute Ballerina main and service programs.
+ * {@code BLangProgramRunner} runs main and service programs.
  *
  * @since 0.8.0
  */
 public class BLangProgramRunner {
 
-    public static void runService(ProgramFile programFile) {
-        if (!programFile.isServiceEPAvailable()) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
-        }
-
-        // Get the service package
-        PackageInfo servicesPackage = programFile.getEntryPackage();
-        if (servicesPackage == null) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+    public void startServices(ProgramFile programFile) {
+        String[] servicePackageNameList = programFile.getServicePackageNameList();
+        if (servicePackageNameList.length == 0) {
+            throw new BallerinaException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
 
         // This is required to invoke package/service init functions;
         Context bContext = new Context(programFile);
         bContext.disableNonBlocking = true;
 
-        // Invoke package init function
-        BLangFunctions.invokeFunction(programFile, servicesPackage.getInitFunctionInfo(), bContext);
-        if (bContext.getError() != null) {
-            String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
-            throw new BLangRuntimeException("error: " + stackTraceStr);
-        }
-
         int serviceCount = 0;
-        for (ServiceInfo serviceInfo : servicesPackage.getServiceInfoEntries()) {
-            // Invoke service init function
-            BLangFunctions.invokeFunction(programFile, serviceInfo.getInitFunctionInfo(), bContext);
+        for (String packageName : servicePackageNameList) {
+            PackageInfo packageInfo = programFile.getPackageInfo(packageName);
+
+            // Invoke package init function
+            BLangFunctions.invokeFunction(programFile, packageInfo, packageInfo.getInitFunctionInfo(), bContext);
             if (bContext.getError() != null) {
                 String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
                 throw new BLangRuntimeException("error: " + stackTraceStr);
             }
 
-            if (!DispatcherRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
-                        serviceInfo.getProtocolPkgPath());
+            for (ServiceInfo serviceInfo : packageInfo.getServiceInfoList()) {
+                // Invoke service init function
+                BLangFunctions.invokeFunction(programFile, packageInfo,
+                        serviceInfo.getInitFunctionInfo(), bContext);
+                if (bContext.getError() != null) {
+                    String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
+                    throw new BLangRuntimeException("error: " + stackTraceStr);
+                }
+
+                if (!DispatcherRegistry.getInstance().protocolPkgExist(serviceInfo.getProtocolPkgPath())) {
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_SERVICE_PROTOCOL,
+                            serviceInfo.getProtocolPkgPath());
+                }
+                // Deploy service
+                DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
+                        .serviceRegistered(serviceInfo);
+                serviceCount++;
             }
-            // Deploy service
-            DispatcherRegistry.getInstance().getServiceDispatcherFromPkg(serviceInfo.getProtocolPkgPath())
-                    .serviceRegistered(serviceInfo);
-            serviceCount++;
         }
 
         if (serviceCount == 0) {
-            throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
+            throw new BallerinaException("no service found in '" + programFile.getProgramFilePath() + "'");
         }
 
         if (ModeResolver.getInstance().isDebugEnabled()) {
@@ -104,24 +102,22 @@ public class BLangProgramRunner {
         }
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
-        if (!programFile.isMainEPAvailable()) {
-            throw new BallerinaException("cannot find main function in '" + programFile.getProgramFilePath() + "'");
-        }
+    public void runMain(ProgramFile programFile, String[] args) {
+        Context bContext = new Context(programFile);
+        // Non blocking is not support in the main program flow..
+        bContext.disableNonBlocking = true;
 
-        // Get the main entry package
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
+        ControlStackNew controlStackNew = bContext.getControlStackNew();
+        String mainPkgName = programFile.getMainPackageName();
+
+        PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
         if (mainPkgInfo == null) {
             throw new BallerinaException("cannot find main function in '" + programFile.getProgramFilePath() + "'");
         }
 
-        // Non blocking is not supported in the main program flow..
-        Context bContext = new Context(programFile);
-        bContext.disableNonBlocking = true;
-
         // Invoke package init function
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
-        BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
+        BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
         if (bContext.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(bContext.getError());
             throw new BLangRuntimeException("error: " + stackTraceStr);
@@ -136,15 +132,15 @@ public class BLangProgramRunner {
         WorkerInfo defaultWorkerInfo = mainFuncInfo.getDefaultWorkerInfo();
 
         // Execute workers
-        StackFrame callerSF = new StackFrame(mainPkgInfo, -1, new int[0]);
-        callerSF.setRefRegs(new BRefType[1]);
+        org.ballerinalang.bre.bvm.StackFrame callerSF = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
+                defaultWorkerInfo, -1, new int[0]);
         callerSF.getRefRegs()[0] = arrayArgs;
         int[] argRegs = {0};
         BLangVMWorkers.invoke(programFile, mainFuncInfo, callerSF, argRegs);
 
-        StackFrame stackFrame = new StackFrame(mainFuncInfo, defaultWorkerInfo, -1, new int[0]);
+        org.ballerinalang.bre.bvm.StackFrame stackFrame = new org.ballerinalang.bre.bvm.StackFrame(mainFuncInfo,
+                defaultWorkerInfo, -1, new int[0]);
         stackFrame.getRefLocalVars()[0] = arrayArgs;
-        ControlStackNew controlStackNew = bContext.getControlStackNew();
         controlStackNew.pushFrame(stackFrame);
 
         BLangVM bLangVM = new BLangVM(programFile);
@@ -168,7 +164,7 @@ public class BLangProgramRunner {
         }
     }
 
-    private static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
+    private FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
         String errorMsg = "cannot find main function in '" +
                 mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
 

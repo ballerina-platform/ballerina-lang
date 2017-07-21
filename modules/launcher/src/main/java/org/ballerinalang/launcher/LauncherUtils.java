@@ -17,17 +17,6 @@
 */
 package org.ballerinalang.launcher;
 
-import org.ballerinalang.BLangCompiler;
-import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
-import org.ballerinalang.runtime.model.BLangRuntimeRegistry;
-import org.ballerinalang.services.MessageProcessor;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.wso2.carbon.messaging.ServerConnector;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
@@ -36,9 +25,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -48,73 +34,6 @@ import java.util.List;
  * @since 0.8.0
  */
 public class LauncherUtils {
-    public static final String BALLERINA_HOME = "ballerina.home";
-
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String[] args) {
-        ProgramFile programFile;
-
-        String srcPathStr = sourcePath.toString();
-        if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
-            programFile = BLangProgramLoader.read(sourcePath);
-        } else {
-            programFile = BLangCompiler.compile(sourceRootPath, sourcePath);
-        }
-
-        if (runServices || !programFile.isMainEPAvailable()) {
-            runServices(programFile);
-        } else {
-            runMain(programFile, args);
-        }
-    }
-
-    private static void runMain(ProgramFile programFile, String[] args) {
-        // Load Client Connectors
-        BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
-
-        BLangProgramRunner.runMain(programFile, args);
-        Runtime.getRuntime().exit(0);
-    }
-
-    private static void runServices(ProgramFile programFile) {
-        LauncherUtils.writePID(System.getProperty(BALLERINA_HOME));
-        PrintStream outStream = System.out;
-
-        // TODO : Fix this properly.
-        BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
-        BLangRuntimeRegistry.getInstance().initialize();
-
-        outStream.println("ballerina: deploying service(s) in '" + programFile.getProgramFilePath() + "'");
-        BLangProgramRunner.runService(programFile);
-
-        try {
-            List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance()
-                    .startPendingConnectors();
-            startedConnectors.forEach(serverConnector -> outStream.println("ballerina: started server connector " +
-                    serverConnector));
-        } catch (ServerConnectorException e) {
-            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
-        }
-    }
-
-    public static Path getSourceRootPath(String sourceRoot) {
-        // Get source root path.
-        Path sourceRootPath;
-        if (sourceRoot == null || sourceRoot.isEmpty()) {
-            sourceRootPath = Paths.get(System.getProperty("user.dir"));
-        } else {
-            try {
-                sourceRootPath = Paths.get(sourceRoot).toRealPath(LinkOption.NOFOLLOW_LINKS);
-            } catch (IOException e) {
-                throw new RuntimeException("error reading from directory: " + sourceRoot + " reason: " +
-                        e.getMessage(), e);
-            }
-
-            if (!Files.isDirectory(sourceRootPath, LinkOption.NOFOLLOW_LINKS)) {
-                throw new RuntimeException("source root must be a directory");
-            }
-        }
-        return sourceRootPath;
-    }
 
     public static BLauncherException createUsageException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
