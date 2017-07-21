@@ -86,7 +86,19 @@ The output contains a JSON payload. This tutorial aims to access the JSON payloa
 
 ## Extract content from JSON
 
-The next step is to obtain the JSON payload content.
+The next step is to obtain the JSON payload content. 
+
+JSON is a textual format for representing a collection of values: a simple value (string, number, “true”, “false”, “null”), an array of values or an object. Ballerina also understands the JSON Schema and allows one to declare that a JSON document must conform to a particular schema.
+
+Ballerina has a variable type named “json” that can represent any JSON value. Thus it is a built-in union type in Ballerina whose value can be any one of a string, a float, a boolean, an array of any or a map of any. We provide utility functions to read a JSON document to create a JSON typed value. The lexical representation of a value of that type is JSON, thus simply printing a JSON typed variable results in a JSON string.
+
+JSON variables are declared in the following way:
+
+```
+json VariableName;
+```
+
+This is a variable that may hold any JSON document.
 
 1. Use the search, or navigate to a function called **getJsonPayload**, which is in the **ballerina.lang.messages** library. This library contains functions that enable you to modify and use messages in various ways.
 1. Drag and drop this onto the main program in the canvas. This automatically applies this function on message **m** since that is the default message.
@@ -98,6 +110,32 @@ The next step is to obtain the JSON payload content.
 1. Modify the variable so that you can get the data under list. In this example, **.list** is a JSON path. 
     ![alt text](../images/forecastDataList.png)
     > The dot notation (**.**) enables you to invoke any of the attributes available in the JSON. These JSON paths can be used to access the contents of an attribute. For example, if `json j = {a:"hello"}` you can access `hello` using `j.a`. When considering the example used in this tutorial, if `json j = {list:[1,2,3]}` you can access the list using `j.list`. This is done because all the content that you need resides within the list attribute in the JSON file.
+
+## Do the calculations
+
+Now that you have extracted the content from the JSON, Ballerina needs to do the calculations. This involves using a conditional statement like `while`.
+
+A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the **While** icon ![alt-text](../images/icons/while.png "While icon") from the tool palette to the canvas to add the statement to your program. 
+
+A `while` statement is defined as follows:
+
+```
+while (BooleanExpression) {
+    Statement;+
+}
+```
+
+1. Add a variable and define an integer that gets the length
+    ![alt text](../images/dataCount.png)
+    > Once again you use a **.length** JSON path here to access an inbuilt function of the JSON. In this case, length is an inbuilt function of JSON.
+    
+1. Add another variable called `int i = 0` by dragging a variable from the tool palette to the canvas.
+1. Drag and drop a `while` statement from the tool palette to the canvas.
+    ![alt text](../images/WhileCondition.gif)
+1. Set the `while` condition to `i > dataCount`.
+    ![alt text](../images/WhileCondition2.png)
+1. Add an assignment to the while loop by dragging it from the tool palette to the canvas.
+    ![alt text](../images/AddAssignment.gif)
 
 ## Call the API
 
