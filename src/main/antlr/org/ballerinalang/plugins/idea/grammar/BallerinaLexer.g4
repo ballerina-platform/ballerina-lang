@@ -395,10 +395,6 @@ LetterOrDigit
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
 
-//XMLLiteralStart
-//    :   TYPE_XML WS* BACKTICK   { inXMLMode = true; } -> pushMode(XML)
-//    ;
-
 ExpressionEnd
     :   {inXMLMode}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
     ;

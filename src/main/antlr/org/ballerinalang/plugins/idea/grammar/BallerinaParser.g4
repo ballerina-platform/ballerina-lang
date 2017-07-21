@@ -168,7 +168,7 @@ builtInReferenceTypeName
     :   TYPE_MESSAGE
     |   TYPE_MAP (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
-    |   TYPE_JSON (LT LEFT_BRACE QuotedStringLiteral RIGHT_BRACE GT)?
+    |   TYPE_JSON (LT structReference GT)?
     |   TYPE_DATATABLE
     |   functionTypeName
     ;
@@ -514,6 +514,10 @@ connectorReference
     ;
 
 annotationReference
+    :   (packageName COLON)? Identifier
+    ;
+
+structReference
     :   (packageName COLON)? Identifier
     ;
 
