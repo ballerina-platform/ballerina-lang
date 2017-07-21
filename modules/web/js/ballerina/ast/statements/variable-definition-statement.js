@@ -48,6 +48,9 @@ class VariableDefinitionStatement extends Statement {
      */
     getStatementString() {
         const isIdentifierLiteral = this.getChildren()[0].isIdentifierLiteral;
+        if (this.viewState.source) {
+            return this.viewState.source.replace(/;\s*$/, '');
+        }
         let variableDefinitionStatementString = !_.isNil(((this.getChildren()[0]).getChildren()[0]).getPkgName()) ?
             (((this.getChildren()[0]).getChildren()[0]).getPkgName() + ':') : '';
         variableDefinitionStatementString += this.getBType();
@@ -185,6 +188,7 @@ class VariableDefinitionStatement extends Statement {
         const parsedJson = FragmentUtils.parseFragment(fragment);
         let state = true;
         if (parsedJson.children) {
+            this.viewState.source = null;
             if (parsedJson.children.length !== 1) {
                 // Only checks for the simple literals
                 if (parsedJson.children[1].type === 'basic_literal_expression') {

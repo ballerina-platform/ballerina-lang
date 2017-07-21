@@ -53,6 +53,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SimpleVariableDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
@@ -77,6 +78,7 @@ import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.JSONArrayInitExpr;
 import org.ballerinalang.model.expressions.JSONInitExpr;
 import org.ballerinalang.model.expressions.KeyValueExpr;
+import org.ballerinalang.model.expressions.LambdaExpression;
 import org.ballerinalang.model.expressions.LessEqualExpression;
 import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
@@ -796,9 +798,9 @@ public class CompletionItemAccumulator implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDef varDef) {
-    }
+    public void visit(SimpleVariableDef simpleVariableDef) {
 
+    }
 
     // Visit statements
 
@@ -1477,38 +1479,43 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(nullLiteral);
         nullLiteral.setType(BTypes.typeNull);
     }
-    
+
     @Override
     public void visit(XMLLiteral xmlLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLCommentLiteral xmlCommentLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLTextLiteral xmlTextLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLPILiteral xmlpiLiteral) {
-        
+
     }
-    
+
     @Override
     public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
-        
+
     }
-    
-    
+
+    @Override
+    public void visit(LambdaExpression lambdaExpression) {
+
+    }
+
+
     // Private methods.
 
     private void openScope(SymbolScope symbolScope) {
@@ -1559,7 +1566,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
 
                 Identifier identifier = new Identifier(varName);
                 SymbolName symbolName = new SymbolName(identifier.getName());
-                VariableDef variableDef = new VariableDef(refExpr.getNodeLocation(),
+                SimpleVariableDef variableDef = new SimpleVariableDef(refExpr.getNodeLocation(),
                         refExpr.getWhiteSpaceDescriptor(), identifier,
                         null, symbolName, currentScope);
 

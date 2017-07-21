@@ -106,12 +106,19 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
             const oldValue = modifiedData.data.oldValue;
             let newValue = modifiedData.data.newValue;
             if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
+                if (modifiedData.origin.isLambda()) {
+                    return;
+                }
                 if (!_.isEqual(attributeName, '_functionName')) {
                     newValue = undefined;
                 }
                 self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
             } else if (BallerinaASTFactory.isReturnParameterDefinitionHolder(modifiedData.origin)) {
-                self.updateFunctionDefinition(modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
+                if (modifiedData.origin.parent.isLambda()) {
+                    return;
+                }
+                self.updateFunctionDefinition(
+                    modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
             }
         });
     }

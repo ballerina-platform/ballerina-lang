@@ -40,7 +40,8 @@ class ExpressionEditor {
     constructor(bBox, callback, props, packageScope) {
         this.destroy();
         this.props = props;
-        const expression = _.isNil(props.getterMethod.call(props.model)) ? '' : props.getterMethod.call(props.model);
+        const expression = _.isNil(props.getterMethod.call(props.model)) ? '' :
+            props.getterMethod.call(props.model).replace(/(?:\r\n|\r|\n)/g, ' ');
         // workaround to handle http://stackoverflow.com/questions/21926083/failed-to-execute-removechild-on-node
         this.removed = false;
 

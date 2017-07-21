@@ -25,6 +25,7 @@ import AnnotationRenderingVisitor from '../visitors/annotation-rendering-visitor
 import { getComponentForNodeArray } from './utils';
 import BallerinaASTRoot from './../ast/ballerina-ast-root';
 import ActiveArbiter from './active-arbiter';
+import SourceGenVisitor from '../visitors/source-gen/ballerina-ast-root-visitor';
 
 /**
  * React component for diagram.
@@ -41,6 +42,7 @@ class Diagram extends React.Component {
      */
     constructor(props) {
         super(props);
+        this.sourceGen = new SourceGenVisitor();
         this.dimentionCalc = new DimensionCalcVisitor();
         this.positionCalc = new PositionCalcVisitor();
     }
@@ -61,6 +63,7 @@ class Diagram extends React.Component {
      * @memberof Diagram
      */
     render() {
+        this.props.model.accept(this.sourceGen);
         // Following is how we render the diagram.
         // 1. We will visit the model tree and calculate width and height of all
         //    the elements. We will use DimensionCalcVisitor.
