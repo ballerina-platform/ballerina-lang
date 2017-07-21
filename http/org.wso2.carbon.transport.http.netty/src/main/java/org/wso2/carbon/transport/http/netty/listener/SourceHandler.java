@@ -170,27 +170,21 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
      */
     private void handleWebSocketHandshake(HttpRequest httpRequest) throws ProtocolException {
         try {
-
             boolean isSecured = false;
             if (listenerConfiguration.getSslConfig() != null) {
                 isSecured = true;
             }
 
             String uri = httpRequest.uri();
-
             WebSocketSessionImpl serverSession =
                     org.wso2.carbon.transport.http.netty.internal.websocket.Util.getSession(ctx, isSecured, uri);
-
             WebSocketSourceHandler webSocketSourceHandler =  new WebSocketSourceHandler(
                     org.wso2.carbon.transport.http.netty.internal.websocket.Util.getSessionID(ctx),
                     this.connectionManager, this.listenerConfiguration, httpRequest, isSecured, ctx, serverSession);
-
             CountDownLatch countDownLatch = new CountDownLatch(1);
-
             sendWebSocketOnOpenMessage(ctx, isSecured, uri, serverSession,
                                        new WebSocketCallback(countDownLatch), webSocketSourceHandler);
             countDownLatch.await();
-
             WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                     getWebSocketURL(httpRequest), null, true);
             handshaker = wsFactory.newHandshaker(httpRequest);
@@ -215,7 +209,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    // TODO : Refactor the code
     private void sendWebSocketOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri,
                                             WebSocketSessionImpl serverSession, WebSocketCallback callback,
                                             WebSocketSourceHandler sourceHandler) throws URISyntaxException {
