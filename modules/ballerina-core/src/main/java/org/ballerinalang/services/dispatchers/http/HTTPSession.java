@@ -124,14 +124,7 @@ public class HTTPSession implements Session, Serializable {
     @Override
     public Session setAccessed() {
         checkValidity();
-        long currentTimeMillis = System.currentTimeMillis();
-        //invalidate manually when inactive time interval exceeds it's max inactive time interval
-        if (this.getMaxInactiveInterval() >= 0 &&
-                (currentTimeMillis - this.getLastAccessedTime()) >= this.getMaxInactiveInterval() * 1000) {
-            this.invalidate();
-            return null;
-        }
-        lastAccessedTime = currentTimeMillis;
+        lastAccessedTime = System.currentTimeMillis();
         return this;
     }
 

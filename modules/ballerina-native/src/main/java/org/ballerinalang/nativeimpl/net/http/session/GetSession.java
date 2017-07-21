@@ -79,9 +79,8 @@ public class GetSession extends AbstractNativeFunction {
                                         .findFirst().get().substring(SESSION_ID.length());
                     //return value from cached session
                     if (session != null && (sessionId.equals(session.getId()))) {
-                        if ((session = session.setAccessed()) != null) {
-                            return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
-                        }
+                        session = session.setAccessed();
+                        return new BValue[]{CreateSessionIfAbsent.createSessionStruct(context, session)};
                     }
                     session = context.getSessionManager().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
@@ -91,13 +90,8 @@ public class GetSession extends AbstractNativeFunction {
                 if (session != null) {
                     //path Validity check
                     if (session.getPath().equals(path)) {
-                        if ((session = session.setAccessed()) != null) {
-                            session.setNew(false);
-                        } else {
-                            //Return null as the session is invalidated.
-                            logger.info("Failed to get session: session is not available");
-                            return new BValue[]{};
-                        }
+                        session.setNew(false);
+                        session.setAccessed();
                     } else {
                         throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                     }

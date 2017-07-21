@@ -371,16 +371,4 @@ service<http> sample2 {
         messages:setStringPayload(m, strings:valueOf(time));
         reply m;
     }
-
-     @http:GET{}
-     @http:Path{value:"/new9"}
-     resource new9 (message m) {
-
-         http:Session ses = http:createSessionIfAbsent(m);
-         int time = http:getMaxInactiveInterval(ses);
-         http:setMaxInactiveInterval(ses, 1);
-         messages:setStringPayload(m, strings:valueOf(time));
-         reply m;
-     }
-
 }

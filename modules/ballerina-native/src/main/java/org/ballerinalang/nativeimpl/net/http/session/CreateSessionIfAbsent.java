@@ -85,9 +85,8 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                                         .findFirst().get().substring(SESSION_ID.length());
                     //return value from cached session
                     if (session != null && (sessionId.equals(session.getId()))) {
-                        if ((session = session.setAccessed()) != null) {
-                            return new BValue[]{createSessionStruct(context, session)};
-                        }
+                        session = session.setAccessed();
+                        return new BValue[]{createSessionStruct(context, session)};
                     }
                     session = context.getSessionManager().getHTTPSession(sessionId);
                 } catch (NoSuchElementException e) {
@@ -97,11 +96,8 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
                 if (session != null) {
                     //path Validity check
                     if (session.getPath().equals(path)) {
-                        if ((session = session.setAccessed()) != null) {
-                            session.setNew(false);
-                        } else {
-                            session = context.getSessionManager().createHTTPSession(path);
-                        }
+                        session.setNew(false);
+                        session.setAccessed();
                     } else {
                         throw new BallerinaException("Failed to get session: " + path + " is not an allowed path");
                     }
@@ -111,9 +107,8 @@ public class CreateSessionIfAbsent extends AbstractNativeFunction {
             } else {
                 //Cached session will return of this function is called twice.
                 if (session != null) {
-                    if ((session = session.setAccessed()) != null) {
-                        return new BValue[]{createSessionStruct(context, session)};
-                    }
+                    session = session.setAccessed();
+                    return new BValue[]{createSessionStruct(context, session)};
                 }
                 //create session since request doesn't have a cookie
                 session = context.getSessionManager().createHTTPSession(path);
