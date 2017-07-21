@@ -977,8 +977,6 @@ public class BLangModelBuilder {
         currentCUBuilder.setPublic(false);
         currentCUBuilder.setNodeLocation(location);
 
-        getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
-
         BallerinaFunction function = currentCUBuilder.buildFunction();
         function.setLambda(true);
         bFileBuilder.addFunction(function);
