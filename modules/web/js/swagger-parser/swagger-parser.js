@@ -545,7 +545,7 @@ class SwaggerParser {
             resourceDefinition.getArgumentParameterDefinitionHolder().getChildren().splice(1);
 
             swaggerParameters.forEach((swaggerParameter) => {
-                if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'param') &&
+                if ((swaggerParameter.in === 'query' || swaggerParameter.in === 'path') &&
                                                                                     !_.isNil(swaggerParameter.type)) {
                     const newParameterDefinition = ASTFactory.createParameterDefinition();
                     if (swaggerParameter.type === 'number' || swaggerParameter.type === 'integer') {
