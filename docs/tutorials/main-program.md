@@ -11,6 +11,7 @@ This tutorial consists of the following main sections.
 - [Call the connector](#call-the-connector)
 - [View the response](#view-the-response)
 - [Extract content from JSON](#extract-content-from-json)
+- [Do the calculations](#do-the-calculations)
 - [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api)
 
 > **Prerequisites**: Download Ballerina and set it up. For instructions on how to do this, see the [Quick Tour](../quick-tour.md). For more information on the weather forecast API, see [Get information from the weather forecast API](#get-information-from-the-weather-forecast-api).
@@ -125,19 +126,19 @@ while (BooleanExpression) {
 }
 ```
 
-1. Add a variable and define an integer that gets the length
+1. Add a `variable` and define an integer that gets the number of instances of the data. Set this as `int dataCount = jsons:getInt(forcastDataList,"$.length()")`. The weather API lists multiple instances of the temperature and this variable ensures that you find the number of instances of the temperature in the data sets and assigns it to `dataCount`.
     ![alt text](../images/dataCount.png)
     > You use a **.length** JSON path here to access an inbuilt function of the JSON. In this case, length is an inbuilt function of JSON.
     
-1. Add another variable called `int i = 0` by dragging a variable from the tool palette to the canvas.
+1. Add another `variable` called `int i = 0` by dragging a variable from the tool palette to the canvas. You can use this integer to get the exact number of instances of the data you need to do the calculation.
 1. Drag and drop a `while` statement from the tool palette to the canvas.
     ![alt text](../images/WhileCondition.gif)
 1. Set the `while` condition to `i > dataCount`.
 
     ![alt text](../images/WhileCondition2.png)
-1. Add an assignment to the while loop by dragging it from the tool palette to the canvas.
+1. Add an `assignment` to the `while` loop by dragging it from the tool palette to the canvas.
     ![alt text](../images/AddAssignment.gif)
-1. Specify the assignment value as `i = i + 1`.
+1. Specify the assignment value as `i = i + 1`. This increments `i` until it is equal to the `dataCount`. So if there are 5 data sets, `i` will be 5 when it comes out of the `while` loop.
     ![alt text](../images/AssignmentValue.png)
 
 
