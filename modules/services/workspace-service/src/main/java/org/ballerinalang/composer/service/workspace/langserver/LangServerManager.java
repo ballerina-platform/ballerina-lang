@@ -170,6 +170,9 @@ public class LangServerManager {
                 case LangServerConstants.PROGRAM_DIRECTORY_PACKAGES:
                     this.getProgramPackages(message);
                     break;
+                case LangServerConstants.BUILT_IN_PACKAGES:
+                    this.getBuiltInPackages(message);
+                    break;
                 default:
                     // Valid Method could not be found
                     this.invalidMethodFound(message);
@@ -424,9 +427,8 @@ public class LangServerManager {
 
 
     /**
-     * Get all the packages in the program directory. If the given file is not saved in the file-system, this will
-     * return only the native/built-in packages. And also calling this method will update the "programPackagesMap"
-     * which is used to keep program packages against a file path
+     * Get all the packages in the program directory. Calling this method will update the "programPackagesMap"
+     * which is used to keep program packages against a file path.
      *
      * @param message Request Message
      */
@@ -440,14 +442,42 @@ public class LangServerManager {
             String fileName = textDocumentPositionParams.getFileName();
             String filePath = textDocumentPositionParams.getFilePath();
             String packageName = textDocumentPositionParams.getPackageName();
-
-            // Load all the packages associated the runtime
-            packages = Utils.getAllPackages();
             if (!("temp".equals(filePath) || "".equals(packageName))) {
-                Path file = Paths.get(filePath + File.separator + fileName);
-                packages.putAll(resolveProgramPackages(Paths.get(filePath), packageName));
-                programPackagesMap.put(file, packages);
+                logger.warn("Invalid params for getProgramPackages");
+                return;
             }
+            Path file = Paths.get(filePath + File.separator + fileName);
+            packages = resolveProgramPackages(Paths.get(filePath), packageName);
+            programPackagesMap.put(file, packages);
+            LangServerManager.this.setPackages(packages.entrySet());
+
+            // add package info into response
+            Gson gson = new Gson();
+            String json = gson.toJson(packages.values());
+            JsonParser parser = new JsonParser();
+            JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+            response.add("packages", packagesArray);
+
+            ResponseMessage responseMessage = new ResponseMessage();
+            responseMessage.setId(((RequestMessage) message).getId());
+            responseMessage.setResult(response);
+            pushMessageToClient(langServerSession, responseMessage);
+
+        } else {
+            logger.warn("Invalid Message type found");
+        }
+    }
+
+    /**
+     * Get all the built-in packages.
+     *
+     * @param message Request Message
+     */
+    private void getBuiltInPackages(Message message) {
+        if (message instanceof RequestMessage) {
+            JsonObject response = new JsonObject();
+            // Load all the packages associated the runtime
+            Map<String, ModelPackage> packages = Utils.getAllPackages();
             LangServerManager.this.setPackages(packages.entrySet());
 
             // add package info into response
