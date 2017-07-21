@@ -207,3 +207,11 @@ function testGetAttributeFromSingletonSeq() (string) {
     xml x2 = xmls:children(x1);
     return x2@["{http://wso2.com/}foo"];
 }
+
+function testGetAttributeFromLiteral() (string) {
+    xmlns "http://sample.com/wso2/a1" as ns0;
+    
+    xml x = xml `<root ns0:id="5"/>`;
+    
+    return x@[ns0:id];
+}

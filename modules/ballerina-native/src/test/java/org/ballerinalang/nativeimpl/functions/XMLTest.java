@@ -1415,4 +1415,11 @@ public class XMLTest {
                 + "\"storeName\":\"foo\",\"isOpen\":\"true\",\"address\":{\"@status\":\"online\",\"@id\":\"10\","
                 + "\"@code\":\"test\",\"#text\":\"srilanka\"}}}");
     }
+    
+    @Test
+    public void testGetAttributeFromLiteral() {
+        BValue[] returns = BLangFunctions.invokeNew(xmlAttrProgFile, "testGetAttributeFromLiteral");
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "5");
+    }
 }
