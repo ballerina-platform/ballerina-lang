@@ -1,3 +1,5 @@
+package connectionGroupSample.sample;
+
 import ballerina.lang.system;
 import ballerina.lang.messages;
 import ballerina.net.ws;
