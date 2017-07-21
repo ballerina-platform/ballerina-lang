@@ -40,11 +40,11 @@ import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
+import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,10 +81,6 @@ public class ProgramFileWriter {
 
             dataOutStream.flush();
             dataOutStream.close();
-        } catch (FileNotFoundException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
         } finally {
             if (dataOutStream != null) {
                 dataOutStream.close();
@@ -175,8 +171,7 @@ public class ProgramFileWriter {
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
                     break;
                 default:
-                    throw new UnsupportedOperationException(cpEntry.getEntryType().getValue() +
-                            " Constant Pool entry is not yet supported.");
+                    throw new ProgramFileFormatException("invalid constant pool entry " + cpEntry.getEntryType());
             }
         }
     }
@@ -583,7 +578,7 @@ public class ProgramFileWriter {
     }
 
     private static void writeLineNumberInfo(DataOutputStream dataOutStream,
-                                               LineNumberInfo lineNumberInfo) throws IOException {
+                                            LineNumberInfo lineNumberInfo) throws IOException {
         dataOutStream.writeInt(lineNumberInfo.getLineNumber());
         dataOutStream.writeInt(lineNumberInfo.getFileNameCPIndex());
         dataOutStream.writeInt(lineNumberInfo.getIp());
