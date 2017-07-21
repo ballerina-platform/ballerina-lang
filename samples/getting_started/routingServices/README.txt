@@ -6,7 +6,7 @@ based on the header value.
 
 How to run this sample
 ======================
-bin$ ./ballerina run service ../samples/routingServices/routingServices.balx
+bin$ ./ballerina run ../samples/routingServices/routingServices.balx
 
 The above command will start the ballerina server in the current terminal and deploy the routingServices.balx file and publish the  following services:
 'contentBasedRouting', 'headerBasedRouting', 'nyseStockQuote' and 'nasdaqStocksQuote'

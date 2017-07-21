@@ -5,7 +5,7 @@ This sample will passthrough the message to the backend and response to the clie
 
 How to run this sample
 ======================
-bin$ ./ballerina run service ../samples/passthroughService/passthroughService.balx
+bin$ ./ballerina run ../samples/passthroughService/passthroughService.balx
 
 The above command will start the ballerina server in the current terminal and deploy the passthroughService.balx file and publish the 'passthroughService' and 'nyseStockQuoteService' services
 Here the 'nyseStockQuoteService' will act as a backend.
