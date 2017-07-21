@@ -31,6 +31,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.GlobalVariableDef;
 import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.Operator;
 import org.ballerinalang.model.ParameterDef;
@@ -43,6 +44,7 @@ import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.WhiteSpaceDescriptor;
 import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.builder.BLangModelBuilder.NameReference;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
@@ -69,10 +71,12 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLQNameExpr;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.VariableReferenceExpr;
+import org.ballerinalang.model.expressions.variablerefs.XMLAttributesRefExpr;
 import org.ballerinalang.model.statements.AbortStmt;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
@@ -83,6 +87,7 @@ import org.ballerinalang.model.statements.ContinueStmt;
 import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.NamespaceDeclarationStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
@@ -191,6 +196,8 @@ public class BLangModelBuilder {
     protected Stack<AnnotationAttributeValue> annotationAttributeValues = new Stack<AnnotationAttributeValue>();
 
     protected List<String> errorMsgs = new ArrayList<>();
+    
+    protected List<String> namespaces = new ArrayList<String>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
@@ -260,7 +267,14 @@ public class BLangModelBuilder {
 
         if (importPkgMap.get(importPkg.getName()) != null) {
             String errMsg = BLangExceptionHelper
-                    .constructSemanticError(location, SemanticErrors.REDECLARED_IMPORT_PACKAGE, importPkg.getName());
+                    .constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
+            errorMsgs.add(errMsg);
+        }
+        
+        // Check whether there is a namespace declaration with the same name
+        if (namespaces.contains(importPkg.getName())) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.REDECLARED_SYMBOL, importPkg.getName());
             errorMsgs.add(errMsg);
         }
 
@@ -277,7 +291,14 @@ public class BLangModelBuilder {
         Identifier identifier = new Identifier(constName);
         SymbolName symbolName = new SymbolName(identifier.getName());
         ConstDef constantDef = new ConstDef(location, whiteSpaceDescriptor, identifier, typeName, currentPackagePath,
-                symbolName, currentScope, exprStack.pop());
+                symbolName, currentScope);
+
+        SimpleVarRefExpr variableRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, identifier.getName());
+        variableRefExpr.setVariableDef(constantDef);
+
+        Expression rhsExpr = exprStack.pop();
+        VariableDefStmt variableDefStmt = new VariableDefStmt(location, constantDef, variableRefExpr, rhsExpr);
+        constantDef.setVariableDefStmt(variableDefStmt);
 
         getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
 
@@ -605,6 +626,12 @@ public class BLangModelBuilder {
                                        WhiteSpaceDescriptor whiteSpaceDescriptor,
                                        NameReference nameReference) {
 
+        if (namespaces.contains(nameReference.pkgName)) {
+            XMLQNameExpr xmlQNameRefExpr = new XMLQNameExpr(location, null, nameReference.name,
+                null, nameReference.pkgName);
+            exprStack.push(xmlQNameRefExpr);
+            return;
+        }
         SimpleVarRefExpr simpleVarRefExpr = new SimpleVarRefExpr(location, whiteSpaceDescriptor, nameReference.name,
                 nameReference.pkgName, nameReference.pkgPath);
         exprStack.push(simpleVarRefExpr);
@@ -1337,9 +1364,8 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Staring parsing catch clause.
-        TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock(currentScope);
+        TryCatchStmt.CatchBlock catchBlock = new TryCatchStmt.CatchBlock();
         tryCatchStmtBuilder.addCatchBlock(catchBlock);
-        currentScope = catchBlock;
 
         BlockStmt.BlockStmtBuilder catchBlockBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(catchBlockBuilder);
@@ -1361,13 +1387,13 @@ public class BLangModelBuilder {
         catchBlockBuilder.setLocation(nodeLocation);
         catchBlockBuilder.setBlockKind(StatementKind.CATCH_BLOCK);
         BlockStmt catchBlock = catchBlockBuilder.build();
-        currentScope = catchBlock.getEnclosingScope();
 
         SymbolName symbolName = new SymbolName(identifier.getName(), currentPackagePath);
         ParameterDef paramDef = new ParameterDef(catchBlock.getNodeLocation(), null, identifier, errorType, symbolName,
                 currentScope);
         currentScope.resolve(symbolName);
         currentScope.define(symbolName, paramDef);
+        currentScope = catchBlock.getEnclosingScope();
         tryCatchStmtBuilder.getLastCatchBlock().setParameterDef(paramDef);
         tryCatchStmtBuilder.setLastCatchBlockStmt(catchBlock);
     }
@@ -1376,9 +1402,8 @@ public class BLangModelBuilder {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
         // Start Parsing finally clause.
-        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock(currentScope);
+        TryCatchStmt.FinallyBlock finallyBlock = new TryCatchStmt.FinallyBlock();
         tryCatchStmtBuilder.setFinallyBlock(finallyBlock);
-        currentScope = finallyBlock;
 
         BlockStmt.BlockStmtBuilder finallyBlockStmtBuilder = new BlockStmt.BlockStmtBuilder(null, currentScope);
         blockStmtBuilderStack.push(finallyBlockStmtBuilder);
@@ -1822,6 +1847,62 @@ public class BLangModelBuilder {
             addExprToList(exprList, n - 1);
             exprList.add(expr);
         }
+    }
+
+    /**
+     * Create a namespace declaration statement.
+     * 
+     * @param location Source location of the ballerina file
+     * @param wsDescriptor Holds whitespace region data
+     * @param namespaceUri Namespace URI of the namespace declaration
+     * @param prefix Identifier for the namespace URI
+     */
+    public void addNamespaceDeclaration(NodeLocation location, WhiteSpaceDescriptor wsDescriptor, String namespaceUri,
+            String prefix) {
+        if (prefix != null) {
+            // check whether there is any package import with the same prefix
+            if (importPkgMap.containsKey(prefix)) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.REDECLARED_SYMBOL,
+                        prefix);
+                errorMsgs.add(errMsg);
+            }
+
+            // Add the prefix to a temp list, to validate against the package prefix when importing packages.
+            namespaces.add(prefix);
+        }
+
+        Identifier identifier = new Identifier(prefix);
+        NamespaceDeclaration namspaceDclr = new NamespaceDeclaration(location, wsDescriptor, namespaceUri, prefix,
+                currentPackagePath, identifier, currentScope);
+
+        if (currentScope instanceof BLangPackage) {
+            bFileBuilder.addNamespaceDeclaration(namspaceDclr);
+            return;
+        }
+
+        NamespaceDeclarationStmt namespaceDclrStmt = new NamespaceDeclarationStmt(location, namspaceDclr);
+        addToBlockStmt(namespaceDclrStmt);
+    }
+
+    /**
+     * Create an XML attributes map reference expression.
+     * 
+     * @param location Source location of the ballerina file
+     * @param whiteSpaceDescriptor Holds whitespace region data
+     * @param singleAttribute Flag indicating whether this is a single attribute reference
+     */
+    public void createXmlAttributesRefExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+            boolean singleAttribute) {
+        Expression indexExpr = null;
+        if (singleAttribute) {
+            indexExpr = exprStack.pop();
+        }
+
+        VariableReferenceExpr varRefExpr = (VariableReferenceExpr) exprStack.pop();
+        XMLAttributesRefExpr xmlAttributesRefExpr = new XMLAttributesRefExpr(location, whiteSpaceDescriptor, varRefExpr,
+                indexExpr);
+        varRefExpr.setParentVarRefExpr(xmlAttributesRefExpr);
+        exprStack.push(xmlAttributesRefExpr);
     }
 
     protected ImportPackage getImportPackage(String pkgName) {

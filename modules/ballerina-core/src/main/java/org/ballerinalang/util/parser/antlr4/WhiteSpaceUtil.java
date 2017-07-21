@@ -305,7 +305,7 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_EQUAL_OPERATOR_TO_LITERAL_START,
                 getWhitespaceToRight(tokenStream, getFirstTokenWithText(ctx.children, EQUAL_OPERATOR).getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_LITERAL_END_TO_NEXT_TOKEN,
-                getWhitespaceToRight(tokenStream, ctx.simpleLiteral().stop.getTokenIndex()));
+                getWhitespaceToRight(tokenStream, ctx.expression().stop.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.CONST_DEF_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
@@ -1162,6 +1162,28 @@ public class WhiteSpaceUtil {
         ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_ABORT_KEYWORD_TO_END,
                 getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
         ws.addWhitespaceRegion(WhiteSpaceRegions.ABORT_STMT_END_TO_NEXT_TOKEN,
+                getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
+        return ws;
+    }
+
+    public static WhiteSpaceDescriptor getNamespaceDeclarationWS(CommonTokenStream tokenStream,
+                                                                 BallerinaParser.NamespaceDeclarationContext ctx) {
+        WhiteSpaceDescriptor ws = new WhiteSpaceDescriptor();
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NAMESPACE_DEC_IMPORT_KEYWORD_TO_PKG_NAME_START,
+                getWhitespaceToRight(tokenStream, ctx.start.getTokenIndex()));
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NAMESPACE_DEC_PKG_NAME_END_TO_NEXT,
+                getWhitespaceToRight(tokenStream, ctx.QuotedStringLiteral().getSymbol().getTokenIndex()));
+
+        // if (as Identifier) is present, there can be five whitespace regions
+        if (ctx.Identifier() != null) {
+            ws.addWhitespaceRegion(WhiteSpaceRegions.NAMESPACE_DEC_AS_KEYWORD_TO_IDENTIFIER,
+                    getWhitespaceToRight(tokenStream,
+                            getFirstTokenWithText(ctx.children, KEYWORD_AS).getTokenIndex()));
+            ws.addWhitespaceRegion(WhiteSpaceRegions.NAMESPACE_DEC_IDENTIFIER_TO_IMPORT_DEC_END,
+                    getWhitespaceToRight(tokenStream, ctx.Identifier().getSymbol().getTokenIndex()));
+        }
+
+        ws.addWhitespaceRegion(WhiteSpaceRegions.NAMESPACE_DEC_END_TO_NEXT_TOKEN,
                 getWhitespaceToRight(tokenStream, ctx.stop.getTokenIndex()));
         return ws;
     }
