@@ -204,8 +204,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
-        cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-        cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.TO, this.uri);
         cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
@@ -213,9 +211,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecured);
         cMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         cMsg.setProperty(Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
-        cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
-        cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.CHANNEL_ID, channelId);
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
         cMsg.setProperty(Constants.IS_WEBSOCKET_SERVER, true);
