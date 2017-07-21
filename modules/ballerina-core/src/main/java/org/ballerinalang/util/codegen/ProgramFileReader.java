@@ -56,6 +56,8 @@ import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.WrkrInteractionArgsCPEntry;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -74,6 +76,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
+import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
 
 /**
  * Reads a Ballerina program from a file.
@@ -83,7 +87,7 @@ import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 public class ProgramFileReader {
 
     private NativeScope nativeScope;
-    private ProgramFile programFile = new ProgramFile();
+    private ProgramFile programFile;
 
     public ProgramFileReader() {
         this.nativeScope = NativeScope.getInstance();
@@ -94,12 +98,12 @@ public class ProgramFileReader {
     public ProgramFile readProgram(Path programFilePath) throws IOException {
         InputStream fileIS = null;
         try {
+            programFile = new ProgramFile();
+            programFile.setProgramFilePath(programFilePath);
             fileIS = Files.newInputStream(programFilePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
             BufferedInputStream bufferedIS = new BufferedInputStream(fileIS);
             DataInputStream dataInStream = new DataInputStream(bufferedIS);
             return readProgramInternal(dataInStream);
-        } catch (IOException e) {
-            throw e;
         } finally {
             if (fileIS != null) {
                 fileIS.close();
@@ -108,11 +112,15 @@ public class ProgramFileReader {
     }
 
     private ProgramFile readProgramInternal(DataInputStream dataInStream) throws IOException {
-        // TODO Validate the magic value
-        int magicValue = dataInStream.readInt();
+        int magicNumber = dataInStream.readInt();
+        if (magicNumber != MAGIC_NUMBER) {
+            throw new BLangRuntimeException("ballerina: invalid magic number " + magicNumber);
+        }
 
-        // TODO Validate the version
         short version = dataInStream.readShort();
+        if (version != VERSION_NUMBER) {
+            throw new BLangRuntimeException("ballerina: unsupported program file version " + version);
+        }
         programFile.setVersion(version);
 
         readConstantPool(dataInStream, programFile);
@@ -189,12 +197,6 @@ public class ProgramFileReader {
 
                 // Find the functionInfo
                 packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                if (packageInfo == null) {
-                    // TODO Handle this error
-                    throw new RuntimeException("This is not possible.. Package not found: " +
-                            functionRefCPEntry.toString());
-                }
-
                 FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcName);
                 if (functionInfo == null) {
                     // This must reference to the current package and the current package is not been read yet.
@@ -254,12 +256,6 @@ public class ProgramFileReader {
                         cpIndex, utf8CPEntry.getValue());
 
                 packageInfo = programFile.getPackageInfo(packageRefCPEntry.getPackageName());
-                if (packageInfo == null) {
-                    // TODO Handle this error
-                    throw new RuntimeException("This is not possible.. Package not found: " +
-                            structureRefCPEntry.toString());
-                }
-
                 StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(utf8CPEntry.getValue());
                 if (structureTypeInfo == null) {
                     // This must reference to the current package and the current package is not been read yet.
@@ -302,8 +298,7 @@ public class ProgramFileReader {
                         = new WorkerDataChannelRefCPEntry(uniqueNameCPIndex, wrkrDtChnlTypesSigCPEntry.getValue());
                 return wrkrDtChnlRefCPEntry;
             default:
-                throw new UnsupportedOperationException(cpEntryType.getValue() +
-                        " Constant Pool entry is not yet supported.");
+                throw new ProgramFileFormatException("invalid constant pool entry " + cpEntryType.getValue());
         }
     }
 
@@ -338,7 +333,7 @@ public class ProgramFileReader {
         // Read connector info entries
         readConnectorInfoEntries(dataInStream, packageInfo);
 
-        // TODO Read service info entries
+        // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
 
         // Resolve user-defined type i.e. structs and connectors
@@ -437,7 +432,6 @@ public class ProgramFileReader {
                 int key = dataInStream.readInt();
                 int value = dataInStream.readInt();
                 methodTableInteger.put(new Integer(key), new Integer(value));
-
             }
 
             connectorInfo.setMethodTableIndex(methodTableInteger);
@@ -483,8 +477,7 @@ public class ProgramFileReader {
                                     actionInfo.getPkgPath(), actionInfo.getParamTypes());
                     BLangSymbol actionSymbol = nativeScope.resolve(nativeActionSymName);
                     if (actionSymbol == null) {
-                        // TODO Throw proper error
-                        throw new RuntimeException("Native action not available: " +
+                        throw new BLangRuntimeException("native action not available " +
                                 actionInfo.getPkgPath() + ":" + actionName);
                     }
 
@@ -668,15 +661,13 @@ public class ProgramFileReader {
                     functionInfo.getPkgPath(), functionInfo.getParamTypes());
             BLangSymbol functionSymbol = nativeScope.resolve(symbolName);
             if (functionSymbol == null) {
-                // TODO Throw proper error
-                throw new RuntimeException("Native function not available: " +
+                throw new BLangRuntimeException("native function not available " +
                         functionInfo.getPkgPath() + ":" + funcNameUTF8Entry.getValue());
             }
 
             NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
             functionInfo.setNativeFunction((AbstractNativeFunction) nativeUnit);
         }
-
 
 
         // Read attributes
@@ -779,8 +770,8 @@ public class ProgramFileReader {
                     nameIndex++;
                 }
 
-                String pkgPath = null;
-                String name = null;
+                String pkgPath;
+                String name;
                 PackageInfo packageInfoOfType;
                 if (colonIndex != -1) {
                     pkgPath = new String(Arrays.copyOfRange(chars, index, colonIndex));
@@ -811,8 +802,7 @@ public class ProgramFileReader {
                 typeStack.push(new BFunctionType());
                 return index + 1;
             default:
-                // TODO Throw proper error;
-                throw new UnsupportedOperationException("unsupported base char: " + chars[index]);
+                throw new ProgramFileFormatException("unsupported base type char: " + ch);
         }
     }
 
@@ -842,15 +832,9 @@ public class ProgramFileReader {
                 PackageInfo packageInfoOfType;
                 String typeName = desc.substring(1, desc.length() - 1);
                 String[] parts = typeName.split(":");
-//                if (parts.length == 2) {
                 pkgPath = parts[0];
                 name = parts[1];
                 packageInfoOfType = programFile.getPackageInfo(pkgPath);
-//                } else {
-//                    name = parts[0];
-//                     Setting the current package;
-//                    packageInfoOfType = packageInfo;
-//                }
 
                 if (ch == 'C') {
                     return packageInfoOfType.getConnectorInfo(name).getType();
@@ -864,8 +848,7 @@ public class ProgramFileReader {
                 // TODO : Fix this for type casting.
                 return new BFunctionType();
             default:
-                // TODO Throw proper error;
-                throw new UnsupportedOperationException("unsupported base char: " + ch);
+                throw new ProgramFileFormatException("unsupported base type char: " + ch);
         }
     }
 
@@ -925,13 +908,13 @@ public class ProgramFileReader {
         int indexCPIndex = dataInStream.readInt();
 
         int argRegLength = dataInStream.readShort();
-        int [] argRegs = new int[argRegLength];
+        int[] argRegs = new int[argRegLength];
         for (int i = 0; i < argRegLength; i++) {
             argRegs[i] = dataInStream.readInt();
         }
 
         int retRegLength = dataInStream.readShort();
-        int [] retRegs = new int[retRegLength];
+        int[] retRegs = new int[retRegLength];
         for (int i = 0; i < retRegLength; i++) {
             retRegs[i] = dataInStream.readInt();
         }
@@ -988,18 +971,12 @@ public class ProgramFileReader {
     }
 
 
-
     private void readAttributeInfoEntries(DataInputStream dataInStream,
                                           ConstantPool constantPool,
                                           AttributeInfoPool attributeInfoPool) throws IOException {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
             AttributeInfo attributeInfo = getAttributeInfo(dataInStream, constantPool);
-            if (attributeInfo == null) {
-                // TODO Cannot be null. ignore for the moment.
-                continue;
-            }
-
             attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
         }
     }
@@ -1010,8 +987,7 @@ public class ProgramFileReader {
         UTF8CPEntry attribNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(attribNameCPIndex);
         AttributeInfo.Kind attribKind = AttributeInfo.Kind.fromString(attribNameCPEntry.getValue());
         if (attribKind == null) {
-            // TODO Fix this.
-            throw new RuntimeException("unknown attribute kind: " + attribNameCPEntry.getValue());
+            throw new ProgramFileFormatException("unknown attribute kind " + attribNameCPEntry.getValue());
         }
 
         switch (attribKind) {
@@ -1094,10 +1070,9 @@ public class ProgramFileReader {
                     lnNoTblAttrInfo.addLineNumberInfo(lineNumberInfo);
                 }
                 return lnNoTblAttrInfo;
+            default:
+                throw new ProgramFileFormatException("unsupported attribute kind " + attribNameCPEntry.getValue());
         }
-
-        // TODO Support other attributes
-        return null;
     }
 
     private AnnAttachmentInfo getAttachmentInfo(DataInputStream dataInStream,
@@ -1123,7 +1098,7 @@ public class ProgramFileReader {
     }
 
     private LocalVariableInfo getLocalVariableInfo(DataInputStream dataInStream,
-                                                ConstantPool constantPool) throws IOException {
+                                                   ConstantPool constantPool) throws IOException {
         int varNameCPIndex = dataInStream.readInt();
         UTF8CPEntry varNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(varNameCPIndex);
         int variableIndex = dataInStream.readInt();
@@ -1146,7 +1121,7 @@ public class ProgramFileReader {
     }
 
     private LineNumberInfo getLineNumberInfo(DataInputStream dataInStream,
-                                                   ConstantPool constantPool) throws IOException {
+                                             ConstantPool constantPool) throws IOException {
         int lineNumber = dataInStream.readInt();
         int fileNameCPIndex = dataInStream.readInt();
         int ip = dataInStream.readInt();
@@ -1208,7 +1183,7 @@ public class ProgramFileReader {
                 attributeValue.setStringValue(stringCPEntry.getValue());
                 break;
             default:
-                throw new UnsupportedOperationException("unsupported annotation attribute value type: " + typeDesc);
+                throw new ProgramFileFormatException("unknown annotation attribute value type " + typeDesc);
         }
 
         return attributeValue;
@@ -1460,7 +1435,8 @@ public class ProgramFileReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
                 default:
-                    throw new UnsupportedOperationException("opcode: " + opcode);
+                    throw new ProgramFileFormatException("unknown opcode " + opcode +
+                            " in package " + packageInfo.getPkgPath());
             }
         }
     }
@@ -1474,12 +1450,6 @@ public class ProgramFileReader {
                     FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) cpEntry;
                     packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
                     FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcRefCPEntry.getFunctionName());
-                    if (functionInfo == null) {
-                        // TODO throw a proper error
-                        throw new RuntimeException("This is not possible.. Function not found: " +
-                                funcRefCPEntry.toString());
-                    }
-
                     funcRefCPEntry.setFunctionInfo(functionInfo);
                     break;
                 case CP_ENTRY_ACTION_REF:
@@ -1487,12 +1457,6 @@ public class ProgramFileReader {
                     structureRefCPEntry = actionRefCPEntry.getConnectorRefCPEntry();
                     ConnectorInfo connectorInfo = (ConnectorInfo) structureRefCPEntry.getStructureTypeInfo();
                     ActionInfo actionInfo = connectorInfo.getActionInfo(actionRefCPEntry.getActionName());
-                    if (actionInfo == null) {
-                        // TODO throw a proper error
-                        throw new RuntimeException("This is not possible.. Action not found: " +
-                                actionRefCPEntry.toString());
-                    }
-
                     actionRefCPEntry.setActionInfo(actionInfo);
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
@@ -1500,12 +1464,6 @@ public class ProgramFileReader {
                     packageInfo = programFile.getPackageInfo(structureRefCPEntry.getPackagePath());
                     StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
-                    if (structureTypeInfo == null) {
-                        // TODO throw a proper error
-                        throw new RuntimeException("This is not possible.. Function not found: " +
-                                structureRefCPEntry.toString());
-                    }
-
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
                     break;
                 case CP_ENTRY_TYPE_REF:
@@ -1514,9 +1472,6 @@ public class ProgramFileReader {
                     BType bType = getBTypeFromDescriptor(typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
-                default:
-                    throw new UnsupportedOperationException("Not supported for this CP Entry type: " +
-                            cpEntry.getEntryType());
             }
         }
     }
