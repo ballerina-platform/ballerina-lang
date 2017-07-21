@@ -80,7 +80,13 @@ import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.TypeConversionExpr;
 import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.XMLCommentLiteral;
+import org.ballerinalang.model.expressions.XMLElementLiteral;
+import org.ballerinalang.model.expressions.XMLLiteral;
+import org.ballerinalang.model.expressions.XMLPILiteral;
 import org.ballerinalang.model.expressions.XMLQNameExpr;
+import org.ballerinalang.model.expressions.XMLSequenceLiteral;
+import org.ballerinalang.model.expressions.XMLTextLiteral;
 import org.ballerinalang.model.expressions.variablerefs.FieldBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.IndexBasedVarRefExpr;
 import org.ballerinalang.model.expressions.variablerefs.SimpleVarRefExpr;
@@ -1564,7 +1570,37 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addWhitespaceDescriptor(nullLiteralObj, nullLiteral.getWhiteSpaceDescriptor());
         tempJsonArrayRef.peek().add(nullLiteralObj);
     }
-
+    
+    @Override
+    public void visit(XMLLiteral xmlLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLElementLiteral xmlElementLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLCommentLiteral xmlCommentLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLTextLiteral xmlTextLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLPILiteral xmlpiLiteral) {
+        
+    }
+    
+    @Override
+    public void visit(XMLSequenceLiteral xmlSequenceLiteral) {
+        
+    }
+    
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         JsonObject typeCastEprObj = new JsonObject();
@@ -1777,8 +1813,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 xmlQNameRefExpr.getLocalname());
         xmlQNameExprObj.addProperty(BLangJSONModelConstants.XML_QNAME_PREFIX,
                 xmlQNameRefExpr.getPrefix());
-        xmlQNameExprObj.addProperty(BLangJSONModelConstants.XML_QNAME_URI,
-                xmlQNameRefExpr.getNamepsaceUri());
+//        xmlQNameExprObj.addProperty(BLangJSONModelConstants.XML_QNAME_URI,
+//                xmlQNameRefExpr.getNamepsaceUri());
         xmlQNameExprObj.addProperty(BLangJSONModelConstants.XML_QNAME_IS_LHS,
                 xmlQNameRefExpr.isLHSExpr());
         xmlQNameExprObj.addProperty(BLangJSONModelConstants.XML_QNAME_IS_USED_IN_XML,
