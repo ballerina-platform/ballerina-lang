@@ -26,8 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
+import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 import org.wso2.carbon.transport.http.netty.util.client.websocket.WebSocketClient;
@@ -46,9 +46,9 @@ import static org.testng.AssertJUnit.assertTrue;
 /**
  * Test class for WebSocket protocol.
  */
-public class WebSocketTestCase {
+public class WebSocketServerTest {
 
-    Logger logger = LoggerFactory.getLogger(WebSocketTestCase.class);
+    Logger log = LoggerFactory.getLogger(WebSocketServerTest.class);
     private List<HTTPServerConnector> serverConnectors;
     private final int threadSleepTime = 100;
     private WebSocketClient primaryClient = new WebSocketClient();
@@ -57,17 +57,17 @@ public class WebSocketTestCase {
 
     @BeforeClass
     public void setup() {
-        logger.info(System.lineSeparator() + "-------WebSocket Test Cases-------");
-        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
-                .build("src/test/resources/simple-test-config/netty-transports.yml");
-        carbonMessageProcessor = new WebSocketMessageProcessor();
-        serverConnectors = TestUtil.startConnectors(configuration, carbonMessageProcessor);
+        log.info(System.lineSeparator() +
+                         "---------------------WebSocket Server Test Cases---------------------");
+        TransportsConfiguration configuration = ConfigurationBuilder.getInstance().getConfiguration(
+                "src/test/resources/simple-test-config/netty-transports.yml");
+        serverConnectors = TestUtil.startConnectors(configuration, new WebSocketMessageProcessor());
     }
 
     @Test
     public void handshakeTest() throws URISyntaxException, SSLException, InterruptedException {
         assertTrue(primaryClient.handhshake());
-        logger.info("Handshake test completed.");
+        log.info("Handshake test completed.");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class WebSocketTestCase {
         Thread.sleep(threadSleepTime);
         String textReceived = primaryClient.getTextReceived();
         assertEquals("Not received the same text.", textReceived, textSent);
-        logger.info("pushing and receiving text data from server completed.");
+        log.info("pushing and receiving text data from server completed.");
         primaryClient.shutDown();
     }
 
@@ -93,7 +93,7 @@ public class WebSocketTestCase {
         assertTrue("Buffer capacity is not the same.",
                    bufferSent.capacity() == bufferReceived.capacity());
         assertEquals("Buffers data are not equal.", bufferReceived, bufferSent);
-        logger.info("pushing and receiving binary data from server completed.");
+        log.info("pushing and receiving binary data from server completed.");
         primaryClient.shutDown();
     }
 
@@ -108,10 +108,10 @@ public class WebSocketTestCase {
         secondaryClient.handhshake();
         Thread.sleep(threadSleepTime);
         String textReceived = primaryClient.getTextReceived();
-        logger.info("Received text : " + textReceived);
+        log.info("Received text : " + textReceived);
         assertEquals("New Client was not connected.",
-                     textReceived, WebSocketTestConstants.NEW_CLIENT_CONNECTED);
-        logger.info("New client successfully connected to the server.");
+                     textReceived, WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
+        log.info("New client successfully connected to the server.");
         secondaryClient.shutDown();
         primaryClient.shutDown();
     }
@@ -129,9 +129,9 @@ public class WebSocketTestCase {
         secondaryClient.shutDown();
         Thread.sleep(threadSleepTime);
         String textReceived = primaryClient.getTextReceived();
-        logger.info("Received Text : " + textReceived);
-        assertEquals("Connection close is unsuccessful.", textReceived, WebSocketTestConstants.CLIENT_LEFT);
-        logger.info("Client left the server successfully.");
+        log.info("Received Text : " + textReceived);
+        assertEquals("Connection close is unsuccessful.", textReceived, WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
+        log.info("Client left the server successfully.");
         primaryClient.shutDown();
         secondaryClient.shutDown();
     }
@@ -145,7 +145,7 @@ public class WebSocketTestCase {
         Thread.sleep(threadSleepTime);
         ByteBuffer bufferReceived = primaryClient.getBufferReceived();
         assertEquals("Didn't receive the correct pong.", bufferReceived, bufferSent);
-        logger.info("Receiving a pong message is completed.");
+        log.info("Receiving a pong message is completed.");
     }
 
     @AfterClass

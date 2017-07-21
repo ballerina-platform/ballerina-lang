@@ -91,6 +91,12 @@ public class HTTPClientConnector implements ClientConnector {
     }
 
     @Override
+    public Object init(CarbonMessage carbonMessage, CarbonCallback carbonCallback, Map<String, Object> map)
+            throws ClientConnectorException {
+        throw new ClientConnectorException("Method not supported for HTTP.");
+    }
+
+    @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
 
         String protocol = (String) msg.getProperty(Constants.PROTOCOL);
