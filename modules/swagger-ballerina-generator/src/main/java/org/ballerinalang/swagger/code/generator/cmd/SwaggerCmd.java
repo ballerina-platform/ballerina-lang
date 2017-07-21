@@ -40,6 +40,8 @@ public class SwaggerCmd implements BLauncherCmd {
 
     private static final PrintStream outStream = System.err;
 
+    private JCommander parentCmdParser;
+
     @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
     private List<String> argList;
 
@@ -56,7 +58,8 @@ public class SwaggerCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            printCommandUsageInfo();
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            outStream.println(commandUsageInfo);
             return;
         }
 
@@ -87,24 +90,19 @@ public class SwaggerCmd implements BLauncherCmd {
     }
 
     @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("Generates ballerina connector, service skeleton and mock service"+ System.lineSeparator());
+        out.append("for a given swagger definition"+ System.lineSeparator());
+        out.append(System.lineSeparator());
+    }
+
+    @Override
     public void printUsage(StringBuilder stringBuilder) {
         stringBuilder.append("  ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> " +
                 "-d<output directory name>\n");
         stringBuilder.append("\tconnector : generates a ballerina connector\n");
         stringBuilder.append("\tskeleton  : generates a ballerina service skeleton\n");
         stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
-    }
-    private void printCommandUsageInfo() {
-        StringBuilder out = new StringBuilder();
-        out.append("Ballerina swagger generator tool can generate ballerina connector, service skeleton and mock " +
-                "service for a given swagger definition.\n");
-        out.append("\n");
-        out.append("* Find more information at http://ballerinalang.org\n");
-        out.append("\n");
-        out.append("Usage:\n");
-        printUsage(out);
-
-        outStream.println(out.toString());
     }
 
     private void generateFromSwagger(String targetLanguage){
@@ -128,6 +126,7 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
+        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
