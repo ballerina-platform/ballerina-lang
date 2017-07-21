@@ -105,9 +105,9 @@ public class AutoImportInsertHandler implements InsertHandler<LookupElement> {
                         }
                     }
                     if (myTriggerAutoPopup) {
-                        PsiDocumentManager.getInstance(project)
-                                .doPostponedOperationsAndUnblockDocument(editor.getDocument());
                         ApplicationManager.getApplication().runWriteAction(() -> {
+                            PsiDocumentManager.getInstance(project)
+                                    .doPostponedOperationsAndUnblockDocument(editor.getDocument());
                             EditorModificationUtil.insertStringAtCaret(editor, ":");
                             PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
                         });
