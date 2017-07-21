@@ -1,4 +1,4 @@
-$ ballerina run main var.bal
+$ ballerina run var.bal
 15
 Hello!
 06/10: quotient=0 remainder=6

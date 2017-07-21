@@ -1,7 +1,7 @@
 # To run the program, put the code in `throw.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main throw.bal`.
+# and use `$BALLERINA_HOME/bin/ballerina run throw.bal`.
 
-$ $BALLERINA_HOME/bin/ballerina run main throw.bal
+$ $BALLERINA_HOME/bin/ballerina run throw.bal
 Record added for tom
 deleteing record for tom
 error: ballerina.lang.errors:Error, message: internal error, database not found.
