@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
 
-@http:config {basePath:"/api"}
+@http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
     version: "1.0.0",
     description: "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
