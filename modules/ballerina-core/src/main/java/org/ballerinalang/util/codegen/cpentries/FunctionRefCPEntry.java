@@ -30,24 +30,36 @@ public class FunctionRefCPEntry implements ConstantPoolEntry {
 
     // Index to a valid Package entry in the constant pool
     private int packageCPIndex;
+    private String packagePath;
 
     // Index to a valid name index in the constant pool
     private int nameCPIndex;
+    private String functionName;
 
     // TODO 
     private FunctionInfo functionInfo;
 
-    public FunctionRefCPEntry(int packageCPIndex, int nameCPIndex) {
+    public FunctionRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String functionName) {
         this.packageCPIndex = packageCPIndex;
+        this.packagePath = packagePath;
         this.nameCPIndex = nameCPIndex;
+        this.functionName = functionName;
     }
 
     public int getPackageCPIndex() {
         return packageCPIndex;
     }
 
+    public String getPackagePath() {
+        return packagePath;
+    }
+
     public int getNameCPIndex() {
         return nameCPIndex;
+    }
+
+    public String getFunctionName() {
+        return functionName;
     }
 
     public FunctionInfo getFunctionInfo() {
@@ -71,5 +83,16 @@ public class FunctionRefCPEntry implements ConstantPoolEntry {
     public boolean equals(Object obj) {
         return obj instanceof FunctionRefCPEntry && packageCPIndex == (((FunctionRefCPEntry) obj).packageCPIndex) &&
                 nameCPIndex == ((FunctionRefCPEntry) obj).nameCPIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "FunctionRefCPEntry{" +
+                "packageCPIndex=" + packageCPIndex +
+                ", packagePath='" + packagePath + '\'' +
+                ", nameCPIndex=" + nameCPIndex +
+                ", functionName='" + functionName + '\'' +
+                ", functionInfo=" + functionInfo +
+                '}';
     }
 }

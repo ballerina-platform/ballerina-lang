@@ -33,6 +33,7 @@ import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.runtime.worker.WorkerDataChannel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -229,6 +230,16 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
 
     public Worker[] getWorkers() {
         return workers;
+    }
+
+    @Override
+    public void addWorkerDataChannel(WorkerDataChannel workerDataChannel) {
+
+    }
+
+    @Override
+    public Map<String, WorkerDataChannel> getWorkerDataChannelMap() {
+        return null;
     }
 
     @Override

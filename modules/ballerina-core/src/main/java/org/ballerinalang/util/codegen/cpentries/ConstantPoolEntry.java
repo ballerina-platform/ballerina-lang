@@ -34,17 +34,15 @@ public interface ConstantPoolEntry {
         CP_ENTRY_INTEGER((byte) 2),
         CP_ENTRY_FLOAT((byte) 3),
         CP_ENTRY_STRING((byte) 4),
-        CP_ENTRY_NAME_AND_TYPE((byte) 10),
-        CP_ENTRY_PACKAGE((byte) 11),
-        CP_ENTRY_FUNCTION_REF((byte) 12),
-        CP_ENTRY_ACTION_REF((byte) 12),
-        CP_ENTRY_FUNCTION_CALL_ARGS((byte) 13),
-        CP_ENTRY_FUNCTION_RET((byte) 14),
-        CP_ENTRY_STRUCT((byte) 15),
-        CP_ENTRY_TYPE((byte) 16),
-        CP_ENTRY_WORKER_INVOKE((byte) 17),
-        CP_ENTRY_WORKER_REPLY((byte) 18),
-        CP_ENTRY_FORK_JOIN((byte) 19);
+        CP_ENTRY_PACKAGE((byte) 5),
+        CP_ENTRY_FUNCTION_REF((byte) 6),
+        CP_ENTRY_ACTION_REF((byte) 7),
+        CP_ENTRY_FUNCTION_CALL_ARGS((byte) 8),
+        CP_ENTRY_STRUCTURE_REF((byte) 9),
+        CP_ENTRY_TYPE_REF((byte) 10),
+        CP_ENTRY_WRKR_INTERACTION((byte) 11),
+        CP_ENTRY_FORK_JOIN((byte) 12),
+        CP_ENTRY_WRKR_DATA_CHNL_REF((byte) 13);
 
         byte value;
 

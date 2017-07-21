@@ -23,7 +23,7 @@ import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
-import org.ballerinalang.util.codegen.AnnotationAttachmentInfo;
+import org.ballerinalang.util.codegen.AnnAttachmentInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -78,24 +78,24 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     }
 
     private String findWebSocketUpgradePath(ServiceInfo service) {
-        AnnotationAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
+        AnnAttachmentInfo websocketUpgradePathAnnotation = service.getAnnotationAttachmentInfo(
                 Constants.WS_PACKAGE_PATH, Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH);
-        AnnotationAttachmentInfo config = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
+        AnnAttachmentInfo config = service.getAnnotationAttachmentInfo(Constants.HTTP_PACKAGE_PATH,
                 Constants.ANNOTATION_NAME_CONFIG);
 
         if (websocketUpgradePathAnnotation != null &&
-                websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
-            String value = websocketUpgradePathAnnotation.getAnnotationAttributeValue(Constants
+                websocketUpgradePathAnnotation.getAttributeValue(Constants.VALUE_ATTRIBUTE) != null) {
+            String value = websocketUpgradePathAnnotation.getAttributeValue(Constants
                     .VALUE_ATTRIBUTE).getStringValue();
             if (value != null && !value.trim().isEmpty()) {
 
                 if (config == null ||
-                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH) == null ||
-                        config.getAnnotationAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue()
+                        config.getAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH) == null ||
+                        config.getAttributeValue(Constants.ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue()
                                 .trim().isEmpty()) {
                     throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
                 }
-                String basePath = refactorUri(config.getAnnotationAttributeValue(Constants
+                String basePath = refactorUri(config.getAttributeValue(Constants
                         .ANNOTATION_ATTRIBUTE_BASE_PATH).getStringValue());
                 String websocketUpgradePath = refactorUri(value);
                 return refactorUri(basePath.concat(websocketUpgradePath));

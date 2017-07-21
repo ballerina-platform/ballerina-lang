@@ -18,7 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 /**
- * Bytecode instructions of a Ballerina compiled program.
+ * Bytecode instructions of a compiled Ballerina program.
  *
  * @since 0.87
  */

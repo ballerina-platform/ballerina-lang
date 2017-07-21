@@ -98,7 +98,11 @@ public class BTypes {
 
     }
 
-    private static void createBuiltInTypes(GlobalScope globalScope) {
+    public static void createBuiltInTypes(GlobalScope globalScope) {
+        if (initialized) {
+            return;
+        }
+
         typeInt = new BIntegerType(TypeConstants.INT_TNAME, null, globalScope);
         typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);

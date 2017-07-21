@@ -59,6 +59,16 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     
     <build>
