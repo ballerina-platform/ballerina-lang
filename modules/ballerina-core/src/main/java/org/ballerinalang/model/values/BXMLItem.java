@@ -240,19 +240,13 @@ public final class BXMLItem extends BXML<OMNode> {
         OMNamespace ns = null;
         if (!prefix.isEmpty()) {
             OMNamespace existingNs = node.findNamespaceURI(prefix);
-            
+
             // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
             if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
                 return;
             }
 
-            if (existingNs != null) {
-                // If a namespace exists with the same prefix, then do not add namespace declr again.
-                localName = prefix + ":" + localName;
-            } else {
-                // If the namespace prefix is not already defined in the XML, then add the namespace declr.
-                ns = new OMNamespaceImpl(namespaceUri, prefix);
-            }
+            ns = new OMNamespaceImpl(namespaceUri, prefix);
             node.addAttribute(localName, value, ns);
             return;
         }
@@ -271,17 +265,14 @@ public final class BXMLItem extends BXML<OMNode> {
                 break;
             }
 
-            if (prefix == null) {
-                // If not found, add a namespace decl with a random prefix
-                ns = new OMNamespaceImpl(namespaceUri, prefix);
-            } else if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
                 // If found, and if its the default namespace, add a namespace decl
                 node.declareNamespace(value, localName);
                 return;
-            } else {
-                // Otherwise use the prefix found
-                localName = prefix + ":" + localName;
             }
+
+            // else create use the prefix. If the prefix is null, it will generate a random prefix.
+            ns = new OMNamespaceImpl(namespaceUri, prefix);
         }
         node.addAttribute(localName, value, ns);
     }
