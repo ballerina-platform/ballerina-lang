@@ -27,6 +27,7 @@ import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.ActionSymbolName;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
@@ -286,7 +287,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         variableDefStmt.accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONSTANT, null));
             annotationAttachment.accept(this);
         }
 
@@ -320,7 +321,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(service);
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.SERVICE,
+                    service.getProtocolPkgPath()));
             annotationAttachment.accept(this);
         }
 
@@ -351,7 +353,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(connectorDef);
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONNECTOR, null));
             annotationAttachment.accept(this);
         }
 
@@ -389,7 +391,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.RESOURCE, null));
             annotationAttachment.accept(this);
         }
 
@@ -608,7 +610,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -668,7 +670,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentCallableUnit = typeMapper;
 
         for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
             annotationAttachment.accept(this);
         }
 
@@ -726,7 +728,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentCallableUnit = action;
 
         for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ACTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -860,14 +862,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(StructDef structDef) {
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
     }
 
     @Override
     public void visit(AnnotationAttachment annotation) {
-        AttachmentPoint attachedPoint = annotation.getAttachedPoint();
+        AnnotationAttachmentPoint attachedPoint = annotation.getAttachedPoint();
         SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
         BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
 
@@ -879,12 +881,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
         if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
-            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+            Optional<AnnotationAttachmentPoint> matchingAttachmentPoint = Arrays
+                    .stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint))
                     .findAny();
             if (!matchingAttachmentPoint.isPresent()) {
-                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED,
-                        annotationSymName, attachedPoint);
+                String msg = attachedPoint.getAttachmentPoint().getValue();
+                if (attachedPoint.getPkgPath() != null) {
+                    msg = attachedPoint.getAttachmentPoint().getValue() + "<" + attachedPoint.getPkgPath() + ">";
+                }
+                throw BLangExceptionHelper.getSemanticError(annotation.getNodeLocation(),
+                        SemanticErrors.ANNOTATION_NOT_ALLOWED, annotationSymName, msg);
             }
         }
 
@@ -1071,7 +1078,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ANNOTATION, null));
             annotationAttachment.accept(this);
         }
     }
@@ -1086,7 +1093,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.PARAMETER, null));
             annotationAttachment.accept(this);
         }
     }
