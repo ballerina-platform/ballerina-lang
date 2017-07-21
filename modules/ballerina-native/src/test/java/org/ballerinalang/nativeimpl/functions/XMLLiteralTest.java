@@ -32,6 +32,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * Test class for XML literal.
  */
@@ -323,5 +328,57 @@ public class XMLLiteralTest {
                     + " the empty namespace name")
     public void testDefineEmptyNamespaceInline() {
         BTestUtils.getProgramFile("samples/xml/defineEmptyNamespaceInline.bal");
+    }
+
+    @Test
+    public void testUsingNamespcesOfParent() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testUsingNamespcesOfParent", args);
+        Assert.assertTrue(returns[0] instanceof BXMLItem);
+
+        Assert.assertEquals(returns[0].stringValue(), "<root xmlns:ns0=\"http://ballerinalang.com/\" "
+                + "xmlns:ns1=\"http://ballerina.com/b\"><ns0:foo>hello</ns0:foo></root>");
+    }
+    
+    @Test
+    public void testComplexXMLLiteral() {
+        BValue[] args = {};
+        BValue[] returns = BLangFunctions.invokeNew(literalWithNamespacesProgFile, "testComplexXMLLiteral", args);
+        Assert.assertTrue(returns[0] instanceof BXMLItem);
+        Assert.assertEquals(returns[0].stringValue(), getComplexXMLContent());
+    }
+    
+    private String getComplexXMLContent() {
+        InputStream is = ClassLoader.getSystemResourceAsStream("samples/xml/sampleXML.txt");
+        InputStreamReader inputStreamREader = null;
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            inputStreamREader = new InputStreamReader(is);
+            br = new BufferedReader(inputStreamREader);
+            String content = br.readLine();
+            if (content != null) {
+                sb.append(content);
+            }
+
+            while ((content = br.readLine()) != null) {
+                sb.append("\n" + content);
+            }
+        } catch (IOException ignore) {
+        } finally {
+            if (inputStreamREader != null) {
+                try {
+                    inputStreamREader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return sb.toString();
     }
 }

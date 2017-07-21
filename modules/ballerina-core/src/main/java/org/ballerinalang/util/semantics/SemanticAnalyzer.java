@@ -2468,7 +2468,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(XMLElementLiteral xmlElementLiteral) {
         Expression startTagName = xmlElementLiteral.getStartTagName();
-        Map<String, Expression> namespaces = getNamespaceInScope(xmlElementLiteral.getNodeLocation());
+        Map<String, Expression> namespaces;
+        XMLElementLiteral parent = xmlElementLiteral.getParent();
+        if (parent == null) {
+            namespaces = getNamespaceInScope(xmlElementLiteral.getNodeLocation());
+        } else {
+            namespaces = parent.getNamespaces();
+            xmlElementLiteral.setDefaultNamespaceUri(parent.getDefaultNamespaceUri());
+        }
         xmlElementLiteral.setNamespaces(namespaces);
         
         // add the inline declared namespaces to the namespace map
@@ -2571,7 +2578,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression currentItem = items[i];
             currentItem.accept(this);
 
-            if (xmlSequence.isHasParent() && currentItem.getType() == BTypes.typeXML) {
+            if (xmlSequence.hasParent() && currentItem.getType() == BTypes.typeXML) {
                 if (addExpr != null) {
                     newItems.add(addExpr);
                     addExpr = null;
@@ -2584,7 +2591,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 Expression castExpr = getImplicitConversionExpr(currentItem, currentItem.getType(), BTypes.typeString);
 
                 if (castExpr == null) {
-                    if (xmlSequence.isHasParent()) {
+                    if (xmlSequence.hasParent()) {
                         BLangExceptionHelper.throwSemanticError(currentItem,
                                 SemanticErrors.INCOMPATIBLE_TYPES_IN_XML_TEMPLATE, currentItem.getType());
                     }

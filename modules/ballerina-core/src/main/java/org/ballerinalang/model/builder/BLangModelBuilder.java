@@ -2163,9 +2163,9 @@ public class BLangModelBuilder {
      */
     public void addXMLElementContent() {
         XMLSequenceLiteral content = (XMLSequenceLiteral) exprStack.pop();
-        content.setHasParent(true);
         XMLElementLiteral parentXmlExpr = (XMLElementLiteral) exprStack.peek();
         parentXmlExpr.setContent(content);
+        content.setParent(parentXmlExpr);
     }
 
     public void createXMLSequence(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, int childrenCount) {

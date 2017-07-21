@@ -28,8 +28,8 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
  */
 public class XMLPILiteral extends XMLLiteral {
 
-    Expression target;
-    Expression data;
+    private Expression target;
+    private Expression data;
 
     public XMLPILiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression target,
             Expression data) {

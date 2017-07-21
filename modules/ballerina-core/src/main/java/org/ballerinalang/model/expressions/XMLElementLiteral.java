@@ -33,14 +33,15 @@ import javax.xml.XMLConstants;
  */
 public class XMLElementLiteral extends XMLLiteral {
 
-    Expression startTagName;
-    Expression endTagName;
-    List<KeyValueExpr> attributes;
-    XMLSequenceLiteral content;
+    private Expression startTagName;
+    private Expression endTagName;
+    private List<KeyValueExpr> attributes;
+    private XMLSequenceLiteral content;
+    private XMLElementLiteral parent;
     
     // Namespaces visible to this attribute reference expression.
     private Map<String, Expression> namespaces;
-    private Expression defaultNamespaceUri;
+    private Expression defaultNamespaceUri = null;
 
     public XMLElementLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression tagName) {
         super(location, whiteSpaceDescriptor);
@@ -90,7 +91,10 @@ public class XMLElementLiteral extends XMLLiteral {
     }
 
     public void setNamespaces(Map<String, Expression> namespaces) {
-        defaultNamespaceUri = namespaces.remove(XMLConstants.DEFAULT_NS_PREFIX);
+        Expression defaultNs = namespaces.remove(XMLConstants.DEFAULT_NS_PREFIX);
+        if (defaultNs != null) {
+            defaultNamespaceUri = defaultNs;
+        }
         this.namespaces = namespaces;
     }
 
@@ -101,7 +105,15 @@ public class XMLElementLiteral extends XMLLiteral {
     public void setDefaultNamespaceUri(Expression defaultNamespaceUri) {
         this.defaultNamespaceUri = defaultNamespaceUri;
     }
-    
+
+    public XMLElementLiteral getParent() {
+        return parent;
+    }
+
+    public void setParent(XMLElementLiteral parent) {
+        this.parent = parent;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

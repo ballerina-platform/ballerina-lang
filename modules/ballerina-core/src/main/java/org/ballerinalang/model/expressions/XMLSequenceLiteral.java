@@ -28,9 +28,9 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
  */
 public class XMLSequenceLiteral extends XMLLiteral {
 
-    Expression[] items;
-    Expression concatExpr;
-    boolean hasParent = false;
+    private Expression[] items;
+    private Expression concatExpr;
+    private boolean hasParent = false;
     
     public XMLSequenceLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression[] items) {
         super(location, whiteSpaceDescriptor);
@@ -57,7 +57,7 @@ public class XMLSequenceLiteral extends XMLLiteral {
         return items.length == 0;
     }
 
-    public boolean isHasParent() {
+    public boolean hasParent() {
         return hasParent;
     }
 
@@ -65,6 +65,16 @@ public class XMLSequenceLiteral extends XMLLiteral {
         this.hasParent = hasParent;
     }
 
+    public void setParent(XMLElementLiteral parent) {
+        for (Expression item : items) {
+            if (item instanceof XMLElementLiteral) {
+                ((XMLElementLiteral) item).setParent(parent);
+            }
+        }
+        
+        this.hasParent = true;
+    }
+    
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

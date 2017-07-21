@@ -28,7 +28,7 @@ import org.ballerinalang.model.WhiteSpaceDescriptor;
  */
 public class XMLTextLiteral extends XMLLiteral {
 
-    Expression content;
+    private Expression content;
 
     public XMLTextLiteral(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, Expression content) {
         super(location, whiteSpaceDescriptor);
