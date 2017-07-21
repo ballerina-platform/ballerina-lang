@@ -1796,16 +1796,6 @@ public class BLangVM {
         return true;
     }
 
-    private boolean checkConstraintJSONValidity(String field, BStructType targetType) {
-        BStructType.StructField[] tFields = targetType.getStructFields();
-        for (int i = 0; i < tFields.length; i++) {
-            if (tFields[i].getFieldName().equals(field)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void execTypeConversionOpcodes(StackFrame sf, int opcode, int[] operands) {
         int i;
         int j;

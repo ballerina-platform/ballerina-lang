@@ -41,18 +41,6 @@ function testConstraintJSONToConstraintJsonAssignment() (json) {
     return j;
 }
 
-function testConstraintJSONFieldAccess() (string) {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
-    var str,_ = (string)j["name"];
-    return str;
-}
-
-function testConstraintJSONFieldAccessNegative() (string) {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
-    var str,_ = (string)j["names"];
-    return str;
-}
-
 function getPersonJson() (json){
     json<Person> j = {name:"John Doe", age:30, address:"London"};
     return j;
