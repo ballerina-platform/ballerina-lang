@@ -38,6 +38,7 @@ class LaunchManager extends EventChannel {
         this.channel = undefined;
         this.active = false;
         this.tryItUrl = undefined;
+        this.console = Console;
     }
     /**
      *

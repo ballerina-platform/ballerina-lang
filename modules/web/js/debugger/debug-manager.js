@@ -44,6 +44,7 @@ class DebugManager extends EventChannel {
         this.on('breakpoint-removed', () => { this.publishBreakpoints(); });
         this.on('session-started', () => {
             this.launchManager.showConsole();
+            this.launchManager.console.println({ message: 'Debugging started...' });
         });
     }
 
