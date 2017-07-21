@@ -18,12 +18,11 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangASTBuilder;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.util.program.BLangPrograms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +46,8 @@ public class BallerinaDocGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static final PrintStream out = System.out;
+
+    private static final String BSOURCE_FILE_EXT = ".bal";
 
     /**
      * API to generate Ballerina API documentation.
@@ -150,24 +151,22 @@ public class BallerinaDocGenerator {
         for (Path path : packagePaths) {
             BLangProgram bLangProgram;
             if (isNative) {
-                bLangProgram = new BLangProgramLoader().disableSemanticAnalyzer().loadLibrary(pkgPath, path);
+                bLangProgram = new BLangASTBuilder().disableSemanticAnalyzer().build(pkgPath, path);
             } else {
-                bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
+                bLangProgram = new BLangASTBuilder().build(pkgPath, path);
             }
             if (bLangProgram == null) {
                 out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
             } else {
-                for (BLangPackage bLangPackage : bLangProgram.getLibraryPackages()) {
-                    String packageName = bLangPackage.getPackagePath();
-                    if (isFilteredPackage(packageName, packageFilter)) {
-                        if (BallerinaDocUtils.isDebugEnabled()) {
-                            out.println("Package " + packageName + " excluded");
-                        }
-                        continue;
+                BLangPackage bLangPackage = bLangProgram.getEntryPackage();
+                String packageName = bLangPackage.getPackagePath();
+                if (isFilteredPackage(packageName, packageFilter)) {
+                    if (BallerinaDocUtils.isDebugEnabled()) {
+                        out.println("Package " + packageName + " excluded");
                     }
-
-                    dataHolder.getPackageMap().put(packageName, bLangPackage);
+                    continue;
                 }
+                dataHolder.getPackageMap().put(packageName, bLangPackage);
             }
         }
         return dataHolder.getPackageMap();
@@ -200,7 +199,7 @@ public class BallerinaDocGenerator {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (file.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+            if (file.toString().endsWith(BSOURCE_FILE_EXT)) {
                 Path relativePath = source.relativize(file.getParent());
                 if (!subPackages.contains(relativePath)) {
                     subPackages.add(relativePath);
