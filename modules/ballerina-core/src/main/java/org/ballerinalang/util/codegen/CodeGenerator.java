@@ -692,6 +692,23 @@ public class CodeGenerator implements NodeVisitor {
     public void visit(BallerinaConnectorDef connectorDef) {
         BallerinaFunction initFunction = connectorDef.getInitFunction();
         visit(initFunction);
+
+        if (connectorDef.isFilterConnector()) {
+            BallerinaConnectorDef filterConnectorDef = (BallerinaConnectorDef) connectorDef.getFilteredType();
+            PackageInfo connectorPkgInfo = programFile.getPackageInfo(filterConnectorDef.getPackagePath());
+            int pkgCPIndex = addPackageCPEntry(filterConnectorDef.getPackagePath());
+
+            UTF8CPEntry nameUTF8CPEntry = new UTF8CPEntry(filterConnectorDef.getName());
+            int nameIndex = currentPkgInfo.addCPEntry(nameUTF8CPEntry);
+
+            StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex,
+                    filterConnectorDef.getPackagePath(), nameIndex, filterConnectorDef.getName());
+            ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(filterConnectorDef.getName());
+            connectorInfo.setFilterConnector(filterConnectorDef.isFilterConnector());
+            structureRefCPEntry.setStructureTypeInfo(connectorInfo);
+            currentPkgInfo.addCPEntry(structureRefCPEntry);
+        }
+
         BallerinaAction initAction = connectorDef.getInitAction();
         if (initAction != null) {
             visit(initAction);
