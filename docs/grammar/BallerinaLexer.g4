@@ -34,7 +34,7 @@ TYPE_XML        : 'xml' ;
 TYPE_MESSAGE    : 'message' ;
 TYPE_DATATABLE  : 'datatable' ;
 TYPE_ANY        : 'any' ;
-TYPE_TYPE       : 'any' ;
+TYPE_TYPE       : 'type' ;
 
 VAR         : 'var' ;
 CREATE      : 'create' ;
