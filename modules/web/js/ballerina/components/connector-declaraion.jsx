@@ -131,7 +131,7 @@ class ConnectorDeclaration extends React.Component {
                     onDelete={this.onDelete}
                     classes={classes}
                     startSolidLineFrom={connectorInitializeStartY}
-                    icon={ImageUtil.getSVGIconString('tool-icons/connector-greyscale')}
+                    icon={ImageUtil.getSVGIconString('tool-icons/connector-white')}
                     iconColor='#1a8278'
                 />
                 {children}

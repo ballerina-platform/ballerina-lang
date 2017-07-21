@@ -97,7 +97,7 @@ class ConnectorAction extends React.Component {
                     title="default"
                     bBox={resourceWorkerBBox}
                     classes={classes}
-                    icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                    icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                     iconColor='#025482'
                 />
                 <StatementContainer dropTarget={this.props.model} bBox={statementContainerBBox}>

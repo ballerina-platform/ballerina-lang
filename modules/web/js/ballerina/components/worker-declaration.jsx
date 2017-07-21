@@ -67,7 +67,7 @@ class WorkerDeclaration extends React.Component {
                 onDelete={this.onDelete.bind(this)}
                 classes={classes}
                 tooltip={this.props.model.getWorkerName()}
-                icon={ImageUtil.getSVGIconString('tool-icons/worker-greyscale')}
+                icon={ImageUtil.getSVGIconString('tool-icons/worker-white')}
                 iconColor='#0380c6'
             />
             {children}
