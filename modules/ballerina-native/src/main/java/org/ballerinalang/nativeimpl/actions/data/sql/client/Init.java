@@ -40,7 +40,7 @@ import org.osgi.service.component.annotations.Component;
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "init",
+        actionName = "<init>",
         connectorName = Constants.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR)
         },

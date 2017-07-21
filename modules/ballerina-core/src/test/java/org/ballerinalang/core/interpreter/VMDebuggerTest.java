@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.core.interpreter;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.BLangCompiler;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.ControlStackNew;
 import org.ballerinalang.bre.bvm.DebuggerExecutor;
@@ -194,14 +194,13 @@ public class VMDebuggerTest {
                 throw new IllegalArgumentException("error while running test: " + e.getMessage());
             }
 
-            programFile = new BLangProgramLoader().loadMainProgramFile(path, Paths.get(sourceFilePath));
-
-
+            programFile = BLangCompiler.compile(path, Paths.get(sourceFilePath));
+            
             bContext = new Context();
             bContext.setDebugInfoHolder(new DebugInfoHolder());
 
             ControlStackNew controlStackNew = bContext.getControlStackNew();
-            String mainPkgName = programFile.getMainPackageName();
+            String mainPkgName = programFile.getEntryPkgName();
 
             PackageInfo mainPkgInfo = programFile.getPackageInfo(mainPkgName);
             if (mainPkgInfo == null) {
@@ -214,7 +213,7 @@ public class VMDebuggerTest {
             }
 
             // Invoke package init function
-            BLangFunctions.invokeFunction(programFile, mainPkgInfo, mainPkgInfo.getInitFunctionInfo(), bContext);
+            BLangFunctions.invokeFunction(programFile, mainPkgInfo.getInitFunctionInfo(), bContext);
 
             // Prepare main function arguments
             BStringArray arrayArgs = new BStringArray();

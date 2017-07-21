@@ -28,8 +28,9 @@ import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
-import org.ballerinalang.util.repository.FileSystemPackageRepository;
+import org.ballerinalang.util.repository.ProgramDirRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
 import java.io.File;
@@ -63,11 +64,10 @@ public class BuiltinPackageValidator {
         NativeScope nativeScope = NativeScope.getInstance();
 
         loadConstructs(globalScope, nativeScope);
-
-        BuiltinPackageRepository[] pkgRepos = loadPackageRepositories();
-        FileSystemPackageRepository fileRepo = new FileSystemPackageRepository(Paths.get(targetDir), pkgRepos);
+        ProgramDirRepository programDirRepo = BLangPrograms.initProgramDirRepository(Paths.get(targetDir));
+        
         // create program
-        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, nativeScope);
 
         // turn off skipping native function parsing
         System.setProperty("skipNatives", "false");
@@ -76,7 +76,7 @@ public class BuiltinPackageValidator {
         for (String builtInPkg : builtInPackages) {
             Path packagePath = Paths.get(builtInPkg.replace(".", File.separator));
             if (bLangProgram.resolve(new SymbolName(builtInPkg)) == null) {
-                BLangPackage pkg = BLangPackages.loadPackage(packagePath, fileRepo,
+                BLangPackage pkg = BLangPackages.loadPackage(packagePath, programDirRepo,
                         bLangProgram);
                 bLangProgram.addLibraryPackage(pkg);
                 bLangProgram.define(new SymbolName(pkg.getPackagePath()), pkg);

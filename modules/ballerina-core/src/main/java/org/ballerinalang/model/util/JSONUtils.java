@@ -31,9 +31,6 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.model.DataTableJSONDataSource;
-import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BJSONType;
@@ -42,7 +39,6 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BDataTable;
@@ -79,118 +75,10 @@ import java.util.Set;
 public class JSONUtils {
 
     private static final String NULL = "null";
-
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
     private static final String NIL = "nil";
-    
-    /**
-     * Convert {@link BJSON} to {@link BInteger}.
-     * 
-     * @param json JSON to be converted
-     * @return BInteger value of the JSON, if its a integer or a long JSON node. Error, otherwise.
-     */
-    public static BInteger toBInteger(BJSON json) {
-        return jsonNodeToInteger(json.value());
-    }
-
-    /**
-     * Convert {@link BJSON} to {@link BFloat}.
-     * 
-     * @param json JSON to be converted
-     * @return BFloat value of the JSON, if its a double or a float JSON node. Error, otherwise.
-     */
-    public static BFloat toBFloat(BJSON json) {
-        return jsonNodeToBFloat(json.value());
-    }
-    
-    /**
-     * Convert {@link BJSON} to {@link BBoolean}.
-     * 
-     * @param json JSON to be converted
-     * @return BBoolean value of the JSON, if its a boolean node. Error, otherwise.
-     */
-    public static BBoolean toBBoolean(BJSON json) {
-        return jsonNodeToBoolean(json.value());
-    }
-    
-    /**
-     * Convert {@link BJSON} to {@link BMap}.
-     * 
-     * @param json JSON to be converted
-     * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values 
-     * of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
-     */
-    public static BMap<BString, ?> toBMap(BJSON json) {
-        return jsonNodeToMap(json.value());
-    }
-    
-    /**
-     * Converts a JSON array to {@link BArray}.
-     * 
-     * @param json JSON to be converted
-     * @param arrayType Type of the target array
-     * @return If the provided {@link BJSON} is of array type, this method will return a {@link BArray} containing 
-     * the values of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
-     */
-    public static BArray<?> toBArray(BJSON json, BArrayType arrayType) {
-        return jsonNodeToArray(json.value(), arrayType);
-    }
-    
-    /**
-     * Convert {@link BJSON} to {@link BStruct}.
-     * 
-     * @param json JSON to be converted to struct
-     * @param structDef Target struct type
-     * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values 
-     * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
-     */
-    public static BValue toBStruct(BJSON json, StructDef structDef) {
-        return jsonNodeToStruct(json.value(), structDef);
-    }
-    
-    /**
-     * Convert {@link BMap} to {@link BJSON}.
-     * 
-     * @param map {@link BMap} to be converted to {@link BJSON}
-     * @return JSON representation of the provided map
-     */
-    public static BJSON toJSON(BMap<BString, BValue> map) {
-        Set<BString> keys = map.keySet();
-        BJSON bjson = new BJSON("{}");
-        ObjectNode jsonNode = (ObjectNode) bjson.value();
-        for (BString key : keys) {
-            try {
-                BValue bvalue = map.get(key);
-                if (bvalue == null) {
-                    jsonNode.set(key.stringValue(), new BJSON(NULL).value());
-                } else if (bvalue.getType() == BTypes.typeString) {
-                    jsonNode.put(key.stringValue(), bvalue.stringValue());
-                } else if (bvalue.getType() == BTypes.typeInt) {
-                    jsonNode.put(key.stringValue(), ((BInteger) bvalue).intValue());
-                } else if (bvalue.getType() == BTypes.typeFloat) {
-                    jsonNode.put(key.stringValue(), ((BFloat) bvalue).floatValue());
-                } else if (bvalue.getType() == BTypes.typeBoolean) {
-                    jsonNode.put(key.stringValue(), ((BBoolean) bvalue).booleanValue());
-                } else if (bvalue.getType() == BTypes.typeMap) {
-                    jsonNode.set(key.stringValue(), toJSON((BMap<BString, BValue>) bvalue).value());
-                } else if (bvalue.getType() == BTypes.typeJSON) {
-                    jsonNode.set(key.stringValue(), ((BJSON) bvalue).value());
-                } else if (bvalue instanceof BArray) {
-                    jsonNode.set(key.stringValue(), toJSON((BArray<?>) bvalue).value());
-                } else if (bvalue instanceof BStruct) {
-                    jsonNode.set(key.stringValue(), toJSON((BStruct) bvalue).value());
-                } else {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                            BTypes.typeJSON, bvalue.getType());
-                }
-            } catch (BallerinaException e) {
-                handleError(e, key.stringValue());
-            }
-        }
-        return bjson;
-    }
 
     /**
      * Convert {@link BMap} to {@link BJSON}.
@@ -229,43 +117,6 @@ public class JSONUtils {
                 }
             } catch (BallerinaException e) {
                 handleError(e, key);
-            }
-        }
-        return bjson;
-    }
-
-    /**
-     * Convert {@link BArray} to {@link BJSON}.
-     * 
-     * @param array {@link BArray} to be converted to {@link BJSON}
-     * @return JSON representation of the provided array
-     */
-    public static BJSON toJSON(BArray<?> array) {
-        BJSON bjson = new BJSON("[]");
-        ArrayNode arrayNode = (ArrayNode) bjson.value();
-        for (int i = 0; i < array.size(); i++) {
-            BValue bvalue = array.get(i);
-            if (bvalue == null) {
-                arrayNode.add(new BJSON(NULL).value());
-            } else if (bvalue.getType() == BTypes.typeString) {
-                arrayNode.add(bvalue.stringValue());
-            } else if (bvalue.getType() == BTypes.typeInt) {
-                arrayNode.add(((BInteger) bvalue).intValue());
-            } else if (bvalue.getType() == BTypes.typeFloat) {
-                arrayNode.add(((BFloat) bvalue).floatValue());
-            } else if (bvalue.getType() == BTypes.typeBoolean) {
-                arrayNode.add(((BBoolean) bvalue).booleanValue());
-            } else if (bvalue.getType() == BTypes.typeMap) {
-                arrayNode.add(toJSON((BMap<BString, BValue>) bvalue).value());
-            } else if (bvalue.getType() == BTypes.typeJSON) {
-                arrayNode.add(((BJSON) bvalue).value());
-            } else if (bvalue instanceof BArray) {
-                arrayNode.add(toJSON((BArray<?>) bvalue).value());
-            } else if (bvalue instanceof BStruct) {
-                arrayNode.add(toJSON((BStruct) bvalue).value());
-            } else {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                        BTypes.typeJSON, bvalue.getType());
             }
         }
         return bjson;
@@ -384,51 +235,6 @@ public class JSONUtils {
                         BTypes.typeJSON, value.getType());
             }
         }
-        return bjson;
-    }
-
-    /**
-     * Convert {@link BStruct} to {@link BJSON}.
-     * 
-     * @param struct {@link BStruct} to be converted to {@link BJSON}
-     * @return JSON representation of the provided array
-     */
-    public static BJSON toJSON(BStruct struct) {
-        BJSON bjson = new BJSON("{}");
-        ObjectNode jsonNode = (ObjectNode) bjson.value();
-        StructDef structDef = (StructDef) struct.getType();
-        int memoryOffset = 0;
-        for (VariableDefStmt fieldDef : structDef.getFieldDefStmts()) {
-            BValue bvalue = struct.getValue(memoryOffset++);
-            String key = fieldDef.getVariableDef().getSymbolName().getName();
-            try {
-                if (bvalue == null) {
-                    jsonNode.set(key, new BJSON(NULL).value());
-                } else if (bvalue.getType() == BTypes.typeString) {
-                    jsonNode.put(key, bvalue.stringValue());
-                } else if (bvalue.getType() == BTypes.typeInt) {
-                    jsonNode.put(key, ((BInteger) bvalue).intValue());
-                } else if (bvalue.getType() == BTypes.typeFloat) {
-                    jsonNode.put(key, ((BFloat) bvalue).floatValue());
-                } else if (bvalue.getType() == BTypes.typeBoolean) {
-                    jsonNode.put(key, ((BBoolean) bvalue).booleanValue());
-                } else if (bvalue.getType() == BTypes.typeMap) {
-                    jsonNode.set(key, toJSON((BMap<BString, BValue>) bvalue).value());
-                } else if (bvalue.getType() == BTypes.typeJSON) {
-                    jsonNode.set(key, ((BJSON) bvalue).value());
-                } else if (bvalue instanceof BArray) {
-                    jsonNode.set(key, toJSON((BArray<?>) bvalue).value());
-                } else if (bvalue instanceof BStruct) {
-                    jsonNode.set(key, toJSON((BStruct) bvalue).value());
-                } else {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                            BTypes.typeJSON, bvalue.getType());
-                }
-            } catch (BallerinaException e) {
-                handleError(e, key);
-            }
-        }
-
         return bjson;
     }
 
@@ -875,49 +681,6 @@ public class JSONUtils {
     }
 
     /**
-     * Convert a JSON node to a user defined struct.
-     * 
-     * @param jsonNode JSON to convert
-     * @param structDef Type (definition) of the target struct
-     * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values 
-     * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
-     */
-    private static BStruct jsonNodeToStruct(JsonNode jsonNode, StructDef structDef) {
-        BValue[] structMemoryBlock = new BValue[structDef.getStructMemorySize()];
-        int memoryOffset = 0;
-
-        if (!jsonNode.isObject()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.OBJECT), getTypeName(jsonNode));
-        }
-
-        for (VariableDefStmt fieldDef : structDef.getFieldDefStmts()) {
-            VariableDef varDef = fieldDef.getVariableDef();
-            BType fieldType = varDef.getType();
-            String fieldName = varDef.getSymbolName().getName();
-            if (!jsonNode.has(fieldName)) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.MISSING_FIELD, fieldName);
-            }
-            
-            BValue bValue = null;
-            try {
-                JsonNode jsonValue = jsonNode.get(fieldName);
-                if (fieldType == BTypes.typeAny) {
-                    bValue = new BJSON(jsonValue);
-                } else {
-                    bValue = getBValue(jsonValue, fieldType);
-                }
-            } catch (BallerinaException e) {
-                handleError(e, fieldName);
-            }
-            
-            structMemoryBlock[memoryOffset++] = bValue;
-        }
-
-        return new BStruct(structDef, structMemoryBlock);
-    }
-
-    /**
      * Convert a BJSON to a user defined struct.
      *
      * @param bjson      JSON to convert
@@ -950,7 +713,6 @@ public class JSONUtils {
         int refRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
-        bStruct.init(structType.getFieldCount());
         for (BStructType.StructField structField : structType.getStructFields()) {
             BType fieldType = structField.getFieldType();
             String fieldName = structField.fieldName;
@@ -1008,42 +770,10 @@ public class JSONUtils {
 
     /**
      * Convert a JSON node to an array.
-     * 
-     * @param jsonNode JSON to convert
-     * @param targetArrayType Type of the target array
-     * @return If the provided JSON is of array type, this method will return a {@link BArray} containing the values 
-     * of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
-     */
-    private static BArray<?> jsonNodeToArray(JsonNode jsonNode, BArrayType targetArrayType) {
-        BType elementType = targetArrayType.getElementType();
-        BArray<?> array = targetArrayType.getEmptyValue();
-        
-        if (!jsonNode.isArray()) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    getComplexObjectTypeName(JsonNodeType.ARRAY), getTypeName(jsonNode));
-        }
-        ArrayNode arrayNode = (ArrayNode) jsonNode;
-        if (elementType == BTypes.typeAny) {
-            for (int i = 0; i < arrayNode.size(); i++) {
-                JsonNode element = arrayNode.get(i);
-                array.add(i, getBValue(element));
-            }
-        } else {
-            for (int i = 0; i < arrayNode.size(); i++) {
-                JsonNode jsonValue = arrayNode.get(i);
-                BValue bValue = getBValue(jsonValue, elementType);
-                array.add(i, bValue);
-            }
-        }
-        return array;
-    }
-
-    /**
-     * Convert a JSON node to an array.
      *
      * @param jsonNode        JSON to convert
      * @param targetArrayType Type of the target array
-     * @return If the provided JSON is of array type, this method will return a {@link BArray} containing the values
+     * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
      * of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
      */
     private static BNewArray jsonNodeToBArray(JsonNode jsonNode, BArrayType targetArrayType) {
@@ -1131,43 +861,6 @@ public class JSONUtils {
             booleanArray.add(i, jsonNodeToBool(jsonValue) ? 1 : 0);
         }
         return booleanArray;
-    }
-
-    /**
-     * Convert the jsonValue to the targetType and get the BValue of it. If the targetType and the 
-     * type of the jsonValue are not the same, this method will try to implicitly cast the value
-     * to the target type, if possible.
-     * 
-     * @param jsonValue JSON value to be converted
-     * @param targetType Type of the expected BValue
-     * @return BValue containing the value of the json
-     */
-    private static BValue getBValue(JsonNode jsonValue, BType targetType) {
-        if ((jsonValue == null || jsonValue.isNull()) && !BTypes.isValueType(targetType)) {
-            return null;
-        } else if (targetType == BTypes.typeString) {
-            if (jsonValue.isTextual()) {
-                return new BString(jsonValue.textValue());
-            }
-            return new BString(jsonValue.toString());
-        } else if (targetType == BTypes.typeInt) {
-            return jsonNodeToInteger(jsonValue);
-        } else if (targetType == BTypes.typeFloat) {
-            return jsonNodeToBFloat(jsonValue);
-        } else if (targetType == BTypes.typeBoolean) {
-            return jsonNodeToBoolean(jsonValue);
-        } else if (targetType == BTypes.typeJSON) {
-            return new BJSON(jsonValue);
-        } else if (targetType == BTypes.typeMap) {
-            return jsonNodeToMap(jsonValue);
-        } else if (targetType instanceof StructDef) {
-            return jsonNodeToStruct(jsonValue, (StructDef) targetType);
-        } else if (targetType instanceof BArrayType) {
-            return jsonNodeToArray(jsonValue, (BArrayType) targetType);
-        } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                    targetType, getTypeName(jsonValue));
-        }
     }
 
     /**
