@@ -58,6 +58,7 @@ import typeName from './type-name';
 import argument from './argument';
 import backTickExpression from './expressions/back-tick-expression';
 import basicLiteralExpression from './expressions/basic-literal-expression';
+import lambdaFunctionExpression from './expressions/lambda-expression';
 import nullLiteralExpression from './expressions/null-literal-expression';
 import instanceCreationExpression from './expressions/instance-creation-expression';
 import thenBody from './then-body';
@@ -595,6 +596,15 @@ BallerinaASTFactory.createBackTickExpression = function (args) {
  */
 BallerinaASTFactory.createBasicLiteralExpression = function (args) {
     return new basicLiteralExpression(args);
+};
+
+/**
+ * creates BasicLiteralExpression
+ * @param args
+ * @returns {LambdaExpression}
+ */
+BallerinaASTFactory.createLambdaExpression = function (args) {
+    return new lambdaFunctionExpression(args);
 };
 
 /**
@@ -1346,6 +1356,15 @@ BallerinaASTFactory.isBasicLiteralExpression = function (child) {
 };
 
 /**
+ * instanceof check for LambdaExpression
+ * @param child
+ * @returns {boolean}
+ */
+BallerinaASTFactory.isLambdaExpression = function (child) {
+    return child instanceof lambdaFunctionExpression;
+};
+
+/**
  * instanceof check for NullLiteralExpression
  * @param child
  * @returns {boolean}
@@ -1755,7 +1774,10 @@ BallerinaASTFactory.createFromJson = function (jsonNode) {
         case 'basic_literal_expression' :
             node = BallerinaASTFactory.createBasicLiteralExpression();
             break;
-        case 'null_literal_expression' :
+        case 'lambda_function_expression' :
+        node = BallerinaASTFactory.createLambdaExpression();
+        break;
+    case 'null_literal_expression' :
             node = BallerinaASTFactory.createNullLiteralExpression();
             break;
         case 'variable_reference_list':
