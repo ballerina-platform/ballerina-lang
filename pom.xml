@@ -213,11 +213,12 @@
 
     <modules>
         <module>modules/ballerina-core</module>
-        <module>modules/launcher</module>
-        <module>modules/ballerina-native</module>
         <module>modules/annotation-processor</module>
+        <module>modules/ballerina-native</module>
+        <module>modules/launcher</module>
         <module>modules/ballerina-samples</module>
         <module>modules/ballerina-logging</module>
+        <module>modules/packerina</module>
     </modules>
 
 </project>
