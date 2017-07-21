@@ -98,6 +98,10 @@ public class BuiltinPackageRepository extends PackageRepository {
         // Get the names of the source files in the package
         List<String> fileNames = getFileNames(classLoader);
 
+        if (fileNames.size() == 0) {
+            return null;
+        }
+
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
             InputStream balSourceStream = classLoader.getResourceAsStream(
