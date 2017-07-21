@@ -75,7 +75,6 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
-import org.ballerinalang.util.codegen.LocalVariableInfo;
 import org.ballerinalang.util.codegen.Mnemonics;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -182,7 +181,8 @@ public class BLangVM {
         try {
             exec();
             if (context.isDebugEnabled()) {
-                VMDebugManager.getInstance().setDone(true);
+                context.getDebugInfoHolder().getDebugSessionObserver().notifyExit();
+                VMDebugManager.getInstance().releaseExecutionLock();
             }
         } catch (Throwable e) {
             String message;
@@ -198,6 +198,13 @@ public class BLangVM {
 
     public void execWorker(Context context, int startIP) {
         context.setStartIP(startIP);
+        if (VMDebugManager.getInstance().isDebugSessionActive()) {
+            VMDebugManager debugManager = VMDebugManager.getInstance();
+            context.setAndInitDebugInfoHolder(new DebugInfoHolder());
+            context.getDebugInfoHolder().setCurrentCommand(DebugInfoHolder.DebugCommand.RESUME);
+            context.setDebugEnabled(true);
+            debugManager.setDebuggerContext(context);
+        }
         run(context);
     }
 
@@ -247,6 +254,9 @@ public class BLangVM {
 
         while (ip >= 0 && ip < code.length && controlStack.fp >= 0) {
 
+            if (isDebugging) {
+                debugging(ip);
+            }
             Instruction instruction = code[ip];
             int opcode = instruction.getOpcode();
             int[] operands = instruction.getOperands();
@@ -1503,9 +1513,6 @@ public class BLangVM {
                 default:
                     throw new UnsupportedOperationException();
             }
-            if (isDebugging) {
-                debugging(ip);
-            }
         }
     }
 
@@ -1889,128 +1896,143 @@ public class BLangVM {
         }
     }
 
+    /**
+     * Method to calculate and detect debug points when the instruction point is given.
+     *
+     * @param cp        Current instruction point.
+     */
     public void debugging(int cp) {
-        if (cp < 0) {
+        DebugInfoHolder holder = context.getDebugInfoHolder();
+        LineNumberInfo currentExecLine = holder.getLineNumber(controlStack.currentFrame.packageInfo.getPkgPath(), cp);
+        if (currentExecLine.equals(holder.getLastLine()) || debugPointCheck(currentExecLine, holder)) {
             return;
         }
-        String lineNum;
-        NodeLocation location;
-        LineNumberInfo currentExecLine = controlStack.currentFrame.packageInfo.getLineNumberInfo(cp);
 
-        DebugInfoHolder holder = context.getDebugInfoHolder();
-        if (code[cp].getOpcode() == InstructionCodes.CALL && holder.getCurrentCommand() != DebugInfoHolder
-                .DebugCommand.STEP_OUT) {
-            holder.pushFunctionCallNextIp(cp + 1);
-        } else if (code[cp].getOpcode() == InstructionCodes.RET && holder.getCurrentCommand() != DebugInfoHolder
-                .DebugCommand.STEP_OUT) {
-            holder.popFunctionCallNextIp();
-        }
         switch (holder.getCurrentCommand()) {
             case RESUME:
-                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                        .equals(holder.getCurrentLineStack().peek())) {
-                    return;
-                }
-                lineNum = currentExecLine.getFileName() + ":" + currentExecLine.getLineNumber(); //todo add package
-                location = holder.getDebugPoint(lineNum);
-                if (location == null) {
-                    return;
-                }
-                if (!holder.getCurrentLineStack().isEmpty()) {
-                    holder.getCurrentLineStack().pop();
-                    if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                            .equals(holder.getCurrentLineStack().peek())) {
-                        return;
-                    }
-                }
-                holder.setPreviousIp(cp);
-                holder.getCurrentLineStack().push(currentExecLine);
-                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-                holder.waitTillDebuggeeResponds();
                 break;
             case STEP_IN:
-                if (!holder.getCurrentLineStack().isEmpty() && currentExecLine
-                        .equals(holder.getCurrentLineStack().peek())) {
-                    return;
-                }
-
-                holder.setPreviousIp(cp);
-                holder.getCurrentLineStack().push(currentExecLine);
-                holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
-                holder.waitTillDebuggeeResponds();
+                debugHit(currentExecLine, holder);
                 break;
             case STEP_OVER:
-                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
-                    holder.setNextIp(holder.getPreviousIp() + 1);
-                    if (cp == holder.getNextIp()) {
-                        holder.setNextIp(-1);
-                        holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
-                        return;
-                    }
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.NEXT_LINE);
-                } else {
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                if (controlStack.fp == holder.getFp()) {
+                    debugHit(currentExecLine, holder);
+                    return;
                 }
+                if (holder.getLastLine().checkIpRangeForInstructionCode(code, InstructionCodes.RET)
+                        && controlStack.fp == holder.getFp() - 1) {
+                    debugHit(currentExecLine, holder);
+                    return;
+                }
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OVER_INTMDT);
+                break;
+            case STEP_OVER_INTMDT:
+                if (controlStack.fp != holder.getFp()) {
+                    return;
+                }
+                debugHit(currentExecLine, holder);
                 break;
             case STEP_OUT:
-                if (code[holder.getPreviousIp()].getOpcode() == InstructionCodes.CALL) {
-                    holder.setPreviousIp(cp);
-                    holder.popFunctionCallNextIp();
-                }
-                if (holder.peekFunctionCallNextIp() != cp) {
-                    return;
-                }
-                holder.popFunctionCallNextIp();
-                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
+                holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_OUT_INTMDT);
+                holder.setFp(holder.getFp() - 1);
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
-            case NEXT_LINE:
-                if (cp == holder.getNextIp()) {
-                    holder.setNextIp(-1);
-                    holder.setCurrentCommand(DebugInfoHolder.DebugCommand.STEP_IN);
-                    return;
-                }
+            case STEP_OUT_INTMDT:
+                interMediateDebugCheck(currentExecLine, holder);
                 break;
         }
+    }
 
+    /**
+     * Inter mediate debug check to avoid switch case falling through.
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     */
+    private void interMediateDebugCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        if (controlStack.fp != holder.getFp()) {
+            return;
+        }
+        debugHit(currentExecLine, holder);
+    }
+
+    /**
+     * Helper method to check whether given point is a debug point or not.
+     * If it's a debug point, then notify the debugger.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     * @return                  Boolean true if it's a debug point, false otherwise.
+     */
+    private boolean debugPointCheck(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        if (!currentExecLine.isDebugPoint()) {
+            return false;
+        }
+        debugHit(currentExecLine, holder);
+        return true;
+    }
+
+    /**
+     * Helper method to set required details when a debug point hits.
+     * And also to notify the debugger.
+     *
+     * @param currentExecLine   Current execution line.
+     * @param holder            Debug info holder.
+     */
+    private void debugHit(LineNumberInfo currentExecLine, DebugInfoHolder holder) {
+        holder.setLastLine(currentExecLine);
+        holder.setFp(controlStack.fp);
+        holder.getDebugSessionObserver().notifyHalt(getBreakPointInfo(currentExecLine));
+        holder.waitTillDebuggeeResponds();
     }
 
     public BreakPointInfo getBreakPointInfo(LineNumberInfo current) {
-
         NodeLocation location = new NodeLocation(current.getPackageInfo().getPkgPath(),
                 current.getFileName(), current.getLineNumber());
         BreakPointInfo breakPointInfo = new BreakPointInfo(location);
+        breakPointInfo.setThreadId(context.getThreadId());
 
-        String pck = controlStack.currentFrame.packageInfo.getPkgPath();
-        String functionName = controlStack.currentFrame.callableUnitInfo.getName();
-        //todo below line number is a dummy line number - remove later
-        FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) controlStack.currentFrame
-                .callableUnitInfo.getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
-        if (localVarAttrInfo != null) {
-            for (LocalVariableInfo localVarInfo : localVarAttrInfo.getLocalVariables()) {
+        int callingIp = current.getIp();
+        for (int i = controlStack.fp; i >= 0; i--) {
+            StackFrame frame = controlStack.getStack()[i];
+            if (frame == null) {
+                continue;
+            }
+
+            String pck = frame.packageInfo.getPkgPath();
+            String functionName = frame.callableUnitInfo.getName();
+            LineNumberInfo callingLine = context.getDebugInfoHolder()
+                    .getLineNumber(frame.packageInfo.getPkgPath(), callingIp);
+            FrameInfo frameInfo = new FrameInfo(pck, functionName, callingLine.getFileName(),
+                    callingLine.getLineNumber());
+            LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) frame.callableUnitInfo
+                    .getDefaultWorkerInfo().getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+            if (localVarAttrInfo == null) {
+                continue;
+            }
+            localVarAttrInfo.getLocalVariables().forEach(localVarInfo -> {
                 VariableInfo variableInfo = new VariableInfo(localVarInfo.getVarName(), "Local");
                 if (BTypes.typeInt.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BInteger(controlStack.currentFrame
-                            .longLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BInteger(frame.longLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeFloat.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BFloat(controlStack.currentFrame
-                            .doubleLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BFloat(frame.doubleLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeString.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BString(controlStack.currentFrame
-                            .stringLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BString(frame.stringLocalVars[localVarInfo.getVariableIndex()]));
                 } else if (BTypes.typeBoolean.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBoolean(controlStack.currentFrame
-                            .intLocalVars[localVarInfo.getVariableIndex()] == 1 ? true : false));
+                    variableInfo.setBValue(new BBoolean(frame.intLocalVars[localVarInfo
+                            .getVariableIndex()] == 1 ? true : false));
                 } else if (BTypes.typeBlob.equals(localVarInfo.getVariableType())) {
-                    variableInfo.setBValue(new BBlob(controlStack.currentFrame
-                            .byteLocalVars[localVarInfo.getVariableIndex()]));
+                    variableInfo.setBValue(new BBlob(frame.byteLocalVars[localVarInfo.getVariableIndex()]));
                 } else {
-                    variableInfo.setBValue(controlStack.currentFrame.refLocalVars[localVarInfo.getVariableIndex()]);
+                    variableInfo.setBValue(frame.refLocalVars[localVarInfo.getVariableIndex()]);
                 }
                 frameInfo.addVariableInfo(variableInfo);
+            });
+            callingIp = frame.retAddrs - 1;
+            if (callingIp < 0) {
+                callingIp = 0;
             }
+            breakPointInfo.addFrameInfo(frameInfo);
         }
-        breakPointInfo.addFrameInfo(frameInfo);
         return breakPointInfo;
     }
 

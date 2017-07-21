@@ -40,6 +40,10 @@ public class LineNumberInfo {
     // First Instruction pointer of the line.
     private int ip = -1;
 
+    private boolean isDebugPoint = false;
+
+    private int endIp;
+
     // Cache values.
     private PackageInfo packageInfo;
 
@@ -153,5 +157,26 @@ public class LineNumberInfo {
     @Override
     public String toString() {
         return "\t" + getFileName() + ":" + lineNumber + "\t\t" + ip;
+    }
+
+    public boolean isDebugPoint() {
+        return isDebugPoint;
+    }
+
+    public void setDebugPoint(boolean debugPoint) {
+        isDebugPoint = debugPoint;
+    }
+
+    public void setEndIp(int endIp) {
+        this.endIp = endIp;
+    }
+
+    public boolean checkIpRangeForInstructionCode(Instruction[] codes, int matchingCode) {
+        for (int i = ip; i < endIp; i++) {
+            if (codes[i].getOpcode() == matchingCode) {
+                return true;
+            }
+        }
+        return false;
     }
 }
