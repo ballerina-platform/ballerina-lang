@@ -1,4 +1,4 @@
-$ ballerina run main json-literals.bal
+$ ballerina run json-literals.bal
 {"fname":"John","lname":"Stallone","age":30}
 John
 Stallone

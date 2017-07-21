@@ -1,4 +1,4 @@
-$ ballerina run main xml.bal
+$ ballerina run xml.bal
 # Type of the XML
 comment
 # Name of the XML

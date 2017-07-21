@@ -1,6 +1,6 @@
 # To start the service, put the code in "hello-world-service.bal"
-# and use "ballerina run service" command.
-$ ballerina run service hello-world-service.bal
+# and use "ballerina run" command.
+$ ballerina run hello-world-service.bal
 ballerina: deploying service(s) in 'hello-world-service.bal'
 ballerina: started server connector http-9090
 

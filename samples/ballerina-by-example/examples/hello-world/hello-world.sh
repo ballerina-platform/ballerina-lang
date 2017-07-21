@@ -1,6 +1,6 @@
 # To run the program, put the code in "hello-world.bal"
-# and use "ballerina run main" command.
-$ ballerina run main hello-world.bal
+# and use "ballerina run" command.
+$ ballerina run hello-world.bal
 Hello, World!
 
 # To build a program archive, we can use the
@@ -14,7 +14,7 @@ hello-world.bmz	hello-world.bal
 $ ballerina build main hello-world.bal -o hello.bmz
 
 # We can now run the archive directly.
-$ ballerina run main hello.bmz
+$ ballerina run hello.bmz
 Hello, World!
 
 # Now that we are familiar with the hello world program,
