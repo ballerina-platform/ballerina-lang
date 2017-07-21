@@ -1,7 +1,7 @@
 import ballerina.net.http;
 import ballerina.net.http.swagger;
 
-@http:config {basePath:"/api"}
+@http:configuration {basePath:"/api"}
 @swagger:ServiceInfo {
     version: "1.0.0",
     title: "Swagger Petstore",
