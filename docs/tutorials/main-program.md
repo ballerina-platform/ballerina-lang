@@ -182,6 +182,8 @@ Once the function is added, it is available on the tool palette and can be dragg
     ![alt text](../images/ConvertFunction.png)
 1. Drag two `println` functions to the canvas and assign `avgTemp` to one to display the average temperature in Kelvin and assign `celciusTemp` to the other to display the average temperature in Celcius.
     ![alt text](../images/PrintLn.png)
+1. Run the main program as an application. You will see the following output in the console.
+    ![alt text](../images/Console.png)
 
 ## Get information from the weather forecast API
 
