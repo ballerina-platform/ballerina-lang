@@ -74,7 +74,7 @@ public class CloseStoredConnection extends AbstractNativeFunction {
                                                      + connectionName);
             }
         }
-        connectionManager.removeConnectionFromAll(session);
+        connectionManager.removeSessionFromAll(session);
 
         return VOID_RETURN;
     }

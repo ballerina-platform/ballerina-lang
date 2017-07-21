@@ -45,6 +45,7 @@ public class MockWebSocketSession implements Session {
     public MockWebSocketSession(String id) {
         this.id = id;
         remoteEndpoint = new MockBasicRemoteEndpoint();
+        isOpen = true;
     }
 
     public String getTextReceived() {
