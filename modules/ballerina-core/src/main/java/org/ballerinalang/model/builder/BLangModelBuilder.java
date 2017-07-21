@@ -920,6 +920,54 @@ public class BLangModelBuilder {
         exprStack.push(connectorInitExpr);
     }
 
+    public void createConnectorWithFilterInitExpr(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,
+                                                  SimpleTypeName typeName, boolean argsAvailable,
+                                                  WhiteSpaceDescriptor filterWhiteSpaceDescriptor,
+                                                  List<BLangModelBuilder.NameReference> filterNameReferenceList,
+                                                  List<Boolean> argExistenceList) {
+        List<List<Expression>> filterArgExprList = new ArrayList<>();
+        for (int i = 0; i < argExistenceList.size(); i++) {
+            List<Expression> filterArgExpr;
+            if (argExistenceList.get(i)) {
+                filterArgExpr = exprListStack.pop();
+                checkArgExprValidity(location, filterArgExpr);
+            } else {
+                filterArgExpr = new ArrayList<>(0);
+            }
+            filterArgExprList.add(filterArgExpr);
+        }
+
+        List<Expression> argExprList;
+        if (argsAvailable) {
+            argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
+
+        ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, whiteSpaceDescriptor, typeName,
+                argExprList.toArray(new Expression[argExprList.size()]));
+
+        ConnectorInitExpr currentConnectorInitExpr = connectorInitExpr;
+
+        //int j = 0;
+        for (int j = filterNameReferenceList.size() - 1; j >= 0; j--) {
+            BLangModelBuilder.NameReference filterNameReference = filterNameReferenceList.get(j);
+            SimpleTypeName filterTypeName = new SimpleTypeName(filterNameReference.getName(),
+                    filterNameReference.getPackageName(), null);
+            List<Expression> argExpr = filterArgExprList.get(j);
+            filterTypeName.setWhiteSpaceDescriptor(filterNameReference.getWhiteSpaceDescriptor());
+            ConnectorInitExpr filterConnectorInitExpr = new ConnectorInitExpr(location, filterWhiteSpaceDescriptor,
+                    filterTypeName,
+                    argExpr.toArray(new Expression[argExpr.size()]));
+            currentConnectorInitExpr.setParentConnectorInitExpr(filterConnectorInitExpr);
+            currentConnectorInitExpr = filterConnectorInitExpr;
+        }
+
+        //exprStack.push(filterConnectorInitExpr);
+        exprStack.push(connectorInitExpr);
+    }
+
 
     // Functions, Actions and Resources
 
@@ -1146,21 +1194,25 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name) {
+    public void createConnector(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor, String name,
+                                boolean isFilterConnector, String filterSupportedType) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setWhiteSpaceDescriptor(whiteSpaceDescriptor);
         currentCUGroupBuilder.setIdentifier(new Identifier(name));
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
         getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
-
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
+        connector.setFilterConnector(isFilterConnector);
+        if (isFilterConnector) {
+            connector.setFilterSupportedType(connector.getParameterDefs()[0].getTypeName());
+        }
+
         bFileBuilder.addConnector(connector);
 
         currentScope = connector.getEnclosingScope();
         currentCUGroupBuilder = null;
     }
-
 
     // Statements
     public void addVariableDefinitionStmt(NodeLocation location, WhiteSpaceDescriptor whiteSpaceDescriptor,

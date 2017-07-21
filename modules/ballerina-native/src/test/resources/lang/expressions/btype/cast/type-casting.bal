@@ -61,10 +61,17 @@ function intarrtofloatarr()(float[]) {
     return numbers;
 }
 
-function testJsonToString(json j) (string) {
+function testJsonToStringCast() (string) {
+    json j = "hello";
     string value;
     value, _ = (string)j;
     return value;
+}
+
+function testJSONObjectToStringCast() (string, errors:TypeCastError) {
+    json j = {"foo":"bar"};
+    var value, e = (string)j;
+    return value, e;
 }
 
 function testJsonToInt() (int){
