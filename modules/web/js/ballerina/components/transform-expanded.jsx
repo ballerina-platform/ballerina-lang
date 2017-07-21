@@ -791,7 +791,7 @@ class TransformExpanded extends React.Component {
             if (BallerinaASTFactory.isVariableDefinitionStatement(argument)) {
                 const arg = {
                     id: argument.getID(),
-                    type: argument.getVariableDef().getTypeName(),
+                    type: argument.getVariableType(),
                     name: argument.getVariableDef().getName(),
                     pkgName: argument.getVariableDef().getPkgName(),
                     constraint: argument.getVariableDef().getTypeConstraint(),

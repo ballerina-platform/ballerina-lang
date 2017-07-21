@@ -85,10 +85,16 @@ class VariableDefinitionStatement extends Statement {
      */
     getVariableType() {
         let variableType = this.getBType();
-        if (this.getChildren()[0].getChildren()[0].isArray()) {
-            for (let itr = 0; itr < this.getChildren()[0].getChildren()[0].getDimensions(); itr++) {
+        if (this.getVariableDef().isArray()) {
+            for (let itr = 0; itr < this.getVariableDef().getDimensions(); itr++) {
                 variableType += '[]';
             }
+        }
+        if (this.getVariableDef().getTypeConstraint()) {
+            const constraint = this.getVariableDef().getTypeConstraint();
+            const constraintStr = ('<' + ((constraint.pkgName) ? constraint.pkgName + ':' : '')
+                                  + constraint.type + '>');
+            variableType += constraintStr;
         }
         return variableType;
     }
