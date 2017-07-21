@@ -25,6 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
@@ -291,7 +292,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         constDef.getVariableDefStmt().accept(this);
 
         for (AnnotationAttachment annotationAttachment : constDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONSTANT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONSTANT, null));
             annotationAttachment.accept(this);
         }
 
@@ -345,9 +346,11 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(service);
 
         for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.SERVICE,
+                    service.getProtocolPkgPath()));
             annotationAttachment.accept(this);
         }
+
 
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
@@ -372,7 +375,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(connectorDef);
 
         for (AnnotationAttachment annotationAttachment : connectorDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.CONNECTOR, null));
             annotationAttachment.accept(this);
         }
 
@@ -413,7 +416,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         //checkForMissingReplyStmt(resource);
 
         for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.RESOURCE, null));
             annotationAttachment.accept(this);
         }
 
@@ -473,7 +476,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
         for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.FUNCTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -533,7 +536,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(typeMapper);
 
         for (AnnotationAttachment annotationAttachment : typeMapper.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.TYPEMAPPER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.TYPEMAPPER, null));
             annotationAttachment.accept(this);
         }
 
@@ -595,7 +598,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         checkAndSetClosestScope(action);
 
         for (AnnotationAttachment annotationAttachment : action.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ACTION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ACTION, null));
             annotationAttachment.accept(this);
         }
 
@@ -714,7 +717,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
     public void visit(StructDef structDef) {
         checkAndSetClosestScope(structDef);
         for (AnnotationAttachment annotationAttachment : structDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.STRUCT);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.STRUCT, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(structDef);
@@ -766,7 +769,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : annotationDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.ANNOTATION);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.ANNOTATION, null));
             annotationAttachment.accept(this);
         }
         addToCompletionItems(annotationDef);
@@ -781,7 +784,7 @@ public class CompletionItemAccumulator implements NodeVisitor {
         }
 
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
-            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.setAttachedPoint(new AnnotationAttachmentPoint(AttachmentPoint.PARAMETER, null));
             annotationAttachment.accept(this);
         }
     }
