@@ -127,7 +127,7 @@ class BallerinaASTRootVisitor extends AbstractSymbolTableGenVisitor {
         const structFields = structDefinition.getVariableDefinitionStatements().map((varDefStmt) => {
             const structField = BallerinaEnvFactory.createStructField();
             structField.setName(varDefStmt.getIdentifier());
-            structField.setType(varDefStmt.getBType());
+            structField.setType(varDefStmt.getVariableType());
             structField.setDefaultValue(varDefStmt.getValue());
             structField.setPackageName(varDefStmt.getBTypePkgName());
             return structField;
