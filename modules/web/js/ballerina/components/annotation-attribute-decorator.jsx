@@ -23,6 +23,8 @@ import Alerts from 'alerts';
 import PropTypes from 'prop-types';
 import EditableText from './editable-text';
 import * as DesignerDefaults from './../configs/designer-defaults';
+import ExpressionEditor from '../../expression-editor/expression-editor-utils';
+import SimpleBBox from "../ast/simple-bounding-box";
 
 const DEFAULT_INPUT_VALUE = '+ Add Attribute';
 
@@ -30,15 +32,64 @@ const DEFAULT_INPUT_VALUE = '+ Add Attribute';
  * Annotation Attribute Decorator
  * */
 class AnnotationAttributeDecorator extends React.Component {
+    /**
+     * calculate the component BBox.
+     * @param {object} props - props.
+     * @return {SimpleBBox} bBox.
+     * */
+    static calculateComponentBBox(props) {
+        const bBox = props.bBox;
+        const viewState = props.model.getViewState();
+        const editableBox_x = bBox.x + DesignerDefaults.panel.body.padding.left;
+        const editableBox_y = bBox.y + DesignerDefaults.panel.heading.height
+            + DesignerDefaults.panel.body.padding.top
+            + viewState.components.annotation.h;
+        return new SimpleBBox(editableBox_x,
+            editableBox_y, DesignerDefaults.annotationAttributeDefinition.heading.width,
+            DesignerDefaults.annotationAttributeDefinition.heading.height - 2);
+    }
+
     constructor(props) {
         super(props);
         this.model = this.props.model;
-        this.state = { inputValue: DEFAULT_INPUT_VALUE, editing: false, editValue: '' };
+        this.state = {
+            inputValue: DEFAULT_INPUT_VALUE,
+            editing: false,
+            editValue: '',
+            inputBox: AnnotationAttributeDecorator.calculateComponentBBox(props),
+        };
+        this.addAnnotationAttribute = this.addAnnotationAttribute.bind(this);
         this.setAnnotationAttributeFromInputBox = this.setAnnotationAttributeFromInputBox.bind(this);
     }
 
+    componentWillReceiveProps(props) {
+        this.setState({
+            inputBox: AnnotationAttributeDecorator.calculateComponentBBox(props),
+        });
+    }
+
     onClickVariableTextBox(e) {
-        this.setState({ editing: true, editValue: '' });
+        this.editorOptions = {
+            propertyType: 'text',
+            key: 'VariableDefinition',
+            model: this.props.model,
+            getterMethod: () => {
+            },
+            setterMethod: this.addAnnotationAttribute,
+            fontSize: 12,
+            isCustomHeight: true,
+        };
+        const options = this.editorOptions;
+        const packageScope = this.context.environment;
+        if (options) {
+            new ExpressionEditor(this.state.inputBox,
+                text => this.onUpdate(text), options, packageScope).render(this.context.getOverlayContainer());
+        }
+        this.setState({editing: true, editValue: ''});
+    }
+
+    onUpdate(text) {
+
     }
 
     onInputBlur(e) {
@@ -47,12 +98,12 @@ class AnnotationAttributeDecorator extends React.Component {
                 e.preventDefault();
             }
         }
-        this.setState({ editing: false, editValue: '' });
+        this.setState({editing: false, editValue: ''});
     }
 
     onInputChange(e) {
         const variableDeclaration = e.target.value.replace(';', '');
-        this.setState({ editing: true, editValue: variableDeclaration });
+        this.setState({editing: true, editValue: variableDeclaration});
     }
 
     onKeyDown(e) {
@@ -64,7 +115,7 @@ class AnnotationAttributeDecorator extends React.Component {
                     }
                 }
             }
-            this.setState({ editing: false, editValue: '' });
+            this.setState({editing: false, editValue: ''});
         }
     }
 
@@ -72,64 +123,65 @@ class AnnotationAttributeDecorator extends React.Component {
      * Get types of ballerina to which can be applied when declaring variables.
      * */
     getTypeDropdownValues() {
-        const { environment } = this.context;
+        const {environment} = this.context;
         const dropdownData = [];
         // Adding items to the type dropdown.
         const bTypes = environment.getTypes();
         _.forEach(bTypes, (bType) => {
-            dropdownData.push({ id: bType, text: bType });
+            dropdownData.push({id: bType, text: bType});
         });
         return dropdownData;
     }
 
     setAnnotationAttributeFromInputBox(input) {
-        this.setState({ inputValue: input });
+        this.setState({inputValue: input});
     }
 
     /**
      * Add Annotation Attribute to annotation definition.
      * */
-    addAnnotationAttribute() {
+    addAnnotationAttribute(variableDeclaration) {
         const model = this.props.model;
-        try {
-            const variableDeclaration = this.state.editValue.trim();
-            if (DEFAULT_INPUT_VALUE !== variableDeclaration || variableDeclaration !== '') {
-                const splitedExpression = variableDeclaration.split('=');
-                const leftHandSideExpression = splitedExpression[0].trim();
-                let rightHandSideExpression;
-                if (splitedExpression.length > 1) {
-                    rightHandSideExpression = splitedExpression[1].trim();
+        if (variableDeclaration !== '') {
+            try {
+                if (DEFAULT_INPUT_VALUE !== variableDeclaration || variableDeclaration !== '') {
+                    const splitedExpression = variableDeclaration.split('=');
+                    const leftHandSideExpression = splitedExpression[0].trim();
+                    let rightHandSideExpression;
+                    if (splitedExpression.length > 1) {
+                        rightHandSideExpression = splitedExpression[1].trim();
+                    }
+
+                    if (leftHandSideExpression.split(' ').length <= 1) {
+                        const errorString = `Invalid variable declaration: ${variableDeclaration}`;
+                        Alerts.error(errorString);
+                        return false;
+                    }
+
+                    const bType = leftHandSideExpression.split(' ')[0];
+                    if (!this.validateType(bType)) {
+                        const errorString = `Invalid type for a variable: ${bType}`;
+                        Alerts.error(errorString);
+                        return false;
+                    }
+
+                    const identifier = leftHandSideExpression.split(' ')[1];
+
+                    let defaultValue = '';
+                    if (rightHandSideExpression) {
+                        defaultValue = rightHandSideExpression;
+                    }
+
+                    model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
+                    return true;
                 }
-
-                if (leftHandSideExpression.split(' ').length <= 1) {
-                    const errorString = `Invalid variable declaration: ${variableDeclaration}`;
-                    Alerts.error(errorString);
-                    return false;
-                }
-
-                const bType = leftHandSideExpression.split(' ')[0];
-                if (!this.validateType(bType)) {
-                    const errorString = `Invalid type for a variable: ${bType}`;
-                    Alerts.error(errorString);
-                    return false;
-                }
-
-                const identifier = leftHandSideExpression.split(' ')[1];
-
-                let defaultValue = '';
-                if (rightHandSideExpression) {
-                    defaultValue = rightHandSideExpression;
-                }
-
-                model.addAnnotationAttributeDefinition(bType, identifier, defaultValue);
-                return true;
+                const errorString = 'Please Enter Variable Declaration Before Adding';
+                Alerts.error(errorString);
+                return false;
+            } catch (e) {
+                Alerts.error(e);
+                return false;
             }
-            const errorString = 'Please Enter Variable Declaration Before Adding';
-            Alerts.error(errorString);
-            return false;
-        } catch (e) {
-            Alerts.error(e);
-            return false;
         }
     }
 
@@ -187,31 +239,13 @@ class AnnotationAttributeDecorator extends React.Component {
                         height={DesignerDefaults.annotationAttributeDefinition.heading.height}
                         className="annotation-input"
                     />
-                    <EditableText
-                        x={editableBox_x}
-                        y={editableBox_y}
-                        width={DesignerDefaults.annotationAttributeDefinition.text.width}
-                        height={DesignerDefaults.annotationAttributeDefinition.text.height}
-                        labelClass={'annotation-input-placeholder'}
-                        inputClass={'annotation-input-text-box'}
-                        placeholder={DEFAULT_INPUT_VALUE}
-                        displayText={DEFAULT_INPUT_VALUE}
-                        onKeyDown={(e) => {
-                            this.onKeyDown(e);
-                        }}
-                        onBlur={(e) => {
-                            this.onInputBlur(e);
-                        }}
-                        onClick={() => {
-                            this.onClickVariableTextBox();
-                        }}
-                        editing={this.state.editing}
-                        onChange={(e) => {
-                            this.onInputChange(e);
-                        }}
+                    <text
+                        x={editBoxRect_x + 4}
+                        y={editBoxRect_y + (DesignerDefaults.annotationAttributeDefinition.text.height / 2) + 5}
+                        className={"annotation-input-placeholder"}
                     >
-                        {this.state.editValue}
-                    </EditableText>
+                        {DEFAULT_INPUT_VALUE}
+                    </text>
                 </g>
             </g>
         );
@@ -219,6 +253,7 @@ class AnnotationAttributeDecorator extends React.Component {
 }
 
 AnnotationAttributeDecorator.contextTypes = {
+    getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
 };
 
