@@ -198,7 +198,8 @@ public class ResourceInterceptorTest {
             BLangRuntimeRegistry.getInstance().initialize();
         } catch (Exception e) {
             Assert.assertTrue(e.getCause() instanceof NoSuchFileException);
-            Assert.assertEquals(e.getMessage(), "src/test/resources/ballerina/bre/interceptors/foo.balx");
+            Assert.assertEquals(e.getMessage(), "ballerina: error reading program file " +
+                    "'src/test/resources/ballerina/bre/interceptors/foo.balx'");
             return;
         }
         Assert.fail("Test should stop before this.");

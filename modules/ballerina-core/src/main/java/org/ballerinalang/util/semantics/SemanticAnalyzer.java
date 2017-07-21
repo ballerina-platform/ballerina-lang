@@ -371,6 +371,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     currentScope, connectorDef.getNodeLocation());
             if (type != null) {
                 if (type instanceof BallerinaConnectorDef) {
+                    connectorDef.setFilteredType(type);
                     BallerinaConnectorDef filterConnector = (BallerinaConnectorDef) type;
                     if (!filterConnector.equals(connectorDef)) {
                         BLangExceptionHelper.throwSemanticError(connectorDef,

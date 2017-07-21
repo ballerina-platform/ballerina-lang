@@ -28,13 +28,13 @@ import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileWriter;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.ProgramDirRepository;
 import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -87,9 +87,9 @@ public class BLangCompiler {
 
         try {
             ProgramFileWriter.writeProgram(compiledProgram, balxFilePath);
-        } catch (IOException e) {
-            // TODO Give a proper error message
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (Throwable e) {
+            throw new BLangRuntimeException("ballerina: error writing program file '" +
+                    balxFilePath.toString() + "'", e);
         }
     }
 
