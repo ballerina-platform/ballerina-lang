@@ -59,4 +59,18 @@ public class FunctionPointersNegativeTest {
         Assert.assertEquals(returns[0].stringValue(), "test1");
     }
 
+    @Test (expectedExceptions = SemanticException.class,
+            expectedExceptionsMessageRegExp = ".*undefined function 'getFullName'.*")
+    public void testFPInStruct() {
+        BTestUtils.getProgramFile("lang/functions/negative/fp-struct-negative.bal");
+    }
+
+    @Test (expectedExceptions = SemanticException.class,
+            expectedExceptionsMessageRegExp = ".*incorrect arguments for function pointer - 'getName'.*")
+    public void testFPInStructIncorrectArg() {
+        BTestUtils.getProgramFile("lang/functions/negative/fp-struct-incorrect-arg.bal");
+    }
+
+
+
 }

@@ -34,12 +34,13 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    ProgramFile fpProgram, globalProgram;
+    ProgramFile fpProgram, globalProgram, structProgram;
 
     @BeforeClass
     public void setup() {
         fpProgram = BTestUtils.getProgramFile("lang/functions/function-pointers.bal");
         globalProgram = BTestUtils.getProgramFile("lang/functions/global-function-pointers.bal");
+        structProgram = BTestUtils.getProgramFile("lang/functions/struct-function-pointers.bal");
     }
 
     @Test
@@ -170,5 +171,30 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
+    }
+
+    @Test
+    public void testStructFP() {
+        BValue[] returns = BLangFunctions.invokeNew(structProgram, "test1");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "bob white");
+        Assert.assertNotNull(returns[1]);
+        Assert.assertEquals(returns[1].stringValue(), "smith, tom");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = ".*NullReferenceError.*")
+    public void testStructFPNullReference() {
+        BLangFunctions.invokeNew(structProgram, "test2");
+    }
+
+    @Test
+    public void testFPWithStruct() {
+        BValue[] returns = BLangFunctions.invokeNew(structProgram, "test3");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "white, bob");
     }
 }

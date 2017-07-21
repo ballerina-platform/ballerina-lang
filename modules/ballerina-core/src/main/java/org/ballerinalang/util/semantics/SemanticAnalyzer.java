@@ -1797,6 +1797,45 @@ public class SemanticAnalyzer implements NodeVisitor {
         BLangSymbol bLangSymbol = currentScope.resolve(symbolName);
 
         if (bLangSymbol instanceof SimpleVariableDef) {
+            if (((SimpleVariableDef) bLangSymbol).getType() instanceof StructDef) {
+                // This is not a action invocation, but possible function pointer invocation inside a struct.
+                // TODO : Fix this logic and remove action invocation.
+                StructDef structDef = (StructDef) ((SimpleVariableDef) bLangSymbol).getType();
+                VariableDef matchingVariableDef = null;
+                for (VariableDefStmt variableDefStmt : structDef.getFieldDefStmts()) {
+                    VariableDef variableDef = variableDefStmt.getVariableDef();
+                    if (variableDef.getType() instanceof BFunctionType &&
+                            variableDef.getIdentifier().getName().equals(actionIExpr.getName())) {
+                        matchingVariableDef = variableDef;
+                        break;
+                    }
+                }
+                if (matchingVariableDef == null) {
+                    throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                            SemanticErrors.UNDEFINED_FUNCTION, actionIExpr.getName());
+                }
+                BFunctionType functionType = (BFunctionType) matchingVariableDef.getType();
+                Expression[] exprs = actionIExpr.getArgExprs();
+                if (exprs == null || functionType.getParameterType().length != exprs.length) {
+                    throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                            SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS, actionIExpr.getName());
+                }
+                for (Expression expr : exprs) {
+                    visitSingleValueExpr(expr);
+                }
+                for (int i = 0; i < exprs.length; i++) {
+                    if (!isAssignableTo(exprs[i].getType(), functionType.getParameterType()[i])) {
+                        throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
+                                SemanticErrors.INCORRECT_FUNCTION_ARGUMENTS, actionIExpr.getName());
+                    }
+                }
+                actionIExpr.setTypes(functionType.getReturnParameterType());
+                actionIExpr.setFunctionInvocation(true);
+                actionIExpr.setVariableDef((SimpleVariableDef) bLangSymbol);
+                actionIExpr.setFieldDef(matchingVariableDef);
+                return;
+            }
+            // Process as Action invocation.
             if (!(((SimpleVariableDef) bLangSymbol).getType() instanceof BallerinaConnectorDef)) {
                 throw BLangExceptionHelper.getSemanticError(actionIExpr.getNodeLocation(),
                         SemanticErrors.INCORRECT_ACTION_INVOCATION);

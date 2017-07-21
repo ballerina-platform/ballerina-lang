@@ -41,6 +41,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ExecutableMultiReturnExpr;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.GlobalVariableDef;
+import org.ballerinalang.model.Identifier;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NamespaceDeclaration;
 import org.ballerinalang.model.NodeLocation;
@@ -1566,6 +1567,22 @@ public class CodeGenerator implements NodeVisitor {
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         int pkgCPIndex = addPackageCPEntry(actionIExpr.getPackagePath());
+        if (actionIExpr.isFunctionInvocation()) {
+            // This is not an action invocation, but a filed based function invocation in a struct.
+            int funcCallIndex = getCallableUnitCallCPIndex(actionIExpr);
+            SimpleVarRefExpr expr = new SimpleVarRefExpr(actionIExpr.getNodeLocation(), null,
+                    actionIExpr.getName());
+            expr.setVariableDef(actionIExpr.getVariableDef());
+            // Load function pointer.
+            FieldBasedVarRefExpr fieldRefExpr = new FieldBasedVarRefExpr(actionIExpr.getNodeLocation(), null, expr, new
+                    Identifier(actionIExpr.getName()));
+            expr.setParentVarRefExpr(fieldRefExpr);
+            fieldRefExpr.setFieldDef(actionIExpr.getFieldDef());
+            fieldRefExpr.accept(this);
+            // invoke loaded function.
+            emit(InstructionCodes.FPCALL, regIndexes[REF_OFFSET], funcCallIndex);
+            return;
+        }
         BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) actionIExpr.getArgExprs()[0].getType();
 
         String pkgPath = actionIExpr.getPackagePath();
