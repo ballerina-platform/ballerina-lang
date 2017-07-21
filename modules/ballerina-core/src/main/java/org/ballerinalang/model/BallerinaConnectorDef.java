@@ -61,6 +61,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private int sizeOfConnectorMem;
     private boolean isFilterConnector;
     private SimpleTypeName filterSupportedType;
+    private BType filteredType;
 
     private BallerinaFunction initFunction;
     private BallerinaAction initAction;
@@ -138,6 +139,15 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     public void setFilterSupportedType(SimpleTypeName filterSupportedType) {
         this.filterSupportedType = filterSupportedType;
     }
+
+    public BType getFilteredType() {
+        return filteredType;
+    }
+
+    public void setFilteredType(BType filteredType) {
+        this.filteredType = filteredType;
+    }
+
 
     // Methods in Node interface
 
