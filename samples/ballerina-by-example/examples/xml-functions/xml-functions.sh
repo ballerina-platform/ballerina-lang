@@ -1,7 +1,4 @@
-# To run the program, put the code in `xml-functions.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run main xml-functions.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run main xml-functions.bal
+$ ballerina run xml-functions.bal
 # Type of the XML
 comment
 # Name of the XML

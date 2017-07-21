@@ -1,7 +1,4 @@
-# To run the program, put the code in `xml-attributes.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run xml-attributes.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run xml-attributes.bal
+$ ballerina run xml-attributes.bal
 available
 available
 5

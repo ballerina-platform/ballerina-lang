@@ -1,7 +1,4 @@
-# To run the program, put the code in `xml-literal.bal`
-# and use `$BALLERINA_HOME/bin/ballerina run xml-literal.bal`.
-
-$ $BALLERINA_HOME/bin/ballerina run xml-literal.bal
+$ ballerina run xml-literal.bal
 <book>
                     <name>Sherlock Holmes</name>
                     <author>Sir Arthur Conan Doyle</author>
