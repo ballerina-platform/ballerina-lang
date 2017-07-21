@@ -68,15 +68,6 @@ public class NativeTypeMappersTest {
     }
 
     @Test
-    public void testJSONToString() {
-        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BLangFunctions.invokeNew(programFile, "jsontostring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
     public void testMultiRootedJSONToXML() {
         BValue[] args = { new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}") };
         BValue[] returns = BLangFunctions.invokeNew(programFile, "jsontoxml", args);

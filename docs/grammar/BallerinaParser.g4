@@ -69,7 +69,7 @@ callableUnitSignature
     ;
 
 connectorDefinition
-    :   CONNECTOR Identifier LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
+    :   CONNECTOR Identifier (LT parameter GT)? LEFT_PARENTHESIS parameterList? RIGHT_PARENTHESIS connectorBody
     ;
 
 connectorBody
@@ -265,7 +265,15 @@ arrayLiteral
     ;
 
 connectorInitExpression
-    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    :   CREATE nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS (WITH filterInitExpressionList)?
+    ;
+
+filterInitExpression
+    : nameReference LEFT_PARENTHESIS expressionList? RIGHT_PARENTHESIS
+    ;
+
+filterInitExpressionList
+    : filterInitExpression (COMMA filterInitExpression)*
     ;
 
 assignmentStatement

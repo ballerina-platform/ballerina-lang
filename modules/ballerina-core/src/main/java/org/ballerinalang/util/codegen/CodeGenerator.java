@@ -208,6 +208,9 @@ public class CodeGenerator implements NodeVisitor {
     private String currentPkgPath;
     private int currentPkgCPIndex = -1;
     private PackageInfo currentPkgInfo;
+    private int baseConnectorIndex = -1;
+    private int lastFilterConnectorIndex = -1;
+    private ConnectorInfo baseConnectorInfo = null;
 
     private ServiceInfo currentServiceInfo;
     private WorkerInfo currentWorkerInfo;
@@ -1329,7 +1332,7 @@ public class CodeGenerator implements NodeVisitor {
 
         } else if (Operator.LENGTHOF.equals(unaryExpr.getOperator())) {
             BType rType = unaryExpr.getRExpr().getType();
-            if (rType == BTypes.typeJSON) {
+            if (rType == BTypes.typeJSON || getElementType(rType) == BTypes.typeJSON) {
                 opcodeAndIndex = getOpcodeAndIndex(unaryExpr.getType().getTag(),
                         InstructionCodes.LENGTHOFJSON, regIndexes);
             } else {
@@ -1588,7 +1591,6 @@ public class CodeGenerator implements NodeVisitor {
         String pkgPath = actionIExpr.getPackagePath();
         PackageInfo actionPackageInfo = programFile.getPackageInfo(pkgPath);
 
-        // Get the connector ref CP index
         ConnectorInfo connectorInfo = actionPackageInfo.getConnectorInfo(connectorDef.getName());
 
         UTF8CPEntry connectorNameCPEntry = new UTF8CPEntry(connectorDef.getName());
@@ -1615,6 +1617,7 @@ public class CodeGenerator implements NodeVisitor {
         } else {
             emit(InstructionCodes.ACALL, actionRefCPIndex, actionCallIndex);
         }
+
     }
 
     @Override
@@ -1757,25 +1760,62 @@ public class CodeGenerator implements NodeVisitor {
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, connectorDef.getPackagePath(),
                 nameIndex, connectorDef.getName());
         ConnectorInfo connectorInfo = connectorPkgInfo.getConnectorInfo(connectorDef.getName());
+        connectorInfo.setFilterConnector(connectorDef.isFilterConnector());
         structureRefCPEntry.setStructureTypeInfo(connectorInfo);
         int structureRefCPIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
 
         //Emit an instruction to create a new connector.
         int connectorRegIndex = ++regIndexes[REF_OFFSET];
+        ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
         emit(InstructionCodes.NEWCONNECTOR, structureRefCPIndex, connectorRegIndex);
-        connectorInitExpr.setTempOffset(connectorRegIndex);
+
+        if (baseConnectorInfo == null) {
+            if (filterConnectorInitExpr != null) {
+                baseConnectorInfo = connectorInfo;
+            }
+        }
+
+        if (baseConnectorInfo != null) {
+
+            TypeSignature typeSig = connectorInitExpr.getInheritedType().getSig();
+            UTF8CPEntry typeSigUTF8CPEntry = new UTF8CPEntry(typeSig.toString());
+            int typeSigCPIndex = currentPkgInfo.addCPEntry(typeSigUTF8CPEntry);
+            TypeRefCPEntry typeRefCPEntry = new TypeRefCPEntry(typeSigCPIndex, typeSig.toString());
+            typeRefCPEntry.setType(getVMTypeFromSig(typeSig));
+            int typeEntry = currentPkgInfo.addCPEntry(typeRefCPEntry);
+
+            baseConnectorInfo.addMethodIndex(typeEntry, structureRefCPIndex);
+            baseConnectorInfo.addMethodType((BConnectorType) getVMTypeFromSig(typeSig), connectorInfo);
+        }
+//        baseConnectorInfo.addMethodTypeStructure
+//                ((BConnectorType) connectorInitExpr.getFilterSupportedType(), structureRefCPEntry);
+
+        if (connectorInitExpr.getParentConnectorInitExpr() == null && !connectorDef.isFilterConnector()) {
+            connectorInitExpr.setTempOffset(connectorRegIndex);
+        }
 
         // Set all the connector arguments
         Expression[] argExprs = connectorInitExpr.getArgExprs();
         for (int i = 0; i < argExprs.length; i++) {
             Expression argExpr = argExprs[i];
             argExpr.accept(this);
+            int j = i;
+            if (connectorDef.isFilterConnector()) {
+                j += 1;
+            }
 
-            ParameterDef paramDef = connectorDef.getParameterDefs()[i];
+            ParameterDef paramDef = connectorDef.getParameterDefs()[j];
             int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
 
             int opcode = getOpcode(paramDef.getType().getTag(), InstructionCodes.IFIELDSTORE);
             emit(opcode, connectorRegIndex, fieldIndex, argExpr.getTempOffset());
+        }
+
+        if (connectorDef.isFilterConnector()) {
+            ParameterDef paramDef = connectorDef.getParameterDefs()[0];
+            int fieldIndex = ((ConnectorVarLocation) paramDef.getMemoryLocation()).getConnectorMemAddrOffset();
+            emit(InstructionCodes.RFIELDSTORE, connectorRegIndex, fieldIndex, baseConnectorIndex);
+            lastFilterConnectorIndex = connectorRegIndex;
         }
 
         // Invoke Connector init function
@@ -1794,6 +1834,16 @@ public class CodeGenerator implements NodeVisitor {
 
         emit(InstructionCodes.CALL, initFuncRefCPIndex, initFuncCallIndex);
 
+        baseConnectorIndex = connectorRegIndex;
+
+        // Generate code for filterConnectors if there are any
+        //ConnectorInitExpr filterConnectorInitExpr = connectorInitExpr.getParentConnectorInitExpr();
+        if (filterConnectorInitExpr != null) {
+            visit(filterConnectorInitExpr);
+            connectorInitExpr.setTempOffset(lastFilterConnectorIndex);
+        }
+
+        baseConnectorInfo = null;
         // Invoke Connector init native action if any
         BallerinaAction action = connectorDef.getInitAction();
         if (action == null) {
@@ -2127,28 +2177,10 @@ public class CodeGenerator implements NodeVisitor {
 
         // Type of the varRefExpr can be either Array, Map, JSON.
         BType varRefType = varRefExpr.getType();
-        if (varRefType instanceof BArrayType) {
-            BArrayType arrayType = (BArrayType) varRefType;
-            if (variableStore) {
-                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
-                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
-                        InstructionCodes.IALOAD, regIndexes);
-                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
-                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
-            }
-
-        } else if (varRefType == BTypes.typeMap) {
-            if (variableStore) {
-                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
-            } else {
-                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
-                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
-            }
-
-        } else if (varRefType == BTypes.typeJSON) {
+        
+        // We check for JSON first, because a JSON array is also a JSON, and is accessed different to 
+        // the other array types.
+        if (getElementType(varRefType) == BTypes.typeJSON) {
             int jsonValueRegIndex;
             if (indexExpr.getType() == BTypes.typeString) {
                 if (variableStore) {
@@ -2167,6 +2199,27 @@ public class CodeGenerator implements NodeVisitor {
                     emit(InstructionCodes.JSONALOAD, varRefRegIndex, indexValueRegIndex, jsonValueRegIndex);
                     indexBasedVarRefExpr.setTempOffset(jsonValueRegIndex);
                 }
+            }
+
+        } else if (varRefType instanceof BArrayType) {
+            BArrayType arrayType = (BArrayType) varRefType;
+            if (variableStore) {
+                int opcode = getOpcode(arrayType.getElementType().getTag(), InstructionCodes.IASTORE);
+                emit(opcode, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                OpcodeAndIndex opcodeAndIndex = getOpcodeAndIndex(arrayType.getElementType().getTag(),
+                        InstructionCodes.IALOAD, regIndexes);
+                emit(opcodeAndIndex.opcode, varRefRegIndex, indexValueRegIndex, opcodeAndIndex.index);
+                indexBasedVarRefExpr.setTempOffset(opcodeAndIndex.index);
+            }
+
+        } else if (varRefType == BTypes.typeMap) {
+            if (variableStore) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, indexValueRegIndex, rhsExprRegIndex);
+            } else {
+                int mapValueRegIndex = ++regIndexes[REF_OFFSET];
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, indexValueRegIndex, mapValueRegIndex);
+                indexBasedVarRefExpr.setTempOffset(mapValueRegIndex);
             }
 
         } else if (varRefType instanceof StructDef) {
@@ -3164,6 +3217,14 @@ public class CodeGenerator implements NodeVisitor {
             parent = parent.getParent();
         }
         this.regIndexes = regIndexesOriginal;
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+        
+        return getElementType(((BArrayType) type).getElementType());
     }
 
     private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo) {

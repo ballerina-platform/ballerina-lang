@@ -20,10 +20,12 @@ package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
@@ -66,9 +68,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 public class AnyArrayRangeCopy extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        BNewArray arrayFrom = (BNewArray) getRefArgument(context, 0);
-        BNewArray arrayTo = (BNewArray) getRefArgument(context, 1);
-
+        BValue valueFrom = getRefArgument(context, 0);
+        BValue valueTo = getRefArgument(context, 1);
         long fromLong = getIntArgument(context, 0);
         long toLong = getIntArgument(context, 1);
 
@@ -83,11 +84,23 @@ public class AnyArrayRangeCopy extends AbstractNativeFunction {
 
         int from = (int) fromLong;
         int to = (int) toLong;
-        if (from < 0 || to > arrayFrom.size()) {
-            throw new BallerinaException(
-                    "Array index out of range. Actual:" + arrayFrom.size() + " requested: " + from + " to " + to);
+        
+        if (valueFrom instanceof BJSON && valueTo instanceof BJSON) {
+            BJSON jsonArrayFrom = (BJSON) valueFrom;
+            BJSON jsonArrayTo = (BJSON) valueTo;
+            checkIndexRange(jsonArrayFrom.value().size(), from, to);
+            
+            int index = 0;
+            for (int i = from; i < to; i++) {
+                BJSON element = JSONUtils.getArrayElement(jsonArrayFrom, i);
+                JSONUtils.setArrayElement(jsonArrayTo, index++, element);
+            }
+            return getBValues(new BInteger(jsonArrayTo.value().size()));
         }
-
+        
+        BNewArray arrayFrom = (BNewArray) valueFrom;
+        BNewArray arrayTo = (BNewArray) valueTo;
+        checkIndexRange((int) arrayFrom.size(), from, to);
 
         if (arrayFrom instanceof BIntArray && arrayTo instanceof BIntArray) {
             BIntArray intArrayFrom = (BIntArray) arrayFrom;
@@ -129,5 +142,13 @@ public class AnyArrayRangeCopy extends AbstractNativeFunction {
                     .getRuntimeException(RuntimeErrors.ARRAY_TYPE_MISMATCH, arrayFrom.getType(), arrayTo.getType());
         }
         return getBValues(new BInteger(to - from));
+    }
+    
+    private void checkIndexRange(int arraySize, int from, int to) {
+        if (from < 0 || to > arraySize) {
+            throw new BallerinaException(
+                    "Array index out of range. Actual:" + arraySize + " requested: " + from +
+                    " to " + to);
+        }
     }
 }
