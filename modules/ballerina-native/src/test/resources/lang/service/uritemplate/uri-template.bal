@@ -86,4 +86,12 @@ service<http> Ecommerce {
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
+
+    @http:Path {value:""}
+    resource echo1 (message m, string foo) {
+        message response = {};
+        json responseJson = {"echo11":"echo11"};
+        messages:setJsonPayload(response, responseJson);
+        reply response;
+    }
 }
