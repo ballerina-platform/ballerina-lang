@@ -27,6 +27,7 @@ import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.pa
 import org.ballerinalang.composer.service.workspace.langserver.util.resolvers.parsercontext.ParserRuleWorkerReplyContext;
 import org.ballerinalang.composer.service.workspace.suggetions.SuggestionsFilterDataModel;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.GlobalScope;
@@ -92,6 +93,7 @@ public class ResolveCommandExecutor {
         resolvers.put(Resource.class, resourceContextResolver);
         resolvers.put(CallableUnitBodyContextResolver.class, callableUnitBodyContextResolver);
         resolvers.put(GlobalScope.class, globalScopeResolver);
+        resolvers.put(BLangPackage.class, globalScopeResolver);
 
         // Parser Rule Context Resolvers
         resolvers.put(BallerinaParser.StatementContext.class, parserRuleStatementContextResolver);
